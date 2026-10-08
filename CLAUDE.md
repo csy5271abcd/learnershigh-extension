@@ -211,14 +211,15 @@ parentprogress/
 common/
 ```
 
-각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005, Hexagonal 미적용)
+각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005, 상세: `docs/architecture/overview.md` §6)
 
 ```text
 controller/
 service/
-domain/
+entity/
 repository/
 dto/
+exception/
 ```
 
 Interface는 Existing LearnersHigh / File Storage / Delivery / AI 같은 외부 경계에만 둔다.

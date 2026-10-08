@@ -1147,9 +1147,9 @@ Mock Integration Adapter를 사용할 수 있다.
 예:
 
 ```text
-ExistingPlanPort
-├─ MockExistingPlanAdapter
-└─ RealExistingPlanAdapter
+ExistingPlanClient
+├─ MockExistingPlanClient
+└─ RealExistingPlanClient
 ```
 
 중요:

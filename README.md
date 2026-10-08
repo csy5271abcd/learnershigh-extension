@@ -620,9 +620,10 @@ common/
 ```text
 controller/
 service/
-domain/
+entity/
 repository/
 dto/
+exception/
 ```
 
 기본 의존 방향:
@@ -632,7 +633,7 @@ controller
 ↓
 service ──► common/integration (External Boundary Interface)
 ↓
-domain / repository
+entity / repository
 ```
 
 Controller에 Business Rule을 직접 넣지 않는다.

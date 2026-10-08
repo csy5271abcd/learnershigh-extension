@@ -609,9 +609,10 @@ backend/.../
 school/
 ├─ controller/
 ├─ service/
-├─ domain/
+├─ entity/
 ├─ repository/
-└─ dto/
+├─ dto/
+└─ exception/
 ```
 
 Student/Admin/Mentor API가 다르더라도

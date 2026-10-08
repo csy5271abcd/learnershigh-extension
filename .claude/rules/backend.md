@@ -30,61 +30,36 @@ wangyu/
 
 ## 2. Layer Responsibility
 
-기준: `docs/adr/0005-domain-packaged-layered-mvc-backend.md` (Layered MVC, Hexagonal 미적용)
-
-각 Domain 패키지:
+상세 기준: `docs/architecture/overview.md` §6 (ADR-0005)
 
 ```text
-<domain>/
-├─ controller/   # HTTP, Request Validation, DTO 변환
-├─ service/      # Use Case, Transaction
-├─ domain/       # JPA Entity + Enum + 상태 전이 메서드
-├─ repository/   # Spring Data Repository
-└─ dto/          # Request / Response (api-contract.md 기준)
+<domain>/                      # mentor, school, studentmanagement, parentprogress ...
+├─ controller/                 # HTTP 입출력
+├─ service/                    # XxxService(변경) / XxxQueryService(조회)
+├─ entity/                     # JPA Entity + Enum + 상태 전이 메서드
+├─ repository/                 # Spring Data JPA Repository
+├─ dto/                        # Request / Response (api-contract.md 기준)
+└─ exception/                  # 이 Domain의 ErrorCode enum
+
+common/
+├─ error/                      # ErrorCode, BusinessException, GlobalExceptionHandler
+├─ auth/                       # 인증 Context
+└─ integration/learnershigh/   # ExistingXxxClient (interface) + Real / Mock 구현
 ```
 
-### controller
+요약:
 
 ```text
-HTTP Request/Response
-Validation
-Auth Context
-DTO Mapping
-Service 호출
+controller  : @Valid, 인증 Context, Service 호출. Entity / Repository 사용 금지
+service     : XxxService(@Transactional) / XxxQueryService(@Transactional(readOnly = true))
+              Entity → XxxResponse.from(entity) 변환은 Service에서
+entity      : 상태 전이 메서드 + Invariant. setter로 상태 변경 금지
+repository  : 자기 Domain Entity만
+dto         : record Request / Response
+exception   : XxxErrorCode enum implements common.error.ErrorCode
 ```
 
-### service
-
-```text
-Use Case
-Transaction
-Entity 상태 전이 메서드 호출
-다른 Domain 공개 Service 호출
-```
-
-### domain
-
-```text
-JPA Entity (= Domain Model, 별도 Mapper 없음)
-Enum / State
-Invariant / 상태 전이 메서드
-```
-
-### repository / dto
-
-```text
-Spring Data Repository (자기 Domain Entity만)
-api-contract.md 기준 Request / Response
-```
-
-### External Boundary (Interface 허용)
-
-```text
-common/integration/learnershigh/   # Existing LearnersHigh Client
-File Storage / Delivery / AI Provider
-```
-
-이 외의 Service / Repository에 Interface를 만들지 않는다.
+Interface는 `common/integration` 등 외부 경계에만 둔다. `XxxServiceImpl` 금지.
 
 ## 3. Controller Rule
 
@@ -200,11 +175,11 @@ Parent Report Task
 필요하면:
 
 ```text
-해당 Domain의 공개 Service(Query) 메서드
-상위 Service에서의 orchestration
+조회 : 상대 Domain XxxQueryService public 메서드
+변경 : 상대 Domain XxxService public 메서드 (Entity 주고받기 금지)
 ```
 
-를 사용한다.
+를 사용한다. 상세: `overview.md` §6-4.
 
 순환 의존을 만들지 않는다.
 
@@ -256,6 +231,8 @@ Frontend에서만 막고 Backend 검증을 생략하지 않는다.
 ## 14. Error
 
 공통 Error 형식은 `api-contract.md`를 따른다.
+
+예외는 `BusinessException(XxxErrorCode)`로 던지고 `common/error/GlobalExceptionHandler`가 변환한다. 상세: `overview.md` §6-5.
 
 Integration Error를 Empty로 숨기지 않는다.
 

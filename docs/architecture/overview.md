@@ -419,121 +419,107 @@ backend/
 
 ---
 
-# 6. Backend Module Responsibilities
+# 6. Backend Layer Guide
 
 > 기준: [ADR-0005](../adr/0005-domain-packaged-layered-mvc-backend.md) — Domain 패키지 안의 Layered MVC (Status: Proposed)
 
-각 Domain은 다음 패키지를 사용한다.
+## 6-1. 패키지 구조
 
 ```text
-<domain>/
-├─ controller/   # HTTP, Request Validation, DTO 변환
-├─ service/      # Use Case, Transaction
-├─ domain/       # JPA Entity + Enum + 상태 전이 메서드
-├─ repository/   # Spring Data Repository
-└─ dto/          # Request / Response (api-contract.md 기준)
+<domain>/                      # mentor, school, studentmanagement, parentprogress ...
+├─ controller/                 # HTTP 입출력
+├─ service/                    # XxxService(변경) / XxxQueryService(조회)
+├─ entity/                     # JPA Entity + Enum + 상태 전이 메서드
+├─ repository/                 # Spring Data JPA Repository
+├─ dto/                        # Request / Response (api-contract.md 기준)
+└─ exception/                  # 이 Domain의 ErrorCode enum
+
+common/
+├─ error/                      # ErrorCode, BusinessException, GlobalExceptionHandler
+├─ auth/                       # 인증 Context
+└─ integration/learnershigh/   # ExistingXxxClient (interface) + Real / Mock 구현
 ```
 
-Hexagonal(Port / Adapter) 구조를 Domain 전체에 적용하지 않는다.
-Interface는 교체 가능성이 실제로 있는 외부 경계에만 둔다. (6-5 참고)
+## 6-2. Layer별 책임
 
----
+| Layer | 하는 일 | 하지 않는 일 | 호출 가능 대상 |
+|---|---|---|---|
+| `controller` | `@Valid`로 Request 형식 검증, 인증 Context 추출, Service 호출, HTTP Status 결정 | Business 판단, Repository 호출, Entity 사용 | 자기 Domain `service` |
+| `service` (`XxxService`) | `@Transactional` Use Case. Entity 조회 → 전이 메서드 호출 → 저장. Entity → Response 변환 | HTTP 객체 의존, Entity 상태 필드 setter 직접 수정 | 자기 `repository`, 다른 Domain 공개 메서드(6-4), `common/integration` |
+| `service` (`XxxQueryService`) | `@Transactional(readOnly = true)` 목록 / 상세 / 집계 / Dashboard Count | 상태 변경 | 자기 `repository`, 다른 Domain `QueryService` |
+| `entity` | 필드, 연관관계, 상태 전이 메서드, Invariant 검증(위반 시 `BusinessException`) | DTO / Service / Repository 참조, Bean 주입 | 같은 Domain `entity` |
+| `repository` | Spring Data JPA, 조회 쿼리, Projection | Business Rule | — |
+| `dto` | `record` Request / Response, `XxxResponse.from(entity)` | Business Rule | 같은 Domain `entity` (`from()` 안에서만) |
 
-## 6-1. Controller
-
-역할:
-
-- HTTP Request 수신
-- Request Validation
-- Authentication / Authorization Context 전달
-- DTO 변환
-- Service 호출
-- HTTP Response 반환
-
-Controller에 Business Rule을 직접 구현하지 않는다.
-
-예:
+호출 방향은 한 방향이다.
 
 ```text
-StudentTaskController
-AdminFeedbackController
-MentorQuestionController
+controller → service → entity / repository
+                └────→ common/integration (interface)
 ```
 
----
-
-## 6-2. Service
-
-Use Case를 실행한다.
-
-예:
+## 6-3. DTO 변환
 
 ```text
-TaskService.submitVersion
-FeedbackService.review
-MentorPlanService.apply
-MentorContentService.publish
-ParentReportService.generate
+Controller : Request DTO를 받아 Service에 그대로 넘긴다. Response DTO를 받아 반환한다.
+Service    : Request DTO → Entity 생성 / 변경, Entity → XxxResponse.from(entity)
+Entity     : Service 밖으로 나가지 않는다. Controller와 다른 Domain은 Entity를 보지 않는다.
 ```
 
-역할:
+Response 이름은 Surface별로 나눌 수 있다. (`StudentTaskDetailResponse`, `AdminFeedbackQueueItemResponse`) Entity는 하나다.
 
-- Transaction 경계
-- Entity 조회 / 저장
-- Entity 상태 전이 메서드 호출
-- 다른 Domain의 공개 Service(Query) 호출로 Cross-Domain Use Case 조정
-
-Service에서 Entity 상태 필드를 setter로 직접 바꾸지 않는다.
-
----
-
-## 6-3. Domain (Entity)
-
-JPA Entity가 곧 Domain Model이다. 별도 Domain 객체 / Mapper를 만들지 않는다.
-
-예:
+## 6-4. 다른 Domain 호출
 
 ```text
-Task
-Version
-Feedback
-Activity
-MentorContent
-ParentReport
+조회 : 상대 Domain의 XxxQueryService public 메서드 (Response DTO 또는 ID 반환)
+변경 : 상대 Domain의 XxxService public 메서드 (ID / Request DTO 인자, Entity 주고받기 금지)
+금지 : 상대 Domain의 Repository / Entity 직접 사용
 ```
 
-상태 전이와 Invariant는 Entity 메서드에 둔다.
+여러 Domain에 걸친 변경은 호출을 시작하는 쪽 Service의 한 Transaction 안에서 조합한다.
+두 Domain이 서로 호출하게 되면(순환) 조합 로직을 별도 Service(예: `parentprogress/service/ParentReportAssembler`)로 올린다.
+
+## 6-5. 예외 처리
 
 ```text
-task.submitVersion(...)
-feedback.deliver(...)
-mentorContent.publish(...)
-parentReport.validate() / markSent(...)
+common/error/ErrorCode              interface: code(), status(), message()
+common/error/BusinessException      ErrorCode를 담는 RuntimeException
+common/error/GlobalExceptionHandler @RestControllerAdvice
+<domain>/exception/XxxErrorCode     enum implements ErrorCode (예: TASK_NOT_FOUND)
 ```
 
-UI 표시 편의를 위한 임시 규칙을 Domain Rule로 만들지 않는다.
+| 상황 | Error Code 예 | HTTP |
+|---|---|---|
+| Request 형식 오류 (`@Valid` 실패) | `VALIDATION_ERROR` | 400 |
+| 대상 없음 | `TASK_NOT_FOUND` | 404 |
+| 잘못된 상태 전이 | `INVALID_STATE_TRANSITION` | 409 |
+| Business Validation 실패 | `PARENT_REPORT_VALIDATION_FAILED` | 422 |
+| Existing LearnersHigh 연동 실패 | `EXISTING_PLAN_UNAVAILABLE` | 502 / 503 |
 
----
+`GlobalExceptionHandler`가 모든 예외를 `shared-conventions.md` §36 형식(`code`, `message`, `details`, `traceId`)으로 바꾼다.
+Controller / Service에서 `try-catch`로 Error Response를 직접 만들지 않는다. 연동 실패를 빈 목록으로 바꾸지 않는다.
 
-## 6-4. Repository / DTO
+## 6-6. 조회 전용 / 집계
 
-- Repository: Spring Data Repository. 자기 Domain의 Entity만 다룬다.
-- DTO: `api-contract.md`의 Request / Response Shape. Entity를 Response로 직접 반환하지 않는다.
-
----
-
-## 6-5. External Boundary (Interface 허용 영역)
-
-다음 외부 경계만 Interface + 구현(Real / Mock)으로 분리한다.
+Dashboard Count, Today Board, Student 360처럼 조회만 하는 화면은 `XxxQueryService`가 담당한다.
 
 ```text
-common/integration/learnershigh/   # Existing LearnersHigh (ADR-0002)
-File Storage
-External Delivery (Kakao 등)
-AI Provider
+- Repository의 count / JPQL / Projection으로 Source Entity에서 계산한다.
+- Counter Table / Field를 따로 두지 않는다. (§24 Derived Data)
+- 여러 Domain 데이터가 필요하면 각 Domain QueryService를 호출해 조합한다.
+- 결과는 Read Model DTO (shared-conventions §69)로 반환한다.
 ```
 
-그 외 Service / Repository에는 Interface를 만들지 않는다.
+## 6-7. Interface를 두는 곳
+
+Interface는 실제로 구현이 바뀌는 외부 경계에만 둔다.
+
+```text
+common/integration/learnershigh/ExistingPlanClient   (Real / Mock, ADR-0002)
+File Storage / External Delivery / AI Provider
+```
+
+Service, Repository 구현체에는 `XxxServiceImpl` 같은 Interface를 만들지 않는다.
 
 ---
 
@@ -1216,21 +1202,21 @@ scripts/
 
 # 21. Architecture Dependency Direction
 
-기본 의존 방향 (ADR-0005):
+기본 의존 방향 (ADR-0005, 상세: §6):
 
 ```text
 controller
    ↓
-service ──────────► common/integration (External Boundary Interface)
+service ──────────► common/integration (interface)
    ↓                        ▲
-domain / repository         └── Real / Mock 구현
+entity / repository         └── Real / Mock 구현
 ```
 
 규칙:
 
 ```text
 - controller는 repository를 직접 호출하지 않는다.
-- domain(Entity)은 controller / service / dto에 의존하지 않는다.
+- entity는 controller / service / dto에 의존하지 않는다.
 - 다른 Domain의 repository를 직접 주입하지 않는다.
 - Existing LearnersHigh 접근은 common/integration Interface 경유만 허용한다.
 ```
@@ -1256,9 +1242,7 @@ Mentor Application
 이 경우:
 
 ```text
-해당 Domain의 공개 Service(Query) 메서드
-또는
-상위 Service에서의 orchestration
+§6-4 다른 Domain 호출 규칙
 ```
 
 를 사용한다.
