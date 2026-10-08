@@ -1,4 +1,4 @@
-# LearnersHigh Extension
+## LearnersHigh Extension
 
 기존 **LearnersHigh** 서비스 위에 신규 확장 기능을 추가하기 위한 개발 Repository다.
 
