@@ -1033,7 +1033,7 @@ EXISTING_PLAN_NOT_FOUND
 Extension Dashboard나 Report가 여러 기존 데이터를 조합할 경우
 화면마다 기존 API를 무작정 반복 호출하지 않는다.
 
-필요하면 Backend Application Layer에서 Read Model을 조합한다.
+필요하면 Backend Service에서 Read Model을 조합한다.
 
 예:
 
@@ -1345,7 +1345,7 @@ Mentor privacy scope
 를 유지한다.
 
 Integration Adapter가 Service Account를 사용하게 되더라도
-Application Layer에서 실제 Actor 권한 범위를 검증해야 한다.
+Service에서 실제 Actor 권한 범위를 검증해야 한다.
 
 ---
 

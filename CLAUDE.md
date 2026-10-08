@@ -211,16 +211,17 @@ parentprogress/
 common/
 ```
 
-필요에 따라:
+각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005, Hexagonal 미적용)
 
 ```text
-api/
-application/
+controller/
+service/
 domain/
-infrastructure/
+repository/
+dto/
 ```
 
-로 책임을 나눈다.
+Interface는 Existing LearnersHigh / File Storage / Delivery / AI 같은 외부 경계에만 둔다.
 
 Controller에 Business Rule을 직접 구현하지 않는다.
 
@@ -366,6 +367,7 @@ ADR-0001 Student / Admin / Mentor Surface 분리
 ADR-0002 Existing LearnersHigh Integration Boundary
 ADR-0003 Shared Feedback Queue
 ADR-0004 Parent App 없이 Parent Report 전달
+ADR-0005 Backend Layered MVC (Proposed)
 ```
 
 중요한 방향 변경은 새 ADR로 Supersede한다.

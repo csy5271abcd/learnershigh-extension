@@ -615,28 +615,24 @@ parentprogress/
 common/
 ```
 
-필요에 따라:
+각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005)
 
 ```text
-api/
-application/
+controller/
+service/
 domain/
-infrastructure/
+repository/
+dto/
 ```
-
-로 책임을 나눈다.
 
 기본 의존 방향:
 
 ```text
-API
+controller
 ↓
-Application
+service ──► common/integration (External Boundary Interface)
 ↓
-Domain
-
-Infrastructure
-→ Domain Interface 구현
+domain / repository
 ```
 
 Controller에 Business Rule을 직접 넣지 않는다.

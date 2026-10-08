@@ -421,22 +421,25 @@ backend/
 
 # 6. Backend Module Responsibilities
 
-각 Domain은 필요에 따라 다음 Layer를 사용한다.
+> 기준: [ADR-0005](../adr/0005-domain-packaged-layered-mvc-backend.md) — Domain 패키지 안의 Layered MVC (Status: Proposed)
+
+각 Domain은 다음 패키지를 사용한다.
 
 ```text
-domain/
-├─ api/
-├─ application/
-├─ domain/
-└─ infrastructure/
+<domain>/
+├─ controller/   # HTTP, Request Validation, DTO 변환
+├─ service/      # Use Case, Transaction
+├─ domain/       # JPA Entity + Enum + 상태 전이 메서드
+├─ repository/   # Spring Data Repository
+└─ dto/          # Request / Response (api-contract.md 기준)
 ```
 
-이 구조는 물리적 폴더를 반드시 똑같이 강제한다는 의미보다
-책임을 명확히 분리하기 위한 기본 Architecture 원칙이다.
+Hexagonal(Port / Adapter) 구조를 Domain 전체에 적용하지 않는다.
+Interface는 교체 가능성이 실제로 있는 외부 경계에만 둔다. (6-5 참고)
 
 ---
 
-## 6-1. API Layer
+## 6-1. Controller
 
 역할:
 
@@ -444,10 +447,10 @@ domain/
 - Request Validation
 - Authentication / Authorization Context 전달
 - DTO 변환
-- Application Layer 호출
+- Service 호출
 - HTTP Response 반환
 
-API Layer에 Business Rule을 직접 구현하지 않는다.
+Controller에 Business Rule을 직접 구현하지 않는다.
 
 예:
 
@@ -459,32 +462,34 @@ MentorQuestionController
 
 ---
 
-## 6-2. Application Layer
+## 6-2. Service
 
 Use Case를 실행한다.
 
 예:
 
 ```text
-SubmitTaskVersion
-ReviewFeedback
-ApplyMentorPlan
-PublishMentorContent
-GenerateParentReport
+TaskService.submitVersion
+FeedbackService.review
+MentorPlanService.apply
+MentorContentService.publish
+ParentReportService.generate
 ```
 
 역할:
 
-- Domain 호출
 - Transaction 경계
-- 여러 Repository / Domain 조합
-- Cross-Domain Use Case 조정
+- Entity 조회 / 저장
+- Entity 상태 전이 메서드 호출
+- 다른 Domain의 공개 Service(Query) 호출로 Cross-Domain Use Case 조정
+
+Service에서 Entity 상태 필드를 setter로 직접 바꾸지 않는다.
 
 ---
 
-## 6-3. Domain Layer
+## 6-3. Domain (Entity)
 
-Business Rule과 핵심 상태를 가진다.
+JPA Entity가 곧 Domain Model이다. 별도 Domain 객체 / Mapper를 만들지 않는다.
 
 예:
 
@@ -497,33 +502,38 @@ MentorContent
 ParentReport
 ```
 
-Domain Rule 예:
+상태 전이와 Invariant는 Entity 메서드에 둔다.
 
 ```text
-Task Stage Transition
-Feedback Status Transition
-Mentor Content Publish Rule
-Parent Report Validation
+task.submitVersion(...)
+feedback.deliver(...)
+mentorContent.publish(...)
+parentReport.validate() / markSent(...)
 ```
 
 UI 표시 편의를 위한 임시 규칙을 Domain Rule로 만들지 않는다.
 
 ---
 
-## 6-4. Infrastructure Layer
+## 6-4. Repository / DTO
 
-외부 기술 구현을 담당한다.
+- Repository: Spring Data Repository. 자기 Domain의 Entity만 다룬다.
+- DTO: `api-contract.md`의 Request / Response Shape. Entity를 Response로 직접 반환하지 않는다.
 
-예:
+---
+
+## 6-5. External Boundary (Interface 허용 영역)
+
+다음 외부 경계만 Interface + 구현(Real / Mock)으로 분리한다.
 
 ```text
-MySQL Repository
-File Storage Adapter
-External Delivery Adapter
-Existing LearnersHigh Adapter
+common/integration/learnershigh/   # Existing LearnersHigh (ADR-0002)
+File Storage
+External Delivery (Kakao 등)
+AI Provider
 ```
 
-Domain Layer는 특정 DB / HTTP Library에 직접 의존하지 않도록 유지한다.
+그 외 Service / Repository에는 Interface를 만들지 않는다.
 
 ---
 
@@ -1206,31 +1216,24 @@ scripts/
 
 # 21. Architecture Dependency Direction
 
-기본 의존 방향:
+기본 의존 방향 (ADR-0005):
 
 ```text
-UI / API
+controller
    ↓
-Application
-   ↓
-Domain
-   ↓
-Interface / Port
-
-Infrastructure
-   └──── implements ────► Interface / Port
+service ──────────► common/integration (External Boundary Interface)
+   ↓                        ▲
+domain / repository         └── Real / Mock 구현
 ```
 
-가능하면 Domain이:
+규칙:
 
 ```text
-React
-Spring MVC
-MySQL
-외부 API
+- controller는 repository를 직접 호출하지 않는다.
+- domain(Entity)은 controller / service / dto에 의존하지 않는다.
+- 다른 Domain의 repository를 직접 주입하지 않는다.
+- Existing LearnersHigh 접근은 common/integration Interface 경유만 허용한다.
 ```
-
-같은 구현 기술 세부사항에 직접 의존하지 않도록 한다.
 
 ---
 
@@ -1253,9 +1256,9 @@ Mentor Application
 이 경우:
 
 ```text
-Application-level orchestration
+해당 Domain의 공개 Service(Query) 메서드
 또는
-명시적 Domain Query / Interface
+상위 Service에서의 orchestration
 ```
 
 를 사용한다.
@@ -1486,7 +1489,7 @@ docs/adr/
 1. 기존 LearnersHigh 전체를 재구현하지 않는다.
 2. Extension은 Student / Admin / Mentor Surface를 가진다.
 3. Frontend는 Surface별로 분리한다.
-4. Backend는 Domain 기준으로 구성한다.
+4. Backend는 Domain 기준으로 구성한다. 각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005)
 5. 사람 이름 또는 ext 기준 패키지를 만들지 않는다.
 6. MySQL Schema 변경은 Migration으로 관리한다.
 7. Frontend ↔ Backend 계약은 api-contract.md를 따른다.

@@ -30,54 +30,61 @@ wangyu/
 
 ## 2. Layer Responsibility
 
-필요에 따라:
+기준: `docs/adr/0005-domain-packaged-layered-mvc-backend.md` (Layered MVC, Hexagonal 미적용)
+
+각 Domain 패키지:
 
 ```text
-api/
-application/
-domain/
-infrastructure/
+<domain>/
+├─ controller/   # HTTP, Request Validation, DTO 변환
+├─ service/      # Use Case, Transaction
+├─ domain/       # JPA Entity + Enum + 상태 전이 메서드
+├─ repository/   # Spring Data Repository
+└─ dto/          # Request / Response (api-contract.md 기준)
 ```
 
-로 분리한다.
-
-### API
+### controller
 
 ```text
 HTTP Request/Response
 Validation
 Auth Context
 DTO Mapping
-Application 호출
+Service 호출
 ```
 
-### Application
+### service
 
 ```text
 Use Case
 Transaction
-Domain 조합
-Cross-Domain orchestration
+Entity 상태 전이 메서드 호출
+다른 Domain 공개 Service 호출
 ```
 
-### Domain
+### domain
 
 ```text
-Entity
-Value
-State
-Invariant
-Business Rule
+JPA Entity (= Domain Model, 별도 Mapper 없음)
+Enum / State
+Invariant / 상태 전이 메서드
 ```
 
-### Infrastructure
+### repository / dto
 
 ```text
-Repository 구현
-Existing LearnersHigh Adapter
-File Storage Adapter
-External Provider Adapter
+Spring Data Repository (자기 Domain Entity만)
+api-contract.md 기준 Request / Response
 ```
+
+### External Boundary (Interface 허용)
+
+```text
+common/integration/learnershigh/   # Existing LearnersHigh Client
+File Storage / Delivery / AI Provider
+```
+
+이 외의 Service / Repository에 Interface를 만들지 않는다.
 
 ## 3. Controller Rule
 
@@ -193,9 +200,8 @@ Parent Report Task
 필요하면:
 
 ```text
-Application Orchestrator
-Query Interface
-Published Contract
+해당 Domain의 공개 Service(Query) 메서드
+상위 Service에서의 orchestration
 ```
 
 를 사용한다.
@@ -219,7 +225,7 @@ Parent Report 미발송
 ## 12. Transaction
 
 한 Use Case에서 함께 성공해야 하는 변경은
-Application Layer Transaction으로 묶는 것을 검토한다.
+Service의 Transaction으로 묶는 것을 검토한다.
 
 예:
 
@@ -239,10 +245,10 @@ Validation을 구분한다.
 
 ```text
 Request shape validation
-→ API Layer
+→ controller
 
 Business validation
-→ Domain/Application
+→ Entity / Service
 ```
 
 Frontend에서만 막고 Backend 검증을 생략하지 않는다.
@@ -330,8 +336,8 @@ PII / 민감정보를 로그에 남기지 않는다.
 최소:
 
 ```text
-Domain State Transition
-Application Use Case
+Entity State Transition (Unit)
+Service Use Case
 Repository/Integration Mapping
 API Contract
 Error Mapping

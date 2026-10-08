@@ -601,25 +601,17 @@ backend/.../
 └─ common/                 # Shared
 ```
 
-각 Domain 내부는 필요에 따라:
-
-```text
-api/
-application/
-domain/
-infrastructure/
-```
-
-로 구성한다.
+각 Domain 내부는 Layered MVC로 구성한다. (ADR-0005)
 
 예:
 
 ```text
 school/
-├─ api/
-├─ application/
+├─ controller/
+├─ service/
 ├─ domain/
-└─ infrastructure/
+├─ repository/
+└─ dto/
 ```
 
 Student/Admin/Mentor API가 다르더라도

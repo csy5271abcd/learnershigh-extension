@@ -2196,7 +2196,7 @@ ChangeArtifactConsent
 
 이 목록은 API Endpoint 목록이 아니다.
 
-실제 Naming은 Application Layer / API Contract 작성 시 확정한다.
+실제 Naming은 Service / API Contract 작성 시 확정한다.
 
 ---
 
@@ -2243,7 +2243,7 @@ Architecture에 맞게 결정한다.
 # 67. Transaction Boundary 원칙
 
 한 Use Case에서 반드시 함께 성공해야 하는 변경은
-Application Layer에서 Transaction Boundary를 검토한다.
+Service에서 Transaction Boundary를 검토한다.
 
 예:
 

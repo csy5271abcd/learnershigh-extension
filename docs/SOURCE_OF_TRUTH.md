@@ -504,6 +504,7 @@ docs/adr/
 0002-existing-learnershigh-integration-boundary.md
 0003-shared-feedback-queue.md
 0004-parent-report-without-parent-app.md
+0005-domain-packaged-layered-mvc-backend.md
 ```
 
 ADR은 다음 상황에서 작성한다.

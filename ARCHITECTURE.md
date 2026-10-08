@@ -18,7 +18,7 @@
 │ Backend (Spring Boot)                                          │
 │  mentor/  school/  studentmanagement/  parentprogress/         │
 │  <wangyu-domain>/ (counseling 등)        common/               │
-│   각 Domain: api → application → domain ← infrastructure       │
+│   각 Domain: controller → service → domain / repository (MVC)  │
 └───────┬──────────────────────────────────────────┬────────────┘
         │                                          │
 ┌───────▼────────┐                     ┌───────────▼────────────┐
@@ -56,14 +56,18 @@ Surface별 기능 코드. 사람 이름이 아니라 Feature 이름으로 나눈
 
 ### `backend/src/main/java/.../<domain>/`
 
+Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-layered-mvc-backend.md), Proposed). Hexagonal은 적용하지 않는다.
+
 | 하위 패키지 | 책임 | 의존 가능 대상 |
 |---|---|---|
-| `api/` | HTTP, Request Validation, Auth Context, DTO ↔ Command 변환 | `application` |
-| `application/` | Use Case, Transaction 경계, Cross-Domain orchestration | `domain`, 다른 Domain의 공개 Query Interface |
-| `domain/` | Entity, Value, State Transition, Invariant | 없음 (Spring / JPA / HTTP 세부사항에 의존하지 않는 것이 목표) |
-| `infrastructure/` | Repository 구현, Existing LearnersHigh Adapter, File / External Provider Adapter | `domain`의 Port를 구현 |
+| `controller/` | HTTP, Request Validation, Auth Context, DTO 변환 | `service`, `dto` |
+| `service/` | Use Case, Transaction, Entity 전이 메서드 호출 | `domain`, `repository`, 다른 Domain의 공개 Service, `common/integration` |
+| `domain/` | JPA Entity(= Domain Model), Enum, 상태 전이 메서드, Invariant | 없음 (JPA Annotation만 허용) |
+| `repository/` | Spring Data Repository (자기 Domain Entity만) | `domain` |
+| `dto/` | `api-contract.md` 기준 Request / Response | — |
 
-`common/`은 Error 형식, Auth Context, Time / ID 같은 진짜 공통 요소만 둔다.
+`common/`은 Error 형식, Auth Context, Time / ID, 그리고 `integration/learnershigh/`(Existing LearnersHigh Client Interface + Real / Mock 구현)만 둔다.
+Interface는 이 외부 경계(Existing / File Storage / Delivery / AI)에만 만든다.
 
 ### `database/`
 
@@ -98,9 +102,9 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 |---|---|
 | `frontend/**`, `backend/**`에 `suyeon/`, `wangyu/`, `ext/` 폴더 없음 | `scripts/verify.ps1` |
 | Controller에 Business Rule 없음 | Code Review |
-| `domain/` 패키지는 `api/`, `infrastructure/`, Spring Web에 의존하지 않음 | 미자동화 (Backend Scaffold 후 Architecture Test 도입 후보) |
+| Entity(`domain/`)는 `controller` / `service` / `dto`에 의존하지 않음, Controller는 Repository를 직접 호출하지 않음 | 미자동화 (Backend Scaffold 후 Architecture Test 도입 후보) |
 | 다른 Domain의 Repository 직접 참조 금지 | 미자동화 (동일) |
-| 기존 LearnersHigh Table / DTO는 `infrastructure/` Adapter 밖으로 나오지 않음 | 미자동화 (동일) |
+| 기존 LearnersHigh Table / DTO는 `common/integration/learnershigh/` 밖으로 나오지 않음 | 미자동화 (동일) |
 | Surface별 Entity 복제 금지 (`StudentTask`, `AdminTask` 같은 Domain Class 금지) | Code Review |
 | Mentor 응답에 Student PII 없음 | Privacy Test (`.claude/rules/testing.md` §11) |
 | 상담 기능은 Wangyu Domain에만 존재 | CODEOWNERS + Code Review |
@@ -125,16 +129,16 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 
 이미 문서가 Bounded Context(`mentor`, `school`, `studentmanagement`, `parentprogress`, counseling), Ubiquitous Language(`domain.md`), Anti-Corruption Layer(Existing Adapter)를 전제하고 있다. 여기에 맞춰 다음만 적용한다.
 
-- **적용**: Bounded Context = Backend 최상위 Domain 패키지. 상태 전이가 있는 Entity(Task, Version, Feedback, Activity, MentorContent, ParentReport)는 전이 메서드와 Invariant를 Entity 안에 둔다 (Rich Domain Model). 기존 시스템 연결은 ACL Adapter로만.
+- **적용**: Bounded Context = Backend 최상위 Domain 패키지. 상태 전이가 있는 Entity(Task, Version, Feedback, Activity, MentorContent, ParentReport)는 전이 메서드와 Invariant를 Entity 안에 둔다 (Rich Domain Model). 기존 시스템 연결은 `common/integration` ACL로만.
 - **선택**: Aggregate 경계, Value Object는 `domain.md`에서 경계가 확정된 것부터 점진 도입.
-- **비적용**: Event Sourcing, CQRS 별도 저장소, Domain Event Bus, 물리적 Multi-module 분리. 현재 팀 규모(2인)와 단계에 비해 비용이 크다. 필요해지면 ADR로 도입한다.
+- **비적용**: Hexagonal(Port / Adapter 전면 적용, Domain / Persistence Model 분리 — ADR-0005), Event Sourcing, CQRS 별도 저장소, Domain Event Bus, 물리적 Multi-module 분리. 현재 팀 규모(2인)와 단계에 비해 비용이 크다. 필요해지면 ADR로 도입한다.
 
 ### TDD — "Domain 우선 TDD"
 
 | 영역 | 방식 |
 |---|---|
 | Domain State Transition / Invariant / Validation | **Test First** (정상 + 잘못된 전이 모두). 문서의 State 표가 곧 Test Case 목록이다. |
-| Application Use Case | Test First 권장 (Port는 Fake로) |
+| Service Use Case | Test First 권장 (External Boundary는 Mock 구현으로) |
 | API / Contract | Contract Test로 `api-contract.md`와 DTO 일치 검증 |
 | Repository / Migration | Integration Test (실제 MySQL 권장) |
 | Frontend 화면 | Test After — 상태(Loading / Empty / Error / Disabled) 분기와 핵심 Interaction 위주 |

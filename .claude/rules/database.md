@@ -1,7 +1,8 @@
 ---
 paths:
   - "database/**"
-  - "backend/**/infrastructure/**"
+  - "backend/**/repository/**"
+  - "backend/**/common/integration/**"
 ---
 
 # Database Rules
