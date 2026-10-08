@@ -1,0 +1,116 @@
+# LearnersHigh Extension — CODEOWNERS
+#
+# IMPORTANT
+# GitHub CODEOWNERS entries require actual GitHub user/team handles.
+# The project documents currently identify owners by name (최수연 / 유완규),
+# but their GitHub handles are not defined in the current source documents.
+#
+# Therefore the ownership map below is intentionally COMMENTED OUT.
+# Replace:
+#   @SUYEON_GITHUB_ID
+#   @WANKYU_GITHUB_ID
+# with real GitHub handles, then uncomment the matching lines.
+#
+# Ownership policy itself is defined in:
+#   docs/OWNERSHIP.md
+#
+# CODEOWNERS is an enforcement aid, not the source of truth.
+
+# ============================================================
+# 1. Repository-wide shared areas
+# ============================================================
+#
+# Shared files should normally receive review from both owners.
+#
+# /*                                      @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /CLAUDE.md                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /README.md                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /.gitignore                             @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /.claude/settings.json                  @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /.claude/rules/                         @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/SOURCE_OF_TRUTH.md                @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/OWNERSHIP.md                      @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/architecture/                     @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/design/                           @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/api/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/adr/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/product/                          @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /docs/source/                           @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /frontend/shared/                       @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /backend/src/main/java/**/common/       @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /database/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /e2e/                                   @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /scripts/                               @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /.github/                               @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+
+# ============================================================
+# 2. Suyeon-owned specifications
+# ============================================================
+#
+# /docs/specs/suyeon/                     @SUYEON_GITHUB_ID
+
+# ============================================================
+# 3. Suyeon-owned frontend features
+# ============================================================
+#
+# Student
+# /frontend/student/src/features/mentor-hub/           @SUYEON_GITHUB_ID
+# /frontend/student/src/features/school-admissions/    @SUYEON_GITHUB_ID
+#
+# Admin
+# /frontend/admin/src/features/feedback/               @SUYEON_GITHUB_ID
+# /frontend/admin/src/features/student-management/     @SUYEON_GITHUB_ID
+# /frontend/admin/src/features/parent-progress/        @SUYEON_GITHUB_ID
+# /frontend/admin/src/features/mentor-management/      @SUYEON_GITHUB_ID
+#
+# Mentor
+# /frontend/mentor/src/features/content/               @SUYEON_GITHUB_ID
+# /frontend/mentor/src/features/qna/                   @SUYEON_GITHUB_ID
+# /frontend/mentor/src/features/profile/               @SUYEON_GITHUB_ID
+
+# ============================================================
+# 4. Suyeon-owned backend domains
+# ============================================================
+#
+# Adjust the package prefix only after the actual Java package root exists.
+#
+# /backend/src/main/java/**/mentor/                     @SUYEON_GITHUB_ID
+# /backend/src/main/java/**/school/                     @SUYEON_GITHUB_ID
+# /backend/src/main/java/**/studentmanagement/          @SUYEON_GITHUB_ID
+# /backend/src/main/java/**/parentprogress/             @SUYEON_GITHUB_ID
+
+# ============================================================
+# 5. Wankyu-owned specifications
+# ============================================================
+#
+# /docs/specs/wankyu/                     @WANKYU_GITHUB_ID
+
+# ============================================================
+# 6. Counseling boundary — Wankyu-owned
+# ============================================================
+#
+# All counseling-related implementation belongs to Wankyu.
+# These patterns are examples for the final repository structure.
+# Keep only paths that actually exist.
+#
+# /frontend/student/src/features/counseling/            @WANKYU_GITHUB_ID
+# /frontend/admin/src/features/counseling/              @WANKYU_GITHUB_ID
+# /frontend/admin/src/features/parent-counseling/       @WANKYU_GITHUB_ID
+# /backend/src/main/java/**/counseling/                  @WANKYU_GITHUB_ID
+#
+# If Wankyu feature folders use different domain names,
+# define those exact paths after the final feature structure is known.
+
+# ============================================================
+# 7. Activation checklist
+# ============================================================
+#
+# [ ] Replace @SUYEON_GITHUB_ID with the real GitHub handle/team.
+# [ ] Replace @WANKYU_GITHUB_ID with the real GitHub handle/team.
+# [ ] Verify the actual frontend feature paths.
+# [ ] Verify the actual backend Java package root.
+# [ ] Add Wankyu's non-counseling owned feature paths.
+# [ ] Uncomment only valid paths.
+# [ ] Open a PR and confirm GitHub requests the expected reviewers.
+#
+# Do not invent GitHub handles or activate invalid CODEOWNERS entries.

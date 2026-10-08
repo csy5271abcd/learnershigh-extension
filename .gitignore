@@ -1,0 +1,253 @@
+# ============================================================
+# LearnersHigh Extension
+# .gitignore
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. OS / File Explorer
+# ------------------------------------------------------------
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ------------------------------------------------------------
+# 2. IDE / Editor
+# ------------------------------------------------------------
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.factorypath
+.springBeans
+.sts4-cache/
+
+# VS Code
+.vscode/
+.history/
+
+# ------------------------------------------------------------
+# 3. Claude Code — local-only settings
+# ------------------------------------------------------------
+
+# Team-shared:
+#   .claude/settings.json
+#   .claude/rules/**
+#
+# Local-only:
+.claude/settings.local.json
+.claude/settings.local.json.*
+.claude/.credentials*
+.claude/cache/
+.claude/tmp/
+
+# ------------------------------------------------------------
+# 4. Secrets / environment variables
+# ------------------------------------------------------------
+
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+
+secrets/
+**/secrets/
+
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ------------------------------------------------------------
+# 5. Logs / runtime files
+# ------------------------------------------------------------
+
+*.log
+logs/
+**/logs/
+
+*.pid
+*.pid.lock
+*.seed
+
+tmp/
+temp/
+.tmp/
+.cache/
+
+# ------------------------------------------------------------
+# 6. Frontend — Node / React
+# ------------------------------------------------------------
+
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+**/dist/
+build/
+**/build/
+
+# Test / coverage
+coverage/
+**/coverage/
+.nyc_output/
+
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Vite / bundler caches
+.vite/
+**/.vite/
+.parcel-cache/
+.turbo/
+
+# TypeScript incremental build
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# ------------------------------------------------------------
+# 7. Backend — Spring Boot / Java
+# ------------------------------------------------------------
+
+# Maven
+target/
+**/target/
+
+# Gradle
+.gradle/
+**/.gradle/
+
+# Compiled Java
+*.class
+
+# Spring Boot local runtime
+spring-shell.log
+
+# ------------------------------------------------------------
+# 8. Local application configuration
+# ------------------------------------------------------------
+
+# Keep shared application configuration tracked.
+# Ignore machine/local-only variants.
+application-local.yml
+application-local.yaml
+application-local.properties
+
+**/application-local.yml
+**/application-local.yaml
+**/application-local.properties
+
+# Optional developer overrides
+application-dev-local.yml
+application-dev-local.yaml
+application-dev-local.properties
+
+**/application-dev-local.yml
+**/application-dev-local.yaml
+**/application-dev-local.properties
+
+# ------------------------------------------------------------
+# 9. Database — local/generated artifacts only
+# ------------------------------------------------------------
+
+# IMPORTANT:
+# Do NOT ignore database/migrations/*.sql or database/seed/*.sql.
+
+database/local/
+database/tmp/
+database/backups/
+
+*.db
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------------------------
+# 10. Test / browser artifacts
+# ------------------------------------------------------------
+
+playwright-report/
+test-results/
+blob-report/
+screenshots/
+videos/
+
+# Cypress
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# ------------------------------------------------------------
+# 11. Generated reports / exports
+# ------------------------------------------------------------
+
+reports/generated/
+exports/
+generated/
+
+# ------------------------------------------------------------
+# 12. Local uploads / storage emulation
+# ------------------------------------------------------------
+
+uploads/
+storage/local/
+storage/tmp/
+
+# ------------------------------------------------------------
+# 13. Misc temporary / backup files
+# ------------------------------------------------------------
+
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.backup
+
+# ------------------------------------------------------------
+# 14. Keep important project artifacts tracked
+# ------------------------------------------------------------
+
+# Explicit reminders — these should stay version-controlled:
+#
+# CLAUDE.md
+# .claude/settings.json
+# .claude/rules/**
+# docs/**
+# references/**
+# database/migrations/**
+# database/seed/**
+# scripts/**
+# .github/**

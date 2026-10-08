@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "language": "korean",
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git rev-parse *)",
+      "Bash(git ls-files *)",
+      "Bash(git grep *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./**/.env)",
+      "Read(./**/.env.local)",
+      "Read(./**/.env.*.local)",
+      "Read(./secrets/**)",
+      "Read(./**/secrets/**)",
+      "Edit(./references/**)",
+      "Write(./references/**)",
+      "Edit(./docs/source/**)",
+      "Write(./docs/source/**)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git restore *)",
+      "Bash(rm -rf *)",
+      "Bash(rmdir /s /q *)",
+      "Bash(del /s /q *)",
+      "Bash(Remove-Item * -Recurse -Force *)"
+    ]
+  }
+}

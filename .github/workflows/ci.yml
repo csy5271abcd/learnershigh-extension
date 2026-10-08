@@ -1,0 +1,495 @@
+name: LearnersHigh CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: learnershigh-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  harness:
+    name: Harness / Repository Rules
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify harness
+        run: |
+          .\scripts\verify.ps1 -SkipFrontend -SkipBackend
+
+  frontend:
+    name: Frontend
+    needs: harness
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect frontend scaffold and Node version
+        id: frontend-meta
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $packageJsonFiles = @(
+            Get-ChildItem -Path ".\frontend" -Filter "package.json" -File -Recurse -ErrorAction SilentlyContinue |
+              Where-Object {
+                $_.FullName -notmatch '[\\/](node_modules|dist|build|coverage|\.vite)[\\/]'
+              }
+          )
+
+          $hasFrontend = $packageJsonFiles.Count -gt 0
+          "has_frontend=$($hasFrontend.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+          $nodeVersion = $null
+
+          foreach ($candidate in @(
+            ".\frontend\.nvmrc",
+            ".\frontend\.node-version",
+            ".\.nvmrc",
+            ".\.node-version"
+          )) {
+            if (Test-Path -LiteralPath $candidate) {
+              $nodeVersion = (Get-Content -LiteralPath $candidate -Raw -Encoding UTF8).Trim()
+
+              if (-not [string]::IsNullOrWhiteSpace($nodeVersion)) {
+                break
+              }
+            }
+          }
+
+          if (-not [string]::IsNullOrWhiteSpace($nodeVersion)) {
+            "node_version=$nodeVersion" >> $env:GITHUB_OUTPUT
+            Write-Host "Node version file detected: $nodeVersion"
+          }
+          else {
+            Write-Host "No Node version file detected. The runner-provided Node version will be used."
+          }
+
+          if (-not $hasFrontend) {
+            Write-Host "No frontend package.json detected. Frontend job will be skipped."
+          }
+
+      - name: Setup Node from repository version
+        if: steps.frontend-meta.outputs.has_frontend == 'true' && steps.frontend-meta.outputs.node_version != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.frontend-meta.outputs.node_version }}
+
+      - name: Show Node environment
+        if: steps.frontend-meta.outputs.has_frontend == 'true'
+        run: |
+          node --version
+          npm --version
+
+      - name: Install frontend dependencies
+        if: steps.frontend-meta.outputs.has_frontend == 'true'
+        run: |
+          $ErrorActionPreference = "Stop"
+          Set-StrictMode -Version Latest
+
+          function Get-PackageProperty {
+            param(
+              [object]$PackageJson,
+              [string]$Name
+            )
+
+            $property = $PackageJson.PSObject.Properties[$Name]
+
+            if ($null -eq $property) {
+              return $null
+            }
+
+            return $property.Value
+          }
+
+          function Find-PackageManager {
+            param(
+              [string]$ProjectDir,
+              [object]$PackageJson,
+              [string]$StopDir
+            )
+
+            $packageManagerValue = Get-PackageProperty -PackageJson $PackageJson -Name "packageManager"
+
+            if ($null -ne $packageManagerValue) {
+              $spec = [string]$packageManagerValue
+
+              if ($spec -match '^npm@')  { return @{ Name = "npm"; Spec = $spec } }
+              if ($spec -match '^pnpm@') { return @{ Name = "pnpm"; Spec = $spec } }
+              if ($spec -match '^yarn@') { return @{ Name = "yarn"; Spec = $spec } }
+              if ($spec -match '^bun@')  { return @{ Name = "bun"; Spec = $spec } }
+            }
+
+            $current = (Resolve-Path -LiteralPath $ProjectDir).Path
+            $stop = (Resolve-Path -LiteralPath $StopDir).Path
+
+            while ($true) {
+              if (Test-Path -LiteralPath (Join-Path $current "package-lock.json")) {
+                return @{ Name = "npm"; Spec = $null }
+              }
+
+              if (Test-Path -LiteralPath (Join-Path $current "pnpm-lock.yaml")) {
+                return @{ Name = "pnpm"; Spec = $null }
+              }
+
+              if (Test-Path -LiteralPath (Join-Path $current "yarn.lock")) {
+                return @{ Name = "yarn"; Spec = $null }
+              }
+
+              if (
+                (Test-Path -LiteralPath (Join-Path $current "bun.lock")) -or
+                (Test-Path -LiteralPath (Join-Path $current "bun.lockb"))
+              ) {
+                return @{ Name = "bun"; Spec = $null }
+              }
+
+              if ($current -eq $stop) {
+                break
+              }
+
+              $parent = Split-Path -Parent $current
+
+              if ([string]::IsNullOrWhiteSpace($parent) -or $parent -eq $current) {
+                break
+              }
+
+              $current = $parent
+            }
+
+            return $null
+          }
+
+          function Get-InstallRoot {
+            param(
+              [string]$ProjectDir,
+              [string]$FrontendDir
+            )
+
+            $current = (Resolve-Path -LiteralPath $ProjectDir).Path
+            $frontendRoot = (Resolve-Path -LiteralPath $FrontendDir).Path
+
+            while ($true) {
+              if (
+                (Test-Path -LiteralPath (Join-Path $current "package-lock.json")) -or
+                (Test-Path -LiteralPath (Join-Path $current "pnpm-lock.yaml")) -or
+                (Test-Path -LiteralPath (Join-Path $current "yarn.lock")) -or
+                (Test-Path -LiteralPath (Join-Path $current "bun.lock")) -or
+                (Test-Path -LiteralPath (Join-Path $current "bun.lockb"))
+              ) {
+                return $current
+              }
+
+              if ($current -eq $frontendRoot) {
+                break
+              }
+
+              $parent = Split-Path -Parent $current
+
+              if ([string]::IsNullOrWhiteSpace($parent) -or $parent -eq $current) {
+                break
+              }
+
+              $current = $parent
+            }
+
+            return (Resolve-Path -LiteralPath $ProjectDir).Path
+          }
+
+          $repoRoot = (Resolve-Path ".").Path
+          $frontendDir = Join-Path $repoRoot "frontend"
+
+          $frontendRootPackage = Join-Path $frontendDir "package.json"
+
+          if (Test-Path -LiteralPath $frontendRootPackage) {
+            $packageJsonFiles = @($frontendRootPackage)
+          }
+          else {
+            $packageJsonFiles = @(
+              Get-ChildItem -LiteralPath $frontendDir -Filter "package.json" -File -Recurse |
+                Where-Object {
+                  $_.FullName -notmatch '[\\/](node_modules|dist|build|coverage|\.vite)[\\/]'
+                } |
+                Sort-Object FullName |
+                Select-Object -ExpandProperty FullName
+            )
+          }
+
+          if ($packageJsonFiles.Count -eq 0) {
+            throw "Frontend scaffold was detected earlier, but no package.json can be found now."
+          }
+
+          $installedRoots = @{}
+
+          foreach ($packageJsonPath in $packageJsonFiles) {
+            $projectDir = Split-Path -Parent $packageJsonPath
+            $packageJson = Get-Content -LiteralPath $packageJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+
+            $manager = Find-PackageManager `
+              -ProjectDir $projectDir `
+              -PackageJson $packageJson `
+              -StopDir $repoRoot
+
+            if ($null -eq $manager) {
+              throw @"
+Package manager를 결정할 수 없습니다: $projectDir
+
+다음 중 하나를 Repository에 추가하세요.
+- package.json의 packageManager
+- package-lock.json
+- pnpm-lock.yaml
+- yarn.lock
+- bun.lock / bun.lockb
+"@
+            }
+
+            $installRoot = Get-InstallRoot -ProjectDir $projectDir -FrontendDir $frontendDir
+
+            if ($installedRoots.ContainsKey($installRoot)) {
+              continue
+            }
+
+            $installedRoots[$installRoot] = $true
+
+            Write-Host ""
+            Write-Host "Installing dependencies"
+            Write-Host "Root: $installRoot"
+            Write-Host "Manager: $($manager.Name)"
+
+            Push-Location $installRoot
+
+            try {
+              switch ($manager.Name) {
+                "npm" {
+                  if (-not (Test-Path -LiteralPath "package-lock.json")) {
+                    throw "CI에서는 npm package-lock.json이 필요합니다: $installRoot"
+                  }
+
+                  npm ci
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "npm ci failed: $installRoot"
+                  }
+                }
+
+                "pnpm" {
+                  if (-not (Test-Path -LiteralPath "pnpm-lock.yaml")) {
+                    throw "CI에서는 pnpm-lock.yaml이 필요합니다: $installRoot"
+                  }
+
+                  corepack enable
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "corepack enable failed"
+                  }
+
+                  if (-not [string]::IsNullOrWhiteSpace([string]$manager.Spec)) {
+                    corepack prepare $manager.Spec --activate
+
+                    if ($LASTEXITCODE -ne 0) {
+                      throw "corepack prepare failed: $($manager.Spec)"
+                    }
+                  }
+
+                  pnpm install --frozen-lockfile
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "pnpm install failed: $installRoot"
+                  }
+                }
+
+                "yarn" {
+                  if (-not (Test-Path -LiteralPath "yarn.lock")) {
+                    throw "CI에서는 yarn.lock이 필요합니다: $installRoot"
+                  }
+
+                  corepack enable
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "corepack enable failed"
+                  }
+
+                  if (-not [string]::IsNullOrWhiteSpace([string]$manager.Spec)) {
+                    corepack prepare $manager.Spec --activate
+
+                    if ($LASTEXITCODE -ne 0) {
+                      throw "corepack prepare failed: $($manager.Spec)"
+                    }
+                  }
+
+                  $yarnVersion = (yarn --version).Trim()
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "yarn --version failed"
+                  }
+
+                  $major = [int]($yarnVersion.Split(".")[0])
+
+                  if ($major -ge 2) {
+                    yarn install --immutable
+                  }
+                  else {
+                    yarn install --frozen-lockfile
+                  }
+
+                  if ($LASTEXITCODE -ne 0) {
+                    throw "yarn install failed: $installRoot"
+                  }
+                }
+
+                "bun" {
+                  throw @"
+Bun package manager가 감지되었습니다.
+현재 CI는 Bun 설치 버전을 임의로 선택하지 않습니다.
+Repository에서 Bun 버전/설치 방식을 확정한 뒤 CI에 공식 setup step을 추가하세요.
+"@
+                }
+
+                default {
+                  throw "Unsupported package manager: $($manager.Name)"
+                }
+              }
+            }
+            finally {
+              Pop-Location
+            }
+          }
+
+      - name: Verify frontend
+        if: steps.frontend-meta.outputs.has_frontend == 'true'
+        run: |
+          .\scripts\verify-frontend.ps1 -Strict
+
+      - name: Frontend not scaffolded yet
+        if: steps.frontend-meta.outputs.has_frontend != 'true'
+        run: |
+          Write-Host "frontend package.json이 없어 Frontend 검증을 실행하지 않았습니다."
+          Write-Host "Harness 단계에서는 정상이며, scaffold가 추가되면 이 job이 자동으로 활성화됩니다."
+
+  backend:
+    name: Backend
+    needs: harness
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect backend scaffold and Java version
+        id: backend-meta
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $buildFiles = @(
+            ".\backend\build.gradle",
+            ".\backend\build.gradle.kts",
+            ".\backend\settings.gradle",
+            ".\backend\settings.gradle.kts",
+            ".\backend\pom.xml"
+          ) | Where-Object { Test-Path -LiteralPath $_ }
+
+          $hasBackend = $buildFiles.Count -gt 0
+          "has_backend=$($hasBackend.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+          $javaVersion = $null
+
+          foreach ($candidate in @(
+            ".\backend\.java-version",
+            ".\.java-version"
+          )) {
+            if (Test-Path -LiteralPath $candidate) {
+              $javaVersion = (Get-Content -LiteralPath $candidate -Raw -Encoding UTF8).Trim()
+
+              if (-not [string]::IsNullOrWhiteSpace($javaVersion)) {
+                break
+              }
+            }
+          }
+
+          if (-not [string]::IsNullOrWhiteSpace($javaVersion)) {
+            "java_version=$javaVersion" >> $env:GITHUB_OUTPUT
+            Write-Host "Java version file detected: $javaVersion"
+          }
+          else {
+            Write-Host "No .java-version detected. The runner-provided Java version will be used."
+          }
+
+          if (-not $hasBackend) {
+            Write-Host "No backend Gradle/Maven build file detected. Backend job will be skipped."
+          }
+
+      - name: Setup Java from repository version
+        if: steps.backend-meta.outputs.has_backend == 'true' && steps.backend-meta.outputs.java_version != ''
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ steps.backend-meta.outputs.java_version }}
+
+      - name: Show Java environment
+        if: steps.backend-meta.outputs.has_backend == 'true'
+        run: |
+          java -version
+
+      - name: Verify backend
+        if: steps.backend-meta.outputs.has_backend == 'true'
+        run: |
+          .\scripts\verify-backend.ps1 -Strict
+
+      - name: Backend not scaffolded yet
+        if: steps.backend-meta.outputs.has_backend != 'true'
+        run: |
+          Write-Host "backend build file이 없어 Backend 검증을 실행하지 않았습니다."
+          Write-Host "Harness 단계에서는 정상이며, scaffold가 추가되면 이 job이 자동으로 활성화됩니다."
+
+  result:
+    name: CI Result
+    if: always()
+    needs:
+      - harness
+      - frontend
+      - backend
+    runs-on: windows-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Evaluate
+        run: |
+          $results = @{
+            harness = "${{ needs.harness.result }}"
+            frontend = "${{ needs.frontend.result }}"
+            backend = "${{ needs.backend.result }}"
+          }
+
+          $results.GetEnumerator() |
+            Sort-Object Name |
+            ForEach-Object {
+              Write-Host "$($_.Name): $($_.Value)"
+            }
+
+          $failed = @(
+            $results.GetEnumerator() |
+              Where-Object {
+                $_.Value -notin @("success", "skipped")
+              }
+          )
+
+          if ($failed.Count -gt 0) {
+            throw "One or more CI jobs failed."
+          }
+
+          Write-Host "LearnersHigh CI PASS"
