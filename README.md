@@ -309,6 +309,8 @@ External Delivery Provider
 ```text
 learnershigh-extension
 │
+├─ AGENTS.md                    # 모든 AI Agent 공통 진입점
+├─ ARCHITECTURE.md              # 구조 지도 (상세: docs/architecture/)
 ├─ CLAUDE.md
 ├─ README.md
 ├─ .gitignore
@@ -354,7 +356,7 @@ learnershigh-extension
 │  │  │     ├─ student-management.md
 │  │  │     └─ parent-progress.md
 │  │  │
-│  │  └─ wankyu/
+│  │  └─ wangyu/
 │  │     ├─ README.md
 │  │     ├─ domain.md
 │  │     ├─ progress.md
@@ -506,9 +508,9 @@ Source Code는 사람 이름이 아니라 Feature / Domain 기준으로 구성�
 
 ```text
 frontend/**/suyeon/
-frontend/**/wankyu/
+frontend/**/wangyu/
 backend/**/suyeon/
-backend/**/wankyu/
+backend/**/wangyu/
 backend/**/ext/
 ```
 
@@ -524,7 +526,7 @@ docs/OWNERSHIP.md
 
 ## 10. Counseling Boundary
 
-상담 관련 기능 전체는 Wankyu 담당 영역이다.
+상담 관련 기능 전체는 Wangyu 담당 영역이다.
 
 Suyeon 영역에서 다음을 구현하지 않는다.
 
@@ -613,28 +615,24 @@ parentprogress/
 common/
 ```
 
-필요에 따라:
+각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005)
 
 ```text
-api/
-application/
+controller/
+service/
 domain/
-infrastructure/
+repository/
+dto/
 ```
-
-로 책임을 나눈다.
 
 기본 의존 방향:
 
 ```text
-API
+controller
 ↓
-Application
+service ──► common/integration (External Boundary Interface)
 ↓
-Domain
-
-Infrastructure
-→ Domain Interface 구현
+domain / repository
 ```
 
 Controller에 Business Rule을 직접 넣지 않는다.

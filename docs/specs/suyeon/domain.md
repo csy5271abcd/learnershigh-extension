@@ -102,7 +102,7 @@ Suyeon Domain 안에 상담 Entity / API / DB Model을 새로 만들지 않는�
 필요 시:
 
 ```text
-Wankyu-owned Counseling Domain
+Wangyu-owned Counseling Domain
         │
         ▼
 Shared / Integration Contract
@@ -2196,7 +2196,7 @@ ChangeArtifactConsent
 
 이 목록은 API Endpoint 목록이 아니다.
 
-실제 Naming은 Application Layer / API Contract 작성 시 확정한다.
+실제 Naming은 Service / API Contract 작성 시 확정한다.
 
 ---
 
@@ -2243,7 +2243,7 @@ Architecture에 맞게 결정한다.
 # 67. Transaction Boundary 원칙
 
 한 Use Case에서 반드시 함께 성공해야 하는 변경은
-Application Layer에서 Transaction Boundary를 검토한다.
+Service에서 Transaction Boundary를 검토한다.
 
 예:
 
@@ -2748,7 +2748,7 @@ Shared Student Data
 Derived 값은 Source Entity에서 계산한다.
 AI는 Draft / Candidate 역할을 넘지 않는다.
 Student 저작권과 개인정보 경계를 지킨다.
-상담 기능은 Wankyu Domain에 둔다.
+상담 기능은 Wangyu Domain에 둔다.
 기존 LearnersHigh 기능은 재구현하지 않는다.
 불명확한 상태값은 추측하지 않는다.
 ```

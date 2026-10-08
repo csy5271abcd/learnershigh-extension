@@ -113,9 +113,9 @@ Source Code는 사람 이름이 아니라 Feature / Domain 기준으로 구성�
 
 ```text
 frontend/**/suyeon/
-frontend/**/wankyu/
+frontend/**/wangyu/
 backend/**/suyeon/
-backend/**/wankyu/
+backend/**/wangyu/
 backend/**/ext/
 ```
 
@@ -145,7 +145,7 @@ docs/specs/suyeon/features/parent-progress.md
 
 ## 6. Counseling Boundary
 
-상담 관련 기능 전체는 Wankyu 담당이다.
+상담 관련 기능 전체는 Wangyu 담당이다.
 
 Suyeon 영역에서 다음을 만들지 않는다.
 
@@ -160,7 +160,7 @@ Counseling-derived Parent Report Section
 Counseling-derived Today Board Action / Operations KPI
 ```
 
-필요한 경우 Integration Boundary 또는 Shared Contract만 정의하고 실제 구현은 Wankyu 영역에 둔다.
+필요한 경우 Integration Boundary 또는 Shared Contract만 정의하고 실제 구현은 Wangyu 영역에 둔다.
 
 ## 7. Existing LearnersHigh
 
@@ -211,16 +211,17 @@ parentprogress/
 common/
 ```
 
-필요에 따라:
+각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005, Hexagonal 미적용)
 
 ```text
-api/
-application/
+controller/
+service/
 domain/
-infrastructure/
+repository/
+dto/
 ```
 
-로 책임을 나눈다.
+Interface는 Existing LearnersHigh / File Storage / Delivery / AI 같은 외부 경계에만 둔다.
 
 Controller에 Business Rule을 직접 구현하지 않는다.
 
@@ -366,6 +367,7 @@ ADR-0001 Student / Admin / Mentor Surface 분리
 ADR-0002 Existing LearnersHigh Integration Boundary
 ADR-0003 Shared Feedback Queue
 ADR-0004 Parent App 없이 Parent Report 전달
+ADR-0005 Backend Layered MVC (Proposed)
 ```
 
 중요한 방향 변경은 새 ADR로 Supersede한다.

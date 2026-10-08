@@ -71,7 +71,7 @@ Implementation Phase: 아직 본격 시작 전
 ```text
 Claude Code가 문서를 먼저 읽고
 기존 LearnersHigh를 중복 구현하지 않으며
-Suyeon/Wankyu Ownership을 침범하지 않고
+Suyeon/Wangyu Ownership을 침범하지 않고
 Feature / Domain / API 기준으로 구현할 수 있는
 개발 Harness를 완성한다.
 ```
@@ -104,7 +104,7 @@ Feature / Domain / API 기준으로 구현할 수 있는
 | 문서 | 상태 | 비고 |
 |---|---|---|
 | `docs/SOURCE_OF_TRUTH.md` | `DRAFTED` | Concern별 Source of Truth 정의 |
-| `docs/OWNERSHIP.md` | `DRAFTED` | Suyeon/Wankyu/Shared 경계 정의 |
+| `docs/OWNERSHIP.md` | `DRAFTED` | Suyeon/Wangyu/Shared 경계 정의 |
 | `docs/architecture/overview.md` | `DRAFTED` | 전체 Architecture 개요 |
 | `docs/architecture/integration-boundary.md` | `DRAFTED` | 기존 LearnersHigh ↔ Extension 경계 |
 | `docs/specs/suyeon/domain.md` | `DRAFTED` | Suyeon Entity/State/Cross-Surface 규칙 |
@@ -230,11 +230,11 @@ Admin Student Management
 Parent Progress
 ```
 
-Wankyu 범위:
+Wangyu 범위:
 
 ```text
 상담 관련 전체 기능
-+ Wankyu 담당 기타 확장 기능
++ Wangyu 담당 기타 확장 기능
 ```
 
 Suyeon 금지 범위:

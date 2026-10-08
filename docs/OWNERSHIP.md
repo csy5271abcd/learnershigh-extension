@@ -11,7 +11,7 @@
 프로젝트는 두 명이 병렬 개발한다.
 
 - **최수연 (Suyeon)**
-- **유완규 (Wankyu)**
+- **유완규 (Wangyu)**
 
 실제 Source Code는 사람 이름이 아니라 **기능 / Domain 기준**으로 구성한다.
 
@@ -29,9 +29,9 @@ backend/.../mentor/
 
 ```text
 frontend/src/features/suyeon/
-frontend/src/features/wankyu/
+frontend/src/features/wangyu/
 backend/suyeon/
-backend/wankyu/
+backend/wangyu/
 ```
 
 담당자 구분은 다음에서 관리한다.
@@ -49,7 +49,7 @@ docs/OWNERSHIP.md
 
 ```text
 1. Suyeon-owned
-2. Wankyu-owned
+2. Wangyu-owned
 3. Shared
 ```
 
@@ -59,7 +59,7 @@ docs/OWNERSHIP.md
 
 최수연이 기능 요구사항, 구현, 수정, 검증을 주도한다.
 
-### Wankyu-owned
+### Wangyu-owned
 
 유완규가 기능 요구사항, 구현, 수정, 검증을 주도한다.
 
@@ -151,7 +151,7 @@ frontend/mentor/**
 
 Mentor Surface는 기본적으로 **Suyeon 단독 소유 영역**으로 본다.
 
-단, Mentor 기능이 Wankyu 담당 기능과 직접 연결되는 경우
+단, Mentor 기능이 Wangyu 담당 기능과 직접 연결되는 경우
 공통 API / Entity 변경은 Shared 변경 절차를 따른다.
 
 ---
@@ -281,13 +281,13 @@ backend/.../parentprogress/**
 
 ---
 
-# 4. Wankyu 담당 범위
+# 4. Wangyu 담당 범위
 
 유완규는 **상담 관련 기능 전체**를 담당한다.
 
 상담 관련 기능은 Suyeon Feature에 포함하지 않는다.
 
-Wankyu 담당 범위에는 상담 기능의 Student / Parent / Admin / CRM / Backend / DB 흐름 전체가 포함될 수 있다.
+Wangyu 담당 범위에는 상담 기능의 Student / Parent / Admin / CRM / Backend / DB 흐름 전체가 포함될 수 있다.
 
 예:
 
@@ -309,7 +309,7 @@ Counseling-related Operations KPI
 상담 기능의 실제 세부 범위는:
 
 ```text
-docs/specs/wankyu/
+docs/specs/wangyu/
 ```
 
 에서 정의한다.
@@ -353,7 +353,7 @@ Shared Contract Placeholder
 ```
 
 만 정의하고,
-실제 Counseling 구현은 Wankyu 담당 영역에 둔다.
+실제 Counseling 구현은 Wangyu 담당 영역에 둔다.
 
 예:
 
@@ -362,7 +362,7 @@ Parent Report에서 향후 상담 요약을 받을 수 있음
 
 → Suyeon이 CounselingSummary Entity를 새로 구현하지 않음
 → Integration Boundary에 외부 입력 가능성을 명시
-→ Wankyu 기능이 준비된 후 연결
+→ Wangyu 기능이 준비된 후 연결
 ```
 
 ---
@@ -498,7 +498,7 @@ Migration 번호 범위를 분리할 경우 팀 합의 후 사용한다.
 
 ```text
 Suyeon: V100 ~ V199
-Wankyu: V200 ~ V299
+Wangyu: V200 ~ V299
 Shared: 별도 합의
 ```
 
@@ -520,7 +520,7 @@ Frontend는 Surface + Feature 기준으로 관리한다.
 frontend/student/src/features/
 ├─ mentor-hub/            # Suyeon
 ├─ school-admissions/     # Suyeon
-└─ <wankyu-feature>/      # Wankyu
+└─ <wangyu-feature>/      # Wangyu
 ```
 
 공통 Student Layout, Router, Theme, 공통 API Client는 Shared 영향 영역으로 본다.
@@ -537,7 +537,7 @@ frontend/admin/src/features/
 ├─ student-management/    # Suyeon
 ├─ parent-progress/       # Suyeon
 ├─ mentor-management/     # Suyeon
-└─ <wankyu-feature>/      # Wankyu
+└─ <wangyu-feature>/      # Wangyu
 ```
 
 Admin Sidebar / Header / Router 등 공통 Shell은 Shared 영향 영역이다.
@@ -597,29 +597,21 @@ backend/.../
 ├─ school/                 # Suyeon
 ├─ studentmanagement/      # Suyeon
 ├─ parentprogress/         # Suyeon
-├─ <wankyu-domain>/        # Wankyu
+├─ <wangyu-domain>/        # Wangyu
 └─ common/                 # Shared
 ```
 
-각 Domain 내부는 필요에 따라:
-
-```text
-api/
-application/
-domain/
-infrastructure/
-```
-
-로 구성한다.
+각 Domain 내부는 Layered MVC로 구성한다. (ADR-0005)
 
 예:
 
 ```text
 school/
-├─ api/
-├─ application/
+├─ controller/
+├─ service/
 ├─ domain/
-└─ infrastructure/
+├─ repository/
+└─ dto/
 ```
 
 Student/Admin/Mentor API가 다르더라도
@@ -655,7 +647,7 @@ references/
 ```text
 docs/specs/
 ├─ suyeon/
-└─ wankyu/
+└─ wangyu/
 ```
 
 Suyeon:
@@ -664,10 +656,10 @@ Suyeon:
 docs/specs/suyeon/**
 ```
 
-Wankyu:
+Wangyu:
 
 ```text
-docs/specs/wankyu/**
+docs/specs/wangyu/**
 ```
 
 다른 담당자의 Feature Spec은
@@ -790,10 +782,10 @@ Shared Entity일 수 있으므로 Ownership과 Domain을 확인한다.
 <Feature / Task>
 
 요청 소유자:
-Suyeon | Wankyu
+Suyeon | Wangyu
 
 영향받는 담당자:
-Suyeon | Wankyu
+Suyeon | Wangyu
 
 변경이 필요한 이유:
 <설명>
@@ -921,10 +913,10 @@ Shared 경로는 필요하면 두 사람 모두 Review 대상으로 둔다.
 예:
 
 ```text
-/docs/api/                       @suyeon @wankyu
-/docs/architecture/              @suyeon @wankyu
-/frontend/shared/                @suyeon @wankyu
-/database/                       @suyeon @wankyu
+/docs/api/                       @suyeon @wangyu
+/docs/architecture/              @suyeon @wangyu
+/frontend/shared/                @suyeon @wangyu
+/database/                       @suyeon @wangyu
 ```
 
 ---
@@ -976,9 +968,9 @@ Suyeon
 → Admin Student Management
 → Parent Progress
 
-Wankyu
+Wangyu
 → 상담 관련 전체 기능
-→ 기타 Wankyu 담당 확장 기능
+→ 기타 Wangyu 담당 확장 기능
 
 Shared
 → Architecture
@@ -1001,7 +993,7 @@ Shared
 
 Shared 영역은 한 사람의 편의를 위해 독단적으로 변경하지 않는다.
 
-상담 기능은 Wankyu 담당이며
+상담 기능은 Wangyu 담당이며
 Suyeon Feature에 상담 Entity/API/DB/Mock 기능을 구현하지 않는다.
 
 필요한 경우 Integration Boundary만 정의하고

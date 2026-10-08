@@ -383,7 +383,7 @@ TDS + Claude Design Mockup
 docs/specs/
 ├─ suyeon/
 │  └─ features/
-└─ wankyu/
+└─ wangyu/
    └─ features/
 ```
 
@@ -428,7 +428,7 @@ Feature를 구현할 때는 관련 Feature Spec을 반드시 먼저 읽는다.
 
 ```text
 docs/specs/suyeon/domain.md
-docs/specs/wankyu/domain.md
+docs/specs/wangyu/domain.md
 ```
 
 공통 Entity를 변경하거나 두 담당자의 Domain이 연결되는 경우 한 사람의 판단으로 수정하지 않는다.
@@ -504,6 +504,7 @@ docs/adr/
 0002-existing-learnershigh-integration-boundary.md
 0003-shared-feedback-queue.md
 0004-parent-report-without-parent-app.md
+0005-domain-packaged-layered-mvc-backend.md
 ```
 
 ADR은 다음 상황에서 작성한다.
@@ -613,7 +614,7 @@ docs/specs/suyeon/features/*.md
 
 ```text
 docs/specs/suyeon/progress.md
-docs/specs/wankyu/progress.md
+docs/specs/wangyu/progress.md
 ```
 
 Progress는 Requirement Source가 아니다.

@@ -251,7 +251,7 @@ Delivery
 
 ## 5. Counseling Boundary
 
-상담 관련 기능 전체는 Wankyu 담당이다.
+상담 관련 기능 전체는 Wangyu 담당이다.
 
 Suyeon 문서와 코드에서 다음을 정의하거나 구현하지 않는다.
 
@@ -278,7 +278,7 @@ Counseling-derived Operations KPI
 ```text
 Scope / Ownership 변경 확인
 → Shared Contract 합의
-→ Wankyu-owned 구현
+→ Wangyu-owned 구현
 → Suyeon Consumer 연결
 ```
 
