@@ -714,7 +714,7 @@ API Client
 Theme
 Common UI
 Backend Common
-Integration Port
+Integration Client
 ```
 
 ---

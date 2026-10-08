@@ -6,8 +6,7 @@
 ## Context
 
 초기 Architecture 문서(`docs/architecture/overview.md`)는 각 Backend Domain을
-`api / application / domain / infrastructure` 4개 Layer와 Port / Adapter 의존 역전 구조
-(Hexagonal에 가까운 구조)로 설명했다.
+`api / application / domain / infrastructure` 4개 Layer와 의존 역전 Interface 구조로 설명했다.
 
 현재 상황:
 
@@ -19,7 +18,7 @@
   Existing LearnersHigh 연동 / File Storage / Delivery Provider 정도다.
 ```
 
-모든 Domain에 Port / Adapter를 두면:
+모든 Domain에 의존 역전 Interface를 두면:
 
 ```text
 - Interface + 구현 + Mapper로 파일 수가 크게 늘어난다.
@@ -45,11 +44,12 @@ Backend는 **Domain 패키지 안의 Layered MVC**로 구성한다.
 ```text
 backend/src/main/java/.../
 ├─ school/
-│  ├─ controller/     # HTTP, Request Validation, DTO 변환
-│  ├─ service/        # Use Case, Transaction
-│  ├─ domain/         # JPA Entity + Enum + 상태 전이 메서드
+│  ├─ controller/     # HTTP 입출력
+│  ├─ service/        # XxxService(변경) / XxxQueryService(조회)
+│  ├─ entity/         # JPA Entity + Enum + 상태 전이 메서드
 │  ├─ repository/     # Spring Data Repository
-│  └─ dto/            # Request / Response (api-contract.md 기준)
+│  ├─ dto/            # Request / Response (api-contract.md 기준)
+│  └─ exception/      # XxxErrorCode
 ├─ mentor/
 ├─ studentmanagement/
 ├─ parentprogress/
@@ -64,7 +64,7 @@ backend/src/main/java/.../
 의존 방향:
 
 ```text
-controller → service → domain / repository
+controller → service → entity / repository
 service    → common/integration (Interface)
 ```
 
@@ -81,8 +81,12 @@ service    → common/integration (Interface)
    AI Provider
    ```
    이 경계는 `Real` / `Mock` 구현을 가질 수 있다. 그 외 Service / Repository에는 Interface를 만들지 않는다.
-5. **다른 Domain의 Repository를 직접 쓰지 않는다.** 필요하면 해당 Domain의 공개 Service(Query) 메서드를 호출한다. 순환 의존을 만들지 않는다.
-6. **Entity를 API Response로 직접 반환하지 않는다.** 항상 `dto/`를 거친다.
+5. **다른 Domain의 Repository / Entity를 직접 쓰지 않는다.** 조회는 상대 Domain `XxxQueryService`, 변경은 상대 Domain `XxxService`의 public 메서드로만 한다. 순환 의존을 만들지 않는다.
+6. **Entity를 API Response로 직접 반환하지 않는다.** Service에서 `XxxResponse.from(entity)`로 변환한다.
+7. **예외는 `BusinessException(XxxErrorCode)`로 던지고** `common/error/GlobalExceptionHandler`가 공통 Error 형식으로 바꾼다.
+8. **조회 전용 / 집계는 `XxxQueryService`** (`@Transactional(readOnly = true)`)에 둔다.
+
+세부 규칙: `docs/architecture/overview.md` §6.
 
 ---
 
@@ -120,9 +124,9 @@ ARCHITECTURE.md
 
 ## Alternatives Considered
 
-### Hexagonal (Ports & Adapters) 전체 적용
+### 4-Layer 의존 역전 구조 전체 적용
 
-Domain마다 Inbound / Outbound Port, Domain Model과 Persistence Model 분리.
+Domain마다 입출력 Interface를 두고, Domain Model과 Persistence Model을 분리.
 
 선택하지 않은 이유: 현재 인원과 Domain 크기에 비해 구조 비용이 크고,
 교체 가능성이 필요한 곳은 외부 경계 몇 개뿐이다.

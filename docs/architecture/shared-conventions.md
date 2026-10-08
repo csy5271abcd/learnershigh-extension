@@ -1711,9 +1711,9 @@ Mock과 Real Integration은 같은 Consumer Contract를 사용한다.
 예:
 
 ```text
-ExistingPlanPort
-├─ Mock Adapter
-└─ Real Adapter
+ExistingPlanClient
+├─ Mock 구현
+└─ Real 구현
 ```
 
 Feature 코드에서 Mock 전용 Shape을 사용하지 않는다.

@@ -18,7 +18,7 @@
 │ Backend (Spring Boot)                                          │
 │  mentor/  school/  studentmanagement/  parentprogress/         │
 │  <wangyu-domain>/ (counseling 등)        common/               │
-│   각 Domain: controller → service → domain / repository (MVC)  │
+│   각 Domain: controller → service → entity / repository (MVC)  │
 └───────┬──────────────────────────────────────────┬────────────┘
         │                                          │
 ┌───────▼────────┐                     ┌───────────▼────────────┐
@@ -56,17 +56,18 @@ Surface별 기능 코드. 사람 이름이 아니라 Feature 이름으로 나눈
 
 ### `backend/src/main/java/.../<domain>/`
 
-Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-layered-mvc-backend.md), Proposed). Hexagonal은 적용하지 않는다.
+Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-layered-mvc-backend.md), Proposed). 상세 규칙: [`overview.md` §6](docs/architecture/overview.md).
 
 | 하위 패키지 | 책임 | 의존 가능 대상 |
 |---|---|---|
-| `controller/` | HTTP, Request Validation, Auth Context, DTO 변환 | `service`, `dto` |
-| `service/` | Use Case, Transaction, Entity 전이 메서드 호출 | `domain`, `repository`, 다른 Domain의 공개 Service, `common/integration` |
-| `domain/` | JPA Entity(= Domain Model), Enum, 상태 전이 메서드, Invariant | 없음 (JPA Annotation만 허용) |
-| `repository/` | Spring Data Repository (자기 Domain Entity만) | `domain` |
-| `dto/` | `api-contract.md` 기준 Request / Response | — |
+| `controller/` | `@Valid`, 인증 Context, Service 호출 | `service`, `dto` |
+| `service/` | `XxxService`(변경, Transaction) / `XxxQueryService`(조회·집계), Entity → Response 변환 | `entity`, `repository`, 다른 Domain 공개 Service, `common/integration` |
+| `entity/` | JPA Entity, Enum, 상태 전이 메서드, Invariant | 같은 Domain `entity` |
+| `repository/` | Spring Data Repository (자기 Domain Entity만) | `entity` |
+| `dto/` | `api-contract.md` 기준 Request / Response, `from(entity)` | `entity` |
+| `exception/` | `XxxErrorCode` | `common/error` |
 
-`common/`은 Error 형식, Auth Context, Time / ID, 그리고 `integration/learnershigh/`(Existing LearnersHigh Client Interface + Real / Mock 구현)만 둔다.
+`common/`은 `error/`(ErrorCode, BusinessException, GlobalExceptionHandler), `auth/`, `integration/learnershigh/`(Existing LearnersHigh Client Interface + Real / Mock 구현)만 둔다.
 Interface는 이 외부 경계(Existing / File Storage / Delivery / AI)에만 만든다.
 
 ### `database/`
@@ -102,7 +103,7 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 |---|---|
 | `frontend/**`, `backend/**`에 `suyeon/`, `wangyu/`, `ext/` 폴더 없음 | `scripts/verify.ps1` |
 | Controller에 Business Rule 없음 | Code Review |
-| Entity(`domain/`)는 `controller` / `service` / `dto`에 의존하지 않음, Controller는 Repository를 직접 호출하지 않음 | 미자동화 (Backend Scaffold 후 Architecture Test 도입 후보) |
+| `entity/`는 `controller` / `service` / `dto`에 의존하지 않음, Controller는 Repository를 직접 호출하지 않음 | 미자동화 (Backend Scaffold 후 Architecture Test 도입 후보) |
 | 다른 Domain의 Repository 직접 참조 금지 | 미자동화 (동일) |
 | 기존 LearnersHigh Table / DTO는 `common/integration/learnershigh/` 밖으로 나오지 않음 | 미자동화 (동일) |
 | Surface별 Entity 복제 금지 (`StudentTask`, `AdminTask` 같은 Domain Class 금지) | Code Review |
@@ -131,7 +132,7 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 
 - **적용**: Bounded Context = Backend 최상위 Domain 패키지. 상태 전이가 있는 Entity(Task, Version, Feedback, Activity, MentorContent, ParentReport)는 전이 메서드와 Invariant를 Entity 안에 둔다 (Rich Domain Model). 기존 시스템 연결은 `common/integration` ACL로만.
 - **선택**: Aggregate 경계, Value Object는 `domain.md`에서 경계가 확정된 것부터 점진 도입.
-- **비적용**: Hexagonal(Port / Adapter 전면 적용, Domain / Persistence Model 분리 — ADR-0005), Event Sourcing, CQRS 별도 저장소, Domain Event Bus, 물리적 Multi-module 분리. 현재 팀 규모(2인)와 단계에 비해 비용이 크다. 필요해지면 ADR로 도입한다.
+- **비적용**: Domain / Persistence Model 분리(ADR-0005), Event Sourcing, CQRS 별도 저장소, Domain Event Bus, 물리적 Multi-module 분리. 현재 팀 규모(2인)와 단계에 비해 비용이 크다. 필요해지면 ADR로 도입한다.
 
 ### TDD — "Domain 우선 TDD"
 
