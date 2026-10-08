@@ -269,7 +269,7 @@ Backfill / Default / 단계적 Migration을 검토한다.
 
 Suyeon 작업에서 상담 Table / Column / Seed를 만들지 않는다.
 
-상담 데이터는 Wankyu-owned Domain이 소유한다.
+상담 데이터는 Wangyu-owned Domain이 소유한다.
 
 ## 21. Verification
 

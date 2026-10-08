@@ -102,7 +102,7 @@ Suyeon Domain 안에 상담 Entity / API / DB Model을 새로 만들지 않는�
 필요 시:
 
 ```text
-Wankyu-owned Counseling Domain
+Wangyu-owned Counseling Domain
         │
         ▼
 Shared / Integration Contract
@@ -2748,7 +2748,7 @@ Shared Student Data
 Derived 값은 Source Entity에서 계산한다.
 AI는 Draft / Candidate 역할을 넘지 않는다.
 Student 저작권과 개인정보 경계를 지킨다.
-상담 기능은 Wankyu Domain에 둔다.
+상담 기능은 Wangyu Domain에 둔다.
 기존 LearnersHigh 기능은 재구현하지 않는다.
 불명확한 상태값은 추측하지 않는다.
 ```

@@ -2768,7 +2768,7 @@ Counseling Brief
 Admissions Counseling
 ```
 
-상담 API는 Wankyu-owned Spec / Domain / Contract에서 정의한다.
+상담 API는 Wangyu-owned Spec / Domain / Contract에서 정의한다.
 
 Suyeon Feature가 상담 정보가 필요해질 경우
 공유 Contract를 별도 합의한다.

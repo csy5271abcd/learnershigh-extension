@@ -17,7 +17,7 @@
 ### Owner
 
 - [ ] Suyeon
-- [ ] Wankyu
+- [ ] Wangyu
 - [ ] Shared / Cross-owner
 
 ### Surface
@@ -174,12 +174,12 @@ State Transition:
 
 - [ ] 다른 담당자의 Feature를 임의 수정하지 않았다.
 - [ ] Shared 변경이면 다른 담당자 영향 범위를 확인했다.
-- [ ] Source Code를 `suyeon/`, `wankyu/`, `ext/` 같은 사람/확장명 기준 폴더로 만들지 않았다.
+- [ ] Source Code를 `suyeon/`, `wangyu/`, `ext/` 같은 사람/확장명 기준 폴더로 만들지 않았다.
 
 ### Counseling boundary
 
 - [ ] 이 PR은 상담 기능과 무관하다.
-- [ ] 상담 관련 변경이며 Wankyu-owned 영역에서 처리한다.
+- [ ] 상담 관련 변경이며 Wangyu-owned 영역에서 처리한다.
 - [ ] Suyeon Feature에 Counseling Entity/API/DB/CRM/Brief/Follow-up을 추가하지 않았다.
 - [ ] Parent Progress / Today Board / Operations에 상담 파생 데이터를 임의 추가하지 않았다.
 

@@ -102,7 +102,7 @@ function Test-ForbiddenCodeDirectories {
 
         $directories = Get-ChildItem -LiteralPath $searchRoot -Directory -Recurse -ErrorAction SilentlyContinue |
             Where-Object {
-                $_.Name -in @("suyeon", "wankyu", "ext")
+                $_.Name -in @("suyeon", "wangyu", "ext")
             }
 
         foreach ($directory in $directories) {

@@ -50,7 +50,7 @@ docs/architecture/integration-boundary.md
 
 ```text
 suyeon/
-wankyu/
+wangyu/
 ext/
 ```
 
@@ -68,7 +68,7 @@ docs/OWNERSHIP.md
 
 ## 4. Counseling Boundary
 
-상담 관련 기능 전체는 Wankyu 담당이다.
+상담 관련 기능 전체는 Wangyu 담당이다.
 
 Suyeon 영역에서 다음을 구현하지 않는다.
 

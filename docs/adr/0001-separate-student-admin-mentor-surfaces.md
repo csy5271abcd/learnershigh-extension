@@ -142,7 +142,7 @@ Claude Code와 개발자는 다음을 지킨다.
 ```text
 1. Student/Admin/Mentor 화면을 한 Feature 폴더에 무분별하게 혼합하지 않는다.
 
-2. 사람 이름(suyeon/wankyu) 기준 Frontend 폴더를 만들지 않는다.
+2. 사람 이름(suyeon/wangyu) 기준 Frontend 폴더를 만들지 않는다.
 
 3. 같은 Business Entity를 Surface별로 복제하지 않는다.
 

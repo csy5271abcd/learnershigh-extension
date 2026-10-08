@@ -301,7 +301,7 @@ features/parent-progress/
 
 ```text
 features/suyeon/
-features/wankyu/
+features/wangyu/
 features/ext/
 ```
 
@@ -415,7 +415,7 @@ backend/
    └─ common/
 ```
 
-`ext`, `suyeon`, `wankyu`와 같은 패키지는 사용하지 않는다.
+`ext`, `suyeon`, `wangyu`와 같은 패키지는 사용하지 않는다.
 
 ---
 
@@ -696,7 +696,7 @@ Connection
 
 ```text
 docs/specs/suyeon/domain.md
-docs/specs/wankyu/domain.md
+docs/specs/wangyu/domain.md
 ```
 
 를 따른다.

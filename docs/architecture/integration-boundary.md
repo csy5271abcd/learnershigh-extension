@@ -42,7 +42,7 @@ Mentor Hub
 School & Admissions
 Admin Student Management
 Parent Progress
-+ Wankyu-owned Features
++ Wangyu-owned Features
 ```
 
 ---
@@ -664,7 +664,7 @@ Parent가 기존 LearnersHigh 계정을 통해 직접 로그인하는 흐름은
 
 # 20. Counseling Boundary
 
-상담 기능 전체는 Wankyu 담당이다.
+상담 기능 전체는 Wangyu 담당이다.
 
 Suyeon 담당 Extension은 다음을 구현하지 않는다.
 
@@ -688,7 +688,7 @@ Suyeon Feature가 향후 상담 정보를 필요로 하는 경우에도
 개념:
 
 ```text
-Wankyu Counseling Domain
+Wangyu Counseling Domain
            │
            ▼
 Shared / Integration Contract
@@ -698,7 +698,7 @@ Suyeon Feature
 ```
 
 필요 시 Contract만 정의하고,
-실제 상담 데이터 생성 / 수정 / 비즈니스 로직은 Wankyu Domain이 소유한다.
+실제 상담 데이터 생성 / 수정 / 비즈니스 로직은 Wangyu Domain이 소유한다.
 
 ---
 
@@ -1133,7 +1133,7 @@ Existing LearnersHigh
 | Growth Activity | Extension | Read / Write |
 | Mentor Content | Extension | Read / Write |
 | Parent Report | Extension | Read / Write |
-| Counseling | Wankyu-owned Domain | 해당 Contract를 통해서만 사용 |
+| Counseling | Wangyu-owned Domain | 해당 Contract를 통해서만 사용 |
 
 실제 기존 시스템 확인 결과에 따라 일부 항목은 ADR로 조정할 수 있다.
 
@@ -1400,7 +1400,7 @@ Student 미동의 Artifact
 다음 구조를 사용한다.
 
 ```text
-Wankyu Counseling Domain
+Wangyu Counseling Domain
         │
         ▼
 Published Contract

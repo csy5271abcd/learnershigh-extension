@@ -25,7 +25,7 @@ common/
 ```text
 ext/
 suyeon/
-wankyu/
+wangyu/
 ```
 
 ## 2. Layer Responsibility
@@ -288,7 +288,7 @@ Candidate
 
 Suyeon Domain에서 상담 관련 Entity / Service / Repository / Endpoint를 만들지 않는다.
 
-필요 시 Wankyu Domain의 Published Contract를 소비한다.
+필요 시 Wangyu Domain의 Published Contract를 소비한다.
 
 ## 18. File
 

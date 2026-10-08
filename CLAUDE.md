@@ -113,9 +113,9 @@ Source Code는 사람 이름이 아니라 Feature / Domain 기준으로 구성�
 
 ```text
 frontend/**/suyeon/
-frontend/**/wankyu/
+frontend/**/wangyu/
 backend/**/suyeon/
-backend/**/wankyu/
+backend/**/wangyu/
 backend/**/ext/
 ```
 
@@ -145,7 +145,7 @@ docs/specs/suyeon/features/parent-progress.md
 
 ## 6. Counseling Boundary
 
-상담 관련 기능 전체는 Wankyu 담당이다.
+상담 관련 기능 전체는 Wangyu 담당이다.
 
 Suyeon 영역에서 다음을 만들지 않는다.
 
@@ -160,7 +160,7 @@ Counseling-derived Parent Report Section
 Counseling-derived Today Board Action / Operations KPI
 ```
 
-필요한 경우 Integration Boundary 또는 Shared Contract만 정의하고 실제 구현은 Wankyu 영역에 둔다.
+필요한 경우 Integration Boundary 또는 Shared Contract만 정의하고 실제 구현은 Wangyu 영역에 둔다.
 
 ## 7. Existing LearnersHigh
 

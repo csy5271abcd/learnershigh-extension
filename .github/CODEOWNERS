@@ -8,7 +8,7 @@
 # Therefore the ownership map below is intentionally COMMENTED OUT.
 # Replace:
 #   @SUYEON_GITHUB_ID
-#   @WANKYU_GITHUB_ID
+#   @WANGYU_GITHUB_ID
 # with real GitHub handles, then uncomment the matching lines.
 #
 # Ownership policy itself is defined in:
@@ -22,26 +22,26 @@
 #
 # Shared files should normally receive review from both owners.
 #
-# /*                                      @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /CLAUDE.md                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /README.md                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /.gitignore                             @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /.claude/settings.json                  @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /.claude/rules/                         @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/SOURCE_OF_TRUTH.md                @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/OWNERSHIP.md                      @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/architecture/                     @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/design/                           @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/api/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/adr/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/product/                          @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /docs/source/                           @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /frontend/shared/                       @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /backend/src/main/java/**/common/       @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /database/                              @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /e2e/                                   @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /scripts/                               @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
-# /.github/                               @SUYEON_GITHUB_ID @WANKYU_GITHUB_ID
+# /*                                      @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /CLAUDE.md                              @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /README.md                              @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /.gitignore                             @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /.claude/settings.json                  @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /.claude/rules/                         @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/SOURCE_OF_TRUTH.md                @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/OWNERSHIP.md                      @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/architecture/                     @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/design/                           @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/api/                              @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/adr/                              @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/product/                          @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /docs/source/                           @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /frontend/shared/                       @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /backend/src/main/java/**/common/       @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /database/                              @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /e2e/                                   @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /scripts/                               @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
+# /.github/                               @SUYEON_GITHUB_ID @WANGYU_GITHUB_ID
 
 # ============================================================
 # 2. Suyeon-owned specifications
@@ -80,25 +80,25 @@
 # /backend/src/main/java/**/parentprogress/             @SUYEON_GITHUB_ID
 
 # ============================================================
-# 5. Wankyu-owned specifications
+# 5. Wangyu-owned specifications
 # ============================================================
 #
-# /docs/specs/wankyu/                     @WANKYU_GITHUB_ID
+# /docs/specs/wangyu/                     @WANGYU_GITHUB_ID
 
 # ============================================================
-# 6. Counseling boundary — Wankyu-owned
+# 6. Counseling boundary — Wangyu-owned
 # ============================================================
 #
-# All counseling-related implementation belongs to Wankyu.
+# All counseling-related implementation belongs to Wangyu.
 # These patterns are examples for the final repository structure.
 # Keep only paths that actually exist.
 #
-# /frontend/student/src/features/counseling/            @WANKYU_GITHUB_ID
-# /frontend/admin/src/features/counseling/              @WANKYU_GITHUB_ID
-# /frontend/admin/src/features/parent-counseling/       @WANKYU_GITHUB_ID
-# /backend/src/main/java/**/counseling/                  @WANKYU_GITHUB_ID
+# /frontend/student/src/features/counseling/            @WANGYU_GITHUB_ID
+# /frontend/admin/src/features/counseling/              @WANGYU_GITHUB_ID
+# /frontend/admin/src/features/parent-counseling/       @WANGYU_GITHUB_ID
+# /backend/src/main/java/**/counseling/                  @WANGYU_GITHUB_ID
 #
-# If Wankyu feature folders use different domain names,
+# If Wangyu feature folders use different domain names,
 # define those exact paths after the final feature structure is known.
 
 # ============================================================
@@ -106,10 +106,10 @@
 # ============================================================
 #
 # [ ] Replace @SUYEON_GITHUB_ID with the real GitHub handle/team.
-# [ ] Replace @WANKYU_GITHUB_ID with the real GitHub handle/team.
+# [ ] Replace @WANGYU_GITHUB_ID with the real GitHub handle/team.
 # [ ] Verify the actual frontend feature paths.
 # [ ] Verify the actual backend Java package root.
-# [ ] Add Wankyu's non-counseling owned feature paths.
+# [ ] Add Wangyu's non-counseling owned feature paths.
 # [ ] Uncomment only valid paths.
 # [ ] Open a PR and confirm GitHub requests the expected reviewers.
 #
