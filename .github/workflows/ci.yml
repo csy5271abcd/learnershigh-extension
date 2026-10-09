@@ -207,55 +207,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Detect backend scaffold and Java version
+      - name: Detect backend scaffold
         id: backend-meta
         run: |
           $ErrorActionPreference = "Stop"
 
           $buildFiles = @(
-            ".\backend\build.gradle",
-            ".\backend\build.gradle.kts",
-            ".\backend\settings.gradle",
-            ".\backend\settings.gradle.kts",
-            ".\backend\pom.xml"
-          ) | Where-Object { Test-Path -LiteralPath $_ }
+            @(
+              ".\backend\build.gradle",
+              ".\backend\build.gradle.kts"
+            ) | Where-Object { Test-Path -LiteralPath $_ }
+          )
 
           $hasBackend = $buildFiles.Count -gt 0
           "has_backend=$($hasBackend.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
-          $javaVersion = $null
-
-          foreach ($candidate in @(
-            ".\backend\.java-version",
-            ".\.java-version"
-          )) {
-            if (Test-Path -LiteralPath $candidate) {
-              $javaVersion = (Get-Content -LiteralPath $candidate -Raw -Encoding UTF8).Trim()
-
-              if (-not [string]::IsNullOrWhiteSpace($javaVersion)) {
-                break
-              }
-            }
-          }
-
-          if (-not [string]::IsNullOrWhiteSpace($javaVersion)) {
-            "java_version=$javaVersion" >> $env:GITHUB_OUTPUT
-            Write-Host "Java version file detected: $javaVersion"
-          }
-          else {
-            Write-Host "No .java-version detected. The runner-provided Java version will be used."
-          }
-
           if (-not $hasBackend) {
-            Write-Host "No backend Gradle/Maven build file detected. Backend job will be skipped."
+            Write-Host "No backend Gradle build file detected. Backend job will be skipped."
           }
 
-      - name: Setup Java from repository version
-        if: steps.backend-meta.outputs.has_backend == 'true' && steps.backend-meta.outputs.java_version != ''
+      # Java 21 = backend/build.gradle.kts의 toolchain languageVersion과 같아야 한다.
+      - name: Setup Java 21
+        if: steps.backend-meta.outputs.has_backend == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ steps.backend-meta.outputs.java_version }}
+          java-version: "21"
+          cache: gradle
+          cache-dependency-path: |
+            backend/*.gradle*
+            backend/gradle/wrapper/gradle-wrapper.properties
 
       - name: Show Java environment
         if: steps.backend-meta.outputs.has_backend == 'true'

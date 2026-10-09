@@ -39,14 +39,16 @@
 
 | 영역 | 확정 | 미확정 (임의 선택 금지) |
 |---|---|---|
-| Frontend | React, TypeScript, npm, Node.js 22 | Build Tool(Vite 여부), 세부 Version, 상태관리 / Router / Test / UI Library |
-| Backend | Spring Boot, Domain-packaged Layered MVC (ADR-0005) | Java Version, Gradle / Maven, Spring Boot Version |
+| Frontend | React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, oxlint (Lint), npm workspaces, Node.js 22 | 상태관리 / Router / Data Fetching / UI / CSS / Form Library, Test Framework, Node.js exact Version |
+| Backend | Java 21, Spring Boot 4.1.1, Gradle 9.7.1 Wrapper (Kotlin DSL), Domain-packaged Layered MVC (ADR-0005), JUnit Jupiter + Spring Boot Test + ArchUnit | Migration Tool, Integration Test DB 실행 방식 |
 | Database / API | MySQL, REST-style JSON | — |
 | Infrastructure | — | Authentication, File Storage, AI / Delivery Provider, Existing LearnersHigh 실제 API / DB / Auth |
 
 ## 2. Code Map
 
-> 현재는 Harness 단계라 `frontend/`, `backend/`, `database/`, `e2e/`가 아직 없다. 아래는 목표 구조다.
+> `frontend/`(student / admin / mentor App Shell)와 `backend/`(Spring Boot App + Architecture Test)는 Scaffold만 있고 Feature는 아직 없다. `frontend/shared/`, `database/`, `e2e/`는 실제로 필요해질 때 만든다. 아래는 목표 구조다.
+>
+> Frontend는 `frontend/package.json`의 npm workspaces(`student`, `admin`, `mentor`)와 `frontend/package-lock.json` 하나로 관리한다. Backend base package는 `com.learnershigh.extension`이다.
 
 ### `frontend/<surface>/src/features/<feature>/`
 
@@ -112,9 +114,10 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 |---|---|
 | `frontend/**`, `backend/**`에 `suyeon/`, `wangyu/`, `ext/` 폴더 없음 | `scripts/verify.ps1` |
 | Controller에 Business Rule 없음 | Code Review |
-| `entity/`는 `controller` / `service` / `dto`에 의존하지 않음, Controller는 Repository를 직접 호출하지 않음 | 미자동화 (Backend Scaffold 후 Architecture Test 도입 후보) |
-| 다른 Domain의 Repository 직접 참조 금지 | 미자동화 (동일) |
-| 기존 LearnersHigh Table / DTO는 `common/integration/learnershigh/` 밖으로 나오지 않음 | 미자동화 (동일) |
+| `entity/`는 `controller` / `service` / `dto` / `repository`에 의존하지 않음, Controller는 Repository / Entity를 직접 사용하지 않음, `XxxServiceImpl` 금지 | ArchUnit (`backend/src/test/.../architecture/ArchitectureTest`) |
+| 다른 Domain의 Repository / Entity 직접 참조 금지 | ArchUnit (동일) |
+| `ExistingXxxClient` / `Real` / `Mock` 구현은 `common/integration/learnershigh/`에만 있고 Domain은 구현체를 직접 쓰지 않음 | ArchUnit (동일) |
+| 기존 LearnersHigh Table / DTO는 `common/integration/learnershigh/` 밖으로 나오지 않음 | Code Review (실제 Client 구현 시 자동화 검토) |
 | Surface별 Entity 복제 금지 (`StudentTask`, `AdminTask` 같은 Domain Class 금지) | Code Review |
 | Mentor 응답에 Student PII 없음 | Privacy Test (`.claude/rules/testing.md` §11) |
 | 상담 기능은 Wangyu Domain에만 존재 | CODEOWNERS + Code Review |
@@ -158,6 +161,6 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 
 ### 유지보수성
 
-- 의존 방향을 Architecture Test로 고정 (Backend Scaffold 시점에 도입 후보).
+- 의존 방향을 Architecture Test로 고정 — Backend Scaffold에서 ArchUnit으로 도입했다 (§3).
 - Clock / ID Generator 주입으로 시간 의존 Test 제거 (`testing.md` §14).
 - `shared/`, `common/` 조기 승격 금지 — 중복 2회까지는 허용하고 3회째에 추출을 검토한다.

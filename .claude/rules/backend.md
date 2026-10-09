@@ -11,6 +11,9 @@ paths:
 
 Spring Boot Backend는 사람 이름이 아니라 Domain 기준으로 구성한다.
 
+Build는 `backend/gradlew(.bat)`(Gradle Wrapper, Kotlin DSL)만 사용한다. Maven 파일을 만들지 않는다.
+Base package `com.learnershigh.extension` 아래에 Domain 패키지를 둔다.
+
 ```text
 mentor/
 school/
@@ -322,6 +325,10 @@ Permission
 ```
 
 핵심 Cross-Surface Use Case는 Integration/E2E와 연결한다.
+
+Test Stack은 JUnit Jupiter + Spring Boot Test Starter(BOM 관리 Version)다.
+Layer / Domain 의존 규칙은 `ArchitectureTest`(ArchUnit)가 검증한다. 규칙을 통과시키려고 Rule을 완화하지 않는다.
+일반 Unit Test는 DB / Docker 없이 실행되어야 한다. MySQL Integration Test 실행 방식은 첫 Repository 구현 때 정한다.
 
 ## 22. 금지
 

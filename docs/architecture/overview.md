@@ -245,8 +245,9 @@ Mentor에게 허용되지 않은 정보를 Mentor Surface로 전달하지 않는
 
 Frontend는 Surface별 App과 공통 Shared Layer로 구성한다.
 
-기술: React + TypeScript, Package Manager npm, Runtime Node.js 22.
-Build Tool(Vite 여부), 세부 Version, 상태관리 / Router / Test / UI Library는 아직 확정하지 않는다.
+기술: React + TypeScript, Build Tool Vite, Package Manager npm(workspaces), Runtime Node.js 22. (Version: `README.md` §4)
+각 Surface는 `frontend/<surface>/`의 독립 Vite App이며, `frontend/package.json` workspaces와 `frontend/package-lock.json` 하나로 관리한다.
+상태관리 / Router / Data Fetching / UI Library, Test Framework는 아직 확정하지 않는다.
 
 ```text
 frontend/
@@ -404,7 +405,8 @@ Shared로 이동하기 전:
 
 Backend는 Spring Boot + MySQL 기반의 REST-style JSON API이며,
 사람 또는 화면이 아니라 **Business Domain 기준**으로 구성한다.
-Java Version, Gradle / Maven, Spring Boot Version은 아직 확정하지 않는다.
+Java 21, Gradle Wrapper(Kotlin DSL)를 사용한다. Base package는 `com.learnershigh.extension`이다. (Version: `README.md` §4)
+Migration Tool은 아직 확정하지 않는다.
 
 예:
 

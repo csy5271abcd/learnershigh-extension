@@ -194,10 +194,10 @@ frontend/
 
 Feature-first 구조를 사용한다.
 
-확정 기술: React + TypeScript, npm, Node.js 22.
+확정 기술: React + TypeScript, Vite, oxlint, npm workspaces(`frontend/package.json`), Node.js 22. 정확한 Version은 `README.md` §4와 `frontend/package-lock.json`을 따른다.
 Package Manager는 npm only다. Lockfile은 `package-lock.json`만 허용하며 `pnpm-lock.yaml` / `yarn.lock` / `bun.lock` / `bun.lockb`는 `scripts/verify-frontend.ps1`과 CI에서 실패 처리된다.
 JavaScript 전용 Source, 다른 Node Major Version을 도입하지 않는다. Node.js 22의 exact Version 파일(`.nvmrc` / `.node-version`)은 아직 만들지 않는다.
-Vite 등 Build Tool, 세부 Version, 상태관리 / Router / Test / UI Library는 미확정이므로 임의로 선택하지 않는다.
+상태관리 / Router / Data Fetching / Form / UI / CSS Library, Test Framework는 미확정이므로 임의로 설치하지 않는다.
 
 `frontend/shared/`에는 **실제로 여러 Feature/Surface가 공통 사용하는 코드만** 둔다.
 
@@ -206,7 +206,8 @@ Vite 등 Build Tool, 세부 Version, 상태관리 / Router / Test / UI Library�
 ## 9. Backend
 
 Spring Boot + MySQL, REST-style JSON API를 사용하며 Backend는 Domain 기준으로 구성한다.
-Java Version, Gradle / Maven, Spring Boot Version은 미확정이므로 임의로 선택하지 않는다.
+Java 21, Spring Boot 4.1.1, Gradle Wrapper(Kotlin DSL)를 사용한다. Build는 `backend/gradlew(.bat)`만 사용하며 Maven 파일(`pom.xml`, `mvnw`, `.mvn/`)을 만들지 않는다.
+Base package는 `com.learnershigh.extension`이고, 의존 규칙은 `ArchitectureTest`(ArchUnit)가 검증한다. Migration Tool은 미확정이다.
 
 ```text
 mentor/
