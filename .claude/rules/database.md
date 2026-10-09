@@ -13,11 +13,13 @@ paths:
 
 기본 DB는 MySQL이다.
 
-변경 이력:
+변경 이력 (Flyway, ADR-0006):
 
 ```text
-database/migrations/
+database/migrations/V<yyyyMMddHHmm>__<description>.sql
 ```
+
+로컬 MySQL은 `docker compose up -d`(`mysql:8.4`)를 사용한다. 파일 규칙: `database/migrations/README.md`
 
 개발 / 발표용 공통 데이터:
 
@@ -241,9 +243,9 @@ speech_v2_548words.docx
 
 두 개발자가 병렬로 Migration을 만들 경우 번호/버전 충돌을 방지한다.
 
-Migration 범위 분리는 팀에서 확정한 경우에만 사용한다.
+Version은 작성 시각(UTC, `yyyyMMddHHmm`)을 사용한다. 개인별 번호 범위를 두지 않는다.
 
-임의로 개인 번호 범위를 도입하지 않는다.
+이미 main에 들어간 Migration 파일은 수정하지 않는다. 변경은 새 Migration으로 추가한다.
 
 ## 18. Destructive Change
 
@@ -277,7 +279,7 @@ Suyeon 작업에서 상담 Table / Column / Seed를 만들지 않는다.
 DB 변경 후 최소 확인:
 
 ```text
-Migration 적용
+Migration 적용 (./gradlew integrationTest)
 Application 시작
 Repository Mapping
 Seed 적용
