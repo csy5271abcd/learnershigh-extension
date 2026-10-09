@@ -406,7 +406,7 @@ Shared로 이동하기 전:
 Backend는 Spring Boot + MySQL 기반의 REST-style JSON API이며,
 사람 또는 화면이 아니라 **Business Domain 기준**으로 구성한다.
 Java 21, Gradle Wrapper(Kotlin DSL)를 사용한다. Base package는 `com.learnershigh.extension`이다. (Version: `README.md` §4)
-Migration Tool은 아직 확정하지 않는다.
+Migration은 Flyway(`database/migrations/`), MySQL Integration Test는 Testcontainers, 로컬 MySQL은 Docker Compose를 사용한다. (ADR-0006, Proposed)
 
 예:
 
@@ -824,9 +824,11 @@ Database는 MySQL을 사용한다.
 
 ```text
 database/
-├─ migrations/
+├─ migrations/   # Flyway V<yyyyMMddHHmm>__<description>.sql (ADR-0006)
 └─ seed/
 ```
+
+로컬은 `docker-compose.yml`의 `mysql:8.4`, Integration Test는 Testcontainers의 같은 Image를 사용한다.
 
 원칙:
 

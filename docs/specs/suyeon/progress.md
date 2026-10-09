@@ -908,9 +908,11 @@ Frontend build: PASS (student / admin / mentor)
 
 Backend compile: PASS (gradlew classes)
 Backend test: PASS (ArchUnit 21 tests, DB / Docker 불필요)
+Backend integrationTest: PASS (ApplicationContextTest 1, Testcontainers mysql:8.4 + Flyway, ADR-0006)
+Local MySQL (docker compose up -d): PASS (mysql 8.4.11 healthy)
 Backend runtime: NOT_RUN (DB_URL / DB_USERNAME / DB_PASSWORD 미설정 시 DataSource 생성 실패 확인)
 
-DB migration: NOT_RUN (Migration Tool 미확정)
+DB migration: Flyway 적용 확인 (Migration 파일 0개, pending 0)
 E2E: NOT_RUN
 
 Markdown link validation: PASS (2026-10-09 Harness 작업)
@@ -1088,6 +1090,30 @@ verify-frontend.ps1 npm-only 시나리오 11개 (scratch fixture): 기대대로 
 Markdown link validation: PASS (Markdown Link 14개, broken 0)
 Inline code path 점검: reward-dashboard.png 1건 누락 (보고만, 미수정)
 ```
+
+## 2026-10-09 — Docker MySQL / Flyway / Testcontainers (ADR-0006, Proposed)
+
+### Done
+
+- `docker-compose.yml`(mysql:8.4), `.env.example`
+- Backend: Flyway(`database/migrations/` → `classpath:db/migration`), Testcontainers MySQL, `integrationTest` Gradle Task(`@Tag("integration")`)
+- `ApplicationContextTest`: 실제 MySQL에서 Context + Flyway 검증
+- `scripts/verify-backend.ps1`: Docker가 있으면 integrationTest 실행, `-Strict`에서 Docker 없으면 실패
+- CI Backend Job: `windows-latest` → `ubuntu-latest`
+- 문서: ADR-0006, ARCHITECTURE / CLAUDE / AGENTS / README / overview / backend · database rule
+
+### Verification
+
+```text
+./gradlew clean build integrationTest: PASS (test 21, integrationTest 1)
+docker compose config / up: PASS (mysql 8.4.11 healthy)
+scripts/verify-backend.ps1: NOT_RUN (작업 환경에 pwsh 없음)
+GitHub Actions: NOT_RUN (Push 전)
+```
+
+### Not Decided
+
+- Seed 적용 방식, E2E 도구, 시연 / 배포 환경
 
 ## 2026-10-09 — Project Scaffold (branch: chore/project-scaffold)
 

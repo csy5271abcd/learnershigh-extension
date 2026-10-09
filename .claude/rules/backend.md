@@ -328,7 +328,9 @@ Permission
 
 Test Stack은 JUnit Jupiter + Spring Boot Test Starter(BOM 관리 Version)다.
 Layer / Domain 의존 규칙은 `ArchitectureTest`(ArchUnit)가 검증한다. 규칙을 통과시키려고 Rule을 완화하지 않는다.
-일반 Unit Test는 DB / Docker 없이 실행되어야 한다. MySQL Integration Test 실행 방식은 첫 Repository 구현 때 정한다.
+일반 Unit Test는 DB / Docker 없이 실행되어야 한다. (`./gradlew build`)
+MySQL이 필요한 Test는 `@Tag("integration")` + `@Import(MySqlContainerConfig.class)`(Testcontainers)로 작성하고 `./gradlew integrationTest`로 실행한다. (ADR-0006)
+H2 등 In-memory DB로 MySQL을 대체하지 않는다.
 
 ## 22. 금지
 
