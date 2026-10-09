@@ -90,7 +90,7 @@ Existing LearnersHigh
 Integration Adapter / Contract
         │
         ▼
-Extension Application / Domain
+Extension Domain (service)
 ```
 
 Extension Domain은 기존 LearnersHigh의 내부 구현 세부사항을 가능한 한 알지 않도록 한다.
@@ -157,13 +157,14 @@ Extension은 기존 Student Identity를 참조하거나,
                    ▼
 ┌─────────────────────────────────────┐
 │         Integration Layer           │
+│   (Adapter / Anti-Corruption Layer) │
 │                                     │
-│ ExistingStudentAdapter              │
-│ ExistingPlanAdapter                 │
-│ ExistingLibraryAdapter              │
-│ ExistingStudyAdapter                │
-│ ExistingReportAdapter               │
-│ ExistingTaskAdapter                 │
+│ ExistingStudentClient               │
+│ ExistingPlanClient                  │
+│ ExistingLibraryClient               │
+│ ExistingStudyClient                 │
+│ ExistingReportClient                │
+│ ExistingTaskClient                  │
 └──────────────────┬──────────────────┘
                    │
                    ▼
@@ -846,7 +847,7 @@ Approved Existing API
 
 # 27. Integration Adapter 위치
 
-Backend 구조 예:
+Existing LearnersHigh 전용 Integration 코드의 위치는 ADR-0005에 따라 다음으로 고정한다.
 
 ```text
 backend/.../
@@ -857,14 +858,26 @@ backend/.../
 └─ common/
    └─ integration/
       └─ learnershigh/
-         ├─ ExistingStudentAdapter
-         ├─ ExistingPlanAdapter
-         ├─ ExistingLibraryAdapter
-         ├─ ExistingStudyAdapter
-         └─ ExistingTaskAdapter
+         ├─ ExistingStudentClient        (interface)
+         ├─ ExistingPlanClient           (interface)
+         ├─ RealExistingPlanClient       (실제 연동 구현)
+         ├─ MockExistingPlanClient       (개발 / Test용 구현)
+         ├─ ExistingLibraryClient        (interface)
+         ├─ ExistingStudyClient          (interface)
+         ├─ ExistingReportClient         (interface)
+         └─ ExistingTaskClient           (interface)
 ```
 
-실제 Package 위치는 코드베이스에 맞게 조정할 수 있다.
+Naming 기준:
+
+```text
+Consumer Interface : ExistingXxxClient
+구현               : RealExistingXxxClient / MockExistingXxxClient
+```
+
+Domain Service는 `ExistingXxxClient` Interface에만 의존한다.
+`mentor/`, `school/`, `studentmanagement/`, `parentprogress/` 등 Domain 패키지 안에
+Existing LearnersHigh 전용 Client / 구현 / Mapper를 두지 않는다.
 
 핵심은:
 
@@ -872,7 +885,10 @@ backend/.../
 Existing-specific code
 ```
 
-가 Domain 곳곳에 퍼지지 않도록 한 곳에 모으는 것이다.
+가 Domain 곳곳에 퍼지지 않도록 `common/integration/learnershigh/` 한 곳에 모으는 것이다.
+
+이 위치 규칙은 Existing LearnersHigh Integration에만 적용한다.
+File Storage / External Delivery / AI Provider Interface의 Package 위치는 아직 확정하지 않는다.
 
 ---
 
@@ -1293,7 +1309,7 @@ Existing Study / Plan
 
 ```text
 integration=learnershigh
-adapter=ExistingPlanAdapter
+client=ExistingPlanClient
 studentId=S001
 operation=getWeeklyPlan
 result=failed

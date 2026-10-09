@@ -194,13 +194,19 @@ frontend/
 
 Feature-first 구조를 사용한다.
 
+확정 기술: React + TypeScript, npm, Node.js 22.
+Package Manager는 npm only다. Lockfile은 `package-lock.json`만 허용하며 `pnpm-lock.yaml` / `yarn.lock` / `bun.lock` / `bun.lockb`는 `scripts/verify-frontend.ps1`과 CI에서 실패 처리된다.
+JavaScript 전용 Source, 다른 Node Major Version을 도입하지 않는다. Node.js 22의 exact Version 파일(`.nvmrc` / `.node-version`)은 아직 만들지 않는다.
+Vite 등 Build Tool, 세부 Version, 상태관리 / Router / Test / UI Library는 미확정이므로 임의로 선택하지 않는다.
+
 `frontend/shared/`에는 **실제로 여러 Feature/Surface가 공통 사용하는 코드만** 둔다.
 
 한 Feature에서만 사용하는 Component를 미리 Shared로 올리지 않는다.
 
 ## 9. Backend
 
-Spring Boot Backend는 Domain 기준으로 구성한다.
+Spring Boot + MySQL, REST-style JSON API를 사용하며 Backend는 Domain 기준으로 구성한다.
+Java Version, Gradle / Maven, Spring Boot Version은 미확정이므로 임의로 선택하지 않는다.
 
 ```text
 mentor/
@@ -368,7 +374,7 @@ ADR-0001 Student / Admin / Mentor Surface 분리
 ADR-0002 Existing LearnersHigh Integration Boundary
 ADR-0003 Shared Feedback Queue
 ADR-0004 Parent App 없이 Parent Report 전달
-ADR-0005 Backend Layered MVC (Proposed)
+ADR-0005 Backend Domain-packaged Layered MVC
 ```
 
 중요한 방향 변경은 새 ADR로 Supersede한다.

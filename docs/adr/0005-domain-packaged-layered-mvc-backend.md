@@ -1,7 +1,7 @@
 # ADR-0005: Use Domain-packaged Layered MVC for the Backend
 
-- Status: Proposed
-- Date: 2026-10-08
+- Status: Accepted
+- Date: 2026-10-08 (Accepted: 2026-10-09)
 
 ## Context
 
@@ -149,7 +149,7 @@ Domain 간 숨은 결합이 생기기 쉽다.
 - 사람 이름 패키지 금지 (기존과 동일)
 ```
 
-이 ADR이 Accepted 되기 전까지 Backend Scaffold를 만들지 않는다.
+Backend Scaffold는 이 ADR의 패키지 구조와 의존 방향을 따른다.
 
 ---
 

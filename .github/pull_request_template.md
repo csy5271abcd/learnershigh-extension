@@ -78,10 +78,13 @@
 ### Backend
 
 - [ ] 변경 없음
-- [ ] API
-- [ ] Application
-- [ ] Domain
-- [ ] Infrastructure / Integration
+- [ ] Controller / API
+- [ ] Service
+- [ ] Entity / Domain State
+- [ ] Repository / Persistence
+- [ ] DTO / Contract
+- [ ] Exception / Error
+- [ ] Integration
 - [ ] Common
 
 주요 변경:

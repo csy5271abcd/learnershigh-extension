@@ -8,7 +8,7 @@
 
 ```text
 ┌───────────────────────────────────────────────────────────────┐
-│ Frontend (React)                                               │
+│ Frontend (React + TypeScript, npm, Node.js 22)                 │
 │  student/   admin/   mentor/        ── Surface App              │
 │        └──────┬──────┘                                          │
 │            shared/  (ui / theme / api / types / utils)          │
@@ -35,6 +35,15 @@
 2. **Surface 분리, Entity 공유** — Student / Admin / Mentor는 별도 App이지만 같은 Domain Entity를 본다. ([ADR-0001](docs/adr/0001-separate-student-admin-mentor-surfaces.md))
 3. **Contract First** — Frontend와 Backend는 `api-contract.md`로만 만난다.
 
+기술 선택:
+
+| 영역 | 확정 | 미확정 (임의 선택 금지) |
+|---|---|---|
+| Frontend | React, TypeScript, npm, Node.js 22 | Build Tool(Vite 여부), 세부 Version, 상태관리 / Router / Test / UI Library |
+| Backend | Spring Boot, Domain-packaged Layered MVC (ADR-0005) | Java Version, Gradle / Maven, Spring Boot Version |
+| Database / API | MySQL, REST-style JSON | — |
+| Infrastructure | — | Authentication, File Storage, AI / Delivery Provider, Existing LearnersHigh 실제 API / DB / Auth |
+
 ## 2. Code Map
 
 > 현재는 Harness 단계라 `frontend/`, `backend/`, `database/`, `e2e/`가 아직 없다. 아래는 목표 구조다.
@@ -56,7 +65,7 @@ Surface별 기능 코드. 사람 이름이 아니라 Feature 이름으로 나눈
 
 ### `backend/src/main/java/.../<domain>/`
 
-Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-layered-mvc-backend.md), Proposed). 상세 규칙: [`overview.md` §6](docs/architecture/overview.md).
+Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-layered-mvc-backend.md), Accepted). 상세 규칙: [`overview.md` §6](docs/architecture/overview.md).
 
 | 하위 패키지 | 책임 | 의존 가능 대상 |
 |---|---|---|
@@ -67,8 +76,8 @@ Domain 패키지 안의 Layered MVC ([ADR-0005](docs/adr/0005-domain-packaged-la
 | `dto/` | `api-contract.md` 기준 Request / Response, `from(entity)` | `entity` |
 | `exception/` | `XxxErrorCode` | `common/error` |
 
-`common/`은 `error/`(ErrorCode, BusinessException, GlobalExceptionHandler), `auth/`, `integration/learnershigh/`(Existing LearnersHigh Client Interface + Real / Mock 구현)만 둔다.
-Interface는 이 외부 경계(Existing / File Storage / Delivery / AI)에만 만든다.
+`common/`은 `error/`(ErrorCode, BusinessException, GlobalExceptionHandler), `auth/`, `integration/learnershigh/`(`ExistingXxxClient` Interface + `RealExistingXxxClient` / `MockExistingXxxClient`)만 둔다.
+Interface는 외부 경계(Existing / File Storage / Delivery / AI)에만 만든다. File Storage / Delivery / AI Interface의 Package 위치는 아직 확정하지 않았다.
 
 ### `database/`
 
@@ -124,7 +133,9 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 
 ## 5. Engineering Approach (Proposed)
 
-> **Status: Proposed.** 팀 합의 후 `docs/adr/0005-*.md`로 확정한다. 확정 전에는 아래를 강제 규칙으로 취급하지 않는다.
+> **Status: Proposed.** 아래 Engineering Practice(Tactical DDD Lite, Domain 우선 TDD, 유지보수성 항목)는 Accepted Architecture인 ADR-0005와 **별개의 제안**이다. 팀 합의 후 별도 ADR로 확정하며, 확정 전에는 강제 규칙으로 취급하지 않는다.
+>
+> 단, 아래 항목 중 ADR-0005에 이미 포함된 것(Entity 안의 상태 전이 / Invariant, Domain / Persistence Model 비분리, `common/integration` 경유 Existing 접근)은 이 섹션의 Status와 무관하게 ADR-0005 기준으로 적용된다.
 
 ### DDD — "Tactical DDD Lite"
 

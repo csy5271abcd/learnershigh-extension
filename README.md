@@ -203,14 +203,18 @@ Student의 실명, 학교, 기관, 상세 관리 데이터를 Mentor에게 노�
 
 ## 4. Tech Stack
 
-현재 프로젝트의 기본 기술 방향:
+팀에서 확정한 기술 선택:
 
 ```text
 Frontend
-→ React
+→ React + TypeScript
+→ Package Manager: npm
+→ Runtime: Node.js 22
+→ Student / Admin / Mentor Surface 분리, Feature-first
 
 Backend
 → Spring Boot
+→ Domain-packaged Layered MVC (ADR-0005)
 
 Database
 → MySQL
@@ -222,7 +226,28 @@ Design Reference
 → Toss Design System Mobile 원칙을 Web에 재해석
 ```
 
-실제 package / build / runtime 설정은 Repository의 실제 Scaffold를 기준으로 확인한다.
+아직 확정하지 않은 항목 (문서 근거 없이 임의 선택하지 않는다):
+
+```text
+Frontend
+→ Vite 등 Build Tool 사용 여부
+→ React / TypeScript 정확한 Version
+→ Node.js 22의 정확한 minor / patch Version
+→ 상태관리 / Router / Test Framework / UI Component Library
+
+Backend
+→ Java Version
+→ Gradle 또는 Maven
+→ Spring Boot 정확한 Version
+
+Infrastructure / Integration
+→ Authentication 방식
+→ File Storage
+→ AI Provider / Delivery Provider 실제 구현
+→ Existing LearnersHigh 실제 API / DB / Auth 방식
+```
+
+실제 package script / build / runtime 설정은 Repository의 실제 Scaffold를 기준으로 확인한다.
 
 README에 없는 실행 명령을 추측해서 사용하지 않는다.
 
@@ -367,7 +392,8 @@ learnershigh-extension
 │  │  ├─ 0001-separate-student-admin-mentor-surfaces.md
 │  │  ├─ 0002-existing-learnershigh-integration-boundary.md
 │  │  ├─ 0003-shared-feedback-queue.md
-│  │  └─ 0004-parent-report-without-parent-app.md
+│  │  ├─ 0004-parent-report-without-parent-app.md
+│  │  └─ 0005-domain-packaged-layered-mvc-backend.md
 │  │
 │  └─ source/
 │     └─ archive/
@@ -933,8 +959,7 @@ Claude Code 또는 개발자가 구현 편의를 위해 임의로 확정하지 �
 이유:
 
 ```text
-Frontend 실제 package manager
-Frontend package scripts
+Frontend package scripts (package manager는 npm으로 확정)
 Spring Boot build tool
 Database local bootstrap
 Existing LearnersHigh 연결 방식
@@ -955,7 +980,7 @@ Seed
 E2E
 ```
 
-확정 전에는 일반적인 `npm`, `gradlew`, `mvn` 명령을 추측해서 Source of Truth로 만들지 않는다.
+확정 전에는 `npm run <script>` 이름이나 `gradlew`, `mvn` 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---
 
@@ -1039,7 +1064,12 @@ Shared Feedback Queue
 
 ADR-0004
 Parent Report Without Parent App
+
+ADR-0005
+Domain-packaged Layered MVC Backend
 ```
+
+위 ADR은 모두 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
 
 Accepted ADR을 변경하려면
 기존 문서를 조용히 덮어쓰지 않고 새 ADR에서 Supersede한다.

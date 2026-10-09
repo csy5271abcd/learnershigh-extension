@@ -193,6 +193,7 @@ docs/source/archive/
 
 ```text
 Frontend
+→ React + TypeScript / npm / Node.js 22
 ├─ Student
 ├─ Admin
 ├─ Mentor
@@ -200,6 +201,7 @@ Frontend
 
 Backend
 → Domain-oriented Spring Boot
+→ Domain 내부 Layered MVC (ADR-0005 Accepted)
 
 Database
 → MySQL + Migration + Seed
@@ -358,6 +360,9 @@ Shared Feedback Queue
 
 ADR-0004
 Parent App 없이 Parent Report 전달
+
+ADR-0005
+Backend Domain-packaged Layered MVC (Accepted)
 ```
 
 상태:
@@ -1027,6 +1032,41 @@ IMPLEMENTED
 ```text
 작성본 생성만 완료.
 실제 Repository / Build / Test 검증은 아직 실행하지 않음.
+```
+
+## 2026-10-09 — Architecture / Harness 문서 정합성
+
+### Done
+
+- ADR-0005 Proposed → Accepted, 참조 문서 Status 표기 통일
+- PR Template Backend 체크 항목을 Layered MVC 용어로 변경
+- 확정 기술(React / TypeScript / npm / Node.js 22, Spring Boot / MySQL)과 미확정 항목 구분 반영
+- `docs/specs/wangyu/` 미생성 상태를 SOURCE_OF_TRUTH / OWNERSHIP / overview에 명시
+
+### Verification
+
+```text
+scripts/verify.ps1 (non-strict): PASS
+  - Harness file / directory convention / settings.local tracking: PASS
+  - Frontend / Backend: Scaffold 없음으로 SKIP
+Markdown link validation: NOT_RUN
+```
+
+## 2026-10-09 — Harness 잔여 정합성 (npm-only / Integration Naming)
+
+### Done
+
+- `scripts/verify-frontend.ps1`, `.github/workflows/ci.yml`: npm only, pnpm / yarn / bun Lockfile 실패 처리, CI Node.js major 22
+- `integration-boundary.md`: `ExistingXxxClient` / `RealExistingXxxClient` / `MockExistingXxxClient` Naming, 위치 `common/integration/learnershigh/` 고정
+- File Storage / Delivery / AI Interface Package 위치는 미확정으로 명시
+
+### Verification
+
+```text
+scripts/verify.ps1 (non-strict): PASS (Frontend / Backend Scaffold 없음으로 SKIP)
+verify-frontend.ps1 npm-only 시나리오 11개 (scratch fixture): 기대대로 동작
+Markdown link validation: PASS (Markdown Link 14개, broken 0)
+Inline code path 점검: reward-dashboard.png 1건 누락 (보고만, 미수정)
 ```
 
 ---

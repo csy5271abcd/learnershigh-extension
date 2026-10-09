@@ -312,7 +312,7 @@ Counseling-related Operations KPI
 docs/specs/wangyu/
 ```
 
-에서 정의한다.
+에서 정의한다. (Wangyu Spec은 아직 생성 전이며, 생성된 이후 이 위치를 기준으로 한다.)
 
 ---
 

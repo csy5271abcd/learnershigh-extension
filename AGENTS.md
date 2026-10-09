@@ -71,6 +71,7 @@ Requirement → Ownership → Domain → 기존 기능 중복 확인
 - **Privacy**: Mentor에게 Student 실명 / 학교 / 기관 / 상세 학습 데이터를 노출하지 않는다. Parent Report에 Raw AI, 내부 Feedback 원문, 미동의 Artifact를 넣지 않는다.
 - **AI**: Analysis / Suggestion / Draft / Candidate까지만. 최종 공개 상태로 자동 전이하지 않는다.
 - **Error ≠ Empty**: 연동 실패를 빈 데이터로 표시하지 않는다.
+- **Tech Stack**: Frontend는 React + TypeScript / npm / Node.js 22, Backend는 Spring Boot + MySQL / Domain-packaged Layered MVC(ADR-0005)로 확정이다. Vite 등 Build Tool, 세부 Version, 상태관리 / Router / Test / UI Library, Java Version, Gradle / Maven은 미확정이므로 임의로 선택하지 않는다. (기준: [`ARCHITECTURE.md`](ARCHITECTURE.md) §1)
 
 ## 6. 검증
 

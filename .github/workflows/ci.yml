@@ -40,7 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Detect frontend scaffold and Node version
+      - name: Detect frontend scaffold
         id: frontend-meta
         run: |
           $ErrorActionPreference = "Stop"
@@ -55,40 +55,16 @@ jobs:
           $hasFrontend = $packageJsonFiles.Count -gt 0
           "has_frontend=$($hasFrontend.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
 
-          $nodeVersion = $null
-
-          foreach ($candidate in @(
-            ".\frontend\.nvmrc",
-            ".\frontend\.node-version",
-            ".\.nvmrc",
-            ".\.node-version"
-          )) {
-            if (Test-Path -LiteralPath $candidate) {
-              $nodeVersion = (Get-Content -LiteralPath $candidate -Raw -Encoding UTF8).Trim()
-
-              if (-not [string]::IsNullOrWhiteSpace($nodeVersion)) {
-                break
-              }
-            }
-          }
-
-          if (-not [string]::IsNullOrWhiteSpace($nodeVersion)) {
-            "node_version=$nodeVersion" >> $env:GITHUB_OUTPUT
-            Write-Host "Node version file detected: $nodeVersion"
-          }
-          else {
-            Write-Host "No Node version file detected. The runner-provided Node version will be used."
-          }
-
           if (-not $hasFrontend) {
             Write-Host "No frontend package.json detected. Frontend job will be skipped."
           }
 
-      - name: Setup Node from repository version
-        if: steps.frontend-meta.outputs.has_frontend == 'true' && steps.frontend-meta.outputs.node_version != ''
+      # Node.js는 major 22만 확정되어 있다. exact patch version은 고정하지 않는다.
+      - name: Setup Node.js 22
+        if: steps.frontend-meta.outputs.has_frontend == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.frontend-meta.outputs.node_version }}
+          node-version: "22"
 
       - name: Show Node environment
         if: steps.frontend-meta.outputs.has_frontend == 'true'
@@ -96,66 +72,41 @@ jobs:
           node --version
           npm --version
 
-      - name: Install frontend dependencies
+      # Package Manager 정책: npm only. package-lock.json 외 Lockfile은 실패 처리한다.
+      - name: Install frontend dependencies (npm ci)
         if: steps.frontend-meta.outputs.has_frontend == 'true'
         run: |
           $ErrorActionPreference = "Stop"
           Set-StrictMode -Version Latest
 
-          function Get-PackageProperty {
-            param(
-              [object]$PackageJson,
-              [string]$Name
-            )
+          $repoRoot = (Resolve-Path ".").Path
+          $frontendDir = Join-Path $repoRoot "frontend"
+          $forbiddenLockfiles = @("pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb")
 
-            $property = $PackageJson.PSObject.Properties[$Name]
+          $forbidden = @(
+            Get-ChildItem -LiteralPath $repoRoot -File -ErrorAction SilentlyContinue |
+              Where-Object { $_.Name -in $forbiddenLockfiles }
+          ) + @(
+            Get-ChildItem -LiteralPath $frontendDir -File -Recurse -ErrorAction SilentlyContinue |
+              Where-Object {
+                $_.Name -in $forbiddenLockfiles -and
+                $_.FullName -notmatch '[\\/]node_modules[\\/]'
+              }
+          )
 
-            if ($null -eq $property) {
-              return $null
-            }
-
-            return $property.Value
+          if ($forbidden.Count -gt 0) {
+            throw "npm 외 Package Manager의 Lockfile이 발견되었습니다 (npm only):`n- $(($forbidden.FullName) -join "`n- ")"
           }
 
-          function Find-PackageManager {
-            param(
-              [string]$ProjectDir,
-              [object]$PackageJson,
-              [string]$StopDir
-            )
-
-            $packageManagerValue = Get-PackageProperty -PackageJson $PackageJson -Name "packageManager"
-
-            if ($null -ne $packageManagerValue) {
-              $spec = [string]$packageManagerValue
-
-              if ($spec -match '^npm@')  { return @{ Name = "npm"; Spec = $spec } }
-              if ($spec -match '^pnpm@') { return @{ Name = "pnpm"; Spec = $spec } }
-              if ($spec -match '^yarn@') { return @{ Name = "yarn"; Spec = $spec } }
-              if ($spec -match '^bun@')  { return @{ Name = "bun"; Spec = $spec } }
-            }
+          function Find-NpmLockRoot {
+            param([string]$ProjectDir, [string]$StopDir)
 
             $current = (Resolve-Path -LiteralPath $ProjectDir).Path
             $stop = (Resolve-Path -LiteralPath $StopDir).Path
 
             while ($true) {
               if (Test-Path -LiteralPath (Join-Path $current "package-lock.json")) {
-                return @{ Name = "npm"; Spec = $null }
-              }
-
-              if (Test-Path -LiteralPath (Join-Path $current "pnpm-lock.yaml")) {
-                return @{ Name = "pnpm"; Spec = $null }
-              }
-
-              if (Test-Path -LiteralPath (Join-Path $current "yarn.lock")) {
-                return @{ Name = "yarn"; Spec = $null }
-              }
-
-              if (
-                (Test-Path -LiteralPath (Join-Path $current "bun.lock")) -or
-                (Test-Path -LiteralPath (Join-Path $current "bun.lockb"))
-              ) {
-                return @{ Name = "bun"; Spec = $null }
+                return $current
               }
 
               if ($current -eq $stop) {
@@ -173,45 +124,6 @@ jobs:
 
             return $null
           }
-
-          function Get-InstallRoot {
-            param(
-              [string]$ProjectDir,
-              [string]$FrontendDir
-            )
-
-            $current = (Resolve-Path -LiteralPath $ProjectDir).Path
-            $frontendRoot = (Resolve-Path -LiteralPath $FrontendDir).Path
-
-            while ($true) {
-              if (
-                (Test-Path -LiteralPath (Join-Path $current "package-lock.json")) -or
-                (Test-Path -LiteralPath (Join-Path $current "pnpm-lock.yaml")) -or
-                (Test-Path -LiteralPath (Join-Path $current "yarn.lock")) -or
-                (Test-Path -LiteralPath (Join-Path $current "bun.lock")) -or
-                (Test-Path -LiteralPath (Join-Path $current "bun.lockb"))
-              ) {
-                return $current
-              }
-
-              if ($current -eq $frontendRoot) {
-                break
-              }
-
-              $parent = Split-Path -Parent $current
-
-              if ([string]::IsNullOrWhiteSpace($parent) -or $parent -eq $current) {
-                break
-              }
-
-              $current = $parent
-            }
-
-            return (Resolve-Path -LiteralPath $ProjectDir).Path
-          }
-
-          $repoRoot = (Resolve-Path ".").Path
-          $frontendDir = Join-Path $repoRoot "frontend"
 
           $frontendRootPackage = Join-Path $frontendDir "package.json"
 
@@ -238,26 +150,17 @@ jobs:
           foreach ($packageJsonPath in $packageJsonFiles) {
             $projectDir = Split-Path -Parent $packageJsonPath
             $packageJson = Get-Content -LiteralPath $packageJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            $packageManagerProperty = $packageJson.PSObject.Properties["packageManager"]
 
-            $manager = Find-PackageManager `
-              -ProjectDir $projectDir `
-              -PackageJson $packageJson `
-              -StopDir $repoRoot
-
-            if ($null -eq $manager) {
-              throw @"
-Package manager를 결정할 수 없습니다: $projectDir
-
-다음 중 하나를 Repository에 추가하세요.
-- package.json의 packageManager
-- package-lock.json
-- pnpm-lock.yaml
-- yarn.lock
-- bun.lock / bun.lockb
-"@
+            if ($null -ne $packageManagerProperty -and [string]$packageManagerProperty.Value -notmatch '^npm@') {
+              throw "package.json의 packageManager가 npm이 아닙니다: $($packageManagerProperty.Value) ($packageJsonPath)"
             }
 
-            $installRoot = Get-InstallRoot -ProjectDir $projectDir -FrontendDir $frontendDir
+            $installRoot = Find-NpmLockRoot -ProjectDir $projectDir -StopDir $frontendDir
+
+            if ($null -eq $installRoot) {
+              throw "CI에서는 npm package-lock.json이 필요합니다: $projectDir"
+            }
 
             if ($installedRoots.ContainsKey($installRoot)) {
               continue
@@ -266,102 +169,16 @@ Package manager를 결정할 수 없습니다: $projectDir
             $installedRoots[$installRoot] = $true
 
             Write-Host ""
-            Write-Host "Installing dependencies"
+            Write-Host "Installing dependencies (npm ci)"
             Write-Host "Root: $installRoot"
-            Write-Host "Manager: $($manager.Name)"
 
             Push-Location $installRoot
 
             try {
-              switch ($manager.Name) {
-                "npm" {
-                  if (-not (Test-Path -LiteralPath "package-lock.json")) {
-                    throw "CI에서는 npm package-lock.json이 필요합니다: $installRoot"
-                  }
+              npm ci
 
-                  npm ci
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "npm ci failed: $installRoot"
-                  }
-                }
-
-                "pnpm" {
-                  if (-not (Test-Path -LiteralPath "pnpm-lock.yaml")) {
-                    throw "CI에서는 pnpm-lock.yaml이 필요합니다: $installRoot"
-                  }
-
-                  corepack enable
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "corepack enable failed"
-                  }
-
-                  if (-not [string]::IsNullOrWhiteSpace([string]$manager.Spec)) {
-                    corepack prepare $manager.Spec --activate
-
-                    if ($LASTEXITCODE -ne 0) {
-                      throw "corepack prepare failed: $($manager.Spec)"
-                    }
-                  }
-
-                  pnpm install --frozen-lockfile
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "pnpm install failed: $installRoot"
-                  }
-                }
-
-                "yarn" {
-                  if (-not (Test-Path -LiteralPath "yarn.lock")) {
-                    throw "CI에서는 yarn.lock이 필요합니다: $installRoot"
-                  }
-
-                  corepack enable
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "corepack enable failed"
-                  }
-
-                  if (-not [string]::IsNullOrWhiteSpace([string]$manager.Spec)) {
-                    corepack prepare $manager.Spec --activate
-
-                    if ($LASTEXITCODE -ne 0) {
-                      throw "corepack prepare failed: $($manager.Spec)"
-                    }
-                  }
-
-                  $yarnVersion = (yarn --version).Trim()
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "yarn --version failed"
-                  }
-
-                  $major = [int]($yarnVersion.Split(".")[0])
-
-                  if ($major -ge 2) {
-                    yarn install --immutable
-                  }
-                  else {
-                    yarn install --frozen-lockfile
-                  }
-
-                  if ($LASTEXITCODE -ne 0) {
-                    throw "yarn install failed: $installRoot"
-                  }
-                }
-
-                "bun" {
-                  throw @"
-Bun package manager가 감지되었습니다.
-현재 CI는 Bun 설치 버전을 임의로 선택하지 않습니다.
-Repository에서 Bun 버전/설치 방식을 확정한 뒤 CI에 공식 setup step을 추가하세요.
-"@
-                }
-
-                default {
-                  throw "Unsupported package manager: $($manager.Name)"
-                }
+              if ($LASTEXITCODE -ne 0) {
+                throw "npm ci failed: $installRoot"
               }
             }
             finally {

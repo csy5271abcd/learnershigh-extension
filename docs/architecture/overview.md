@@ -245,6 +245,9 @@ Mentor에게 허용되지 않은 정보를 Mentor Surface로 전달하지 않는
 
 Frontend는 Surface별 App과 공통 Shared Layer로 구성한다.
 
+기술: React + TypeScript, Package Manager npm, Runtime Node.js 22.
+Build Tool(Vite 여부), 세부 Version, 상태관리 / Router / Test / UI Library는 아직 확정하지 않는다.
+
 ```text
 frontend/
 ├─ student/
@@ -399,8 +402,9 @@ Shared로 이동하기 전:
 
 # 5. Backend Architecture
 
-Backend는 Spring Boot 기반이며,
+Backend는 Spring Boot + MySQL 기반의 REST-style JSON API이며,
 사람 또는 화면이 아니라 **Business Domain 기준**으로 구성한다.
+Java Version, Gradle / Maven, Spring Boot Version은 아직 확정하지 않는다.
 
 예:
 
@@ -421,7 +425,7 @@ backend/
 
 # 6. Backend Layer Guide
 
-> 기준: [ADR-0005](../adr/0005-domain-packaged-layered-mvc-backend.md) — Domain 패키지 안의 Layered MVC (Status: Proposed)
+> 기준: [ADR-0005](../adr/0005-domain-packaged-layered-mvc-backend.md) — Domain 패키지 안의 Layered MVC (Status: Accepted)
 
 ## 6-1. 패키지 구조
 
@@ -515,9 +519,12 @@ Dashboard Count, Today Board, Student 360처럼 조회만 하는 화면은 `XxxQ
 Interface는 실제로 구현이 바뀌는 외부 경계에만 둔다.
 
 ```text
-common/integration/learnershigh/ExistingPlanClient   (Real / Mock, ADR-0002)
-File Storage / External Delivery / AI Provider
+common/integration/learnershigh/ExistingXxxClient   (RealExistingXxxClient / MockExistingXxxClient, ADR-0002)
+File Storage / External Delivery / AI Provider      (Interface Package 위치 미확정)
 ```
+
+File Storage / External Delivery / AI Provider Interface의 Package 위치는
+실제 Feature에서 필요해지는 시점에 문서로 먼저 정한 뒤 만든다.
 
 Service, Repository 구현체에는 `XxxServiceImpl` 같은 Interface를 만들지 않는다.
 
@@ -692,7 +699,7 @@ Connection
 
 ```text
 docs/specs/suyeon/domain.md
-docs/specs/wangyu/domain.md
+docs/specs/wangyu/domain.md   # Wangyu Spec이 생성된 이후
 ```
 
 를 따른다.
@@ -848,7 +855,7 @@ api-contract.md
 DB 구현:
 
 ```text
-migration + backend infrastructure
+migration + backend entity / repository
 ```
 
 의 역할을 구분한다.
@@ -1265,12 +1272,11 @@ school
 대신:
 
 ```text
-Shared Domain Contract
-Application Orchestrator
-Query Interface
+상대 Domain의 공개 XxxQueryService / XxxService 메서드
+조합 전용 Service (예: parentprogress/service/ParentReportAssembler)
 ```
 
-등 명시적인 경계를 사용한다.
+등 명시적인 경계를 사용한다. (§6-4)
 
 ---
 
@@ -1514,13 +1520,14 @@ docs/adr/
 
 ```text
 Frontend
+→ React + TypeScript / npm / Node.js 22
 → Student / Admin / Mentor Surface
 → Feature-first
 → Shared는 실제 공통 코드만
 
 Backend
 → Spring Boot
-→ Domain-oriented
+→ Domain-oriented, Domain 내부 Layered MVC (ADR-0005)
 → mentor / school / studentmanagement / parentprogress / ...
 
 Database

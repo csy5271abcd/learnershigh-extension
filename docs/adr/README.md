@@ -260,7 +260,7 @@ Claude Code는:
 | ADR-0002 | 기존 LearnersHigh 재구현 대신 Integration Boundary 사용 | Accepted |
 | ADR-0003 | Feedback을 Shared Queue로 운영 | Accepted |
 | ADR-0004 | 별도 Parent App 없이 Admin Parent Report 전달 | Accepted |
-| ADR-0005 | Backend를 Domain 패키지 안의 Layered MVC로 구성 | Proposed |
+| ADR-0005 | Backend를 Domain 패키지 안의 Layered MVC로 구성 | Accepted |
 
 ---
 

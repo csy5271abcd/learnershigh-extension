@@ -387,6 +387,9 @@ docs/specs/
    └─ features/
 ```
 
+`docs/specs/wangyu/` 문서(features / `domain.md` / `progress.md`)는 아직 생성 전이다.
+아래 §8, §14의 Wangyu 경로는 해당 문서가 생성된 이후 사용하며, 존재할 경우에만 확인한다.
+
 수연 담당 Feature Spec:
 
 ```text
