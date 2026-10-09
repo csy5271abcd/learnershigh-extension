@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: learnershigh-extension
+
+  # Extension MySQL 연결 정보는 환경 변수로만 주입한다. 값(특히 Password)을 이 파일에 쓰지 않는다.
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    # Entity는 Service 밖으로 나가지 않는다 (ADR-0005). View 렌더링 중 Lazy Loading을 허용하지 않는다.
+    open-in-view: false
+    hibernate:
+      # Schema 변경은 Migration으로만 관리한다 (.claude/rules/database.md). Hibernate가 Schema를 만들지 않는다.
+      ddl-auto: none

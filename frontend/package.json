@@ -1,0 +1,20 @@
+{
+  "name": "learnershigh-extension-frontend",
+  "private": true,
+  "workspaces": [
+    "student",
+    "admin",
+    "mentor"
+  ],
+  "engines": {
+    "node": "^22.12.0"
+  },
+  "scripts": {
+    "dev:student": "npm run dev --workspace=@learnershigh/student",
+    "dev:admin": "npm run dev --workspace=@learnershigh/admin",
+    "dev:mentor": "npm run dev --workspace=@learnershigh/mentor",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "npm run lint --workspaces",
+    "build": "npm run build --workspaces"
+  }
+}

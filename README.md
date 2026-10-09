@@ -207,14 +207,18 @@ Student의 실명, 학교, 기관, 상세 관리 데이터를 Mentor에게 노�
 
 ```text
 Frontend
-→ React + TypeScript
-→ Package Manager: npm
-→ Runtime: Node.js 22
+→ React 19.3.0 + TypeScript 6.0.3
+→ Build Tool: Vite 8.3.4, Lint: oxlint
+→ Package Manager: npm (npm workspaces, frontend/package-lock.json 하나)
+→ Runtime: Node.js 22 (^22.12.0)
 → Student / Admin / Mentor Surface 분리, Feature-first
 
 Backend
-→ Spring Boot
+→ Java 21 (Gradle toolchain)
+→ Spring Boot 4.1.1
+→ Gradle 9.7.1 Wrapper, Kotlin DSL (Maven 사용 안 함)
 → Domain-packaged Layered MVC (ADR-0005)
+→ Test: JUnit Jupiter + Spring Boot Test (BOM 관리) + ArchUnit
 
 Database
 → MySQL
@@ -230,15 +234,13 @@ Design Reference
 
 ```text
 Frontend
-→ Vite 등 Build Tool 사용 여부
-→ React / TypeScript 정확한 Version
 → Node.js 22의 정확한 minor / patch Version
-→ 상태관리 / Router / Test Framework / UI Component Library
+→ 상태관리 / Router / Data Fetching / Form / UI Component / CSS Library
+→ Test Framework
 
-Backend
-→ Java Version
-→ Gradle 또는 Maven
-→ Spring Boot 정확한 Version
+Backend / Database
+→ Migration Tool
+→ MySQL Integration Test 실행 방식
 
 Infrastructure / Integration
 → Authentication 방식
@@ -904,7 +906,7 @@ Progress 문서는 Requirement Source가 아니다.
 
 ## 20. Current Project Status
 
-현재 Repository는 **Harness / Architecture / Specification Foundation 단계**다.
+현재 Repository는 Harness / Architecture / Specification 정리를 마치고 **Frontend / Backend Scaffold 단계**에 있다. (Feature 코드는 아직 없다.)
 
 현재까지 준비된 주요 문서:
 
@@ -925,8 +927,7 @@ CLAUDE.md
 .gitignore
 ```
 
-본격적인 Feature 코드 구현은
-문서와 Repository 구조 검증 이후 진행한다.
+Feature 코드 구현은 Scaffold Branch가 merge된 뒤 Feature 단위 Branch에서 시작한다.
 
 ---
 
@@ -954,33 +955,47 @@ Claude Code 또는 개발자가 구현 편의를 위해 임의로 확정하지 �
 
 ## 22. Setup / Run
 
-현재 이 README는 실행 명령을 임의로 적지 않는다.
-
-이유:
+### Prerequisites
 
 ```text
-Frontend package scripts (package manager는 npm으로 확정)
-Spring Boot build tool
-Database local bootstrap
-Existing LearnersHigh 연결 방식
+Node.js 22 (^22.12.0) + npm
+JDK 17 이상 (Gradle 실행용). Java 21 toolchain은 없으면 Gradle이 자동으로 내려받는다.
+MySQL (Backend 실행 시)
 ```
 
-을 실제 Repository Scaffold에서 확인해야 하기 때문이다.
+Global Gradle / Maven 설치는 필요 없다. Backend는 `backend/gradlew(.bat)`만 사용한다.
 
-Scaffold가 확정되면 이 섹션에 다음을 추가한다.
+### Frontend
+
+```powershell
+cd frontend
+npm ci
+npm run dev:student   # http://localhost:5173
+npm run dev:admin     # http://localhost:5174
+npm run dev:mentor    # http://localhost:5175
+npm run typecheck
+npm run lint
+npm run build
+```
+
+### Backend
+
+```powershell
+cd backend
+.\gradlew.bat build      # compile + test + bootJar
+.\gradlew.bat bootRun    # DB 환경 변수 필요
+```
+
+Backend 실행에는 Extension MySQL 연결 정보를 환경 변수로 넣어야 한다. 값은 Git에 커밋하지 않는다.
 
 ```text
-Prerequisites
-Environment setup
-Frontend install/run
-Backend run
-MySQL setup
-Migration
-Seed
-E2E
+DB_URL        예: jdbc:mysql://<host>:3306/<database>
+DB_USERNAME
+DB_PASSWORD
 ```
 
-확정 전에는 `npm run <script>` 이름이나 `gradlew`, `mvn` 명령을 추측해서 Source of Truth로 만들지 않는다.
+아직 정하지 않은 것: Migration Tool, Seed, E2E, Existing LearnersHigh 연결 방식.
+README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---
 

@@ -62,8 +62,8 @@ progress.md
 Date: 2026-10-09
 Owner: Suyeon
 Project: learnershigh-extension
-Current Phase: Harness / Architecture / Specification Foundation
-Implementation Phase: 아직 본격 시작 전
+Current Phase: Scaffold Implementation (branch: chore/project-scaffold)
+Implementation Phase: Frontend / Backend Scaffold IMPLEMENTED, Feature Business Logic NOT_STARTED
 ```
 
 현재 핵심 목표:
@@ -91,7 +91,7 @@ Feature / Domain / API 기준으로 구현할 수 있는
 6. 실제 Feature 구현 시작
 ```
 
-현재 상태는 **기능 코드 구현보다 문서·계약·규칙 정비 단계**다.
+Harness 문서 정비 후 **Frontend / Backend Scaffold 구축 단계**에 들어왔다. Feature 코드는 아직 없다.
 
 ---
 
@@ -214,8 +214,8 @@ Existing LearnersHigh
 
 ```text
 Architecture 문서화: 완료본 생성
-실제 Repository 구조 적용: 미확인
-Backend/Frontend Scaffold 검증: 미실행
+실제 Repository 구조 적용: Scaffold IMPLEMENTED (chore/project-scaffold, 미커밋)
+Backend/Frontend Scaffold 검증: 로컬 PASS (scripts/verify.ps1 -Strict), GitHub Actions 미실행
 ```
 
 ---
@@ -689,7 +689,7 @@ Shared Entity
 상태:
 
 ```text
-IN_PROGRESS
+IMPLEMENTED (main 98bf2f8)
 ```
 
 목표:
@@ -699,6 +699,25 @@ Claude Code 작업 기준 완성
 Ownership / Architecture / API / Design 기준 완성
 Verification Harness 준비
 ```
+
+---
+
+## Phase 0-S — Project Scaffold
+
+상태:
+
+```text
+IMPLEMENTED (로컬 검증 PASS, GitHub Actions 결과 미확인)
+```
+
+범위:
+
+```text
+frontend/ : npm workspaces + student / admin / mentor Vite App Shell
+backend/  : Spring Boot + Gradle Wrapper + ArchitectureTest (ArchUnit)
+```
+
+Feature Business Logic / Entity / API Endpoint / DB Schema는 포함하지 않는다.
 
 ---
 
@@ -877,24 +896,25 @@ Report / Statistics
 
 # 19. Verification
 
-현재 문서 작성 단계에서 실제 코드 검증은 아직 수행하지 않았다.
+Scaffold 기준 로컬 검증 결과다. (2026-10-09, chore/project-scaffold)
 
 현재 Verification 상태:
 
 ```text
-Frontend typecheck: NOT_RUN
-Frontend lint: NOT_RUN
-Frontend test: NOT_RUN
-Frontend build: NOT_RUN
+Frontend typecheck: PASS (student / admin / mentor)
+Frontend lint: PASS (oxlint --deny-warnings)
+Frontend test: N/A (Test Framework 미선택)
+Frontend build: PASS (student / admin / mentor)
 
-Backend compile: NOT_RUN
-Backend test: NOT_RUN
+Backend compile: PASS (gradlew classes)
+Backend test: PASS (ArchUnit 21 tests, DB / Docker 불필요)
+Backend runtime: NOT_RUN (DB_URL / DB_USERNAME / DB_PASSWORD 미설정 시 DataSource 생성 실패 확인)
 
-DB migration: NOT_RUN
+DB migration: NOT_RUN (Migration Tool 미확정)
 E2E: NOT_RUN
 
-Markdown link validation: NOT_RUN
-Repository path validation: NOT_RUN
+Markdown link validation: PASS (2026-10-09 Harness 작업)
+GitHub Actions CI: NOT_RUN (Push 전)
 ```
 
 이 상태에서 기능 구현을 `VERIFIED`로 표시하지 않는다.
@@ -1067,6 +1087,40 @@ scripts/verify.ps1 (non-strict): PASS (Frontend / Backend Scaffold 없음으로 
 verify-frontend.ps1 npm-only 시나리오 11개 (scratch fixture): 기대대로 동작
 Markdown link validation: PASS (Markdown Link 14개, broken 0)
 Inline code path 점검: reward-dashboard.png 1건 누락 (보고만, 미수정)
+```
+
+## 2026-10-09 — Project Scaffold (branch: chore/project-scaffold)
+
+### Done
+
+- Frontend: npm workspaces(`frontend/package.json`, `package-lock.json` 1개) + student / admin / mentor Vite App Shell
+  - React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, oxlint 1.87.0, Node.js 22 (`engines ^22.12.0`)
+- Backend: Spring Boot 4.1.1, Java 21 toolchain, Gradle 9.7.1 Wrapper (Kotlin DSL), base package `com.learnershigh.extension`
+  - Dependency: webmvc / validation / data-jpa / mysql-connector-j
+  - Test: Spring Boot Test Starter(JUnit Jupiter / AssertJ / Mockito / MockMvc) + ArchUnit 1.5.1 (ADR-0005 / ADR-0002 의존 규칙)
+- `scripts/verify-backend.ps1`, CI: Gradle Wrapper only, Maven 산출물 실패 처리, CI Java 21
+- 문서: 확정 기술 / 남은 Open Decision 반영
+- `reward-dashboard.png`는 main 98bf2f8에서 추가되어 이전 누락 보고는 해소됨
+
+### Not Started
+
+- Feature Business Logic / Entity / API Endpoint / DB Schema / Migration
+- `frontend/shared/`, `database/`, `e2e/` (실제로 필요해질 때 생성)
+- `common/error` GlobalExceptionHandler (500 Error Code / Validation reason 어휘가 Contract에 없음)
+
+### Verification
+
+```text
+node --version: v22.22.2 / npm --version: 10.9.7
+npm install → npm ci 재현: PASS
+npm run typecheck / lint / build (3 Surface): PASS
+dev server 3개 (5173 / 5174 / 5175) 응답 확인: PASS
+backend gradlew.bat --version: Gradle 9.7.1 (Launcher JVM 17), toolchain JDK 21
+backend gradlew.bat classes / clean test / build: PASS (tests 21, failures 0)
+backend bootJar 실행: DB 환경 변수 미설정으로 DataSource 생성 실패 (예상 동작, 가짜 Credential 미사용)
+scripts/verify.ps1 -Strict: PASS
+git diff --check: PASS
+GitHub Actions: NOT_RUN
 ```
 
 ---

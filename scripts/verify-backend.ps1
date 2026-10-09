@@ -34,61 +34,20 @@ function Assert-LastExitCode {
     }
 }
 
-function Resolve-GradleCommand {
+# Backend Build Tool 정책: Gradle only, Repository에 포함된 Gradle Wrapper만 사용한다.
+# Maven 산출물은 허용하지 않는다.
+$ForbiddenMavenArtifacts = @("pom.xml", "mvnw", "mvnw.cmd", ".mvn")
+
+function Resolve-GradleWrapper {
     param([string]$BackendDir)
 
-    $gradlewBat = Join-Path $BackendDir "gradlew.bat"
-    $gradlew = Join-Path $BackendDir "gradlew"
+    # Windows에서는 gradlew.bat, 그 외 환경에서는 gradlew를 사용한다.
+    $isWindowsHost = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+    $wrapperName = if ($isWindowsHost) { "gradlew.bat" } else { "gradlew" }
+    $wrapper = Join-Path $BackendDir $wrapperName
 
-    if (Test-Path -LiteralPath $gradlewBat) {
-        return @{
-            Kind = "wrapper"
-            Command = $gradlewBat
-        }
-    }
-
-    if (Test-Path -LiteralPath $gradlew) {
-        return @{
-            Kind = "wrapper"
-            Command = $gradlew
-        }
-    }
-
-    if ($null -ne (Get-Command "gradle" -ErrorAction SilentlyContinue)) {
-        return @{
-            Kind = "system"
-            Command = "gradle"
-        }
-    }
-
-    return $null
-}
-
-function Resolve-MavenCommand {
-    param([string]$BackendDir)
-
-    $mvnwCmd = Join-Path $BackendDir "mvnw.cmd"
-    $mvnw = Join-Path $BackendDir "mvnw"
-
-    if (Test-Path -LiteralPath $mvnwCmd) {
-        return @{
-            Kind = "wrapper"
-            Command = $mvnwCmd
-        }
-    }
-
-    if (Test-Path -LiteralPath $mvnw) {
-        return @{
-            Kind = "wrapper"
-            Command = $mvnw
-        }
-    }
-
-    if ($null -ne (Get-Command "mvn" -ErrorAction SilentlyContinue)) {
-        return @{
-            Kind = "system"
-            Command = "mvn"
-        }
+    if (Test-Path -LiteralPath $wrapper) {
+        return $wrapper
     }
 
     return $null
@@ -111,19 +70,33 @@ if (-not (Test-Path -LiteralPath $backendDir)) {
     return
 }
 
+Write-Step "Build tool policy (Gradle Wrapper only)"
+
+$mavenArtifacts = @(
+    $ForbiddenMavenArtifacts |
+        Where-Object { Test-Path -LiteralPath (Join-Path $backendDir $_) }
+)
+
+if ($mavenArtifacts.Count -gt 0) {
+    throw @"
+backend/에서 Maven 산출물이 발견되었습니다:
+- $($mavenArtifacts -join "`n- ")
+
+Backend Build Tool 정책은 Gradle only입니다.
+"@
+}
+
+Write-Info "Maven artifacts (pom.xml / mvnw / mvnw.cmd / .mvn): none"
+
 $gradleBuildFile = @(
-    (Join-Path $backendDir "build.gradle"),
-    (Join-Path $backendDir "build.gradle.kts"),
-    (Join-Path $backendDir "settings.gradle"),
-    (Join-Path $backendDir "settings.gradle.kts")
-) | Where-Object { Test-Path -LiteralPath $_ }
+    @(
+        (Join-Path $backendDir "build.gradle"),
+        (Join-Path $backendDir "build.gradle.kts")
+    ) | Where-Object { Test-Path -LiteralPath $_ }
+)
 
-$mavenPom = Join-Path $backendDir "pom.xml"
-$hasGradle = $gradleBuildFile.Count -gt 0
-$hasMaven = Test-Path -LiteralPath $mavenPom
-
-if (-not $hasGradle -and -not $hasMaven) {
-    $message = "backend/에서 Gradle 또는 Maven build file을 찾지 못했습니다."
+if ($gradleBuildFile.Count -eq 0) {
+    $message = "backend/에서 Gradle build file(build.gradle.kts / build.gradle)을 찾지 못했습니다."
 
     if ($Strict) {
         throw $message
@@ -133,61 +106,28 @@ if (-not $hasGradle -and -not $hasMaven) {
     return
 }
 
-if ($hasGradle -and $hasMaven) {
+$gradleWrapper = Resolve-GradleWrapper -BackendDir $backendDir
+
+if ($null -eq $gradleWrapper) {
     throw @"
-backend/에 Gradle과 Maven 설정이 동시에 존재합니다.
-어느 build tool이 Source of Truth인지 먼저 확정하세요.
+Gradle Wrapper를 찾지 못했습니다: $backendDir
+Global Gradle 설치에 의존하지 않습니다. backend/에 gradlew / gradlew.bat / gradle/wrapper/를 포함하세요.
 "@
 }
 
 Push-Location $backendDir
 
 try {
-    if ($hasGradle) {
-        $gradle = Resolve-GradleCommand -BackendDir $backendDir
+    Write-Step "Gradle verification"
+    Write-Info "Command: $gradleWrapper"
 
-        if ($null -eq $gradle) {
-            throw @"
-Gradle 프로젝트를 감지했지만 Gradle 실행 파일을 찾지 못했습니다.
-권장: backend/에 Gradle Wrapper를 포함하세요.
-"@
-        }
-
-        Write-Step "Gradle verification"
-        Write-Info "Command source: $($gradle.Kind)"
-        Write-Info "Command: $($gradle.Command)"
-
-        if ($SkipTests) {
-            & $gradle.Command clean build -x test
-            Assert-LastExitCode -Operation "Gradle clean build -x test"
-        }
-        else {
-            & $gradle.Command clean build
-            Assert-LastExitCode -Operation "Gradle clean build"
-        }
+    if ($SkipTests) {
+        & $gradleWrapper clean build -x test
+        Assert-LastExitCode -Operation "Gradle clean build -x test"
     }
-    elseif ($hasMaven) {
-        $maven = Resolve-MavenCommand -BackendDir $backendDir
-
-        if ($null -eq $maven) {
-            throw @"
-Maven 프로젝트를 감지했지만 Maven 실행 파일을 찾지 못했습니다.
-권장: backend/에 Maven Wrapper를 포함하세요.
-"@
-        }
-
-        Write-Step "Maven verification"
-        Write-Info "Command source: $($maven.Kind)"
-        Write-Info "Command: $($maven.Command)"
-
-        if ($SkipTests) {
-            & $maven.Command clean verify "-DskipTests"
-            Assert-LastExitCode -Operation "Maven clean verify -DskipTests"
-        }
-        else {
-            & $maven.Command clean verify
-            Assert-LastExitCode -Operation "Maven clean verify"
-        }
+    else {
+        & $gradleWrapper clean build
+        Assert-LastExitCode -Operation "Gradle clean build"
     }
 }
 finally {
