@@ -805,9 +805,12 @@ IN_PROGRESS
 - Student Mentor Plan Apply: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-plan-apply b21be2d)
   - 시작일 → 항목 선택 → 교재 연결 → 충돌 확인·수정 → 추가 Modal Route, 실패 → 다시 시도, 닫기 / Back 복귀 브라우저 확인
   - 실제 Student Plan Write / Existing Plan · Library 연동 / API 연결 / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Routine: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-routine, 미커밋)
+- Student Mentor Routine: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-routine f20ee24)
   - Main "Routine" Tab 목록 → Detail(Timeline / Habit), Home / Profile Routine → Detail, 전체 적용 / 습관만 적용 Modal(충돌 · 해결 · 실패 → 다시 시도) 브라우저 확인
   - 실제 Existing Plan / Schedule Write / API 연결 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-story, 미커밋)
+  - Main "Story" Tab Feed + 주제 Filter(?topic=), Feed → Detail → Back 시 주제 / Scroll 복원, Home / Profile Story → Detail, 저장 / 취소(Feed · Detail 동기화) 브라우저 확인
+  - 저장 API / 관련 질문(Student Q&A 연결) / API 연결 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1305,7 +1308,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Routine: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Routine: IMPLEMENTED (Fixture 기반 UI, f20ee24)
 VERIFIED 아님: 실제 Existing Plan / Schedule Write · API 미연결, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1329,6 +1332,39 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Routine Flow A~J, Plan Apply / Plan / Home / Mentor List / Profile 회귀 확인
 1920 / 1280 / 768 / 390 / 320: Routine 목록 · Detail · 적용 Modal 가로 Overflow 없음, Footer 항상 표시
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Mentor Story (branch: feat/student-mentor-story)
+
+### Status
+
+```text
+Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: 저장 API / Q&A 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/stories?topic=` (Story-00 Feed + Feature Spec 주제 Filter), `/mentor/stories/:contentId` (Story-01 / 02 Detail)
+- Story 10개 (Story-00 8개 + 기존 한지수 Profile Story 2개, 기존 contentId 유지), Canonical Mentor 송지후(22번째) 추가
+- 저장 / 저장 취소: Session 안 Frontend 상태(새로고침 시 초기화), Feed · Detail 동기화, 저장 수는 Mockup 표시용 Fixture 값 ±1
+- 관련 질문: RelatedQuestionContext(mentorId / sourceContentId / sourceTitle / contextType) Boundary만 준비, Q&A 화면 미연결 안내
+- Main Tab(UnderlineTabs): 좁은 화면에서 선택 Tab이 잘리지 않게 보이는 위치로 Scroll
+
+### Not Started
+
+- 저장 API(PUT .../saved), Student Q&A 작성, Story 사진 Asset, Record / Case
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Story Flow A~K, Home / Mentor List / Profile / Plan / Plan Apply / Routine 회귀 확인
+1920 / 1280 / 768 / 390 / 320: Feed · Detail 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

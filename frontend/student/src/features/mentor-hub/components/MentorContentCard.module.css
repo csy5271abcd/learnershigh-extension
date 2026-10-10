@@ -68,9 +68,24 @@
   line-clamp: 2;
 }
 
-.mentor {
+/* Mentor 줄 + 오른쪽 보조 정보(예: 저장 수)는 Card 아래쪽에 붙는다. */
+.footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
   margin-top: auto;
   padding-top: var(--lh-space-3);
   color: var(--lh-color-text-tertiary);
   font-size: var(--lh-font-label);
+}
+
+.mentor {
+  min-width: 0;
+}
+
+/* 오른쪽 보조 정보(예: 저장 2.4k)는 줄바꿈하지 않는다. */
+.footer > :not(.mentor) {
+  flex-shrink: 0;
+  white-space: nowrap;
 }

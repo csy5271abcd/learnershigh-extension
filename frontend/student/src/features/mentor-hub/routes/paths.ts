@@ -39,3 +39,12 @@ export function mentorRoutinePath(contentId: string): string {
 export function mentorRoutineApplyPath(contentId: string): string {
   return `${mentorRoutinePath(contentId)}/${mentorRoutineApplyRoutePattern}`
 }
+
+export const mentorStoryListRoutePattern = 'mentor/stories'
+export const mentorStoryRoutePattern = 'mentor/stories/:contentId'
+
+export const mentorStoryListPath = '/mentor/stories'
+
+export function mentorStoryPath(contentId: string): string {
+  return `${mentorStoryListPath}/${encodeURIComponent(contentId)}`
+}

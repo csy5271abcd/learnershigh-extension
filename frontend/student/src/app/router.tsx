@@ -8,6 +8,8 @@ import { MentorProfileRoute } from '../features/mentor-hub/routes/MentorProfileR
 import { MentorRoutineApplyRoute } from '../features/mentor-hub/routes/MentorRoutineApplyRoute.tsx'
 import { MentorRoutineDetailRoute } from '../features/mentor-hub/routes/MentorRoutineDetailRoute.tsx'
 import { MentorRoutineListRoute } from '../features/mentor-hub/routes/MentorRoutineListRoute.tsx'
+import { MentorStoryDetailRoute } from '../features/mentor-hub/routes/MentorStoryDetailRoute.tsx'
+import { MentorStoryFeedRoute } from '../features/mentor-hub/routes/MentorStoryFeedRoute.tsx'
 import {
   mentorHubPath,
   mentorHubRoutePattern,
@@ -19,6 +21,8 @@ import {
   mentorRoutineApplyRoutePattern,
   mentorRoutineListRoutePattern,
   mentorRoutineRoutePattern,
+  mentorStoryListRoutePattern,
+  mentorStoryRoutePattern,
 } from '../features/mentor-hub/routes/paths.ts'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { StudentAppShell } from './StudentAppShell.tsx'
@@ -45,6 +49,8 @@ export const studentRouter = createBrowserRouter([
         element: <MentorRoutineDetailRoute />,
         children: [{ path: mentorRoutineApplyRoutePattern, element: <MentorRoutineApplyRoute /> }],
       },
+      { path: mentorStoryListRoutePattern, element: <MentorStoryFeedRoute /> },
+      { path: mentorStoryRoutePattern, element: <MentorStoryDetailRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

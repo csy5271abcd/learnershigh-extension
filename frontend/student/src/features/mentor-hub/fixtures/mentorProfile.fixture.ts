@@ -16,6 +16,7 @@ import {
   fixtureMentors as mentors,
   fixturePlanSummaries,
   fixtureRoutineSummaries,
+  fixtureStorySummaries,
 } from './mentors.fixture.ts'
 
 const adminRecommendedCaseIds = new Set(mentorHubHomeFixture.adminRecommendedCases.map((item) => item.caseId))
@@ -33,6 +34,11 @@ function planContent(item: MentorContentSummary): MentorProfileContent {
 /** Routine도 Canonical 한 줄 요약을 그대로 쓴다. */
 function routineContent(item: MentorContentSummary): MentorProfileContent {
   return profileContent(item, fixtureRoutineSummaries[item.contentId])
+}
+
+/** Story도 Canonical 한 줄 요약을 그대로 쓴다. */
+function storyContent(item: MentorContentSummary): MentorProfileContent {
+  return profileContent(item, fixtureStorySummaries[item.contentId])
 }
 
 interface ProfileDetail {
@@ -76,14 +82,10 @@ const details: Record<string, ProfileDetail> = {
     ],
     contents: [
       planContent(content.literaturePlan),
-      profileContent(
-        { contentId: 'fixture-content-story-02', kind: 'story', title: '탐구 주제를 진로 기록으로 이어간 과정' },
-        '교내 탐구대회 주제를 세특과 진로 활동으로 연결한 이야기예요.',
-      ),
-      profileContent(
-        { contentId: 'fixture-content-story-03', kind: 'story', title: '1학년 1.8에서 1.3까지 오답노트 운영기' },
-        '과목별 오답노트를 주간 단위로 다시 보는 방법을 정리했어요.',
-      ),
+      storyContent(content.biologyGradeStory),
+      storyContent(content.mockExamStory),
+      storyContent(content.careerRecordStory),
+      storyContent(content.wrongNoteStory),
       profileContent(
         content.antibioticCase,
         '탐구 계획부터 Staff Feedback, 최종 포스터, 후속 활동까지 정리한 Activity Case예요.',
@@ -167,7 +169,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '교내 사회탐구 보고서 대회 수상', description: '지역 상권 변화 설문 연구' },
       { title: '경제 동아리 활동', description: '경제 기사 요약과 토론을 2년 동안 운영했어요.' },
     ],
-    contents: [],
+    contents: [storyContent(content.broadTopicStory)],
   },
   [mentors.kangMinho.mentorId]: {
     verified: true,
@@ -187,7 +189,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '수학 3등급 → 내신 1등급', description: '풀이 과정을 말로 설명하는 방식으로 공부법을 바꿨어요.' },
       { title: '교내 과학탐구대회 참가', description: '마찰력과 경사면 실험' },
     ],
-    contents: [profileContent(content.mathStory, '개념 노트 대신 풀이 과정을 말로 설명하며 공부법을 바꾼 이야기예요.')],
+    contents: [storyContent(content.mathStory)],
   },
   [mentors.jeongMinhyuk.mentorId]: {
     verified: true,
@@ -258,7 +260,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '국어 비문학 시간 관리', description: '고3 여름부터 지문 구조를 먼저 잡는 연습을 했어요.' },
       { title: '한국사 1등급', description: '시대별 흐름표를 주 1회 다시 그렸어요.' },
     ],
-    contents: [profileContent(content.summerStory, '지문을 끝까지 읽기 전에 구조부터 잡는 연습으로 바꾼 과정이에요.')],
+    contents: [storyContent(content.summerStory)],
   },
   [mentors.leeHyunseo.mentorId]: {
     verified: true,
@@ -266,7 +268,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '재수 · 표준점수 +34', description: '주간 모의고사 회고로 취약 영역을 관리했어요.' },
       { title: '역사 탐구 독서', description: '한 달에 한 권 시대사 책을 정리했어요.' },
     ],
-    contents: [],
+    contents: [storyContent(content.admissionSwitchStory)],
   },
   [mentors.jeongDain.mentorId]: {
     verified: true,
@@ -300,7 +302,12 @@ const details: Record<string, ProfileDetail> = {
   [mentors.kimTaehyun.mentorId]: {
     verified: false,
     experiences: [{ title: '수리논술 주 2회 실전', description: '시간을 재고 풀고 풀이를 다시 써봤어요.' }],
-    contents: [],
+    contents: [storyContent(content.undecidedCareerStory)],
+  },
+  [mentors.songJihoo.mentorId]: {
+    verified: true,
+    experiences: [{ title: '물리학Ⅰ 선택 유지', description: '역학 단원 오답을 유형별로 다시 풀었어요.' }],
+    contents: [storyContent(content.physicsStory)],
   },
   [mentors.leeSubin.mentorId]: {
     verified: true,

@@ -1,32 +1,45 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { LoadState, MentorContentListResult } from './types.ts'
+import type { LoadState } from './types.ts'
 
-type ContentListLoader = (page: number, size: number) => Promise<MentorContentListResult>
+type ContentListLoader<T> = (page: number, size: number) => Promise<T>
 
 // Detail 왕복 시 목록이 Loading을 거치지 않고 바로 그려져야 Scroll 위치가 복원된다.
-const lastLoaded = new WeakMap<ContentListLoader, Map<string, MentorContentListResult>>()
+const lastLoaded = new WeakMap<ContentListLoader<unknown>, Map<string, unknown>>()
 
 const pageKey = (page: number, size: number) => `${page}:${size}`
 
 /**
- * Plan / Routine 목록(Main Tab)을 불러온다. `loadList`는 Data Source Boundary다.
+ * Plan / Routine / Story 목록(Main Tab)을 불러온다. `loadList`는 Data Source Boundary다.
  * (현재는 Fixture, API 연결 시 GET /api/student/mentor-content?type=&page=&size= Client로 교체)
+ * 조건(예: Story Topic)이 바뀌면 다른 `loadList`를 넘긴다.
  */
-export function useMentorContentList(loadList: ContentListLoader, page: number, size: number) {
-  const [state, setState] = useState<LoadState<MentorContentListResult>>(() => {
-    const cached = lastLoaded.get(loadList)?.get(pageKey(page, size))
-    return cached ? { status: 'success', data: cached } : { status: 'loading' }
-  })
-  const [attempt, setAttempt] = useState(0)
+export function useMentorContentList<T>(loadList: ContentListLoader<T>, page: number, size: number) {
+  const key = loadList as ContentListLoader<unknown>
+  const cachedState = (): LoadState<T> => {
+    const byPage = lastLoaded.get(key)
+    return byPage?.has(pageKey(page, size))
+      ? { status: 'success', data: byPage.get(pageKey(page, size)) as T }
+      : { status: 'loading' }
+  }
+  const [request, setRequest] = useState({ loadList, page, size, attempt: 0 })
+  const [state, setState] = useState<LoadState<T>>(cachedState)
+
+  // 조건이 바뀌면 렌더링 중에 상태를 초기화한다. (Effect 안의 동기 setState를 피한다)
+  if (request.loadList !== loadList || request.page !== page || request.size !== size) {
+    setRequest({ loadList, page, size, attempt: 0 })
+    setState(cachedState())
+  }
 
   useEffect(() => {
     let active = true
+    const { loadList: load, page: requestPage, size: requestSize } = request
 
-    loadList(page, size).then(
+    load(requestPage, requestSize).then(
       (data) => {
-        const byPage = lastLoaded.get(loadList) ?? new Map<string, MentorContentListResult>()
-        byPage.set(pageKey(page, size), data)
-        lastLoaded.set(loadList, byPage)
+        const loaderKey = load as ContentListLoader<unknown>
+        const byPage = lastLoaded.get(loaderKey) ?? new Map<string, unknown>()
+        byPage.set(pageKey(requestPage, requestSize), data)
+        lastLoaded.set(loaderKey, byPage)
         if (active) setState({ status: 'success', data })
       },
       () => {
@@ -37,12 +50,12 @@ export function useMentorContentList(loadList: ContentListLoader, page: number, 
     return () => {
       active = false
     }
-  }, [loadList, page, size, attempt])
+  }, [request])
 
   // 다시 불러올 때 Loading으로 바꾸는 일은 Effect가 아니라 사용자 Action에서 한다.
   const reload = useCallback(() => {
     setState({ status: 'loading' })
-    setAttempt((value) => value + 1)
+    setRequest((current) => ({ ...current, attempt: current.attempt + 1 }))
   }, [])
 
   return { state, reload }

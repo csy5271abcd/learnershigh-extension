@@ -1,0 +1,165 @@
+/* Story Detail (Story-01 / 02 Mockup). 읽기 좋은 폭(약 800px)의 한 Column. 기본 여백은 .page를 함께 쓴다. */
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-6);
+  width: 100%;
+  max-width: 800px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-3);
+  padding-bottom: var(--lh-space-5);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.title {
+  margin-top: var(--lh-space-2);
+}
+
+/* 읽기 정보는 왼쪽, 저장 / 관련 질문 / Mentor Profile은 오른쪽 (Mockup) */
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  width: 100%;
+  margin-top: var(--lh-space-2);
+}
+
+.meta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-body);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.saveButton,
+.actionButton {
+  min-height: 44px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* 저장: Mockup의 연한 Accent. 저장됨은 진한 Accent + 문구 변경 + aria-pressed */
+.saveButton {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+}
+
+.saveButton[aria-pressed='true'] {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.askNotice {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.askNotice:empty {
+  margin-top: calc(var(--lh-space-3) * -1);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+}
+
+.paragraph {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.heading {
+  margin-top: var(--lh-space-4);
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.quote {
+  margin: var(--lh-space-4) 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+/* 사진 메모: 사진 Asset이 없어 Caption만 보조 정보로 보여준다. */
+.photoMemo {
+  margin: 0;
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-left: 3px solid var(--lh-color-border);
+  border-radius: 0 var(--lh-radius-md) var(--lh-radius-md) 0;
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.photoMemoLabel {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  max-width: 800px;
+}
+
+.skeletonTitle {
+  width: 420px;
+  max-width: 80%;
+  height: 40px;
+}
+
+.skeletonLine {
+  width: 320px;
+  max-width: 70%;
+  height: 40px;
+}
+
+.skeletonText {
+  height: 96px;
+}
+
+@media (max-width: 639px) {
+  .metaRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions > * {
+    flex: 1 1 auto;
+    padding: 0 var(--lh-space-3);
+    white-space: nowrap;
+  }
+
+  .paragraph {
+    font-size: 0.9375rem;
+  }
+}

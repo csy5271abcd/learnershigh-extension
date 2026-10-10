@@ -338,6 +338,64 @@ export interface RoutineApplyResult {
   snapshotCreated: boolean
 }
 
+// ---------- Mentor Story (GET /api/student/mentor-content?type=story, GET .../{contentId}) ----------
+// Contract에 Story Topic / 본문 / 저장 수 Field가 없어 Frontend View Model로 둔다. (Story-00 ~ 02 Mockup 기준)
+
+/** Feature Spec Story 주제의 내부 Key (화면 이름은 storyTopics.ts) */
+export type StoryTopic =
+  | 'success'
+  | 'failure'
+  | 'recovery'
+  | 'grade-change'
+  | 'admission-switch'
+  | 'career'
+  | 'study-method'
+  | 'mental'
+
+/** 저장 상태 (PUT /api/student/mentor-content/{contentId}/saved). saveCount는 Mockup 표시용 (Contract Gap) */
+export interface ContentSaveState {
+  saved: boolean
+  saveCount: number
+}
+
+export interface MentorStoryListItem extends MixedContentItem, ContentSaveState {
+  topics: StoryTopic[]
+}
+
+export interface MentorStoryListResult {
+  items: MentorStoryListItem[]
+  page: MentorListResult['page']
+}
+
+/** Story 본문 한 덩어리: 문단 / 소제목 / 사진 메모(Caption) / 인용 (Story-01 / 02 Mockup) */
+export type StoryBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'heading'; text: string }
+  | { type: 'photoMemo'; caption: string }
+  | { type: 'quote'; text: string }
+
+export interface MentorStory extends ContentSaveState {
+  contentId: string
+  kind: 'story'
+  title: string
+  summary: string
+  /** 작성 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  topics: StoryTopic[]
+  readMinutes: number
+  /** YYYY-MM-DD */
+  publishedDate: string
+  body: StoryBlock[]
+}
+
+/** 관련 질문 Context: 다음 단계(Student Q&A)에서 질문 작성 화면이 받는다. 질문 문장은 만들지 않는다. */
+export interface RelatedQuestionContext {
+  mentorId: string
+  sourceContentId: string
+  sourceTitle: string
+  contextType: 'story'
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

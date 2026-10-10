@@ -1,4 +1,4 @@
-import { useEffect, useRef, type KeyboardEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, type KeyboardEvent } from 'react'
 import styles from './UnderlineTabs.module.css'
 
 export interface UnderlineTabItem<Id extends string> {
@@ -37,6 +37,18 @@ export function UnderlineTabs<Id extends string>({
   focusSelectedOnMount = false,
 }: UnderlineTabsProps<Id>) {
   const tabRefs = useRef(new Map<Id, HTMLButtonElement>())
+  const listRef = useRef<HTMLDivElement>(null)
+
+  // 좁은 화면에서 Tab 줄이 가로 스크롤될 때 선택 Tab이 잘리지 않게 보이는 위치로 옮긴다.
+  useLayoutEffect(() => {
+    const list = listRef.current
+    const tab = tabRefs.current.get(selected)
+    if (!list || !tab || list.scrollWidth <= list.clientWidth) return
+    const left = tab.offsetLeft - list.offsetLeft
+    if (left < list.scrollLeft || left + tab.offsetWidth > list.scrollLeft + list.clientWidth) {
+      list.scrollLeft = left - (list.clientWidth - tab.offsetWidth) / 2
+    }
+  }, [selected])
 
   useEffect(() => {
     if (focusSelectedOnMount) tabRefs.current.get(selected)?.focus({ preventScroll: true })
@@ -65,7 +77,7 @@ export function UnderlineTabs<Id extends string>({
 
   return (
     <div className={`${styles.bar} ${sticky ? styles.sticky : ''}`}>
-      <div role="tablist" aria-label={ariaLabel} className={styles.list} onKeyDown={handleKeyDown}>
+      <div ref={listRef} role="tablist" aria-label={ariaLabel} className={styles.list} onKeyDown={handleKeyDown}>
         {items.map((tab) => {
           const isSelected = tab.id === selected
           return (

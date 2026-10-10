@@ -8,6 +8,7 @@ import mentorMan03 from '../../../../assets/mentor-man/mentor-man-03.png'
 import mentorMan04 from '../../../../assets/mentor-man/mentor-man-04.png'
 import mentorMan05 from '../../../../assets/mentor-man/mentor-man-05.png'
 import mentorMan06 from '../../../../assets/mentor-man/mentor-man-06.png'
+import mentorMan07 from '../../../../assets/mentor-man/mentor-man-07.png'
 import mentorMan08 from '../../../../assets/mentor-man/mentor-man-08.png'
 import mentorWoman01 from '../../../../assets/mentor-woman/mentor-woman-01.png'
 import mentorWoman02 from '../../../../assets/mentor-woman/mentor-woman-02.png'
@@ -260,6 +261,18 @@ export const fixtureMentors = {
     tags: ['학생부종합', '수학', 'Routine', '도시'],
     profileImageUrl: mentorWoman13,
   },
+  // ---- Story 목록 (Story-00 Mockup) ----
+  songJihoo: {
+    mentorId: 'fixture-mentor-22',
+    name: '송지후',
+    university: '아주대',
+    major: '소프트웨어학과',
+    admissionType: '정시',
+    highSchoolContext: '일반고 · 물리학Ⅰ 선택 유지 · 교내 코딩 동아리',
+    representativeExperience: '역학 단원 오답을 끝까지 정리해 물리학Ⅰ 선택을 지킨 경험',
+    tags: ['정시', '물리', '과탐', '소프트웨어'],
+    profileImageUrl: mentorMan07,
+  },
 } satisfies Record<string, MentorSummary>
 
 export const fixtureMentorContent = {
@@ -297,6 +310,15 @@ export const fixtureMentorContent = {
   mathMockRoutine: { contentId: 'fixture-content-routine-04', kind: 'routine', title: '주간 수학 실전 모의 루틴' },
   examPeriodRoutine: { contentId: 'fixture-content-routine-05', kind: 'routine', title: '학교 시험기간 하루 공부 루틴' },
   codingRoutine: { contentId: 'fixture-content-routine-06', kind: 'routine', title: '수행평가와 코딩 프로젝트 병행 루틴' },
+  // ---- Story 목록 (Story-00 Mockup + 기존 Profile Story) ----
+  careerRecordStory: { contentId: 'fixture-content-story-02', kind: 'story', title: '탐구 주제를 진로 기록으로 이어간 과정' },
+  wrongNoteStory: { contentId: 'fixture-content-story-03', kind: 'story', title: '1학년 1.8에서 1.3까지 오답노트 운영기' },
+  biologyGradeStory: { contentId: 'fixture-content-story-05', kind: 'story', title: '생명과학 4등급에서 1등급까지' },
+  mockExamStory: { contentId: 'fixture-content-story-06', kind: 'story', title: '모의고사 성적이 흔들렸을 때 관리 방법' },
+  admissionSwitchStory: { contentId: 'fixture-content-story-07', kind: 'story', title: '수시 준비를 중단하고 정시로 전환한 이유' },
+  broadTopicStory: { contentId: 'fixture-content-story-08', kind: 'story', title: '탐구 주제를 너무 넓게 잡았던 실패' },
+  undecidedCareerStory: { contentId: 'fixture-content-story-09', kind: 'story', title: '고2까지 진로를 확정하지 못했던 경험' },
+  physicsStory: { contentId: 'fixture-content-story-10', kind: 'story', title: '물리를 끝까지 가져간 이유' },
 } satisfies Record<string, MentorContentSummary>
 
 /** Plan 한 줄 요약. Home / Profile / Plan 목록이 같은 문장을 쓴다. (Plan-00 Mockup 문구 기준) */
@@ -319,4 +341,18 @@ export const fixtureRoutineSummaries: Record<string, string> = {
   [fixtureMentorContent.examPeriodRoutine.contentId]: '시험기간 하루를 과목별 시간 블록으로 나눈 루틴이에요.',
   [fixtureMentorContent.codingRoutine.contentId]: '평일 저녁을 수행평가와 코딩으로 나눈 주간 루틴이에요.',
   [fixtureMentorContent.scienceRoutine.contentId]: '물리 공식 유도와 화학 계산 문제를 번갈아 복습하는 루틴이에요.',
+}
+
+/** Story 한 줄 요약. Home / Profile / Story Feed가 같은 문장을 쓴다. (Story-00 Mockup 문구 기준) */
+export const fixtureStorySummaries: Record<string, string> = {
+  [fixtureMentorContent.biologyGradeStory.contentId]: '오답 루틴과 시간 배분을 바꾸며 성적을 올린 과정이에요.',
+  [fixtureMentorContent.mockExamStory.contentId]: '점수가 흔들린 다음 날 무엇을 했는지 정리했어요.',
+  [fixtureMentorContent.admissionSwitchStory.contentId]: '전형을 바꾸기로 한 시점과 기준을 적었어요.',
+  [fixtureMentorContent.broadTopicStory.contentId]: '주제를 좁히지 못해 다시 시작했던 경험과 바꾼 방법이에요.',
+  [fixtureMentorContent.summerStory.contentId]: '지문을 끝까지 읽기 전에 구조부터 잡는 연습으로 바꾼 과정이에요.',
+  [fixtureMentorContent.mathStory.contentId]: '개념 노트 대신 풀이 과정을 말로 설명하며 공부법을 바꾼 이야기예요.',
+  [fixtureMentorContent.undecidedCareerStory.contentId]: '진로가 정해지지 않았을 때 활동을 고른 기준을 적었어요.',
+  [fixtureMentorContent.physicsStory.contentId]: '어려웠던 역학 단원을 버티면서 과학탐구 선택을 지킨 이야기예요.',
+  [fixtureMentorContent.careerRecordStory.contentId]: '교내 탐구대회 주제를 세특과 진로 활동으로 연결한 이야기예요.',
+  [fixtureMentorContent.wrongNoteStory.contentId]: '과목별 오답노트를 주간 단위로 다시 보는 방법을 정리했어요.',
 }

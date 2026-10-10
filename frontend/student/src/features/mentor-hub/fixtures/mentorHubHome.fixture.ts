@@ -8,6 +8,7 @@ import {
   fixtureMentors as mentors,
   fixturePlanSummaries,
   fixtureRoutineSummaries,
+  fixtureStorySummaries,
 } from './mentors.fixture.ts'
 
 const currentTask: LinkedTask = {
@@ -81,7 +82,7 @@ export const mentorHubHomeFixture: MentorHubHome = {
     },
     {
       ...content.mathStory,
-      summary: '개념 노트 대신 풀이 과정을 말로 설명하며 공부법을 바꾼 이야기예요.',
+      summary: fixtureStorySummaries[content.mathStory.contentId],
       mentor: mentors.kangMinho,
     },
     {
