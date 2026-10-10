@@ -62,8 +62,8 @@ progress.md
 Date: 2026-10-09
 Owner: Suyeon
 Project: learnershigh-extension
-Current Phase: Scaffold Implementation (branch: chore/project-scaffold)
-Implementation Phase: Frontend / Backend Scaffold IMPLEMENTED, Feature Business Logic NOT_STARTED
+Current Phase: Feature Implementation 시작 (branch: feat/student-mentor-hub-home)
+Implementation Phase: Scaffold merged (main 2c1ac41), Student Mentor Hub Home UI IMPLEMENTED (Fixture 기반, API 미연결)
 ```
 
 현재 핵심 목표:
@@ -790,7 +790,10 @@ Operations
 상태:
 
 ```text
-NOT_STARTED
+IN_PROGRESS
+- Student Mentor Hub Home: IMPLEMENTED (Fixture UI, 2026-10-10)
+  - API 연결 / Profile·Case·Content 화면 연결 / Frontend 자동 Test: NOT_STARTED
+- 그 외 화면: NOT_STARTED
 ```
 
 예정:
@@ -1121,6 +1124,37 @@ backend bootJar 실행: DB 환경 변수 미설정으로 DataSource 생성 실�
 scripts/verify.ps1 -Strict: PASS
 git diff --check: PASS
 GitHub Actions: NOT_RUN
+```
+
+## 2026-10-10 — Student Mentor Hub Home (branch: feat/student-mentor-hub-home)
+
+### Status
+
+```text
+Student Mentor Hub Home: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- `frontend/student/src/features/mentor-hub/`: 추천 Home (Main Tab, 추천 Mentor 3, 다른 Mentor 6, Admin 추천 Case, Mixed Recommendation)
+- Loading(Skeleton) / Empty(Section별) / Error(다시 시도) 상태, `?fixture=loading|empty|error` (개발 모드)
+- `frontend/student/src/index.css`: Student Surface Token (Light / Dark)
+- 신규 Dependency 없음 (CSS Modules)
+
+### Not Started
+
+- Mentor List / Profile / Plan / Routine / Story / Q&A / Record / Case 화면, Router, API 연결
+- Mockup의 검색창, 도움돼요 / 저장 수치 (Feature Spec / Domain 정의 없음)
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify-frontend.ps1 -Strict: PASS
+Headless Chrome (CDP) 1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음, Dark Theme 확인
+Keyboard: Tab Focus 순서, Tab Arrow / Home / End, focus-visible, Console Error 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 
 ---

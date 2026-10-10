@@ -1,0 +1,54 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-3);
+  width: 100%;
+  height: 100%;
+  min-height: 64px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.admissionType {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.summary {
+  overflow: hidden;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileHint {
+  flex-shrink: 0;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-title-sm);
+}

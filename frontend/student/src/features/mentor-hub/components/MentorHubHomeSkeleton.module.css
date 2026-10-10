@@ -1,0 +1,44 @@
+.skeleton {
+  display: contents;
+}
+
+.block {
+  display: block;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-skeleton);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.title {
+  width: 240px;
+  max-width: 70%;
+  height: 28px;
+}
+
+.line {
+  width: 360px;
+  max-width: 90%;
+  height: 18px;
+}
+
+.card {
+  height: 400px;
+  border-radius: var(--lh-radius-xl);
+}
+
+.row {
+  height: 64px;
+  border-radius: var(--lh-radius-lg);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+  }
+}

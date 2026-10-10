@@ -1,0 +1,33 @@
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2) var(--lh-space-3);
+}
+
+.label {
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.chip {
+  max-width: 100%;
+  padding: var(--lh-space-1) var(--lh-space-3);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+}
+
+.tags {
+  padding-left: var(--lh-space-1);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}

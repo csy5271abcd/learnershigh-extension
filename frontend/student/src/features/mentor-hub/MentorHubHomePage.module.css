@@ -1,0 +1,175 @@
+/*
+ * Layout 기준 (Mockup StudentMentorHubHome-01/02)
+ * - 하나의 auto-fill Grid를 모든 Section이 공유한다.
+ *   Wide Desktop 5칸 → Laptop 3~4칸 → Tablet 2칸 → Mobile 1칸
+ *   추천 Mentor 3명은 넓은 화면에서 5칸 중 3칸을 차지한다.
+ * - Breakpoint: 1023px(Tablet 이하), 639px(Mobile)
+ */
+
+.page {
+  --page-gutter: var(--lh-space-10);
+  --grid-min: 320px;
+
+  /* Mockup(1920px) 밀도를 넘는 초광폭 화면에서는 가운데 정렬로 Card가 과하게 늘어나지 않게 한다. */
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: var(--lh-space-10) var(--page-gutter) var(--lh-space-16);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding-bottom: var(--lh-space-6);
+}
+
+.pageTitle {
+  font-size: var(--lh-font-page-title);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.lead {
+  margin-bottom: var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+  font-size: 0.9375rem;
+}
+
+.contextSkeleton {
+  display: block;
+  width: 560px;
+  max-width: 100%;
+  height: 28px;
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-skeleton);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-10);
+  padding-top: var(--lh-space-8);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+}
+
+.sectionTitle {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.sectionDescription {
+  color: var(--lh-color-text-secondary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--grid-min)), 1fr));
+  gap: var(--lh-space-4);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+}
+
+.emptyNotice,
+.notice {
+  padding: var(--lh-space-8) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}
+
+.errorNotice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-12) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.errorDescription {
+  color: var(--lh-color-text-secondary);
+}
+
+.retryButton {
+  min-height: 44px;
+  margin-top: var(--lh-space-3);
+  padding: 0 var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* Tablet: 여백과 Section 간격을 줄이고 2칸 Grid가 되도록 최소 폭을 낮춘다. */
+@media (max-width: 1023px) {
+  .page {
+    --page-gutter: var(--lh-space-6);
+    --grid-min: 280px;
+
+    padding-top: var(--lh-space-8);
+  }
+
+  .panel {
+    gap: var(--lh-space-8);
+    padding-top: var(--lh-space-6);
+  }
+}
+
+/* Mobile: 1칸, 제목 크기와 여백 축소. */
+@media (max-width: 639px) {
+  .page {
+    --page-gutter: var(--lh-space-4);
+
+    padding-top: var(--lh-space-6);
+  }
+
+  .pageTitle {
+    font-size: var(--lh-font-title-lg);
+  }
+
+  .header {
+    padding-bottom: var(--lh-space-5);
+  }
+
+  .panel {
+    gap: var(--lh-space-8);
+    padding-top: var(--lh-space-6);
+  }
+
+  .section {
+    gap: var(--lh-space-4);
+  }
+
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+}

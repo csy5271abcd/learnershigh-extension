@@ -1,0 +1,76 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  height: 100%;
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+}
+
+.card:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* Keyboard Focus일 때만 Card 전체에 Focus를 표시한다. */
+.card:has(.titleButton:focus-visible) {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 2px;
+}
+
+.kind {
+  align-self: flex-start;
+  padding: 1px 6px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.title {
+  margin-top: var(--lh-space-1);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.titleButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Card 전체를 Click 영역으로 만든다. */
+.titleButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--lh-radius-xl);
+}
+
+/* Focus 표시는 Card(.card:has(...))가 담당한다. */
+.titleButton:focus-visible {
+  outline: none;
+}
+
+.summary {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--lh-color-text-secondary);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.mentor {
+  margin-top: auto;
+  padding-top: var(--lh-space-3);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}

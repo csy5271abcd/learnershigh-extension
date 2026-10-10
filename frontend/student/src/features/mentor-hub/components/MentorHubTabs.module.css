@@ -1,0 +1,58 @@
+.bar {
+  position: sticky;
+  /* Student Global Navigation(sticky) 바로 아래에 붙는다. */
+  top: var(--lh-student-nav-height, 0px);
+  z-index: 1;
+  background: var(--lh-color-background);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.list {
+  display: flex;
+  gap: var(--lh-space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--lh-color-text-primary);
+}
+
+.tab:focus-visible {
+  outline-offset: -2px;
+  border-radius: var(--lh-radius-sm);
+}
+
+/* 선택 상태는 색상 + 굵기 + 밑줄로 함께 표시한다. */
+.tab[aria-selected='true'] {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+.tab[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+  left: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--lh-color-text-primary);
+}
