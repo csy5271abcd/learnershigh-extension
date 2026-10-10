@@ -1,7 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { MentorHubHomeRoute } from '../features/mentor-hub/routes/MentorHubHomeRoute.tsx'
+import { MentorListRoute } from '../features/mentor-hub/routes/MentorListRoute.tsx'
 import { MentorProfileRoute } from '../features/mentor-hub/routes/MentorProfileRoute.tsx'
-import { mentorHubPath, mentorHubRoutePattern, mentorProfileRoutePattern } from '../features/mentor-hub/routes/paths.ts'
+import {
+  mentorHubPath,
+  mentorHubRoutePattern,
+  mentorListRoutePattern,
+  mentorProfileRoutePattern,
+} from '../features/mentor-hub/routes/paths.ts'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { StudentAppShell } from './StudentAppShell.tsx'
 
@@ -13,6 +19,7 @@ export const studentRouter = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to={mentorHubPath} replace /> },
       { path: mentorHubRoutePattern, element: <MentorHubHomeRoute /> },
+      { path: mentorListRoutePattern, element: <MentorListRoute /> },
       { path: mentorProfileRoutePattern, element: <MentorProfileRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],

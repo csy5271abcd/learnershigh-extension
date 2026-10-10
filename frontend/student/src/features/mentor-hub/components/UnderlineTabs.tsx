@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent } from 'react'
+import { useEffect, useRef, type KeyboardEvent } from 'react'
 import styles from './UnderlineTabs.module.css'
 
 export interface UnderlineTabItem<Id extends string> {
@@ -15,10 +15,16 @@ interface UnderlineTabsProps<Id extends string> {
   idPrefix: string
   panelId: string
   sticky?: boolean
+  /**
+   * automatic: 화살표로 이동하면 바로 선택 (같은 화면 안 전환)
+   * manual: 화살표는 Focus만 이동, Enter / Space로 선택 (선택이 화면 이동을 일으키는 경우)
+   */
+  activation?: 'automatic' | 'manual'
+  /** Tab 선택으로 화면이 바뀐 직후, 새 화면의 선택 Tab으로 Focus를 돌려준다. */
+  focusSelectedOnMount?: boolean
 }
 
-// Mentor Hub Main Tab / Mentor Profile Content Tab이 함께 쓰는 Underline Tab.
-// WAI-ARIA Tabs: 좌우 화살표 / Home / End로 이동하고 바로 선택한다.
+// Mentor Hub Main Tab / Mentor Profile Content Tab이 함께 쓰는 Underline Tab. (WAI-ARIA Tabs)
 export function UnderlineTabs<Id extends string>({
   items,
   selected,
@@ -27,11 +33,20 @@ export function UnderlineTabs<Id extends string>({
   idPrefix,
   panelId,
   sticky = false,
+  activation = 'automatic',
+  focusSelectedOnMount = false,
 }: UnderlineTabsProps<Id>) {
   const tabRefs = useRef(new Map<Id, HTMLButtonElement>())
 
+  useEffect(() => {
+    if (focusSelectedOnMount) tabRefs.current.get(selected)?.focus({ preventScroll: true })
+    // 화면이 처음 그려질 때 한 번만 실행한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const index = items.findIndex((tab) => tab.id === selected)
+    const focusedId = items.find((tab) => tabRefs.current.get(tab.id) === document.activeElement)?.id ?? selected
+    const index = items.findIndex((tab) => tab.id === focusedId)
     const last = items.length - 1
     const nextIndex = {
       ArrowRight: index === last ? 0 : index + 1,
@@ -44,8 +59,8 @@ export function UnderlineTabs<Id extends string>({
 
     event.preventDefault()
     const next = items[nextIndex].id
-    onSelect(next)
     tabRefs.current.get(next)?.focus()
+    if (activation === 'automatic') onSelect(next)
   }
 
   return (

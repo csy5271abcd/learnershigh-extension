@@ -10,7 +10,8 @@ import type {
   MentorScoreSummary,
   MentorSummary,
 } from '../model/types.ts'
-import { fixtureMentorContent as content, fixtureMentors as mentors, mentorHubHomeFixture } from './mentorHubHome.fixture.ts'
+import { mentorHubHomeFixture } from './mentorHubHome.fixture.ts'
+import { fixtureMentorContent as content, fixtureMentors as mentors } from './mentors.fixture.ts'
 
 const adminRecommendedCaseIds = new Set(mentorHubHomeFixture.adminRecommendedCases.map((item) => item.caseId))
 
@@ -206,6 +207,85 @@ const details: Record<string, ProfileDetail> = {
     verified: true,
     experiences: [{ title: '영어 단어 · 구문 루틴', description: '아침 · 저녁 30분씩 3년 동안 유지했어요.' }],
     contents: [profileContent(content.englishRoutine, '아침 · 저녁 30분씩 단어와 구문을 반복하는 루틴이에요.')],
+  },
+  // ---- Mentor List 추가 Mentor ----
+  [mentors.yoonHaram.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '논술 6회 응시 후 합격', description: '응시 후마다 답안을 다시 써보며 구조를 고쳤어요.' },
+      { title: '교외 영상 제작 활동', description: '지역 청소년 미디어 캠프에서 단편 제작' },
+    ],
+    contents: [profileContent(content.nonliteraturePlan, '지문 구조 분석과 풀이 시간 단축을 8주로 나눈 계획이에요.')],
+  },
+  [mentors.ohJunseok.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '영어 내신 3년 1등급', description: '본문 변형 문제를 직접 만들어 복습했어요.' },
+      { title: '교내 영어 말하기 대회 수상', description: '교육 격차를 주제로 발표' },
+    ],
+    contents: [],
+  },
+  [mentors.parkSeohyun.mentorId]: {
+    verified: true,
+    scoreSummary: {
+      note: '수능 국어 · 수학 · 탐구를 고르게 끌어올렸어요.',
+      csat: {
+        basisLabel: '성적통지표 기준',
+        subjects: [
+          { area: '국어', subject: '화법과 작문', grade: 1, percentile: 97 },
+          { area: '수학', subject: '확률과 통계', grade: 1, percentile: 96 },
+          { area: '영어', subject: '절대평가', grade: 2, percentile: null },
+          { area: '탐구', subject: '한국지리', grade: 1, percentile: 98 },
+        ],
+      },
+    },
+    experiences: [
+      { title: '국어 비문학 시간 관리', description: '고3 여름부터 지문 구조를 먼저 잡는 연습을 했어요.' },
+      { title: '한국사 1등급', description: '시대별 흐름표를 주 1회 다시 그렸어요.' },
+    ],
+    contents: [profileContent(content.summerStory, '지문을 끝까지 읽기 전에 구조부터 잡는 연습으로 바꾼 과정이에요.')],
+  },
+  [mentors.leeHyunseo.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '재수 · 표준점수 +34', description: '주간 모의고사 회고로 취약 영역을 관리했어요.' },
+      { title: '역사 탐구 독서', description: '한 달에 한 권 시대사 책을 정리했어요.' },
+    ],
+    contents: [],
+  },
+  [mentors.jeongDain.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '교내 토론대회 준우승', description: '기후 정책을 주제로 찬반 토론' },
+      { title: '시사 논술 첨삭', description: '주 1회 시사 주제로 답안을 쓰고 고쳤어요.' },
+    ],
+    contents: [],
+  },
+  [mentors.kimDoyeon.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '도시 열섬 지역 조사', description: '학교 주변 온도를 4주 동안 측정했어요.' },
+      { title: '지리 탐구 동아리 운영', description: '지역 답사 계획과 보고서 작성을 맡았어요.' },
+    ],
+    contents: [],
+  },
+  [mentors.joMinjae.mentorId]: {
+    verified: true,
+    experiences: [{ title: '수학 실전 모의고사 오답 정리', description: '회차별로 틀린 유형을 표로 관리했어요.' }],
+    contents: [],
+  },
+  [mentors.seoJiho.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '내신 1.2 유지', description: '시험 3주 전부터 과목별 범위표를 운영했어요.' },
+      { title: '교내 창업 아이디어 대회 수상', description: '학교 매점 재고 관리 아이디어' },
+    ],
+    contents: [],
+  },
+  [mentors.kimTaehyun.mentorId]: {
+    verified: false,
+    experiences: [{ title: '수리논술 주 2회 실전', description: '시간을 재고 풀고 풀이를 다시 써봤어요.' }],
+    contents: [],
   },
 }
 

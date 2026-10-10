@@ -1,0 +1,29 @@
+import { useLocation, useNavigate } from 'react-router'
+import type { MentorHubTabId } from '../model/tabs.ts'
+import { mentorHubPath, mentorListPath } from './paths.ts'
+
+interface MainTabNavigationState {
+  focusMainTab?: boolean
+}
+
+/**
+ * Mentor Hub Main Tab 선택을 Route 이동으로 바꾼다.
+ * - 추천 → Mentor Hub Home
+ * - 멘토 → Mentor List
+ * - 그 외(아직 화면 없음) → Home의 ?tab= (Placeholder)
+ * 이동한 화면에서는 선택 Tab에 Focus를 돌려줘 Keyboard 사용자가 이어서 Tab을 이동할 수 있게 한다.
+ */
+export function useMentorHubTabNavigation() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const focusTabOnMount = Boolean((location.state as MainTabNavigationState | null)?.focusMainTab)
+
+  const navigateToTab = (tab: MentorHubTabId) => {
+    const state: MainTabNavigationState = { focusMainTab: true }
+    if (tab === 'mentors') navigate(mentorListPath, { state })
+    else if (tab === 'recommend') navigate(mentorHubPath, { state })
+    else navigate(`${mentorHubPath}?tab=${tab}`, { state })
+  }
+
+  return { navigateToTab, focusTabOnMount }
+}

@@ -120,6 +120,38 @@ export interface MentorProfile {
   contents: MentorProfileContent[]
 }
 
+// ---------- Mentor List (GET /api/student/mentors 기준 View Model) ----------
+
+/** API Contract Query: query / admissionType / major / page / size */
+export interface MentorListQuery {
+  query: string
+  admissionType?: string
+  major?: string
+  page: number
+  size: number
+}
+
+export interface MentorListItem {
+  mentor: MentorSummary
+  /** 공개 Content 수 (Profile Content Tab과 같은 기준) */
+  contentCount: number
+}
+
+export interface MentorListResult {
+  items: MentorListItem[]
+  page: {
+    number: number
+    size: number
+    totalElements: number
+    totalPages: number
+  }
+  /** UI 전용: Filter 선택지. API Contract에 아직 정의되지 않음 */
+  filterOptions: {
+    admissionTypes: string[]
+    majors: string[]
+  }
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

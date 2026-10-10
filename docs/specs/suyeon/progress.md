@@ -793,9 +793,12 @@ Operations
 IN_PROGRESS
 - Student Mentor Hub Home: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-hub-home 80ea540)
   - API 연결 / Case·Content Detail 연결 / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Profile: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-profile, 미커밋)
+- Student Mentor Profile: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-profile 4b31225)
   - Home ↔ Profile Route, Back 후 Tab / Scroll 복원 브라우저 확인
   - API 연결 / Follow·질문하기·Content 열기 대상 화면 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor List: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-list, 미커밋)
+  - "멘토" Tab → List, Search / 전형 / 학과 Filter, List → Profile → Back 시 Filter / Scroll 복원 브라우저 확인
+  - API 연결 / Pagination UI / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1187,6 +1190,36 @@ VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
 student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS
 Headless Chrome (CDP): Home → Profile → Back Scroll / Tab 복원, Follow, Content Tab, Not Found / Error / Loading 확인
+1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+## 2026-10-10 — Student Mentor List (branch: feat/student-mentor-list)
+
+### Status
+
+```text
+Student Mentor List: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/mentors` (Profile `/mentor/mentors/:mentorId`의 상위), Home "멘토" Tab 연결
+- Search(query) / 전형(admissionType) / 학과(major) Filter, URL Search Params로 새로고침 · Back · Profile 왕복 후 유지
+- Canonical Mentor Fixture를 `mentors.fixture.ts`로 분리 (Home / List / Profile 공유), Mentor 9명 추가 (총 20명)
+- Main Tab manual activation (화살표 = Focus, Enter / Space = 화면 이동) + 이동 후 Focus 복원
+
+### Not Started
+
+- Pagination UI (Data Boundary는 page / size 지원), Plan / Routine / Story / Q&A / Record / Case 화면
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Flow A~H, List → Profile → Back Filter / Scroll 복원, Home / Profile 회귀 확인
 1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
