@@ -1,0 +1,178 @@
+/* Plan Detail (Plan-01 Mockup). 기본 여백은 MentorHubHomePage / MentorProfilePage의 .page를 함께 쓴다. */
+
+/* 제목 · Mentor · 기간 · 설명은 왼쪽, "내 계획에 적용"은 오른쪽 (Mockup) */
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-8);
+}
+
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+.badge {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.title {
+  font-size: var(--lh-font-page-title);
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.mentor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-body);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mentor:hover .mentorText {
+  text-decoration: underline;
+}
+
+.mentorText {
+  min-width: 0;
+}
+
+.meta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-body);
+}
+
+.description {
+  max-width: 960px;
+  margin-top: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.apply {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+
+.applyButton {
+  min-height: 48px;
+  padding: 0 var(--lh-space-6);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.applyButton:hover {
+  background: var(--lh-color-accent-hover);
+}
+
+.applyNotice {
+  max-width: 240px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  text-align: right;
+}
+
+/* Live Region은 항상 렌더링해 두고, 안내가 있을 때만 간격을 둔다. */
+.applyNotice:not(:empty) {
+  margin-top: var(--lh-space-2);
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+}
+
+.skeletonBadge {
+  width: 80px;
+  height: 22px;
+}
+
+.skeletonTitle {
+  width: 360px;
+  max-width: 80%;
+  height: 38px;
+}
+
+.skeletonLine {
+  width: 300px;
+  max-width: 70%;
+  height: 40px;
+}
+
+.skeletonText {
+  width: 640px;
+  max-width: 100%;
+  height: 48px;
+}
+
+.skeletonTabs {
+  width: 280px;
+  max-width: 100%;
+  height: 44px;
+  margin-top: var(--lh-space-4);
+}
+
+.skeletonRow {
+  height: 64px;
+}
+
+/* Tablet 이하: CTA를 설명 아래로 내린다. (고정 Bottom Button은 Mockup 근거가 없어 쓰지 않는다) */
+@media (max-width: 1023px) {
+  .summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--lh-space-5);
+  }
+
+  .apply {
+    align-items: flex-start;
+  }
+
+  .applyNotice {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (max-width: 639px) {
+  .title {
+    font-size: var(--lh-font-title-lg);
+  }
+
+  .apply {
+    align-items: stretch;
+  }
+
+  .applyButton {
+    width: 100%;
+  }
+}

@@ -274,4 +274,21 @@ export const fixtureMentorContent = {
   },
   nonliteraturePlan: { contentId: 'fixture-content-plan-03', kind: 'plan', title: '수능 국어 비문학 8주 Plan' },
   summerStory: { contentId: 'fixture-content-story-04', kind: 'story', title: '국어 비문학 시간이 모자랐던 고3 여름' },
+  // ---- Plan 목록 (Plan-00 Mockup) ----
+  performancePlan: { contentId: 'fixture-content-plan-04', kind: 'plan', title: '고2 수행평가 준비 3주 Plan' },
+  englishPlan: { contentId: 'fixture-content-plan-05', kind: 'plan', title: '영어 빈칸·순서 유형 4주 Plan' },
+  mathPlan: { contentId: 'fixture-content-plan-06', kind: 'plan', title: '수학Ⅱ 내신 5주 역산 Plan' },
+  wrongAnswerPlan: { contentId: 'fixture-content-plan-07', kind: 'plan', title: '모의고사 이후 오답 7일 Plan' },
 } satisfies Record<string, MentorContentSummary>
+
+/** Plan 한 줄 요약. Home / Profile / Plan 목록이 같은 문장을 쓴다. (Plan-00 Mockup 문구 기준) */
+export const fixturePlanSummaries: Record<string, string> = {
+  [fixtureMentorContent.nonliteraturePlan.contentId]: '지문 구조 분석과 풀이 시간 단축을 8주로 나눈 계획이에요.',
+  [fixtureMentorContent.midtermPlan.contentId]:
+    '수학Ⅱ·화학Ⅰ·영어를 요일별로 나눈 4주 계획이에요. 2주차에 화학 수행평가를 배치했어요.',
+  [fixtureMentorContent.literaturePlan.contentId]: '작품별 표현법과 주제를 주차별로 나눠 정리하는 계획이에요.',
+  [fixtureMentorContent.performancePlan.contentId]: '주제 선정, 자료 조사, 초안을 3주로 나눈 수행평가 계획이에요.',
+  [fixtureMentorContent.englishPlan.contentId]: '모의고사에서 자주 틀리는 빈칸·순서 유형만 4주 동안 집중하는 계획이에요.',
+  [fixtureMentorContent.mathPlan.contentId]: '시험일에서 거꾸로 단원별 문제 풀이 분량을 정한 계획이에요.',
+  [fixtureMentorContent.wrongAnswerPlan.contentId]: '모의고사 다음 날부터 7일 동안 오답을 정리하는 계획이에요.',
+}

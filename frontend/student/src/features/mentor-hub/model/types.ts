@@ -152,6 +152,44 @@ export interface MentorListResult {
   }
 }
 
+// ---------- Mentor Plan (GET /api/student/mentor-content?type=plan, GET /api/student/mentor-content/{contentId}) ----------
+// Contract에 Plan Detail Field가 정의되어 있지 않아 Frontend View Model로 둔다.
+
+/** Plan 목록 Card. Home Mixed Content Card와 같은 모양(Content + 작성 Mentor)을 쓴다. */
+export interface MentorPlanListResult {
+  items: MixedContentItem[]
+  page: MentorListResult['page']
+}
+
+export type MentorPlanDay = '월' | '화' | '수' | '목' | '금' | '토' | '일'
+
+export interface MentorPlanItem {
+  /** Plan Apply의 selectedItemIds / mentorItemId가 가리키는 Item Identity */
+  itemId: string
+  day: MentorPlanDay
+  task: string
+  subject: string
+  memo?: string
+}
+
+export interface MentorPlanWeek {
+  /** 1부터 시작 */
+  week: number
+  items: MentorPlanItem[]
+}
+
+export interface MentorPlanDetail {
+  contentId: string
+  kind: 'plan'
+  title: string
+  /** 작성 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  description: string
+  durationWeeks: number
+  daysPerWeek: number
+  weeks: MentorPlanWeek[]
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

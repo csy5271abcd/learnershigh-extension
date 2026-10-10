@@ -8,7 +8,7 @@ interface MentorProfileContentsProps {
   contents: MentorProfileContent[]
   selectedKind: MentorProfileContentKind
   onKindSelect: (kind: MentorProfileContentKind) => void
-  /** Content Detail 화면이 아직 없어 호출 측에서 연결한다. */
+  /** Content Detail 이동은 호출 측(Route)이 정한다. */
   onContentSelect?: (content: MentorContentSummary) => void
 }
 

@@ -3,7 +3,7 @@
 // Mentor / Content Identity는 mentors.fixture.ts의 Canonical 값을 쓴다. (domain.md §57)
 
 import type { LinkedTask, MentorHubHome } from '../model/types.ts'
-import { fixtureMentorContent as content, fixtureMentors as mentors } from './mentors.fixture.ts'
+import { fixtureMentorContent as content, fixtureMentors as mentors, fixturePlanSummaries } from './mentors.fixture.ts'
 
 const currentTask: LinkedTask = {
   taskId: 'fixture-task-01',
@@ -66,7 +66,7 @@ export const mentorHubHomeFixture: MentorHubHome = {
   mixedContent: [
     {
       ...content.midtermPlan,
-      summary: '수학·화학·영어를 요일별로 나눈 4주 계획이에요. 2주차에 화학 수행평가를 배치했어요.',
+      summary: fixturePlanSummaries[content.midtermPlan.contentId],
       mentor: mentors.goMinjeong,
     },
     {

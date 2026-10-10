@@ -796,9 +796,12 @@ IN_PROGRESS
 - Student Mentor Profile: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-profile 4b31225)
   - Home ↔ Profile Route, Back 후 Tab / Scroll 복원 브라우저 확인
   - API 연결 / Follow·질문하기·Content 열기 대상 화면 / Frontend 자동 Test: NOT_STARTED
-- Student Mentor List: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-list, 미커밋)
+- Student Mentor List: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-list e5b2b4d)
   - "멘토" Tab → List, Search / 전형 / 학과 Filter, List → Profile → Back 시 Filter / Scroll 복원 브라우저 확인
   - API 연결 / Pagination UI / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Plan Detail: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-plan, 미커밋)
+  - Main "Plan" Tab 목록 → Detail, Home / Profile Plan Content → Detail, 1~4주차 Tab, Back 시 이전 화면 / Scroll / 선택 주차 복원 브라우저 확인
+  - 내 계획에 적용 Flow(시작일 / 항목 선택 / 교재 연결 / 충돌 확인 / 추가) / API 연결 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1199,7 +1202,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor List: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor List: IMPLEMENTED (Fixture 기반 UI, e5b2b4d)
 VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1220,6 +1223,39 @@ VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
 student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Flow A~H, List → Profile → Back Filter / Scroll 복원, Home / Profile 회귀 확인
+1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-10 — Student Mentor Plan Detail (branch: feat/student-mentor-plan)
+
+### Status
+
+```text
+Student Mentor Plan Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/plans` (Main "Plan" Tab, Plan-00) / `/mentor/plans/:contentId` (Plan Detail, Plan-01)
+- Home Mixed Content · 추천 Mentor 관련 Content · Profile Content의 Plan → 해당 contentId Detail
+- 1~N주차 Tab(URL `?week=`), 요일 / 할 일 / 과목 / Memo, Loading / Error / Not Found / 주차 Empty
+- 작성 Mentor는 Canonical Mentor 참조, Plan Item에 고정 itemId (Apply의 selectedItemIds 대상)
+- "내 계획에 적용" CTA: Apply Flow 진입 Callback Boundary만 준비 (연결 전 안내 문구)
+
+### Not Started
+
+- Plan Apply Flow (Plan-02~04, feat/student-mentor-plan-apply 예정), 저장 수 표시, Routine / Story / Q&A / Record / Case 화면
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Plan Flow A~H, Home / Mentor List / Profile 회귀 확인
 1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```

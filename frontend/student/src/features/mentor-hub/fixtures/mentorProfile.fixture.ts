@@ -11,13 +11,18 @@ import type {
   MentorSummary,
 } from '../model/types.ts'
 import { mentorHubHomeFixture } from './mentorHubHome.fixture.ts'
-import { fixtureMentorContent as content, fixtureMentors as mentors } from './mentors.fixture.ts'
+import { fixtureMentorContent as content, fixtureMentors as mentors, fixturePlanSummaries } from './mentors.fixture.ts'
 
 const adminRecommendedCaseIds = new Set(mentorHubHomeFixture.adminRecommendedCases.map((item) => item.caseId))
 
 function profileContent(item: MentorContentSummary, summary: string): MentorProfileContent {
   if (item.kind === 'qna') throw new Error('Q&A는 Profile Content Tab 유형이 아니다.')
   return { ...item, kind: item.kind, summary, adminRecommended: adminRecommendedCaseIds.has(item.contentId) }
+}
+
+/** Plan은 Canonical 한 줄 요약을 그대로 쓴다. */
+function planContent(item: MentorContentSummary): MentorProfileContent {
+  return profileContent(item, fixturePlanSummaries[item.contentId])
 }
 
 interface ProfileDetail {
@@ -60,7 +65,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '교외 · 대학 연계 실험캠프', description: '생명과학 여름캠프 3일 수료' },
     ],
     contents: [
-      profileContent(content.literaturePlan, '문학 작품을 갈래별로 묶어 4주 동안 정리한 내신 계획이에요.'),
+      planContent(content.literaturePlan),
       profileContent(
         { contentId: 'fixture-content-story-02', kind: 'story', title: '탐구 주제를 진로 기록으로 이어간 과정' },
         '교내 탐구대회 주제를 세특과 진로 활동으로 연결한 이야기예요.',
@@ -144,7 +149,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '수능 수학 백분위 97', description: '9월 모의고사 이후 실전 시간 배분을 다시 짰어요.' },
       { title: '정시 집중 준비', description: '고3 2학기부터 주간 모의고사 루틴으로 전환했어요.' },
     ],
-    contents: [],
+    contents: [planContent(content.mathPlan)],
   },
   [mentors.choiAreum.mentorId]: {
     verified: true,
@@ -196,12 +201,12 @@ const details: Record<string, ProfileDetail> = {
       { title: '독서토론부 부장 2년', description: '월 2회 토론 주제를 선정하고 진행했어요.' },
       { title: '교내 독서 토론대회 참여', description: '고전 작품을 현대 쟁점과 연결해 발표했어요.' },
     ],
-    contents: [],
+    contents: [planContent(content.performancePlan)],
   },
   [mentors.goMinjeong.mentorId]: {
     verified: true,
     experiences: [{ title: '중간고사 4주 계획 운영', description: '요일별 과목 배치로 시험 범위를 관리했어요.' }],
-    contents: [profileContent(content.midtermPlan, '수학 · 화학 · 영어를 요일별로 나눈 4주 계획이에요.')],
+    contents: [planContent(content.midtermPlan)],
   },
   [mentors.choiEunchae.mentorId]: {
     verified: true,
@@ -215,7 +220,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '논술 6회 응시 후 합격', description: '응시 후마다 답안을 다시 써보며 구조를 고쳤어요.' },
       { title: '교외 영상 제작 활동', description: '지역 청소년 미디어 캠프에서 단편 제작' },
     ],
-    contents: [profileContent(content.nonliteraturePlan, '지문 구조 분석과 풀이 시간 단축을 8주로 나눈 계획이에요.')],
+    contents: [planContent(content.nonliteraturePlan)],
   },
   [mentors.ohJunseok.mentorId]: {
     verified: true,
@@ -223,7 +228,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '영어 내신 3년 1등급', description: '본문 변형 문제를 직접 만들어 복습했어요.' },
       { title: '교내 영어 말하기 대회 수상', description: '교육 격차를 주제로 발표' },
     ],
-    contents: [],
+    contents: [planContent(content.englishPlan)],
   },
   [mentors.parkSeohyun.mentorId]: {
     verified: true,
@@ -267,7 +272,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '도시 열섬 지역 조사', description: '학교 주변 온도를 4주 동안 측정했어요.' },
       { title: '지리 탐구 동아리 운영', description: '지역 답사 계획과 보고서 작성을 맡았어요.' },
     ],
-    contents: [],
+    contents: [planContent(content.wrongAnswerPlan)],
   },
   [mentors.joMinjae.mentorId]: {
     verified: true,
