@@ -4,7 +4,7 @@ import styles from './MentorAvatar.module.css'
 interface MentorAvatarProps {
   name: string
   imageUrl?: string
-  size: 'md' | 'lg'
+  size: 'md' | 'lg' | 'xl'
 }
 
 // 이름이 옆에 Text로 함께 표시되므로 Avatar는 장식 요소로 취급한다. (alt="" + aria-hidden)

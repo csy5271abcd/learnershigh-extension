@@ -68,6 +68,58 @@ export interface MentorHubHome {
   mixedContent: MixedContentItem[]
 }
 
+// ---------- Mentor Profile (GET /api/student/mentors/{mentorId} 기준 View Model) ----------
+
+/** Profile Content Tab 유형. Q&A는 MentorContent 유형이 아니므로 제외한다. (domain.md §29) */
+export type MentorProfileContentKind = Exclude<MentorContentKind, 'qna'>
+
+export interface MentorProfileContent extends MentorContentSummary {
+  kind: MentorProfileContentKind
+  summary: string
+  /** 현재 Student에게 Admin이 추천한 Case인지 (Home의 Admin 추천 Case와 같은 근거) */
+  adminRecommended: boolean
+}
+
+export interface SchoolGradeTerm {
+  term: string
+  averageGrade: number
+}
+
+export interface CsatSubjectScore {
+  area: string
+  subject: string
+  grade: number
+  /** 절대평가 과목은 백분위가 없다. */
+  percentile: number | null
+}
+
+/** UI 전용 View Model (API Contract에 아직 정의되지 않음) */
+export interface MentorScoreSummary {
+  note?: string
+  schoolGrades?: {
+    scaleLabel: string
+    terms: SchoolGradeTerm[]
+  }
+  csat?: {
+    basisLabel: string
+    subjects: CsatSubjectScore[]
+    minimumRequirement?: string
+  }
+}
+
+export interface MentorExperience {
+  title: string
+  description: string
+}
+
+export interface MentorProfile {
+  mentor: MentorSummary
+  verified: boolean
+  scoreSummary?: MentorScoreSummary
+  experiences: MentorExperience[]
+  contents: MentorProfileContent[]
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

@@ -1,0 +1,39 @@
+/* 기본 여백 / Grid는 MentorHubHomePage.module.css의 .page를 함께 쓴다. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-8);
+  padding-top: var(--lh-space-6);
+}
+
+.back {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: var(--lh-space-1);
+  min-height: 44px;
+  margin-bottom: calc(var(--lh-space-4) * -1);
+  padding: 0 var(--lh-space-2) 0 0;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back span[aria-hidden='true'] {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.back:hover {
+  color: var(--lh-color-text-primary);
+}
+
+@media (max-width: 639px) {
+  .page {
+    gap: var(--lh-space-6);
+    padding-top: var(--lh-space-4);
+  }
+}

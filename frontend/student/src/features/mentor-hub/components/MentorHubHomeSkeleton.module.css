@@ -26,6 +26,12 @@
   border-radius: var(--lh-radius-xl);
 }
 
+.profileHeader {
+  height: 72px;
+  max-width: 480px;
+  border-radius: var(--lh-radius-xl);
+}
+
 .row {
   height: 64px;
   border-radius: var(--lh-radius-lg);

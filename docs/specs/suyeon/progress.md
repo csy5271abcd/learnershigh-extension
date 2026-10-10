@@ -791,8 +791,11 @@ Operations
 
 ```text
 IN_PROGRESS
-- Student Mentor Hub Home: IMPLEMENTED (Fixture UI, 2026-10-10)
-  - API 연결 / Profile·Case·Content 화면 연결 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Hub Home: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-hub-home 80ea540)
+  - API 연결 / Case·Content Detail 연결 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Profile: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-profile, 미커밋)
+  - Home ↔ Profile Route, Back 후 Tab / Scroll 복원 브라우저 확인
+  - API 연결 / Follow·질문하기·Content 열기 대상 화면 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1154,6 +1157,37 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify-frontend.ps1 -Strict: PASS
 Headless Chrome (CDP) 1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음, Dark Theme 확인
 Keyboard: Tab Focus 순서, Tab Arrow / Home / End, focus-visible, Console Error 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+## 2026-10-10 — Student Mentor Profile (branch: feat/student-mentor-profile)
+
+### Status
+
+```text
+Student Mentor Profile: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Router 결정: react-router 7.18.4 (Data Router + ScrollRestoration), Student App에만 추가
+- 개발 Route: `/mentor`, `/mentor/mentors/:mentorId` (기존 LearnersHigh URL 아님)
+- Profile: 인증 / 대학·학과 / 전형 / 고교 Context / 성적 Summary / 대표 경험 / Content Tab, Follow(Local State), 질문하기·Content 열기(Action Boundary)
+- Home ↔ Profile 이동, Back 후 Main Tab(?tab=) / Scroll 복원, Profile Content Tab(?content=) 유지
+- Mentor Identity / Profile Image는 Home Fixture 객체 재사용
+
+### Not Started
+
+- Mentor List, Plan / Routine / Story / Q&A / Record / Case Detail, 질문 작성, Follow API
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS
+Headless Chrome (CDP): Home → Profile → Back Scroll / Tab 복원, Follow, Content Tab, Not Found / Error / Loading 확인
+1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

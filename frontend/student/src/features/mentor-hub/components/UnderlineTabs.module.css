@@ -1,10 +1,13 @@
 .bar {
-  position: sticky;
-  /* Student Global Navigation(sticky) 바로 아래에 붙는다. */
-  top: var(--lh-student-nav-height, 0px);
-  z-index: 1;
   background: var(--lh-color-background);
   border-bottom: 1px solid var(--lh-color-border);
+}
+
+/* Mentor Hub Main Tab: Student Global Navigation(sticky) 바로 아래에 붙는다. */
+.sticky {
+  position: sticky;
+  top: var(--lh-student-nav-height, 0px);
+  z-index: 1;
 }
 
 .list {

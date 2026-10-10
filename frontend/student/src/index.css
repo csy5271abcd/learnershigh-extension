@@ -20,6 +20,9 @@
   --lh-color-accent: #3182f6;
   --lh-color-accent-hover: #1b64da;
   --lh-color-on-accent: #ffffff;
+  --lh-color-accent-subtle: #e8f3ff;
+  --lh-color-positive: #0b7a43;
+  --lh-color-positive-subtle: #e5f6ec;
   --lh-color-skeleton: #e9ecef;
 
   --lh-space-1: 4px;
@@ -74,6 +77,9 @@
     --lh-color-accent: #3182f6;
     --lh-color-accent-hover: #4d94f8;
     --lh-color-on-accent: #ffffff;
+    --lh-color-accent-subtle: #1d2a3d;
+    --lh-color-positive: #5ed69a;
+    --lh-color-positive-subtle: #1b3327;
     --lh-color-skeleton: #2c2c35;
   }
 }

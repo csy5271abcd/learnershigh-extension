@@ -29,3 +29,10 @@
   height: 48px;
   font-size: var(--lh-font-title-sm);
 }
+
+/* Mentor Profile Header (MentorProfile-01 Mockup 실측 약 72px) */
+.xl {
+  width: 72px;
+  height: 72px;
+  font-size: var(--lh-font-title-lg);
+}

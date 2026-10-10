@@ -281,10 +281,7 @@ export function readFixtureScenario(search: string): MentorHubHomeFixtureScenari
   return scenarios.find((scenario) => scenario === value) ?? 'success'
 }
 
-/** 실제 API 대신 Fixture를 돌려주는 Data Source. API 연결 시 같은 시그니처의 함수로 교체한다. */
-export function createMentorHubHomeFixtureLoader(
-  scenario: MentorHubHomeFixtureScenario,
-): () => Promise<MentorHubHome> {
+function buildLoader(scenario: MentorHubHomeFixtureScenario): () => Promise<MentorHubHome> {
   switch (scenario) {
     case 'loading':
       return () => new Promise<MentorHubHome>(() => {})
@@ -296,3 +293,23 @@ export function createMentorHubHomeFixtureLoader(
       return () => Promise.resolve(mentorHubHomeFixture)
   }
 }
+
+const loaders = new Map<MentorHubHomeFixtureScenario, () => Promise<MentorHubHome>>()
+
+/**
+ * 실제 API 대신 Fixture를 돌려주는 Data Source. API 연결 시 같은 시그니처의 함수로 교체한다.
+ * 같은 scenario에는 같은 함수를 돌려준다. (화면 왕복 시 이미 받은 데이터를 재사용하기 위함)
+ */
+export function createMentorHubHomeFixtureLoader(
+  scenario: MentorHubHomeFixtureScenario,
+): () => Promise<MentorHubHome> {
+  let loader = loaders.get(scenario)
+  if (!loader) {
+    loader = buildLoader(scenario)
+    loaders.set(scenario, loader)
+  }
+  return loader
+}
+
+// Mentor Profile Fixture가 같은 Mentor / Content Identity를 재사용한다.
+export { mentors as fixtureMentors, content as fixtureMentorContent }

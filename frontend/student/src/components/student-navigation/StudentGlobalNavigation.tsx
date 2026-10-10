@@ -4,7 +4,8 @@ import styles from './StudentGlobalNavigation.module.css'
 import { studentNavigationItems, type StudentNavigationItemId } from './studentNavigationItems.ts'
 
 interface StudentGlobalNavigationProps {
-  activeItem: StudentNavigationItemId
+  /** 현재 화면에 해당하는 메뉴. Extension 화면이 아닌 경로에서는 없음. */
+  activeItem?: StudentNavigationItemId
   userDisplayName: string
   /** Router / 기존 Route가 확정되면 호출 측에서 Navigation을 연결한다. */
   onItemSelect?: (id: StudentNavigationItemId) => void
