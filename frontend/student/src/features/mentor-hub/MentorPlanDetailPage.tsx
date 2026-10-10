@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { MentorAvatar } from './components/MentorAvatar.tsx'
 import skeletonStyles from './components/MentorHubHomeSkeleton.module.css'
 import { MentorPlanWeekSchedule } from './components/MentorPlanWeekSchedule.tsx'
@@ -19,11 +19,10 @@ interface MentorPlanDetailPageProps {
   onBack: () => void
   onGoToPlanList: () => void
   onMentorSelect: (mentorId: string) => void
-  /**
-   * 내 계획에 적용 Flow 진입 Boundary. (시작일 → 항목 선택 → 교재 연결 → 충돌 확인 → 추가)
-   * Apply Flow는 다음 단계에서 연결한다. 연결 전에는 버튼이 "아직 연결되지 않음" 안내만 보여준다.
-   */
-  onApply?: (plan: MentorPlanDetail) => void
+  /** 내 계획에 적용 Flow 열기 (시작일 → 항목 선택 → 교재 연결 → 충돌 확인·수정 → 추가) */
+  onApply: (plan: MentorPlanDetail) => void
+  /** Plan을 불러온 뒤 Detail 위에 그릴 화면 (내 계획에 적용 Modal Route) */
+  overlay?: (plan: MentorPlanDetail) => ReactNode
 }
 
 export function MentorPlanDetailPage({
@@ -35,6 +34,7 @@ export function MentorPlanDetailPage({
   onGoToPlanList,
   onMentorSelect,
   onApply,
+  overlay,
 }: MentorPlanDetailPageProps) {
   const { state, reload } = useMentorPlan(contentId, loadPlan)
 
@@ -78,6 +78,7 @@ export function MentorPlanDetailPage({
         <>
           <PlanSummary key={state.data.contentId} plan={state.data} onMentorSelect={onMentorSelect} onApply={onApply} />
           <MentorPlanWeekSchedule weeks={state.data.weeks} selectedWeek={selectedWeek ?? 1} onWeekSelect={onWeekSelect} />
+          {overlay?.(state.data)}
         </>
       )}
     </main>
@@ -87,12 +88,11 @@ export function MentorPlanDetailPage({
 interface PlanSummaryProps {
   plan: MentorPlanDetail
   onMentorSelect: (mentorId: string) => void
-  onApply?: (plan: MentorPlanDetail) => void
+  onApply: (plan: MentorPlanDetail) => void
 }
 
 function PlanSummary({ plan, onMentorSelect, onApply }: PlanSummaryProps) {
   const { mentor } = plan
-  const [showApplyNotice, setShowApplyNotice] = useState(false)
 
   return (
     <header className={styles.summary}>
@@ -113,16 +113,9 @@ function PlanSummary({ plan, onMentorSelect, onApply }: PlanSummaryProps) {
       </div>
 
       <div className={styles.apply}>
-        <button
-          type="button"
-          className={styles.applyButton}
-          onClick={() => (onApply ? onApply(plan) : setShowApplyNotice(true))}
-        >
+        <button type="button" className={styles.applyButton} aria-haspopup="dialog" onClick={() => onApply(plan)}>
           내 계획에 적용
         </button>
-        <p className={styles.applyNotice} role="status">
-          {!onApply && showApplyNotice ? '내 계획에 적용하는 단계는 아직 연결되지 않았어요.' : ''}
-        </p>
       </div>
     </header>
   )

@@ -6,6 +6,8 @@ export const mentorListRoutePattern = 'mentor/mentors'
 export const mentorProfileRoutePattern = 'mentor/mentors/:mentorId'
 export const mentorPlanListRoutePattern = 'mentor/plans'
 export const mentorPlanRoutePattern = 'mentor/plans/:contentId'
+/** Plan Detail 하위 Route (Detail 위에 내 계획에 적용 Modal을 띄운다) */
+export const mentorPlanApplyRoutePattern = 'apply'
 
 export const mentorHubPath = '/mentor'
 export const mentorListPath = '/mentor/mentors'
@@ -17,4 +19,8 @@ export function mentorProfilePath(mentorId: string): string {
 
 export function mentorPlanPath(contentId: string): string {
   return `${mentorPlanListPath}/${encodeURIComponent(contentId)}`
+}
+
+export function mentorPlanApplyPath(contentId: string): string {
+  return `${mentorPlanPath(contentId)}/${mentorPlanApplyRoutePattern}`
 }

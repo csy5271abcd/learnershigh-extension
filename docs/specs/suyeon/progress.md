@@ -799,9 +799,12 @@ IN_PROGRESS
 - Student Mentor List: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-list e5b2b4d)
   - "멘토" Tab → List, Search / 전형 / 학과 Filter, List → Profile → Back 시 Filter / Scroll 복원 브라우저 확인
   - API 연결 / Pagination UI / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Plan Detail: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-plan, 미커밋)
+- Student Mentor Plan Detail: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-plan 65a1a4e)
   - Main "Plan" Tab 목록 → Detail, Home / Profile Plan Content → Detail, 1~4주차 Tab, Back 시 이전 화면 / Scroll / 선택 주차 복원 브라우저 확인
-  - 내 계획에 적용 Flow(시작일 / 항목 선택 / 교재 연결 / 충돌 확인 / 추가) / API 연결 / Frontend 자동 Test: NOT_STARTED
+  - API 연결 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Plan Apply: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-plan-apply, 미커밋)
+  - 시작일 → 항목 선택 → 교재 연결 → 충돌 확인·수정 → 추가 Modal Route, 실패 → 다시 시도, 닫기 / Back 복귀 브라우저 확인
+  - 실제 Student Plan Write / Existing Plan · Library 연동 / API 연결 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1234,7 +1237,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Plan Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Plan Detail: IMPLEMENTED (Fixture 기반 UI, 65a1a4e)
 VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1248,7 +1251,7 @@ VERIFIED 아님: API 미연결, Frontend 자동 Test Framework 미선택
 
 ### Not Started
 
-- Plan Apply Flow (Plan-02~04, feat/student-mentor-plan-apply 예정), 저장 수 표시, Routine / Story / Q&A / Record / Case 화면
+- 저장 수 표시, Routine / Story / Q&A / Record / Case 화면
 
 ### Verification
 
@@ -1257,6 +1260,38 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Plan Flow A~H, Home / Mentor List / Profile 회귀 확인
 1920 / 1280 / 768 / 390 / 320: 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Mentor Plan Apply (branch: feat/student-mentor-plan-apply)
+
+### Status
+
+```text
+Student Mentor Plan Apply: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: 실제 Student Plan Write / Existing Plan · Library API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/plans/:contentId/apply?week=&step=` (Plan Detail 하위 Route, Native dialog Modal)
+- 시작일(startDate) → 항목 선택(selectedItemIds, 기존 itemId) → 교재 연결(libraryMappings, 선택 사항) → 충돌 확인·수정(옮기기 / 이번 항목 빼기) → 추가
+- 기존 일정 / Library / Preview / Apply 결과는 Frontend Fixture (기존 LearnersHigh Schema 아님), 실패 → 다시 시도, 중복 클릭 방지
+- 출처(Mentor Plan) / Snapshot 안내 표시, 닫기 · ESC · 브라우저 Back으로 Plan Detail 복귀
+
+### Not Started
+
+- 실제 Student WeeklyPlan Write, Existing Plan / Library Integration (OD-08), Backend / DB
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Apply Flow A~K, Plan / Home / Mentor List / Profile 회귀 확인
+1920 / 1280 / 768 / 390 / 320: Modal 화면 안, Footer 항상 표시, 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

@@ -190,6 +190,70 @@ export interface MentorPlanDetail {
   weeks: MentorPlanWeek[]
 }
 
+// ---------- Mentor Plan Apply (POST .../plan-apply-preview, POST .../apply-plan 기준 View Model) ----------
+// Contract에는 Request(startDate / selectedItemIds / libraryMappings)와 Apply Response만 정의되어 있다.
+// 시간대 / 충돌 상세 / 해결 방법 / 날짜 계산 결과는 Frontend View Model이다. (Contract Gap)
+
+/** Frontend 검증용 Library 표시 Model. 기존 LearnersHigh Library Schema가 아니다. */
+export interface ExistingLibraryItemView {
+  libraryItemId: string
+  title: string
+  subject: string
+  type: string
+}
+
+export interface PlanLibraryMapping {
+  mentorItemId: string
+  existingLibraryItemId: string
+}
+
+export interface PlanApplyPreviewRequest {
+  /** YYYY-MM-DD */
+  startDate: string
+  selectedItemIds: string[]
+  libraryMappings: PlanLibraryMapping[]
+}
+
+/** "HH:mm" */
+export interface PlanTimeSlot {
+  start: string
+  end: string
+}
+
+/** 선택 Item이 내 주간계획에 들어갈 날짜 / 시간 */
+export interface PlanApplyPreviewItem {
+  mentorItemId: string
+  /** YYYY-MM-DD */
+  date: string
+  slot: PlanTimeSlot
+}
+
+export interface PlanApplyConflict {
+  mentorItemId: string
+  existingSchedule: { title: string; slot: PlanTimeSlot }
+  /** "옮기기"를 고르면 쓰는 시간 */
+  suggestedSlot: PlanTimeSlot
+}
+
+export interface PlanApplyPreviewResult {
+  resolvedItems: PlanApplyPreviewItem[]
+  conflicts: PlanApplyConflict[]
+}
+
+/** Plan-02 / 03 Mockup의 해결 방법: 옮기기 / 이번 항목 빼기 */
+export type PlanConflictResolution = 'move' | 'exclude'
+
+export interface PlanApplyRequest extends PlanApplyPreviewRequest {
+  conflictResolutions: { mentorItemId: string; resolution: PlanConflictResolution }[]
+}
+
+export interface PlanApplyResult {
+  applicationId: string
+  createdPlanItemIds: string[]
+  sourceMentorPlanId: string
+  snapshotCreated: boolean
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

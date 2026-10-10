@@ -1,7 +1,8 @@
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Outlet, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { createMentorPlanFixtureLoader, readPlanFixtureScenario } from '../fixtures/mentorPlan.fixture.ts'
 import { MentorPlanDetailPage } from '../MentorPlanDetailPage.tsx'
-import { mentorPlanListPath, mentorProfilePath } from './paths.ts'
+import type { MentorPlanApplyOutletContext, MentorPlanApplyNavigationState } from './MentorPlanApplyRoute.tsx'
+import { mentorPlanApplyPath, mentorPlanListPath, mentorProfilePath } from './paths.ts'
 
 function parseWeek(value: string | null): number | undefined {
   const week = Number(value)
@@ -39,15 +40,33 @@ export function MentorPlanDetailRoute() {
     else navigate(mentorPlanListPath)
   }
 
+  const selectedWeek = parseWeek(searchParams.get('week'))
+
+  // 내 계획에 적용: Detail 위에 Modal Route를 연다. (주차 / 개발용 fixture Param 유지, Back으로 Detail 복귀)
+  const openApply = () => {
+    const search = new URLSearchParams(searchParams)
+    search.delete('step')
+    const state: MentorPlanApplyNavigationState = { fromPlanDetail: true }
+    navigate({ pathname: mentorPlanApplyPath(contentId), search: search.toString() }, { state, preventScrollReset: true })
+  }
+
   return (
     <MentorPlanDetailPage
       contentId={contentId}
       loadPlan={loadPlan}
-      selectedWeek={parseWeek(searchParams.get('week'))}
+      selectedWeek={selectedWeek}
       onWeekSelect={selectWeek}
       onBack={goBack}
       onGoToPlanList={() => navigate(mentorPlanListPath)}
       onMentorSelect={(mentorId) => navigate(mentorProfilePath(mentorId))}
+      onApply={openApply}
+      overlay={(plan) => {
+        const context: MentorPlanApplyOutletContext = {
+          plan,
+          week: plan.weeks.find((week) => week.week === selectedWeek) ?? plan.weeks[0],
+        }
+        return <Outlet context={context} />
+      }}
     />
   )
 }

@@ -92,18 +92,6 @@
   background: var(--lh-color-accent-hover);
 }
 
-.applyNotice {
-  max-width: 240px;
-  color: var(--lh-color-text-secondary);
-  font-size: var(--lh-font-label);
-  text-align: right;
-}
-
-/* Live Region은 항상 렌더링해 두고, 안내가 있을 때만 간격을 둔다. */
-.applyNotice:not(:empty) {
-  margin-top: var(--lh-space-2);
-}
-
 /* ---------- Skeleton ---------- */
 .skeleton {
   display: flex;
@@ -155,11 +143,6 @@
 
   .apply {
     align-items: flex-start;
-  }
-
-  .applyNotice {
-    max-width: none;
-    text-align: left;
   }
 }
 

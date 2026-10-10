@@ -23,6 +23,8 @@
   --lh-color-accent-subtle: #e8f3ff;
   --lh-color-positive: #0b7a43;
   --lh-color-positive-subtle: #e5f6ec;
+  --lh-color-negative: #d9263a; /* 일정 충돌 등 주의 (Text Label과 함께 쓴다) */
+  --lh-color-negative-subtle: #ffeef0;
   --lh-color-skeleton: #e9ecef;
 
   --lh-space-1: 4px;
@@ -80,6 +82,8 @@
     --lh-color-accent-subtle: #1d2a3d;
     --lh-color-positive: #5ed69a;
     --lh-color-positive-subtle: #1b3327;
+    --lh-color-negative: #ff7d8a;
+    --lh-color-negative-subtle: #3a1e23;
     --lh-color-skeleton: #2c2c35;
   }
 }
