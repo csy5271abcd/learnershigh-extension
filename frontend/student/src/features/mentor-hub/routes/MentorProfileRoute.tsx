@@ -3,7 +3,7 @@ import { createMentorProfileFixtureLoader, readProfileFixtureScenario } from '..
 import { MentorProfilePage } from '../MentorProfilePage.tsx'
 import { parseProfileContentKind } from '../model/tabs.ts'
 import type { MentorProfileContentKind } from '../model/types.ts'
-import { mentorHubPath, mentorPlanPath } from './paths.ts'
+import { mentorHubPath, mentorPlanPath, mentorRoutinePath } from './paths.ts'
 
 // 선택 Content Tab은 URL(?content=)에 두어 Content Detail 왕복 후에도 유지한다.
 export function MentorProfileRoute() {
@@ -43,9 +43,10 @@ export function MentorProfileRoute() {
       onContentKindSelect={selectContentKind}
       onBack={goBack}
       onGoToHub={() => navigate(mentorHubPath)}
-      // Detail 화면이 있는 Content(Plan)만 연결한다.
+      // Detail 화면이 있는 Content(Plan / Routine)만 연결한다.
       onContentSelect={(content) => {
         if (content.kind === 'plan') navigate(mentorPlanPath(content.contentId))
+        if (content.kind === 'routine') navigate(mentorRoutinePath(content.contentId))
       }}
     />
   )

@@ -27,6 +27,7 @@ const listOrder: MentorSummary[] = [
   mentors.seoJiho,
   mentors.goMinjeong,
   mentors.kimTaehyun,
+  mentors.leeSubin,
 ]
 
 const uniqueSorted = (values: string[]) => [...new Set(values)].sort((a, b) => a.localeCompare(b, 'ko'))

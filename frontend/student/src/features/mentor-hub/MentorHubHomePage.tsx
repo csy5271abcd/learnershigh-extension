@@ -15,7 +15,7 @@ interface MentorHubHomePageProps {
   onTabSelect: (id: MentorHubTabId) => void
   focusTabOnMount?: boolean
   onMentorSelect?: (mentorId: string) => void
-  // Case Detail 화면은 아직 없다. Content는 Detail이 있는 유형(Plan)만 호출 측에서 연결한다.
+  // Case Detail 화면은 아직 없다. Content는 Detail이 있는 유형(Plan / Routine)만 호출 측에서 연결한다.
   onCaseSelect?: (caseId: string) => void
   onContentSelect?: (content: MentorContentSummary) => void
 }

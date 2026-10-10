@@ -155,8 +155,8 @@ export interface MentorListResult {
 // ---------- Mentor Plan (GET /api/student/mentor-content?type=plan, GET /api/student/mentor-content/{contentId}) ----------
 // Contract에 Plan Detail Field가 정의되어 있지 않아 Frontend View Model로 둔다.
 
-/** Plan 목록 Card. Home Mixed Content Card와 같은 모양(Content + 작성 Mentor)을 쓴다. */
-export interface MentorPlanListResult {
+/** Plan / Routine 목록 (GET /api/student/mentor-content?type=). Card는 Home Mixed Content Card와 같은 모양을 쓴다. */
+export interface MentorContentListResult {
   items: MixedContentItem[]
   page: MentorListResult['page']
 }
@@ -251,6 +251,90 @@ export interface PlanApplyResult {
   applicationId: string
   createdPlanItemIds: string[]
   sourceMentorPlanId: string
+  snapshotCreated: boolean
+}
+
+// ---------- Mentor Routine (GET /api/student/mentor-content?type=routine, GET .../{contentId}) ----------
+// Contract에 Routine Detail Field가 없어 Frontend View Model로 둔다. (Routine-01 Mockup 기준)
+
+/** Timeline 한 칸: 언제 무엇을 하는지 */
+export interface MentorRoutineBlock {
+  blockId: string
+  slot: PlanTimeSlot
+  title: string
+  description: string
+}
+
+/** 따로 골라 적용할 수 있는 습관 (Apply의 selectedHabitIds 대상) */
+export interface MentorRoutineHabit {
+  habitId: string
+  title: string
+  /** 화면 표시용 주기 (예: 매일, 평일) */
+  frequency: string
+  slot: PlanTimeSlot
+  description: string
+}
+
+export interface MentorRoutineDetail {
+  contentId: string
+  kind: 'routine'
+  title: string
+  /** 작성 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  description: string
+  /** 예: 하루 Timeline / 평일 저녁 Timeline */
+  timelineTitle: string
+  /** 적용하면 들어갈 요일 (Routine-02 Mockup "월~금 계획에 …") */
+  applyDays: MentorPlanDay[]
+  timeline: MentorRoutineBlock[]
+  habits: MentorRoutineHabit[]
+}
+
+// ---------- Mentor Routine Apply (POST .../routine-apply-preview, POST .../apply-routine 기준 View Model) ----------
+// Contract에는 Preview Request(selectedHabitIds)와 Response(conflicts)만 있다.
+// 전체 적용(Timeline 전체) 표현 / 충돌 상세 / 해결 방법 / Apply 결과는 Frontend View Model이다. (Contract Gap)
+
+/** 전체 적용 = Timeline 전체, 습관만 적용 = 고른 Habit (Routine-01 / 02 Mockup) */
+export type RoutineApplyMode = 'all' | 'habits'
+
+export interface RoutineApplyPreviewRequest {
+  selectedHabitIds: string[]
+  /** Frontend View Model: 전체 적용 여부 (Contract Gap) */
+  applyAll: boolean
+}
+
+export interface RoutineApplyTarget {
+  /** blockId 또는 habitId */
+  targetId: string
+  title: string
+  slot: PlanTimeSlot
+}
+
+export interface RoutineApplyConflict {
+  targetId: string
+  /** 겹치는 요일 */
+  days: MentorPlanDay[]
+  /** 겹치는 기존 일정 이름 */
+  existingTitles: string[]
+}
+
+export interface RoutineApplyPreviewResult {
+  applyDays: MentorPlanDay[]
+  items: RoutineApplyTarget[]
+  conflicts: RoutineApplyConflict[]
+}
+
+/** Routine-02 Mockup의 해결 방법: 겹치는 요일만 빼기 / 그래도 추가 */
+export type RoutineConflictResolution = 'skip-conflict-days' | 'keep'
+
+export interface RoutineApplyRequest extends RoutineApplyPreviewRequest {
+  conflictResolutions: { targetId: string; resolution: RoutineConflictResolution }[]
+}
+
+export interface RoutineApplyResult {
+  applicationId: string
+  createdScheduleItemIds: string[]
+  sourceMentorRoutineId: string
   snapshotCreated: boolean
 }
 

@@ -1,8 +1,9 @@
 // Frontend UI 검증용 Plan Apply Fixture다.
 // - Library / 기존 일정은 기존 LearnersHigh Library · Plan Schema가 아니다. (실제 API / DB 구조 미확인)
 // - Preview / Apply는 POST .../plan-apply-preview, POST .../apply-plan을 흉내만 낸다. 실제로 저장하지 않는다.
-// - 기존 일정과 대표 Plan 4주차 시간은 Plan-02 ~ 04 Mockup 값을 쓴다.
+// - 기존 일정은 existingSchedule.fixture.ts(Routine Apply와 공유), 대표 Plan 4주차 시간은 Plan-02 ~ 04 Mockup 값을 쓴다.
 
+import { overlaps, toMinutes, toTime } from '../model/timeSlot.ts'
 import type {
   ExistingLibraryItemView,
   MentorPlanDay,
@@ -15,6 +16,7 @@ import type {
   PlanApplyResult,
   PlanTimeSlot,
 } from '../model/types.ts'
+import { fixtureExistingWeeklySchedules, scheduleLabel, type ExistingScheduleFixture } from './existingSchedule.fixture.ts'
 import { findMentorPlanFixture } from './mentorPlan.fixture.ts'
 
 /** 내 Library 표시용 가상 목록 (libraryItemId / title / subject / type만 쓴다) */
@@ -25,19 +27,6 @@ export const fixtureExistingLibraryItems: ExistingLibraryItemView[] = [
   { libraryItemId: 'fixture-library-04', title: '화학Ⅰ 서술형 문제집', subject: '화학Ⅰ', type: '문제집' },
   { libraryItemId: 'fixture-library-05', title: '영어 교과서 본문', subject: '영어', type: '교과서' },
   { libraryItemId: 'fixture-library-06', title: '국어 문학 자습서', subject: '국어', type: '자습서' },
-]
-
-interface ExistingSchedule {
-  day: MentorPlanDay
-  title: string
-  slot: PlanTimeSlot
-}
-
-/** 매주 반복되는 가상 기존 일정 (Plan-02 Mockup) */
-const existingWeeklySchedules: ExistingSchedule[] = [
-  { day: '월', title: '생명과학 학원', slot: { start: '19:00', end: '21:00' } },
-  { day: '수', title: '수학 학원', slot: { start: '18:00', end: '20:00' } },
-  { day: '목', title: '생명과학 학원', slot: { start: '19:00', end: '21:00' } },
 ]
 
 /** 대표 Plan 4주차 Item의 기본 시간 (Plan-02 Mockup). 그 외 Item은 20:00–21:00 */
@@ -52,16 +41,6 @@ const defaultSlot: PlanTimeSlot = { start: '20:00', end: '21:00' }
 
 const dayOrder: MentorPlanDay[] = ['일', '월', '화', '수', '목', '금', '토']
 
-const toMinutes = (time: string) => {
-  const [hour, minute] = time.split(':').map(Number)
-  return hour * 60 + minute
-}
-const toTime = (minutes: number) =>
-  `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
-
-const overlaps = (a: PlanTimeSlot, b: PlanTimeSlot) =>
-  toMinutes(a.start) < toMinutes(b.end) && toMinutes(b.start) < toMinutes(a.end)
-
 /** 시작일 이후(당일 포함) 처음 오는 해당 요일. Timezone 영향을 피하려고 UTC 날짜 계산만 쓴다. */
 function dateOnOrAfter(startDate: string, day: MentorPlanDay): string {
   const [year, month, date] = startDate.split('-').map(Number)
@@ -74,7 +53,7 @@ function dateOnOrAfter(startDate: string, day: MentorPlanDay): string {
 function buildPreview(
   plan: MentorPlanDetail,
   request: PlanApplyPreviewRequest,
-  schedules: ExistingSchedule[],
+  schedules: ExistingScheduleFixture[],
 ): PlanApplyPreviewResult {
   const items = plan.weeks.flatMap((week) => week.items).filter((item) => request.selectedItemIds.includes(item.itemId))
   const resolvedItems: PlanApplyPreviewItem[] = []
@@ -91,7 +70,7 @@ function buildPreview(
       const start = toMinutes(existing.slot.end)
       conflicts.push({
         mentorItemId: item.itemId,
-        existingSchedule: { title: existing.title, slot: existing.slot },
+        existingSchedule: { title: scheduleLabel(existing), slot: existing.slot },
         suggestedSlot: { start: toTime(start), end: toTime(start + duration) },
       })
     }
@@ -122,7 +101,7 @@ export interface PlanApplyService {
 }
 
 function buildService(scenario: PlanApplyFixtureScenario): PlanApplyService {
-  const schedules = scenario === 'no-conflict' ? [] : existingWeeklySchedules
+  const schedules = scenario === 'no-conflict' ? [] : fixtureExistingWeeklySchedules
   let applyAttempts = 0
   let applicationSeq = 0
 

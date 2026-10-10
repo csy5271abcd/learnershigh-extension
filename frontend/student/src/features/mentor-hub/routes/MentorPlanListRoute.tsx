@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router'
 import { createMentorPlanListFixtureLoader, readPlanListFixtureScenario } from '../fixtures/mentorPlan.fixture.ts'
-import { MentorPlanListPage } from '../MentorPlanListPage.tsx'
+import { MentorContentListPage } from '../MentorContentListPage.tsx'
 import { mentorPlanPath } from './paths.ts'
 import { useMentorHubTabNavigation } from './useMentorHubTabNavigation.ts'
 
@@ -16,11 +16,12 @@ export function MentorPlanListRoute() {
   )
 
   return (
-    <MentorPlanListPage
+    <MentorContentListPage
+      kind="plan"
       loadList={loadList}
       onTabSelect={navigateToTab}
       focusTabOnMount={focusTabOnMount}
-      onPlanSelect={(content) => navigate(mentorPlanPath(content.contentId))}
+      onContentSelect={(content) => navigate(mentorPlanPath(content.contentId))}
     />
   )
 }

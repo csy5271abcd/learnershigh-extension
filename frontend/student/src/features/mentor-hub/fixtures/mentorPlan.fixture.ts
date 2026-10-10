@@ -6,7 +6,7 @@ import type {
   MentorContentSummary,
   MentorPlanDay,
   MentorPlanDetail,
-  MentorPlanListResult,
+  MentorContentListResult,
   MentorPlanWeek,
   MentorSummary,
   MixedContentItem,
@@ -189,7 +189,7 @@ function toListItem(item: MentorPlanDetail): MixedContentItem {
   }
 }
 
-function listResult(source: MentorPlanDetail[], page: number, size: number): MentorPlanListResult {
+function listResult(source: MentorPlanDetail[], page: number, size: number): MentorContentListResult {
   const start = page * size
   return {
     items: source.slice(start, start + size).map(toListItem),
@@ -251,12 +251,12 @@ export function readPlanListFixtureScenario(search: string): MentorPlanListFixtu
   return listScenarios.find((scenario) => scenario === value) ?? 'success'
 }
 
-export type MentorPlanListLoader = (page: number, size: number) => Promise<MentorPlanListResult>
+export type MentorPlanListLoader = (page: number, size: number) => Promise<MentorContentListResult>
 
 function buildPlanListLoader(scenario: MentorPlanListFixtureScenario): MentorPlanListLoader {
   switch (scenario) {
     case 'loading':
-      return () => new Promise<MentorPlanListResult>(() => {})
+      return () => new Promise<MentorContentListResult>(() => {})
     case 'error':
       return () => Promise.reject(new Error('Mentor Plan list fixture error'))
     case 'empty':

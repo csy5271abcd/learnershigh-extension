@@ -4,7 +4,7 @@ import skeletonStyles from './components/MentorHubHomeSkeleton.module.css'
 import { MentorPlanWeekSchedule } from './components/MentorPlanWeekSchedule.tsx'
 import { mentorAffiliation } from './model/format.ts'
 import type { MentorPlanDetail } from './model/types.ts'
-import { useMentorPlan } from './model/useMentorPlan.ts'
+import { useContentDetail } from './model/useContentDetail.ts'
 import homeStyles from './MentorHubHomePage.module.css'
 import styles from './MentorPlanDetailPage.module.css'
 import profileStyles from './MentorProfilePage.module.css'
@@ -36,7 +36,7 @@ export function MentorPlanDetailPage({
   onApply,
   overlay,
 }: MentorPlanDetailPageProps) {
-  const { state, reload } = useMentorPlan(contentId, loadPlan)
+  const { state, reload } = useContentDetail(contentId, loadPlan)
 
   return (
     <main className={`${homeStyles.page} ${profileStyles.page}`} aria-busy={state.status === 'loading'}>

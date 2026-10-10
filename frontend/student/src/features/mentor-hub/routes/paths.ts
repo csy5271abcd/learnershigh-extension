@@ -24,3 +24,18 @@ export function mentorPlanPath(contentId: string): string {
 export function mentorPlanApplyPath(contentId: string): string {
   return `${mentorPlanPath(contentId)}/${mentorPlanApplyRoutePattern}`
 }
+
+export const mentorRoutineListRoutePattern = 'mentor/routines'
+export const mentorRoutineRoutePattern = 'mentor/routines/:contentId'
+/** Routine Detail 하위 Route (Detail 위에 적용 Modal을 띄운다) */
+export const mentorRoutineApplyRoutePattern = 'apply'
+
+export const mentorRoutineListPath = '/mentor/routines'
+
+export function mentorRoutinePath(contentId: string): string {
+  return `${mentorRoutineListPath}/${encodeURIComponent(contentId)}`
+}
+
+export function mentorRoutineApplyPath(contentId: string): string {
+  return `${mentorRoutinePath(contentId)}/${mentorRoutineApplyRoutePattern}`
+}

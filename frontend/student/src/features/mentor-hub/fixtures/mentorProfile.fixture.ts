@@ -11,7 +11,12 @@ import type {
   MentorSummary,
 } from '../model/types.ts'
 import { mentorHubHomeFixture } from './mentorHubHome.fixture.ts'
-import { fixtureMentorContent as content, fixtureMentors as mentors, fixturePlanSummaries } from './mentors.fixture.ts'
+import {
+  fixtureMentorContent as content,
+  fixtureMentors as mentors,
+  fixturePlanSummaries,
+  fixtureRoutineSummaries,
+} from './mentors.fixture.ts'
 
 const adminRecommendedCaseIds = new Set(mentorHubHomeFixture.adminRecommendedCases.map((item) => item.caseId))
 
@@ -23,6 +28,11 @@ function profileContent(item: MentorContentSummary, summary: string): MentorProf
 /** Plan은 Canonical 한 줄 요약을 그대로 쓴다. */
 function planContent(item: MentorContentSummary): MentorProfileContent {
   return profileContent(item, fixturePlanSummaries[item.contentId])
+}
+
+/** Routine도 Canonical 한 줄 요약을 그대로 쓴다. */
+function routineContent(item: MentorContentSummary): MentorProfileContent {
+  return profileContent(item, fixtureRoutineSummaries[item.contentId])
 }
 
 interface ProfileDetail {
@@ -127,7 +137,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '기술 · 가정 수행평가', description: '가공음료 당류 함량 비교 실험' },
     ],
     contents: [
-      profileContent(content.scienceRoutine, '물리 · 화학 개념을 매일 30분씩 다시 보는 루틴이에요.'),
+      routineContent(content.scienceRoutine),
       profileContent(content.beverageCase, '실험 설계부터 결과 발표까지의 과정이 정리된 Activity Case예요.'),
     ],
   },
@@ -185,7 +195,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '교내 SW 경진대회 수상', description: '급식 잔반 기록 앱 프로토타입' },
       { title: '프로그래밍 동아리 운영', description: '후배 대상 파이썬 스터디를 1년 운영했어요.' },
     ],
-    contents: [],
+    contents: [routineContent(content.codingRoutine)],
   },
   [mentors.kimHaram.mentorId]: {
     verified: false,
@@ -211,7 +221,7 @@ const details: Record<string, ProfileDetail> = {
   [mentors.choiEunchae.mentorId]: {
     verified: true,
     experiences: [{ title: '영어 단어 · 구문 루틴', description: '아침 · 저녁 30분씩 3년 동안 유지했어요.' }],
-    contents: [profileContent(content.englishRoutine, '아침 · 저녁 30분씩 단어와 구문을 반복하는 루틴이에요.')],
+    contents: [routineContent(content.englishRoutine)],
   },
   // ---- Mentor List 추가 Mentor ----
   [mentors.yoonHaram.mentorId]: {
@@ -277,7 +287,7 @@ const details: Record<string, ProfileDetail> = {
   [mentors.joMinjae.mentorId]: {
     verified: true,
     experiences: [{ title: '수학 실전 모의고사 오답 정리', description: '회차별로 틀린 유형을 표로 관리했어요.' }],
-    contents: [],
+    contents: [routineContent(content.csatRoutine)],
   },
   [mentors.seoJiho.mentorId]: {
     verified: true,
@@ -285,12 +295,20 @@ const details: Record<string, ProfileDetail> = {
       { title: '내신 1.2 유지', description: '시험 3주 전부터 과목별 범위표를 운영했어요.' },
       { title: '교내 창업 아이디어 대회 수상', description: '학교 매점 재고 관리 아이디어' },
     ],
-    contents: [],
+    contents: [routineContent(content.examPeriodRoutine)],
   },
   [mentors.kimTaehyun.mentorId]: {
     verified: false,
     experiences: [{ title: '수리논술 주 2회 실전', description: '시간을 재고 풀고 풀이를 다시 써봤어요.' }],
     contents: [],
+  },
+  [mentors.leeSubin.mentorId]: {
+    verified: true,
+    experiences: [
+      { title: '수학 실전 모의 주 3회', description: '평일 저녁 같은 시간에 시간을 재고 풀었어요.' },
+      { title: '교내 도시 탐구 동아리', description: '학교 주변 보행로 조사' },
+    ],
+    contents: [routineContent(content.mathMockRoutine)],
   },
 }
 

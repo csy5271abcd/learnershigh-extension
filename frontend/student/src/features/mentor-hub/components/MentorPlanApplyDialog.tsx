@@ -23,6 +23,8 @@ import type {
   PlanApplyRequest,
   PlanApplyResult,
 } from '../model/types.ts'
+import { ApplyDialog } from './ApplyDialog.tsx'
+import shared from './ApplyDialog.module.css'
 import styles from './MentorPlanApplyDialog.module.css'
 import { PlanApplyStepper } from './PlanApplyStepper.tsx'
 import { ConflictsStep, ItemsStep, LibraryStep, ReviewStep, StartDateStep } from './PlanApplySteps.tsx'
@@ -60,7 +62,7 @@ const stepTitle: Record<PlanApplyStep, string> = {
   review: '이렇게 추가할게요',
 }
 
-// 내 계획에 적용 Modal (Plan-02 ~ 04 Mockup). Native <dialog>의 showModal()로 배경 조작 차단 / ESC / Focus 이동을 처리한다.
+// 내 계획에 적용 Modal (Plan-02 ~ 04 Mockup). 열기 / 닫기 / ESC / 배경 차단은 ApplyDialog Shell이 처리한다.
 // 입력 내용은 이 화면 안에서만 유지하고 저장하지 않는다. (실제 Student Plan에 쓰지 않음)
 export function MentorPlanApplyDialog({
   plan,
@@ -73,7 +75,6 @@ export function MentorPlanApplyDialog({
   preview: loadPreview,
   apply,
 }: MentorPlanApplyDialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [draft, setDraft] = useState<PlanApplyDraft>(() => initialDraft(week.items))
   const [previewState, setPreviewState] = useState<PreviewState | null>(null)
@@ -109,21 +110,6 @@ export function MentorPlanApplyDialog({
   useEffect(() => {
     if (step !== requestedStep) onStepChange(step)
   }, [step, requestedStep, onStepChange])
-
-  // 열기: 배경 조작 차단 + 스크롤 잠금. 닫히면 열기 전 Focus(내 계획에 적용 버튼)로 돌아간다.
-  useEffect(() => {
-    const dialog = dialogRef.current
-    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    const root = document.documentElement
-    const previousOverflow = root.style.overflow
-    dialog?.showModal()
-    root.style.overflow = 'hidden'
-    return () => {
-      if (dialog?.open) dialog.close()
-      root.style.overflow = previousOverflow
-      if (previous?.isConnected) previous.focus({ preventScroll: true })
-    }
-  }, [])
 
   const isSuccess = submit.status === 'success'
 
@@ -183,7 +169,7 @@ export function MentorPlanApplyDialog({
             <p>기존 일정과 비교하지 못했어요.</p>
             <button
               type="button"
-              className={styles.secondaryButton}
+              className={shared.secondaryButton}
               onClick={() => setPreviewState({ key: requestKey, status: 'loading' })}
             >
               다시 시도
@@ -223,71 +209,15 @@ export function MentorPlanApplyDialog({
   const blockedId = reasonInLead ? 'plan-apply-lead' : 'plan-apply-blocked-reason'
 
   return (
-    <dialog
-      ref={dialogRef}
-      className={styles.dialog}
-      aria-labelledby="plan-apply-title"
-      aria-describedby="plan-apply-subtitle"
-      onCancel={(event) => {
-        // ESC: 아직 저장된 것이 없으므로 확인 없이 닫는다.
-        event.preventDefault()
-        onClose()
-      }}
-    >
-      <div className={styles.surface}>
-        <header className={styles.header}>
-          <div>
-            <h2 id="plan-apply-title" className={styles.title}>
-              내 계획에 적용
-            </h2>
-            <p id="plan-apply-subtitle" className={styles.subtitle}>
-              {subtitle}
-            </p>
-          </div>
-          <button type="button" className={styles.close} aria-label="닫기" onClick={onClose}>
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        </header>
-
-        <div className={styles.body}>
-          {isSuccess ? (
-            <section className={styles.success} aria-labelledby="plan-apply-step-title">
-              <h3 id="plan-apply-step-title" ref={headingRef} tabIndex={-1} className={styles.stepTitle}>
-                내 주간계획에 추가했어요
-              </h3>
-              <p className={styles.lead}>
-                {formatMonthDay(submit.startDate)}부터 {submit.result.createdPlanItemIds.length}개 항목이 들어가요.
-              </p>
-              <p className={styles.sourceNotice}>
-                출처({sourceLabel})가 함께 저장됐어요. Mentor가 나중에 Plan을 고쳐도 지금 추가한 계획은 바뀌지 않아요.
-              </p>
-            </section>
-          ) : (
-            <>
-              <PlanApplyStepper current={step} />
-              <section className={styles.stepSection} aria-labelledby="plan-apply-step-title">
-                <h3 id="plan-apply-step-title" ref={headingRef} tabIndex={-1} className={styles.stepTitle}>
-                  <span className="lh-visually-hidden">
-                    {planApplySteps.length}단계 중 {index + 1}단계, {planApplySteps[index].label}:{' '}
-                  </span>
-                  {stepTitle[step]}
-                </h3>
-                {lead && (
-                  <p id="plan-apply-lead" className={styles.lead} data-tone={lead.tone}>
-                    {lead.text}
-                  </p>
-                )}
-                {body}
-              </section>
-            </>
-          )}
-        </div>
-
-        <footer className={styles.footer}>
+    <ApplyDialog
+      idPrefix="plan-apply"
+      title="내 계획에 적용"
+      subtitle={subtitle}
+      onClose={onClose}
+      footer={
+        <>
           {submit.status === 'error' && (
-            <p className={styles.submitError} role="alert">
+            <p className={shared.submitError} role="alert">
               내 주간계획에 추가하지 못했어요. 고른 내용은 그대로 있어요. 다시 시도해 주세요.
             </p>
           )}
@@ -296,13 +226,13 @@ export function MentorPlanApplyDialog({
               {blockedReason}
             </p>
           )}
-          <div className={styles.actions}>
+          <div className={shared.actions}>
             {isSuccess ? (
               <>
-                <button type="button" className={styles.secondaryButton} onClick={onGoToPlanList}>
+                <button type="button" className={shared.secondaryButton} onClick={onGoToPlanList}>
                   Plan 목록 보기
                 </button>
-                <button type="button" className={styles.primaryButton} onClick={onClose}>
+                <button type="button" className={shared.primaryButton} onClick={onClose}>
                   확인
                 </button>
               </>
@@ -310,7 +240,7 @@ export function MentorPlanApplyDialog({
               <>
                 <button
                   type="button"
-                  className={styles.secondaryButton}
+                  className={shared.secondaryButton}
                   disabled={submit.status === 'submitting'}
                   onClick={() => (index === 0 ? onClose() : goTo(planApplySteps[index - 1].id))}
                 >
@@ -319,7 +249,7 @@ export function MentorPlanApplyDialog({
                 {step === 'review' ? (
                   <button
                     type="button"
-                    className={styles.primaryButton}
+                    className={shared.primaryButton}
                     disabled={Boolean(blockedReason) || submit.status === 'submitting'}
                     aria-describedby={blockedReason ? blockedId : undefined}
                     onClick={submitApply}
@@ -333,7 +263,7 @@ export function MentorPlanApplyDialog({
                 ) : (
                   <button
                     type="button"
-                    className={styles.primaryButton}
+                    className={shared.primaryButton}
                     disabled={Boolean(blockedReason)}
                     aria-describedby={blockedReason ? blockedId : undefined}
                     onClick={() => nextStep && goTo(nextStep)}
@@ -344,8 +274,40 @@ export function MentorPlanApplyDialog({
               </>
             )}
           </div>
-        </footer>
-      </div>
-    </dialog>
+        </>
+      }
+    >
+      {isSuccess ? (
+        <section className={styles.success} aria-labelledby="plan-apply-step-title">
+          <h3 id="plan-apply-step-title" ref={headingRef} tabIndex={-1} className={styles.stepTitle}>
+            내 주간계획에 추가했어요
+          </h3>
+          <p className={styles.lead}>
+            {formatMonthDay(submit.startDate)}부터 {submit.result.createdPlanItemIds.length}개 항목이 들어가요.
+          </p>
+          <p className={shared.sourceNotice}>
+            출처({sourceLabel})가 함께 저장됐어요. Mentor가 나중에 Plan을 고쳐도 지금 추가한 계획은 바뀌지 않아요.
+          </p>
+        </section>
+      ) : (
+        <>
+          <PlanApplyStepper current={step} />
+          <section className={styles.stepSection} aria-labelledby="plan-apply-step-title">
+            <h3 id="plan-apply-step-title" ref={headingRef} tabIndex={-1} className={styles.stepTitle}>
+              <span className="lh-visually-hidden">
+                {planApplySteps.length}단계 중 {index + 1}단계, {planApplySteps[index].label}:{' '}
+              </span>
+              {stepTitle[step]}
+            </h3>
+            {lead && (
+              <p id="plan-apply-lead" className={styles.lead} data-tone={lead.tone}>
+                {lead.text}
+              </p>
+            )}
+            {body}
+          </section>
+        </>
+      )}
+    </ApplyDialog>
   )
 }

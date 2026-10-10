@@ -21,6 +21,7 @@ import mentorWoman09 from '../../../../assets/mentor-woman/mentor-woman-09.png'
 import mentorWoman10 from '../../../../assets/mentor-woman/mentor-woman-10.png'
 import mentorWoman11 from '../../../../assets/mentor-woman/mentor-woman-11.png'
 import mentorWoman12 from '../../../../assets/mentor-woman/mentor-woman-12.png'
+import mentorWoman13 from '../../../../assets/mentor-woman/mentor-woman-13.png'
 import mentorWoman14 from '../../../../assets/mentor-woman/mentor-woman-14.png'
 import type { MentorContentSummary, MentorSummary } from '../model/types.ts'
 
@@ -247,6 +248,18 @@ export const fixtureMentors = {
     tags: ['논술', '수리논술', '수능최저', '심리'],
     profileImageUrl: mentorMan06,
   },
+  // ---- Routine 목록 (Routine-00 Mockup) ----
+  leeSubin: {
+    mentorId: 'fixture-mentor-21',
+    name: '이수빈',
+    university: '서울시립대',
+    major: '도시공학과',
+    admissionType: '학생부종합',
+    highSchoolContext: '일반고 · 수학 실전 모의 주 3회 · 교내 도시 탐구 동아리',
+    representativeExperience: '평일 저녁 수학 실전 모의와 오답 정리를 1년 동안 반복',
+    tags: ['학생부종합', '수학', 'Routine', '도시'],
+    profileImageUrl: mentorWoman13,
+  },
 } satisfies Record<string, MentorSummary>
 
 export const fixtureMentorContent = {
@@ -258,7 +271,7 @@ export const fixtureMentorContent = {
     title: '환경 탐구를 생명과학 진로로 연결한 세특 기록',
   },
   riverCase: { contentId: 'fixture-content-case-02', kind: 'case', title: '학교 주변 하천의 수질과 생물 관찰' },
-  scienceRoutine: { contentId: 'fixture-content-routine-01', kind: 'routine', title: '물리·화학 개념 복습 루틴' },
+  scienceRoutine: { contentId: 'fixture-content-routine-01', kind: 'routine', title: '물리Ⅰ·화학Ⅰ 개념 복습 루틴' },
   beverageCase: {
     contentId: 'fixture-content-case-03',
     kind: 'case',
@@ -279,6 +292,11 @@ export const fixtureMentorContent = {
   englishPlan: { contentId: 'fixture-content-plan-05', kind: 'plan', title: '영어 빈칸·순서 유형 4주 Plan' },
   mathPlan: { contentId: 'fixture-content-plan-06', kind: 'plan', title: '수학Ⅱ 내신 5주 역산 Plan' },
   wrongAnswerPlan: { contentId: 'fixture-content-plan-07', kind: 'plan', title: '모의고사 이후 오답 7일 Plan' },
+  // ---- Routine 목록 (Routine-00 Mockup) ----
+  csatRoutine: { contentId: 'fixture-content-routine-03', kind: 'routine', title: '수능 D-100 하루 공부 루틴' },
+  mathMockRoutine: { contentId: 'fixture-content-routine-04', kind: 'routine', title: '주간 수학 실전 모의 루틴' },
+  examPeriodRoutine: { contentId: 'fixture-content-routine-05', kind: 'routine', title: '학교 시험기간 하루 공부 루틴' },
+  codingRoutine: { contentId: 'fixture-content-routine-06', kind: 'routine', title: '수행평가와 코딩 프로젝트 병행 루틴' },
 } satisfies Record<string, MentorContentSummary>
 
 /** Plan 한 줄 요약. Home / Profile / Plan 목록이 같은 문장을 쓴다. (Plan-00 Mockup 문구 기준) */
@@ -291,4 +309,14 @@ export const fixturePlanSummaries: Record<string, string> = {
   [fixtureMentorContent.englishPlan.contentId]: '모의고사에서 자주 틀리는 빈칸·순서 유형만 4주 동안 집중하는 계획이에요.',
   [fixtureMentorContent.mathPlan.contentId]: '시험일에서 거꾸로 단원별 문제 풀이 분량을 정한 계획이에요.',
   [fixtureMentorContent.wrongAnswerPlan.contentId]: '모의고사 다음 날부터 7일 동안 오답을 정리하는 계획이에요.',
+}
+
+/** Routine 한 줄 요약. Home / Profile / Routine 목록이 같은 문장을 쓴다. (Routine-00 Mockup 문구 기준) */
+export const fixtureRoutineSummaries: Record<string, string> = {
+  [fixtureMentorContent.csatRoutine.contentId]: '기상부터 취침까지 과목별 시간을 고정한 하루 루틴이에요.',
+  [fixtureMentorContent.mathMockRoutine.contentId]: '평일 저녁에 수학 실전 모의와 오답을 이어서 하는 루틴이에요.',
+  [fixtureMentorContent.englishRoutine.contentId]: '아침·저녁 30분씩 단어와 구문을 반복하는 루틴이에요.',
+  [fixtureMentorContent.examPeriodRoutine.contentId]: '시험기간 하루를 과목별 시간 블록으로 나눈 루틴이에요.',
+  [fixtureMentorContent.codingRoutine.contentId]: '평일 저녁을 수행평가와 코딩으로 나눈 주간 루틴이에요.',
+  [fixtureMentorContent.scienceRoutine.contentId]: '물리 공식 유도와 화학 계산 문제를 번갈아 복습하는 루틴이에요.',
 }

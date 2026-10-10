@@ -802,9 +802,12 @@ IN_PROGRESS
 - Student Mentor Plan Detail: IMPLEMENTED (Fixture UI, 2026-10-10, feat/student-mentor-plan 65a1a4e)
   - Main "Plan" Tab 목록 → Detail, Home / Profile Plan Content → Detail, 1~4주차 Tab, Back 시 이전 화면 / Scroll / 선택 주차 복원 브라우저 확인
   - API 연결 / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Plan Apply: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-plan-apply, 미커밋)
+- Student Mentor Plan Apply: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-plan-apply b21be2d)
   - 시작일 → 항목 선택 → 교재 연결 → 충돌 확인·수정 → 추가 Modal Route, 실패 → 다시 시도, 닫기 / Back 복귀 브라우저 확인
   - 실제 Student Plan Write / Existing Plan · Library 연동 / API 연결 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Routine: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-routine, 미커밋)
+  - Main "Routine" Tab 목록 → Detail(Timeline / Habit), Home / Profile Routine → Detail, 전체 적용 / 습관만 적용 Modal(충돌 · 해결 · 실패 → 다시 시도) 브라우저 확인
+  - 실제 Existing Plan / Schedule Write / API 연결 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1270,7 +1273,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Plan Apply: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Plan Apply: IMPLEMENTED (Fixture 기반 UI, b21be2d)
 VERIFIED 아님: 실제 Student Plan Write / Existing Plan · Library API 미연결, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1292,6 +1295,40 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Apply Flow A~K, Plan / Home / Mentor List / Profile 회귀 확인
 1920 / 1280 / 768 / 390 / 320: Modal 화면 안, Footer 항상 표시, 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Mentor Routine (branch: feat/student-mentor-routine)
+
+### Status
+
+```text
+Student Mentor Routine: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: 실제 Existing Plan / Schedule Write · API 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/routines` (Routine-00), `/mentor/routines/:contentId` (Routine-01), `/mentor/routines/:contentId/apply?mode=all|habits` (Routine-02 Modal)
+- Routine Detail: Timeline(시간 · 할 일 · 기존 일정 겹침 안내) + Habit 선택(URL `?habits=`, Profile 왕복 / 취소 / 새로고침 후 유지)
+- 전체 적용 = Timeline 전체, 습관만 적용 = selectedHabitIds (사용자 확인: Routine-02 Mockup 기준)
+- 충돌 해결: 겹치는 요일만 빼기(기본) / 그래도 추가 (Routine-02 Mockup), 실패 → 다시 시도, 중복 클릭 방지
+- Canonical Mentor 이수빈(21번째) 추가, Routine 6개, 기존 일정 Fixture를 Plan Apply와 공유
+- Plan / Routine 공통: 적용 Modal Shell(ApplyDialog), 목록 화면(MentorContentListPage), Detail 불러오기 Hook(useContentDetail)
+
+### Not Started
+
+- 실제 Existing Plan / Schedule Write, Routine Apply Contract 상세(충돌 / 해결 / 결과 Shape), Story / Q&A / Record / Case
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Routine Flow A~J, Plan Apply / Plan / Home / Mentor List / Profile 회귀 확인
+1920 / 1280 / 768 / 390 / 320: Routine 목록 · Detail · 적용 Modal 가로 Overflow 없음, Footer 항상 표시
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

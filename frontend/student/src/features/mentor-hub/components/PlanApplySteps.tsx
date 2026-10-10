@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { finalItems, findLibraryItem, type PlanApplyDraft } from '../model/planApply.ts'
+import { slotText } from '../model/timeSlot.ts'
 import type {
   ExistingLibraryItemView,
   MentorPlanItem,
   PlanApplyPreviewResult,
   PlanConflictResolution,
-  PlanTimeSlot,
 } from '../model/types.ts'
+import shared from './ApplyDialog.module.css'
 import styles from './MentorPlanApplyDialog.module.css'
 
-const slotText = (slot: PlanTimeSlot) => `${slot.start}–${slot.end}`
 const shortDate = (date: string) => {
   const [, month, day] = date.split('-').map(Number)
   return `${month}/${day}`
@@ -160,7 +160,7 @@ export function LibraryStep({ draft, onDraftChange, items, libraryItems }: Libra
                   </optgroup>
                 ))}
               </select>
-              <span className={styles.status} data-tone={mapped ? 'positive' : 'neutral'}>
+              <span className={shared.status} data-tone={mapped ? 'positive' : 'neutral'}>
                 {mapped ? '연결됨' : '미연결'}
               </span>
             </span>
@@ -198,7 +198,7 @@ export function ConflictsStep({ draft, onDraftChange, items, preview }: Conflict
               <span className={styles.day}>{item.day}</span>
               <span className={styles.time}>{slotText(slot)}</span>
               <span className={styles.cardTitle}>{item.task}</span>
-              <span className={styles.status} data-tone={status === 'Conflict' ? 'negative' : 'positive'}>
+              <span className={shared.status} data-tone={status === 'Conflict' ? 'negative' : 'positive'}>
                 {status}
               </span>
             </div>
@@ -207,7 +207,7 @@ export function ConflictsStep({ draft, onDraftChange, items, preview }: Conflict
                 <p className={styles.existing}>
                   기존 일정 · {conflict.existingSchedule.title} {slotText(conflict.existingSchedule.slot)}
                 </p>
-                <fieldset className={styles.segmented}>
+                <fieldset className={shared.segmented}>
                   <legend className="lh-visually-hidden">{item.task} 해결 방법</legend>
                   {(
                     [
@@ -215,7 +215,7 @@ export function ConflictsStep({ draft, onDraftChange, items, preview }: Conflict
                       ['exclude', '이번 항목 빼기'],
                     ] as const
                   ).map(([value, label]) => (
-                    <label key={value} className={styles.segment}>
+                    <label key={value} className={shared.segment}>
                       <input
                         type="radio"
                         name={`plan-apply-resolution-${item.itemId}`}
@@ -278,7 +278,7 @@ export function ReviewStep({ draft, items, libraryItems, preview, sourceLabel }:
         <p className={styles.notice}>추가할 항목이 없어요. 이전 단계에서 옮길 항목을 고르거나 항목을 다시 골라주세요.</p>
       )}
       {excluded > 0 && <p className={styles.help}>뺀 항목 {excluded}개는 추가하지 않아요.</p>}
-      <p className={styles.sourceNotice}>
+      <p className={shared.sourceNotice}>
         출처({sourceLabel})가 계획 항목에 함께 저장돼요. 계획표에서 Mentor Plan 출처로 표시돼요. Mentor가 나중에 Plan을
         고쳐도 지금 추가한 계획은 바뀌지 않아요.
       </p>

@@ -2,10 +2,17 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { createMentorHubHomeFixtureLoader, readFixtureScenario } from '../fixtures/mentorHubHome.fixture.ts'
 import { MentorHubHomePage } from '../MentorHubHomePage.tsx'
 import { parseMentorHubTab, type MentorHubTabId } from '../model/tabs.ts'
-import { mentorListPath, mentorPlanListPath, mentorPlanPath, mentorProfilePath } from './paths.ts'
+import {
+  mentorListPath,
+  mentorPlanListPath,
+  mentorPlanPath,
+  mentorProfilePath,
+  mentorRoutineListPath,
+  mentorRoutinePath,
+} from './paths.ts'
 import { useMentorHubTabNavigation } from './useMentorHubTabNavigation.ts'
 
-// 선택 Main Tab은 URL(?tab=)에 두어 Profile 왕복(Back) 후에도 유지한다. ('멘토' / 'Plan' Tab은 별도 Route)
+// 선택 Main Tab은 URL(?tab=)에 두어 Profile 왕복(Back) 후에도 유지한다. ('멘토' / 'Plan' / 'Routine' Tab은 별도 Route)
 // Scroll 위치는 App Shell의 ScrollRestoration이 복원한다.
 export function MentorHubHomeRoute() {
   const navigate = useNavigate()
@@ -21,9 +28,10 @@ export function MentorHubHomeRoute() {
   // 별도 Route가 있는 Tab을 ?tab= 주소로 들어오면 해당 Route로 보낸다.
   if (selectedTab === 'mentors') return <Navigate to={mentorListPath} replace />
   if (selectedTab === 'plan') return <Navigate to={mentorPlanListPath} replace />
+  if (selectedTab === 'routine') return <Navigate to={mentorRoutineListPath} replace />
 
   const selectTab = (tab: MentorHubTabId) => {
-    if (tab === 'mentors' || tab === 'plan') {
+    if (tab === 'mentors' || tab === 'plan' || tab === 'routine') {
       navigateToTab(tab)
       return
     }
@@ -46,9 +54,10 @@ export function MentorHubHomeRoute() {
       onTabSelect={selectTab}
       focusTabOnMount={focusTabOnMount}
       onMentorSelect={(mentorId) => navigate(mentorProfilePath(mentorId))}
-      // Detail 화면이 있는 Content(Plan)만 연결한다.
+      // Detail 화면이 있는 Content(Plan / Routine)만 연결한다.
       onContentSelect={(content) => {
         if (content.kind === 'plan') navigate(mentorPlanPath(content.contentId))
+        if (content.kind === 'routine') navigate(mentorRoutinePath(content.contentId))
       }}
     />
   )
