@@ -748,7 +748,9 @@ Integration Client
 상태:
 
 ```text
-NOT_STARTED
+IN_PROGRESS
+School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home, 미커밋)
+Task Detail 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -817,11 +819,14 @@ IN_PROGRESS
 - Student Mentor Record List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-record 689028d)
   - Main "Record" Tab 목록(검색 / 학년 / 영역, URL 유지), Detail(검수 표시 · 기록 · 연결 활동 · 관련 콘텐츠), Home / Profile / Q&A → Record 브라우저 확인
   - 실제 Record API / PII 검수 Backend / Admin Review / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-case, 미커밋)
+- Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-case 83b1504)
   - Main "Case" Tab 목록(24개, 검색 URL 유지), Detail(기본정보 · 과정 자료 · Case별 단계 · Reflection · 후속 활동 · 관련 콘텐츠), 단계 URL(?stage=) 유지, Home Admin 추천 / Mixed · Profile · Record · Q&A → Case 브라우저 확인
   - 내 Task에 참고 연결: Dialog만 구현, 저장 없음 (Student 연결 API Contract Gap, Task.relatedMentorCaseIds 변경 없음)
   - 과정 자료 / 결과물 미리보기 + 원본 다운로드: role과 무관하게 preview가 있으면 미리보기(Slide / 문서 Page / 표), original이 있으면 다운로드. 항생제 Case 과정 자료 4개(XLSX / HWP / PDF / HWP) + 최종본 PPTX 모두 미리보기 + 다운로드 (원본은 개발 검증용 Sample), Record에는 연결하지 않음
   - 실제 Case API / PII 검수 Backend / File Storage · File API / Task 참고 연결 저장 / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Hub 8 Tab 통합: IMPLEMENTED (feat/student-mentor-case → feat/student-mentor-hub-home fast-forward, 83b1504, main 미병합)
+- Student School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home, 미커밋)
+  - 실제 Task API / Task Create / Task Detail 이후 화면 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1452,7 +1457,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture 기반 UI, 83b1504)
 VERIFIED 아님: Case API / PII 검수 Backend 미연결, 검수 상태 미확정(OD-05), Task 참고 연결 API 없음, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1487,6 +1492,53 @@ Headless Chrome (CDP): Case Flow A~M (Tab / 검색 / 목록 Scroll 복원 / 단�
 과정 자료 미리보기 Flow A~G: 자료조사(표) / V1(문서) / 피드백 PDF(문서) / V2(문서) / 최종본(Slide) 미리보기 + Header 다운로드, 닫기 · ESC 후 Stage · Scroll · Focus 복원, A → B 전환 시 이전 내용 없음, 1920~320 겹침 · 가로 Overflow 없음
 회귀: Plan / Plan Apply / Routine / Story / Q&A / Record / Home · List · Profile
 1920 / 1280 / 768 / 390 / 320: Case 목록 · Detail 문서 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student School Home / Tasks (branch: feat/student-school-home)
+
+### Status
+
+```text
+Mentor Stack 통합: feat/student-mentor-case(83b1504) → feat/student-mentor-hub-home fast-forward (main 미병합)
+Student School Home / Tasks 목록: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Task API 미연결, currentStage Enum 미확정, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/school` → `/school/tasks?filter=` (Tasks-00 Mockup). Global Navigation "School Activity" Active, 기존 "수행평가" Entry도 `/school/tasks`로 연결 (Extension App 내부 Route만, 기존 LearnersHigh URL 추측 없음)
+- School 내부 Navigation: Tasks / Activities / Evidence / Archive. Tasks만 연결, 나머지는 비활성(준비 중, 가짜 Page 없음). Interview는 고3에게만 보이고 현재 Student(고2)에게는 숨김
+- Task 9개: Tasks-00의 제목 · 제출물 · 단계 · 상태 분포. 로그인 Student는 Canonical Student 최하은(고2) 한 명 (Mockup의 윤지민 대신, 사용자 확인 2026-10-12)
+  - 항생제 포스터 Task = Mentor Hub 진행 중 Task(`fixture-task-01`, 같은 제목), 과목 생명과학Ⅰ
+  - 고1 과목을 고2 과목으로 조정(사용자 확인): 통합과학 → 생명과학Ⅰ, 통합사회 → 한국지리, 과학탐구실험 → 화학Ⅰ
+  - 기준일 snapshotDate 2026-10-06 (Mockup D-day와 일치), D-day는 snapshotDate 기준 계산
+- Stage(1~8, 8칸 진행 + "n/8 · 단계 상태" Text)와 주의 표시(Review 지연 / Deadline Passed / Hold)를 분리. Mockup의 "Review 48h 초과"는 운영시간 숫자 없이 "Review 지연"으로 표시
+- Filter Chip 전체 / 내 차례 / 기다리는 중 / 주의 필요 (숫자는 같은 Task 목록에서 계산, URL 유지). 검색은 Mockup에 없어 만들지 않음
+- 지금 할 일: 내 차례 Task만 상태 열에 다음 할 일 한 줄 (Detail Overview에서 Primary로 다룰 예정)
+- 수행평가 등록 CTA: 비활성 + "등록 화면 준비 중" (Task Create 미구현, 가짜 Form 없음). Task Row는 Detail 화면이 없어 이동하지 않음 (Mockup의 › 없음), `schoolTaskPath` Route Boundary만 준비
+- Loading / Empty(Task 없음) / Filter Empty / Error + 다시 시도
+- 주의 Badge용 `--lh-color-warning(-subtle)` Token 추가 (Light / Dark)
+
+### Not Started
+
+- Task API 연결, Task Create, Task Detail(7 Tab), Topic, Evidence Vault, Version · AI Analysis / Retry, Feedback, Revision History, Growth Activity, Reflection, Archive, Interview, Backend / DB
+
+### Open / Contract Gap
+
+- `GET /api/student/tasks`에 제출물 요약 / 단계 상태 문구 / 차례 / 주의 표시(Student용) / snapshotDate 없음 → Frontend View Model로만 둠 (api-contract 미수정)
+- 주의 표시의 Student 문구("Review 지연")와 차례(내 차례 / 기다리는 중) 판단 기준 미확정
+- Filter Empty는 현재 Fixture 분포(모든 Filter 1개 이상)로 Browser 재현 불가 (코드 경로만 존재)
+
+### Verification
+
+```text
+student typecheck / lint / build, admin / mentor build, verify-frontend, verify -Strict, git diff --check: 아래 완료 보고 참고
+Headless Chrome (CDP): School Flow A~H 25항목 PASS (Global Nav · 내부 Nav · Task 9 · Filter / URL · 직접 URL · /school Redirect · 수행평가 Entry · School ↔ Mentor Active · Back Filter/Scroll 복원 · Loading / Empty / Error · Keyboard Focus 순서)
+1920 / 1280 / 768 / 390 / 320 가로 Overflow 없음, Dark mode 확인
+Mentor 회귀: 8 Tab · Home · List · Profile · Plan Apply · Routine Apply · Story · Q&A · Record · Case (Preview / Download 5개 byte 동일)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

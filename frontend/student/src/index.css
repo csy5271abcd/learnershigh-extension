@@ -25,6 +25,9 @@
   --lh-color-positive-subtle: #e5f6ec;
   --lh-color-negative: #d9263a; /* 일정 충돌 등 주의 (Text Label과 함께 쓴다) */
   --lh-color-negative-subtle: #ffeef0;
+  /* 지연 등 주의 (School Task 상태 Badge, Text Label과 함께 쓴다) */
+  --lh-color-warning: #b45309;
+  --lh-color-warning-subtle: #fff4e5;
   --lh-color-skeleton: #e9ecef;
 
   --lh-space-1: 4px;
@@ -84,6 +87,8 @@
     --lh-color-positive-subtle: #1b3327;
     --lh-color-negative: #ff7d8a;
     --lh-color-negative-subtle: #3a1e23;
+    --lh-color-warning: #ffb067;
+    --lh-color-warning-subtle: #3a2a17;
     --lh-color-skeleton: #2c2c35;
   }
 }
