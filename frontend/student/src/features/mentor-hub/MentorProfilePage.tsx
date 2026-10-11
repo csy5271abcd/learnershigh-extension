@@ -20,7 +20,7 @@ interface MentorProfilePageProps {
   onContentKindSelect: (kind: MentorProfileContentKind) => void
   onBack: () => void
   onGoToHub: () => void
-  // Student Q&A 화면은 아직 없다. Content는 Detail이 있는 유형(Plan / Routine / Story)만 호출 측에서 연결한다.
+  // Content는 Detail이 있는 유형(Plan / Routine / Story)만 호출 측에서 연결한다.
   onAskQuestion?: (mentorId: string) => void
   onContentSelect?: (content: MentorContentSummary) => void
 }

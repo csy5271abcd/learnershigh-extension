@@ -294,7 +294,8 @@ export const fixtureMentorContent = {
   englishRoutine: { contentId: 'fixture-content-routine-02', kind: 'routine', title: '영어 단어·구문 매일 30분' },
   mathStory: { contentId: 'fixture-content-story-01', kind: 'story', title: '수학 3등급에서 내신 1등급까지' },
   posterQna: {
-    contentId: 'fixture-content-qna-01',
+    // Q&A는 MentorContent가 아니어서 Home 항목 id로 질문 id를 쓴다. (mentorQuestion.fixture.ts)
+    contentId: 'fixture-mq-07',
     kind: 'qna',
     title: '탐구 포스터 주제를 좁힐 때 무엇부터 봤나요?',
   },

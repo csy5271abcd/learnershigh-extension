@@ -808,9 +808,12 @@ IN_PROGRESS
 - Student Mentor Routine: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-routine f20ee24)
   - Main "Routine" Tab 목록 → Detail(Timeline / Habit), Home / Profile Routine → Detail, 전체 적용 / 습관만 적용 Modal(충돌 · 해결 · 실패 → 다시 시도) 브라우저 확인
   - 실제 Existing Plan / Schedule Write / API 연결 / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-story, 미커밋)
+- Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-story dfa9b0b)
   - Main "Story" Tab Feed + 주제 Filter(?topic=), Feed → Detail → Back 시 주제 / Scroll 복원, Home / Profile Story → Detail, 저장 / 취소(Feed · Detail 동기화) 브라우저 확인
-  - 저장 API / 관련 질문(Student Q&A 연결) / API 연결 / Frontend 자동 Test: NOT_STARTED
+  - 저장 API / API 연결 / Frontend 자동 Test: NOT_STARTED (관련 질문은 Student Q&A 질문 작성으로 연결됨)
+- Student Q&A: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-qna, 미커밋)
+  - Main "Q&A" Tab(모든 질문 / 내 질문 / Category), Detail(답변 대기 / 답변 완료 / 답변 지연), 질문 작성(Profile 질문하기 / Story 관련 질문), 재배정 Action 브라우저 확인
+  - 실제 Question API / Mentor 답변 연동(Mentor Q&A Inbox) / 재배정 Domain 확정(OD-02) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1342,7 +1345,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture 기반 UI, dfa9b0b)
 VERIFIED 아님: 저장 API / Q&A 미연결, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1365,6 +1368,39 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Story Flow A~K, Home / Mentor List / Profile / Plan / Plan Apply / Routine 회귀 확인
 1920 / 1280 / 768 / 390 / 320: Feed · Detail 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Q&A (branch: feat/student-mentor-qna)
+
+### Status
+
+```text
+Student Q&A: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Question API / Mentor 답변 미연결, 재배정 Domain 미확정(OD-02), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/questions?view=mine&category=` (StudentQ&A-00), `/mentor/questions/:questionId` (StudentQ&A-01), `/mentor/questions/new?mentorId=&sourceContentId=` (질문 작성, Mockup 없음)
+- 상태는 pending / answered / overdue만 사용. reassign은 "다른 Mentor에게 재배정 요청" Action으로만 구현(Student가 Mentor를 고르지 않음, Fixture가 다음 Mentor를 돌려줌 = 정책 아님, 상태 값 유지), REASSIGNED 상태 없음
+- 질문 작성: Mentor Profile 질문하기(Mentor 미리 선택), Story 관련 질문(Story Context 표시, Submit Request에는 넣지 않음), 제출 → 새 질문 Detail(답변 대기)
+- 도움돼요 Toggle(Session 상태, Story 저장과 같은 Store 사용), 관련 콘텐츠 Plan / Routine / Story Detail 연결 (Record / Case는 연결 안 함)
+- Home Q&A 항목 → 질문 Detail (항목 id = 질문 id)
+
+### Not Started
+
+- 실제 Question API, Mentor Q&A Inbox / 답변 작성, 재배정 Endpoint / 재배정 후 상태, Record / Case
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Q&A Flow A~L, Home / Mentor List / Profile / Plan / Plan Apply / Routine / Story 회귀 확인
+1920 / 1280 / 768 / 390 / 320: 목록 · Detail · 질문 작성 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

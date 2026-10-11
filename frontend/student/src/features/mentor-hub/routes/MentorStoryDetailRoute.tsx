@@ -5,7 +5,7 @@ import {
   saveMentorContentFixture,
 } from '../fixtures/mentorStory.fixture.ts'
 import { MentorStoryDetailPage } from '../MentorStoryDetailPage.tsx'
-import { mentorProfilePath, mentorStoryListPath } from './paths.ts'
+import { mentorProfilePath, mentorQuestionComposerPath, mentorStoryListPath } from './paths.ts'
 
 export function MentorStoryDetailRoute() {
   const { contentId = '' } = useParams()
@@ -33,7 +33,10 @@ export function MentorStoryDetailRoute() {
       onBack={goBack}
       onGoToStoryFeed={() => navigate(mentorStoryListPath)}
       onMentorSelect={(mentorId) => navigate(mentorProfilePath(mentorId))}
-      // Student Q&A 화면은 다음 단계에서 연결한다. (연결 전에는 버튼이 안내만 보여준다)
+      // 관련 질문: 받는 Mentor + 이 Story를 Context로 질문 작성 화면을 연다. (질문 문장은 만들지 않는다)
+      onAskRelatedQuestion={(context) =>
+        navigate(mentorQuestionComposerPath({ mentorId: context.mentorId, sourceContentId: context.sourceContentId }))
+      }
     />
   )
 }

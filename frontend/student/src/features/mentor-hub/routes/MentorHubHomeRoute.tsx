@@ -7,6 +7,8 @@ import {
   mentorPlanListPath,
   mentorPlanPath,
   mentorProfilePath,
+  mentorQuestionListPath,
+  mentorQuestionPath,
   mentorRoutineListPath,
   mentorRoutinePath,
   mentorStoryListPath,
@@ -14,7 +16,7 @@ import {
 } from './paths.ts'
 import { useMentorHubTabNavigation } from './useMentorHubTabNavigation.ts'
 
-// 선택 Main Tab은 URL(?tab=)에 두어 Profile 왕복(Back) 후에도 유지한다. ('멘토' / 'Plan' / 'Routine' / 'Story' Tab은 별도 Route)
+// 선택 Main Tab은 URL(?tab=)에 두어 Profile 왕복(Back) 후에도 유지한다. ('멘토' / 'Plan' / 'Routine' / 'Story' / 'Q&A' Tab은 별도 Route)
 // Scroll 위치는 App Shell의 ScrollRestoration이 복원한다.
 export function MentorHubHomeRoute() {
   const navigate = useNavigate()
@@ -32,9 +34,10 @@ export function MentorHubHomeRoute() {
   if (selectedTab === 'plan') return <Navigate to={mentorPlanListPath} replace />
   if (selectedTab === 'routine') return <Navigate to={mentorRoutineListPath} replace />
   if (selectedTab === 'story') return <Navigate to={mentorStoryListPath} replace />
+  if (selectedTab === 'qna') return <Navigate to={mentorQuestionListPath} replace />
 
   const selectTab = (tab: MentorHubTabId) => {
-    if (tab === 'mentors' || tab === 'plan' || tab === 'routine' || tab === 'story') {
+    if (tab === 'mentors' || tab === 'plan' || tab === 'routine' || tab === 'story' || tab === 'qna') {
       navigateToTab(tab)
       return
     }
@@ -57,11 +60,13 @@ export function MentorHubHomeRoute() {
       onTabSelect={selectTab}
       focusTabOnMount={focusTabOnMount}
       onMentorSelect={(mentorId) => navigate(mentorProfilePath(mentorId))}
-      // Detail 화면이 있는 Content(Plan / Routine / Story)만 연결한다.
+      // Detail 화면이 있는 Content(Plan / Routine / Story / Q&A)만 연결한다.
+      // Q&A 항목의 id는 MentorContent가 아니라 질문 id다. (Q&A는 별도 Student Question Flow)
       onContentSelect={(content) => {
         if (content.kind === 'plan') navigate(mentorPlanPath(content.contentId))
         if (content.kind === 'routine') navigate(mentorRoutinePath(content.contentId))
         if (content.kind === 'story') navigate(mentorStoryPath(content.contentId))
+        if (content.kind === 'qna') navigate(mentorQuestionPath(content.contentId))
       }}
     />
   )

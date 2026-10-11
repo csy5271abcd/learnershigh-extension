@@ -48,3 +48,22 @@ export const mentorStoryListPath = '/mentor/stories'
 export function mentorStoryPath(contentId: string): string {
   return `${mentorStoryListPath}/${encodeURIComponent(contentId)}`
 }
+
+export const mentorQuestionListRoutePattern = 'mentor/questions'
+export const mentorQuestionComposerRoutePattern = 'mentor/questions/new'
+export const mentorQuestionRoutePattern = 'mentor/questions/:questionId'
+
+export const mentorQuestionListPath = '/mentor/questions'
+
+export function mentorQuestionPath(questionId: string): string {
+  return `${mentorQuestionListPath}/${encodeURIComponent(questionId)}`
+}
+
+/** 질문 작성. Story Context(sourceContentId)는 화면 표시용이다. */
+export function mentorQuestionComposerPath(context: { mentorId?: string; sourceContentId?: string }): string {
+  const params = new URLSearchParams()
+  if (context.mentorId) params.set('mentorId', context.mentorId)
+  if (context.sourceContentId) params.set('sourceContentId', context.sourceContentId)
+  const search = params.toString()
+  return `/${mentorQuestionComposerRoutePattern}${search ? `?${search}` : ''}`
+}

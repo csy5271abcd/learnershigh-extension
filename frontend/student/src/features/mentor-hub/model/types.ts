@@ -396,6 +396,86 @@ export interface RelatedQuestionContext {
   contextType: 'story'
 }
 
+// ---------- Student Mentor Q&A (GET / POST /api/student/mentor-questions, GET .../{questionId}) ----------
+// Q&A는 MentorContent가 아닌 별도 Student Question Flow다. (domain.md §35)
+// Contract 확정 값: status(pending / answered / overdue), Submit Request(mentorId / category / question).
+// 공개 목록 / 익명 Context / 도움돼요 / 재배정 기록은 Frontend View Model이다. (Contract Gap)
+
+/** 지속 상태는 이 세 값만 쓴다. reassign은 상태가 아니라 Action 후보다. (domain.md §35-1) */
+export type MentorQuestionStatus = 'pending' | 'answered' | 'overdue'
+
+/** StudentQ&A-00 Mockup Category. Contract 예시(STUDY_METHOD)와 같은 형식의 Frontend Key (전체 Enum은 미확정) */
+export type QuestionCategory = 'STUDY_METHOD' | 'SCHOOL_GRADE' | 'CSAT' | 'ADMISSION_STRATEGY' | 'MENTAL'
+
+/** 질문자 익명 Context (예: 고2 · 화학공학 관심). 실명 / 학교 / 기관은 두지 않는다. (domain.md §36) */
+export interface AnonymousStudentContext {
+  grade: string
+  interest: string
+}
+
+export interface MentorAnswer {
+  text: string
+  /** ISO 8601 */
+  answeredAt: string
+}
+
+export interface MentorQuestion {
+  questionId: string
+  status: MentorQuestionStatus
+  category: QuestionCategory
+  /** Submit Request의 question */
+  question: string
+  /** Mockup의 질문 보충 설명 (Contract에 없음) */
+  detail?: string
+  /** 현재 질문을 받는 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  student: AnonymousStudentContext
+  /** ISO 8601 */
+  submittedAt: string
+  answer?: MentorAnswer
+  relatedContent: MentorContentSummary[]
+  /** 내가 쓴 질문인지 (내 질문 목록) */
+  mine: boolean
+  helpful: boolean
+  /** Mockup 표시용 Fixture 값 (Contract에 Reaction API 없음) */
+  helpfulCount: number
+  /** 재배정 전 Mentor (Frontend 표시용, 상태 값이 아니다) */
+  reassignedFrom?: MentorSummary
+}
+
+/** 모든 질문(공개된 답변) / 내 질문 */
+export type QuestionView = 'public' | 'mine'
+
+export interface MentorQuestionListResult {
+  items: MentorQuestion[]
+  page: MentorListResult['page']
+}
+
+export interface MentorQuestionSubmitRequest {
+  mentorId: string
+  category: QuestionCategory
+  question: string
+}
+
+export interface MentorQuestionSubmitResult {
+  questionId: string
+  status: MentorQuestionStatus
+  mentorId: string
+  submittedAt: string
+}
+
+/** 재배정 요청 결과 (Contract에 Endpoint 없음: Frontend View Model) */
+export interface QuestionReassignResult {
+  previousMentorId: string
+  newMentorId: string
+}
+
+/** 질문 작성 화면이 받는 Context. Story 정보는 화면 표시용이며 Submit Request에 넣지 않는다. */
+export interface QuestionComposerContext {
+  mentor: MentorSummary
+  relatedStory?: MentorContentSummary
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

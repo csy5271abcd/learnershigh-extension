@@ -3,7 +3,7 @@ import { createMentorProfileFixtureLoader, readProfileFixtureScenario } from '..
 import { MentorProfilePage } from '../MentorProfilePage.tsx'
 import { parseProfileContentKind } from '../model/tabs.ts'
 import type { MentorProfileContentKind } from '../model/types.ts'
-import { mentorHubPath, mentorPlanPath, mentorRoutinePath, mentorStoryPath } from './paths.ts'
+import { mentorHubPath, mentorPlanPath, mentorQuestionComposerPath, mentorRoutinePath, mentorStoryPath } from './paths.ts'
 
 // 선택 Content Tab은 URL(?content=)에 두어 Content Detail 왕복 후에도 유지한다.
 export function MentorProfileRoute() {
@@ -49,6 +49,7 @@ export function MentorProfileRoute() {
         if (content.kind === 'routine') navigate(mentorRoutinePath(content.contentId))
         if (content.kind === 'story') navigate(mentorStoryPath(content.contentId))
       }}
+      onAskQuestion={(id) => navigate(mentorQuestionComposerPath({ mentorId: id }))}
     />
   )
 }
