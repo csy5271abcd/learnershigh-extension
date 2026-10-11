@@ -11,6 +11,7 @@ import {
   fixtureRecordSummaries,
   fixtureStorySummaries,
 } from './mentors.fixture.ts'
+import { caseStageTitles, fixtureCaseSummaries } from './activityCases.fixture.ts'
 
 const currentTask: LinkedTask = {
   taskId: 'fixture-task-01',
@@ -58,16 +59,8 @@ export const mentorHubHomeFixture: MentorHubHome = {
       relationReason: '진행 중인 탐구 포스터와 주제가 같고, 자료 조사부터 발표까지의 과정을 참고할 수 있어요.',
       recommendedDate: '2026-10-04',
       linkedTask: currentTask,
-      processSteps: [
-        '안내문 등록',
-        '주제 선정',
-        '자료 조사',
-        '초안 V1 제출',
-        'AI 사전 점검',
-        '선생님 피드백',
-        'Revision',
-        '최종 제출 / 발표',
-      ],
+      // Case Detail 단계 이름을 그대로 쓴다. (같은 Case Entity)
+      processSteps: caseStageTitles(content.antibioticCase.contentId),
     },
   ],
   mixedContent: [
@@ -98,7 +91,7 @@ export const mentorHubHomeFixture: MentorHubHome = {
     },
     {
       ...content.beverageCase,
-      summary: '실험 설계부터 결과 발표까지의 과정이 정리된 Activity Case예요.',
+      summary: fixtureCaseSummaries[content.beverageCase.contentId],
       mentor: mentors.parkNayun,
     },
   ],

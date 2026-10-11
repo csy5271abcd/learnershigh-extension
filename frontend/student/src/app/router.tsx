@@ -1,4 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router'
+import { MentorCaseDetailRoute } from '../features/mentor-hub/routes/MentorCaseDetailRoute.tsx'
+import { MentorCaseListRoute } from '../features/mentor-hub/routes/MentorCaseListRoute.tsx'
 import { MentorHubHomeRoute } from '../features/mentor-hub/routes/MentorHubHomeRoute.tsx'
 import { MentorListRoute } from '../features/mentor-hub/routes/MentorListRoute.tsx'
 import { MentorPlanApplyRoute } from '../features/mentor-hub/routes/MentorPlanApplyRoute.tsx'
@@ -16,6 +18,8 @@ import { MentorRoutineListRoute } from '../features/mentor-hub/routes/MentorRout
 import { MentorStoryDetailRoute } from '../features/mentor-hub/routes/MentorStoryDetailRoute.tsx'
 import { MentorStoryFeedRoute } from '../features/mentor-hub/routes/MentorStoryFeedRoute.tsx'
 import {
+  mentorCaseListRoutePattern,
+  mentorCaseRoutePattern,
   mentorHubPath,
   mentorHubRoutePattern,
   mentorListRoutePattern,
@@ -66,6 +70,8 @@ export const studentRouter = createBrowserRouter([
       { path: mentorQuestionRoutePattern, element: <MentorQuestionDetailRoute /> },
       { path: mentorRecordListRoutePattern, element: <MentorRecordListRoute /> },
       { path: mentorRecordRoutePattern, element: <MentorRecordDetailRoute /> },
+      { path: mentorCaseListRoutePattern, element: <MentorCaseListRoute /> },
+      { path: mentorCaseRoutePattern, element: <MentorCaseDetailRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

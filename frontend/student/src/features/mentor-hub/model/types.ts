@@ -526,6 +526,133 @@ export interface MentorRecordListResult {
   page: MentorListResult['page']
 }
 
+// ---------- Mentor Activity Case (GET /api/student/mentor-content?type=case, GET .../{contentId}) ----------
+// Published + 검수 완료된 비식별 Case만 Student에게 보인다는 경계(api-contract §21-2)를 전제로 한다. (검수 상태 Enum OD-05 미확정)
+// 단계 / 과정 자료 / Reflection / 후속 활동 등은 Frontend View Model이다. (Contract Gap)
+// 단계는 Case마다 실제 활동 성격에 맞게 다르다. 모든 Case에 V1 → Feedback → V2를 넣지 않는다.
+
+/** 과정 자료 종류. 피드백 / 피드백 반영은 실제로 있었던 Case에만 있다. */
+export type CaseMaterialRole = 'evidence' | 'draft' | 'feedback' | 'revision' | 'final'
+
+/** 미리보기 한 Page (Slide 또는 문서). 원본 파일을 해석한 것이 아니라 Browser 표시용 View Model이다. (ActivityCase-09 Mockup) */
+export interface CaseDocumentPage {
+  pageNumber: number
+  title: string
+  /** 제목 아래 강조 한 줄 */
+  lead?: string
+  body?: string
+  bullets?: string[]
+  /** 문서 본문 문단 */
+  paragraphs?: string[]
+  /** Page 아래 작은 안내 (예: 개발 검증용 Sample 안내) */
+  footnote?: string
+}
+
+/**
+ * 자료 미리보기. 원본 형식에 맞는 표현만 둔다. (Office / PDF Viewer가 아니라 Fixture 표시용)
+ * - slides: PPTX → 16:9 Slide
+ * - document: PDF / HWP 등 → 흰 문서 Page
+ * - table: XLSX / CSV → 표
+ */
+export type CaseMaterialPreview =
+  | { kind: 'slides'; pages: CaseDocumentPage[] }
+  | { kind: 'document'; pages: CaseDocumentPage[] }
+  | { kind: 'table'; title: string; description?: string; columns: string[]; rows: string[][]; footnote?: string }
+
+/**
+ * 원본 파일 Resource. 미리보기(preview)와 별개의 실제 Binary다.
+ * 현재는 개발용 Fixture Asset URL, 향후 Backend File Endpoint / Presigned URL로 바뀐다. (File Storage 미정)
+ */
+export interface CaseOriginalFile {
+  url: string
+  /** MIME (예: application/pdf) */
+  mimeType: string
+  fileSizeBytes: number
+}
+
+/**
+ * 공개 승인된 Activity Case 과정 자료 / Evidence / 결과물.
+ * 미리보기는 preview가 있을 때, 원본 다운로드는 original이 있을 때만 가능하다. (role과 무관, 자료마다 다르다)
+ */
+export interface CaseMaterial {
+  materialId: string
+  role: CaseMaterialRole
+  title: string
+  /** 파일 형식 표시 (예: HWP, PDF, PPTX) */
+  format: string
+  description: string
+  /** 이 자료가 나온 단계 */
+  stageId: string
+  /** 원본 파일 이름. 다운로드 시 이 이름을 그대로 쓴다. (사용자 입력으로 바꾸지 않는다) */
+  fileName?: string
+  preview?: CaseMaterialPreview
+  original?: CaseOriginalFile
+}
+
+export interface CaseStage {
+  stageId: string
+  title: string
+  /** 단계 목록에 보이는 한 줄 */
+  summary: string
+  description: string
+  checklist: string[]
+  /** 처음 계획 → 바꾼 계획 (실제로 바꾼 경우만) */
+  planChange?: { before: string; after: string }
+  /** 실제로 받은 피드백 (있었던 Case만) */
+  feedback?: { source: string; text: string; note: string }
+}
+
+export interface MentorActivityCase {
+  contentId: string
+  kind: 'case'
+  /** 실제 활동명 */
+  title: string
+  /** 작성 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  /** 활동 당시 학년 */
+  grade: RecordGrade
+  /** 과목 / 영역 */
+  subject: string
+  activityType: string
+  /** Card 한 줄 요약 */
+  summary: string
+  /** 주요 활동 / 결과물 */
+  activities: string[]
+  stages: CaseStage[]
+  materials: CaseMaterial[]
+  /** 마지막 단계에 보이는 Mentor의 Reflection */
+  reflection: string
+  followUp?: string
+  relatedContent: MixedContentItem[]
+  /** Mockup 표시용 (Contract에 saveCount 없음) */
+  saveCount: number
+}
+
+/** Admin 추천 기록. Case 자체 값이 아니라 Admin Recommendation(Task.relatedMentorCaseIds 출처)에서 온다. */
+export interface CaseAdminRecommendation {
+  /** YYYY-MM-DD */
+  recommendedDate: string
+  relationReason: string
+  linkedTask: LinkedTask
+}
+
+export interface MentorCaseView {
+  activityCase: MentorActivityCase
+  /** 현재 Student에게 Admin이 추천한 Case일 때만 있다. */
+  adminRecommendation?: CaseAdminRecommendation
+}
+
+export interface MentorCaseListQuery {
+  query: string
+  page: number
+  size: number
+}
+
+export interface MentorCaseListResult {
+  items: MentorCaseView[]
+  page: MentorListResult['page']
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router'
 import type { MentorContentSummary } from '../model/types.ts'
-import { mentorPlanPath, mentorRecordPath, mentorRoutinePath, mentorStoryPath } from './paths.ts'
+import { mentorCasePath, mentorPlanPath, mentorRecordPath, mentorRoutinePath, mentorStoryPath } from './paths.ts'
 
-/** Detail 화면이 있는 Mentor Content의 주소. Case 등 화면이 없는 유형은 undefined (가짜 주소를 만들지 않는다) */
+/** Detail 화면이 있는 Mentor Content의 주소. 화면이 없는 유형(Q&A는 별도 Flow)은 undefined (가짜 주소를 만들지 않는다) */
 export function mentorContentPath(content: MentorContentSummary): string | undefined {
   switch (content.kind) {
     case 'plan':
@@ -13,6 +13,8 @@ export function mentorContentPath(content: MentorContentSummary): string | undef
       return mentorStoryPath(content.contentId)
     case 'record':
       return mentorRecordPath(content.contentId)
+    case 'case':
+      return mentorCasePath(content.contentId)
     default:
       return undefined
   }

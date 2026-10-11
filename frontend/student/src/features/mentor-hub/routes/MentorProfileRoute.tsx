@@ -44,7 +44,7 @@ export function MentorProfileRoute() {
       onContentKindSelect={selectContentKind}
       onBack={goBack}
       onGoToHub={() => navigate(mentorHubPath)}
-      // Detail 화면이 있는 Content(Plan / Routine / Story / Record)만 연결한다. Case는 화면이 아직 없다.
+      // Profile Content Tab의 Content(Plan / Routine / Story / Record / Case)는 모두 Detail 화면으로 이동한다.
       onContentSelect={(content) => {
         const path = mentorContentPath(content)
         if (path) navigate(path)

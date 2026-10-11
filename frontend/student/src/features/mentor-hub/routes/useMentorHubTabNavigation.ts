@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router'
 import type { MentorHubTabId } from '../model/tabs.ts'
 import {
+  mentorCaseListPath,
   mentorHubPath,
   mentorListPath,
   mentorPlanListPath,
@@ -23,7 +24,7 @@ interface MainTabNavigationState {
  * - Story → Story Feed
  * - Q&A → Q&A 목록
  * - Record → Record 목록
- * - 그 외(아직 화면 없음) → Home의 ?tab= (Placeholder)
+ * - Case → Activity Case 목록
  * 이동한 화면에서는 선택 Tab에 Focus를 돌려줘 Keyboard 사용자가 이어서 Tab을 이동할 수 있게 한다.
  */
 export function useMentorHubTabNavigation() {
@@ -39,8 +40,8 @@ export function useMentorHubTabNavigation() {
     else if (tab === 'story') navigate(mentorStoryListPath, { state })
     else if (tab === 'qna') navigate(mentorQuestionListPath, { state })
     else if (tab === 'record') navigate(mentorRecordListPath, { state })
-    else if (tab === 'recommend') navigate(mentorHubPath, { state })
-    else navigate(`${mentorHubPath}?tab=${tab}`, { state })
+    else if (tab === 'case') navigate(mentorCaseListPath, { state })
+    else navigate(mentorHubPath, { state })
   }
 
   return { navigateToTab, focusTabOnMount }

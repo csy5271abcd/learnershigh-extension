@@ -27,6 +27,7 @@ const listOrder: MentorSummary[] = [
   mentors.seoJiho,
   mentors.goMinjeong,
   mentors.kimTaehyun,
+  mentors.seoYewon,
   mentors.leeSubin,
   mentors.songJihoo,
   mentors.joAra,

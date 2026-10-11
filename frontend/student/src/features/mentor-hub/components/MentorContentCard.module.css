@@ -30,6 +30,14 @@
   line-height: 1.6;
 }
 
+/* 유형 Badge + 추가 Badge(예: Admin 추천) 한 줄 */
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
 .title {
   margin-top: var(--lh-space-1);
   font-size: 1.0625rem;

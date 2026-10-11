@@ -11,7 +11,7 @@ interface ApplyDialogProps {
   children: ReactNode
 }
 
-// Mentor Content 적용 Modal 공통 Shell (Plan Apply / Routine Apply).
+// Mentor Content Modal 공통 Shell (Plan Apply / Routine Apply / Case Task 참고 연결).
 // Native <dialog>의 showModal()로 배경 조작 차단 / ESC / 스크롤 잠금을 처리하고,
 // 닫히면 열기 전 Focus(적용 버튼)로 돌려준다. 단계 / 선택 같은 Business State는 갖지 않는다.
 export function ApplyDialog({ idPrefix, title, subtitle, onClose, footer, children }: ApplyDialogProps) {

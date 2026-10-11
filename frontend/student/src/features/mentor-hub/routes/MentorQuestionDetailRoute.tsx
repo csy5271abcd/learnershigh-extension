@@ -20,7 +20,7 @@ export function MentorQuestionDetailRoute() {
     import.meta.env.DEV ? readQuestionDetailFixtureScenario(searchParams.toString()) : 'success',
   )
 
-  // 관련 콘텐츠는 Detail 화면이 있는 유형(Plan / Routine / Story / Record)만 연결한다. Case는 화면이 아직 없다.
+  // 관련 콘텐츠는 Detail 화면이 있는 유형(Plan / Routine / Story / Record / Case)으로 연결한다.
   const resolveContentLink = useMentorContentLink()
 
   // App 안에서 이동해 왔다면 History Back으로 이전 화면(Q&A 목록 보기 / Category / Scroll 등)을 복원한다.

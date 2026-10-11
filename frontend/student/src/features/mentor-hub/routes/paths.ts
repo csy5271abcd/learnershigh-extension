@@ -76,3 +76,12 @@ export const mentorRecordListPath = '/mentor/records'
 export function mentorRecordPath(contentId: string): string {
   return `${mentorRecordListPath}/${encodeURIComponent(contentId)}`
 }
+
+export const mentorCaseListRoutePattern = 'mentor/cases'
+export const mentorCaseRoutePattern = 'mentor/cases/:contentId'
+
+export const mentorCaseListPath = '/mentor/cases'
+
+export function mentorCasePath(contentId: string): string {
+  return `${mentorCaseListPath}/${encodeURIComponent(contentId)}`
+}

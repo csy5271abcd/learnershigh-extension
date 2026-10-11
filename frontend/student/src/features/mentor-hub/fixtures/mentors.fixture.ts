@@ -286,10 +286,22 @@ export const fixtureMentors = {
     tags: ['학생부종합', '교내활동', '교외활동', '디자인'],
     profileImageUrl: mentorWoman15,
   },
+  // ---- Activity Case 목록 (Source 5-5 Canonical 24번째 Mentor) ----
+  // 아직 쓰지 않은 Mentor 사진 중 맞는 사진이 없어 Profile Image를 두지 않는다. (MentorAvatar가 이름 첫 글자로 대체)
+  seoYewon: {
+    mentorId: 'fixture-mentor-24',
+    name: '서예원',
+    university: '이화여대',
+    major: '음악교육과',
+    admissionType: '학생부종합',
+    highSchoolContext: '예고 · 음악교육 진로 · 교내외 공연·봉사·교육 활동',
+    representativeExperience: '영화 음악 분석 발표와 교내외 공연 · 음악 교육 봉사',
+    tags: ['학생부종합', '봉사', '교내대회', '음악교육'],
+  },
 } satisfies Record<string, MentorSummary>
 
 export const fixtureMentorContent = {
-  antibioticCase: { contentId: 'fixture-content-case-01', kind: 'case', title: '항생제 내성과 자연선택' },
+  antibioticCase: { contentId: 'fixture-content-case-01', kind: 'case', title: '항생제 내성과 자연선택 탐구 포스터' },
   literaturePlan: { contentId: 'fixture-content-plan-01', kind: 'plan', title: '국어 문학 내신 4주 정리 Plan' },
   environmentRecord: {
     contentId: 'fixture-content-record-01',
@@ -301,7 +313,7 @@ export const fixtureMentorContent = {
   beverageCase: {
     contentId: 'fixture-content-case-03',
     kind: 'case',
-    title: '가공음료의 당류 함량 비교와 하루 섭취 기준',
+    title: '가공음료의 당류 함량 비교와 하루 섭취량 분석',
   },
   midtermPlan: { contentId: 'fixture-content-plan-02', kind: 'plan', title: '고2 중간고사 4주 Plan' },
   englishRoutine: { contentId: 'fixture-content-routine-02', kind: 'routine', title: '영어 단어·구문 매일 30분' },
@@ -333,11 +345,27 @@ export const fixtureMentorContent = {
   broadTopicStory: { contentId: 'fixture-content-story-08', kind: 'story', title: '탐구 주제를 너무 넓게 잡았던 실패' },
   undecidedCareerStory: { contentId: 'fixture-content-story-09', kind: 'story', title: '고2까지 진로를 확정하지 못했던 경험' },
   physicsStory: { contentId: 'fixture-content-story-10', kind: 'story', title: '물리를 끝까지 가져간 이유' },
-  // ---- Activity Case (Source 5-6 Mentor Activity Case Pool, Record A~F 연결 Case) ----
+  // ---- Activity Case (Source 5-6 Mentor Activity Case Pool 24개, 번호는 Pool 순서. 01~03은 기존 Home Case) ----
   deliveryAdCase: { contentId: 'fixture-content-case-04', kind: 'case', title: '배달앱 광고의 언어적 설득 전략 분석' },
+  thumbnailCase: { contentId: 'fixture-content-case-05', kind: 'case', title: '유튜브 뉴스 썸네일의 표현 방식 분석' },
+  speechCase: { contentId: 'fixture-content-case-06', kind: 'case', title: '청소년 스마트폰 사용에 대한 3분 영어 Speech' },
   tourGuideCase: { contentId: 'fixture-content-case-07', kind: 'case', title: '우리 지역 관광지 영어 안내문 개선' },
+  independenceCase: { contentId: 'fixture-content-case-08', kind: 'case', title: '독립협회와 만민공동회 관련 사료 비교 분석' },
+  industrialCase: { contentId: 'fixture-content-case-09', kind: 'case', title: '산업혁명 시기 노동환경과 사회 변화 조사' },
+  snsSurveyCase: { contentId: 'fixture-content-case-10', kind: 'case', title: '청소년의 SNS 이용시간과 행복감 설문조사' },
+  climateRefugeeCase: { contentId: 'fixture-content-case-11', kind: 'case', title: '기후 난민의 국제적 보호 필요성 토론' },
+  transitCase: { contentId: 'fixture-content-case-12', kind: 'case', title: '우리 지역의 대중교통 접근성 조사' },
+  convenienceCase: { contentId: 'fixture-content-case-13', kind: 'case', title: '편의점 상품 가격과 소비자 선택 조사' },
+  storeDataCase: { contentId: 'fixture-content-case-14', kind: 'case', title: '교내 매점 판매 데이터를 활용한 상품 수요 분석' },
   aiInterviewCase: { contentId: 'fixture-content-case-15', kind: 'case', title: 'AI 면접의 공정성에 관한 윤리 논증문' },
+  algorithmCase: { contentId: 'fixture-content-case-16', kind: 'case', title: 'SNS 추천 알고리즘과 정보 편향에 관한 윤리 토론' },
+  filmMusicCase: { contentId: 'fixture-content-case-17', kind: 'case', title: '영화 음악이 장면의 분위기에 미치는 영향 분석' },
+  brakingCase: { contentId: 'fixture-content-case-18', kind: 'case', title: '자동차 속도와 제동거리의 관계 탐구' },
+  sleepCase: { contentId: 'fixture-content-case-19', kind: 'case', title: '스마트폰 사용시간과 수면시간의 관계 조사' },
+  safetyMapCase: { contentId: 'fixture-content-case-20', kind: 'case', title: '학교 주변 보행 안전지도 제작' },
   lunchDataCase: { contentId: 'fixture-content-case-21', kind: 'case', title: '학교 급식 잔반 데이터 분석 프로젝트' },
+  libraryDataCase: { contentId: 'fixture-content-case-22', kind: 'case', title: '학교 도서관 대출 데이터 시각화 프로젝트' },
+  pictogramCase: { contentId: 'fixture-content-case-23', kind: 'case', title: '학교 안전시설 픽토그램 개선 프로젝트' },
   festivalMapCase: { contentId: 'fixture-content-case-24', kind: 'case', title: '학교 축제 안내지도 디자인' },
   // ---- Record 목록 (Source 6-4 Record A~F) ----
   antibioticRecord: { contentId: 'fixture-content-record-02', kind: 'record', title: '생명과학Ⅰ · 세부능력 및 특기사항' },

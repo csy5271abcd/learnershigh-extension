@@ -814,9 +814,14 @@ IN_PROGRESS
 - Student Q&A: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-qna 2ebaf44)
   - Main "Q&A" Tab(모든 질문 / 내 질문 / Category), Detail(답변 대기 / 답변 완료 / 답변 지연), 질문 작성(Profile 질문하기 / Story 관련 질문), 재배정 Action 브라우저 확인
   - 실제 Question API / Mentor 답변 연동(Mentor Q&A Inbox) / 재배정 Domain 확정(OD-02) / Frontend 자동 Test: NOT_STARTED
-- Student Mentor Record List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-record, 미커밋)
+- Student Mentor Record List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-record 689028d)
   - Main "Record" Tab 목록(검색 / 학년 / 영역, URL 유지), Detail(검수 표시 · 기록 · 연결 활동 · 관련 콘텐츠), Home / Profile / Q&A → Record 브라우저 확인
-  - 실제 Record API / PII 검수 Backend / Admin Review / Activity Case Detail / Frontend 자동 Test: NOT_STARTED
+  - 실제 Record API / PII 검수 Backend / Admin Review / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-case, 미커밋)
+  - Main "Case" Tab 목록(24개, 검색 URL 유지), Detail(기본정보 · 과정 자료 · Case별 단계 · Reflection · 후속 활동 · 관련 콘텐츠), 단계 URL(?stage=) 유지, Home Admin 추천 / Mixed · Profile · Record · Q&A → Case 브라우저 확인
+  - 내 Task에 참고 연결: Dialog만 구현, 저장 없음 (Student 연결 API Contract Gap, Task.relatedMentorCaseIds 변경 없음)
+  - 과정 자료 / 결과물 미리보기 + 원본 다운로드: role과 무관하게 preview가 있으면 미리보기(Slide / 문서 Page / 표), original이 있으면 다운로드. 항생제 Case 과정 자료 4개(XLSX / HWP / PDF / HWP) + 최종본 PPTX 모두 미리보기 + 다운로드 (원본은 개발 검증용 Sample), Record에는 연결하지 않음
+  - 실제 Case API / PII 검수 Backend / File Storage · File API / Task 참고 연결 저장 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1414,7 +1419,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Mentor Record List / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Mentor Record List / Detail: IMPLEMENTED (Fixture 기반 UI, 689028d)
 VERIFIED 아님: Record API / PII 검수 Backend 미연결, 검수 상태 미확정(OD-05), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1423,7 +1428,7 @@ VERIFIED 아님: Record API / PII 검수 Backend 미연결, 검수 상태 미확
 - Route `/mentor/records?query=&grade=&area=`, `/mentor/records/:contentId` (Record 전용 Mockup 없음: Mentor Hub / Story Visual 기준)
 - Record 7개: Record A~F는 기준 Source(UI Renewal / Expansion 통합본 6-4) 문장 · 학년 · 영역 · Related 그대로 + 기존 Home Record(문장 가상), Canonical Mentor 조아라(23번째, Source 5-5: 국민대 시각디자인학과 · 학생부종합) 추가
 - Detail 순서: Mentor → 개인정보 제거 · 검수 완료 → 학년·학기 → 영역 → 과목·활동 → 기록 → 연결 활동 → 관련 콘텐츠 → Mentor 한마디 (복사 / 원본 / 내 기록 만들기 없음)
-- 관련 콘텐츠: Story / Plan / Routine / Record 연결, Case는 화면 준비 중 (가짜 Route 없음). Home / Profile / Q&A → Record 연결
+- 관련 콘텐츠: Story / Plan / Routine / Record 연결 (Case는 다음 Branch에서 Case Detail로 연결). Home / Profile / Q&A → Record 연결
 - Student Q&A 재배정: Student의 Mentor 선택 Select 제거 → "다른 Mentor에게 재배정 요청" Action (Q&A commit 2ebaf44에 포함)
 
 ### Not Started
@@ -1437,6 +1442,51 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Record Flow A~M, Privacy 문자열 / 복사 · 다운로드 Control 없음 확인, Home / List / Profile / Plan / Plan Apply / Routine / Story / Q&A 회귀 확인
 1920 / 1280 / 768 / 390 / 320: Record 목록 · Detail 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Mentor Activity Case (branch: feat/student-mentor-case)
+
+### Status
+
+```text
+Student Mentor Activity Case List / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Case API / PII 검수 Backend 미연결, 검수 상태 미확정(OD-05), Task 참고 연결 API 없음, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/cases?query=`, `/mentor/cases/:contentId?stage=` (ActivityCase-00 ~ 11 Mockup), Main Tab "Case" 연결, `/mentor?tab=case` → `/mentor/cases`
+- Canonical Case 24개: 기준 Source 5-6 Activity Case Pool의 제목 / Mentor / 과목 / 주요 활동 그대로, 기존 Case id 01~03 재사용. 항생제 Case 단계 문구는 Mockup 그대로, 나머지 단계 설명은 가상
+- 단계는 Case마다 활동 성격에 맞게 다름 (설문 / 토론 / 디자인 / 데이터 등). Feedback / Revision은 항생제 Case에만 있음 (V1 → Feedback → V2 강제 없음)
+- 과정 자료: 미리보기(preview: slides / document / table) / 원본 다운로드(original)를 자료마다 따로 판단 (최종본 전용 조건 없음). 항생제 Case의 자료조사 XLSX(표) · V1 HWP(문서) · V1 피드백 PDF(문서) · V2 HWP(문서) · 최종본 PPTX(Slide) 모두 미리보기 + 원본 다운로드 (같은 ActivityCase-09 Dialog, 미리보기 내용 = 원본 파일 내용). 원본은 `frontend/student/assets/activity-case/antibiotic-natural-selection/`의 개발 검증용 Sample (작성자 등 개인 Metadata 제거). 다른 23개 Case는 original이 없어 "자료 정보만 볼 수 있어요"
+- Record 원본 생활기록부는 계속 미리보기 / 다운로드 없음 (Activity Case 다운로드와 분리)
+- Admin 추천은 Home 추천 기록에서 가져와 표시하고, Student의 Task 참고 연결과 합치지 않음
+- Canonical Mentor 서예원(24번째, Source 5-5: 이화여대 음악교육과 · 학생부종합) 추가, 사진 없음(이름 첫 글자)
+- Source 기준 Case 제목 수정: 항생제 내성과 자연선택 탐구 포스터 / 가공음료의 당류 함량 비교와 하루 섭취량 분석
+- Profile Case Tab: Mentor마다 Case 1개 연결 (Source 5-6 Mentor 기준)
+
+### Not Started
+
+- 실제 Case API, PII Detection / Admin Review, File Storage Provider / File API(다운로드 URL 교체), 다른 23개 Case 과정 자료 원본, Task 참고 연결 저장(Task.relatedMentorCaseIds), Case 저장
+
+### Open
+
+- Canonical 24 Mentor의 고교 Context / Tag가 Source 5-5와 22명 다름 (기존 Mockup 기준 값 유지, 기준 확인 필요)
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Case Flow A~M (Tab / 검색 / 목록 Scroll 복원 / 단계 이동 · URL · Focus / 단계 + Scroll 복원 / Profile · Home · Record · Q&A → Case / Task Dialog / 상태 / 24개 Case 전 단계 Privacy)
+문서 미리보기 Flow A~J: 실제 다운로드 파일 이름 · 38,339 byte, PowerPoint에서 2 Slide로 열림, 다운로드 후 Dialog 유지, 닫기 / ESC 후 Stage · Scroll · Focus 복원, Record 다운로드 / 미리보기 없음
+과정 자료 다운로드 Flow A~G: 5개 원본 모두 실제 다운로드 (파일 이름 · byte가 Asset과 동일), 단계 / Scroll 유지, Card 다운로드가 미리보기를 열지 않음, Keyboard Enter 다운로드, 각 원본을 Hancom / Excel / PowerPoint에서 열어 확인
+과정 자료 미리보기 Flow A~G: 자료조사(표) / V1(문서) / 피드백 PDF(문서) / V2(문서) / 최종본(Slide) 미리보기 + Header 다운로드, 닫기 · ESC 후 Stage · Scroll · Focus 복원, A → B 전환 시 이전 내용 없음, 1920~320 겹침 · 가로 Overflow 없음
+회귀: Plan / Plan Apply / Routine / Story / Q&A / Record / Home · List · Profile
+1920 / 1280 / 768 / 390 / 320: Case 목록 · Detail 문서 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

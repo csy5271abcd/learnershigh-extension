@@ -19,7 +19,7 @@ interface MentorRecordDetailPageProps {
   onBack: () => void
   onGoToRecordList: () => void
   onMentorSelect: (mentorId: string) => void
-  /** Detail 화면이 있는 관련 콘텐츠면 이동 함수를 돌려준다. (Case Detail은 아직 없다) */
+  /** Detail 화면이 있는 관련 콘텐츠면 이동 함수를 돌려준다. */
   resolveContentLink: (content: MentorContentSummary) => (() => void) | undefined
 }
 

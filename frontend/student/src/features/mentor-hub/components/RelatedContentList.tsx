@@ -9,7 +9,7 @@ interface RelatedContentListProps {
 }
 
 // 관련 콘텐츠 줄 (StudentQ&A-01 Mockup). Q&A 답변 / Record Detail이 함께 쓴다.
-// Detail 화면이 없는 유형(예: Case)은 이동하지 않는 항목으로 보여준다.
+// Detail 화면이 없는 유형은 이동하지 않는 항목으로 보여준다.
 export function RelatedContentList({ items, resolveLink }: RelatedContentListProps) {
   if (items.length === 0) return null
   return (
