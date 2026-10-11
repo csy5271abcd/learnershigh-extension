@@ -15,6 +15,7 @@ import {
   fixtureMentorContent as content,
   fixtureMentors as mentors,
   fixturePlanSummaries,
+  fixtureRecordSummaries,
   fixtureRoutineSummaries,
   fixtureStorySummaries,
 } from './mentors.fixture.ts'
@@ -39,6 +40,11 @@ function routineContent(item: MentorContentSummary): MentorProfileContent {
 /** Story도 Canonical 한 줄 요약을 그대로 쓴다. */
 function storyContent(item: MentorContentSummary): MentorProfileContent {
   return profileContent(item, fixtureStorySummaries[item.contentId])
+}
+
+/** Record도 Canonical 한 줄 요약을 그대로 쓴다. */
+function recordContent(item: MentorContentSummary): MentorProfileContent {
+  return profileContent(item, fixtureRecordSummaries[item.contentId])
 }
 
 interface ProfileDetail {
@@ -86,6 +92,7 @@ const details: Record<string, ProfileDetail> = {
       storyContent(content.mockExamStory),
       storyContent(content.careerRecordStory),
       storyContent(content.wrongNoteStory),
+      recordContent(content.antibioticRecord),
       profileContent(
         content.antibioticCase,
         '탐구 계획부터 Staff Feedback, 최종 포스터, 후속 활동까지 정리한 Activity Case예요.',
@@ -113,7 +120,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '통합과학 · 화학 우수', description: '실험 보고서 중심으로 개념을 정리했어요.' },
     ],
     contents: [
-      profileContent(content.environmentRecord, '환경 탐구 활동이 생명과학 진로 기록으로 이어진 흐름을 볼 수 있어요.'),
+      recordContent(content.environmentRecord),
       profileContent(content.riverCase, '하천 수질 측정 계획부터 결과 발표까지 정리한 Activity Case예요.'),
     ],
   },
@@ -197,7 +204,7 @@ const details: Record<string, ProfileDetail> = {
       { title: '교내 SW 경진대회 수상', description: '급식 잔반 기록 앱 프로토타입' },
       { title: '프로그래밍 동아리 운영', description: '후배 대상 파이썬 스터디를 1년 운영했어요.' },
     ],
-    contents: [routineContent(content.codingRoutine)],
+    contents: [routineContent(content.codingRoutine), recordContent(content.lunchDataRecord)],
   },
   [mentors.kimHaram.mentorId]: {
     verified: false,
@@ -213,17 +220,17 @@ const details: Record<string, ProfileDetail> = {
       { title: '독서토론부 부장 2년', description: '월 2회 토론 주제를 선정하고 진행했어요.' },
       { title: '교내 독서 토론대회 참여', description: '고전 작품을 현대 쟁점과 연결해 발표했어요.' },
     ],
-    contents: [planContent(content.performancePlan)],
+    contents: [planContent(content.performancePlan), recordContent(content.readingClubRecord)],
   },
   [mentors.goMinjeong.mentorId]: {
     verified: true,
     experiences: [{ title: '중간고사 4주 계획 운영', description: '요일별 과목 배치로 시험 범위를 관리했어요.' }],
-    contents: [planContent(content.midtermPlan)],
+    contents: [planContent(content.midtermPlan), recordContent(content.psychologyClubRecord)],
   },
   [mentors.choiEunchae.mentorId]: {
     verified: true,
     experiences: [{ title: '영어 단어 · 구문 루틴', description: '아침 · 저녁 30분씩 3년 동안 유지했어요.' }],
-    contents: [routineContent(content.englishRoutine)],
+    contents: [routineContent(content.englishRoutine), recordContent(content.tradeCareerRecord)],
   },
   // ---- Mentor List 추가 Mentor ----
   [mentors.yoonHaram.mentorId]: {
@@ -308,6 +315,11 @@ const details: Record<string, ProfileDetail> = {
     verified: true,
     experiences: [{ title: '물리학Ⅰ 선택 유지', description: '역학 단원 오답을 유형별로 다시 풀었어요.' }],
     contents: [storyContent(content.physicsStory)],
+  },
+  [mentors.joAra.mentorId]: {
+    verified: true,
+    experiences: [{ title: '교내 축제 안내 디자인', description: '학생 의견 조사로 안내판 순서를 다시 정했어요.' }],
+    contents: [recordContent(content.eventDesignRecord)],
   },
   [mentors.leeSubin.mentorId]: {
     verified: true,

@@ -476,6 +476,56 @@ export interface QuestionComposerContext {
   relatedStory?: MentorContentSummary
 }
 
+// ---------- Mentor Record (GET /api/student/mentor-content?type=record, GET .../{contentId}) ----------
+// Published + 검수 완료된 비식별 Record만 Student에게 보인다는 경계(api-contract §21-2)를 전제로 한다.
+// 검수 상태 Enum(OD-05)은 정하지 않고 화면에는 "개인정보 제거 · 검수 완료" 표시만 둔다.
+// 학년 / 영역 / 기록 문장 / 연결 활동 등은 Frontend View Model이다. (Contract Gap)
+
+export type RecordGrade = 1 | 2 | 3
+
+/** Feature Spec 공개 가능 유형 (행동특성 및 종합의견은 제외) */
+export type RecordArea = 'subject-detail' | 'autonomous' | 'club' | 'career' | 'project'
+
+/** 이 기록과 연결된 실제 활동. Activity Case가 있으면 caseId로 이어진다. */
+export interface RecordLinkedActivity {
+  title: string
+  description: string
+  caseId?: string
+}
+
+export interface MentorRecord {
+  contentId: string
+  kind: 'record'
+  title: string
+  /** 작성 Mentor. Canonical Mentor를 그대로 참조한다. */
+  mentor: MentorSummary
+  grade: RecordGrade
+  /** 학기 구분이 없는 기록(창의적 체험활동 등)은 없음 */
+  semester?: 1 | 2
+  area: RecordArea
+  /** 과목 또는 활동 이름 */
+  subjectOrActivity: string
+  /** 개인정보를 제거한 기록 문장 (읽기 전용) */
+  recordText: string
+  linkedActivity: RecordLinkedActivity
+  relatedContent: MentorContentSummary[]
+  /** Mentor가 덧붙인 짧은 Context */
+  mentorNote: string
+}
+
+export interface MentorRecordListQuery {
+  query: string
+  grade?: RecordGrade
+  area?: RecordArea
+  page: number
+  size: number
+}
+
+export interface MentorRecordListResult {
+  items: MentorRecord[]
+  page: MentorListResult['page']
+}
+
 export type LoadState<T> =
   | { status: 'loading' }
   | { status: 'success'; data: T }

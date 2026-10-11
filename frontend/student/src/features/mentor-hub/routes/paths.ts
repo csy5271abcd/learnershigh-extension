@@ -67,3 +67,12 @@ export function mentorQuestionComposerPath(context: { mentorId?: string; sourceC
   const search = params.toString()
   return `/${mentorQuestionComposerRoutePattern}${search ? `?${search}` : ''}`
 }
+
+export const mentorRecordListRoutePattern = 'mentor/records'
+export const mentorRecordRoutePattern = 'mentor/records/:contentId'
+
+export const mentorRecordListPath = '/mentor/records'
+
+export function mentorRecordPath(contentId: string): string {
+  return `${mentorRecordListPath}/${encodeURIComponent(contentId)}`
+}

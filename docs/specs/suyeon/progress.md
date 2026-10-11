@@ -811,9 +811,12 @@ IN_PROGRESS
 - Student Mentor Story Feed / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-story dfa9b0b)
   - Main "Story" Tab Feed + 주제 Filter(?topic=), Feed → Detail → Back 시 주제 / Scroll 복원, Home / Profile Story → Detail, 저장 / 취소(Feed · Detail 동기화) 브라우저 확인
   - 저장 API / API 연결 / Frontend 자동 Test: NOT_STARTED (관련 질문은 Student Q&A 질문 작성으로 연결됨)
-- Student Q&A: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-qna, 미커밋)
+- Student Q&A: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-qna 2ebaf44)
   - Main "Q&A" Tab(모든 질문 / 내 질문 / Category), Detail(답변 대기 / 답변 완료 / 답변 지연), 질문 작성(Profile 질문하기 / Story 관련 질문), 재배정 Action 브라우저 확인
   - 실제 Question API / Mentor 답변 연동(Mentor Q&A Inbox) / 재배정 Domain 확정(OD-02) / Frontend 자동 Test: NOT_STARTED
+- Student Mentor Record List / Detail: IMPLEMENTED (Fixture UI, 2026-10-11, feat/student-mentor-record, 미커밋)
+  - Main "Record" Tab 목록(검색 / 학년 / 영역, URL 유지), Detail(검수 표시 · 기록 · 연결 활동 · 관련 콘텐츠), Home / Profile / Q&A → Record 브라우저 확인
+  - 실제 Record API / PII 검수 Backend / Admin Review / Activity Case Detail / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1378,7 +1381,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Q&A: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Q&A: IMPLEMENTED (Fixture 기반 UI, 2ebaf44)
 VERIFIED 아님: Question API / Mentor 답변 미연결, 재배정 Domain 미확정(OD-02), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1401,6 +1404,39 @@ student typecheck / lint / build: PASS, admin / mentor build: PASS
 scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
 Headless Chrome (CDP): Q&A Flow A~L, Home / Mentor List / Profile / Plan / Plan Apply / Routine / Story 회귀 확인
 1920 / 1280 / 768 / 390 / 320: 목록 · Detail · 질문 작성 가로 Overflow 없음
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-11 — Student Mentor Record (branch: feat/student-mentor-record)
+
+### Status
+
+```text
+Student Mentor Record List / Detail: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Record API / PII 검수 Backend 미연결, 검수 상태 미확정(OD-05), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/mentor/records?query=&grade=&area=`, `/mentor/records/:contentId` (Record 전용 Mockup 없음: Mentor Hub / Story Visual 기준)
+- Record 7개: Record A~F는 기준 Source(UI Renewal / Expansion 통합본 6-4) 문장 · 학년 · 영역 · Related 그대로 + 기존 Home Record(문장 가상), Canonical Mentor 조아라(23번째, Source 5-5: 국민대 시각디자인학과 · 학생부종합) 추가
+- Detail 순서: Mentor → 개인정보 제거 · 검수 완료 → 학년·학기 → 영역 → 과목·활동 → 기록 → 연결 활동 → 관련 콘텐츠 → Mentor 한마디 (복사 / 원본 / 내 기록 만들기 없음)
+- 관련 콘텐츠: Story / Plan / Routine / Record 연결, Case는 화면 준비 중 (가짜 Route 없음). Home / Profile / Q&A → Record 연결
+- Student Q&A 재배정: Student의 Mentor 선택 Select 제거 → "다른 Mentor에게 재배정 요청" Action (Q&A commit 2ebaf44에 포함)
+
+### Not Started
+
+- 실제 Record API, PII Detection / Admin Review, 원본 생활기록부, Activity Case Detail(다음 Branch), Record 저장
+
+### Verification
+
+```text
+student typecheck / lint / build: PASS, admin / mentor build: PASS
+scripts/verify.ps1 -Strict: PASS, git diff --check: PASS
+Headless Chrome (CDP): Record Flow A~M, Privacy 문자열 / 복사 · 다운로드 Control 없음 확인, Home / List / Profile / Plan / Plan Apply / Routine / Story / Q&A 회귀 확인
+1920 / 1280 / 768 / 390 / 320: Record 목록 · Detail 가로 Overflow 없음
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

@@ -24,6 +24,7 @@ import mentorWoman11 from '../../../../assets/mentor-woman/mentor-woman-11.png'
 import mentorWoman12 from '../../../../assets/mentor-woman/mentor-woman-12.png'
 import mentorWoman13 from '../../../../assets/mentor-woman/mentor-woman-13.png'
 import mentorWoman14 from '../../../../assets/mentor-woman/mentor-woman-14.png'
+import mentorWoman15 from '../../../../assets/mentor-woman/mentor-woman-15.png'
 import type { MentorContentSummary, MentorSummary } from '../model/types.ts'
 
 // Profile Image는 화면 확인용 Visual Mapping이다. (Mentor별로 서로 다른 사진, 성별을 Domain 값으로 두지 않는다)
@@ -273,6 +274,18 @@ export const fixtureMentors = {
     tags: ['정시', '물리', '과탐', '소프트웨어'],
     profileImageUrl: mentorMan07,
   },
+  // ---- Record 목록 (Record F) ----
+  joAra: {
+    mentorId: 'fixture-mentor-23',
+    name: '조아라',
+    university: '국민대',
+    major: '시각디자인학과',
+    admissionType: '학생부종합',
+    highSchoolContext: '일반고 · 디자인 진로 · 교내 행사/교외 디자인 활동',
+    representativeExperience: '학교 축제 안내지도 디자인과 교외 디자인 활동',
+    tags: ['학생부종합', '교내활동', '교외활동', '디자인'],
+    profileImageUrl: mentorWoman15,
+  },
 } satisfies Record<string, MentorSummary>
 
 export const fixtureMentorContent = {
@@ -320,6 +333,19 @@ export const fixtureMentorContent = {
   broadTopicStory: { contentId: 'fixture-content-story-08', kind: 'story', title: '탐구 주제를 너무 넓게 잡았던 실패' },
   undecidedCareerStory: { contentId: 'fixture-content-story-09', kind: 'story', title: '고2까지 진로를 확정하지 못했던 경험' },
   physicsStory: { contentId: 'fixture-content-story-10', kind: 'story', title: '물리를 끝까지 가져간 이유' },
+  // ---- Activity Case (Source 5-6 Mentor Activity Case Pool, Record A~F 연결 Case) ----
+  deliveryAdCase: { contentId: 'fixture-content-case-04', kind: 'case', title: '배달앱 광고의 언어적 설득 전략 분석' },
+  tourGuideCase: { contentId: 'fixture-content-case-07', kind: 'case', title: '우리 지역 관광지 영어 안내문 개선' },
+  aiInterviewCase: { contentId: 'fixture-content-case-15', kind: 'case', title: 'AI 면접의 공정성에 관한 윤리 논증문' },
+  lunchDataCase: { contentId: 'fixture-content-case-21', kind: 'case', title: '학교 급식 잔반 데이터 분석 프로젝트' },
+  festivalMapCase: { contentId: 'fixture-content-case-24', kind: 'case', title: '학교 축제 안내지도 디자인' },
+  // ---- Record 목록 (Source 6-4 Record A~F) ----
+  antibioticRecord: { contentId: 'fixture-content-record-02', kind: 'record', title: '생명과학Ⅰ · 세부능력 및 특기사항' },
+  lunchDataRecord: { contentId: 'fixture-content-record-03', kind: 'record', title: '정보 · 세부능력 및 특기사항' },
+  psychologyClubRecord: { contentId: 'fixture-content-record-04', kind: 'record', title: '심리탐구 동아리 · 동아리활동' },
+  readingClubRecord: { contentId: 'fixture-content-record-05', kind: 'record', title: '독서토론 동아리 · 동아리활동' },
+  tradeCareerRecord: { contentId: 'fixture-content-record-06', kind: 'record', title: '국제통상 · 진로활동' },
+  eventDesignRecord: { contentId: 'fixture-content-record-07', kind: 'record', title: '교내 행사 디자인 · 자율활동' },
 } satisfies Record<string, MentorContentSummary>
 
 /** Plan 한 줄 요약. Home / Profile / Plan 목록이 같은 문장을 쓴다. (Plan-00 Mockup 문구 기준) */
@@ -356,4 +382,15 @@ export const fixtureStorySummaries: Record<string, string> = {
   [fixtureMentorContent.physicsStory.contentId]: '어려웠던 역학 단원을 버티면서 과학탐구 선택을 지킨 이야기예요.',
   [fixtureMentorContent.careerRecordStory.contentId]: '교내 탐구대회 주제를 세특과 진로 활동으로 연결한 이야기예요.',
   [fixtureMentorContent.wrongNoteStory.contentId]: '과목별 오답노트를 주간 단위로 다시 보는 방법을 정리했어요.',
+}
+
+/** Record 한 줄 요약. Home / Profile이 같은 문장을 쓴다. (기록 문장 자체가 아니라 무엇을 볼 수 있는지) */
+export const fixtureRecordSummaries: Record<string, string> = {
+  [fixtureMentorContent.environmentRecord.contentId]: '환경 탐구 활동이 생명과학 진로 기록으로 이어진 흐름을 볼 수 있어요.',
+  [fixtureMentorContent.antibioticRecord.contentId]: '항생제 내성과 자연선택 탐구 포스터가 생명과학Ⅰ 세특으로 이어진 기록이에요.',
+  [fixtureMentorContent.lunchDataRecord.contentId]: '급식 잔반 데이터 분석 프로젝트가 정보 세특으로 이어진 기록이에요.',
+  [fixtureMentorContent.psychologyClubRecord.contentId]: 'AI 면접의 공정성 토론이 심리탐구 동아리 기록으로 이어진 과정이에요.',
+  [fixtureMentorContent.readingClubRecord.contentId]: '광고와 뉴스의 설득 방식 비교가 독서토론 동아리 기록으로 이어진 사례예요.',
+  [fixtureMentorContent.tradeCareerRecord.contentId]: '관광지 영어 안내문 개선이 국제통상 진로활동 기록으로 이어진 흐름이에요.',
+  [fixtureMentorContent.eventDesignRecord.contentId]: '학교 축제 안내지도 디자인이 교내 행사 기록으로 이어진 과정이에요.',
 }

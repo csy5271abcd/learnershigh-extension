@@ -5,6 +5,7 @@ import {
   mentorListPath,
   mentorPlanListPath,
   mentorQuestionListPath,
+  mentorRecordListPath,
   mentorRoutineListPath,
   mentorStoryListPath,
 } from './paths.ts'
@@ -21,6 +22,7 @@ interface MainTabNavigationState {
  * - Routine → Routine 목록
  * - Story → Story Feed
  * - Q&A → Q&A 목록
+ * - Record → Record 목록
  * - 그 외(아직 화면 없음) → Home의 ?tab= (Placeholder)
  * 이동한 화면에서는 선택 Tab에 Focus를 돌려줘 Keyboard 사용자가 이어서 Tab을 이동할 수 있게 한다.
  */
@@ -36,6 +38,7 @@ export function useMentorHubTabNavigation() {
     else if (tab === 'routine') navigate(mentorRoutineListPath, { state })
     else if (tab === 'story') navigate(mentorStoryListPath, { state })
     else if (tab === 'qna') navigate(mentorQuestionListPath, { state })
+    else if (tab === 'record') navigate(mentorRecordListPath, { state })
     else if (tab === 'recommend') navigate(mentorHubPath, { state })
     else navigate(`${mentorHubPath}?tab=${tab}`, { state })
   }

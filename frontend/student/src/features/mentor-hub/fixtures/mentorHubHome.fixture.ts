@@ -8,6 +8,7 @@ import {
   fixtureMentors as mentors,
   fixturePlanSummaries,
   fixtureRoutineSummaries,
+  fixtureRecordSummaries,
   fixtureStorySummaries,
 } from './mentors.fixture.ts'
 
@@ -92,7 +93,7 @@ export const mentorHubHomeFixture: MentorHubHome = {
     },
     {
       ...content.environmentRecord,
-      summary: '환경 탐구 활동이 생명과학 진로 기록으로 이어진 흐름을 볼 수 있어요.',
+      summary: fixtureRecordSummaries[content.environmentRecord.contentId],
       mentor: mentors.hanYerin,
     },
     {

@@ -165,7 +165,7 @@ const initialQuestions: MentorQuestion[] = [
       text: '교과서에서 배운 개념 하나로 시작해서, 학교 실험실에서 직접 확인할 수 있는 범위까지만 줄였어요. 주제가 작아질수록 결과를 설명하기 쉬웠어요.',
       hoursAgo: 96,
     },
-    relatedContent: [content.careerRecordStory, content.antibioticCase],
+    relatedContent: [content.careerRecordStory, content.antibioticRecord, content.antibioticCase],
     helpfulCount: 132,
   }),
   // ---- 내 질문 (pending / answered / overdue) ----

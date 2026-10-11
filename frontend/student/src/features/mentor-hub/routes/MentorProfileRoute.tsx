@@ -3,7 +3,8 @@ import { createMentorProfileFixtureLoader, readProfileFixtureScenario } from '..
 import { MentorProfilePage } from '../MentorProfilePage.tsx'
 import { parseProfileContentKind } from '../model/tabs.ts'
 import type { MentorProfileContentKind } from '../model/types.ts'
-import { mentorHubPath, mentorPlanPath, mentorQuestionComposerPath, mentorRoutinePath, mentorStoryPath } from './paths.ts'
+import { mentorHubPath, mentorQuestionComposerPath } from './paths.ts'
+import { mentorContentPath } from './useMentorContentLink.ts'
 
 // 선택 Content Tab은 URL(?content=)에 두어 Content Detail 왕복 후에도 유지한다.
 export function MentorProfileRoute() {
@@ -43,11 +44,10 @@ export function MentorProfileRoute() {
       onContentKindSelect={selectContentKind}
       onBack={goBack}
       onGoToHub={() => navigate(mentorHubPath)}
-      // Detail 화면이 있는 Content(Plan / Routine / Story)만 연결한다.
+      // Detail 화면이 있는 Content(Plan / Routine / Story / Record)만 연결한다. Case는 화면이 아직 없다.
       onContentSelect={(content) => {
-        if (content.kind === 'plan') navigate(mentorPlanPath(content.contentId))
-        if (content.kind === 'routine') navigate(mentorRoutinePath(content.contentId))
-        if (content.kind === 'story') navigate(mentorStoryPath(content.contentId))
+        const path = mentorContentPath(content)
+        if (path) navigate(path)
       }}
       onAskQuestion={(id) => navigate(mentorQuestionComposerPath({ mentorId: id }))}
     />

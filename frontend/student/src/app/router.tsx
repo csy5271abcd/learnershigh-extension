@@ -8,6 +8,8 @@ import { MentorProfileRoute } from '../features/mentor-hub/routes/MentorProfileR
 import { MentorQuestionComposerRoute } from '../features/mentor-hub/routes/MentorQuestionComposerRoute.tsx'
 import { MentorQuestionDetailRoute } from '../features/mentor-hub/routes/MentorQuestionDetailRoute.tsx'
 import { MentorQuestionListRoute } from '../features/mentor-hub/routes/MentorQuestionListRoute.tsx'
+import { MentorRecordDetailRoute } from '../features/mentor-hub/routes/MentorRecordDetailRoute.tsx'
+import { MentorRecordListRoute } from '../features/mentor-hub/routes/MentorRecordListRoute.tsx'
 import { MentorRoutineApplyRoute } from '../features/mentor-hub/routes/MentorRoutineApplyRoute.tsx'
 import { MentorRoutineDetailRoute } from '../features/mentor-hub/routes/MentorRoutineDetailRoute.tsx'
 import { MentorRoutineListRoute } from '../features/mentor-hub/routes/MentorRoutineListRoute.tsx'
@@ -24,6 +26,8 @@ import {
   mentorQuestionComposerRoutePattern,
   mentorQuestionListRoutePattern,
   mentorQuestionRoutePattern,
+  mentorRecordListRoutePattern,
+  mentorRecordRoutePattern,
   mentorRoutineApplyRoutePattern,
   mentorRoutineListRoutePattern,
   mentorRoutineRoutePattern,
@@ -60,6 +64,8 @@ export const studentRouter = createBrowserRouter([
       { path: mentorQuestionListRoutePattern, element: <MentorQuestionListRoute /> },
       { path: mentorQuestionComposerRoutePattern, element: <MentorQuestionComposerRoute /> },
       { path: mentorQuestionRoutePattern, element: <MentorQuestionDetailRoute /> },
+      { path: mentorRecordListRoutePattern, element: <MentorRecordListRoute /> },
+      { path: mentorRecordRoutePattern, element: <MentorRecordDetailRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
