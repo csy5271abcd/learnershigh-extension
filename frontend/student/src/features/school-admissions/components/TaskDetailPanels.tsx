@@ -253,6 +253,8 @@ export function TaskReferencesPanel({ detail }: { detail: StudentTaskDetailExtra
 
 interface TaskProcessPanelProps {
   data: StudentTaskDetail
+  /** 완료(8단계) Task: 자료 추가 / 삭제 없이 읽기만 */
+  readOnly?: boolean
   onAdd: (trigger: HTMLElement) => void
   onPreview: (evidence: TaskEvidence, trigger: HTMLElement) => void
   onDelete: (evidence: TaskEvidence, trigger: HTMLElement) => void
@@ -260,7 +262,7 @@ interface TaskProcessPanelProps {
 }
 
 // 과정 자료 = 이 Task의 Evidence Vault. School Evidence와 같은 Canonical Evidence를 읽는다.
-export function TaskProcessPanel({ data, onAdd, onPreview, onDelete, deleteErrorId }: TaskProcessPanelProps) {
+export function TaskProcessPanel({ data, readOnly = false, onAdd, onPreview, onDelete, deleteErrorId }: TaskProcessPanelProps) {
   const { task, evidence } = data
   if (!evidence.complete) {
     return (
@@ -292,15 +294,19 @@ export function TaskProcessPanel({ data, onAdd, onPreview, onDelete, deleteError
 
       <div className={styles.sectionHeader}>
         <p className={styles.sectionDescription}>계획 · 조사 · 초안 · 최종 · 발표 단계별로 자료를 모아요.</p>
-        <button
-          type="button"
-          id="task-evidence-add"
-          className={styles.addButton}
-          aria-haspopup="dialog"
-          onClick={(event) => onAdd(event.currentTarget)}
-        >
-          자료 추가
-        </button>
+        {readOnly ? (
+          <p className={styles.sectionDescription}>최종 제출을 마친 수행평가라 자료를 추가하거나 지울 수 없어요.</p>
+        ) : (
+          <button
+            type="button"
+            id="task-evidence-add"
+            className={styles.addButton}
+            aria-haspopup="dialog"
+            onClick={(event) => onAdd(event.currentTarget)}
+          >
+            자료 추가
+          </button>
+        )}
       </div>
       {condition && (
         <p className={styles.evidenceCondition} data-met={materials.length > 0 || undefined}>
@@ -309,9 +315,9 @@ export function TaskProcessPanel({ data, onAdd, onPreview, onDelete, deleteError
       )}
 
       {materials.length === 0 ? (
-        <EmptyNotice>자료 조사에 참고한 파일을 추가해보세요.</EmptyNotice>
+        <EmptyNotice>{readOnly ? '올린 과정 자료가 없어요.' : '자료 조사에 참고한 파일을 추가해보세요.'}</EmptyNotice>
       ) : (
-        <EvidenceTable items={materials} onPreview={onPreview} onDelete={onDelete} deleteErrorId={deleteErrorId} />
+        <EvidenceTable items={materials} onPreview={onPreview} onDelete={readOnly ? undefined : onDelete} deleteErrorId={deleteErrorId} />
       )}
     </div>
   )

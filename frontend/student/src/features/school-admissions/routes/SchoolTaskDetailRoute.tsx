@@ -9,6 +9,7 @@ import {
   readSchoolFeedbackFixtureScenario,
   readTeacherFeedbackFixture,
 } from '../fixtures/schoolFeedback.fixture.ts'
+import { createSchoolFinalFixtureService, readSchoolFinalFixtureScenario } from '../fixtures/schoolFinalArtifact.fixture.ts'
 import { markTaskStoreChanged } from '../fixtures/schoolTaskRepository.fixture.ts'
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import {
@@ -112,6 +113,10 @@ export function SchoolTaskDetailRoute() {
 
   const feedbackService = createSchoolFeedbackFixtureService(
     import.meta.env.DEV ? readSchoolFeedbackFixtureScenario(searchParams.toString()) : 'success',
+  )
+
+  const finalService = createSchoolFinalFixtureService(
+    import.meta.env.DEV ? readSchoolFinalFixtureScenario(searchParams.toString()) : 'success',
   )
 
   const versionService = createSchoolVersionFixtureService(
@@ -235,6 +240,14 @@ export function SchoolTaskDetailRoute() {
         setEvidenceRevision((value) => value + 1)
       }}
       feedbackVersionParam={searchParams.get(feedbackVersionParam)}
+      finalService={finalService}
+      onFinalChanged={() => {
+        // 최종 제출 / 공유 설정 / 다시 불러오기: 저장소를 갱신해 Loader가 새로 읽게 한다.
+        markTaskStoreChanged()
+        setTopicSubmitted(false)
+        setVersionSubmitted(false)
+        setEvidenceRevision((value) => value + 1)
+      }}
       // 지금 Version을 낼 수 있는 상태(초안 V1 / 필수 피드백을 모두 반영한 수정본)에서만 연다.
       renderVersionDialog={(data) =>
         versionOpen && canSubmitNextVersion(data) ? (

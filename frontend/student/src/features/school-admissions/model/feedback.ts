@@ -41,7 +41,8 @@ export function requiredFeedbackProgress(data: StudentTaskDetail): { reflected: 
 }
 
 /** 학생이 "반영함"을 바꿀 수 있는 피드백인지: 최근 Version에 대한 피드백만 (지난 Version은 읽기 전용) */
-export const isReflectEditable = (data: StudentTaskDetail, versionId: string) => latestVersion(data)?.versionId === versionId
+export const isReflectEditable = (data: StudentTaskDetail, versionId: string) =>
+  data.task.currentStage !== 8 && latestVersion(data)?.versionId === versionId
 
 /** 선생님 (재)검토 결과 최근 Version 다음에 수정본이 더 필요 없다고 했는지 (최종 제출 준비) */
 export function isFinalReady(data: StudentTaskDetail): boolean {
@@ -78,11 +79,16 @@ export function withFeedbackNowCard(data: StudentTaskDetail, card: TaskNowCard):
   const latest = latestVersion(data)
   if ((data.task.currentStage !== 6 && data.task.currentStage !== 7) || !latest) return card
   if (isFinalReady(data)) {
+    // 최종 제출 준비는 8단계가 아니다. 최종 제출을 실제로 마쳐야 8단계가 된다.
+    if (data.finalArtifact.status === 'ready') return card
     return {
       headline: '최종 제출을 준비해주세요',
-      description: `선생님이 ${latest.label}에서 더 고칠 곳 없이 최종 제출을 준비하라고 했어요.`,
+      description: `선생님이 ${latest.label}에서 더 고칠 곳 없이 최종 제출을 준비하라고 했어요. 최종 제출하면 ${latest.label}이 최종본이 되고 수행평가가 완료돼요.`,
       fact: `${latest.label} 선생님 검토 완료`,
-      primaryAction: { kind: 'unavailable', label: '최종 제출', reason: '최종 제출 화면은 준비 중이에요.' },
+      primaryAction:
+        data.task.turn === 'student'
+          ? { kind: 'submitFinal', label: '최종 제출' }
+          : { kind: 'unavailable', label: '최종 제출', reason: '지금은 최종 제출할 수 없어요.' },
       waitingActions: [{ kind: 'openTab', label: '피드백 다시 보기', tab: 'feedback', versionId: latest.versionId }],
     }
   }

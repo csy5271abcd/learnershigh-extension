@@ -9,6 +9,10 @@ export function restoreFocus(trigger: HTMLElement | null, fallbackId?: string) {
   }
   requestAnimationFrame(apply)
   setTimeout(() => {
-    if (!document.activeElement || document.activeElement === document.body) apply()
+    const active = document.activeElement
+    // 원래 버튼이 없으면(제출 후 화면이 바뀜) 닫히는 Dialog가 Focus를 다른 곳에 돌려줬더라도 fallback으로 옮긴다.
+    const lost = !active || active === document.body
+    const elsewhere = !trigger && fallbackId && active?.id !== fallbackId
+    if (lost || elsewhere) apply()
   }, 150)
 }

@@ -9,7 +9,8 @@
 export type TaskStageNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
 /** 지금 누가 움직여야 하는지. Stage와 별개다. */
-export type TaskTurn = 'student' | 'waiting'
+/** 지금 누구 차례인지 (Frontend 파생 값). done = 최종 제출을 마친 수행평가 (내 차례 / 기다리는 중으로 세지 않는다) */
+export type TaskTurn = 'student' | 'waiting' | 'done'
 
 /**
  * Student에게 보이는 주의 표시. Admin 운영 상태(domain.md §12-3)를 Stage와 분리해 받고,
@@ -156,6 +157,36 @@ export interface TaskFeedback {
   reviewDecisions: { versionId: string; needsAnotherRevision: boolean }[]
 }
 
+/** 학부모 공유 상태 (Contract). Student는 not_shared ↔ consented만 바꾼다. attached / shared는 Admin Report Flow가 바꾼다. */
+export type TaskParentShareStatus = 'not_shared' | 'consented' | 'attached' | 'shared'
+
+/**
+ * 최종 결과물 (GET /api/student/tasks/{taskId}/final-artifact). Version과 다른 Entity다.
+ * 최종 제출 때 최종본으로 정해진 Version의 파일을 참조한다. (새 파일을 따로 올리지 않는다)
+ */
+export interface TaskFinalArtifact {
+  artifactId: string
+  taskId: string
+  /** 파일 형식 (예: PDF, DOCX) */
+  type: string
+  fileRef: string
+  parentShareStatus: TaskParentShareStatus
+  /** Frontend View Model: 최종본이 된 Version */
+  sourceVersionId: string
+  sourceVersionLabel: string
+  fileName: string
+  /** ISO 8601 */
+  createdAt: string
+  /** 이번 Session에 학생이 제출한 원본 파일 (미리보기용) */
+  file?: File
+}
+
+/**
+ * 한 Task의 최종 결과물.
+ * none: 아직 최종 제출 전(또는 정보 없음). error: 최종 결과물만 불러오지 못했다. (Task 전체 오류와 구분)
+ */
+export type TaskFinalArtifactState = { status: 'none' } | { status: 'ready'; data: TaskFinalArtifact } | { status: 'error' }
+
 /**
  * 한 Task의 피드백 (GET /api/student/tasks/{taskId}/feedback).
  * not-prepared: 이 Task의 피드백 정보가 Fixture에 없다. error: 피드백만 불러오지 못했다. (Task 전체 오류와 구분)
@@ -249,6 +280,8 @@ export type TaskDetailAction =
   | { kind: 'addEvidence'; label: string }
   | { kind: 'submitVersion'; label: string }
   | { kind: 'retryAiAnalysis'; label: string; versionId: string }
+  | { kind: 'submitFinal'; label: string }
+  | { kind: 'previewFinal'; label: string }
   | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case'; versionId?: string }
   | { kind: 'unavailable'; label: string; reason: string }
 
@@ -298,6 +331,10 @@ export interface StudentTaskDetail {
   versions: TaskVersionList
   /** 피드백 Tab과 지금 할 일 / Tasks 목록이 같은 Canonical Feedback을 읽는다. */
   feedback: TaskFeedbackState
+  /** 최종 결과물 (최종 제출 후) */
+  finalArtifact: TaskFinalArtifactState
+  /** Archive 보관 대상인지 (Archive Projection에서 계산, 별도 Archive 저장 없음) */
+  inArchive: boolean
   /** Detail 자료. null이면 이 Task의 상세 자료가 아직 준비되지 않았다. (목록 정보만 있음) */
   detail: StudentTaskDetailExtra | null
   snapshotDate: string

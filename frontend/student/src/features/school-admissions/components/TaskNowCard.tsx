@@ -47,13 +47,15 @@ interface TaskNowCardProps {
 // 기다리는 상태(선생님 검토 / AI 분석 / Review 지연)는 움직이는 표시 없이 Text로만 보여준다.
 export function TaskNowCard({ task, card, onAction, notice, busyLabel }: TaskNowCardProps) {
   const waiting = task.turn === 'waiting'
-  const attention = task.attentionFlags.map((flag) => studentAttentionMessage[flag])
+  const done = task.turn === 'done'
+  // 완료(최종 제출)한 수행평가에는 "남은 단계를 진행해 주세요" 같은 운영 안내를 붙이지 않는다.
+  const attention = task.turn === 'done' ? [] : task.attentionFlags.map((flag) => studentAttentionMessage[flag])
 
   return (
     <section className={styles.card} aria-labelledby="task-now-heading" data-turn={task.turn}>
       <p className={styles.eyebrow}>
-        {!waiting && <span className={styles.turnDot} aria-hidden="true" />}
-        {waiting ? `지금은 ${taskTurnText(task)}` : '지금 할 일'}
+        {!waiting && !done && <span className={styles.turnDot} aria-hidden="true" />}
+        {done ? '완료' : waiting ? `지금은 ${taskTurnText(task)}` : '지금 할 일'}
         <span className={styles.stage}>
           <span className={styles.stageSeparator} aria-hidden="true">
             ·{' '}
@@ -105,7 +107,8 @@ interface TaskCompactStatusProps {
 // Overview 외 6개 Tab 위의 한 줄 상태: 현재 단계 · 상태 · 다음 할 일 (큰 지금 할 일 Card를 반복하지 않는다)
 // 운영 상태가 있으면 학생용 문장(예: 검토가 조금 지연되고 있어요.)을 Text로 덧붙인다.
 export function TaskCompactStatus({ task }: TaskCompactStatusProps) {
-  const attention = task.attentionFlags.map((flag) => studentAttentionMessage[flag])
+  // 완료(최종 제출)한 수행평가에는 "남은 단계를 진행해 주세요" 같은 운영 안내를 붙이지 않는다.
+  const attention = task.turn === 'done' ? [] : task.attentionFlags.map((flag) => studentAttentionMessage[flag])
   return (
     <p className={styles.compact}>
       <span className="lh-visually-hidden">현재 상태: </span>

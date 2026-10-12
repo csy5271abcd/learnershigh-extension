@@ -17,6 +17,7 @@ export const TASK_STAGE_COUNT = 8
 export const taskTurnLabel: Record<TaskTurn, string> = {
   student: '내 차례',
   waiting: '기다리는 중',
+  done: '완료',
 }
 
 /** 주의 표시 이름. Student에게는 운영시간 숫자(48h 등)를 보이지 않는다. (Tasks-00 Mockup Badge 문구 기준) */

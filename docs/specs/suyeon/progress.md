@@ -756,8 +756,9 @@ Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-scho
 Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
 Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
 Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
-Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision, 미커밋)
-Final Submission / Final Artifact 이후 Flow: NOT_STARTED
+Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision 22f81c0)
+Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission, 미커밋)
+School Archive Full Page (Archive-00): NOT_STARTED
 ```
 
 핵심 Flow:
@@ -846,8 +847,10 @@ IN_PROGRESS
   - 실제 Version API / AI Analysis / Shared Feedback Queue · Admin Review / File Storage / Frontend 자동 Test: NOT_STARTED
 - Student Feedback (Task Detail 피드백 Tab, 선생님 Primary · AI Secondary · 반영함): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
   - 실제 GET …/feedback / 반영 저장 Endpoint / Admin Feedback Review · Queue / Frontend 자동 Test: NOT_STARTED
-- Student Revision (지금 할 일 수정본 제출 · 7단계 Revision Loop · 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision, 미커밋)
-  - 실제 Version / Revision History API / Diff Schema / Admin Re-review / Final Submission / Frontend 자동 Test: NOT_STARTED
+- Student Revision (지금 할 일 수정본 제출 · 7단계 Revision Loop · 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision 22f81c0)
+  - 실제 Version / Revision History API / Diff Schema / Admin Re-review / Frontend 자동 Test: NOT_STARTED
+- Student Final Submission (최종 제출 확인 · 8단계 · 최종 결과물 · 학부모 공유 동의 · Archive Projection): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission, 미커밋)
+  - 실제 최종 제출 API(Contract 없음) / GET · PUT final-artifact / Archive API · Full Page / Admin Report 첨부 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1794,7 +1797,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Revision (수정본 V2 / V3 · 7단계 Revision Loop · 수정 기록): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Revision (수정본 V2 / V3 · 7단계 Revision Loop · 수정 기록): IMPLEMENTED (Fixture 기반 UI, 22f81c0)
 VERIFIED 아님: Version / Revision History API 미연결, Diff Schema 미확정, Admin Re-review / Shared Feedback Queue 미연결, 실제 AI 분석 / File Storage 없음, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1817,6 +1820,47 @@ VERIFIED 아님: Version / Revision History API 미연결, Diff Schema 미확정
 - Stage 7 내부 세부 상태(AI 사전 점검 중 / 재검토 대기 / 수정 준비 / 최종 제출 준비)는 stageStatus Text로만 표현 (Enum 미확정)
 - Diff Schema 미확정 (Speech만 Fixture), V4 이상 허용 여부 규칙 없음 (Fixture는 V3 뒤 최종 제출 준비로 둠)
 - reflected / required 필드 · 반영 저장 Endpoint 없음 (Feedback Branch와 같음)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Final Submission (branch: feat/student-school-final-submission)
+
+### Status
+
+```text
+Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+School Archive Full Page: NOT_STARTED (다음 Branch, Archive-00)
+VERIFIED 아님: 최종 제출 Endpoint 없음(Contract Gap), GET / PUT final-artifact 미연결, Archive 저장 방식 미확정(API-OD-05), Admin Report 첨부 미연결, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Final 관련 Mockup 없음 (School&Admissions 18장: Final / Submit / Artifact 없음, Archive-00은 다음 Branch 목록 화면) → TasksDetail-01 지금 할 일 + 기존 확인 Dialog 체계
+- 최종 제출 준비(선생님 재검토 결과 = 추가 수정 없음)일 때만 "최종 제출" 활성. 준비 ≠ 8단계
+- 최종 제출 확인 Dialog: 최종본(최근 Version · 파일), 완료 후 수정본 불가 / 기록 유지 안내, 취소 Focus. 새 파일 업로드 없음 (Version picker 없음)
+- 실제 최종 제출 성공 때만 7(또는 6)단계 → 8단계 "최종 제출 완료", 차례 = 완료(done, 내 차례 / 기다리는 중 Filter에 들지 않음)
+- TaskFinalArtifact(artifactId · taskId · type · fileRef · parentShareStatus + Frontend sourceVersionId / fileName / createdAt): 최종본 Version의 fileRef를 참조하는 별도 Entity, Task당 하나 (중복 제출에도 하나)
+- 완료 Overview: "수행평가를 완료했어요" · 최종 결과물 · Archive 보관 대상 안내 · 최종 결과물 보기(미리보기, Download 없음). 수정본 / 다시 시도 / 반영 표시 / 자료 추가 · 삭제는 닫음, Version · 피드백 · 수정 기록 · 과정 자료는 그대로
+- 학부모 공유 동의 Switch(최종 결과물만): not_shared ↔ consented. 동의 = Parent Report 첨부 후보일 뿐 바로 전송 / 첨부 없음. 초안 · 수정 기록 · AI 사전 점검 · 선생님 피드백은 공유 대상 아님. attached / shared는 Student가 바꾸지 않음
+- Archive Projection(source = task): 완료(8단계) Task에서 계산 (최종 결과물 유무와 무관, TaskFinalArtifact는 선택). 별도 Archive 기록 없음, sourceId 하나당 하나
+- 최종 결과물이 없는 완료 Task(Seed 영어 독서 에세이): Archive 대상, Overview에 "최종 결과물 파일 정보가 없어요" (미리보기 / 공유 없음, 가짜 결과물 없음)
+- 실패: 최종 제출 실패 → 7단계 · 결과물 없음 · 창 유지 + 다시 시도, 공유 저장 실패 → 원래 상태 + 이유, 최종 결과물만 불러오지 못함 → 그 영역 오류 + 다시 시도
+
+### Open / Contract Gap
+
+- 최종 제출 Command Endpoint 없음 (Feature 내부 finalize Fixture)
+- Final Artifact 생성 주체 / 시점, sourceVersionId 필드 없음
+- 완료 Task의 피드백 반영 표시 / 과정 자료 추가 · 삭제 허용 여부 규칙 없음 → Frontend 임시 정책으로 읽기 전용 (Domain Rule 아님)
+- Archive Persistence(API-OD-05) 미확정 → Projection으로 계산
+- attached / shared 이후 Student 동의 해제 정책 미정 → Switch 비활성
+- 6 → 8: 선생님 검토 결과가 명시적으로 "추가 수정 없음"일 때만 최종 제출 준비 → 실제 최종 제출로 8단계 (V1만 있다는 이유로 자동 전이 없음). Stage 7 = 수정이 필요할 때의 반복 구간이라는 해석은 Frontend Fixture 정책이며 Domain Rule로 확정하지 않음
 
 ### Verification
 

@@ -84,20 +84,23 @@ export function SchoolEvidencePage({
                       </button>
                       <span className={styles.groupCount}>{items.length}개</span>
                     </h3>
-                    <button
-                      type="button"
-                      className={styles.addLink}
-                      aria-haspopup="dialog"
-                      aria-label={`${task.title}에 자료 추가`}
-                      onClick={(event) => evidence.openAdd(task, event.currentTarget)}
-                    >
-                      자료 추가
-                    </button>
+                    {/* 최종 제출을 마친 수행평가는 자료를 읽기만 한다. */}
+                    {task.currentStage !== 8 && (
+                      <button
+                        type="button"
+                        className={styles.addLink}
+                        aria-haspopup="dialog"
+                        aria-label={`${task.title}에 자료 추가`}
+                        onClick={(event) => evidence.openAdd(task, event.currentTarget)}
+                      >
+                        자료 추가
+                      </button>
+                    )}
                   </header>
                   <EvidenceTable
                     items={items}
                     onPreview={evidence.openPreview}
-                    onDelete={evidence.openDelete}
+                    onDelete={task.currentStage === 8 ? undefined : evidence.openDelete}
                     deleteErrorId={evidence.deleteErrorId}
                   />
                 </section>

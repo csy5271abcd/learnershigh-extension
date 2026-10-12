@@ -14,6 +14,7 @@ import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
 import { taskEvidence } from './schoolEvidence.fixture.ts'
 import { taskFeedback } from './schoolFeedback.fixture.ts'
+import { archiveTaskProjection, taskFinalArtifact } from './schoolFinalArtifact.fixture.ts'
 import { taskVersions } from './schoolVersion.fixture.ts'
 import { findCreatedTask, findSeedOverride, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
@@ -154,10 +155,11 @@ export function seedTaskDetail(taskId: string): StudentTaskDetailExtra | null {
 // ---------- Scenario (개발 중 ?fixture= 로 확인) ----------
 
 /** feedback-error-once: Task는 불러오고 피드백만 한 번 실패 (피드백 Tab에서 다시 시도) */
-export type SchoolTaskDetailFixtureScenario = 'success' | 'loading' | 'error' | 'feedback-error-once'
-const scenarios: SchoolTaskDetailFixtureScenario[] = ['success', 'loading', 'error', 'feedback-error-once']
-/** 피드백 실패를 처음 본 저장소 revision. 다시 시도(저장소 갱신) 뒤에는 성공한다. (StrictMode 중복 호출에도 같은 결과) */
+export type SchoolTaskDetailFixtureScenario = 'success' | 'loading' | 'error' | 'feedback-error-once' | 'final-artifact-error-once'
+const scenarios: SchoolTaskDetailFixtureScenario[] = ['success', 'loading', 'error', 'feedback-error-once', 'final-artifact-error-once']
+/** 피드백 / 최종 결과물 실패를 처음 본 저장소 revision. 다시 시도(저장소 갱신) 뒤에는 성공한다. (StrictMode 중복 호출에도 같은 결과) */
 let feedbackErrorRevision: number | undefined
+let finalErrorRevision: number | undefined
 
 export function readSchoolTaskDetailFixtureScenario(search: string): SchoolTaskDetailFixtureScenario {
   const value = new URLSearchParams(search).get('fixture')
@@ -168,6 +170,12 @@ function feedbackFailsNow(scenario: SchoolTaskDetailFixtureScenario): boolean {
   if (scenario !== 'feedback-error-once') return false
   feedbackErrorRevision ??= taskStoreRevision()
   return feedbackErrorRevision === taskStoreRevision()
+}
+
+function finalArtifactFailsNow(scenario: SchoolTaskDetailFixtureScenario): boolean {
+  if (scenario !== 'final-artifact-error-once') return false
+  finalErrorRevision ??= taskStoreRevision()
+  return finalErrorRevision === taskStoreRevision()
 }
 
 export type SchoolTaskDetailLoader = (taskId: string) => Promise<StudentTaskDetail | null>
@@ -189,7 +197,8 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
         case 'error':
           return Promise.reject(new Error('School task detail fixture error'))
         case 'success':
-        case 'feedback-error-once': {
+        case 'feedback-error-once':
+        case 'final-artifact-error-once': {
           // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
           const created = findCreatedTask(taskId)
           const override = findSeedOverride(taskId)
@@ -203,6 +212,8 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
             evidence: taskEvidence(taskId),
             versions: taskVersions(taskId),
             feedback: feedbackFailsNow(scenario) ? { status: 'error' } : taskFeedback(taskId),
+            finalArtifact: finalArtifactFailsNow(scenario) ? { status: 'error' } : taskFinalArtifact(taskId),
+            inArchive: archiveTaskProjection().some((item) => item.sourceId === taskId),
             snapshotDate: SCHOOL_SNAPSHOT_DATE,
           })
         }

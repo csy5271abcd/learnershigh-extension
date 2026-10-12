@@ -14,6 +14,10 @@ import { TaskCompactStatus, TaskNowCard } from './components/TaskNowCard.tsx'
 import { TaskStageStepper } from './components/TaskStageStepper.tsx'
 import { useEvidenceManager } from './components/useEvidenceManager.tsx'
 import { useVersionManager } from './components/useVersionManager.tsx'
+import { FinalArtifactSection } from './components/FinalArtifactParts.tsx'
+import { useFinalManager } from './components/useFinalManager.tsx'
+import type { SchoolFinalService } from './fixtures/schoolFinalArtifact.fixture.ts'
+import { isTaskCompleted, withFinalNowCard } from './model/finalArtifact.ts'
 import type { SchoolEvidenceService } from './fixtures/schoolEvidence.fixture.ts'
 import type { SchoolFeedbackService } from './fixtures/schoolFeedback.fixture.ts'
 import type { SchoolVersionService } from './fixtures/schoolVersion.fixture.ts'
@@ -73,6 +77,10 @@ interface SchoolTaskDetailPageProps {
   onFeedbackChanged: () => void
   /** 피드백 Tab에서 이동할 Version (?versionId=) */
   feedbackVersionParam: string | null
+  /** 최종 제출 / 학부모 공유 Boundary. 현재는 Fixture (최종 제출 Endpoint는 Contract에 없음) */
+  finalService: SchoolFinalService
+  /** 최종 제출 / 공유 설정이 바뀌거나 다시 불러올 때 호출 측이 Task를 다시 불러온다. */
+  onFinalChanged: () => void
   /** Version 제출 Modal (Task 값을 불러온 뒤 호출 측이 그린다) */
   renderVersionDialog?: (data: StudentTaskDetail) => ReactNode
   studentGrade: string
@@ -104,6 +112,8 @@ export function SchoolTaskDetailPage({
   feedbackService,
   onFeedbackChanged,
   feedbackVersionParam,
+  finalService,
+  onFinalChanged,
   studentGrade,
   onSectionSelect,
 }: SchoolTaskDetailPageProps) {
@@ -180,6 +190,8 @@ export function SchoolTaskDetailPage({
             feedbackService={feedbackService}
             onFeedbackChanged={onFeedbackChanged}
             feedbackVersionParam={feedbackVersionParam}
+            finalService={finalService}
+            onFinalChanged={onFinalChanged}
           />
           {renderTopicDialog?.(state.data)}
           {renderVersionDialog?.(state.data)}
@@ -208,6 +220,8 @@ interface TaskDetailProps {
   feedbackService: SchoolFeedbackService
   onFeedbackChanged: () => void
   feedbackVersionParam: string | null
+  finalService: SchoolFinalService
+  onFinalChanged: () => void
 }
 
 function TaskDetail({
@@ -229,6 +243,8 @@ function TaskDetail({
   feedbackService,
   onFeedbackChanged,
   feedbackVersionParam,
+  finalService,
+  onFinalChanged,
 }: TaskDetailProps) {
   const { task, detail, snapshotDate } = data
   const evidence = useEvidenceManager({ service: evidenceService, onChanged: onEvidenceChanged, focusFallbackId: 'task-evidence-add' })
@@ -236,9 +252,10 @@ function TaskDetail({
   const latest = latestVersion(data)
   const latestNotice = latest && version.retryNotice?.versionId === latest.versionId ? version.retryNotice : undefined
   const reflect = useFeedbackReflect({ service: feedbackService, onChanged: onFeedbackChanged })
-  const versionCard = withFeedbackNowCard(
+  const final = useFinalManager({ service: finalService, onChanged: onFinalChanged })
+  const versionCard = withFinalNowCard(
     data,
-    withVersionNowCard(data, withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data))),
+    withFeedbackNowCard(data, withVersionNowCard(data, withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data)))),
   )
   // 다시 시도가 막힌 Version(다시 시도 불가 / 찾을 수 없음 / 이미 분석 중)은 다시 시도 버튼을 두지 않는다.
   const nowCard =
@@ -258,7 +275,11 @@ function TaskDetail({
     else if (action.kind === 'submitTopic') onOpenTopic()
     else if (action.kind === 'addEvidence') evidence.openAdd(task, document.activeElement as HTMLElement | null)
     else if (action.kind === 'submitVersion') onOpenVersionSubmit()
-    else if (action.kind === 'retryAiAnalysis') {
+    else if (action.kind === 'submitFinal') {
+      if (latest) final.openConfirm(task.taskId, latest, document.activeElement as HTMLElement | null)
+    } else if (action.kind === 'previewFinal') {
+      if (data.finalArtifact.status === 'ready') final.openPreview(data.finalArtifact.data, document.activeElement as HTMLElement | null)
+    } else if (action.kind === 'retryAiAnalysis') {
       const target = data.versions.items.find((item) => item.versionId === action.versionId)
       if (target) version.retry(target, 'task-now-heading')
     }
@@ -328,12 +349,27 @@ function TaskDetail({
       <div className={styles.tabsArea}>
         <TaskDetailTabs items={tabs} selected={tab} onSelect={onTabChange} panelId={panelId} />
         <div role="tabpanel" id={panelId} aria-labelledby={taskDetailTabElementId(tab)} className={styles.panel}>
-          {tab === 'overview' && <TaskOverviewPanel detail={detail} />}
+          {tab === 'overview' && (
+            <>
+              <FinalArtifactSection
+                state={data.finalArtifact}
+                completed={isTaskCompleted(task)}
+                onPreview={final.openPreview}
+                onShareChange={(consented) => final.changeShare(task.taskId, consented)}
+                sharePending={final.sharePending}
+                shareFailed={final.shareFailed}
+                onReload={onFinalChanged}
+              />
+              <TaskOverviewPanel detail={detail} />
+            </>
+          )}
           {tab === 'evaluation' && <TaskEvaluationPanel data={data} />}
           {tab === 'references' && <TaskReferencesPanel detail={detail} />}
           {tab === 'process' && (
             <TaskProcessPanel
               data={data}
+              // 최종 제출을 마친 수행평가는 과정 자료를 읽기만 한다.
+              readOnly={isTaskCompleted(task)}
               onAdd={(trigger) => evidence.openAdd(task, trigger)}
               onPreview={evidence.openPreview}
               onDelete={evidence.openDelete}
@@ -366,6 +402,7 @@ function TaskDetail({
       </div>
       {evidence.dialogs}
       {version.dialogs}
+      {final.dialogs}
     </article>
   )
 }

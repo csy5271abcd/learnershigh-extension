@@ -7,7 +7,8 @@ import styles from './EvidenceParts.module.css'
 interface EvidenceTableProps {
   items: TaskEvidence[]
   onPreview: (evidence: TaskEvidence, trigger: HTMLElement) => void
-  onDelete: (evidence: TaskEvidence, trigger: HTMLElement) => void
+  /** 없으면 삭제 버튼을 두지 않는다. (완료된 수행평가) */
+  onDelete?: (evidence: TaskEvidence, trigger: HTMLElement) => void
   /** 삭제에 실패한 자료 id (그 줄 아래에 이유를 보여준다) */
   deleteErrorId?: string
 }
@@ -69,18 +70,20 @@ export function EvidenceTable({ items, onPreview, onDelete, deleteErrorId }: Evi
                 <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
               </svg>
             </button>
-            <button
-              type="button"
-              className={styles.iconButton}
-              aria-label={`${item.fileName} 삭제`}
-              aria-haspopup="dialog"
-              onClick={(event) => onDelete(item, event.currentTarget)}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                <path d="M9 5h11v14H9l-6-7 6-7Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-                <path d="m12 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-              </svg>
-            </button>
+            {onDelete && (
+              <button
+                type="button"
+                className={styles.iconButton}
+                aria-label={`${item.fileName} 삭제`}
+                aria-haspopup="dialog"
+                onClick={(event) => onDelete(item, event.currentTarget)}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                  <path d="M9 5h11v14H9l-6-7 6-7Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+                  <path d="m12 9.5 5 5m0-5-5 5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
           </span>
         </div>
       ))}
