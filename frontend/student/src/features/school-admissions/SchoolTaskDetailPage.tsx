@@ -47,6 +47,8 @@ interface SchoolTaskDetailPageProps {
   /** versionId: 피드백 Tab에서 특정 Version 피드백으로 바로 이동 */
   onTabChange: (tab: TaskDetailTabId, versionId?: string) => void
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
+  /** 수정 기록의 "피드백 보기": History에 남겨 Back으로 같은 비교(Pair) / Scroll로 돌아온다. */
+  onRevisionFeedbackOpen: (versionId: string) => void
   onBackToTasks: () => void
   onMentorCaseOpen: (contentId: string) => void
   /** 지금 할 일의 "주제 선정하기 / 주제 수정하기" */
@@ -87,6 +89,7 @@ export function SchoolTaskDetailPage({
   toVersionParam,
   onTabChange,
   onCompareVersions,
+  onRevisionFeedbackOpen,
   onBackToTasks,
   onMentorCaseOpen,
   onOpenTopic,
@@ -165,6 +168,7 @@ export function SchoolTaskDetailPage({
             toVersionParam={toVersionParam}
             onTabChange={onTabChange}
             onCompareVersions={onCompareVersions}
+            onRevisionFeedbackOpen={onRevisionFeedbackOpen}
             onMentorCaseOpen={onMentorCaseOpen}
             onOpenTopic={onOpenTopic}
             focusNowCard={focusNowCard}
@@ -192,6 +196,7 @@ interface TaskDetailProps {
   toVersionParam: string | null
   onTabChange: (tab: TaskDetailTabId, versionId?: string) => void
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
+  onRevisionFeedbackOpen: (versionId: string) => void
   onMentorCaseOpen: (contentId: string) => void
   onOpenTopic: () => void
   focusNowCard: boolean
@@ -212,6 +217,7 @@ function TaskDetail({
   toVersionParam,
   onTabChange,
   onCompareVersions,
+  onRevisionFeedbackOpen,
   onMentorCaseOpen,
   onOpenTopic,
   focusNowCard,
@@ -352,7 +358,7 @@ function TaskDetail({
               fromParam={fromVersionParam}
               toParam={toVersionParam}
               onVersionPairChange={onCompareVersions}
-              onFeedbackOpen={(versionId) => onTabChange('feedback', versionId)}
+              onFeedbackOpen={onRevisionFeedbackOpen}
               onVersionPreview={version.openPreview}
             />
           )}

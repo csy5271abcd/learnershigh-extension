@@ -1,5 +1,5 @@
 import type { StudentTaskDetail, TaskNowCard, TaskTeacherFeedback } from './types.ts'
-import { latestVersion, versionSubmitLabel } from './version.ts'
+import { canSubmitFirstVersion, latestVersion, versionSubmitLabel } from './version.ts'
 
 // ---------- 피드백 표시 규칙 ----------
 // 선생님 피드백 = Primary, AI 사전 점검 = Secondary(참고용). Student는 피드백 내용을 고치거나 지울 수 없고 "반영함"만 표시한다.
@@ -43,15 +43,51 @@ export function requiredFeedbackProgress(data: StudentTaskDetail): { reflected: 
 /** 학생이 "반영함"을 바꿀 수 있는 피드백인지: 최근 Version에 대한 피드백만 (지난 Version은 읽기 전용) */
 export const isReflectEditable = (data: StudentTaskDetail, versionId: string) => latestVersion(data)?.versionId === versionId
 
+/** 선생님 (재)검토 결과 최근 Version 다음에 수정본이 더 필요 없다고 했는지 (최종 제출 준비) */
+export function isFinalReady(data: StudentTaskDetail): boolean {
+  const latest = latestVersion(data)
+  if (!latest || data.feedback.status !== 'ready') return false
+  return data.feedback.data.reviewDecisions.some((decision) => decision.versionId === latest.versionId && !decision.needsAnotherRevision)
+}
+
 /**
- * 지금 할 일: 6단계에서 최근 Version의 선생님 피드백이 전달됐을 때.
+ * 다음 Version을 제출할 수 있는지.
+ * - 초안 V1: 4단계 학생 차례
+ * - 수정본 V2 / V3: 최근 Version의 AI 사전 점검이 끝나고 선생님 피드백이 전달됐으며, 필수 피드백을 모두 반영했고,
+ *   선생님이 최종 제출 준비라고 하지 않았을 때 (6단계 → 제출하면 7단계, 7단계 안에서는 반복)
+ * 반영 체크만으로 Stage를 올리지 않는다. 실제로 제출할 때 7단계가 된다.
+ */
+export function canSubmitNextVersion(data: StudentTaskDetail): boolean {
+  if (canSubmitFirstVersion(data)) return true
+  const { task, versions } = data
+  const latest = latestVersion(data)
+  if (!versions.complete || !latest || task.turn !== 'student' || task.attentionFlags.includes('onHold')) return false
+  if (task.currentStage !== 6 && task.currentStage !== 7) return false
+  if (latest.aiAnalysisStatus !== 'success' || isFinalReady(data)) return false
+  const progress = requiredFeedbackProgress(data)
+  return Boolean(progress && progress.reflected === progress.total)
+}
+
+/**
+ * 지금 할 일: 6 / 7단계에서 최근 Version의 선생님 피드백이 전달됐을 때.
+ * - 최종 제출 준비: 최종 제출 Boundary (화면 준비 중, Stage 8은 실제 최종 제출 때)
  * - 필수 피드백이 남아 있으면: 피드백 확인 · 반영 (수정본 제출은 아직 비활성)
- * - 모두 반영했으면: 수정본 준비. 수정본 제출 화면은 다음 단계(Revision)에서 연결한다. (가짜 제출 없음)
+ * - 모두 반영했으면: 수정본 Vn 제출 (실제 제출 → 7단계)
  */
 export function withFeedbackNowCard(data: StudentTaskDetail, card: TaskNowCard): TaskNowCard {
   const latest = latestVersion(data)
+  if ((data.task.currentStage !== 6 && data.task.currentStage !== 7) || !latest) return card
+  if (isFinalReady(data)) {
+    return {
+      headline: '최종 제출을 준비해주세요',
+      description: `선생님이 ${latest.label}에서 더 고칠 곳 없이 최종 제출을 준비하라고 했어요.`,
+      fact: `${latest.label} 선생님 검토 완료`,
+      primaryAction: { kind: 'unavailable', label: '최종 제출', reason: '최종 제출 화면은 준비 중이에요.' },
+      waitingActions: [{ kind: 'openTab', label: '피드백 다시 보기', tab: 'feedback', versionId: latest.versionId }],
+    }
+  }
   const progress = requiredFeedbackProgress(data)
-  if (data.task.currentStage !== 6 || !latest || !progress) return card
+  if (!progress) return card
   const submitLabel = versionSubmitLabel(latest.versionNumber + 1)
   const fact = `${latest.label} 필수 피드백 ${progress.reflected}/${progress.total} 반영`
   if (progress.reflected < progress.total) {
@@ -65,9 +101,14 @@ export function withFeedbackNowCard(data: StudentTaskDetail, card: TaskNowCard):
   }
   return {
     headline: `수정본 V${latest.versionNumber + 1}를 준비해주세요`,
-    description: '필수 피드백을 모두 반영했어요. 고친 파일을 다음 버전으로 제출해요.',
+    description:
+      data.task.currentStage === 6
+        ? '필수 피드백을 모두 반영했어요. 고친 파일을 다음 버전으로 제출하면 7단계 Revision으로 넘어가요.'
+        : '필수 피드백을 모두 반영했어요. 고친 파일을 다음 버전으로 제출해요.',
     fact,
-    primaryAction: { kind: 'unavailable', label: submitLabel, reason: '수정본 제출 화면은 준비 중이에요.' },
+    primaryAction: canSubmitNextVersion(data)
+      ? { kind: 'submitVersion', label: submitLabel }
+      : { kind: 'unavailable', label: submitLabel, reason: '지금은 수정본을 제출할 수 없어요.' },
     waitingActions: [{ kind: 'openTab', label: '피드백 다시 보기', tab: 'feedback', versionId: latest.versionId }],
   }
 }

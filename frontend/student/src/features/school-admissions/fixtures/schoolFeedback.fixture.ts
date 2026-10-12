@@ -55,13 +55,17 @@ const seedFeedback: Record<string, TaskFeedback> = {
         items: [{ itemId: 'time', summary: '분량이 4분 20초예요. 목표 시간보다 길어요.', reflected: true }],
       },
     ],
+    // V1 검토는 수정본 V2를 요구했다. (TasksDetail-05 / 07)
+    reviewDecisions: [{ versionId: 'speech-v1', needsAnotherRevision: true }],
   },
   // 4단계(초안 V1 미제출): 제출한 Version이 없으니 받은 피드백도 실제로 없다.
-  [antibioticTaskId]: { teacher: [], ai: [] },
+  [antibioticTaskId]: { teacher: [], ai: [], reviewDecisions: [] },
 }
 
 /** 이번 Session에 전달된 선생님 피드백 (개발용 재현). 전달 묶음(Version) 단위로 쌓는다. */
 const sessionTeacher = new Map<string, TaskTeacherFeedback[][]>()
+/** 이번 Session에 전달된 (재)검토 결과: versionId → 수정본이 더 필요한지 */
+const sessionDecisions = new Map<string, boolean>()
 /** 이번 Session에 학생이 바꾼 "반영함" 값 (선생님 feedbackId / AI itemId) */
 const reflectedOverrides = new Map<string, boolean>()
 
@@ -72,7 +76,7 @@ const aiItemKey = (feedbackId: string, itemId: string) => `${feedbackId}:${itemI
 
 export function taskFeedback(taskId: string): TaskFeedbackState {
   if (!isKnown(taskId)) return { status: 'not-prepared' }
-  const seed = seedFeedback[taskId] ?? { teacher: [], ai: [] }
+  const seed = seedFeedback[taskId] ?? { teacher: [], ai: [], reviewDecisions: [] }
   // 최근 전달 묶음이 먼저, 묶음 안의 항목 순서는 그대로
   const delivered = [...(sessionTeacher.get(taskId) ?? [])].reverse().flat()
   const known = [...delivered, ...seed.teacher]
@@ -91,7 +95,9 @@ export function taskFeedback(taskId: string): TaskFeedbackState {
       return reflectedOverrides.has(key) ? { ...item, reflected: reflectedOverrides.get(key) ?? item.reflected } : item
     }),
   }))
-  return { status: 'ready', data: { teacher, ai } }
+  const reviewDecisions = [...seed.reviewDecisions, ...[...sessionDecisions].map(([versionId, needsAnotherRevision]) => ({ versionId, needsAnotherRevision }))]
+    .filter((decision) => taskVersions(taskId).items.some((version) => version.versionId === decision.versionId))
+  return { status: 'ready', data: { teacher, ai, reviewDecisions } }
 }
 
 function currentSummary(taskId: string): StudentTaskSummary | undefined {
@@ -112,9 +118,16 @@ export function requiredProgress(taskId: string): { versionLabel: string; reflec
 function syncSummary(taskId: string) {
   const task = currentSummary(taskId)
   const progress = requiredProgress(taskId)
-  if (!task || !progress || task.currentStage !== 6) return
+  const latest = taskVersions(taskId).items.at(-1)
+  if (!task || !latest || (task.currentStage !== 6 && task.currentStage !== 7)) return
+  if (sessionDecisions.get(latest.versionId) === false) {
+    // 추가 수정 없이 최종 제출 준비. Stage 8은 실제 최종 제출 때 (지금은 그대로)
+    saveTaskSummary({ ...task, stageStatus: '최종 제출 준비', turn: 'student', nextAction: '최종 제출을 준비해주세요.' })
+    return
+  }
+  if (!progress) return
   const done = progress.reflected === progress.total
-  const nextNumber = (taskVersions(taskId).items.at(-1)?.versionNumber ?? 0) + 1
+  const nextNumber = latest.versionNumber + 1
   saveTaskSummary({
     ...task,
     stageStatus: done ? `V${nextNumber} 수정 준비` : `${progress.versionLabel} 피드백 확인`,
@@ -167,26 +180,39 @@ export function createSchoolFeedbackFixtureService(scenario: SchoolFeedbackFixtu
 
 // ---------- 개발용: 선생님 피드백 전달 재현 (Admin Review 결과, Student 화면 버튼 없음) ----------
 
-export function readTeacherFeedbackFixture(search: string): boolean {
-  return new URLSearchParams(search).get('fixtureTeacherFeedback') === 'delivered'
+/** 개발용 선생님 (재)검토 결과: delivered = 수정본이 더 필요, final-ready = 추가 수정 없이 최종 제출 준비 */
+export type TeacherFeedbackFixture = 'delivered' | 'final-ready'
+
+export function readTeacherFeedbackFixture(search: string): TeacherFeedbackFixture | undefined {
+  const value = new URLSearchParams(search).get('fixtureTeacherFeedback')
+  return value === 'delivered' || value === 'final-ready' ? value : undefined
 }
 
-/** 표시용 선생님 피드백 (가상). 첫 항목은 api-contract §13-1 예시 문장이다. 학생 원고를 대신 쓰지 않고 방향만 남긴다. */
-const fixtureTeacherItems = [
+/**
+ * 표시용 선생님 피드백 (가상). 학생 원고를 대신 쓰지 않고 방향만 남긴다.
+ * 첫 검토는 api-contract §13-1 예시 문장, 재검토는 남은 한 가지만 짚는다.
+ */
+const fixtureFirstReview = [
   { key: 'source', comment: '근거 자료의 출처를 더 구체적으로 적어주세요.', nextAction: '출처를 보강해 다음 버전에 반영하세요.' },
   { key: 'conclusion', comment: '결론이 어디에 있는지 한눈에 보이지 않아요.', nextAction: '결론 문장을 앞쪽에 정리해 다음 버전에 반영하세요.' },
 ]
+const fixtureReReview = [
+  { key: 'citation', comment: '고친 부분이 잘 보여요. 출처를 적는 형식만 한 가지로 맞춰주세요.', nextAction: '출처 표기 형식을 맞춰 다음 버전에 반영하세요.' },
+]
+const fixtureFinalReady = [{ key: 'final', comment: '필요한 수정이 잘 반영됐어요.', nextAction: '최종 제출을 준비하세요.' }]
 
-/** 공용 검토 대기열에 있는 최근 Version에 선생님 피드백이 전달된 상태를 만든다. 바꿨으면 true. */
-export function applyTeacherFeedbackFixture(taskId: string): boolean {
+/** 공용 검토 대기열에 있는 최근 Version에 선생님 (재)검토 결과가 전달된 상태를 만든다. 바꿨으면 true. */
+export function applyTeacherFeedbackFixture(taskId: string, result: TeacherFeedbackFixture): boolean {
   const latest = taskVersions(taskId).items.at(-1)
   const task = currentSummary(taskId)
   const state = taskFeedback(taskId)
   if (!latest || !task || !latest.inFeedbackQueue || state.status !== 'ready') return false
   if (state.data.teacher.some((item) => item.versionId === latest.versionId && item.status === 'delivered')) return false
+  const needsAnotherRevision = result === 'delivered'
+  const items = !needsAnotherRevision ? fixtureFinalReady : latest.versionNumber === 1 ? fixtureFirstReview : fixtureReReview
   sessionTeacher.set(taskId, [
     ...(sessionTeacher.get(taskId) ?? []),
-    fixtureTeacherItems.map((item) => ({
+    items.map((item) => ({
       feedbackId: `${latest.versionId}-teacher-${item.key}`,
       versionId: latest.versionId,
       versionLabel: latest.label,
@@ -194,12 +220,14 @@ export function applyTeacherFeedbackFixture(taskId: string): boolean {
       comment: item.comment,
       nextAction: item.nextAction,
       deliveredAt: `${SCHOOL_SNAPSHOT_DATE}T15:00:00+09:00`,
-      required: true,
+      // 최종 제출 준비 안내는 반영할 수정 항목이 아니다.
+      required: needsAnotherRevision,
       reflected: false,
     })),
   ])
-  // 피드백이 전달돼도 6단계(선생님 피드백)에 머문다. 학생 차례로 바뀐다.
-  saveTaskSummary({ ...task, currentStage: 6, turn: 'student' })
+  sessionDecisions.set(latest.versionId, needsAnotherRevision)
+  // 피드백이 전달돼도 단계는 그대로다. (초안 V1 = 6단계, 수정본 = 7단계) 학생 차례로 바뀐다.
+  saveTaskSummary({ ...task, turn: 'student' })
   syncSummary(taskId)
   return true
 }

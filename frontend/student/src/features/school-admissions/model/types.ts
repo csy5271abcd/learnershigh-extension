@@ -149,6 +149,11 @@ export interface TaskAiFeedback {
 export interface TaskFeedback {
   teacher: TaskTeacherFeedback[]
   ai: TaskAiFeedback[]
+  /**
+   * 선생님 (재)검토 결과: 이 Version 다음에 수정본이 더 필요한지 (Frontend View Model, Contract에 revisionRequired 없음)
+   * needsAnotherRevision = false면 최종 제출 준비 상태다. (Stage 8 전이는 실제 최종 제출 때)
+   */
+  reviewDecisions: { versionId: string; needsAnotherRevision: boolean }[]
 }
 
 /**

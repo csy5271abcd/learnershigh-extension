@@ -24,7 +24,7 @@ import {
   readTopicReviewFixtureResult,
 } from '../fixtures/schoolTopic.fixture.ts'
 import { canSubmitTopic } from '../model/topic.ts'
-import { canSubmitVersion } from '../model/version.ts'
+import { canSubmitNextVersion } from '../model/feedback.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
 import { feedbackVersionParam, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
@@ -94,12 +94,12 @@ export function SchoolTaskDetailRoute() {
     )
   }, [aiFixture, taskId, setSearchParams, location.state])
 
-  // 개발용: 선생님 피드백 전달 재현 (?fixtureTeacherFeedback=delivered). 공용 검토 대기열의 Admin Review 결과이므로
+  // 개발용: 선생님 (재)검토 결과 재현 (?fixtureTeacherFeedback=delivered | final-ready). 공용 검토 대기열의 Admin Review 결과이므로
   // Student 화면에는 버튼이 없다. 검토 대기 중인 최근 Version에 적용한 뒤 주소에서 지운다.
-  const teacherFixture = import.meta.env.DEV && readTeacherFeedbackFixture(searchParams.toString())
+  const teacherFixture = import.meta.env.DEV ? readTeacherFeedbackFixture(searchParams.toString()) : undefined
   useEffect(() => {
     if (!teacherFixture) return
-    applyTeacherFeedbackFixture(taskId)
+    applyTeacherFeedbackFixture(taskId, teacherFixture)
     setSearchParams(
       (current) => {
         const params = new URLSearchParams(current)
@@ -202,6 +202,13 @@ export function SchoolTaskDetailRoute() {
           params.set('to', to)
         })
       }
+      onRevisionFeedbackOpen={(versionId) => {
+        const params = new URLSearchParams(searchParams)
+        params.set('tab', 'feedback')
+        params.set(feedbackVersionParam, versionId)
+        // History에 남긴다. Back하면 수정 기록 Tab의 같은 비교(?from=&to=)와 Scroll로 돌아온다.
+        navigate({ search: `?${params.toString()}` }, { state: location.state })
+      }}
       onBackToTasks={() => {
         if (isFromTaskList(location.state)) navigate(-1)
         else navigate(schoolTasksPath)
@@ -228,9 +235,9 @@ export function SchoolTaskDetailRoute() {
         setEvidenceRevision((value) => value + 1)
       }}
       feedbackVersionParam={searchParams.get(feedbackVersionParam)}
-      // 지금 Version을 낼 수 있는 상태(학생 차례 4 / 7단계, 분석 중 아님)에서만 연다.
+      // 지금 Version을 낼 수 있는 상태(초안 V1 / 필수 피드백을 모두 반영한 수정본)에서만 연다.
       renderVersionDialog={(data) =>
-        versionOpen && canSubmitVersion(data) ? (
+        versionOpen && canSubmitNextVersion(data) ? (
           <SchoolVersionSubmitModal
             key={data.task.taskId}
             data={data}

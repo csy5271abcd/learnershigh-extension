@@ -23,13 +23,14 @@ export const versionSubmitLabel = (versionNumber: number): string =>
   versionNumber === 1 ? `초안 V${versionNumber} 제출` : `수정본 V${versionNumber} 제출`
 
 /**
- * 지금 Version을 제출할 수 있는지: 학생 차례인 초안(4단계) / Revision(7단계)이고, 분석 중인 Version이 없을 때.
+ * 초안 V1을 제출할 수 있는지: 학생 차례인 4단계이고, 분석 중인 Version이 없을 때.
+ * 수정본(V2 / V3) 제출 조건은 피드백 반영 현황을 함께 본다. (model/feedback.ts canSubmitNextVersion)
  * Version 정보가 준비되지 않은 Task는 열지 않는다. (기존 Version을 모른 채 번호를 매기지 않는다)
  */
-export function canSubmitVersion(data: StudentTaskDetail): boolean {
+export function canSubmitFirstVersion(data: StudentTaskDetail): boolean {
   const { task, versions } = data
   if (!versions.complete || task.turn !== 'student' || task.attentionFlags.includes('onHold')) return false
-  if (task.currentStage !== 4 && task.currentStage !== 7) return false
+  if (task.currentStage !== 4) return false
   return latestVersion(data)?.aiAnalysisStatus !== 'processing'
 }
 
@@ -41,7 +42,7 @@ export function withVersionNowCard(data: StudentTaskDetail, card: TaskNowCard): 
   const latest = latestVersion(data)
   if (latest?.aiAnalysisStatus === 'processing') {
     return {
-      headline: 'AI 사전 점검을 진행하고 있어요',
+      headline: latest.versionNumber > 1 ? `${latest.label} AI 사전 점검을 진행하고 있어요` : 'AI 사전 점검을 진행하고 있어요',
       description: `제출한 ${latest.label}을 AI가 확인하고 있어요. 분석이 끝나면 확인할 내용을 이 화면에서 보여드릴게요.`,
       fact: submittedFact(latest),
       waitingActions: card.waitingActions,
@@ -58,18 +59,22 @@ export function withVersionNowCard(data: StudentTaskDetail, card: TaskNowCard): 
       waitingActions: card.waitingActions,
     }
   }
-  // 이번 Session에 제출한 Version의 AI 사전 점검이 끝나 공용 검토 대기열(6단계)에 들어간 상태.
-  // (Seed Task는 Seed의 지금 할 일을 그대로 쓴다)
-  if (latest?.aiAnalysisStatus === 'success' && latest.inFeedbackQueue && data.task.currentStage === 6 && latest.file) {
+  // 이번 Session에 제출한 Version의 AI 사전 점검이 끝나 공용 검토 대기열에 들어간 상태 (초안 = 6단계, 수정본 = 7단계 재검토).
+  // (Seed Task는 Seed의 지금 할 일을 그대로 쓴다. 선생님 피드백이 전달되면 피드백 지금 할 일이 덮는다)
+  const inQueueStage = data.task.currentStage === 6 || data.task.currentStage === 7
+  if (latest?.aiAnalysisStatus === 'success' && latest.inFeedbackQueue && inQueueStage && latest.file) {
+    const revision = latest.versionNumber > 1
     return {
-      headline: 'AI 사전 점검을 마쳤어요',
-      description: '선생님 검토를 기다리고 있어요. AI 사전 점검은 참고용이에요.',
+      headline: revision ? `${latest.label} 검토를 기다리고 있어요` : 'AI 사전 점검을 마쳤어요',
+      description: revision
+        ? '선생님 재검토가 끝나면 다음 수정 여부를 확인할 수 있어요.'
+        : '선생님 검토를 기다리고 있어요. AI 사전 점검은 참고용이에요.',
       fact: submittedFact(latest),
       primaryAction: { kind: 'openTab', label: 'AI 사전 점검 보기', tab: 'feedback', versionId: latest.versionId },
       waitingActions: card.waitingActions,
     }
   }
-  if (canSubmitVersion(data)) {
+  if (canSubmitFirstVersion(data)) {
     return { ...card, primaryAction: { kind: 'submitVersion', label: versionSubmitLabel(nextVersionNumber(data)) } }
   }
   return card

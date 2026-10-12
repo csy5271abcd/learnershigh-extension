@@ -130,6 +130,7 @@ export function VersionSubmitDialog({
           </div>
           <p className={styles.hint}>
             제출하면 {label}로 저장되고 AI 사전 점검이 바로 시작돼요. 이전에 낸 버전은 그대로 남아요.
+            {versionNumber > 1 && task.currentStage === 6 && ' 수행평가는 7단계 Revision으로 넘어가요.'}
           </p>
         </div>
 

@@ -7,6 +7,8 @@
 // - 성공: AI 사전 점검 결과 생성 + 공용 검토 대기열 진입(inFeedbackQueue) → 5단계 완료, 6단계 선생님 피드백(검토 대기).
 //   근거: Spec Stage 5 "성공 또는 실패/Retry" · Stage 6 "Shared Feedback Queue", Version + AI 성공 "Task Stage 갱신"
 // - 분석 중 / 실패 / 다시 시도는 5단계에 머문다. 실패 시 다시 시도(같은 Version을 다시 분석), 새 Version을 만들지 않는다.
+// - 수정본(V2 / V3)은 7단계 Revision Loop 안에서 반복한다. 제출하는 순간 6 → 7단계, 그 뒤 AI 분석 중 / 실패 / 재검토 대기도
+//   7단계에 머문다. (5단계로 되돌리지 않는다)
 // - AI는 학생 파일을 고치거나 새 Version을 만들지 않는다. 결과는 참고용 확인 포인트만 둔다. (점수 · 등급 없음)
 // - 실제 Backend / AI / File Storage가 아니다. 새로고침하면 Seed로 돌아간다.
 
@@ -69,6 +71,19 @@ export function sessionAiFeedbackFor(taskId: string): TaskAiFeedback[] {
     .reverse()
 }
 
+/** 기준일 10:00부터 minutes분 뒤의 Fixture 시각 (ISO 8601, KST) */
+function fixtureTime(minutes: number): string {
+  const total = 10 * 60 + minutes
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${SCHOOL_SNAPSHOT_DATE}T${pad(Math.floor(total / 60))}:${pad(total % 60)}:00+09:00`
+}
+
+/** fixtureTime의 반대: 10:00부터 지난 분 */
+const minutesOf = (iso: string) => {
+  const [hour, minute] = iso.slice(11, 16).split(':').map(Number)
+  return hour * 60 + minute - 10 * 60
+}
+
 function currentSummary(taskId: string): StudentTaskSummary | undefined {
   return findCreatedTask(taskId)?.task ?? findSeedOverride(taskId)?.task ?? fixtureStudentTasks.find((task) => task.taskId === taskId)
 }
@@ -80,9 +95,14 @@ function saveVersion(next: TaskVersion) {
   )
 }
 
-/** AI 사전 점검을 진행하는 동안의 Task 요약 (5단계, 기다리는 중) */
-function analyzingSummary(task: StudentTaskSummary): StudentTaskSummary {
-  return { ...task, currentStage: 5, stageStatus: 'AI 1차 분석 중', turn: 'waiting', nextAction: 'AI 사전 점검이 끝나면 알려드릴게요.' }
+/** 이 Version이 속한 단계: 초안 V1은 4 → 5(AI 사전 점검) → 6, 수정본 V2 / V3는 7(Revision) 안에서만 움직인다. */
+const isRevision = (version: Pick<TaskVersion, 'versionNumber'>) => version.versionNumber > 1
+
+/** AI 사전 점검을 진행하는 동안의 Task 요약 (기다리는 중) */
+function analyzingSummary(task: StudentTaskSummary, version: Pick<TaskVersion, 'versionNumber' | 'label'>): StudentTaskSummary {
+  return isRevision(version)
+    ? { ...task, currentStage: 7, stageStatus: `${version.label} AI 사전 점검 중`, turn: 'waiting', nextAction: 'AI 사전 점검이 끝나면 알려드릴게요.' }
+    : { ...task, currentStage: 5, stageStatus: 'AI 1차 분석 중', turn: 'waiting', nextAction: 'AI 사전 점검이 끝나면 알려드릴게요.' }
 }
 
 // ---------- 제출 / 다시 시도 Service ----------
@@ -151,7 +171,8 @@ export function createSchoolVersionFixtureService(scenario: SchoolVersionFixture
               label: `V${versionNumber}`,
               fileName: file.name,
               fileRef: `fixture-local:${versionId}`,
-              submittedAt: `${SCHOOL_SNAPSHOT_DATE}T10:00:00+09:00`,
+              // 기준일(Snapshot) 안에서 제출 순서대로 10분씩 (Fixture 시각)
+              submittedAt: fixtureTime(10 * (submittedCount - 1)),
               aiAnalysisStatus: 'processing',
               retryAllowed: false,
               inFeedbackQueue: false,
@@ -161,7 +182,7 @@ export function createSchoolVersionFixtureService(scenario: SchoolVersionFixture
             }
             // 이전 Version은 그대로 두고 뒤에 붙인다.
             sessionVersions.set(taskId, [...items, version])
-            saveTaskSummary(analyzingSummary(task))
+            saveTaskSummary(analyzingSummary(task, version))
             resolve(version)
           }, 300)
         })
@@ -182,7 +203,7 @@ export function createSchoolVersionFixtureService(scenario: SchoolVersionFixture
             if (scenario === 'ai-retry-already-processing') {
               // 다른 곳(예: 다른 창)에서 이미 다시 시도한 상태를 재현한다.
               saveVersion({ ...version, aiAnalysisStatus: 'processing', retryAllowed: false })
-              saveTaskSummary(analyzingSummary(task))
+              saveTaskSummary(analyzingSummary(task, version))
               reject(new VersionFixtureError('AI_ANALYSIS_ALREADY_PROCESSING'))
               return
             }
@@ -192,7 +213,7 @@ export function createSchoolVersionFixtureService(scenario: SchoolVersionFixture
             }
             // 같은 Version을 다시 분석한다. (새 Version을 만들지 않는다)
             saveVersion({ ...version, aiAnalysisStatus: 'processing', retryAllowed: false })
-            saveTaskSummary(analyzingSummary(task))
+            saveTaskSummary(analyzingSummary(task, version))
             resolve()
           }, 300)
         }),
@@ -231,24 +252,23 @@ export function applyAiAnalysisFixture(taskId: string, result: AiAnalysisFixture
       feedbackId: `${version.versionId}-ai`,
       versionId: version.versionId,
       versionLabel: version.label,
-      analyzedAt: `${SCHOOL_SNAPSHOT_DATE}T10:05:00+09:00`,
+      analyzedAt: fixtureTime(minutesOf(version.submittedAt) + 5),
       items: fixtureAiItems.map((item) => ({ ...item, itemId: `${version.versionId}-${item.itemId}`, reflected: false })),
     })
-    saveTaskSummary({
-      ...task,
-      currentStage: 6,
-      stageStatus: `${version.label} 검토 대기`,
-      turn: 'waiting',
-      nextAction: `선생님이 ${version.label}을 검토하고 있어요.`,
-    })
+    // 초안 V1: 5단계 완료 → 6단계(공용 검토 대기열). 수정본: 7단계 그대로 재검토 대기.
+    saveTaskSummary(
+      isRevision(version)
+        ? { ...task, currentStage: 7, stageStatus: `${version.label} 재검토 대기`, turn: 'waiting', nextAction: `선생님이 ${version.label}을 다시 검토하고 있어요.` }
+        : { ...task, currentStage: 6, stageStatus: `${version.label} 검토 대기`, turn: 'waiting', nextAction: `선생님이 ${version.label}을 검토하고 있어요.` },
+    )
     return true
   }
 
   saveVersion({ ...version, aiAnalysisStatus: 'failed', retryAllowed: result === 'failed', inFeedbackQueue: false })
   saveTaskSummary({
     ...task,
-    currentStage: 5,
-    stageStatus: 'AI 사전 점검 실패',
+    currentStage: isRevision(version) ? 7 : 5,
+    stageStatus: isRevision(version) ? `${version.label} AI 사전 점검 실패` : 'AI 사전 점검 실패',
     turn: result === 'failed' ? 'student' : 'waiting',
     nextAction: result === 'failed' ? 'AI 사전 점검을 다시 시도해주세요.' : '학원에서 확인한 뒤 알려드릴게요.',
   })

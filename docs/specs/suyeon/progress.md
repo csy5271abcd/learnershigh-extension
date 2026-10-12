@@ -755,8 +755,9 @@ Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/st
 Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
 Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
 Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
-Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback, 미커밋)
-Revision V2 제출 이후 Flow: NOT_STARTED
+Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
+Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision, 미커밋)
+Final Submission / Final Artifact 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -843,8 +844,10 @@ IN_PROGRESS
   - 실제 GET / POST / DELETE /api/student/tasks/{taskId}/evidence / File Storage(OD-09) / stageTag Enum / Frontend 자동 Test: NOT_STARTED
 - Student Version Submit + AI 사전 점검 Result / Retry (Task Detail 위 Modal + 지금 할 일 / 피드백 / 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
   - 실제 Version API / AI Analysis / Shared Feedback Queue · Admin Review / File Storage / Frontend 자동 Test: NOT_STARTED
-- Student Feedback (Task Detail 피드백 Tab, 선생님 Primary · AI Secondary · 반영함): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback, 미커밋)
-  - 실제 GET …/feedback / 반영 저장 Endpoint / Admin Feedback Review · Queue / Revision V2 제출 / Frontend 자동 Test: NOT_STARTED
+- Student Feedback (Task Detail 피드백 Tab, 선생님 Primary · AI Secondary · 반영함): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
+  - 실제 GET …/feedback / 반영 저장 Endpoint / Admin Feedback Review · Queue / Frontend 자동 Test: NOT_STARTED
+- Student Revision (지금 할 일 수정본 제출 · 7단계 Revision Loop · 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision, 미커밋)
+  - 실제 Version / Revision History API / Diff Schema / Admin Re-review / Final Submission / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1753,7 +1756,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Feedback (Task Detail 피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Feedback (Task Detail 피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture 기반 UI, b58f93c)
 VERIFIED 아님: GET /api/student/tasks/{taskId}/feedback 미연결, 반영 저장 Endpoint 없음(Contract Gap), Admin Feedback Review / Shared Feedback Queue 미연결, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1781,6 +1784,44 @@ VERIFIED 아님: GET /api/student/tasks/{taskId}/feedback 미연결, 반영 저�
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~J)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Revision (branch: feat/student-school-revision)
+
+### Status
+
+```text
+Student Revision (수정본 V2 / V3 · 7단계 Revision Loop · 수정 기록): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Version / Revision History API 미연결, Diff Schema 미확정, Admin Re-review / Shared Feedback Queue 미연결, 실제 AI 분석 / File Storage 없음, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- 수정본 제출: 최근 Version의 필수 선생님 피드백을 모두 "반영함"으로 표시하면 지금 할 일의 "수정본 V2 제출"이 활성 (체크만으로는 6단계 유지)
+- 기존 Version 제출 흐름(?version=submit · VersionSubmitDialog · schoolVersion.fixture)을 그대로 씀. 번호는 latest + 1, 이전 Version 유지
+- 6 → 7단계: 실제로 수정본(V2)을 제출하는 순간. 그 뒤 AI 사전 점검 중 / 실패 / 다시 시도 / 재검토 대기 / 피드백 전달 / V3 준비 / V3 제출 모두 7단계 유지 (5단계로 되돌리지 않음)
+- 재검토 결과(Fixture): `?fixtureTeacherFeedback=delivered`(수정본이 더 필요) / `final-ready`(추가 수정 없음). Contract에 revisionRequired가 없어 Feature 내부 reviewDecisions로 둠
+- 최종 제출 준비: "최종 제출을 준비해주세요" + "최종 제출"(화면 준비 중, 비활성). Stage 8 전이 없음
+- 수정 기록 Tab: V1 / V2 / V3 줄(파일 · AI 사전 점검 상태 · 미리보기), 비교 Version 선택(이전 → 이후만, 기본 직전 → 최신, ?from=&to= 유지)
+- Speech V1 → V2 Diff는 기존 Fixture 그대로(Before / After, del / ins, 삭제 · 수정 · 추가 개수 계산). 학생이 올린 파일은 Diff를 만들지 않고 "비교 정보가 아직 준비되지 않았어요"
+- 반영한 피드백 연결: Diff Fixture의 관계, 없으면 바로 앞 Version의 "반영함" 표시된 필수 선생님 피드백. "피드백 보기"는 History에 남겨 Back으로 같은 Pair / Scroll 복원
+- Version 1개면 "비교할 수정본이 아직 없어요"
+
+### Open / Contract Gap
+
+- 수정본 제출은 Contract §12-1 Version POST를 그대로 쓴다고 가정 (Revision 전용 Endpoint 없음)
+- 추가 수정 필요 여부(revisionRequired / needsAnotherRevision) 필드 없음, 최종 제출 준비 상태 필드 없음
+- Stage 7 내부 세부 상태(AI 사전 점검 중 / 재검토 대기 / 수정 준비 / 최종 제출 준비)는 stageStatus Text로만 표현 (Enum 미확정)
+- Diff Schema 미확정 (Speech만 Fixture), V4 이상 허용 여부 규칙 없음 (Fixture는 V3 뒤 최종 제출 준비로 둠)
+- reflected / required 필드 · 반영 저장 Endpoint 없음 (Feedback Branch와 같음)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

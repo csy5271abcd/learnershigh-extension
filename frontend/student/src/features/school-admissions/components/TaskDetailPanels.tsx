@@ -856,10 +856,14 @@ export function TaskRevisionPanel({
   const to = versions.find((version) => version.versionId === pair?.toVersionId)
   const diff = pair ? findRevisionDiff(data.detail?.revisionDiffs ?? [], pair.fromVersionId, pair.toVersionId) : undefined
   const counts = diff ? revisionDiffCounts(diff.blocks) : undefined
-  const appliedFeedback =
-    diff?.appliedFeedbackId && data.feedback.status === 'ready'
-      ? data.feedback.data.teacher.find((item) => item.feedbackId === diff.appliedFeedbackId)
-      : undefined
+  // 이 수정이 반영한 선생님 피드백: Diff Fixture에 적힌 관계, 없으면 바로 앞 Version 피드백 중 학생이 "반영함"으로 표시한 것
+  const appliedFeedback = (() => {
+    if (data.feedback.status !== 'ready') return undefined
+    const teacher = data.feedback.data.teacher
+    if (diff?.appliedFeedbackId) return teacher.find((item) => item.feedbackId === diff.appliedFeedbackId)
+    if (!from || !to || to.versionNumber !== from.versionNumber + 1) return undefined
+    return teacher.find((item) => item.versionId === from.versionId && item.status === 'delivered' && item.required && item.reflected)
+  })()
   const fromIndex = versions.findIndex((version) => version.versionId === pair?.fromVersionId)
 
   // 블록 번호는 종류별로 센다. (수정 1, 수정 2 …)
@@ -897,7 +901,7 @@ export function TaskRevisionPanel({
       </ol>
 
       {versions.length < 2 || !pair || !from || !to ? (
-        <EmptyNotice>비교하려면 버전이 두 개 이상 필요해요. 다음 버전을 제출하면 바뀐 점을 볼 수 있어요.</EmptyNotice>
+        <EmptyNotice>비교할 수정본이 아직 없어요. 다음 버전을 제출하면 바뀐 점을 볼 수 있어요.</EmptyNotice>
       ) : (
         <section className={styles.section} aria-labelledby="task-diff-heading">
           <div className={styles.pairControls}>
