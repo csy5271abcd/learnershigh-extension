@@ -12,10 +12,11 @@ import { SchoolActivitiesPage } from '../SchoolActivitiesPage.tsx'
 import { createModalParam, schoolActivityPath, schoolArchivePath, schoolEvidencePath, schoolTasksPath } from './paths.ts'
 import { SchoolActivityCreateModal } from './SchoolActivityCreateModal.tsx'
 
-/** Activities 목록에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해 검색 / 유형 / Scroll을 복원한다. */
-export interface SchoolActivityDetailEntryState {
-  fromActivityList: true
-}
+/**
+ * Activities 목록(또는 Archive)에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해
+ * 들어온 목록의 검색 / Filter / Scroll을 복원한다. (돌아가기 문구도 들어온 곳에 맞춘다)
+ */
+export type SchoolActivityDetailEntryState = { fromActivityList: true } | { fromArchive: true }
 
 const parseType = (value: string | null): ActivityType | 'all' => activityTypes.find((item) => item.id === value)?.id ?? 'all'
 

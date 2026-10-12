@@ -758,11 +758,15 @@ Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture U
 Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
 Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision 22f81c0)
 Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission c1990e6)
-School Archive (Archive-00, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416) — Growth source PENDING (not connected)
-School Activities (List · Create · Detail · Draft Edit · Evidence · Submit): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities, 미커밋)
-Activity Reflection: NOT_STARTED
-Activity Feedback: NOT_STARTED
-Growth Archive Connection: PENDING
+School Archive (Archive-00, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416)
+School Activities (List · Create · Detail · Draft Edit · Evidence · Submit): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
+Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+Activity Reflection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+Activity Feedback Request / Display: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+Growth Archive Connection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+Admin Activity Feedback: NOT_STARTED
+Cross-subject Connection: NOT_STARTED
+Interview: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -855,10 +859,11 @@ IN_PROGRESS
   - 실제 Version / Revision History API / Diff Schema / Admin Re-review / Frontend 자동 Test: NOT_STARTED
 - Student Final Submission (최종 제출 확인 · 8단계 · 최종 결과물 · 학부모 공유 동의 · Archive Projection): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission c1990e6)
   - 실제 최종 제출 API(Contract 없음) / GET · PUT final-artifact / Admin Report 첨부 / Frontend 자동 Test: NOT_STARTED
-- School Archive (/school/archive, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416)
-  - 실제 GET /api/student/archive / Growth Activity source(PENDING) / Archive Persistence(API-OD-05) / Frontend 자동 Test: NOT_STARTED
-- School Activities (/school/activities, /school/activities/:activityId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities, 미커밋)
-  - 실제 Activity API / Reflection 작성 / Activity Feedback 요청 · 전달 / Archive Command · Growth Archive 연결 / Frontend 자동 Test: NOT_STARTED
+- School Archive (/school/archive, Task + Growth source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416 + Growth 연결 feat/student-school-activity-reflection 미커밋)
+  - 실제 GET /api/student/archive / Archive Persistence(API-OD-05) / Frontend 자동 Test: NOT_STARTED
+- School Activities (/school/activities, /school/activities/:activityId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
+- Activity Reflection · Feedback Request / Display · Archive Command · Growth Archive 연결: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+  - 실제 Activity API(§17-1 ~ 17-4) / Admin Activity Feedback / Cross-subject Connection / Interview / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1923,10 +1928,8 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-School Activities: IMPLEMENTED (Fixture 기반 UI, 미커밋) — List / Create / Detail / Draft Edit / Activity Evidence / Submit
-Activity Reflection: NOT_STARTED
-Activity Feedback (Request / Delivered): NOT_STARTED
-Growth Archive Connection: PENDING (Archived Activity 없음 → Archive growth source 계속 비어 있음)
+School Activities: IMPLEMENTED (Fixture 기반 UI, 5f6a5e1) — List / Create / Detail / Draft Edit / Activity Evidence / Submit
+Activity Reflection / Feedback / Growth Archive Connection: 다음 구간(feat/student-school-activity-reflection) 참고
 VERIFIED 아님: /api/student/activities 미연결, Activity Type / Status / visibility Enum 미확정, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1957,6 +1960,52 @@ VERIFIED 아님: /api/student/activities 미연결, Activity Type / Status / vis
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~O)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Activity Reflection / Feedback / Growth Archive (branch: feat/student-school-activity-reflection)
+
+### Status
+
+```text
+Activities: IMPLEMENTED (5f6a5e1)
+Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 미커밋)
+Activity Reflection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Activity Feedback Request / Display: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Growth Archive Connection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Admin Activity Feedback: NOT_STARTED
+Cross-subject Connection: NOT_STARTED
+Interview: NOT_STARTED
+VERIFIED 아님: /api/student/activities/{id}/feedback-request · feedback · reflection · archive 미연결, Enum 미확정, 메모리 Fixture, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Canonical Activity 12개(로그인 학생 최하은): 기존 A01(fixture-activity-biology-club) id · 내용 유지 + A02~A12 신규 deterministic id. 유형 8종 · 상태 6종이 모두 있음 (작성 중 2 · 제출 2 · 피드백 대기 2 · 피드백 도착 2 · 보완 완료 2 · Archive 저장 2). Seed 과정 자료 22개(파일 이름만, 원본 없음 → 미리보기 "원본 파일이 아직 준비되지 않아" 안내)
+- Reflection(ActivitiesDetail-02 7문항, §17-3 Field): 학생이 직접 입력 · 원문 그대로 저장(AI 작성 / 교정 없음). 최소 1항목 필요. 저장 중 / 실패 시 입력 유지 / 나가기 확인(useBlocker + TaskLeaveDialog). 작성 중 활동은 "먼저 활동 기록을 제출해주세요."
+- 상태 전이(Fixture): 제출 → (Reflection 저장) → 보완 완료, 제출 → (피드백 요청, 선택) → 피드백 대기, 피드백 대기 중 Reflection 저장은 상태 유지, 피드백 도착 → (Reflection 보완 저장) → 보완 완료, 보완 완료 → (확인 Dialog) → Archive 저장. 중복 클릭은 한 번만 반영
+- 피드백 대기: Text 안내만 (Spinner / Badge / 대기 시간 / 담당자 없음). 피드백 도착: 4항목(§17-2 strength · needsDetail · question · nextSuggestion) + 작성 정보
+- 개발용 `?fixtureActivityFeedback=delivered`(DEV 전용): 피드백 대기 활동에 표시용 피드백을 붙여 피드백 도착으로 바꾸고 주소에서 제거 (Admin 결과 재현, 담당 배정 아님)
+- Growth Archive: Archive 항목을 Activity 저장소의 archived 활동에서 계산 (별도 Archive 데이터 없음). 학기 · 유형 이름 · 결과(비면 숨김) · 배운 점 원문 · Evidence 수. Task와 날짜(마감일 / 활동 종료일) 늦은 순으로 합침. Archive Loader key에 Activity revision 포함
+- Growth 카드 → Activity Detail(돌아가기 "Archive로 돌아가기") → Back 시 Archive 검색 · 출처 · Scroll 복원. 학기 계산은 model/period.ts 공통 헬퍼
+
+### Open / Contract Gap
+
+- Reflection 필수 항목 규칙 없음 → 최소 1항목 (화면 규칙)
+- 기록 Field(참여 이유 · 역할 · 한 일 · 후속 활동)와 Reflection Field(participationReason · role · whatIDid · followUpActivity) 의미 중복
+- Reflected 전이 조건 미정 (Reflection 저장 시점? 피드백 반영 필요 여부?) → 제출 / 피드백 도착에서 저장 시 보완 완료 (Fixture 규칙)
+- 피드백 대기 중 Reflection 저장 허용 여부 / 그때의 상태 미정 → 저장 허용 · 상태 유지
+- Archived 이후 수정 정책 미정 → 읽기 전용
+- 피드백 작성자 Metadata(이름 · 역할 · 전달 시각) Contract 없음 → Fixture 표시 정보
+- Archive reflectionSummary 출처 미정 → 학생이 쓴 learning 원문 (AI 요약 없음)
+- Activity Type / Status / visibility Enum 미확정 (Frontend key)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

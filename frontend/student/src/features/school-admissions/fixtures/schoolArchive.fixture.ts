@@ -1,18 +1,20 @@
 // UI 검증용 Archive Fixture. 실제 GET /api/student/archive 대신, 같은 의미의 목록을 한 번에 돌려준다.
 // - Archive를 별도로 저장하지 않는다. 원본(완료된 Task / Archived Growth Activity)에서 계산한 Projection이다. (API-OD-05)
 // - source = task: 완료(8단계) Task. 최종 결과물 유무와 무관하다.
-// - source = growth: Growth Activity 저장소가 아직 없어 빈 목록이다. (Growth Activity Branch에서 같은 Projection에 연결)
-//   Archive 화면을 채우려고 Growth 데이터를 따로 만들지 않는다.
+// - source = growth: Archive 저장(archived)한 Growth Activity. Activity 저장소에서 계산한다. (Archive 전용 Growth 데이터 없음)
+// - 정렬: 각 원본 날짜(Task 마감일 / 활동 종료일)가 늦은 순. 완료 시각 Contract가 없어 Fixture 정렬이다.
 // - 로그인 Student(최하은)의 기록만 다룬다.
 
 import type { ArchiveItemView, ArchiveSourceFilter, SchoolArchiveResult } from '../model/types.ts'
-import { archiveTaskProjection } from './schoolFinalArtifact.fixture.ts'
+import { activityStoreRevision, growthArchiveEntries } from './schoolActivity.fixture.ts'
+import { archiveTaskEntries } from './schoolFinalArtifact.fixture.ts'
 import { taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 
-/** Archived Growth Activity 항목. Growth Activity 저장소가 연결되기 전까지는 비어 있다. */
-function growthArchiveItems(): ArchiveItemView[] {
-  return []
-}
+/** 완료된 Task + Archive 저장한 활동 (날짜가 늦은 순) */
+const archiveItems = (): ArchiveItemView[] =>
+  [...archiveTaskEntries(), ...growthArchiveEntries()]
+    .sort((a, b) => b.sortDate.localeCompare(a.sortDate) || a.item.sourceId.localeCompare(b.item.sourceId))
+    .map(({ item }) => item)
 
 export interface SchoolArchiveQuery {
   source: ArchiveSourceFilter
@@ -39,7 +41,7 @@ const loaders = new Map<string, SchoolArchiveLoader>()
 
 /** 저장소가 바뀌면(최종 제출 등) 다른 Loader가 되어 다시 계산한다. */
 export function createSchoolArchiveFixtureLoader(scenario: SchoolArchiveFixtureScenario): SchoolArchiveLoader {
-  const key = `${scenario}|${taskStoreRevision()}`
+  const key = `${scenario}|${taskStoreRevision()}|${activityStoreRevision()}`
   let loader = loaders.get(key)
   if (!loader) {
     loader = ({ source, query }) => {
@@ -50,7 +52,7 @@ export function createSchoolArchiveFixtureLoader(scenario: SchoolArchiveFixtureS
           return Promise.reject(new Error('School archive fixture error'))
         case 'empty':
         case 'success': {
-          const all = scenario === 'empty' ? [] : [...archiveTaskProjection(), ...growthArchiveItems()]
+          const all = scenario === 'empty' ? [] : archiveItems()
           const items = all.filter((item) => (source === 'all' || item.source === source) && matches(item, query))
           return Promise.resolve({
             items,

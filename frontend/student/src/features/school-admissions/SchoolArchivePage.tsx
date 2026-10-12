@@ -27,7 +27,7 @@ interface SchoolArchivePageProps {
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
-// School Archive (Archive-00 Mockup): 완료된 수행평가(와 이후 Growth Activity)가 함께 쌓이는 기록.
+// School Archive (Archive-00 Mockup): 완료된 수행평가와 Archive 저장한 Growth Activity가 함께 쌓이는 기록.
 // 검색 / 출처 Filter는 URL(?query=&source=)에 둬 새로고침 / Back 후에도 유지한다. 카드 전체를 누르면 원본으로 이동한다.
 export function SchoolArchivePage({
   loadArchive,
@@ -56,7 +56,7 @@ export function SchoolArchivePage({
         <h2 id="school-archive-heading" className="lh-visually-hidden">
           Archive
         </h2>
-        <p className={styles.lead}>최종 제출을 마친 수행평가는 자동으로 Archive에 모여요.</p>
+        <p className={styles.lead}>최종 제출을 마친 수행평가와 Archive에 저장한 성장 활동이 여기에 모여요.</p>
 
         <div className={styles.toolbar}>
           <label className={styles.search}>
@@ -110,7 +110,7 @@ export function SchoolArchivePage({
         {state.status === 'success' &&
           (state.data.totalAll === 0 ? (
             <p className={styles.notice} role="status">
-              아직 보관된 활동이 없어요. 최종 제출을 마친 수행평가가 여기에 모여요.
+              아직 보관된 활동이 없어요. 최종 제출을 마친 수행평가와 Archive에 저장한 성장 활동이 여기에 모여요.
             </p>
           ) : state.data.items.length === 0 ? (
             <div className={styles.notice} role="status">
@@ -154,7 +154,7 @@ function ArchiveCard({ item, onOpen }: { item: ArchiveItemView; onOpen: () => vo
       </h3>
       <p className={styles.tags}>
         <span className={styles.source}>{sourceLabel[item.source]}</span>
-        <span className={styles.result}>{item.result}</span>
+        {item.result && <span className={styles.result}>{item.result}</span>}
       </p>
       {/* Task에는 Reflection이 없다. 가짜 Reflection을 만들지 않고 Mockup 문장으로 조용히 알린다. */}
       <p className={styles.reflection} data-empty={!item.reflectionSummary || undefined}>

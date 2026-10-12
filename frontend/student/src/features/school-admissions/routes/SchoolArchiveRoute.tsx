@@ -3,7 +3,8 @@ import { createSchoolArchiveFixtureLoader, readSchoolArchiveFixtureScenario } fr
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import type { ArchiveSourceFilter } from '../model/types.ts'
 import { SchoolArchivePage } from '../SchoolArchivePage.tsx'
-import { schoolActivitiesPath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { schoolActivitiesPath, schoolActivityPath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import type { SchoolActivityDetailEntryState } from './SchoolActivitiesRoute.tsx'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
 const parseSource = (value: string | null): ArchiveSourceFilter => (value === 'task' || value === 'growth' ? value : 'all')
@@ -54,8 +55,12 @@ export function SchoolArchiveRoute() {
         })
       }
       onItemOpen={(item) => {
-        // 지금은 Task만 원본이 있다. (Growth Activity Detail은 Growth Activity Branch에서 연결)
-        if (item.source !== 'task') return
+        // 원본으로 간다: 수행평가 → Task Detail, 성장 활동 → Activity Detail. Back하면 이 Archive(검색 · 출처 · Scroll)로 돌아온다.
+        if (item.source === 'growth') {
+          const state: SchoolActivityDetailEntryState = { fromArchive: true }
+          navigate(schoolActivityPath(item.sourceId), { state })
+          return
+        }
         const state: SchoolTaskDetailEntryState = { fromTaskList: true, backTo: 'archive' }
         navigate(schoolTaskPath(item.sourceId), { state })
       }}

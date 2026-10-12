@@ -63,27 +63,71 @@ export interface ActivityRecordFields {
   tags: string[]
 }
 
-/** Reflection 질문 하나 (ActivitiesDetail-02). 답은 학생이 직접 쓴다. */
-export interface ActivityReflectionAnswer {
-  question: string
-  answer: string | null
+/**
+ * 학생 Reflection (PUT /api/student/activities/{activityId}/reflection). 학생이 직접 쓴 원문 그대로 둔다. (AI / Admin이 대신 쓰지 않는다)
+ * 활동 기본 기록(participationReason / role)과 이름이 겹치지만 다른 값이다. (기록 = 사실, Reflection = 돌아보기)
+ */
+export interface ActivityReflection {
+  participationReason: string
+  role: string
+  whatIDid: string
+  difficulty: string
+  learning: string
+  nextChange: string
+  followUpActivity: string
 }
 
-/** 활동 피드백 (ActivitiesDetail-02 선생님 피드백). 학생이 요청했을 때만 생긴다. */
+/** Reflection 7문항 (ActivitiesDetail-02 질문 순서 · 문구) */
+export const activityReflectionFields: { key: keyof ActivityReflection; question: string }[] = [
+  { key: 'participationReason', question: '왜 참여했나요?' },
+  { key: 'role', question: '내가 맡은 역할은 무엇이었나요?' },
+  { key: 'whatIDid', question: '실제로 무엇을 했나요?' },
+  { key: 'difficulty', question: '가장 어려웠던 점은 무엇이었나요?' },
+  { key: 'learning', question: '무엇을 배우거나 새롭게 알게 되었나요?' },
+  { key: 'nextChange', question: '다음번에는 무엇을 바꾸고 싶나요?' },
+  { key: 'followUpActivity', question: '후속 활동이 있다면 무엇인가요?' },
+]
+
+export const emptyActivityReflection: ActivityReflection = {
+  participationReason: '',
+  role: '',
+  whatIDid: '',
+  difficulty: '',
+  learning: '',
+  nextChange: '',
+  followUpActivity: '',
+}
+
+/**
+ * 활동 피드백 (GET /api/student/activities/{activityId}/feedback). 학생이 요청했을 때만 생긴다.
+ * author / deliveredAt은 화면 표시용 작성 정보다. (그 선생님에게 자동 배정됐다는 뜻이 아니다)
+ */
 export interface ActivityTeacherFeedback {
   author: string
   /** ISO 8601 */
   deliveredAt: string
-  sections: { label: string; text: string }[]
+  strength: string
+  needsDetail: string
+  question: string
+  nextSuggestion: string
 }
+
+/** 선생님 피드백 4항목 (ActivitiesDetail-02 순서 · 이름) */
+export const activityFeedbackFields: { key: 'strength' | 'needsDetail' | 'question' | 'nextSuggestion'; label: string }[] = [
+  { key: 'strength', label: '잘 드러난 점' },
+  { key: 'needsDetail', label: '조금 더 구체화할 점' },
+  { key: 'question', label: '생각해볼 질문' },
+  { key: 'nextSuggestion', label: '다음 활동 제안' },
+]
 
 export interface GrowthActivity extends ActivityRecordFields {
   activityId: string
   status: ActivityStatus
   /** 공개 범위. Contract 예시 PRIVATE만 확인된다. (다른 값은 확정하지 않는다) */
   visibility: 'PRIVATE'
-  /** Reflection 답 (이번 Branch에서는 작성하지 않는다. Seed만 Mockup 내용) */
-  reflection: ActivityReflectionAnswer[]
+  /** 학생 Reflection (없으면 null) */
+  reflection: ActivityReflection | null
+  /** 선생님 피드백 (요청해서 전달된 경우만) */
   feedback: ActivityTeacherFeedback | null
 }
 
@@ -111,24 +155,15 @@ export interface GrowthActivityListItem {
   evidenceCount: number
 }
 
-/** Reflection 질문 (ActivitiesDetail-02의 7개 질문). 답 채우기는 다음 Branch. */
-export const activityReflectionQuestions = [
-  '왜 참여했나요?',
-  '내가 맡은 역할은 무엇이었나요?',
-  '실제로 무엇을 했나요?',
-  '가장 어려웠던 점은 무엇이었나요?',
-  '무엇을 배우거나 새롭게 알게 되었나요?',
-  '다음번에는 무엇을 바꾸고 싶나요?',
-  '후속 활동이 있다면 무엇인가요?',
-]
-
-export const reflectionAnsweredCount = (activity: GrowthActivity) => activity.reflection.filter((item) => item.answer).length
+export const reflectionAnsweredCount = (activity: Pick<GrowthActivity, 'reflection'>) =>
+  activity.reflection ? activityReflectionFields.filter(({ key }) => activity.reflection?.[key].trim()).length : 0
 
 /** 카드 / Detail의 Reflection 상태 문장 */
 export function reflectionStatusText(activity: GrowthActivity): string {
   const answered = reflectionAnsweredCount(activity)
   if (answered === 0) return 'Reflection 아직 안 씀'
-  return `Reflection ${answered}/${activityReflectionQuestions.length}`
+  if (answered === activityReflectionFields.length) return 'Reflection 작성 완료'
+  return `Reflection ${answered}/${activityReflectionFields.length}`
 }
 
 /** 2026-09-12 → 2026.09.12, 기간이 하루면 한 날짜만 */
@@ -152,6 +187,13 @@ export function isThisSemester(startDate: string, snapshotDate: string): boolean
   }
   return semester(startDate) === semester(snapshotDate)
 }
+
+/**
+ * Reflection을 쓰거나 고칠 수 있는 상태인지: 제출 후 ~ 보완 전 (제출 / 피드백 대기 / 피드백 도착).
+ * 작성 중에는 먼저 기록을 제출해야 하고, 보완 완료 / Archive 저장 뒤에는 읽기 전용 (Frontend 임시 정책)
+ */
+export const isReflectionEditable = (activity: GrowthActivity) =>
+  activity.status === 'submitted' || activity.status === 'feedback-waiting' || activity.status === 'feedback-delivered'
 
 /** 학생이 기록을 고칠 수 있는 상태인지. 제출 후 수정 가능 범위는 정해지지 않아 지금은 작성 중일 때만 (Frontend 임시 정책) */
 export const isActivityEditable = (activity: GrowthActivity) => activity.status === 'draft'
