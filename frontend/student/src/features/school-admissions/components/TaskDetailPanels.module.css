@@ -1,0 +1,834 @@
+/* Task Detail 7 Tab 본문 (TasksDetail-01 ~ 07 Mockup) */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-6);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+}
+
+.sectionTitle {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.subTitle {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.sectionDescription {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.note {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.notPrepared,
+.empty {
+  padding: var(--lh-space-8) var(--lh-space-6);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}
+
+/* 준비 안 됨은 점선 테두리로 "실제로 없음(Empty)"과 구분한다. (문구도 다르다) */
+.notPrepared {
+  border: 1px dashed var(--lh-color-border);
+  background: transparent;
+}
+
+.infoBar {
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.aiBadge {
+  display: inline-block;
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-warning-subtle);
+  color: var(--lh-color-warning);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* ---- 추가 / 보기 (화면 준비 중) ---- */
+
+.addAction,
+.fileAction {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.addButton {
+  min-height: 40px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-weight: 700;
+}
+
+.addButton:disabled,
+.linkButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.addReason {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.linkButton {
+  min-height: 36px;
+  padding: 0 var(--lh-space-2);
+  border: 0;
+  background: none;
+  color: var(--lh-color-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---- 표 ---- */
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--lh-font-body);
+}
+
+.table th,
+.table td {
+  padding: var(--lh-space-4) var(--lh-space-2);
+  border-bottom: 1px solid var(--lh-color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table thead th {
+  padding-top: 0;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-weight: 500;
+}
+
+.criterionName {
+  font-weight: 600;
+}
+
+.pointsColumn {
+  width: 80px;
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.aiCheck {
+  color: var(--lh-color-text-secondary);
+}
+
+.fileCell {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.stageTag,
+.doneTag {
+  display: inline-block;
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.doneTag {
+  background: var(--lh-color-positive-subtle);
+  color: var(--lh-color-positive);
+}
+
+/* ---- Overview 주제 ---- */
+
+.topic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+}
+
+.topicState {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-caption);
+}
+
+/* ---- 평가 기준·제출물 ---- */
+
+.fileCard {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.fileType {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.fileText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fileName,
+.rowTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.fileMeta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--lh-space-6);
+}
+
+.deliverable {
+  font-size: var(--lh-font-title-sm);
+}
+
+.deadline {
+  color: var(--lh-color-text-tertiary);
+}
+
+/* ---- 참고 자료 ---- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.referenceRow {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-4) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.kindBadge {
+  flex-shrink: 0;
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.kindBadge[data-kind='article'],
+.kindBadge[data-kind='textbook'] {
+  background: var(--lh-color-positive-subtle);
+  color: var(--lh-color-positive);
+}
+
+/* ---- 과정 자료 ---- */
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--lh-space-3);
+}
+
+.categoryCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.categoryTitle {
+  font-weight: 700;
+}
+
+.categoryCount {
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.categoryCard[data-empty] .categoryCount {
+  color: var(--lh-color-text-tertiary);
+}
+
+.categoryDescription {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.categoryLatest {
+  margin-top: var(--lh-space-2);
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.categoryCard[data-empty] .categoryLatest {
+  color: var(--lh-color-text-tertiary);
+  font-weight: 400;
+}
+
+/* ---- 피드백 ---- */
+
+.teacherFeedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+}
+
+.feedbackTitle {
+  margin: 0;
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.feedbackMeta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.pendingBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.pendingNote {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.feedbackBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+}
+
+.feedbackNext {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.feedbackNextLabel {
+  font-weight: 700;
+}
+
+/* AI 사전 점검은 선생님 피드백보다 작고 옅게 (Secondary) */
+.secondarySection {
+  padding-top: var(--lh-space-6);
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.secondaryTitle {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+}
+
+.aiFeedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.aiTitle {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.reflectCount {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.aiItems {
+  display: flex;
+  flex-direction: column;
+}
+
+.aiItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-3) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+  color: var(--lh-color-text-secondary);
+}
+
+.reflectState {
+  flex-shrink: 0;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.reflectState[data-reflected] {
+  color: var(--lh-color-positive);
+  font-weight: 600;
+}
+
+/* ---- Mentor Case ---- */
+
+.caseList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+}
+
+.caseCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-5) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+}
+
+.caseHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lh-space-4);
+}
+
+.caseText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  min-width: 0;
+}
+
+.caseBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.caseType {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.teacherBadge {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.caseTitle {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.caseMeta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-body);
+}
+
+.caseOpen {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.caseOpen:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.caseRelation {
+  color: var(--lh-color-text-secondary);
+}
+
+.caseStages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.caseStage {
+  padding: var(--lh-space-1) var(--lh-space-3);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-surface-raised);
+  font-size: var(--lh-font-label);
+}
+
+.caseMaterials {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: var(--lh-space-2);
+}
+
+.caseMaterial {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.caseMaterialRole {
+  align-self: flex-start;
+  padding: 1px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.caseMaterialName {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.caseMaterialDescription {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+/* ---- 수정 기록 ---- */
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+}
+
+.versionRow {
+  display: grid;
+  grid-template-columns: 48px 140px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-3) var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+}
+
+.versionRow[data-selected] {
+  background: var(--lh-color-surface);
+}
+
+.versionLabel {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.versionDate,
+.versionSize {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-body);
+}
+
+.versionNote {
+  font-weight: 500;
+}
+
+.pairControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-3);
+}
+
+.pairLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.pairSelect {
+  min-height: 40px;
+  padding: 0 var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  font: inherit;
+}
+
+.diffCounts {
+  display: flex;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.diffCounts span {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+}
+
+.diffCounts [data-kind='removed'] {
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+}
+
+.diffCounts [data-kind='changed'] {
+  background: var(--lh-color-warning-subtle);
+  color: var(--lh-color-warning);
+}
+
+.diffCounts [data-kind='added'] {
+  background: var(--lh-color-positive-subtle);
+  color: var(--lh-color-positive);
+}
+
+.appliedFeedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.diffRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--lh-space-4);
+}
+
+.diffHeading {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.diffCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-title-sm);
+  line-height: 1.6;
+}
+
+/* 바뀐 덩어리: 테두리 + 배경 + 종류 Label을 함께 쓴다. (색상만으로 구분하지 않는다) */
+.diffRow[data-kind='changed'] .diffCell {
+  border-color: var(--lh-color-accent);
+  background: var(--lh-color-warning-subtle);
+}
+
+.diffRow[data-kind='removed'] .diffCell[data-side='before'] {
+  border-color: var(--lh-color-negative);
+  background: var(--lh-color-negative-subtle);
+}
+
+.diffRow[data-kind='added'] .diffCell[data-side='after'] {
+  border-color: var(--lh-color-positive);
+  background: var(--lh-color-positive-subtle);
+}
+
+.diffLabel {
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.diffRow[data-kind='changed'] .diffLabel {
+  color: var(--lh-color-warning);
+}
+
+.diffRow[data-kind='removed'] .diffLabel {
+  color: var(--lh-color-negative);
+}
+
+.diffRow[data-kind='added'] .diffLabel {
+  color: var(--lh-color-positive);
+}
+
+.diffText {
+  color: var(--lh-color-text-primary);
+  text-decoration: none;
+}
+
+.diffRow[data-kind='removed'] del.diffText {
+  text-decoration: line-through;
+}
+
+.diffPlaceholder {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-body);
+}
+
+@media (max-width: 1023px) {
+  .categoryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .twoColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 639px) {
+  .categoryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .caseCard {
+    padding: var(--lh-space-4);
+  }
+
+  .caseHeader {
+    flex-direction: column;
+  }
+
+  .caseOpen {
+    width: 100%;
+  }
+
+  .versionRow {
+    grid-template-columns: 40px minmax(0, 1fr);
+    row-gap: var(--lh-space-1);
+  }
+
+  .versionNote,
+  .versionSize {
+    grid-column: 2;
+  }
+
+  /* 좁은 화면: Before / After를 위아래로 쌓는다. 각 칸에 Before / After를 다시 알린다. */
+  .diffRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--lh-space-2);
+  }
+
+  .diffCell[data-side='before']::before {
+    content: 'Before';
+    color: var(--lh-color-text-tertiary);
+    font-size: var(--lh-font-caption);
+  }
+
+  .diffCell[data-side='after']::before {
+    content: 'After';
+    color: var(--lh-color-text-tertiary);
+    font-size: var(--lh-font-caption);
+  }
+
+  .diffHeadingRow,
+  .diffRow[data-kind='same'] .diffCell[data-side='after'] {
+    display: none;
+  }
+
+  .diffRow[data-kind='same'] .diffCell[data-side='before']::before {
+    content: '바뀌지 않음';
+  }
+
+  .referenceRow {
+    align-items: flex-start;
+  }
+
+  .fileCard {
+    flex-wrap: wrap;
+  }
+}

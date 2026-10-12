@@ -749,8 +749,9 @@ Integration Client
 
 ```text
 IN_PROGRESS
-School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home, 미커밋)
-Task Detail 이후 Flow: NOT_STARTED
+School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
+Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail, 미커밋)
+Topic Submission / Evidence Vault / Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -825,8 +826,10 @@ IN_PROGRESS
   - 과정 자료 / 결과물 미리보기 + 원본 다운로드: role과 무관하게 preview가 있으면 미리보기(Slide / 문서 Page / 표), original이 있으면 다운로드. 항생제 Case 과정 자료 4개(XLSX / HWP / PDF / HWP) + 최종본 PPTX 모두 미리보기 + 다운로드 (원본은 개발 검증용 Sample), Record에는 연결하지 않음
   - 실제 Case API / PII 검수 Backend / File Storage · File API / Task 참고 연결 저장 / Frontend 자동 Test: NOT_STARTED
 - Student Mentor Hub 8 Tab 통합: IMPLEMENTED (feat/student-mentor-case → feat/student-mentor-hub-home fast-forward, 83b1504, main 미병합)
-- Student School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home, 미커밋)
-  - 실제 Task API / Task Create / Task Detail 이후 화면 / Frontend 자동 Test: NOT_STARTED
+- Student School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
+  - Row → Task Detail 연결 (feat/student-school-task-detail)
+- Student Task Detail: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail, 미커밋)
+  - 실제 Task / Evidence / Version / Feedback / Revision API, Task Create, Topic Submission, Evidence Vault, AI Result · Retry, 파일 업로드 · 미리보기, Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1503,7 +1506,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 
 ```text
 Mentor Stack 통합: feat/student-mentor-case(83b1504) → feat/student-mentor-hub-home fast-forward (main 미병합)
-Student School Home / Tasks 목록: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student School Home / Tasks 목록: IMPLEMENTED (Fixture 기반 UI, 64c55b5)
 VERIFIED 아님: Task API 미연결, currentStage Enum 미확정, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1539,6 +1542,42 @@ student typecheck / lint / build, admin / mentor build, verify-frontend, verify 
 Headless Chrome (CDP): School Flow A~H 25항목 PASS (Global Nav · 내부 Nav · Task 9 · Filter / URL · 직접 URL · /school Redirect · 수행평가 Entry · School ↔ Mentor Active · Back Filter/Scroll 복원 · Loading / Empty / Error · Keyboard Focus 순서)
 1920 / 1280 / 768 / 390 / 320 가로 Overflow 없음, Dark mode 확인
 Mentor 회귀: 8 Tab · Home · List · Profile · Plan Apply · Routine Apply · Story · Q&A · Record · Case (Preview / Download 5개 byte 동일)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Task Detail (branch: feat/student-school-task-detail)
+
+### Status
+
+```text
+Student Task Detail (7 Tab): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: Task Detail / Evidence / Version / Feedback / Revision API 미연결, Diff Schema · Topic Approval Enum(OD-03) · File Storage(OD-09) 미확정, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Route `/school/tasks/:taskId?tab=&from=&to=` (TasksDetail-01 ~ 07). 9개 Task Row(›) 모두 각자 taskId Detail로 이동. Global Navigation "School Activity" Active 유지, School 내부 Navigation Tasks Active 유지
+- 상세 자료 범위(사용자 확인 2026-10-12): Speech(`fixture-task-02`)는 Mockup 내용, 항생제(`fixture-task-01`)는 확인된 사실만(4단계 · Mentor Case = Home 추천 relation · 피드백 / Version 없음), 나머지 7개는 목록 정보 + "상세 자료 준비 중"
+- Header(상태 Badge · 제목 · 제출물 · 과목 · 마감 D-day), 8단계 Stepper(좁은 화면 가로 Scroll + 현재 단계로 이동), Overview "지금 할 일" Card(단계 · 상태 · 다음 Action · Primary CTA), 다른 6 Tab은 한 줄 Compact Status
+- 운영시간 숫자 미노출: Mockup "Review 48h 초과 / 검토를 기다린 지 62시간" → "Review 지연 / 검토가 조금 지연되고 있어요."
+- Mentor Case: Canonical Activity Case를 contentId로 참조(최대 3, "선생님 추천" 먼저, Student 화면에 "Admin 추천" 문구 없음), "과정 자세히 보기" → 기존 Case Detail → Back 시 Mentor Case Tab / Scroll 복원
+- 수정 기록: 존재하는 V1 / V2만(Mockup의 "V3 예정" 행은 실제 Version이 아니라 제외), Version Pair URL 유지, 삭제 / 수정 / 추가 Label + del / ins
+- 피드백: 선생님 피드백 Primary, AI 사전 점검 Secondary(참고용 안내, 반영 여부 읽기 전용). Mockup의 "반영 체크 → Revision 단계 갱신"은 Stage 전이라 미구현
+- 아직 없는 화면 Action(초안 제출 · 녹음 올리기 · 참고 자료 / 과정 자료 추가 · 안내문 보기)은 비활성 + 이유 표시, 가짜 성공 없음. 과정 자료 행의 미리보기 / 삭제 Icon, 참고 자료 삭제는 넣지 않음
+- Review waiting / delay state uses text-only presentation: 선생님 검토 · AI 분석을 기다리는 Task(turn = waiting, 보류 아님, 8단계 이전 · Frontend 파생 값)는 Header 상태를 Badge 대신 Text(예: V2 검토 대기 · 검토가 조금 지연되고 있어요.)로, 지금 할 일 Card / Compact Status / 피드백 검토 상자도 Text만 사용. Spinner · Badge · Animation 없음 (Data Loading Skeleton은 유지). Deadline Passed / Hold / 완료 Badge는 기존 유지
+
+### Open / Contract Gap
+
+- Task Detail Contract에 평가 기준 / 안내문 / 참고 자료 / 과정 자료 Category / 지금 할 일 문구 / 피드백 반영 여부 / Revision Diff Shape 없음 → Frontend View Model (api-contract 미수정)
+- Student Mentor Case Detail의 Admin 추천 Badge 문구("Admin 추천", Mentor Hub)와 Task Detail의 "선생님 추천" 문구 통일 여부
+- TaskDetailTabs는 Mentor UnderlineTabs와 같은 Pattern의 School 전용 Component (두 Feature 공통 Tab 승격은 별도 검토)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

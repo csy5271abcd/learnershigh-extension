@@ -27,20 +27,31 @@ interface SchoolLayoutProps {
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
   busy?: boolean
+  /** School 제목 / 설명. Task Detail처럼 h1이 따로 있는 화면은 false (내부 Navigation Context만 유지) */
+  showPageHeader?: boolean
   children: ReactNode
 }
 
 // School 화면 공통: Page 제목 + School 내부 Navigation.
 // 아직 화면이 없는 Section은 비활성으로 두고 이유를 함께 알린다. (가짜 Page를 만들지 않는다)
-export function SchoolLayout({ current, studentGrade, onSectionSelect, busy = false, children }: SchoolLayoutProps) {
+export function SchoolLayout({
+  current,
+  studentGrade,
+  onSectionSelect,
+  busy = false,
+  showPageHeader = true,
+  children,
+}: SchoolLayoutProps) {
   const visibleSections = sections.filter((section) => !section.senior || studentGrade === '고3')
 
   return (
     <main className={styles.page} aria-busy={busy}>
-      <header className={styles.header}>
-        <h1 className={styles.pageTitle}>School</h1>
-        <p className={styles.lead}>수행평가를 단계별로 관리하고, 끝난 활동은 기록으로 모아요.</p>
-      </header>
+      {showPageHeader && (
+        <header className={styles.header}>
+          <h1 className={styles.pageTitle}>School</h1>
+          <p className={styles.lead}>수행평가를 단계별로 관리하고, 끝난 활동은 기록으로 모아요.</p>
+        </header>
+      )}
 
       <nav className={styles.bar} aria-label="School">
         <ul className={styles.list}>

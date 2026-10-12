@@ -2,7 +2,7 @@
 
 .list {
   /* Task | 마감 | 현재 단계 | 상태 (Mockup 1920px 기준 열 비율) */
-  --task-columns: minmax(0, 1fr) 140px 220px 200px;
+  --task-columns: minmax(0, 1fr) 140px 220px 200px 24px;
 
   display: flex;
   flex-direction: column;

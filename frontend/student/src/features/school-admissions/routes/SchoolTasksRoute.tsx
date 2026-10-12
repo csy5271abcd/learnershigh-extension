@@ -6,7 +6,8 @@ import {
 } from '../fixtures/schoolTasks.fixture.ts'
 import { parseTaskListFilter, type TaskListFilter } from '../model/tasks.ts'
 import { SchoolTasksPage } from '../SchoolTasksPage.tsx'
-import { schoolTasksPath } from './paths.ts'
+import { schoolTaskPath, schoolTasksPath } from './paths.ts'
+import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
 // School Home = Tasks. Filter는 URL(?filter=)에 두어 새로고침 / Back 후에도 유지한다.
 // Scroll은 App Shell의 ScrollRestoration이 복원한다. 개발용 ?fixture=는 함께 써도 된다.
@@ -37,6 +38,10 @@ export function SchoolTasksRoute() {
       loadList={loadList}
       filter={filter}
       onFilterChange={changeFilter}
+      onTaskSelect={(taskId) => {
+        const state: SchoolTaskDetailEntryState = { fromTaskList: true }
+        navigate(schoolTaskPath(taskId), { state })
+      }}
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         // 이 Branch에서 화면이 있는 Section은 Tasks뿐이다.

@@ -1,0 +1,184 @@
+/* 지금 할 일 (TasksDetail-01 Mockup): 넓은 회색 Card */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-6) var(--lh-space-8);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+}
+
+.eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.stage {
+  color: var(--lh-color-text-tertiary);
+  font-weight: 500;
+}
+
+/* 내 차례: 채워진 점 (Text와 함께 쓴다). 기다리는 중에는 표시 없이 Text만 쓴다. */
+.turnDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lh-color-accent);
+}
+
+.headline {
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.description {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-title-sm);
+}
+
+.fact {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.primary {
+  margin-top: var(--lh-space-3);
+}
+
+.more {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  margin-top: var(--lh-space-3);
+  padding-top: var(--lh-space-5);
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.moreLabel {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.moreActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 44px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-weight: 700;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+}
+
+.secondaryButton {
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--lh-color-surface-hover);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionWithReason {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+}
+
+.actionReason {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+/* ---- 다른 Tab의 한 줄 상태 ---- */
+
+.compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2) var(--lh-space-4);
+  padding: var(--lh-space-3) var(--lh-space-5);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-body);
+}
+
+.compactStage {
+  font-weight: 600;
+}
+
+.compactTurn {
+  color: var(--lh-color-text-secondary);
+}
+
+.compactTurn[data-turn='student'] {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+.compactNext,
+.compactNote {
+  color: var(--lh-color-text-tertiary);
+}
+
+@media (max-width: 639px) {
+  .card {
+    padding: var(--lh-space-5);
+  }
+
+  /* 좁은 화면: 단계 · 상태는 다음 줄에 구분점 없이 둔다. */
+  .stage {
+    flex-basis: 100%;
+  }
+
+  .stageSeparator {
+    display: none;
+  }
+
+  .headline {
+    font-size: var(--lh-font-title-md);
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+
+  .actionWithReason,
+  .moreActions {
+    width: 100%;
+  }
+
+  .moreActions {
+    flex-direction: column;
+  }
+}

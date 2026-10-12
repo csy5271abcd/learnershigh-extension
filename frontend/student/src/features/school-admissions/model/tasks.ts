@@ -30,6 +30,17 @@ export const taskAttentionLabel: Record<TaskAttentionFlag, string> = {
 export const taskTurnText = (task: StudentTaskSummary) =>
   task.attentionFlags.includes('onHold') ? '보류' : taskTurnLabel[task.turn]
 
+/**
+ * 학생이 아니라 선생님 검토 / AI 분석 같은 바깥 처리를 기다리는 중인지. (Frontend 파생 값, Contract Status Enum 아님)
+ * - 기다리는 차례(turn = waiting)이고
+ * - 보류(onHold)가 아니며
+ * - 최종 단계(8) 이전일 때만 기다림으로 본다. (최종 제출 이후는 완료)
+ * Review 지연(reviewDelayed)도 실패가 아니라 이 기다림이 길어진 상태다. Deadline Passed 자체는 기다림 조건이 아니다.
+ * Task Detail Header는 이 상태를 Badge 대신 Text로 보여준다. (움직이는 표시 / Badge 없음)
+ */
+export const isAwaitingOthers = (task: StudentTaskSummary) =>
+  task.turn === 'waiting' && !task.attentionFlags.includes('onHold') && task.currentStage < 8
+
 // ---------- 목록 Filter (Tasks-00 Chip: 전체 / 내 차례 / 기다리는 중 / 주의 필요) ----------
 
 export type TaskListFilter = 'all' | 'mine' | 'waiting' | 'attention'

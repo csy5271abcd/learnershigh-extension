@@ -13,11 +13,12 @@ interface SchoolTaskRowProps {
   task: StudentTaskSummary
   /** D-day 기준일 (목록 응답 값) */
   snapshotDate: string
+  onSelect: () => void
 }
 
 // Tasks-00 Task 한 줄: 제목 · 제출물 · 과목 / 마감 · D-day / n/8 · 단계 상태 + 8칸 진행 / 주의 표시 · 차례 (+ 내 차례면 다음 할 일)
-// Task Detail은 다음 Branch에서 만든다. 아직 이동할 화면이 없어 Row를 Link로 만들지 않는다.
-export function SchoolTaskRow({ task, snapshotDate }: SchoolTaskRowProps) {
+// 제목 Button이 Row 전체로 확장되어 Row 어디를 눌러도 Task Detail로 이동한다. (Tasks-00 Mockup의 ›)
+export function SchoolTaskRow({ task, snapshotDate, onSelect }: SchoolTaskRowProps) {
   const titleId = `school-task-${task.taskId}-title`
   const countdown = deadlineCountdown(task.deadlineDate, snapshotDate)
   const stageName = taskStageNames[task.currentStage]
@@ -26,7 +27,9 @@ export function SchoolTaskRow({ task, snapshotDate }: SchoolTaskRowProps) {
     <article className={styles.row} aria-labelledby={titleId}>
       <div className={styles.task}>
         <h3 id={titleId} className={styles.title}>
-          {task.title}
+          <button type="button" className={styles.titleButton} onClick={onSelect}>
+            {task.title}
+          </button>
         </h3>
         <p className={styles.meta}>
           {task.deliverableSummary} · {task.subject}
@@ -71,6 +74,10 @@ export function SchoolTaskRow({ task, snapshotDate }: SchoolTaskRowProps) {
         </span>
         {task.turn === 'student' && <span className={styles.nextAction}>{task.nextAction}</span>}
       </div>
+
+      <span className={styles.chevron} aria-hidden="true">
+        ›
+      </span>
     </article>
   )
 }

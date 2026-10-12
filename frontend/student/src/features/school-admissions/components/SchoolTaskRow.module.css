@@ -6,6 +6,7 @@
  */
 
 .row {
+  position: relative;
   display: grid;
   grid-template-columns: var(--task-columns);
   column-gap: var(--lh-space-6);
@@ -25,6 +26,43 @@
   font-size: 1.0625rem;
   font-weight: 600;
   line-height: 1.45;
+}
+
+/* 제목 Button의 클릭 영역을 Row 전체로 넓힌다. */
+.titleButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.titleButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.titleButton:focus-visible {
+  outline: none;
+}
+
+.titleButton:focus-visible::after {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: -2px;
+  border-radius: var(--lh-radius-md);
+}
+
+.row:hover {
+  background: var(--lh-color-surface);
+}
+
+.chevron {
+  color: var(--lh-color-text-tertiary);
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 .meta {
@@ -123,6 +161,17 @@
 }
 
 @media (max-width: 1023px) {
+  /* 좁은 화면에서는 › 를 제목 줄 오른쪽 끝에 고정한다. (Grid 칸을 차지하지 않는다) */
+  .chevron {
+    position: absolute;
+    top: var(--lh-space-5);
+    right: 0;
+  }
+
+  .task {
+    padding-right: var(--lh-space-6);
+  }
+
   .row {
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1fr);
     row-gap: var(--lh-space-3);

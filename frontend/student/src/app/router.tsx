@@ -17,7 +17,13 @@ import { MentorRoutineDetailRoute } from '../features/mentor-hub/routes/MentorRo
 import { MentorRoutineListRoute } from '../features/mentor-hub/routes/MentorRoutineListRoute.tsx'
 import { MentorStoryDetailRoute } from '../features/mentor-hub/routes/MentorStoryDetailRoute.tsx'
 import { MentorStoryFeedRoute } from '../features/mentor-hub/routes/MentorStoryFeedRoute.tsx'
-import { schoolRoutePattern, schoolTasksPath, schoolTasksRoutePattern } from '../features/school-admissions/routes/paths.ts'
+import {
+  schoolRoutePattern,
+  schoolTaskRoutePattern,
+  schoolTasksPath,
+  schoolTasksRoutePattern,
+} from '../features/school-admissions/routes/paths.ts'
+import { SchoolTaskDetailRoute } from '../features/school-admissions/routes/SchoolTaskDetailRoute.tsx'
 import { SchoolTasksRoute } from '../features/school-admissions/routes/SchoolTasksRoute.tsx'
 import {
   mentorCaseListRoutePattern,
@@ -77,6 +83,7 @@ export const studentRouter = createBrowserRouter([
       // School Home의 기본 화면은 Tasks다.
       { path: schoolRoutePattern, element: <Navigate to={schoolTasksPath} replace /> },
       { path: schoolTasksRoutePattern, element: <SchoolTasksRoute /> },
+      { path: schoolTaskRoutePattern, element: <SchoolTaskDetailRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

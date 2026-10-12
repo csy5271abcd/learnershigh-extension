@@ -15,9 +15,9 @@ export const schoolStudentContext = {
   grade: mentorHubHomeFixture.studentContext.grade,
 }
 
-const SNAPSHOT_DATE = '2026-10-06'
+export const SCHOOL_SNAPSHOT_DATE = '2026-10-06'
 
-const tasks: StudentTaskSummary[] = [
+export const fixtureStudentTasks: StudentTaskSummary[] = [
   {
     taskId: 'fixture-task-02',
     title: '사회 쟁점 3분 영어 Speech · How AI is Changing Education',
@@ -153,9 +153,9 @@ export function createSchoolTaskListFixtureLoader(scenario: SchoolTaskListFixtur
         case 'error':
           return Promise.reject(new Error('School task list fixture error'))
         case 'empty':
-          return Promise.resolve({ items: [], snapshotDate: SNAPSHOT_DATE })
+          return Promise.resolve({ items: [], snapshotDate: SCHOOL_SNAPSHOT_DATE })
         case 'success':
-          return Promise.resolve({ items: tasks, snapshotDate: SNAPSHOT_DATE })
+          return Promise.resolve({ items: fixtureStudentTasks, snapshotDate: SCHOOL_SNAPSHOT_DATE })
       }
     }
     loaders.set(scenario, loader)

@@ -11,13 +11,21 @@ interface SchoolTasksPageProps {
   /** Filter는 호출 측(Route, URL ?filter=)이 소유해 새로고침 / 다른 화면 왕복 후에도 유지한다. */
   filter: TaskListFilter
   onFilterChange: (filter: TaskListFilter) => void
+  onTaskSelect: (taskId: string) => void
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
 // School Home = Tasks 목록 (Tasks-00 Mockup)
 // 학생이 빠르게 파악할 것: 어떤 Task / 과목 / 현재 단계 / 상태 / 마감 / 다음 할 일. (KPI 화면이 아니다)
-export function SchoolTasksPage({ loadList, filter, onFilterChange, studentGrade, onSectionSelect }: SchoolTasksPageProps) {
+export function SchoolTasksPage({
+  loadList,
+  filter,
+  onFilterChange,
+  onTaskSelect,
+  studentGrade,
+  onSectionSelect,
+}: SchoolTasksPageProps) {
   const { state, reload } = useSchoolTaskList(loadList)
 
   return (
@@ -75,7 +83,7 @@ export function SchoolTasksPage({ loadList, filter, onFilterChange, studentGrade
               아직 등록한 수행평가가 없어요. 새 수행평가를 받으면 여기에서 단계별로 관리할 수 있어요.
             </p>
           ) : (
-            <TaskList data={state.data} filter={filter} onFilterChange={onFilterChange} />
+            <TaskList data={state.data} filter={filter} onFilterChange={onFilterChange} onTaskSelect={onTaskSelect} />
           ))}
       </section>
     </SchoolLayout>
@@ -86,9 +94,10 @@ interface TaskListProps {
   data: StudentTaskListResult
   filter: TaskListFilter
   onFilterChange: (filter: TaskListFilter) => void
+  onTaskSelect: (taskId: string) => void
 }
 
-function TaskList({ data, filter, onFilterChange }: TaskListProps) {
+function TaskList({ data, filter, onFilterChange, onTaskSelect }: TaskListProps) {
   // Chip 숫자는 같은 Task 목록에서 센다. (별도 Counter를 두지 않는다)
   const counts = Object.fromEntries(
     taskListFilters.map(({ id }) => [id, data.items.filter((task) => matchesTaskFilter(task, id)).length]),
@@ -130,7 +139,7 @@ function TaskList({ data, filter, onFilterChange }: TaskListProps) {
           <ul className={styles.rows}>
             {visible.map((task) => (
               <li key={task.taskId}>
-                <SchoolTaskRow task={task} snapshotDate={data.snapshotDate} />
+                <SchoolTaskRow task={task} snapshotDate={data.snapshotDate} onSelect={() => onTaskSelect(task.taskId)} />
               </li>
             ))}
           </ul>
