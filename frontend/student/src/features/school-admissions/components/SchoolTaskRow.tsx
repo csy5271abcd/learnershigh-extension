@@ -31,9 +31,7 @@ export function SchoolTaskRow({ task, snapshotDate, onSelect }: SchoolTaskRowPro
             {task.title}
           </button>
         </h3>
-        <p className={styles.meta}>
-          {task.deliverableSummary} · {task.subject}
-        </p>
+        <p className={styles.meta}>{[task.deliverableSummary, task.subject].filter(Boolean).join(' · ')}</p>
       </div>
 
       <p className={styles.deadline}>

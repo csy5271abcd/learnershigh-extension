@@ -750,7 +750,8 @@ Integration Client
 ```text
 IN_PROGRESS
 School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
-Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail, 미커밋)
+Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
+Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create, 미커밋)
 Topic Submission / Evidence Vault / Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
 ```
 
@@ -828,8 +829,10 @@ IN_PROGRESS
 - Student Mentor Hub 8 Tab 통합: IMPLEMENTED (feat/student-mentor-case → feat/student-mentor-hub-home fast-forward, 83b1504, main 미병합)
 - Student School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
   - Row → Task Detail 연결 (feat/student-school-task-detail)
-- Student Task Detail: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail, 미커밋)
-  - 실제 Task / Evidence / Version / Feedback / Revision API, Task Create, Topic Submission, Evidence Vault, AI Result · Retry, 파일 업로드 · 미리보기, Frontend 자동 Test: NOT_STARTED
+- Student Task Detail: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
+  - 실제 Task / Evidence / Version / Feedback / Revision API, Topic Submission, Evidence Vault, AI Result · Retry, 파일 업로드 · 미리보기, Frontend 자동 Test: NOT_STARTED
+- Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create, 미커밋)
+  - 실제 POST /api/student/tasks / File Storage(안내문 파일) / 기존 Performance Task 연결(OD-07) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1552,7 +1555,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Task Detail (7 Tab): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Task Detail (7 Tab): IMPLEMENTED (Fixture 기반 UI, b807fcb)
 VERIFIED 아님: Task Detail / Evidence / Version / Feedback / Revision API 미연결, Diff Schema · Topic Approval Enum(OD-03) · File Storage(OD-09) 미확정, Frontend 자동 Test Framework 미선택
 ```
 
@@ -1578,6 +1581,42 @@ VERIFIED 아님: Task Detail / Evidence / Version / Feedback / Revision API 미�
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Task Create (branch: feat/student-school-task-create)
+
+### Status
+
+```text
+Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: POST /api/student/tasks / File Storage 미연결, 생성 Task는 화면 Session 메모리 저장(새로고침 시 사라짐), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- 처음 만든 Full Page(`/school/tasks/new`)를 TaskRegister-01 ~ 05 Mockup 기준 Modal Wizard로 교체 (Full Page / Route 삭제)
+- Tasks 화면 위 Modal(`?create=1`, 열 때 History 추가 → Browser Back으로 닫힘, 새로고침 시 빈 Form). 뒤의 목록 / Filter / Scroll 유지. Global Navigation "School Activity" / 내부 Tasks Active 유지
+- 4단계 안내문 → 기본 정보 → 평가 기준 → 확인. 상단 4칸 선 + Label(완료 / 현재 / 남은 단계, 이동 버튼 아님), 단계별 검사, 이전 시 입력 유지
+- 안내문: 파일 올리기(Native file input, 기존 LearnersHigh 허용 확장자, 용량 제한 없음) / 직접 입력. 파일 준비 진행률은 FileReader progress의 loaded / total 실제 값(서버 Upload 진행률 아님, 인위적 지연 없음), reading / ready / error 상태, 교체 · 빼기
+- 기본 정보: 과제 제목 · 과목(Fixture 고2 과목 Radio Chip) · 형태(Mockup 후보 8개) · 지금 어디까지 했나요(맥락 정보만, Stage 전이 없음) · 마감일(date input). 제목 · 과목 · 마감 필수
+- 평가 기준: 기준 · 배점 Row 추가 / 삭제, 합계 실시간(100점 강제 없음), 제출물
+- 확인: Form 값 Summary, 등록하기 → Fixture 저장소(`fixture-created-task-00n`) → Modal 닫힘 → 목록 맨 위 · Filter 숫자 재계산 · 새 Task로 Focus. 새 Task는 1단계 · 다음 할 일 주제 선정
+- 작성 중 취소 / 닫기 / ESC / Browser Back → 나가기 확인, Backdrop 클릭으로 닫히지 않음, 새로고침 → beforeunload. 중복 등록 방지, 실패 시 확인 단계 · 입력 유지
+
+### Open / Contract Gap
+
+- Stage 1 / 2: Interaction은 생성 직후 주제 단계(1→2), api-contract §9-2는 Stage 1 → Stage 1 유지
+- "지금 어디까지 했나요?": Mockup 안내 "이미 끝난 단계는 완료로 표시"의 Stage 전이 규칙이 Domain / Contract에 없음 → 맥락 정보로만 보관, 안내 문구는 전이를 약속하지 않게 변경
+- 기존 LearnersHigh 수행평가 작성과 Extension Task Create의 관계 / 중복 생성 방지(OD-07)
+- POST Request에 안내문 파일 / 형태 / 진행 정도 / 평가 기준 / 제출물 없음 → Frontend Create Draft로만 둠 (api-contract 미수정)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M · P1~P5)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

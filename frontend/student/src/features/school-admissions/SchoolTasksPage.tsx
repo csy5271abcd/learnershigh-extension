@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { SchoolLayout, type SchoolSectionId } from './components/SchoolLayout.tsx'
 import { SchoolTaskRow } from './components/SchoolTaskRow.tsx'
 import styles from './SchoolTasksPage.module.css'
@@ -12,6 +13,11 @@ interface SchoolTasksPageProps {
   filter: TaskListFilter
   onFilterChange: (filter: TaskListFilter) => void
   onTaskSelect: (taskId: string) => void
+  onCreateTask: () => void
+  /** "수행평가 등록" 버튼 id (Modal을 닫으면 Focus를 돌려준다) */
+  createTriggerId: string
+  /** 방금 등록한 Task. 목록에 나타나면 그 Task로 Focus를 옮기고 알린다. */
+  createdTaskId?: string
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
@@ -23,6 +29,9 @@ export function SchoolTasksPage({
   filter,
   onFilterChange,
   onTaskSelect,
+  onCreateTask,
+  createTriggerId,
+  createdTaskId,
   studentGrade,
   onSectionSelect,
 }: SchoolTasksPageProps) {
@@ -37,14 +46,10 @@ export function SchoolTasksPage({
           </h2>
           <p className={styles.createDescription}>안내문을 올리고 평가 기준을 정리하면 8단계로 관리할 수 있어요.</p>
         </div>
-        {/* Task Create 화면은 다음 작업이다. 가짜 Form / 완료 안내를 만들지 않는다. */}
         <div className={styles.createAction}>
-          <button type="button" className={styles.createButton} disabled aria-describedby="school-task-create-unavailable">
+          <button id={createTriggerId} type="button" className={styles.createButton} aria-haspopup="dialog" onClick={onCreateTask}>
             수행평가 등록
           </button>
-          <span id="school-task-create-unavailable" className={styles.createUnavailable}>
-            등록 화면 준비 중
-          </span>
         </div>
       </section>
 
@@ -83,7 +88,13 @@ export function SchoolTasksPage({
               아직 등록한 수행평가가 없어요. 새 수행평가를 받으면 여기에서 단계별로 관리할 수 있어요.
             </p>
           ) : (
-            <TaskList data={state.data} filter={filter} onFilterChange={onFilterChange} onTaskSelect={onTaskSelect} />
+            <TaskList
+              data={state.data}
+              filter={filter}
+              onFilterChange={onFilterChange}
+              onTaskSelect={onTaskSelect}
+              createdTaskId={createdTaskId}
+            />
           ))}
       </section>
     </SchoolLayout>
@@ -95,9 +106,18 @@ interface TaskListProps {
   filter: TaskListFilter
   onFilterChange: (filter: TaskListFilter) => void
   onTaskSelect: (taskId: string) => void
+  createdTaskId?: string
 }
 
-function TaskList({ data, filter, onFilterChange, onTaskSelect }: TaskListProps) {
+function TaskList({ data, filter, onFilterChange, onTaskSelect, createdTaskId }: TaskListProps) {
+  const created = createdTaskId ? data.items.find((task) => task.taskId === createdTaskId) : undefined
+
+  // 방금 등록한 Task로 Focus를 옮긴다. (목록 맨 위)
+  useEffect(() => {
+    if (!created) return
+    document.querySelector<HTMLButtonElement>(`[id="school-task-${created.taskId}-title"] button`)?.focus()
+  }, [created])
+
   // Chip 숫자는 같은 Task 목록에서 센다. (별도 Counter를 두지 않는다)
   const counts = Object.fromEntries(
     taskListFilters.map(({ id }) => [id, data.items.filter((task) => matchesTaskFilter(task, id)).length]),
@@ -107,6 +127,9 @@ function TaskList({ data, filter, onFilterChange, onTaskSelect }: TaskListProps)
 
   return (
     <>
+      <p className="lh-visually-hidden" role="status">
+        {created ? `'${created.title}' 수행평가를 등록했어요.` : ''}
+      </p>
       <div className={styles.filters} role="group" aria-label="수행평가 Filter">
         {taskListFilters.map(({ id, label }) => (
           <button

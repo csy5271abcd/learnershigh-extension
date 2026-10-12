@@ -69,7 +69,7 @@ function CriteriaTable({ criteria, withAi }: { criteria: TaskEvaluationCriterion
             <th scope="row" className={styles.criterionName}>
               {criterion.name}
             </th>
-            <td className={styles.pointsColumn}>{criterion.points}점</td>
+            <td className={styles.pointsColumn}>{criterion.points === null ? '—' : `${criterion.points}점`}</td>
             {withAi && <td className={styles.aiCheck}>{criterion.aiCheck ?? '—'}</td>}
           </tr>
         ))}
@@ -147,7 +147,13 @@ export function TaskEvaluationPanel({ data }: { data: StudentTaskDetail }) {
             </span>
           </div>
         ) : (
-          <NotPrepared what="안내문" />
+          !detail?.guideText && <NotPrepared what="안내문" />
+        )}
+        {detail?.guideText && (
+          <div className={styles.guideText}>
+            <p className={styles.subTitle}>안내문 내용</p>
+            <p className={styles.guideTextBody}>{detail.guideText}</p>
+          </div>
         )}
       </section>
 
@@ -162,7 +168,7 @@ export function TaskEvaluationPanel({ data }: { data: StudentTaskDetail }) {
           <h3 id="task-deliverable-heading" className={styles.subTitle}>
             제출물 · 마감
           </h3>
-          <p className={styles.deliverable}>{task.deliverableSummary}</p>
+          <p className={styles.deliverable}>{task.deliverableSummary || '수행형태를 아직 정하지 않았어요.'}</p>
           <p className={styles.deadline}>
             마감 {formatDeadline(task.deadlineDate)} · {deadlineCountdown(task.deadlineDate, snapshotDate)}
           </p>

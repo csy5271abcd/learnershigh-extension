@@ -56,14 +56,12 @@
   font-weight: 700;
 }
 
-.createButton:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.createButton {
+  cursor: pointer;
 }
 
-.createUnavailable {
-  color: var(--lh-color-text-tertiary);
-  font-size: var(--lh-font-caption);
+.createButton:hover {
+  background: var(--lh-color-accent-hover);
 }
 
 /* ---- Filter Chip ---- */

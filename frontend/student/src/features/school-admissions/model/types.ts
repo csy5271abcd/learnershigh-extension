@@ -56,7 +56,8 @@ export interface TaskGuideFile {
 export interface TaskEvaluationCriterion {
   criterionId: string
   name: string
-  points: number
+  /** 배점. 학생이 등록할 때 비워둘 수 있다. */
+  points: number | null
   /** 최신 Version의 AI 사전 점검 한 줄. 참고용 보조 점검이며 채점이 아니다. */
   aiCheck?: string
 }
@@ -188,6 +189,8 @@ export interface StudentTaskDetailExtra {
   topic: { text: string; approved: boolean } | null
   nowCard: TaskNowCard
   guideFile: TaskGuideFile | null
+  /** 학생이 직접 입력한 안내문 내용 (Task Create, POST /api/student/tasks description) */
+  guideText: string | null
   criteria: TaskEvaluationCriterion[] | null
   references: TaskReferenceMaterial[] | null
   processMaterials: TaskProcessMaterial[] | null

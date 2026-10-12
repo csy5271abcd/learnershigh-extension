@@ -172,8 +172,9 @@ function TaskDetail({ data, tab, fromVersionParam, toVersionParam, onTabChange, 
           {task.title}
         </h1>
         <p className={styles.meta}>
-          {task.deliverableSummary} · {task.subject} · {formatDeadline(task.deadlineDate)} 마감 (
-          {deadlineCountdown(task.deadlineDate, snapshotDate)})
+          {[task.deliverableSummary, task.subject, `${formatDeadline(task.deadlineDate)} 마감 (${deadlineCountdown(task.deadlineDate, snapshotDate)})`]
+            .filter(Boolean)
+            .join(' · ')}
         </p>
       </header>
 

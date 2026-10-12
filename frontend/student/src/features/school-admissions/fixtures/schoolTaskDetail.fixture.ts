@@ -12,6 +12,7 @@ import { mentorHubHomeFixture } from '../../mentor-hub/fixtures/mentorHubHome.fi
 import { fixtureMentorContent } from '../../mentor-hub/fixtures/mentors.fixture.ts'
 import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/caseMaterials.ts'
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
+import { findCreatedTask } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
 
 /** Task의 Case 연결(contentId)을 Canonical Activity Case 값으로 채운다. 공개되지 않은(없는) Case는 보여주지 않는다. */
@@ -50,6 +51,7 @@ const speechDetail: StudentTaskDetailExtra = {
     waitingActions: [{ kind: 'unavailable', label: '발표 연습 녹음 올리기', reason: '녹음 올리기 화면은 준비 중이에요.' }],
   },
   guideFile: { fileName: '2학기 영어 수행평가 안내문_Speech.pdf', format: 'PDF', registeredDate: '2026-09-22' },
+  guideText: null,
   criteria: [
     { criterionId: 'thesis', name: '내용 구성 · thesis', points: 30, aiCheck: 'thesis가 두 번째 문단에 있어요. 앞쪽으로 옮기면 좋아요' },
     { criterionId: 'time', name: '시간 준수 (2분 40초~3분 20초)', points: 20, aiCheck: '3분 55초 · 35초 길어요' },
@@ -157,6 +159,7 @@ const antibioticDetail: StudentTaskDetailExtra = {
     waitingActions: [{ kind: 'openTab', label: '선생님 추천 Case 보기', tab: 'mentor-case' }],
   },
   guideFile: null,
+  guideText: null,
   criteria: null,
   references: null,
   processMaterials: null,
@@ -197,6 +200,9 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
         case 'error':
           return Promise.reject(new Error('School task detail fixture error'))
         case 'success': {
+          // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
+          const created = findCreatedTask(taskId)
+          if (created) return Promise.resolve({ task: created.task, detail: created.detail, snapshotDate: SCHOOL_SNAPSHOT_DATE })
           const task = fixtureStudentTasks.find((item) => item.taskId === taskId)
           return Promise.resolve(task ? { task, detail: details[taskId] ?? null, snapshotDate: SCHOOL_SNAPSHOT_DATE } : null)
         }
