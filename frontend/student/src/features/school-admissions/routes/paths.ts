@@ -19,6 +19,9 @@ export const topicModalParam = 'topic'
 /** Task Detail 위 Version 제출 Modal (?version=submit). Browser Back으로 닫힌다. */
 export const versionModalParam = 'version'
 
+/** 피드백 Tab에서 특정 Version 피드백으로 이동 (?tab=feedback&versionId=) */
+export const feedbackVersionParam = 'versionId'
+
 /** Task Detail. Tab은 ?tab=, 수정 기록 Version Pair는 ?from=&to=로 둔다. */
 export function schoolTaskPath(taskId: string): string {
   return `${schoolTasksPath}/${encodeURIComponent(taskId)}`

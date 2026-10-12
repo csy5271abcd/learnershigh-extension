@@ -1,5 +1,13 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { evidenceConditionText } from '../model/evidence.ts'
+import {
+  feedbackAiAnchorId,
+  feedbackVersionAnchorId,
+  groupTeacherFeedback,
+  isReflectEditable,
+  reflectTargetKey,
+  type FeedbackReflectTarget,
+} from '../model/feedback.ts'
 import { aiStatusHeadingId, versionAiStatusText } from '../model/version.ts'
 import type { AiRetryNotice } from './useVersionManager.tsx'
 import {
@@ -311,47 +319,165 @@ export function TaskProcessPanel({ data, onAdd, onPreview, onDelete, deleteError
 
 // ---------- 5. 피드백 (TasksDetail-05): 선생님 피드백 Primary / AI 사전 점검 Secondary ----------
 
-function TeacherFeedbackCard({ feedback, delayed }: { feedback: TaskTeacherFeedback; delayed: boolean }) {
+/** "반영함" 표시를 바꾸는 흐름 (Route / Page가 저장을 맡는다) */
+export interface FeedbackReflectControl {
+  toggle: (target: FeedbackReflectTarget, reflected: boolean) => void
+  /** 저장 중인 항목 (중복 요청 방지) */
+  pendingKey?: string
+  /** 저장하지 못한 항목 */
+  errorKey?: string
+}
+
+/**
+ * "반영함": 학생이 실제 제출물을 고쳤다고 본인이 표시하는 Checkbox. (켜고 끌 수 있다, 시스템 검증이 아니다)
+ * 지난 Version 피드백은 읽기 전용 Text로 보여준다.
+ */
+function ReflectToggle({
+  context,
+  reflected,
+  target,
+  editable,
+  control,
+}: {
+  context: string
+  reflected: boolean
+  target: FeedbackReflectTarget
+  editable: boolean
+  control: FeedbackReflectControl
+}) {
+  if (!editable) {
+    return (
+      <span className={styles.reflectState} data-reflected={reflected || undefined}>
+        {reflected ? '반영함' : '아직 반영 전'}
+      </span>
+    )
+  }
+  const key = reflectTargetKey(target)
+  const pending = control.pendingKey === key
   return (
-    <article className={styles.teacherFeedback} aria-labelledby={`${feedback.feedbackId}-title`}>
-      <h4 id={`${feedback.feedbackId}-title`} className={styles.feedbackTitle}>
-        선생님 피드백 · {feedback.versionLabel}
+    <label className={styles.reflectToggle} data-pending={pending || undefined}>
+      <input
+        type="checkbox"
+        checked={reflected}
+        disabled={pending}
+        aria-label={`${context} — 반영함`}
+        aria-describedby={control.errorKey === key ? `${key}-error` : undefined}
+        onChange={(event) => control.toggle(target, event.target.checked)}
+      />
+      <span aria-hidden="true">{pending ? '저장 중…' : '반영함'}</span>
+    </label>
+  )
+}
+
+function ReflectError({ target, control }: { target: FeedbackReflectTarget; control: FeedbackReflectControl }) {
+  const key = reflectTargetKey(target)
+  if (control.errorKey !== key) return null
+  return (
+    <p id={`${key}-error`} className={styles.reflectError} role="alert">
+      반영 표시를 저장하지 못했어요. 표시는 그대로예요. 다시 시도해주세요.
+    </p>
+  )
+}
+
+/** Version 하나의 선생님 피드백 (검토 중 / 전달됨) */
+function TeacherFeedbackGroup({
+  data,
+  versionId,
+  versionLabel,
+  items,
+  delayed,
+  control,
+}: {
+  data: StudentTaskDetail
+  versionId: string
+  versionLabel: string
+  items: TaskTeacherFeedback[]
+  delayed: boolean
+  control: FeedbackReflectControl
+}) {
+  const headingId = `${feedbackVersionAnchorId(versionId)}-title`
+  const delivered = items.filter((item) => item.status === 'delivered')
+  const required = delivered.filter((item) => item.required)
+  const editable = isReflectEditable(data, versionId)
+  return (
+    <article id={feedbackVersionAnchorId(versionId)} className={styles.teacherFeedback} aria-labelledby={headingId}>
+      <h4 id={headingId} className={styles.feedbackTitle} tabIndex={-1}>
+        선생님 피드백 · {versionLabel}
       </h4>
-      {feedback.status === 'reviewing' ? (
+      {delivered.length === 0 ? (
         <>
           <p className={styles.feedbackMeta}>공용 검토 대기열에서 확인하고 있어요.</p>
           <div className={styles.pendingBox}>
-            <p>{feedback.versionLabel} 검토가 진행 중이에요.</p>
+            <p>{versionLabel} 검토가 진행 중이에요.</p>
             <p className={styles.pendingNote}>
-              {delayed ? '검토가 조금 지연되고 있어요.' : '선생님 검토가 끝나면 피드백을 확인할 수 있어요.'}
+              {delayed ? '검토가 조금 지연되고 있어요.' : '선생님 검토를 기다리고 있어요. 검토가 끝나면 피드백을 확인할 수 있어요.'}
             </p>
           </div>
         </>
       ) : (
         <>
-          {feedback.deliveredAt && <p className={styles.feedbackMeta}>{formatDateTime(feedback.deliveredAt)} 전달</p>}
-          <div className={styles.feedbackBody}>
-            <p>{feedback.comment}</p>
-            {feedback.nextAction && (
-              <p className={styles.feedbackNext}>
-                <span className={styles.feedbackNextLabel}>다음 할 일</span>
-                {feedback.nextAction}
-              </p>
+          <p className={styles.feedbackMeta}>
+            {delivered[0].deliveredAt && `${formatDateTime(delivered[0].deliveredAt)} 전달`}
+            {required.length > 0 && (
+              <span className={styles.requiredCount}>
+                {' '}
+                · 필수 {required.filter((item) => item.reflected).length}/{required.length} 반영
+              </span>
             )}
-          </div>
+          </p>
+          <ul className={styles.teacherItems}>
+            {delivered.map((item) => {
+              const target: FeedbackReflectTarget = { kind: 'teacher', taskId: data.task.taskId, feedbackId: item.feedbackId }
+              return (
+                <li key={item.feedbackId} className={styles.teacherItem}>
+                  <div className={styles.feedbackBody}>
+                    <p>
+                      {item.required && <span className="lh-visually-hidden">필수 피드백: </span>}
+                      {item.comment}
+                    </p>
+                    {item.nextAction && (
+                      <p className={styles.feedbackNext}>
+                        <span className={styles.feedbackNextLabel}>다음 할 일</span>
+                        {item.nextAction}
+                      </p>
+                    )}
+                    <ReflectError target={target} control={control} />
+                  </div>
+                  <ReflectToggle
+                    context={item.comment ?? ''}
+                    reflected={Boolean(item.reflected)}
+                    target={target}
+                    editable={editable}
+                    control={control}
+                  />
+                </li>
+              )
+            })}
+          </ul>
         </>
       )}
     </article>
   )
 }
 
-function AiFeedbackCard({ feedback, teacherReviewed }: { feedback: TaskAiFeedback; teacherReviewed: boolean }) {
+function AiFeedbackCard({
+  data,
+  feedback,
+  teacherReviewed,
+  control,
+}: {
+  data: StudentTaskDetail
+  feedback: TaskAiFeedback
+  teacherReviewed: boolean
+  control: FeedbackReflectControl
+}) {
   const reflected = feedback.items.filter((item) => item.reflected).length
+  const editable = isReflectEditable(data, feedback.versionId)
   return (
-    <article className={styles.aiFeedback} aria-labelledby={`${feedback.feedbackId}-title`}>
+    <article id={feedbackAiAnchorId(feedback.versionId)} className={styles.aiFeedback} aria-labelledby={`${feedback.feedbackId}-title`}>
       <div className={styles.sectionHeader}>
         <div>
-          <h4 id={`${feedback.feedbackId}-title`} className={styles.aiTitle}>
+          <h4 id={`${feedback.feedbackId}-title`} className={styles.aiTitle} tabIndex={-1}>
             AI 사전 점검 · {feedback.versionLabel}
             <span className={styles.aiBadge}>{teacherReviewed ? 'AI 1차 분석' : 'AI 1차 분석 · 선생님 확인 전'}</span>
           </h4>
@@ -361,16 +487,19 @@ function AiFeedbackCard({ feedback, teacherReviewed }: { feedback: TaskAiFeedbac
           {reflected}/{feedback.items.length} 반영
         </span>
       </div>
-      {/* 반영 여부 저장은 Contract에 없어 읽기 전용으로 보여준다. */}
       <ul className={styles.aiItems}>
-        {feedback.items.map((item) => (
-          <li key={item.itemId} className={styles.aiItem}>
-            <span>{item.summary}</span>
-            <span className={styles.reflectState} data-reflected={item.reflected || undefined}>
-              {item.reflected ? '✓ 반영함' : '아직 반영 전'}
-            </span>
-          </li>
-        ))}
+        {feedback.items.map((item) => {
+          const target: FeedbackReflectTarget = { kind: 'ai', taskId: data.task.taskId, feedbackId: feedback.feedbackId, itemId: item.itemId }
+          return (
+            <li key={item.itemId} className={styles.aiItem}>
+              <div className={styles.aiItemText}>
+                <span>{item.summary}</span>
+                <ReflectError target={target} control={control} />
+              </div>
+              <ReflectToggle context={item.summary} reflected={item.reflected} target={target} editable={editable} control={control} />
+            </li>
+          )
+        })}
       </ul>
     </article>
   )
@@ -443,19 +572,47 @@ interface TaskFeedbackPanelProps {
   onRetry: (version: TaskVersion) => void
   retryingId?: string
   retryNotice?: AiRetryNotice
+  /** 특정 Version 피드백으로 바로 이동 (?version=) */
+  versionParam: string | null
+  reflect: FeedbackReflectControl
+  /** 피드백만 다시 불러오기 */
+  onReload: () => void
 }
 
-export function TaskFeedbackPanel({ data, onRetry, retryingId, retryNotice }: TaskFeedbackPanelProps) {
-  const feedback = data.detail?.feedback
-  // 결과가 아직 없는 AI 사전 점검 (최근 Version이 먼저)
-  const pendingAi = data.versions.items.filter((version) => version.aiAnalysisStatus !== 'success').reverse()
-  if (!feedback) {
+export function TaskFeedbackPanel({ data, onRetry, retryingId, retryNotice, versionParam, reflect, onReload }: TaskFeedbackPanelProps) {
+  // 특정 Version 피드백으로 들어오면 그 묶음을 보여주고 제목으로 Focus (선생님 피드백이 없으면 AI 사전 점검)
+  useEffect(() => {
+    if (!versionParam) return
+    const target = document.getElementById(feedbackVersionAnchorId(versionParam)) ?? document.getElementById(feedbackAiAnchorId(versionParam))
+    if (!target) return
+    target.scrollIntoView({ block: 'start' })
+    target.querySelector<HTMLElement>('h4')?.focus({ preventScroll: true })
+  }, [versionParam])
+
+  if (data.feedback.status === 'error') {
+    return (
+      <div className={styles.panel}>
+        <div className={styles.sectionError} role="alert">
+          <p className={styles.sectionErrorTitle}>피드백을 불러오지 못했어요.</p>
+          <p className={styles.sectionDescription}>수행평가의 다른 내용은 그대로 볼 수 있어요.</p>
+          <button type="button" className={styles.retryButton} onClick={onReload}>
+            다시 시도
+          </button>
+        </div>
+      </div>
+    )
+  }
+  if (data.feedback.status === 'not-prepared') {
     return (
       <div className={styles.panel}>
         <NotPrepared what="피드백" />
       </div>
     )
   }
+  const feedback = data.feedback.data
+  // 결과가 아직 없는 AI 사전 점검 (최근 Version이 먼저)
+  const pendingAi = data.versions.items.filter((version) => version.aiAnalysisStatus !== 'success').reverse()
+  const missingVersion = versionParam && !data.versions.items.some((version) => version.versionId === versionParam)
   if (feedback.teacher.length === 0 && feedback.ai.length === 0 && pendingAi.length === 0) {
     return (
       <div className={styles.panel}>
@@ -468,16 +625,33 @@ export function TaskFeedbackPanel({ data, onRetry, retryingId, retryNotice }: Ta
   const delayed = data.task.attentionFlags.includes('reviewDelayed')
   return (
     <div className={styles.panel}>
-      <p className={styles.infoBar}>선생님 피드백을 먼저 확인하세요. AI 사전 점검은 참고용이에요.</p>
+      {missingVersion && (
+        <p className={styles.sectionError} role="alert">
+          선택한 버전의 피드백을 찾을 수 없어요. 아래에서 받은 피드백을 확인해주세요.
+        </p>
+      )}
+      <p className={styles.infoBar}>선생님 피드백을 먼저 확인하세요. 반영한 항목을 체크하면 다음 할 일이 함께 바뀌어요.</p>
 
       <section className={styles.section} aria-labelledby="task-teacher-feedback-heading">
         <h3 id="task-teacher-feedback-heading" className={styles.sectionTitle}>
           선생님 피드백
         </h3>
         {feedback.teacher.length === 0 ? (
-          <EmptyNotice>아직 받은 선생님 피드백이 없어요.</EmptyNotice>
+          <EmptyNotice>
+            {data.versions.items.length > 0 ? '선생님 피드백을 기다리고 있어요.' : '아직 받은 선생님 피드백이 없어요.'}
+          </EmptyNotice>
         ) : (
-          feedback.teacher.map((item) => <TeacherFeedbackCard key={item.feedbackId} feedback={item} delayed={delayed} />)
+          groupTeacherFeedback(feedback.teacher).map((group) => (
+            <TeacherFeedbackGroup
+              key={group.versionId}
+              data={data}
+              versionId={group.versionId}
+              versionLabel={group.versionLabel}
+              items={group.items}
+              delayed={delayed}
+              control={reflect}
+            />
+          ))
         )}
       </section>
 
@@ -496,16 +670,16 @@ export function TaskFeedbackPanel({ data, onRetry, retryingId, retryNotice }: Ta
           />
         ))}
         {feedback.ai.length === 0 && pendingAi.length === 0 ? (
-          <EmptyNotice>아직 AI 사전 점검 결과가 없어요.</EmptyNotice>
+          <EmptyNotice>AI 사전 점검 결과가 아직 없어요.</EmptyNotice>
         ) : (
           feedback.ai.map((item) => (
             <AiFeedbackCard
               key={item.feedbackId}
+              data={data}
               feedback={item}
               // 같은 Version의 선생님 피드백이 전달됐으면 선생님 확인 전 표시를 떼어낸다.
-              teacherReviewed={feedback.teacher.some(
-                (teacher) => teacher.versionLabel === item.versionLabel && teacher.status === 'delivered',
-              )}
+              teacherReviewed={feedback.teacher.some((teacher) => teacher.versionId === item.versionId && teacher.status === 'delivered')}
+              control={reflect}
             />
           ))
         )}
@@ -657,7 +831,8 @@ export function TaskRevisionPanel({
   fromParam: string | null
   toParam: string | null
   onVersionPairChange: (fromVersionId: string, toVersionId: string) => void
-  onFeedbackOpen: () => void
+  /** 반영한 피드백으로 이동 (그 피드백의 Version) */
+  onFeedbackOpen: (versionId: string) => void
   onVersionPreview: (version: TaskVersion, trigger: HTMLElement) => void
 }) {
   const versions = data.versions.complete ? data.versions.items : null
@@ -681,9 +856,10 @@ export function TaskRevisionPanel({
   const to = versions.find((version) => version.versionId === pair?.toVersionId)
   const diff = pair ? findRevisionDiff(data.detail?.revisionDiffs ?? [], pair.fromVersionId, pair.toVersionId) : undefined
   const counts = diff ? revisionDiffCounts(diff.blocks) : undefined
-  const appliedFeedback = diff?.appliedFeedbackId
-    ? data.detail?.feedback?.teacher.find((item) => item.feedbackId === diff.appliedFeedbackId)
-    : undefined
+  const appliedFeedback =
+    diff?.appliedFeedbackId && data.feedback.status === 'ready'
+      ? data.feedback.data.teacher.find((item) => item.feedbackId === diff.appliedFeedbackId)
+      : undefined
   const fromIndex = versions.findIndex((version) => version.versionId === pair?.fromVersionId)
 
   // 블록 번호는 종류별로 센다. (수정 1, 수정 2 …)
@@ -784,7 +960,7 @@ export function TaskRevisionPanel({
           {appliedFeedback && (
             <p className={styles.appliedFeedback}>
               반영한 피드백: 선생님 피드백 · {appliedFeedback.versionLabel}
-              <button type="button" className={styles.linkButton} onClick={onFeedbackOpen}>
+              <button type="button" className={styles.linkButton} onClick={() => onFeedbackOpen(appliedFeedback.versionId)}>
                 피드백 보기
               </button>
             </p>

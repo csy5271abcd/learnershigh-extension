@@ -13,7 +13,8 @@ import { fixtureMentorContent } from '../../mentor-hub/fixtures/mentors.fixture.
 import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/caseMaterials.ts'
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
 import { taskEvidence } from './schoolEvidence.fixture.ts'
-import { sessionAiFeedbackFor, taskVersions } from './schoolVersion.fixture.ts'
+import { taskFeedback } from './schoolFeedback.fixture.ts'
+import { taskVersions } from './schoolVersion.fixture.ts'
 import { findCreatedTask, findSeedOverride, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
 
@@ -66,37 +67,6 @@ const speechDetail: StudentTaskDetailExtra = {
     { referenceId: 'herald', kind: 'article', title: 'AI 디지털교과서 도입 관련 기사', source: 'The Korea Herald', usage: '도입부 사례' },
     { referenceId: 'textbook', kind: 'textbook', title: '영어Ⅰ 교과서 4단원 Speech 예시', source: 'p.86~89', usage: '구조 참고' },
   ],
-  feedback: {
-    teacher: [
-      { feedbackId: 'speech-teacher-v2', versionLabel: 'V2', status: 'reviewing' },
-      {
-        feedbackId: 'speech-teacher-v1',
-        versionLabel: 'V1',
-        status: 'delivered',
-        comment: '도입부가 길어서 핵심 주장이 늦게 나와요. 같은 표현이 여러 번 반복되는 부분도 다시 읽어보세요.',
-        nextAction: '도입부를 줄이고 반복 표현을 정리한 V2를 제출하세요.',
-        deliveredAt: '2026-10-02T16:10:00+09:00',
-      },
-    ],
-    ai: [
-      {
-        feedbackId: 'speech-ai-v2',
-        versionLabel: 'V2',
-        analyzedAt: '2026-10-03T20:47:00+09:00',
-        items: [
-          { itemId: 'time', summary: '분량이 3분 55초예요. 목표 3분보다 55초 길어요.', reflected: true },
-          { itemId: 'thesis', summary: 'thesis가 두 번째 문단에 있어요. 처음 듣는 사람이 주장을 언제 알 수 있을지 생각해보세요.', reflected: false },
-          { itemId: 'repeat', summary: '같은 표현이 2회 반복돼요. 어느 부분인지 다시 읽어보세요.', reflected: false },
-        ],
-      },
-      {
-        feedbackId: 'speech-ai-v1',
-        versionLabel: 'V1',
-        analyzedAt: '2026-10-01T22:12:00+09:00',
-        items: [{ itemId: 'time', summary: '분량이 4분 20초예요. 목표 시간보다 길어요.', reflected: true }],
-      },
-    ],
-  },
   mentorCases: caseViews([
     { contentId: fixtureMentorContent.speechCase.contentId, teacherRecommended: true, relationNote: '분량 초과를 줄여간 과정이 지금 V2와 같아요.' },
     { contentId: fixtureMentorContent.tourGuideCase.contentId, teacherRecommended: false, relationNote: '영어 표현을 읽는 사람 기준으로 고친 과정을 볼 수 있어요.' },
@@ -154,8 +124,6 @@ const antibioticDetail: StudentTaskDetailExtra = {
   guideText: null,
   criteria: null,
   references: null,
-  // 4단계(초안 V1 미제출): 제출한 Version이 없으니 피드백 / 수정 기록도 실제로 없다.
-  feedback: { teacher: [], ai: [] },
   mentorCases: caseViews(recommendedCasesFor(antibioticTaskId)),
   revisionDiffs: [],
 }
@@ -168,7 +136,6 @@ const riverDetail: StudentTaskDetailExtra = {
   guideText: null,
   criteria: null,
   references: null,
-  feedback: null,
   mentorCases: null,
   revisionDiffs: [],
 }
@@ -186,30 +153,21 @@ export function seedTaskDetail(taskId: string): StudentTaskDetailExtra | null {
 
 // ---------- Scenario (개발 중 ?fixture= 로 확인) ----------
 
-export type SchoolTaskDetailFixtureScenario = 'success' | 'loading' | 'error'
-const scenarios: SchoolTaskDetailFixtureScenario[] = ['success', 'loading', 'error']
+/** feedback-error-once: Task는 불러오고 피드백만 한 번 실패 (피드백 Tab에서 다시 시도) */
+export type SchoolTaskDetailFixtureScenario = 'success' | 'loading' | 'error' | 'feedback-error-once'
+const scenarios: SchoolTaskDetailFixtureScenario[] = ['success', 'loading', 'error', 'feedback-error-once']
+/** 피드백 실패를 처음 본 저장소 revision. 다시 시도(저장소 갱신) 뒤에는 성공한다. (StrictMode 중복 호출에도 같은 결과) */
+let feedbackErrorRevision: number | undefined
 
 export function readSchoolTaskDetailFixtureScenario(search: string): SchoolTaskDetailFixtureScenario {
   const value = new URLSearchParams(search).get('fixture')
   return scenarios.find((scenario) => scenario === value) ?? 'success'
 }
 
-/**
- * 피드백 Tab에 Version 결과를 붙인다.
- * - 이번 Session의 AI 사전 점검 결과(최근 것이 먼저)
- * - 공용 검토 대기열에 들어갔지만 아직 선생님 피드백이 없는 Version: "검토 중" 표시만 (가짜 피드백 내용 없음)
- */
-function withVersionFeedback(taskId: string, detail: StudentTaskDetailExtra | null): StudentTaskDetailExtra | null {
-  if (!detail) return detail
-  const versions = taskVersions(taskId).items
-  const generated = sessionAiFeedbackFor(taskId)
-  const base = detail.feedback ?? { teacher: [], ai: [] }
-  const pendingReviews = versions
-    .filter((version) => version.inFeedbackQueue && !base.teacher.some((item) => item.versionLabel === version.label))
-    .reverse()
-    .map((version) => ({ feedbackId: `${version.versionId}-review`, versionLabel: version.label, status: 'reviewing' as const }))
-  if (generated.length === 0 && pendingReviews.length === 0) return detail
-  return { ...detail, feedback: { teacher: [...pendingReviews, ...base.teacher], ai: [...generated, ...base.ai] } }
+function feedbackFailsNow(scenario: SchoolTaskDetailFixtureScenario): boolean {
+  if (scenario !== 'feedback-error-once') return false
+  feedbackErrorRevision ??= taskStoreRevision()
+  return feedbackErrorRevision === taskStoreRevision()
 }
 
 export type SchoolTaskDetailLoader = (taskId: string) => Promise<StudentTaskDetail | null>
@@ -230,7 +188,8 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
           return new Promise<StudentTaskDetail | null>(() => {})
         case 'error':
           return Promise.reject(new Error('School task detail fixture error'))
-        case 'success': {
+        case 'success':
+        case 'feedback-error-once': {
           // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
           const created = findCreatedTask(taskId)
           const override = findSeedOverride(taskId)
@@ -240,9 +199,10 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
           const detail = created ? created.detail : (override?.detail ?? details[taskId] ?? null)
           return Promise.resolve({
             task,
-            detail: withVersionFeedback(taskId, detail),
+            detail,
             evidence: taskEvidence(taskId),
             versions: taskVersions(taskId),
+            feedback: feedbackFailsNow(scenario) ? { status: 'error' } : taskFeedback(taskId),
             snapshotDate: SCHOOL_SNAPSHOT_DATE,
           })
         }

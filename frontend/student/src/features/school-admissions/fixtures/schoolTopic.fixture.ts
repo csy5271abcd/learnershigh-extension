@@ -29,7 +29,6 @@ const emptyDetail = (): StudentTaskDetailExtra => ({
   guideText: null,
   criteria: null,
   references: null,
-  feedback: null,
   mentorCases: null,
   revisionDiffs: [],
 })

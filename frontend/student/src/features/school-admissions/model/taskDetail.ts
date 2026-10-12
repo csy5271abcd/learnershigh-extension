@@ -1,6 +1,7 @@
 import type {
   StudentTaskDetail,
   TaskDetailAction,
+  TaskFeedback,
   TaskNowCard,
   TaskProcessCategory,
   TaskReferenceKind,
@@ -37,12 +38,12 @@ export function taskDetailTabCount(data: StudentTaskDetail, tab: TaskDetailTabId
   if (tab === 'process') return data.evidence.complete ? data.evidence.items.length : undefined
   // 수정 기록은 Canonical Version에서 센다.
   if (tab === 'revision') return data.versions.complete ? data.versions.items.length : undefined
+  // 피드백은 Canonical Feedback에서 센다.
+  if (tab === 'feedback') return data.feedback.status === 'ready' ? deliveredFeedbackCount(data.feedback.data) : undefined
   if (!detail) return undefined
   switch (tab) {
     case 'references':
       return detail.references?.length
-    case 'feedback':
-      return detail.feedback ? deliveredFeedbackCount(detail.feedback) : undefined
     case 'mentor-case':
       return detail.mentorCases?.length
     default:
@@ -51,7 +52,7 @@ export function taskDetailTabCount(data: StudentTaskDetail, tab: TaskDetailTabId
 }
 
 /** 학생에게 전달된 피드백 수: 전달된 선생님 피드백 + AI 사전 점검 항목 (검토 중인 피드백은 세지 않는다) */
-export function deliveredFeedbackCount(feedback: NonNullable<NonNullable<StudentTaskDetail['detail']>['feedback']>): number {
+export function deliveredFeedbackCount(feedback: TaskFeedback): number {
   const teacher = feedback.teacher.filter((item) => item.status === 'delivered').length
   const ai = feedback.ai.reduce((sum, item) => sum + item.items.length, 0)
   return teacher + ai

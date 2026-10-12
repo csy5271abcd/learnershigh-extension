@@ -65,7 +65,7 @@ export function withVersionNowCard(data: StudentTaskDetail, card: TaskNowCard): 
       headline: 'AI 사전 점검을 마쳤어요',
       description: '선생님 검토를 기다리고 있어요. AI 사전 점검은 참고용이에요.',
       fact: submittedFact(latest),
-      primaryAction: { kind: 'openTab', label: 'AI 사전 점검 보기', tab: 'feedback' },
+      primaryAction: { kind: 'openTab', label: 'AI 사전 점검 보기', tab: 'feedback', versionId: latest.versionId },
       waitingActions: card.waitingActions,
     }
   }

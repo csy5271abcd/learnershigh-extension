@@ -3,6 +3,13 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { mentorCasePath } from '../../mentor-hub/routes/paths.ts'
 import { createSchoolTaskDetailFixtureLoader, readSchoolTaskDetailFixtureScenario } from '../fixtures/schoolTaskDetail.fixture.ts'
 import { createSchoolEvidenceFixtureService, readSchoolEvidenceFixtureScenario } from '../fixtures/schoolEvidence.fixture.ts'
+import {
+  applyTeacherFeedbackFixture,
+  createSchoolFeedbackFixtureService,
+  readSchoolFeedbackFixtureScenario,
+  readTeacherFeedbackFixture,
+} from '../fixtures/schoolFeedback.fixture.ts'
+import { markTaskStoreChanged } from '../fixtures/schoolTaskRepository.fixture.ts'
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import {
   applyAiAnalysisFixture,
@@ -20,7 +27,7 @@ import { canSubmitTopic } from '../model/topic.ts'
 import { canSubmitVersion } from '../model/version.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
-import { schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
+import { feedbackVersionParam, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
 import { SchoolTopicModal } from './SchoolTopicModal.tsx'
 import { SchoolVersionSubmitModal } from './SchoolVersionSubmitModal.tsx'
 
@@ -87,6 +94,26 @@ export function SchoolTaskDetailRoute() {
     )
   }, [aiFixture, taskId, setSearchParams, location.state])
 
+  // 개발용: 선생님 피드백 전달 재현 (?fixtureTeacherFeedback=delivered). 공용 검토 대기열의 Admin Review 결과이므로
+  // Student 화면에는 버튼이 없다. 검토 대기 중인 최근 Version에 적용한 뒤 주소에서 지운다.
+  const teacherFixture = import.meta.env.DEV && readTeacherFeedbackFixture(searchParams.toString())
+  useEffect(() => {
+    if (!teacherFixture) return
+    applyTeacherFeedbackFixture(taskId)
+    setSearchParams(
+      (current) => {
+        const params = new URLSearchParams(current)
+        params.delete('fixtureTeacherFeedback')
+        return params
+      },
+      { replace: true, preventScrollReset: true, state: location.state },
+    )
+  }, [teacherFixture, taskId, setSearchParams, location.state])
+
+  const feedbackService = createSchoolFeedbackFixtureService(
+    import.meta.env.DEV ? readSchoolFeedbackFixtureScenario(searchParams.toString()) : 'success',
+  )
+
   const versionService = createSchoolVersionFixtureService(
     import.meta.env.DEV ? readSchoolVersionFixtureScenario(searchParams.toString()) : 'success',
   )
@@ -151,10 +178,13 @@ export function SchoolTaskDetailRoute() {
     )
   }
 
-  const changeTab = (next: TaskDetailTabId) =>
+  const changeTab = (next: TaskDetailTabId, versionId?: string) =>
     updateParams((params) => {
       if (next === 'overview') params.delete('tab')
       else params.set('tab', next)
+      // 특정 Version 피드백으로 이동할 때만 둔다. (다른 Tab으로 가면 지운다)
+      if (next === 'feedback' && versionId) params.set(feedbackVersionParam, versionId)
+      else params.delete(feedbackVersionParam)
     })
 
   return (
@@ -189,6 +219,15 @@ export function SchoolTaskDetailRoute() {
         setEvidenceRevision((value) => value + 1)
       }}
       onOpenVersionSubmit={openVersionSubmit}
+      feedbackService={feedbackService}
+      onFeedbackChanged={() => {
+        // 반영 표시 저장 / 피드백 다시 불러오기: 저장소를 갱신해 Loader가 새로 읽게 한다.
+        markTaskStoreChanged()
+        setTopicSubmitted(false)
+        setVersionSubmitted(false)
+        setEvidenceRevision((value) => value + 1)
+      }}
+      feedbackVersionParam={searchParams.get(feedbackVersionParam)}
       // 지금 Version을 낼 수 있는 상태(학생 차례 4 / 7단계, 분석 중 아님)에서만 연다.
       renderVersionDialog={(data) =>
         versionOpen && canSubmitVersion(data) ? (

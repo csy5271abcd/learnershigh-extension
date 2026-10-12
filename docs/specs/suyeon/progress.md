@@ -754,8 +754,9 @@ Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-s
 Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
 Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
 Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
-Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai, 미커밋)
-Student Feedback 반영 / Revision V2 이후 Flow: NOT_STARTED
+Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
+Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback, 미커밋)
+Revision V2 제출 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -840,8 +841,10 @@ IN_PROGRESS
   - 실제 PUT /api/student/tasks/{taskId}/topic / Admin Topic Review / topicApprovalStatus Enum(OD-03) / Frontend 자동 Test: NOT_STARTED
 - Student Evidence (Task Detail 과정 자료 Tab + /school/evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
   - 실제 GET / POST / DELETE /api/student/tasks/{taskId}/evidence / File Storage(OD-09) / stageTag Enum / Frontend 자동 Test: NOT_STARTED
-- Student Version Submit + AI 사전 점검 Result / Retry (Task Detail 위 Modal + 지금 할 일 / 피드백 / 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai, 미커밋)
+- Student Version Submit + AI 사전 점검 Result / Retry (Task Detail 위 Modal + 지금 할 일 / 피드백 / 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
   - 실제 Version API / AI Analysis / Shared Feedback Queue · Admin Review / File Storage / Frontend 자동 Test: NOT_STARTED
+- Student Feedback (Task Detail 피드백 Tab, 선생님 Primary · AI Secondary · 반영함): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback, 미커밋)
+  - 실제 GET …/feedback / 반영 저장 Endpoint / Admin Feedback Review · Queue / Revision V2 제출 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1713,7 +1716,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture 기반 UI, dd98b36)
 VERIFIED 아님: POST / GET /api/student/tasks/{taskId}/versions · …/ai-analysis/retry 미연결, 실제 AI 분석 · File Storage(OD-09) · Shared Feedback Queue / Admin Review 미연결, aiAnalysisStatus 전체 Enum 미확정, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1740,6 +1743,44 @@ VERIFIED 아님: POST / GET /api/student/tasks/{taskId}/versions · …/ai-analy
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Feedback (branch: feat/student-school-feedback)
+
+### Status
+
+```text
+Student Feedback (Task Detail 피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: GET /api/student/tasks/{taskId}/feedback 미연결, 반영 저장 Endpoint 없음(Contract Gap), Admin Feedback Review / Shared Feedback Queue 미연결, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Version + AI 보정 후 Commit(dd98b36): AI 성공 → 5단계 완료 → 6단계 선생님 피드백(공용 검토 대기열), 분석 중 / 실패 / 다시 시도는 5단계. Python Seed 6/8 V1 검토 대기로 정리
+- Canonical Feedback 저장소(schoolFeedback.fixture): Speech 피드백을 Detail Fixture에서 옮김, AI 사전 점검은 Version Fixture 결과를 그대로 읽음(복사 없음). 선생님 / AI 피드백 모두 versionId로 Version에 연결
+- 피드백 Tab(TasksDetail-05): 선생님 피드백 Primary(Version별 카드, 위 · 큰 제목, 다음 할 일), AI 사전 점검 Secondary(아래, 참고용 안내, n/m 반영)
+- 선생님 검토 대기: "V1 검토가 진행 중이에요 · 선생님 검토를 기다리고 있어요" Text만 (가짜 피드백 없음, Spinner / Badge 없음)
+- 선생님 피드백 전달은 Admin Review 결과라 Student 버튼 없음. 개발 중 `?fixtureTeacherFeedback=delivered`로만 재현 (Contract §13-1 예시 문장 사용)
+- 반영함: 항목마다 Checkbox(켜고 끌 수 있음, 학생 본인 표시). 최근 Version 피드백만 바꿀 수 있고 지난 Version은 읽기 전용 Text. 저장 후 화면 갱신, 저장 중 중복 요청 없음, 실패 시 표시 유지 + 그 항목 이유
+- 필수: 전달된 선생님 피드백 = 필수, AI 사전 점검 = 선택(View Model). 필수 n/m을 실제 값으로 계산
+- 다음 할 일: 일부 반영 → "선생님 피드백을 확인하고 수정할 내용을 반영해주세요"(수정본 V2 제출 비활성 + 이유), 모두 반영 → "수정본 V2를 준비해주세요"(수정본 제출 화면 준비 중). Stage 6 유지, Tasks 목록도 같은 값
+- 바로가기: AI 사전 점검 보기 / 수정 기록 "피드백 보기" → `?tab=feedback&versionId=` → 그 Version 피드백 제목으로 Focus · Scroll. 없는 Version은 그 영역 안내
+- 피드백만 불러오지 못하면 피드백 Tab 안 오류 + 다시 시도 (Task 전체 오류와 구분)
+
+### Open / Contract Gap
+
+- 반영 저장 Endpoint 없음, reflected / required 필드 없음, 선생님 피드백 항목 단위 Schema 부족(현재 feedbackId = 항목)
+- 필수 반영 완료 → 7단계(Revision) 전이 시점: 수정본 V2 제출 Flow와 함께 정함 (지금은 6단계 유지)
+- TasksDetail-05 안내문의 "반영한 항목을 체크하면 Revision 단계가 함께 갱신돼요"는 다음 할 일 갱신까지만 반영
+- AI 사전 점검 항목의 반영 표시가 필수 판단에 쓰이는지 미정 (지금은 선택)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~J)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

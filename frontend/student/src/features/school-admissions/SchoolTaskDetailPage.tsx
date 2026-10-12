@@ -15,8 +15,11 @@ import { TaskStageStepper } from './components/TaskStageStepper.tsx'
 import { useEvidenceManager } from './components/useEvidenceManager.tsx'
 import { useVersionManager } from './components/useVersionManager.tsx'
 import type { SchoolEvidenceService } from './fixtures/schoolEvidence.fixture.ts'
+import type { SchoolFeedbackService } from './fixtures/schoolFeedback.fixture.ts'
 import type { SchoolVersionService } from './fixtures/schoolVersion.fixture.ts'
 import { withEvidenceNowCard } from './model/evidence.ts'
+import { withFeedbackNowCard } from './model/feedback.ts'
+import { useFeedbackReflect } from './model/useFeedbackReflect.ts'
 import { aiStatusHeadingId, latestVersion, withVersionNowCard } from './model/version.ts'
 import styles from './SchoolTaskDetailPage.module.css'
 import {
@@ -41,7 +44,8 @@ interface SchoolTaskDetailPageProps {
   tab: TaskDetailTabId
   fromVersionParam: string | null
   toVersionParam: string | null
-  onTabChange: (tab: TaskDetailTabId) => void
+  /** versionId: 피드백 Tab에서 특정 Version 피드백으로 바로 이동 */
+  onTabChange: (tab: TaskDetailTabId, versionId?: string) => void
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
   onBackToTasks: () => void
   onMentorCaseOpen: (contentId: string) => void
@@ -61,6 +65,12 @@ interface SchoolTaskDetailPageProps {
   onVersionChanged: () => void
   /** 지금 할 일의 "초안 V1 제출 / 수정본 Vn 제출" */
   onOpenVersionSubmit: () => void
+  /** 피드백 "반영함" Boundary. 현재는 Fixture (Contract에 갱신 Endpoint 없음) */
+  feedbackService: SchoolFeedbackService
+  /** 피드백이 바뀌거나 다시 불러올 때 호출 측이 Task를 다시 불러온다. */
+  onFeedbackChanged: () => void
+  /** 피드백 Tab에서 이동할 Version (?versionId=) */
+  feedbackVersionParam: string | null
   /** Version 제출 Modal (Task 값을 불러온 뒤 호출 측이 그린다) */
   renderVersionDialog?: (data: StudentTaskDetail) => ReactNode
   studentGrade: string
@@ -88,6 +98,9 @@ export function SchoolTaskDetailPage({
   onVersionChanged,
   onOpenVersionSubmit,
   renderVersionDialog,
+  feedbackService,
+  onFeedbackChanged,
+  feedbackVersionParam,
   studentGrade,
   onSectionSelect,
 }: SchoolTaskDetailPageProps) {
@@ -160,6 +173,9 @@ export function SchoolTaskDetailPage({
             versionService={versionService}
             onVersionChanged={onVersionChanged}
             onOpenVersionSubmit={onOpenVersionSubmit}
+            feedbackService={feedbackService}
+            onFeedbackChanged={onFeedbackChanged}
+            feedbackVersionParam={feedbackVersionParam}
           />
           {renderTopicDialog?.(state.data)}
           {renderVersionDialog?.(state.data)}
@@ -174,7 +190,7 @@ interface TaskDetailProps {
   tab: TaskDetailTabId
   fromVersionParam: string | null
   toVersionParam: string | null
-  onTabChange: (tab: TaskDetailTabId) => void
+  onTabChange: (tab: TaskDetailTabId, versionId?: string) => void
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
   onMentorCaseOpen: (contentId: string) => void
   onOpenTopic: () => void
@@ -184,6 +200,9 @@ interface TaskDetailProps {
   versionService: SchoolVersionService
   onVersionChanged: () => void
   onOpenVersionSubmit: () => void
+  feedbackService: SchoolFeedbackService
+  onFeedbackChanged: () => void
+  feedbackVersionParam: string | null
 }
 
 function TaskDetail({
@@ -201,13 +220,20 @@ function TaskDetail({
   versionService,
   onVersionChanged,
   onOpenVersionSubmit,
+  feedbackService,
+  onFeedbackChanged,
+  feedbackVersionParam,
 }: TaskDetailProps) {
   const { task, detail, snapshotDate } = data
   const evidence = useEvidenceManager({ service: evidenceService, onChanged: onEvidenceChanged, focusFallbackId: 'task-evidence-add' })
   const version = useVersionManager({ service: versionService, onChanged: onVersionChanged })
   const latest = latestVersion(data)
   const latestNotice = latest && version.retryNotice?.versionId === latest.versionId ? version.retryNotice : undefined
-  const versionCard = withVersionNowCard(data, withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data)))
+  const reflect = useFeedbackReflect({ service: feedbackService, onChanged: onFeedbackChanged })
+  const versionCard = withFeedbackNowCard(
+    data,
+    withVersionNowCard(data, withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data))),
+  )
   // 다시 시도가 막힌 Version(다시 시도 불가 / 찾을 수 없음 / 이미 분석 중)은 다시 시도 버튼을 두지 않는다.
   const nowCard =
     latestNotice?.blocked && versionCard.primaryAction?.kind === 'retryAiAnalysis' ? { ...versionCard, primaryAction: undefined } : versionCard
@@ -222,7 +248,7 @@ function TaskDetail({
 
   const handleAction = (action: TaskDetailAction) => {
     if (action.kind === 'compareVersions') onCompareVersions(action.fromVersionId, action.toVersionId)
-    else if (action.kind === 'openTab') onTabChange(action.tab)
+    else if (action.kind === 'openTab') onTabChange(action.tab, action.versionId)
     else if (action.kind === 'submitTopic') onOpenTopic()
     else if (action.kind === 'addEvidence') evidence.openAdd(task, document.activeElement as HTMLElement | null)
     else if (action.kind === 'submitVersion') onOpenVersionSubmit()
@@ -314,6 +340,9 @@ function TaskDetail({
               onRetry={(target) => version.retry(target, aiStatusHeadingId(target.versionId))}
               retryingId={version.retryingId}
               retryNotice={version.retryNotice}
+              versionParam={feedbackVersionParam}
+              reflect={reflect}
+              onReload={onFeedbackChanged}
             />
           )}
           {tab === 'mentor-case' && <TaskMentorCasePanel detail={detail} onCaseOpen={onMentorCaseOpen} />}
@@ -323,7 +352,7 @@ function TaskDetail({
               fromParam={fromVersionParam}
               toParam={toVersionParam}
               onVersionPairChange={onCompareVersions}
-              onFeedbackOpen={() => onTabChange('feedback')}
+              onFeedbackOpen={(versionId) => onTabChange('feedback', versionId)}
               onVersionPreview={version.openPreview}
             />
           )}

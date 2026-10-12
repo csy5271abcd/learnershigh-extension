@@ -229,6 +229,7 @@ export function applyAiAnalysisFixture(taskId: string, result: AiAnalysisFixture
     saveVersion({ ...version, aiAnalysisStatus: 'success', retryAllowed: false, inFeedbackQueue: true })
     sessionAiFeedback.set(version.versionId, {
       feedbackId: `${version.versionId}-ai`,
+      versionId: version.versionId,
       versionLabel: version.label,
       analyzedAt: `${SCHOOL_SNAPSHOT_DATE}T10:05:00+09:00`,
       items: fixtureAiItems.map((item) => ({ ...item, itemId: `${version.versionId}-${item.itemId}`, reflected: false })),

@@ -110,15 +110,23 @@ export interface TaskEvidenceList {
   complete: boolean
 }
 
-/** 선생님 피드백 (teacherFeedback). 검토 중이면 comment가 없다. */
+/** 선생님 피드백 (teacherFeedback). 검토 중이면 comment가 없다. 어느 Version에 대한 피드백인지 versionId로 잇는다. */
 export interface TaskTeacherFeedback {
   feedbackId: string
+  versionId: string
   versionLabel: string
   status: 'delivered' | 'reviewing'
   comment?: string
   nextAction?: string
   /** ISO 8601 */
   deliveredAt?: string
+  /**
+   * 학생이 다음 버전을 내기 전에 반영해야 하는 항목인지 (Frontend View Model, Contract 필드 없음).
+   * 지금은 전달된 선생님 피드백 = 필수, AI 사전 점검 = 선택(참고용)으로 둔다.
+   */
+  required?: boolean
+  /** 학생이 "반영함"으로 표시했는지 (학생 본인 표시, 시스템 검증 아님. Contract 갱신 Endpoint 없음) */
+  reflected?: boolean
 }
 
 /** AI 사전 점검 한 항목. reflected는 학생이 반영 여부를 표시한 값이다. (Contract Gap, 화면에서는 읽기 전용) */
@@ -131,6 +139,7 @@ export interface TaskAiFeedbackItem {
 /** AI 사전 점검 (aiFeedback). 참고용이며 선생님이 확인하기 전 결과다. */
 export interface TaskAiFeedback {
   feedbackId: string
+  versionId: string
   versionLabel: string
   /** ISO 8601 */
   analyzedAt: string
@@ -141,6 +150,12 @@ export interface TaskFeedback {
   teacher: TaskTeacherFeedback[]
   ai: TaskAiFeedback[]
 }
+
+/**
+ * 한 Task의 피드백 (GET /api/student/tasks/{taskId}/feedback).
+ * not-prepared: 이 Task의 피드백 정보가 Fixture에 없다. error: 피드백만 불러오지 못했다. (Task 전체 오류와 구분)
+ */
+export type TaskFeedbackState = { status: 'ready'; data: TaskFeedback } | { status: 'not-prepared' } | { status: 'error' }
 
 /** Task와 연결된 Mentor Activity Case. Case 자체 값은 Mentor Hub Canonical Case를 contentId로 참조한다. */
 export interface TaskMentorCaseLink {
@@ -229,7 +244,7 @@ export type TaskDetailAction =
   | { kind: 'addEvidence'; label: string }
   | { kind: 'submitVersion'; label: string }
   | { kind: 'retryAiAnalysis'; label: string; versionId: string }
-  | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case' }
+  | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case'; versionId?: string }
   | { kind: 'unavailable'; label: string; reason: string }
 
 export interface TaskNowCard {
@@ -266,7 +281,6 @@ export interface StudentTaskDetailExtra {
   guideText: string | null
   criteria: TaskEvaluationCriterion[] | null
   references: TaskReferenceMaterial[] | null
-  feedback: TaskFeedback | null
   mentorCases: TaskMentorCaseView[] | null
   revisionDiffs: TaskRevisionDiff[]
 }
@@ -277,6 +291,8 @@ export interface StudentTaskDetail {
   evidence: TaskEvidenceList
   /** 피드백 / 수정 기록 Tab과 지금 할 일이 같은 Canonical Version을 읽는다. */
   versions: TaskVersionList
+  /** 피드백 Tab과 지금 할 일 / Tasks 목록이 같은 Canonical Feedback을 읽는다. */
+  feedback: TaskFeedbackState
   /** Detail 자료. null이면 이 Task의 상세 자료가 아직 준비되지 않았다. (목록 정보만 있음) */
   detail: StudentTaskDetailExtra | null
   snapshotDate: string
