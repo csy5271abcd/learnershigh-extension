@@ -57,7 +57,7 @@ export function TaskNowCard({ task, card, onAction }: TaskNowCardProps) {
           {task.currentStage}단계 {taskStageNames[task.currentStage]} · {task.stageStatus}
         </span>
       </p>
-      <h2 id="task-now-heading" className={styles.headline}>
+      <h2 id="task-now-heading" tabIndex={-1} className={styles.headline}>
         {card.headline}
       </h2>
       {card.description && <p className={styles.description}>{card.description}</p>}

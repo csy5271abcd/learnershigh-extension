@@ -7,7 +7,7 @@
 
 import { mentorHubHomeFixture } from '../../mentor-hub/fixtures/mentorHubHome.fixture.ts'
 import type { StudentTaskListResult, StudentTaskSummary } from '../model/types.ts'
-import { createdTaskRevision, listCreatedTasks } from './schoolTaskRepository.fixture.ts'
+import { findSeedOverride, listCreatedTasks, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 
 const currentTask = mentorHubHomeFixture.studentContext.currentTask
 
@@ -145,10 +145,10 @@ const loaders = new Map<string, SchoolTaskListLoader>()
 
 /**
  * 실제 GET /api/student/tasks 대신 Fixture를 돌려준다. 같은 scenario에는 같은 함수를 돌려준다. (목록 Hook의 Cache Key)
- * 이번 Session에 Task를 등록하면 다른 함수가 되어 목록을 다시 불러온다.
+ * 이번 Session에 Task를 등록 / 변경하면 다른 함수가 되어 목록을 다시 불러온다.
  */
 export function createSchoolTaskListFixtureLoader(scenario: SchoolTaskListFixtureScenario): SchoolTaskListLoader {
-  const key = `${scenario}|${createdTaskRevision()}`
+  const key = `${scenario}|${taskStoreRevision()}`
   let loader = loaders.get(key)
   if (!loader) {
     loader = () => {
@@ -160,8 +160,11 @@ export function createSchoolTaskListFixtureLoader(scenario: SchoolTaskListFixtur
         case 'empty':
           return Promise.resolve({ items: [], snapshotDate: SCHOOL_SNAPSHOT_DATE })
         case 'success':
-          // 이번 Session에 등록한 Task + Seed (Filter 숫자도 이 목록에서 다시 센다)
-          return Promise.resolve({ items: [...listCreatedTasks(), ...fixtureStudentTasks], snapshotDate: SCHOOL_SNAPSHOT_DATE })
+          // 이번 Session에 등록한 Task + Seed(Session 중 변경 반영). Filter 숫자도 이 목록에서 다시 센다.
+          return Promise.resolve({
+            items: [...listCreatedTasks(), ...fixtureStudentTasks.map((task) => findSeedOverride(task.taskId)?.task ?? task)],
+            snapshotDate: SCHOOL_SNAPSHOT_DATE,
+          })
       }
     }
     loaders.set(key, loader)

@@ -1,3 +1,4 @@
+import { useEffect, type ReactNode } from 'react'
 import { SchoolLayout, type SchoolSectionId } from './components/SchoolLayout.tsx'
 import {
   TaskEvaluationPanel,
@@ -38,6 +39,12 @@ interface SchoolTaskDetailPageProps {
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
   onBackToTasks: () => void
   onMentorCaseOpen: (contentId: string) => void
+  /** 지금 할 일의 "주제 선정하기 / 주제 수정하기" */
+  onOpenTopic: () => void
+  /** 주제 제출 Modal (Task 값을 불러온 뒤 호출 측이 그린다) */
+  renderTopicDialog?: (data: StudentTaskDetail) => ReactNode
+  /** 주제를 제출한 직후: 바뀐 지금 할 일로 Focus / Scroll */
+  focusNowCard?: boolean
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
@@ -54,6 +61,9 @@ export function SchoolTaskDetailPage({
   onCompareVersions,
   onBackToTasks,
   onMentorCaseOpen,
+  onOpenTopic,
+  renderTopicDialog,
+  focusNowCard = false,
   studentGrade,
   onSectionSelect,
 }: SchoolTaskDetailPageProps) {
@@ -110,15 +120,20 @@ export function SchoolTaskDetailPage({
       )}
 
       {state.status === 'success' && (
-        <TaskDetail
-          data={state.data}
-          tab={tab}
-          fromVersionParam={fromVersionParam}
-          toVersionParam={toVersionParam}
-          onTabChange={onTabChange}
-          onCompareVersions={onCompareVersions}
-          onMentorCaseOpen={onMentorCaseOpen}
-        />
+        <>
+          <TaskDetail
+            data={state.data}
+            tab={tab}
+            fromVersionParam={fromVersionParam}
+            toVersionParam={toVersionParam}
+            onTabChange={onTabChange}
+            onCompareVersions={onCompareVersions}
+            onMentorCaseOpen={onMentorCaseOpen}
+            onOpenTopic={onOpenTopic}
+            focusNowCard={focusNowCard}
+          />
+          {renderTopicDialog?.(state.data)}
+        </>
       )}
     </SchoolLayout>
   )
@@ -132,9 +147,21 @@ interface TaskDetailProps {
   onTabChange: (tab: TaskDetailTabId) => void
   onCompareVersions: (fromVersionId: string, toVersionId: string) => void
   onMentorCaseOpen: (contentId: string) => void
+  onOpenTopic: () => void
+  focusNowCard: boolean
 }
 
-function TaskDetail({ data, tab, fromVersionParam, toVersionParam, onTabChange, onCompareVersions, onMentorCaseOpen }: TaskDetailProps) {
+function TaskDetail({
+  data,
+  tab,
+  fromVersionParam,
+  toVersionParam,
+  onTabChange,
+  onCompareVersions,
+  onMentorCaseOpen,
+  onOpenTopic,
+  focusNowCard,
+}: TaskDetailProps) {
   const { task, detail, snapshotDate } = data
   const nowCard = detail?.nowCard ?? fallbackNowCard(data)
   const tabs = taskDetailTabs.map((item) => ({ ...item, count: taskDetailTabCount(data, item.id) }))
@@ -147,7 +174,16 @@ function TaskDetail({ data, tab, fromVersionParam, toVersionParam, onTabChange, 
   const handleAction = (action: TaskDetailAction) => {
     if (action.kind === 'compareVersions') onCompareVersions(action.fromVersionId, action.toVersionId)
     else if (action.kind === 'openTab') onTabChange(action.tab)
+    else if (action.kind === 'submitTopic') onOpenTopic()
   }
+
+  // 주제를 제출한 직후: 예전 Scroll 위치 대신 바뀐 지금 할 일이 보이도록 옮긴다.
+  useEffect(() => {
+    if (!focusNowCard) return
+    const heading = document.getElementById('task-now-heading')
+    heading?.scrollIntoView({ block: 'center' })
+    heading?.focus({ preventScroll: true })
+  }, [focusNowCard, data])
 
   return (
     <article className={styles.detail} aria-labelledby="task-detail-title">

@@ -171,6 +171,7 @@ export interface TaskRevisionDiff {
 /** 지금 할 일 Card의 기다리는 동안 / 보조 Action. 화면이 없는 Action은 이유와 함께 비활성으로 둔다. */
 export type TaskDetailAction =
   | { kind: 'compareVersions'; label: string; fromVersionId: string; toVersionId: string }
+  | { kind: 'submitTopic'; label: string }
   | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case' }
   | { kind: 'unavailable'; label: string; reason: string }
 
@@ -185,8 +186,23 @@ export interface TaskNowCard {
   waitingActions: TaskDetailAction[]
 }
 
+/**
+ * 주제 상태 (Student 화면용, Feature 내부 값).
+ * Contract의 topicApprovalStatus Enum(OD-03, PENDING은 초기 후보)을 확정하지 않는다. API 연결 시 Mapping한다.
+ * - not-submitted: 아직 제출 전
+ * - in-review: 학생이 제출, 선생님(학원) 검토 중 (Stage 2)
+ * - direction-requested: 선생님이 방향을 남김 → 학생이 수정해 다시 제출 (반려가 아니다)
+ * - confirmed: 주제 확인 완료 (Stage 3 자료 조사부터)
+ */
+export type TaskTopicState =
+  | { state: 'not-submitted' }
+  | { state: 'in-review'; topic: string }
+  | { state: 'direction-requested'; topic: string; guidance: string }
+  | { state: 'confirmed'; topic: string }
+
 export interface StudentTaskDetailExtra {
-  topic: { text: string; approved: boolean } | null
+  /** null이면 이 Task의 주제 정보가 Fixture에 없다. */
+  topic: TaskTopicState | null
   nowCard: TaskNowCard
   guideFile: TaskGuideFile | null
   /** 학생이 직접 입력한 안내문 내용 (Task Create, POST /api/student/tasks description) */

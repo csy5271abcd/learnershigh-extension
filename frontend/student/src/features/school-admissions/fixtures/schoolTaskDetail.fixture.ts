@@ -12,7 +12,7 @@ import { mentorHubHomeFixture } from '../../mentor-hub/fixtures/mentorHubHome.fi
 import { fixtureMentorContent } from '../../mentor-hub/fixtures/mentors.fixture.ts'
 import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/caseMaterials.ts'
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
-import { findCreatedTask } from './schoolTaskRepository.fixture.ts'
+import { findCreatedTask, findSeedOverride, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
 
 /** Task의 Case 연결(contentId)을 Canonical Activity Case 값으로 채운다. 공개되지 않은(없는) Case는 보여주지 않는다. */
@@ -42,7 +42,7 @@ function caseViews(links: TaskMentorCaseLink[]): TaskMentorCaseView[] {
 }
 
 const speechDetail: StudentTaskDetailExtra = {
-  topic: { text: 'How AI is Changing Education', approved: true },
+  topic: { state: 'confirmed', topic: 'How AI is Changing Education' },
   nowCard: {
     headline: 'V2 검토가 진행 중이에요',
     description: '검토가 완료되면 수정할 내용을 확인할 수 있어요.',
@@ -170,9 +170,30 @@ const antibioticDetail: StudentTaskDetailExtra = {
   revisionDiffs: [],
 }
 
+// 하천 조사 Task (2/8 주제 검토 대기): 목록에 보이는 주제 검토 상태만 둔다. 다른 상세 자료는 준비 안 됨(null).
+const riverDetail: StudentTaskDetailExtra = {
+  topic: { state: 'in-review', topic: '하천 주변 토지 이용과 환경 문제' },
+  nowCard: { headline: '주제를 제출했어요', description: '선생님 검토를 기다리고 있어요.', waitingActions: [] },
+  guideFile: null,
+  guideText: null,
+  criteria: null,
+  references: null,
+  processMaterials: null,
+  feedback: null,
+  mentorCases: null,
+  versions: null,
+  revisionDiffs: [],
+}
+
 const details: Record<string, StudentTaskDetailExtra> = {
   'fixture-task-02': speechDetail,
   [antibioticTaskId]: antibioticDetail,
+  'fixture-task-05': riverDetail,
+}
+
+/** Seed Task의 상세 자료 (없으면 null) */
+export function seedTaskDetail(taskId: string): StudentTaskDetailExtra | null {
+  return details[taskId] ?? null
 }
 
 // ---------- Scenario (개발 중 ?fixture= 로 확인) ----------
@@ -187,11 +208,15 @@ export function readSchoolTaskDetailFixtureScenario(search: string): SchoolTaskD
 
 export type SchoolTaskDetailLoader = (taskId: string) => Promise<StudentTaskDetail | null>
 
-const loaders = new Map<SchoolTaskDetailFixtureScenario, SchoolTaskDetailLoader>()
+const loaders = new Map<string, SchoolTaskDetailLoader>()
 
-/** 실제 GET /api/student/tasks/{taskId} 대신 Fixture를 돌려준다. 없는 taskId는 null(Not Found). */
+/**
+ * 실제 GET /api/student/tasks/{taskId} 대신 Fixture를 돌려준다. 없는 taskId는 null(Not Found).
+ * 저장소가 바뀌면(주제 제출 등) 다른 함수가 되어 다시 불러온다.
+ */
 export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFixtureScenario): SchoolTaskDetailLoader {
-  let loader = loaders.get(scenario)
+  const key = `${scenario}|${taskStoreRevision()}`
+  let loader = loaders.get(key)
   if (!loader) {
     loader = (taskId) => {
       switch (scenario) {
@@ -203,12 +228,14 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
           // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
           const created = findCreatedTask(taskId)
           if (created) return Promise.resolve({ task: created.task, detail: created.detail, snapshotDate: SCHOOL_SNAPSHOT_DATE })
+          const override = findSeedOverride(taskId)
+          if (override) return Promise.resolve({ task: override.task, detail: override.detail, snapshotDate: SCHOOL_SNAPSHOT_DATE })
           const task = fixtureStudentTasks.find((item) => item.taskId === taskId)
           return Promise.resolve(task ? { task, detail: details[taskId] ?? null, snapshotDate: SCHOOL_SNAPSHOT_DATE } : null)
         }
       }
     }
-    loaders.set(scenario, loader)
+    loaders.set(key, loader)
   }
   return loader
 }

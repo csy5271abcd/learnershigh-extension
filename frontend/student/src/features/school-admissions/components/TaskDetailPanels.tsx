@@ -15,6 +15,7 @@ import type {
   TaskEvaluationCriterion,
   TaskRevisionBlock,
   TaskTeacherFeedback,
+  TaskTopicState,
 } from '../model/types.ts'
 import styles from './TaskDetailPanels.module.css'
 
@@ -80,20 +81,36 @@ function CriteriaTable({ criteria, withAi }: { criteria: TaskEvaluationCriterion
 
 // ---------- 1. Overview (TasksDetail-01) ----------
 
+/** 주제: 상태를 Badge 없이 Text로 보여준다. (검토 기다림도 Text만) */
+function TopicSection({ topic }: { topic: TaskTopicState }) {
+  return (
+    <section className={styles.section} aria-labelledby="task-overview-topic-heading">
+      <h3 id="task-overview-topic-heading" className={styles.sectionTitle}>
+        주제
+      </h3>
+      {topic.state === 'not-submitted' ? (
+        <p className={styles.topicNote}>아직 주제를 정하지 않았어요.</p>
+      ) : (
+        <>
+          <p className={styles.topic}>{topic.topic}</p>
+          {topic.state === 'in-review' && <p className={styles.topicNote}>선생님 검토를 기다리고 있어요.</p>}
+          {topic.state === 'confirmed' && <p className={styles.topicNote}>확인된 주제예요.</p>}
+          {topic.state === 'direction-requested' && (
+            <div className={styles.topicGuidance}>
+              <p className={styles.topicGuidanceLabel}>선생님이 남긴 방향</p>
+              <p>{topic.guidance}</p>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  )
+}
+
 export function TaskOverviewPanel({ detail }: { detail: StudentTaskDetailExtra | null }) {
   return (
     <div className={styles.panel}>
-      {detail?.topic && (
-        <section className={styles.section} aria-labelledby="task-topic-heading">
-          <h3 id="task-topic-heading" className={styles.sectionTitle}>
-            주제
-          </h3>
-          <p className={styles.topic}>
-            {detail.topic.text}
-            <span className={styles.topicState}>{detail.topic.approved ? '주제 확정' : '주제 검토 중'}</span>
-          </p>
-        </section>
-      )}
+      {detail?.topic && <TopicSection topic={detail.topic} />}
 
       <section className={styles.section} aria-labelledby="task-overview-criteria-heading">
         <div className={styles.sectionHeader}>

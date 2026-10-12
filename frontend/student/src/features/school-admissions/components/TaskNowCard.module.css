@@ -32,6 +32,10 @@
   background: var(--lh-color-accent);
 }
 
+.headline:focus {
+  outline: none;
+}
+
 .headline {
   font-size: var(--lh-font-title-lg);
   font-weight: 700;

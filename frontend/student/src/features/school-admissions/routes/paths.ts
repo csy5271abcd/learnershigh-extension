@@ -10,6 +10,9 @@ export const schoolTasksPath = '/school/tasks'
 /** Tasks 화면 위 수행평가 등록 Modal (?create=1). Browser Back으로 닫히고, 새로고침하면 빈 Form으로 다시 열린다. */
 export const createModalParam = 'create'
 
+/** Task Detail 위 주제 제출 Modal (?topic=1). Browser Back으로 닫힌다. */
+export const topicModalParam = 'topic'
+
 /** Task Detail. Tab은 ?tab=, 수정 기록 Version Pair는 ?from=&to=로 둔다. */
 export function schoolTaskPath(taskId: string): string {
   return `${schoolTasksPath}/${encodeURIComponent(taskId)}`

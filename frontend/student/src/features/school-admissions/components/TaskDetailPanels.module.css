@@ -181,20 +181,31 @@
 /* ---- Overview 주제 ---- */
 
 .topic {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--lh-space-2);
   font-size: var(--lh-font-title-sm);
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
-.topicState {
-  padding: 2px var(--lh-space-2);
-  border-radius: var(--lh-radius-sm);
-  background: var(--lh-color-accent-subtle);
-  color: var(--lh-color-accent);
-  font-size: var(--lh-font-caption);
+/* 주제 상태는 Badge 없이 보조 Text로 */
+.topicNote {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.topicGuidance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-left: 3px solid var(--lh-color-accent);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.topicGuidanceLabel {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
 }
 
 /* ---- 평가 기준·제출물 ---- */

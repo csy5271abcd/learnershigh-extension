@@ -1,7 +1,7 @@
 // UI 검증용 Task Create Service. 실제 POST /api/student/tasks 대신 Fixture 저장소에 Task를 만든다.
 // - 새 Task는 1단계(안내문 등록)로 시작한다. (api-contract §9-2: Task 생성 → 수행평가 8단계 Stage 1)
 //   Interaction 기준의 "생성 직후 주제 단계(1→2)"와 다르므로 Stage 2는 확정하지 않는다. (Spec / Contract Gap)
-// - 다음 할 일은 주제 선정이다. 주제 제출 화면(Topic Submission)은 아직 없다.
+// - 다음 할 일은 주제 선정이다. (Task Detail의 "주제 선정하기" → 주제 제출 Modal)
 // - 형태 / "지금 어디까지 했나요?"는 맥락 정보로만 보관하고 currentStage를 옮기지 않는다. (Stage 전이 규칙 미확정)
 // - 안내문은 파일과 직접 입력을 모두 보관한다. (둘 중 하나만 저장한다는 규칙이 Source에 없다)
 // - 입력하지 않은 자료(참고 자료 / 과정 자료 / 피드백 / Mentor Case / Version)는 만들지 않는다. (빈 배열 = 실제로 없음)
@@ -57,11 +57,11 @@ function createTask(draft: TaskCreateDraft): SchoolTaskCreateResult {
   addCreatedTask({
     task,
     detail: {
-      topic: null,
+      topic: { state: 'not-submitted' },
       nowCard: {
         headline: '주제를 선정하세요',
         description: '안내문을 등록했어요. 다음 단계에서 주제를 정해 제출해요.',
-        primaryAction: { kind: 'unavailable', label: '주제 선정하기', reason: '주제 선정 화면은 준비 중이에요.' },
+        primaryAction: { kind: 'submitTopic', label: '주제 선정하기' },
         waitingActions: [],
       },
       guideFile: draft.guideFile

@@ -751,8 +751,9 @@ Integration Client
 IN_PROGRESS
 School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
 Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
-Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create, 미커밋)
-Topic Submission / Evidence Vault / Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
+Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
+Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission, 미커밋)
+Evidence Vault / Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -831,8 +832,10 @@ IN_PROGRESS
   - Row → Task Detail 연결 (feat/student-school-task-detail)
 - Student Task Detail: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
   - 실제 Task / Evidence / Version / Feedback / Revision API, Topic Submission, Evidence Vault, AI Result · Retry, 파일 업로드 · 미리보기, Frontend 자동 Test: NOT_STARTED
-- Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create, 미커밋)
+- Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
   - 실제 POST /api/student/tasks / File Storage(안내문 파일) / 기존 Performance Task 연결(OD-07) / Frontend 자동 Test: NOT_STARTED
+- Student Topic Submission (Task Detail 위 Modal): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission, 미커밋)
+  - 실제 PUT /api/student/tasks/{taskId}/topic / Admin Topic Review / topicApprovalStatus Enum(OD-03) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1591,7 +1594,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture 기반 UI, 7d28a17)
 VERIFIED 아님: POST /api/student/tasks / File Storage 미연결, 생성 Task는 화면 Session 메모리 저장(새로고침 시 사라짐), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1617,6 +1620,43 @@ VERIFIED 아님: POST /api/student/tasks / File Storage 미연결, 생성 Task�
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M · P1~P5)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Topic Submission (branch: feat/student-school-topic-submission)
+
+### Status
+
+```text
+Student Topic Submission: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: PUT /api/student/tasks/{taskId}/topic · Admin Topic Review 미연결, topicApprovalStatus Enum 미확정(OD-03), 메모리 Fixture(새로고침 시 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- 전용 Mockup 없음 (School&Admissions 18장 확인, ActivitiesDetail-01/02는 Growth Activity 상세) → TaskRegister Modal / TasksDetail-01 기준
+- Task Detail "주제 선정하기" / "주제 수정하기" → Task Detail 위 Modal(`?topic=1`, Browser Back으로 닫힘). Modal 위쪽에 Task 제목 · 과목 · 단계 · 마감 Context
+- 주제는 학생이 직접 입력 (AI 제안 없음). 공백 금지만 검사, 최대 길이 규칙 없음
+- 제출 → 주제 저장 · Stage 2 주제 선정 · 검토 기다림(Text only, Spinner / Badge 없음). 제출만으로 Stage 3 이동 없음. 제출 직후 바뀐 지금 할 일로 Focus / Scroll
+- 주제 상태는 Feature 내부 화면 값(not-submitted / in-review / direction-requested / confirmed), Contract Enum 확정 안 함
+- 방향 요청(반려 아님): 선생님 방향 안내 Text + 처음 주제를 채운 수정 Modal → 다시 제출. 확인: Stage 3 자료 조사 · 다음 할 일 자료 추가(Evidence Vault 전, 비활성 + 이유)
+- 방향 요청 / 확인은 Admin Action이라 Student 화면에 버튼 없음. 개발 중 `?fixtureTopicReview=direction-requested | confirmed`로만 결과 재현
+- Task Create의 Fixture 저장소를 확장(등록 Task + Seed Task Session 변경, revision), 목록 · Detail · 주제 Modal이 같은 taskId 값을 읽음. Seed 하천 Task(2/8 주제 검토 대기)에 주제 검토 상태 연결
+- 수정 중 취소 / 닫기 / ESC / Back → 나가기 확인(Task Create와 같은 Dialog), 중복 제출 방지, 실패 시 입력 유지 + 다시 제출
+- Overview 주제 표시를 상태별 Text로 변경(기존 "주제 확정" pill 제거)
+
+### Open / Contract Gap
+
+- 검토 중 주제 수정 가능 여부: Source에 규칙 없음 → 검토 중에는 수정 진입을 두지 않음(정책 미정)
+- topicApprovalStatus Enum(OD-03), 방향 요청 안내 문구의 Contract 필드 없음 (Frontend View Model)
+- Fixture는 메모리 저장이라 새로고침하면 등록 Task는 사라지고 Seed Task는 Seed 상태로 돌아감
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~J)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 
