@@ -33,12 +33,12 @@ export function parseTaskDetailTab(value: string | null): TaskDetailTabId {
 /** Tab 옆 개수 (TasksDetail Mockup: 참고 자료 3 / 과정 자료 4 / 피드백 5 / Mentor Case 3 / 수정 기록 2). 모르는 값은 표시하지 않는다. */
 export function taskDetailTabCount(data: StudentTaskDetail, tab: TaskDetailTabId): number | undefined {
   const { detail } = data
+  // 과정 자료는 Canonical Evidence에서 센다. (자료 정보가 준비되지 않은 Task는 표시하지 않는다)
+  if (tab === 'process') return data.evidence.complete ? data.evidence.items.length : undefined
   if (!detail) return undefined
   switch (tab) {
     case 'references':
       return detail.references?.length
-    case 'process':
-      return detail.processMaterials?.length
     case 'feedback':
       return detail.feedback ? deliveredFeedbackCount(detail.feedback) : undefined
     case 'mentor-case':

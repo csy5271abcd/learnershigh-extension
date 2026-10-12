@@ -74,17 +74,40 @@ export interface TaskReferenceMaterial {
   usage: string
 }
 
-/** 과정 자료 단계 (Evidence stageTag의 Frontend 표현. Contract Enum 미확정) */
+/**
+ * Evidence 단계 Tag (Evidence-00 / TasksDetail-04 Mockup: 계획 · 조사 · 초안 · 최종 · 발표).
+ * Contract stageTag는 RESEARCH 예시뿐이라 전체 Enum이 미확정이다. Frontend 표시용 값이며 Task currentStage를 바꾸지 않는다.
+ */
 export type TaskProcessCategory = 'plan' | 'research' | 'draft' | 'final' | 'presentation'
 
-/** 과정 자료(Evidence / 제출 Version 파일): 학생이 실제로 조사 · 작성 · 수정하며 만든 자료 */
-export interface TaskProcessMaterial {
+/**
+ * Evidence(과정 자료): 학생이 직접 조사 · 준비하며 올린 파일. (GET / POST / DELETE /api/student/tasks/{taskId}/evidence)
+ * Version(제출 Revision 단위, 수정 기록 Tab)과 다른 Entity다.
+ */
+export interface TaskEvidence {
   evidenceId: string
+  taskId: string
   fileName: string
-  format: string
-  category: TaskProcessCategory
-  /** YYYY-MM-DD */
-  createdDate: string
+  /** 파일 참조. 지금은 개발용 로컬 참조이고, File Storage가 정해지면 fileRef / Storage URL로 바뀐다. (OD-09) */
+  fileRef: string
+  stageTag: TaskProcessCategory
+  /** ISO 8601 */
+  createdAt: string
+  mimeType?: string
+  sizeBytes?: number
+  /** 이번 Session에 학생이 고른 파일. 미리보기에만 쓴다. (Seed 자료는 원본 파일이 없다) */
+  file?: File
+}
+
+/** School Evidence 전체 목록: 자료가 있는 Task별 묶음 (Evidence-00) */
+export interface SchoolEvidenceListResult {
+  groups: { task: StudentTaskSummary; items: TaskEvidence[] }[]
+}
+
+/** 한 Task의 Evidence. complete = false면 Seed 자료 정보가 없어(준비 안 됨) 이번 Session에 추가한 것만 있다. */
+export interface TaskEvidenceList {
+  items: TaskEvidence[]
+  complete: boolean
 }
 
 /** 선생님 피드백 (teacherFeedback). 검토 중이면 comment가 없다. */
@@ -172,6 +195,7 @@ export interface TaskRevisionDiff {
 export type TaskDetailAction =
   | { kind: 'compareVersions'; label: string; fromVersionId: string; toVersionId: string }
   | { kind: 'submitTopic'; label: string }
+  | { kind: 'addEvidence'; label: string }
   | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case' }
   | { kind: 'unavailable'; label: string; reason: string }
 
@@ -209,7 +233,6 @@ export interface StudentTaskDetailExtra {
   guideText: string | null
   criteria: TaskEvaluationCriterion[] | null
   references: TaskReferenceMaterial[] | null
-  processMaterials: TaskProcessMaterial[] | null
   feedback: TaskFeedback | null
   mentorCases: TaskMentorCaseView[] | null
   versions: TaskVersion[] | null
@@ -218,6 +241,8 @@ export interface StudentTaskDetailExtra {
 
 export interface StudentTaskDetail {
   task: StudentTaskSummary
+  /** 과정 자료 Tab / School Evidence가 같은 Canonical Evidence를 읽는다. */
+  evidence: TaskEvidenceList
   /** Detail 자료. null이면 이 Task의 상세 자료가 아직 준비되지 않았다. (목록 정보만 있음) */
   detail: StudentTaskDetailExtra | null
   snapshotDate: string

@@ -28,7 +28,6 @@ const emptyDetail = (): StudentTaskDetailExtra => ({
   guideText: null,
   criteria: null,
   references: null,
-  processMaterials: null,
   feedback: null,
   mentorCases: null,
   versions: null,
@@ -145,7 +144,7 @@ export function applyTopicReviewFixture(taskId: string, result: TopicReviewFixtu
       nowCard: {
         headline: '자료 조사를 시작해요',
         description: '주제가 확인되었어요. 조사한 자료를 1개 이상 추가하면 다음 단계로 이어갈 수 있어요.',
-        primaryAction: { kind: 'unavailable', label: '자료 추가', reason: '자료 추가 화면은 준비 중이에요.' },
+        primaryAction: { kind: 'addEvidence', label: '자료 추가' },
         waitingActions: [],
       },
     },

@@ -70,7 +70,6 @@ function createTask(draft: TaskCreateDraft): SchoolTaskCreateResult {
       guideText: guideText || null,
       criteria: criteria.map((item, index) => ({ criterionId: `${taskId}-criterion-${index + 1}`, name: item.name, points: item.points })),
       references: [],
-      processMaterials: [],
       feedback: { teacher: [], ai: [] },
       mentorCases: [],
       versions: [],

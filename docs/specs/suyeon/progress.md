@@ -752,8 +752,9 @@ IN_PROGRESS
 School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-home 64c55b5)
 Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
 Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
-Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission, 미커밋)
-Evidence Vault / Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
+Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
+Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence, 미커밋)
+Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -834,8 +835,10 @@ IN_PROGRESS
   - 실제 Task / Evidence / Version / Feedback / Revision API, Topic Submission, Evidence Vault, AI Result · Retry, 파일 업로드 · 미리보기, Frontend 자동 Test: NOT_STARTED
 - Student Task Create (Tasks 위 4단계 Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
   - 실제 POST /api/student/tasks / File Storage(안내문 파일) / 기존 Performance Task 연결(OD-07) / Frontend 자동 Test: NOT_STARTED
-- Student Topic Submission (Task Detail 위 Modal): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission, 미커밋)
+- Student Topic Submission (Task Detail 위 Modal): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
   - 실제 PUT /api/student/tasks/{taskId}/topic / Admin Topic Review / topicApprovalStatus Enum(OD-03) / Frontend 자동 Test: NOT_STARTED
+- Student Evidence (Task Detail 과정 자료 Tab + /school/evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence, 미커밋)
+  - 실제 GET / POST / DELETE /api/student/tasks/{taskId}/evidence / File Storage(OD-09) / stageTag Enum / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1630,7 +1633,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Topic Submission: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Topic Submission: IMPLEMENTED (Fixture 기반 UI, bcec572)
 VERIFIED 아님: PUT /api/student/tasks/{taskId}/topic · Admin Topic Review 미연결, topicApprovalStatus Enum 미확정(OD-03), 메모리 Fixture(새로고침 시 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1641,7 +1644,7 @@ VERIFIED 아님: PUT /api/student/tasks/{taskId}/topic · Admin Topic Review 미
 - 주제는 학생이 직접 입력 (AI 제안 없음). 공백 금지만 검사, 최대 길이 규칙 없음
 - 제출 → 주제 저장 · Stage 2 주제 선정 · 검토 기다림(Text only, Spinner / Badge 없음). 제출만으로 Stage 3 이동 없음. 제출 직후 바뀐 지금 할 일로 Focus / Scroll
 - 주제 상태는 Feature 내부 화면 값(not-submitted / in-review / direction-requested / confirmed), Contract Enum 확정 안 함
-- 방향 요청(반려 아님): 선생님 방향 안내 Text + 처음 주제를 채운 수정 Modal → 다시 제출. 확인: Stage 3 자료 조사 · 다음 할 일 자료 추가(Evidence Vault 전, 비활성 + 이유)
+- 방향 요청(반려 아님): 선생님 방향 안내 Text + 처음 주제를 채운 수정 Modal → 다시 제출. 확인: Stage 3 자료 조사 · 다음 할 일 자료 추가(Evidence Branch에서 실제 자료 추가로 연결)
 - 방향 요청 / 확인은 Admin Action이라 Student 화면에 버튼 없음. 개발 중 `?fixtureTopicReview=direction-requested | confirmed`로만 결과 재현
 - Task Create의 Fixture 저장소를 확장(등록 Task + Seed Task Session 변경, revision), 목록 · Detail · 주제 Modal이 같은 taskId 값을 읽음. Seed 하천 Task(2/8 주제 검토 대기)에 주제 검토 상태 연결
 - 수정 중 취소 / 닫기 / ESC / Back → 나가기 확인(Task Create와 같은 Dialog), 중복 제출 방지, 실패 시 입력 유지 + 다시 제출
@@ -1657,6 +1660,46 @@ VERIFIED 아님: PUT /api/student/tasks/{taskId}/topic · Admin Topic Review 미
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~J)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Evidence (branch: feat/student-school-evidence)
+
+### Status
+
+```text
+Student Evidence (Task 과정 자료 Vault + School Evidence 목록): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: GET / POST / DELETE /api/student/tasks/{taskId}/evidence 미연결, File Storage(OD-09) 미정, stageTag Enum 미확정(Contract 예시는 RESEARCH뿐), 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- School 내부 Navigation Evidence 활성 → `/school/evidence` (Evidence-00 기준: Task별 묶음 · 개수 · 자료 추가 / 파일 · 형식 · 단계 · 날짜 · 상태 · 미리보기 · 삭제). Mockup에 검색 / Filter 없음 → 만들지 않음
+- Task Detail 7 Tab 유지. 과정 자료 Tab = 그 Task의 Evidence Vault (8번째 Tab 없음). 자료 조사 단계 지금 할 일 "자료 추가" → 실제 추가 Dialog
+- Canonical Evidence 하나(evidenceId · taskId · fileName · fileRef · stageTag · createdAt + Frontend용 mimeType · sizeBytes · file)를 과정 자료 Tab · School Evidence가 함께 읽음. 기존 Task Detail `processMaterials` Fixture는 제거하고 Seed Evidence로 옮김(중복 없음). Version(수정 기록)과 분리
+- 파일 추가: 실제 file input + Task Create의 FileReader 진행률 Hook 재사용(loaded / total, 가로 막대 + %, "자료를 준비하고 있어요", Spinner / 인위적 지연 / 서버 Upload 표현 없음). 형식 · 크기 제한은 Source 근거가 없어 두지 않음
+- 단계 Tag(계획서 / 조사 자료 / 초안 / 최종본 / 발표 자료, TasksDetail-04 · Evidence-00 표시값): 현재 단계에 맞는 값을 제안만 하고 바꿀 수 있음. Task currentStage를 바꾸지 않음
+- 미리보기: 이번 Session에 고른 이미지(Object URL, 닫으면 revoke) / PDF(브라우저 내장 Viewer) / CSV(표) / TXT·PY 등(Text). DOCX · HWP · ZIP 등은 "미리보기를 지원하지 않는 파일이에요". Seed 자료는 원본 파일이 없어 "원본 파일이 아직 준비되지 않아 미리볼 수 없어요". Download 없음(근거 없음)
+- 삭제: 확인 Dialog → 같은 저장소에서 제거 → 두 화면 모두 반영. 실패 시 파일 유지 + 그 줄에 이유
+- 추가 실패 시 파일 / 단계 유지 + 다시 추가, 중복 클릭 방지
+- Evidence ≥ 1 → 자료 조사 단계에서 "자료 N개 · 자료 조사 완료 조건을 채웠어요" Text만. Stage 4 자동 전이 없음, 삭제로 0개가 되어도 Stage 역전 없음
+- 자료 정보가 Fixture에 없는 Task(예: 항생제 · 하천)는 "과정 자료 정보가 아직 준비되지 않았어요"(Empty와 구분), 자료 추가 비활성 + 이유
+- 같은 Task를 다시 불러올 때 보던 화면 유지(Detail / Evidence 목록 Hook), 닫은 뒤 Focus 복원
+
+### Open / Contract Gap
+
+- School Evidence 전체 목록 Endpoint 없음 → Task 목록 + Task별 Evidence 조회를 묶는 방식(N+1 가능)
+- stageTag 전체 Enum 미확정(Contract 예시 RESEARCH뿐), Preview용 파일 URL / mimeType / size Contract 필드 없음, 허용 형식 · 최대 크기 규칙 없음, File Storage(OD-09)
+- Evidence-00의 하천 묶음(2개)은 파일 이름이 보이지 않고, 제동거리의 "dd"는 임시 이름이라 Seed에 넣지 않음
+- Speech의 speech_v1 / v2 docx는 Mockup(Evidence-00 / TasksDetail-04)에 Evidence로 표시되어 Evidence Seed로 둠. Version Entity(수정 기록)와는 별개
+- 자료 조사 Stage 완료 후 전이 규칙, 삭제 시 역전 정책 미정
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

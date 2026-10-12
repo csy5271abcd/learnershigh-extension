@@ -37,6 +37,11 @@ export function taskStoreRevision(): number {
   return revision
 }
 
+/** Task에 딸린 값(예: Evidence)이 바뀌었을 때 Loader가 다시 불러오도록 알린다. */
+export function markTaskStoreChanged(): void {
+  revision += 1
+}
+
 /** 최근 등록한 Task가 먼저 */
 export function listCreatedTasks(): StudentTaskSummary[] {
   return created.map((item) => item.task).reverse()

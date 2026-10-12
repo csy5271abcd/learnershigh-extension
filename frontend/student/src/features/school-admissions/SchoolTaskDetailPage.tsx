@@ -12,6 +12,9 @@ import {
 import { TaskDetailTabs } from './components/TaskDetailTabs.tsx'
 import { TaskCompactStatus, TaskNowCard } from './components/TaskNowCard.tsx'
 import { TaskStageStepper } from './components/TaskStageStepper.tsx'
+import { useEvidenceManager } from './components/useEvidenceManager.tsx'
+import type { SchoolEvidenceService } from './fixtures/schoolEvidence.fixture.ts'
+import { withEvidenceNowCard } from './model/evidence.ts'
 import styles from './SchoolTaskDetailPage.module.css'
 import {
   fallbackNowCard,
@@ -45,6 +48,10 @@ interface SchoolTaskDetailPageProps {
   renderTopicDialog?: (data: StudentTaskDetail) => ReactNode
   /** 주제를 제출한 직후: 바뀐 지금 할 일로 Focus / Scroll */
   focusNowCard?: boolean
+  /** 자료(Evidence) 추가 / 삭제 Boundary. 현재는 Fixture, API 연결 시 POST / DELETE /api/student/tasks/{taskId}/evidence */
+  evidenceService: SchoolEvidenceService
+  /** 자료가 바뀌면 호출 측이 Task를 다시 불러온다. */
+  onEvidenceChanged: () => void
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
@@ -64,6 +71,8 @@ export function SchoolTaskDetailPage({
   onOpenTopic,
   renderTopicDialog,
   focusNowCard = false,
+  evidenceService,
+  onEvidenceChanged,
   studentGrade,
   onSectionSelect,
 }: SchoolTaskDetailPageProps) {
@@ -131,6 +140,8 @@ export function SchoolTaskDetailPage({
             onMentorCaseOpen={onMentorCaseOpen}
             onOpenTopic={onOpenTopic}
             focusNowCard={focusNowCard}
+            evidenceService={evidenceService}
+            onEvidenceChanged={onEvidenceChanged}
           />
           {renderTopicDialog?.(state.data)}
         </>
@@ -149,6 +160,8 @@ interface TaskDetailProps {
   onMentorCaseOpen: (contentId: string) => void
   onOpenTopic: () => void
   focusNowCard: boolean
+  evidenceService: SchoolEvidenceService
+  onEvidenceChanged: () => void
 }
 
 function TaskDetail({
@@ -161,9 +174,12 @@ function TaskDetail({
   onMentorCaseOpen,
   onOpenTopic,
   focusNowCard,
+  evidenceService,
+  onEvidenceChanged,
 }: TaskDetailProps) {
   const { task, detail, snapshotDate } = data
-  const nowCard = detail?.nowCard ?? fallbackNowCard(data)
+  const nowCard = withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data))
+  const evidence = useEvidenceManager({ service: evidenceService, onChanged: onEvidenceChanged, focusFallbackId: 'task-evidence-add' })
   const tabs = taskDetailTabs.map((item) => ({ ...item, count: taskDetailTabCount(data, item.id) }))
   // 선생님 검토 / AI 분석을 기다리는 상태와 Review 지연은 Badge 없이 Text로만 보여준다.
   // (Deadline Passed / Hold 등 다른 주의 표시와 학생 차례의 단계 상태는 기존 Badge 유지)
@@ -175,6 +191,7 @@ function TaskDetail({
     if (action.kind === 'compareVersions') onCompareVersions(action.fromVersionId, action.toVersionId)
     else if (action.kind === 'openTab') onTabChange(action.tab)
     else if (action.kind === 'submitTopic') onOpenTopic()
+    else if (action.kind === 'addEvidence') evidence.openAdd(task, document.activeElement as HTMLElement | null)
   }
 
   // 주제를 제출한 직후: 예전 Scroll 위치 대신 바뀐 지금 할 일이 보이도록 옮긴다.
@@ -232,7 +249,15 @@ function TaskDetail({
           {tab === 'overview' && <TaskOverviewPanel detail={detail} />}
           {tab === 'evaluation' && <TaskEvaluationPanel data={data} />}
           {tab === 'references' && <TaskReferencesPanel detail={detail} />}
-          {tab === 'process' && <TaskProcessPanel detail={detail} />}
+          {tab === 'process' && (
+            <TaskProcessPanel
+              data={data}
+              onAdd={(trigger) => evidence.openAdd(task, trigger)}
+              onPreview={evidence.openPreview}
+              onDelete={evidence.openDelete}
+              deleteErrorId={evidence.deleteErrorId}
+            />
+          )}
           {tab === 'feedback' && <TaskFeedbackPanel data={data} />}
           {tab === 'mentor-case' && <TaskMentorCasePanel detail={detail} onCaseOpen={onMentorCaseOpen} />}
           {tab === 'revision' && (
@@ -246,6 +271,7 @@ function TaskDetail({
           )}
         </div>
       </div>
+      {evidence.dialogs}
     </article>
   )
 }

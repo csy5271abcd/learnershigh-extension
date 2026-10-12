@@ -23,9 +23,12 @@ export function useSchoolTaskDetail(taskId: string, loadDetail: TaskDetailLoader
   const [state, setState] = useState<TaskDetailState>(() => cached(loadDetail, taskId))
 
   // 다른 Task로 바뀌면 렌더링 중에 상태를 초기화한다. (Effect 안의 동기 setState를 피한다)
+  // 같은 Task를 다시 불러올 때(예: 자료 추가 / 삭제)는 보던 화면을 유지해 Tab / Scroll / Focus가 흔들리지 않게 한다.
   if (request.taskId !== taskId || request.loadDetail !== loadDetail) {
+    const next = cached(loadDetail, taskId)
+    const keepCurrent = next.status === 'loading' && request.taskId === taskId && state.status === 'success'
     setRequest({ taskId, loadDetail, attempt: 0 })
-    setState(cached(loadDetail, taskId))
+    if (!keepCurrent) setState(next)
   }
 
   useEffect(() => {

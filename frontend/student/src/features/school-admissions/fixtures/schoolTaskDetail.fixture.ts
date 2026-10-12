@@ -12,6 +12,7 @@ import { mentorHubHomeFixture } from '../../mentor-hub/fixtures/mentorHubHome.fi
 import { fixtureMentorContent } from '../../mentor-hub/fixtures/mentors.fixture.ts'
 import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/caseMaterials.ts'
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
+import { taskEvidence } from './schoolEvidence.fixture.ts'
 import { findCreatedTask, findSeedOverride, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
 
@@ -63,12 +64,6 @@ const speechDetail: StudentTaskDetailExtra = {
     { referenceId: 'unesco', kind: 'link', title: 'UNESCO · Guidance for generative AI in education', source: 'unesco.org', usage: 'thesis 근거 통계 1개' },
     { referenceId: 'herald', kind: 'article', title: 'AI 디지털교과서 도입 관련 기사', source: 'The Korea Herald', usage: '도입부 사례' },
     { referenceId: 'textbook', kind: 'textbook', title: '영어Ⅰ 교과서 4단원 Speech 예시', source: 'p.86~89', usage: '구조 참고' },
-  ],
-  processMaterials: [
-    { evidenceId: 'speech-outline', fileName: 'speech_outline.png', format: 'PNG', category: 'plan', createdDate: '2026-09-27' },
-    { evidenceId: 'speech-articles', fileName: 'AI 교육 기사 3건 요약.pdf', format: 'PDF', category: 'research', createdDate: '2026-09-28' },
-    { evidenceId: 'speech-v1-file', fileName: 'speech_v1_612words.docx', format: 'DOCX', category: 'draft', createdDate: '2026-10-01' },
-    { evidenceId: 'speech-v2-file', fileName: 'speech_v2_548words.docx', format: 'DOCX', category: 'draft', createdDate: '2026-10-03' },
   ],
   feedback: {
     teacher: [
@@ -162,7 +157,6 @@ const antibioticDetail: StudentTaskDetailExtra = {
   guideText: null,
   criteria: null,
   references: null,
-  processMaterials: null,
   // 4단계(초안 V1 미제출): 제출한 Version이 없으니 피드백 / 수정 기록도 실제로 없다.
   feedback: { teacher: [], ai: [] },
   mentorCases: caseViews(recommendedCasesFor(antibioticTaskId)),
@@ -178,7 +172,6 @@ const riverDetail: StudentTaskDetailExtra = {
   guideText: null,
   criteria: null,
   references: null,
-  processMaterials: null,
   feedback: null,
   mentorCases: null,
   versions: null,
@@ -227,11 +220,12 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
         case 'success': {
           // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
           const created = findCreatedTask(taskId)
-          if (created) return Promise.resolve({ task: created.task, detail: created.detail, snapshotDate: SCHOOL_SNAPSHOT_DATE })
+          const evidence = taskEvidence(taskId)
+          if (created) return Promise.resolve({ task: created.task, detail: created.detail, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE })
           const override = findSeedOverride(taskId)
-          if (override) return Promise.resolve({ task: override.task, detail: override.detail, snapshotDate: SCHOOL_SNAPSHOT_DATE })
+          if (override) return Promise.resolve({ task: override.task, detail: override.detail, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE })
           const task = fixtureStudentTasks.find((item) => item.taskId === taskId)
-          return Promise.resolve(task ? { task, detail: details[taskId] ?? null, snapshotDate: SCHOOL_SNAPSHOT_DATE } : null)
+          return Promise.resolve(task ? { task, detail: details[taskId] ?? null, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE } : null)
         }
       }
     }

@@ -18,11 +18,13 @@ import { MentorRoutineListRoute } from '../features/mentor-hub/routes/MentorRout
 import { MentorStoryDetailRoute } from '../features/mentor-hub/routes/MentorStoryDetailRoute.tsx'
 import { MentorStoryFeedRoute } from '../features/mentor-hub/routes/MentorStoryFeedRoute.tsx'
 import {
+  schoolEvidenceRoutePattern,
   schoolRoutePattern,
   schoolTaskRoutePattern,
   schoolTasksPath,
   schoolTasksRoutePattern,
 } from '../features/school-admissions/routes/paths.ts'
+import { SchoolEvidenceRoute } from '../features/school-admissions/routes/SchoolEvidenceRoute.tsx'
 import { SchoolTaskDetailRoute } from '../features/school-admissions/routes/SchoolTaskDetailRoute.tsx'
 import { SchoolTasksRoute } from '../features/school-admissions/routes/SchoolTasksRoute.tsx'
 import {
@@ -84,6 +86,7 @@ export const studentRouter = createBrowserRouter([
       { path: schoolRoutePattern, element: <Navigate to={schoolTasksPath} replace /> },
       { path: schoolTasksRoutePattern, element: <SchoolTasksRoute /> },
       { path: schoolTaskRoutePattern, element: <SchoolTaskDetailRoute /> },
+      { path: schoolEvidenceRoutePattern, element: <SchoolEvidenceRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -87,13 +87,17 @@
 }
 
 .addButton {
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 var(--lh-space-4);
   border: 0;
   border-radius: var(--lh-radius-md);
   background: var(--lh-color-accent-subtle);
   color: var(--lh-color-accent);
   font-weight: 700;
+}
+
+.addButton:not(:disabled) {
+  cursor: pointer;
 }
 
 .addButton:disabled,
@@ -118,10 +122,6 @@
 }
 
 /* ---- 표 ---- */
-
-.tableScroll {
-  overflow-x: auto;
-}
 
 .table {
   width: 100%;
@@ -158,24 +158,15 @@
   color: var(--lh-color-text-secondary);
 }
 
-.fileCell {
-  font-weight: 500;
-  overflow-wrap: anywhere;
+/* 자료 조사 완료 조건 (Text) */
+.evidenceCondition {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
 }
 
-.stageTag,
-.doneTag {
-  display: inline-block;
-  padding: 2px var(--lh-space-2);
-  border-radius: var(--lh-radius-sm);
-  background: var(--lh-color-chip);
-  font-size: var(--lh-font-caption);
-  font-weight: 600;
-}
-
-.doneTag {
-  background: var(--lh-color-positive-subtle);
+.evidenceCondition[data-met] {
   color: var(--lh-color-positive);
+  font-weight: 600;
 }
 
 /* ---- Overview 주제 ---- */

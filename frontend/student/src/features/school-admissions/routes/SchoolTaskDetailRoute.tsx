@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { mentorCasePath } from '../../mentor-hub/routes/paths.ts'
 import { createSchoolTaskDetailFixtureLoader, readSchoolTaskDetailFixtureScenario } from '../fixtures/schoolTaskDetail.fixture.ts'
+import { createSchoolEvidenceFixtureService, readSchoolEvidenceFixtureScenario } from '../fixtures/schoolEvidence.fixture.ts'
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import {
   applyTopicReviewFixture,
@@ -12,7 +13,7 @@ import {
 import { canSubmitTopic } from '../model/topic.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
-import { schoolTasksPath, topicModalParam } from './paths.ts'
+import { schoolEvidencePath, schoolTasksPath, topicModalParam } from './paths.ts'
 import { SchoolTopicModal } from './SchoolTopicModal.tsx'
 
 /** Tasks 목록에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해 목록의 Filter / Scroll을 복원한다. */
@@ -37,6 +38,8 @@ export function SchoolTaskDetailRoute() {
   const tab = parseTaskDetailTab(searchParams.get('tab'))
   const topicOpen = searchParams.has(topicModalParam)
   const [topicSubmitted, setTopicSubmitted] = useState(false)
+  // 자료가 바뀌면 다시 그려 Loader(저장소 revision)가 바뀐 값을 읽게 한다.
+  const [, setEvidenceRevision] = useState(0)
 
   // 개발용: 선생님(학원)의 주제 검토 결과 재현 (?fixtureTopicReview=direction-requested | confirmed).
   // Admin Action이므로 Student 화면에는 버튼이 없다. 적용 후 주소에서 지운다.
@@ -75,6 +78,10 @@ export function SchoolTaskDetailRoute() {
         params.delete(topicModalParam)
       })
   }
+
+  const evidenceService = createSchoolEvidenceFixtureService(
+    import.meta.env.DEV ? readSchoolEvidenceFixtureScenario(searchParams.toString()) : 'success',
+  )
 
   const loadDetail = createSchoolTaskDetailFixtureLoader(
     import.meta.env.DEV ? readSchoolTaskDetailFixtureScenario(searchParams.toString()) : 'success',
@@ -121,6 +128,12 @@ export function SchoolTaskDetailRoute() {
       onMentorCaseOpen={(contentId) => navigate(mentorCasePath(contentId))}
       onOpenTopic={openTopic}
       focusNowCard={topicSubmitted && !topicOpen}
+      evidenceService={evidenceService}
+      onEvidenceChanged={() => {
+        // 주제 제출 직후의 지금 할 일 Focus는 한 번만. 자료를 바꾼 뒤에는 원래 버튼으로 Focus를 돌려준다.
+        setTopicSubmitted(false)
+        setEvidenceRevision((value) => value + 1)
+      }}
       // 주제를 쓸 수 있는 상태(제출 전 / 방향 요청)에서만 연다. 그 외 상태로 ?topic=1에 들어오면 열지 않는다.
       renderTopicDialog={(data) =>
         topicOpen && canSubmitTopic(data.detail?.topic) ? (
@@ -130,6 +143,7 @@ export function SchoolTaskDetailRoute() {
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
+        else if (id === 'evidence') navigate(schoolEvidencePath)
       }}
     />
   )

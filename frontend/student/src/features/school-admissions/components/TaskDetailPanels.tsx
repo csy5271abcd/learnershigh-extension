@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { evidenceConditionText } from '../model/evidence.ts'
 import {
   findRevisionDiff,
   formatDateTime,
@@ -12,11 +13,13 @@ import type {
   StudentTaskDetail,
   StudentTaskDetailExtra,
   TaskAiFeedback,
+  TaskEvidence,
   TaskEvaluationCriterion,
   TaskRevisionBlock,
   TaskTeacherFeedback,
   TaskTopicState,
 } from '../model/types.ts'
+import { EvidenceTable } from './EvidenceTable.tsx'
 import styles from './TaskDetailPanels.module.css'
 
 // ---------- 공통 ----------
@@ -237,20 +240,31 @@ export function TaskReferencesPanel({ detail }: { detail: StudentTaskDetailExtra
 
 // ---------- 4. 과정 자료 (TasksDetail-04) ----------
 
-export function TaskProcessPanel({ detail }: { detail: StudentTaskDetailExtra | null }) {
-  const materials = detail?.processMaterials
-  if (!materials) {
+interface TaskProcessPanelProps {
+  data: StudentTaskDetail
+  onAdd: (trigger: HTMLElement) => void
+  onPreview: (evidence: TaskEvidence, trigger: HTMLElement) => void
+  onDelete: (evidence: TaskEvidence, trigger: HTMLElement) => void
+  deleteErrorId?: string
+}
+
+// 과정 자료 = 이 Task의 Evidence Vault. School Evidence와 같은 Canonical Evidence를 읽는다.
+export function TaskProcessPanel({ data, onAdd, onPreview, onDelete, deleteErrorId }: TaskProcessPanelProps) {
+  const { task, evidence } = data
+  if (!evidence.complete) {
     return (
       <div className={styles.panel}>
         <NotPrepared what="과정 자료" />
       </div>
     )
   }
+  const materials = evidence.items
+  const condition = evidenceConditionText(task, materials.length)
   return (
     <div className={styles.panel}>
       <ul className={styles.categoryGrid} aria-label="단계별 과정 자료">
         {processCategories.map((category) => {
-          const items = materials.filter((item) => item.category === category.id)
+          const items = materials.filter((item) => item.stageTag === category.id)
           const latest = items.at(-1)
           return (
             <li key={category.id} className={styles.categoryCard} data-empty={items.length === 0 || undefined}>
@@ -267,42 +281,26 @@ export function TaskProcessPanel({ detail }: { detail: StudentTaskDetailExtra | 
 
       <div className={styles.sectionHeader}>
         <p className={styles.sectionDescription}>계획 · 조사 · 초안 · 최종 · 발표 단계별로 자료를 모아요.</p>
-        <UnavailableAddButton id="task-process-add-reason" label="자료 추가" />
+        <button
+          type="button"
+          id="task-evidence-add"
+          className={styles.addButton}
+          aria-haspopup="dialog"
+          onClick={(event) => onAdd(event.currentTarget)}
+        >
+          자료 추가
+        </button>
       </div>
+      {condition && (
+        <p className={styles.evidenceCondition} data-met={materials.length > 0 || undefined}>
+          {condition}
+        </p>
+      )}
 
       {materials.length === 0 ? (
-        <EmptyNotice>아직 올린 과정 자료가 없어요.</EmptyNotice>
+        <EmptyNotice>자료 조사에 참고한 파일을 추가해보세요.</EmptyNotice>
       ) : (
-        <div className={styles.tableScroll}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">파일</th>
-                <th scope="col">형식</th>
-                <th scope="col">단계</th>
-                <th scope="col">날짜</th>
-                <th scope="col">상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              {materials.map((item) => (
-                <tr key={item.evidenceId}>
-                  <th scope="row" className={styles.fileCell}>
-                    {item.fileName}
-                  </th>
-                  <td>{item.format}</td>
-                  <td>
-                    <span className={styles.stageTag}>{processCategories.find((category) => category.id === item.category)?.tag}</span>
-                  </td>
-                  <td>{formatDeadline(item.createdDate)}</td>
-                  <td>
-                    <span className={styles.doneTag}>완료</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <EvidenceTable items={materials} onPreview={onPreview} onDelete={onDelete} deleteErrorId={deleteErrorId} />
       )}
     </div>
   )
