@@ -29,7 +29,6 @@ interface SchoolActivitiesPageProps {
   onOpen: (activityId: string) => void
   onCreate: () => void
   createTriggerId: string
-  studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
@@ -54,7 +53,6 @@ export function SchoolActivitiesPage({
   onOpen,
   onCreate,
   createTriggerId,
-  studentGrade,
   onSectionSelect,
 }: SchoolActivitiesPageProps) {
   const { state, reload } = useSchoolActivityList(loadList)
@@ -70,14 +68,14 @@ export function SchoolActivitiesPage({
   const visible = all.filter((item) => (type === 'all' || item.activity.type === type) && matches(item, query))
 
   return (
-    <SchoolLayout current="activities" studentGrade={studentGrade} onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
+    <SchoolLayout current="activities" onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
       <section className={styles.page} aria-labelledby="school-activities-heading">
         <header className={styles.header}>
           <div>
             <h2 id="school-activities-heading" className={styles.title}>
               나의 활동 기록
             </h2>
-            <p className={styles.lead}>수행평가 밖에서 경험한 활동도 과정과 배운 점을 함께 기록해보세요.</p>
+            <p className={styles.lead}>대회, 동아리, 프로젝트, 자율 탐구 등 다양한 활동의 과정과 배운 점을 기록하고, 나중에 다시 활용해보세요.</p>
           </div>
           <button type="button" id={createTriggerId} className={styles.createButton} aria-haspopup="dialog" onClick={onCreate}>
             + 활동 기록 추가

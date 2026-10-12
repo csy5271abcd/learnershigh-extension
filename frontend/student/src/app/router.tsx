@@ -22,6 +22,8 @@ import {
   schoolActivityRoutePattern,
   schoolArchiveRoutePattern,
   schoolEvidenceRoutePattern,
+  schoolInterviewQuestionRoutePattern,
+  schoolInterviewRoutePattern,
   schoolRoutePattern,
   schoolTaskRoutePattern,
   schoolTasksPath,
@@ -31,6 +33,8 @@ import { SchoolActivitiesRoute } from '../features/school-admissions/routes/Scho
 import { SchoolActivityDetailRoute } from '../features/school-admissions/routes/SchoolActivityDetailRoute.tsx'
 import { SchoolArchiveRoute } from '../features/school-admissions/routes/SchoolArchiveRoute.tsx'
 import { SchoolEvidenceRoute } from '../features/school-admissions/routes/SchoolEvidenceRoute.tsx'
+import { SchoolInterviewQuestionRoute } from '../features/school-admissions/routes/SchoolInterviewQuestionRoute.tsx'
+import { SchoolInterviewRoute } from '../features/school-admissions/routes/SchoolInterviewRoute.tsx'
 import { SchoolTaskDetailRoute } from '../features/school-admissions/routes/SchoolTaskDetailRoute.tsx'
 import { SchoolTasksRoute } from '../features/school-admissions/routes/SchoolTasksRoute.tsx'
 import {
@@ -96,6 +100,8 @@ export const studentRouter = createBrowserRouter([
       { path: schoolArchiveRoutePattern, element: <SchoolArchiveRoute /> },
       { path: schoolActivitiesRoutePattern, element: <SchoolActivitiesRoute /> },
       { path: schoolActivityRoutePattern, element: <SchoolActivityDetailRoute /> },
+      { path: schoolInterviewRoutePattern, element: <SchoolInterviewRoute /> },
+      { path: schoolInterviewQuestionRoutePattern, element: <SchoolInterviewQuestionRoute /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

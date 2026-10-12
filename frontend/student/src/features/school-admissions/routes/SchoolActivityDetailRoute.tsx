@@ -8,14 +8,15 @@ import {
   readActivityFeedbackFixture,
   readSchoolActivityLoadScenario,
 } from '../fixtures/schoolActivity.fixture.ts'
-import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import { SchoolActivityDetailPage } from '../SchoolActivityDetailPage.tsx'
-import { schoolActivitiesPath, schoolArchivePath, schoolEvidencePath, schoolTasksPath } from './paths.ts'
+import { schoolActivitiesPath } from './paths.ts'
 
 const isFromActivityList = (state: unknown) =>
   typeof state === 'object' && state !== null && (state as { fromActivityList?: boolean }).fromActivityList === true
 const isFromArchive = (state: unknown) =>
   typeof state === 'object' && state !== null && (state as { fromArchive?: boolean }).fromArchive === true
+const isFromInterview = (state: unknown) =>
+  typeof state === 'object' && state !== null && (state as { fromInterview?: boolean }).fromInterview === true
 
 // Growth Activity Detail. 목록에서 왔으면 돌아가기를 History Back으로 처리해 검색 / 유형 / Scroll을 복원한다.
 // 개발용 ?fixture=loading | error | activity-*-fail-once (save · submit · evidence-add · evidence-delete · reflection · feedback-request · archive)
@@ -55,18 +56,11 @@ export function SchoolActivityDetailRoute() {
       service={service}
       onChanged={() => setRevision((value) => value + 1)}
       onBack={() => {
-        if (isFromActivityList(location.state) || isFromArchive(location.state)) navigate(-1)
+        if (isFromActivityList(location.state) || isFromArchive(location.state) || isFromInterview(location.state)) navigate(-1)
         else navigate(schoolActivitiesPath)
       }}
       // 돌아가기 문구 = 실제로 돌아갈 곳
-      backTo={isFromArchive(location.state) ? 'archive' : 'activities'}
-      studentGrade={schoolStudentContext.grade}
-      onSectionSelect={(id) => {
-        if (id === 'tasks') navigate(schoolTasksPath)
-        else if (id === 'activities') navigate(schoolActivitiesPath)
-        else if (id === 'evidence') navigate(schoolEvidencePath)
-        else if (id === 'archive') navigate(schoolArchivePath)
-      }}
+      backTo={isFromInterview(location.state) ? 'interview' : isFromArchive(location.state) ? 'archive' : 'activities'}
     />
   )
 }

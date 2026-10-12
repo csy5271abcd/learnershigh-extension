@@ -760,13 +760,14 @@ Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENT
 Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission c1990e6)
 School Archive (Archive-00, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416)
 School Activities (List · Create · Detail · Draft Edit · Evidence · Submit): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
-Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
-Activity Reflection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
-Activity Feedback Request / Display: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
-Growth Archive Connection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
+Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 2026-10-12, feat/student-school-activity-reflection d113e06)
+Activity Reflection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
+Activity Feedback Request / Display: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
+Growth Archive Connection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
 Admin Activity Feedback: NOT_STARTED
-Cross-subject Connection: NOT_STARTED
-Interview: NOT_STARTED
+Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 2026-10-12, feat/student-school-interview, 미커밋) — Admin Connection Review NOT_STARTED
+Interview Bridge (Student): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-interview, 미커밋)
+Admin Interview Management: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -862,8 +863,12 @@ IN_PROGRESS
 - School Archive (/school/archive, Task + Growth source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive d5ef416 + Growth 연결 feat/student-school-activity-reflection 미커밋)
   - 실제 GET /api/student/archive / Archive Persistence(API-OD-05) / Frontend 자동 Test: NOT_STARTED
 - School Activities (/school/activities, /school/activities/:activityId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
-- Activity Reflection · Feedback Request / Display · Archive Command · Growth Archive 연결: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection, 미커밋)
-  - 실제 Activity API(§17-1 ~ 17-4) / Admin Activity Feedback / Cross-subject Connection / Interview / Frontend 자동 Test: NOT_STARTED
+- Activity Reflection · Feedback Request / Display · Archive Command · Growth Archive 연결: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
+  - 실제 Activity API(§17-1 ~ 17-4) / Admin Activity Feedback / Frontend 자동 Test: NOT_STARTED
+- Cross-subject Connection: BOUNDARY_IMPLEMENTED (Canonical Fixture + 확정 Connection 읽기만, feat/student-school-interview, 미커밋)
+  - Admin Connection Review / 실제 AI 후보 생성 / Connection API: NOT_STARTED
+- Interview Bridge (/school/interview, /school/interview/:questionId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-interview, 미커밋)
+  - 실제 Interview API(§19) / Admin Interview Management(AI Draft · 추가 · 편집 · 삭제 · Publish) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1971,10 +1976,10 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 
 ```text
 Activities: IMPLEMENTED (5f6a5e1)
-Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 미커밋)
-Activity Reflection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
-Activity Feedback Request / Display: IMPLEMENTED (Fixture 기반 UI, 미커밋)
-Growth Archive Connection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, d113e06)
+Activity Reflection: IMPLEMENTED (Fixture 기반 UI, d113e06)
+Activity Feedback Request / Display: IMPLEMENTED (Fixture 기반 UI, d113e06)
+Growth Archive Connection: IMPLEMENTED (Fixture 기반 UI, d113e06)
 Admin Activity Feedback: NOT_STARTED
 Cross-subject Connection: NOT_STARTED
 Interview: NOT_STARTED
@@ -2006,6 +2011,64 @@ VERIFIED 아님: /api/student/activities/{id}/feedback-request · feedback · re
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Cross-subject Connection Boundary / Interview Bridge (branch: feat/student-school-interview)
+
+### Status
+
+```text
+Activity Reflection: IMPLEMENTED (d113e06)
+Growth Archive Connection: IMPLEMENTED (d113e06)
+Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 미커밋)
+Admin Connection Review: NOT_STARTED
+Interview Bridge (Student Published Question · Answer · Practice State · Grade Eligibility): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Admin Interview Management: NOT_STARTED
+VERIFIED 아님: Connection API 없음, Interview API(§19) 미연결, Enum 미확정, 메모리 Fixture, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Connection Canonical Fixture(fixtures/schoolConnection): connectionId · sourceRefs(Archive source 규칙 task / growth + sourceId) · reason · reviewState(candidate / confirmed / rejected, Fixture 의미 값)
+  - Archive 항목 3개(완료 Task fixture-task-08 · 성장 활동 A11 · A12)로 가능한 짝 3개: 확정 1(A11 ↔ A12) · 후보 1(A11 ↔ Task 08) · 거절 1(A12 ↔ Task 08). 가짜 Archive 항목 없음
+  - 상태를 바꾸는 함수 없음 (Student / AI 확정 불가, Admin Review 화면 없음). Interview는 confirmedConnection()만 사용
+- 학년 Context: Canonical 최하은 고2 유지. DEV 전용 `?fixtureStudentGrade=3`(Eligibility만 고3 재현, 메모리, 새로고침 시 해제 · `=2`로 해제). Production 조작 UI 없음
+  - 고2: School 내부 Nav에 Interview 없음, `/school/interview`(및 질문 URL) 직접 접근 시 "Interview는 고3 학생에게 열려요." 안내 (질문을 읽지 않음, Redirect 없음)
+- Interview Fixture(fixtures/schoolInterview): 질문 7개(공개 5 · 비공개 2), id fixture-interview-question-001 ~ 007. 관련 활동은 Archive 저장한 실제 A11 / A12 id만. Q05는 확정 Connection 001 근거(관련 활동 A11 + A12)
+  - Student 읽기 모델: 고3 + 공개 + (Connection 근거면 확정) 질문만 반환. 비공개 질문은 목록 / 직접 URL 모두 Not Found
+- `/school/interview`: 면접 질문 목록(질문 · 관련 활동 이름 · 연습 상태 · 답변 여부) + 요약(공개 질문 / 연습 중 / 답변 작성, 원본에서 계산)
+- `/school/interview/:questionId`: 질문 · 관련 활동 카드(유형 · 기간 · 이름, Canonical Activity 참조) → Activity Detail(돌아가기 "면접 질문") → Back 시 질문 · Scroll 복원
+  - 답변: 학생 직접 입력, 명시적 "답변 저장"(자동 저장 / 자동 답변 없음), 저장 중 / 실패 시 입력 유지 / 연속 클릭 1회 / 나가기 확인
+  - 연습 상태: NOT_STARTED ↔ PRACTICING (연습 시작 / 연습 전으로 되돌리기), 실패 시 이전 상태 유지, 연속 클릭 1회. 답변과 서로 독립
+- Loading(Skeleton) / 목록 오류 / 질문 오류 / 공개 질문 없음 / 관련 활동 없음(개발용 related-missing) / 질문 Not Found 구분
+
+### Notes — Student School UI refinement (같은 Branch, 미커밋, 새 Feature 아님)
+
+- School density refinement: School 공통 Container max-width 1680px, School 범위 Token(제목 / 간격 한 단계) 축소. 본문 14px · 44px Touch target 유지. transform / zoom 미사용
+- School 1차 Navigation(Tasks / Activities / Evidence / Archive, 고3은 기존 Interview 유지)은 목록 / 허브 화면에서만 렌더링. Task / Activity / 면접 질문 상세에서는 School 제목 · 1차 Navigation을 그리지 않음 (SchoolLayout level="detail")
+- School Header 설명 · Activities 설명 문구 변경
+- Task Detail Scroll 시 8단계 Stepper가 Sticky School Navigation 위에 겹쳐 그려지던 문제 수정 (Stepper isolation + 상세에서 Sticky Navigation 제거). Activity Detail 오른쪽 자료 열 Sticky top을 Global Navigation 아래로
+- School primary nav = Tasks / Activities / Evidence / Archive (학년과 관계없이 4개). Interview는 1차 Tab이 아니라 Archive 상단의 고3 전용 "면접 준비" 진입점(grade-gated entry)으로 들어간다. 고2는 진입점 없음, 직접 URL은 기존 비대상 안내 유지
+- 면접 질문 목록은 1차 Navigation 없는 보조 화면 (돌아가기 "‹ Archive")
+- 상세 돌아가기 문구(보이는 글자 + 읽기 문구)를 실제 출발 화면에 맞춤: Task Detail ‹ Tasks / ‹ Evidence / ‹ Archive (직접 URL은 Tasks), Activity Detail ‹ 나의 활동 기록 / ‹ Archive / ‹ 면접 질문, 면접 질문 상세 ‹ 면접 질문
+- School density / sticky refinement complete
+
+### Open / Contract Gap
+
+- Connection: Student용 API 없음, 상태 Enum 미확정(OD-04 / API-OD-04), sourceRef Schema 없음
+- Interview 공개 상태 Schema 부족 → Fixture published: boolean
+- practiceStatus 전체 Enum 미확정 → Contract 예시의 NOT_STARTED / PRACTICING만
+- 완료 Task를 relatedActivityIds로 표현할 방법 없음 → Task는 Interview 관련 활동에 넣지 않음
+- Interview 대상 학년 판단 필드 위치 미정 (Student Context? 응답?)
+- Question Detail 응답 Shape 없음, GET 목록에 answer 없음 → Fixture answer 필드
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~O)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

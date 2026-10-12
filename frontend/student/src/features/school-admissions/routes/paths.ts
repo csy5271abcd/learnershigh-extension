@@ -7,6 +7,8 @@ export const schoolEvidenceRoutePattern = 'school/evidence'
 export const schoolArchiveRoutePattern = 'school/archive'
 export const schoolActivitiesRoutePattern = 'school/activities'
 export const schoolActivityRoutePattern = 'school/activities/:activityId'
+export const schoolInterviewRoutePattern = 'school/interview'
+export const schoolInterviewQuestionRoutePattern = 'school/interview/:questionId'
 
 export const schoolPath = '/school'
 export const schoolTasksPath = '/school/tasks'
@@ -16,6 +18,9 @@ export const schoolEvidencePath = '/school/evidence'
 export const schoolArchivePath = '/school/archive'
 /** School Activities: 수행평가 밖 성장 활동 기록 (Activities-00) */
 export const schoolActivitiesPath = '/school/activities'
+
+/** Interview Bridge: 고3에게 공개된 면접 질문 */
+export const schoolInterviewPath = '/school/interview'
 
 /** Tasks 화면 위 수행평가 등록 Modal (?create=1). Browser Back으로 닫히고, 새로고침하면 빈 Form으로 다시 열린다. */
 export const createModalParam = 'create'
@@ -32,6 +37,11 @@ export const feedbackVersionParam = 'versionId'
 /** Growth Activity Detail (ActivitiesDetail-01 / 02) */
 export function schoolActivityPath(activityId: string): string {
   return `${schoolActivitiesPath}/${encodeURIComponent(activityId)}`
+}
+
+/** Interview Question Detail */
+export function schoolInterviewQuestionPath(questionId: string): string {
+  return `${schoolInterviewPath}/${encodeURIComponent(questionId)}`
 }
 
 /** Task Detail. Tab은 ?tab=, 수정 기록 Version Pair는 ?from=&to=로 둔다. */

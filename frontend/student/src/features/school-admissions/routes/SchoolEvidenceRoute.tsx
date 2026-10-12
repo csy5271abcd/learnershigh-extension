@@ -6,7 +6,6 @@ import {
   readSchoolEvidenceFixtureScenario,
   readSchoolEvidenceListFixtureScenario,
 } from '../fixtures/schoolEvidence.fixture.ts'
-import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import { SchoolEvidencePage } from '../SchoolEvidencePage.tsx'
 import { schoolActivitiesPath, schoolArchivePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
@@ -34,7 +33,6 @@ export function SchoolEvidenceRoute() {
         const state: SchoolTaskDetailEntryState = { fromTaskList: true, backTo: 'evidence' }
         navigate(`${schoolTaskPath(taskId)}?tab=process`, { state })
       }}
-      studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
         else if (id === 'activities') navigate(schoolActivitiesPath)

@@ -11,7 +11,6 @@ import {
 } from '../fixtures/schoolFeedback.fixture.ts'
 import { createSchoolFinalFixtureService, readSchoolFinalFixtureScenario } from '../fixtures/schoolFinalArtifact.fixture.ts'
 import { markTaskStoreChanged } from '../fixtures/schoolTaskRepository.fixture.ts'
-import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import {
   applyAiAnalysisFixture,
   createSchoolVersionFixtureService,
@@ -28,7 +27,7 @@ import { canSubmitTopic } from '../model/topic.ts'
 import { canSubmitNextVersion } from '../model/feedback.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
-import { feedbackVersionParam, schoolActivitiesPath, schoolArchivePath, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
+import { feedbackVersionParam, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
 import { SchoolTopicModal } from './SchoolTopicModal.tsx'
 import { SchoolVersionSubmitModal } from './SchoolVersionSubmitModal.tsx'
 
@@ -41,10 +40,11 @@ export interface SchoolTaskDetailEntryState {
   backTo: 'tasks' | 'evidence' | 'archive'
 }
 
+/** 돌아가기 버튼에 보이는 목적지 (읽기 문구는 "<목적지>로 돌아가기") */
 const backLabel: Record<SchoolTaskDetailEntryState['backTo'], string> = {
-  tasks: 'Tasks 목록으로 돌아가기',
-  evidence: 'Evidence로 돌아가기',
-  archive: 'Archive로 돌아가기',
+  tasks: 'Tasks',
+  evidence: 'Evidence',
+  archive: 'Archive',
 }
 
 const isFromTaskList = (state: unknown): state is SchoolTaskDetailEntryState =>
@@ -284,13 +284,6 @@ export function SchoolTaskDetailRoute() {
           <SchoolTopicModal key={data.task.taskId} data={data} submitTopic={submitTopic} onClose={closeTopic} />
         ) : null
       }
-      studentGrade={schoolStudentContext.grade}
-      onSectionSelect={(id) => {
-        if (id === 'tasks') navigate(schoolTasksPath)
-        else if (id === 'activities') navigate(schoolActivitiesPath)
-        else if (id === 'evidence') navigate(schoolEvidencePath)
-        else if (id === 'archive') navigate(schoolArchivePath)
-      }}
     />
   )
 }

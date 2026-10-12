@@ -1,22 +1,54 @@
 /*
- * School Page 공통 (Tasks-00 Mockup)
- * - Page 여백 / 제목 크기는 Mentor Hub와 같은 Student Surface 기준을 쓴다.
+ * School Page 공통 Container (Tasks-00 Mockup)
+ * - 모든 School 화면(목록 / 허브 / 상세)이 이 Container 하나를 쓴다. 화면마다 max-width를 따로 두지 않는다.
  * - Breakpoint: 1023px(Tablet 이하), 639px(Mobile)
  */
 
 .page {
+  /*
+   * School 밀도: Student 공통 Token(index.css)을 School 범위 안에서만 한 단계 줄인다. (약 8~10%)
+   * 본문(--lh-font-body 14px) · 작은 글자 · 4~16px 간격은 그대로 둔다. transform / zoom은 쓰지 않는다.
+   * Mentor Hub 등 School 밖 화면에는 영향이 없다.
+   */
+  --lh-font-page-title: 1.625rem; /* 30 → 26px */
+  --lh-font-title-lg: 1.375rem; /* 24 → 22px */
+  --lh-font-title-md: 1.125rem; /* 20 → 18px */
+  --lh-space-5: 18px; /* 20 → 18 */
+  --lh-space-6: 22px; /* 24 → 22 */
+  --lh-space-8: 28px; /* 32 → 28 */
+  --lh-space-10: 36px; /* 40 → 36 */
+  --lh-space-12: 44px; /* 48 → 44 */
+  --lh-space-16: 56px; /* 64 → 56 */
+
+  /* School 1차 Navigation 높이 (탭 44px + 아래 선 1px) */
+  --lh-school-nav-height: 45px;
+  /*
+   * Sticky 기준선: 이 아래로 Sticky 요소를 붙이고, Anchor / scrollIntoView 대상이 그 아래에서 보이게 한다.
+   * 상세 화면에는 Global Navigation만 Sticky다. 목록 / 허브 화면은 School 1차 Navigation까지 더한다(.page[data-level='hub']).
+   */
+  --lh-school-sticky-top: var(--lh-student-nav-height, 0px);
   --page-gutter: var(--lh-space-10);
 
-  max-width: 1920px;
+  width: 100%;
+  max-width: 1680px;
   margin: 0 auto;
   padding: var(--lh-space-10) var(--page-gutter) var(--lh-space-16);
+}
+
+.page[data-level='hub'] {
+  --lh-school-sticky-top: calc(var(--lh-student-nav-height, 0px) + var(--lh-school-nav-height));
+}
+
+/* Feedback Version 이동 · Reflection 열기 등 scrollIntoView / Anchor 대상이 Sticky 영역 밑에 가리지 않게 한다. */
+.page :where([id]) {
+  scroll-margin-top: calc(var(--lh-school-sticky-top) + var(--lh-space-4));
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--lh-space-2);
-  padding-bottom: var(--lh-space-8);
+  gap: var(--lh-space-1);
+  padding-bottom: var(--lh-space-6);
 }
 
 .pageTitle {
@@ -30,7 +62,10 @@
   font-size: 0.9375rem;
 }
 
-/* School 내부 Navigation: Student Global Navigation(sticky) 바로 아래에 붙는다. */
+/*
+ * School 1차 Navigation (목록 / 허브 화면만): Student Global Navigation(sticky, z-index 10) 바로 아래에 붙는다.
+ * z-index 1 = 일반 콘텐츠 위, Global Navigation 아래. 상세 화면에는 이 막대가 없다.
+ */
 .bar {
   position: sticky;
   top: var(--lh-student-nav-height, 0px);
@@ -54,12 +89,12 @@
 .item {
   position: relative;
   flex-shrink: 0;
-  min-height: 48px;
+  min-height: 44px;
   padding: 0 10px;
   border: 0;
   background: none;
   color: var(--lh-color-text-tertiary);
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
@@ -96,7 +131,7 @@
 }
 
 .content {
-  padding-top: var(--lh-space-6);
+  padding-top: var(--lh-space-5);
 }
 
 @media (max-width: 1023px) {

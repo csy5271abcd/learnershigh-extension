@@ -3,7 +3,7 @@ import { useBlocker } from 'react-router'
 import { ActivityFormFields } from './components/ActivityForm.tsx'
 import { DialogShell } from './components/EvidenceDialogs.tsx'
 import dialogStyles from './components/EvidenceParts.module.css'
-import { SchoolLayout, type SchoolSectionId } from './components/SchoolLayout.tsx'
+import { SchoolLayout } from './components/SchoolLayout.tsx'
 import { TaskLeaveDialog } from './components/TaskLeaveDialog.tsx'
 import { useActivityEvidence } from './components/useActivityEvidence.tsx'
 import type { SchoolActivityDetailLoader, SchoolActivityService } from './fixtures/schoolActivity.fixture.ts'
@@ -40,6 +40,13 @@ const statusMessage: Record<ActivityStatus, string> = {
   archived: 'Archive에 보관한 기록이에요.',
 }
 
+/** 돌아가기 버튼: [보이는 이름, 읽기 문구 나머지] */
+const backLabels = {
+  activities: ['나의 활동 기록', '으로 돌아가기'],
+  archive: ['Archive', '로 돌아가기'],
+  interview: ['면접 질문', '으로 돌아가기'],
+} as const
+
 interface SchoolActivityDetailPageProps {
   activityId: string
   loadDetail: SchoolActivityDetailLoader
@@ -47,9 +54,7 @@ interface SchoolActivityDetailPageProps {
   onChanged: () => void
   onBack: () => void
   /** 들어온 곳 (돌아가기 버튼 문구 = 실제 목적지) */
-  backTo: 'activities' | 'archive'
-  studentGrade: string
-  onSectionSelect: (id: SchoolSectionId) => void
+  backTo: 'activities' | 'archive' | 'interview'
 }
 
 // Growth Activity Detail (ActivitiesDetail-01 / 02): 기본 정보 · 활동 과정 · 학생이 쓴 서술 · 과정 자료 · Reflection · 선생님 피드백.
@@ -61,15 +66,13 @@ export function SchoolActivityDetailPage({
   onChanged,
   onBack,
   backTo,
-  studentGrade,
-  onSectionSelect,
 }: SchoolActivityDetailPageProps) {
   const { state, reload } = useSchoolActivityDetail(activityId, loadDetail)
   return (
-    <SchoolLayout current="activities" studentGrade={studentGrade} onSectionSelect={onSectionSelect} busy={state.status === 'loading'} showPageHeader={false}>
+    <SchoolLayout level="detail" busy={state.status === 'loading'}>
       <button type="button" className={styles.back} onClick={onBack}>
-        <span aria-hidden="true">‹</span> {backTo === 'archive' ? 'Archive' : '나의 활동 기록'}
-        <span className="lh-visually-hidden">{backTo === 'archive' ? '로 돌아가기' : '으로 돌아가기'}</span>
+        <span aria-hidden="true">‹</span> {backLabels[backTo][0]}
+        <span className="lh-visually-hidden">{backLabels[backTo][1]}</span>
       </button>
 
       {state.status === 'loading' && (

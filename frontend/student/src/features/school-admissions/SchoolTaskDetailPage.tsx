@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { SchoolLayout, type SchoolSectionId } from './components/SchoolLayout.tsx'
+import { SchoolLayout } from './components/SchoolLayout.tsx'
 import {
   TaskEvaluationPanel,
   TaskFeedbackPanel,
@@ -85,12 +85,10 @@ interface SchoolTaskDetailPageProps {
   onFinalChanged: () => void
   /** Version 제출 Modal (Task 값을 불러온 뒤 호출 측이 그린다) */
   renderVersionDialog?: (data: StudentTaskDetail) => ReactNode
-  studentGrade: string
-  onSectionSelect: (id: SchoolSectionId) => void
 }
 
 // Student Task Detail (TasksDetail-01 ~ 07 Mockup)
-// 순서: School 내부 Navigation(Tasks) → 돌아가기 → 상태 Badge · 제목 · 제출물 / 마감 → 8단계 → 지금 할 일(Overview) 또는 한 줄 상태 → 7 Tab
+// 순서: 돌아가기 (School 1차 Navigation 없음) → 상태 Badge · 제목 · 제출물 / 마감 → 8단계 → 지금 할 일(Overview) 또는 한 줄 상태 → 7 Tab
 export function SchoolTaskDetailPage({
   taskId,
   loadDetail,
@@ -117,22 +115,14 @@ export function SchoolTaskDetailPage({
   feedbackVersionParam,
   finalService,
   onFinalChanged,
-  studentGrade,
-  onSectionSelect,
 }: SchoolTaskDetailPageProps) {
   const { state, reload } = useSchoolTaskDetail(taskId, loadDetail)
 
   return (
-    <SchoolLayout
-      current="tasks"
-      studentGrade={studentGrade}
-      onSectionSelect={onSectionSelect}
-      busy={state.status === 'loading'}
-      showPageHeader={false}
-    >
+    <SchoolLayout level="detail" busy={state.status === 'loading'}>
       <button type="button" className={styles.back} onClick={onBackToTasks}>
-        <span aria-hidden="true">‹</span> School
-        <span className="lh-visually-hidden"> {backLabel}</span>
+        <span aria-hidden="true">‹</span> {backLabel}
+        <span className="lh-visually-hidden">로 돌아가기</span>
       </button>
 
       {state.status === 'loading' && (

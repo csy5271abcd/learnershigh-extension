@@ -11,6 +11,45 @@
   font-size: var(--lh-font-body);
 }
 
+/* 고3 "면접 준비" 진입점: 1차 Navigation이 아닌 한 줄짜리 보조 Card */
+.interviewEntry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3) var(--lh-space-5);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.interviewEntryTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.interviewEntryText {
+  margin-top: var(--lh-space-1);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.interviewEntryButton {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.interviewEntryButton:hover {
+  background: var(--lh-color-surface-hover);
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;

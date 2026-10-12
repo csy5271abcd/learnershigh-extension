@@ -5,7 +5,6 @@ import {
   createSchoolTaskListFixtureLoader,
   readSchoolTaskListFixtureScenario,
   SCHOOL_SNAPSHOT_DATE,
-  schoolStudentContext,
 } from '../fixtures/schoolTasks.fixture.ts'
 import { parseTaskListFilter, type TaskListFilter } from '../model/tasks.ts'
 import { SchoolTasksPage } from '../SchoolTasksPage.tsx'
@@ -99,9 +98,7 @@ export function SchoolTasksRoute() {
         onCreateTask={openCreate}
         createTriggerId={createTriggerId}
         createdTaskId={createOpen ? undefined : createdTaskId}
-        studentGrade={schoolStudentContext.grade}
         onSectionSelect={(id) => {
-          // 화면이 있는 Section은 Tasks / Evidence / Archive다.
           if (id === 'tasks') navigate(schoolTasksPath)
           else if (id === 'activities') navigate(schoolActivitiesPath)
           else if (id === 'evidence') navigate(schoolEvidencePath)

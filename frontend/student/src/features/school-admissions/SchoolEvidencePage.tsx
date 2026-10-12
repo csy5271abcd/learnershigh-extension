@@ -11,7 +11,6 @@ interface SchoolEvidencePageProps {
   evidenceService: SchoolEvidenceService
   onEvidenceChanged: () => void
   onTaskOpen: (taskId: string) => void
-  studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
@@ -25,14 +24,13 @@ export function SchoolEvidencePage({
   evidenceService,
   onEvidenceChanged,
   onTaskOpen,
-  studentGrade,
   onSectionSelect,
 }: SchoolEvidencePageProps) {
   const { state, reload } = useSchoolEvidenceList(loadList)
   const evidence = useEvidenceManager({ service: evidenceService, onChanged: onEvidenceChanged, focusFallbackId: headingId })
 
   return (
-    <SchoolLayout current="evidence" studentGrade={studentGrade} onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
+    <SchoolLayout current="evidence" onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
       <section className={styles.page} aria-labelledby={headingId}>
         <h2 id={headingId} className="lh-visually-hidden" tabIndex={-1}>
           수행평가 자료

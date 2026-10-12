@@ -23,7 +23,8 @@ interface SchoolArchivePageProps {
   /** 검색 · 출처를 한 번에 처음 상태로 */
   onReset: () => void
   onItemOpen: (item: ArchiveItemView) => void
-  studentGrade: string
+  /** 고3(Interview 대상)일 때만 넘긴다. 있으면 "면접 준비" 진입점을 보여준다. (1차 Navigation Tab이 아니다) */
+  onOpenInterview?: () => void
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
@@ -37,7 +38,7 @@ export function SchoolArchivePage({
   onQueryChange,
   onReset,
   onItemOpen,
-  studentGrade,
+  onOpenInterview,
   onSectionSelect,
 }: SchoolArchivePageProps) {
   const { state, reload } = useSchoolArchive(loadArchive, { source, query })
@@ -51,12 +52,26 @@ export function SchoolArchivePage({
   }
 
   return (
-    <SchoolLayout current="archive" studentGrade={studentGrade} onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
+    <SchoolLayout current="archive" onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
       <section className={styles.page} aria-labelledby="school-archive-heading">
         <h2 id="school-archive-heading" className="lh-visually-hidden">
           Archive
         </h2>
         <p className={styles.lead}>최종 제출을 마친 수행평가와 Archive에 저장한 성장 활동이 여기에 모여요.</p>
+
+        {onOpenInterview && (
+          <aside className={styles.interviewEntry} aria-labelledby="school-interview-entry-heading">
+            <div>
+              <h3 id="school-interview-entry-heading" className={styles.interviewEntryTitle}>
+                면접 준비
+              </h3>
+              <p className={styles.interviewEntryText}>학교 활동 기록을 바탕으로 공개된 면접 질문을 연습해보세요.</p>
+            </div>
+            <button type="button" className={styles.interviewEntryButton} onClick={onOpenInterview}>
+              면접 질문 보기
+            </button>
+          </aside>
+        )}
 
         <div className={styles.toolbar}>
           <label className={styles.search}>

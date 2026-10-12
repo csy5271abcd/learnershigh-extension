@@ -18,7 +18,6 @@ interface SchoolTasksPageProps {
   createTriggerId: string
   /** 방금 등록한 Task. 목록에 나타나면 그 Task로 Focus를 옮기고 알린다. */
   createdTaskId?: string
-  studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
 
@@ -32,13 +31,12 @@ export function SchoolTasksPage({
   onCreateTask,
   createTriggerId,
   createdTaskId,
-  studentGrade,
   onSectionSelect,
 }: SchoolTasksPageProps) {
   const { state, reload } = useSchoolTaskList(loadList)
 
   return (
-    <SchoolLayout current="tasks" studentGrade={studentGrade} onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
+    <SchoolLayout current="tasks" onSectionSelect={onSectionSelect} busy={state.status === 'loading'}>
       <section className={styles.createBanner} aria-labelledby="school-task-create-heading">
         <div className={styles.createText}>
           <h2 id="school-task-create-heading" className={styles.createTitle}>

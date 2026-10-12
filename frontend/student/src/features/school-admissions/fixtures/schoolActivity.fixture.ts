@@ -337,6 +337,9 @@ export const activityStoreRevision = () => revision
 
 const findActivity = (activityId: string) => activities.find((item) => item.activityId === activityId)
 
+/** 다른 School 읽기 모델(Interview 관련 활동)이 같은 Canonical Activity를 참조할 때 쓴다. (복사본을 만들지 않는다) */
+export const findGrowthActivity = (activityId: string): GrowthActivity | null => findActivity(activityId) ?? null
+
 // ---------- 목록 / Detail Loader ----------
 
 export type SchoolActivityLoadScenario = 'success' | 'loading' | 'error' | 'empty'

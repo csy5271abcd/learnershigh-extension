@@ -6,17 +6,17 @@ import {
   readSchoolActivityActionScenario,
   readSchoolActivityLoadScenario,
 } from '../fixtures/schoolActivity.fixture.ts'
-import { SCHOOL_SNAPSHOT_DATE, schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
+import { SCHOOL_SNAPSHOT_DATE } from '../fixtures/schoolTasks.fixture.ts'
 import { activityTypes, type ActivityType } from '../model/activity.ts'
 import { SchoolActivitiesPage } from '../SchoolActivitiesPage.tsx'
 import { createModalParam, schoolActivityPath, schoolArchivePath, schoolEvidencePath, schoolTasksPath } from './paths.ts'
 import { SchoolActivityCreateModal } from './SchoolActivityCreateModal.tsx'
 
 /**
- * Activities 목록(또는 Archive)에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해
+ * Activities 목록(또는 Archive / Interview 질문)에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해
  * 들어온 목록의 검색 / Filter / Scroll을 복원한다. (돌아가기 문구도 들어온 곳에 맞춘다)
  */
-export type SchoolActivityDetailEntryState = { fromActivityList: true } | { fromArchive: true }
+export type SchoolActivityDetailEntryState = { fromActivityList: true } | { fromArchive: true } | { fromInterview: true }
 
 const parseType = (value: string | null): ActivityType | 'all' => activityTypes.find((item) => item.id === value)?.id ?? 'all'
 
@@ -112,7 +112,6 @@ export function SchoolActivitiesRoute() {
         }}
         onCreate={openCreate}
         createTriggerId={createTriggerId}
-        studentGrade={schoolStudentContext.grade}
         onSectionSelect={(id) => {
           if (id === 'tasks') navigate(schoolTasksPath)
           else if (id === 'evidence') navigate(schoolEvidencePath)

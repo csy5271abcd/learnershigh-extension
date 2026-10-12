@@ -1,6 +1,8 @@
 /* 8단계 Stepper: 각 단계가 같은 너비를 나눠 갖고, 단계 사이를 선으로 잇는다. */
 
 .stepper {
+  /* Marker의 z-index(선 위로 올리기용)가 Stepper 밖 Sticky 요소와 겹쳐 그려지지 않게 이 안에 가둔다. */
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(8, minmax(88px, 1fr));
   overflow-x: auto;
