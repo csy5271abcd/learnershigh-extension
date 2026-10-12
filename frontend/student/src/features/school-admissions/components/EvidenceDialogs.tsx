@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { fileExtensionLabel, formatFileSize, type GuideFileReadState } from '../model/taskCreate.ts'
 import { processCategories } from '../model/taskDetail.ts'
-import { taskStageNames } from '../model/tasks.ts'
-import type { StudentTaskSummary, TaskEvidence, TaskProcessCategory } from '../model/types.ts'
+import type { TaskEvidence, TaskProcessCategory } from '../model/types.ts'
 import styles from './EvidenceParts.module.css'
 
 // ---------- 공통 Modal Shell (Native <dialog>: 배경 차단 / Focus 가두기 / ESC) ----------
@@ -50,13 +49,15 @@ export function DialogShell({
 // ---------- 자료 추가 ----------
 
 interface EvidenceAddDialogProps {
-  task: StudentTaskSummary
+  /** 어디에 올리는 자료인지 (예: Task 제목 · 과목 · 단계 / Activity 이름 · 유형) */
+  context: string
   file: File | null
   fileState: GuideFileReadState
   onFileSelect: (file: File) => void
   onFileRemove: () => void
-  stageTag: TaskProcessCategory
-  onStageTagChange: (tag: TaskProcessCategory) => void
+  /** Task 과정 자료만: 단계 Tag. 없으면(Activity) 단계 Tag를 묻지 않는다. */
+  stageTag?: TaskProcessCategory
+  onStageTagChange?: (tag: TaskProcessCategory) => void
   error?: string
   submitting: boolean
   submitFailed: boolean
@@ -67,7 +68,7 @@ interface EvidenceAddDialogProps {
 // 자료 추가: 파일 선택 → 브라우저에서 파일 준비(실제 진행률) → 단계 Tag → 추가하기
 // 서버 Upload가 아니다. (File Storage 미정) 진행률은 브라우저가 파일을 읽은 비율이다.
 export function EvidenceAddDialog({
-  task,
+  context,
   file,
   fileState,
   onFileSelect,
@@ -96,7 +97,7 @@ export function EvidenceAddDialog({
             자료 추가
           </h2>
           <p className={styles.dialogContext}>
-            {task.title} · {task.subject} · {task.currentStage}단계 {taskStageNames[task.currentStage]}
+            {context}
           </p>
         </header>
 
@@ -173,6 +174,7 @@ export function EvidenceAddDialog({
             )}
           </div>
 
+          {stageTag && onStageTagChange && (
           <fieldset className={styles.fieldset}>
             <legend className={styles.label}>어느 단계 자료인가요?</legend>
             <div className={styles.chips}>
@@ -191,11 +193,12 @@ export function EvidenceAddDialog({
             </div>
             <p className={styles.hint}>단계 Tag는 자료를 정리하는 표시예요. 수행평가 단계는 바뀌지 않아요.</p>
           </fieldset>
+          )}
         </div>
 
         {submitFailed && (
           <p className={styles.submitError} role="alert">
-            자료를 추가하지 못했어요. 고른 파일과 단계는 그대로 있어요. 다시 추가해주세요.
+            자료를 추가하지 못했어요. 고른 파일{stageTag ? '과 단계는' : '은'} 그대로 있어요. 다시 추가해주세요.
           </p>
         )}
 
@@ -349,11 +352,14 @@ export function FilePreviewDialog({
 
 export function EvidenceDeleteDialog({
   evidence,
+  description,
   deleting,
   onConfirm,
   onClose,
 }: {
-  evidence: TaskEvidence
+  evidence: Pick<TaskEvidence, 'fileName'>
+  /** 삭제하면 어디에서 사라지는지 (없으면 수행평가 자료 기준 문장) */
+  description?: string
   deleting: boolean
   onConfirm: () => void
   onClose: () => void
@@ -364,7 +370,9 @@ export function EvidenceDeleteDialog({
         <h2 id="evidence-delete-heading" className={styles.confirmTitle}>
           자료를 삭제할까요?
         </h2>
-        <p className={styles.confirmText}>{evidence.fileName}을(를) 삭제하면 이 수행평가 자료와 School Evidence에서 함께 사라져요.</p>
+        <p className={styles.confirmText}>
+          {description ?? `${evidence.fileName}을(를) 삭제하면 이 수행평가 자료와 School Evidence에서 함께 사라져요.`}
+        </p>
         <div className={styles.confirmActions}>
           <button type="button" className={styles.secondaryButton} onClick={onClose} disabled={deleting} data-autofocus>
             취소

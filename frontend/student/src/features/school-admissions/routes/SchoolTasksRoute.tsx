@@ -9,7 +9,7 @@ import {
 } from '../fixtures/schoolTasks.fixture.ts'
 import { parseTaskListFilter, type TaskListFilter } from '../model/tasks.ts'
 import { SchoolTasksPage } from '../SchoolTasksPage.tsx'
-import { createModalParam, schoolArchivePath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { createModalParam, schoolActivitiesPath, schoolArchivePath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import { SchoolTaskCreateModal } from './SchoolTaskCreateModal.tsx'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
@@ -103,6 +103,7 @@ export function SchoolTasksRoute() {
         onSectionSelect={(id) => {
           // 화면이 있는 Section은 Tasks / Evidence / Archive다.
           if (id === 'tasks') navigate(schoolTasksPath)
+          else if (id === 'activities') navigate(schoolActivitiesPath)
           else if (id === 'evidence') navigate(schoolEvidencePath)
           else if (id === 'archive') navigate(schoolArchivePath)
         }}

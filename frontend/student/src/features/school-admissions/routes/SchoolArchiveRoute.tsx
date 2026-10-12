@@ -3,7 +3,7 @@ import { createSchoolArchiveFixtureLoader, readSchoolArchiveFixtureScenario } fr
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import type { ArchiveSourceFilter } from '../model/types.ts'
 import { SchoolArchivePage } from '../SchoolArchivePage.tsx'
-import { schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { schoolActivitiesPath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
 const parseSource = (value: string | null): ArchiveSourceFilter => (value === 'task' || value === 'growth' ? value : 'all')
@@ -62,6 +62,7 @@ export function SchoolArchiveRoute() {
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
+        else if (id === 'activities') navigate(schoolActivitiesPath)
         else if (id === 'evidence') navigate(schoolEvidencePath)
       }}
     />

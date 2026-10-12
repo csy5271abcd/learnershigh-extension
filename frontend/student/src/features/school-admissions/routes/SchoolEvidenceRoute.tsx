@@ -8,7 +8,7 @@ import {
 } from '../fixtures/schoolEvidence.fixture.ts'
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import { SchoolEvidencePage } from '../SchoolEvidencePage.tsx'
-import { schoolArchivePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { schoolActivitiesPath, schoolArchivePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
 // School Evidence. Task 제목을 누르면 그 Task Detail의 과정 자료 Tab으로 간다.
@@ -37,6 +37,7 @@ export function SchoolEvidenceRoute() {
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
+        else if (id === 'activities') navigate(schoolActivitiesPath)
         else if (id === 'archive') navigate(schoolArchivePath)
       }}
     />

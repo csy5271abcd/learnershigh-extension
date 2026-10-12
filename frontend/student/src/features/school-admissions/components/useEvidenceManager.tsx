@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 import type { SchoolEvidenceService } from '../fixtures/schoolEvidence.fixture.ts'
 import { suggestedStageTag } from '../model/evidence.ts'
 import { restoreFocus } from '../model/focus.ts'
+import { taskStageNames } from '../model/tasks.ts'
 import type { StudentTaskSummary, TaskEvidence, TaskProcessCategory } from '../model/types.ts'
 import { useGuideFileReader } from '../model/useGuideFileReader.ts'
 import { EvidenceAddDialog, EvidenceDeleteDialog, EvidencePreviewDialog } from './EvidenceDialogs.tsx'
@@ -138,7 +139,7 @@ export function useEvidenceManager({
       )}
       {add && (
         <EvidenceAddDialog
-          task={add.task}
+          context={`${add.task.title} · ${add.task.subject} · ${add.task.currentStage}단계 ${taskStageNames[add.task.currentStage]}`}
           file={add.file}
           fileState={fileReader.state}
           onFileSelect={(file) => {

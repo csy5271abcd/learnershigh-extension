@@ -28,7 +28,7 @@ import { canSubmitTopic } from '../model/topic.ts'
 import { canSubmitNextVersion } from '../model/feedback.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
-import { feedbackVersionParam, schoolArchivePath, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
+import { feedbackVersionParam, schoolActivitiesPath, schoolArchivePath, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
 import { SchoolTopicModal } from './SchoolTopicModal.tsx'
 import { SchoolVersionSubmitModal } from './SchoolVersionSubmitModal.tsx'
 
@@ -287,6 +287,7 @@ export function SchoolTaskDetailRoute() {
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
+        else if (id === 'activities') navigate(schoolActivitiesPath)
         else if (id === 'evidence') navigate(schoolEvidencePath)
         else if (id === 'archive') navigate(schoolArchivePath)
       }}

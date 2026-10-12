@@ -15,7 +15,7 @@ interface SchoolSection {
 // School 내부 구조 (School-admissions Spec / Tasks-00 Mockup): Tasks / Activities / Evidence / Archive (+ 고3 Interview)
 const sections: SchoolSection[] = [
   { id: 'tasks', label: 'Tasks', available: true },
-  { id: 'activities', label: 'Activities', available: false },
+  { id: 'activities', label: 'Activities', available: true },
   { id: 'evidence', label: 'Evidence', available: true },
   { id: 'archive', label: 'Archive', available: true },
   { id: 'interview', label: 'Interview', available: false, senior: true },
