@@ -765,8 +765,9 @@ Activity Reflection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-ac
 Activity Feedback Request / Display: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
 Growth Archive Connection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
 Admin Activity Feedback: NOT_STARTED
-Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 2026-10-12, feat/student-school-interview, 미커밋) — Admin Connection Review NOT_STARTED
-Interview Bridge (Student): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-interview, 미커밋)
+Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 2026-10-13, feat/student-extension 5f2ef2a) — Admin Connection Review NOT_STARTED
+Interview Bridge (Student): IMPLEMENTED (Fixture UI, 2026-10-13, feat/student-extension 5f2ef2a)
+Student aggregate: feat/student-extension (5f2ef2a, Student Mentor + School 전체) — GitHub pushed (origin/feat/student-extension)
 Admin Interview Management: NOT_STARTED
 ```
 
@@ -789,7 +790,18 @@ Task
 상태:
 
 ```text
-NOT_STARTED
+IN_PROGRESS
+- Admin Canonical Fixture Foundation: IMPLEMENTED (2026-10-13, feat/admin-feedback-dashboard)
+  - frontend/admin/src/fixtures(Student 24 · Task 58 · Task Review 35 · Activity 37 · TestResult 39 · SchoolRecord 16 · Connection 12 · Interview 19)
+    + store/adminStore.ts(Session 메모리) + read-model/(Queue · 학생 파생 · Today Board · Operations · 정합성 검사)
+  - 최하은 Task 9 · Activity 12 · Connection 3 · Interview 7 · Mentor Case 연결은 Student Canonical Fixture 값 그대로
+- Feedback Dashboard (/ · /feedback): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-feedback-dashboard)
+  - Canonical Queue 28건(수행평가 검토 15 · 주제 검토 4 · 활동 피드백 9), KPI 4개 모두 계산값, Filter 7종 + 검색 + Pagination(10건)
+  - Review 진입 Boundary(/feedback/:feedbackId, 동작 없음 · 안내만)
+- Feedback Review: NOT_STARTED (다음 Branch feat/admin-student-management)
+- Topic Review / Activity Feedback Review / Mentor Case Recommendation / Today Board / Student 360 / TestResult /
+  SchoolRecordSnapshot / Connection Review / Interview Management / Operations / Admin Settings: NOT_STARTED
+- 실제 API(GET /api/admin/feedback/dashboard · /api/admin/feedback) / Frontend 자동 Test: NOT_STARTED
 ```
 
 예정:
@@ -865,9 +877,9 @@ IN_PROGRESS
 - School Activities (/school/activities, /school/activities/:activityId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
 - Activity Reflection · Feedback Request / Display · Archive Command · Growth Archive 연결: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
   - 실제 Activity API(§17-1 ~ 17-4) / Admin Activity Feedback / Frontend 자동 Test: NOT_STARTED
-- Cross-subject Connection: BOUNDARY_IMPLEMENTED (Canonical Fixture + 확정 Connection 읽기만, feat/student-school-interview, 미커밋)
+- Cross-subject Connection: BOUNDARY_IMPLEMENTED (Canonical Fixture + 확정 Connection 읽기만, feat/student-extension 5f2ef2a)
   - Admin Connection Review / 실제 AI 후보 생성 / Connection API: NOT_STARTED
-- Interview Bridge (/school/interview, /school/interview/:questionId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-interview, 미커밋)
+- Interview Bridge (/school/interview, /school/interview/:questionId): IMPLEMENTED (Fixture UI, 2026-10-13, feat/student-extension 5f2ef2a)
   - 실제 Interview API(§19) / Admin Interview Management(AI Draft · 추가 · 편집 · 삭제 · Publish) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
@@ -2069,6 +2081,53 @@ VERIFIED 아님: Connection API 없음, Interview API(§19) 미연결, Enum 미�
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~O)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-13 — Student 통합 Push / Admin Feedback Dashboard (branch: feat/admin-feedback-dashboard)
+
+### Status
+
+```text
+Student aggregate: feat/student-extension 5f2ef2a — origin push 완료 (local = remote)
+Interview Bridge (Student): IMPLEMENTED (5f2ef2a)
+Feedback Dashboard: IMPLEMENTED (Canonical Fixture 기반 UI)
+Feedback Review: NOT_STARTED
+VERIFIED 아님: Admin API 미연결, 메모리 Fixture, Theme 연결 전, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Admin App Shell 최소 구성: 기존 Admin Sidebar Context(상위 메뉴는 위치만 표시) + "학습관리" 아래 Extension Entry(Feedback Dashboard, Today Board는 준비 중 비활성) + Header Breadcrumb. 상담 메뉴 없음
+- Router Library 미확정이라 App Shell에 최소 주소 관리(app/adminLocation.ts: pushState / popstate, 떠날 때 Scroll 저장 · Back 시 복원)만 둠
+- Admin Token(index.css): Student Token과 같은 이름 · 값, Light만 (Theme은 기존 Admin Settings 연결 범위)
+- (1차) 화면 전용 Queue Fixture 8건 → (최종) Admin Canonical Fixture에서 계산하는 Queue로 교체. 8건 Fixture 파일 삭제
+- Canonical Fixture: Student 24(고1 8 · 고2 8 · 고3 8) · Task 58 · Task Review 35(대기 15 · 전달 이력 20) · Activity 37 · TestResult 39 · SchoolRecord 16 · Connection 12 · Interview 19 · Mentor Case 24(Student Canonical 참조)
+  Snapshot 2026-10-06 11:00 KST (fixtures/snapshot.ts, Date.now() 미사용)
+- Queue 포함 조건: AI 사전 점검을 마친 Version의 미전달 검토 · 주제 검토 대기(Topic in-review) · 학생이 요청한 활동 피드백(feedback-waiting)만. 순서 = 대기열에 들어온 순서(오래 기다린 순)
+- KPI(같은 State에서 계산): Feedback Pending 28 · 마감 임박 5(Queue 중 D-3 이내) · 수정 미반영 2(수정본 요청 전달 후 72시간 · 다음 Version 없음) · 이번 주 완료 5(10월 5일 이후 전달)
+- Filter(주소 Query): type · grade · stage(Queue에 있는 단계만) · deadline(마감 지남 / D-3 / D-7) · waiting(24 / 48시간 초과) · status · q · page(10건, Contract §48 의미)
+- Review 진입: 행 Action(검토하기 / 우선 검토 / 피드백) → /feedback/:feedbackId Boundary("검토 화면은 다음 단계에서 연결됩니다."), Back 시 Filter · Scroll 복원
+- Loading(Skeleton) / 전체 Empty / Filter Empty / Error + 다시 시도 구분
+
+### Open / Contract Gap
+
+- §28-2 Queue Item에 grade · subject(활동 유형) · 운영 상태(status) · primary action 없음 → Fixture 값
+- stage / status Enum 미확정 → Fixture 의미 값 (단계와 운영 상태는 분리)
+- Deadline Filter 구간(D-3 / D-7)은 Mockup, Contract는 deadlineFrom / deadlineTo만
+- 수정 미반영 · 이번 주 완료 계산식(72시간 · 월요일 시작 · 활동 피드백 포함)은 Fixture Read Model 기준 (Spec에 계산식 없음)
+- Mockup 정렬(Waiting Time / Deadline) · 형태(제출물) 열: Feature Spec에 정의 없음 → 미구현 (Queue 순서 = 오래 기다린 순)
+- 해결: 이전 Queue의 최하은 "항생제 포스터 Revision 확인 · 10/10"은 Student 사실(4단계 초안 미제출 · 10/05 마감)과 달라 삭제.
+  최하은 Queue 항목은 Student Fixture의 fixture-task-02 V2(speech-teacher-v2, 62시간) · fixture-task-03 V1 · fixture-task-05 주제 · 활동 A06 / A07만
+- Mockup의 "윤지민 · AI가 교육에 미치는 영향 V2 · 10/3 20:45 · D-10 · 2일 14시간"은 Student Canonical 최하은 fixture-task-02와 같은 사실이라 Admin에서는 최하은(고2)으로 표시
+
+### Verification
+
+```text
+scripts/verify.ps1 -Strict: PASS (Frontend typecheck · lint · build student/admin/mentor, Backend Gradle build/test)
+Browser (Headless Chrome CDP): Dashboard 회귀 33/33 PASS, Canonical Data Integrity D1~D16 17/17 PASS
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

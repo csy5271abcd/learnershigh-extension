@@ -1,0 +1,207 @@
+/*
+ * Admin Extension Shell (FeedbackDashboard-00 Mockup / TDS §12 Admin Desktop Layout)
+ * Desktop: 왼쪽 Sidebar + 위 Header + 본문. 1023px 이하: Sidebar를 Header 아래 한 줄(학습관리 확장 Entry만)로 줄인다.
+ */
+
+.shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-rows: var(--lh-admin-header-height) 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar main';
+  min-height: 100vh;
+}
+
+.skip {
+  position: absolute;
+  top: var(--lh-space-2);
+  left: var(--lh-space-2);
+  z-index: 20;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+  transform: translateY(-200%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+/* Header: Brand(Sidebar 폭) + 위치. 위에 붙어 있고 본문보다 위에 그려진다. (z-index 10 = Admin에서 가장 위 층) */
+.header {
+  grid-area: header;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  border-bottom: 1px solid var(--lh-color-border);
+  background: var(--lh-color-background);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--lh-space-5);
+  border-right: 1px solid var(--lh-color-border);
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-label);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.brand span {
+  margin-left: var(--lh-space-1);
+  color: var(--lh-color-text-tertiary);
+  font-weight: 600;
+}
+
+.location {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 var(--lh-space-8);
+}
+
+.section {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.breadcrumb {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.sidebar {
+  grid-area: sidebar;
+  border-right: 1px solid var(--lh-color-border);
+  background: var(--lh-color-background);
+}
+
+.menu {
+  position: sticky;
+  top: var(--lh-admin-header-height);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-5) var(--lh-space-3);
+}
+
+/* 기존 Admin 메뉴: 위치 Context만 보여준다. (이동은 기존 LearnersHigh에서) */
+.existing {
+  display: block;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--lh-space-2);
+}
+
+.entry {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--lh-space-3) 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.entry:hover:not(:disabled) {
+  background: var(--lh-color-surface-hover);
+}
+
+.entry:disabled {
+  color: var(--lh-color-text-tertiary);
+  cursor: default;
+}
+
+/* 현재 Entry는 색 + 굵기 + 배경으로 함께 표시한다. */
+.entry[aria-current='page'] {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-weight: 700;
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.main:focus {
+  outline: none;
+}
+
+@media (max-width: 1023px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      'header'
+      'sidebar'
+      'main';
+  }
+
+  .header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .brand {
+    min-height: var(--lh-admin-header-height);
+    padding-right: var(--lh-space-4);
+  }
+
+  .location {
+    min-height: var(--lh-admin-header-height);
+    padding: 0 var(--lh-space-5);
+  }
+
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--lh-color-border);
+  }
+
+  /* 좁은 화면: 기존 메뉴 이름은 숨기고 학습관리 확장 Entry만 한 줄로 */
+  .menu {
+    position: static;
+    padding: var(--lh-space-2) var(--lh-space-5);
+  }
+
+  .menu > li > .existing {
+    display: none;
+  }
+
+  .menu > li:not(:has(.submenu)) {
+    display: none;
+  }
+
+  .submenu {
+    flex-direction: row;
+    gap: var(--lh-space-2);
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .entry {
+    width: auto;
+    min-height: 44px;
+    padding: 0 var(--lh-space-4);
+    white-space: nowrap;
+  }
+}

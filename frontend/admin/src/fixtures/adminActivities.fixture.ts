@@ -1,0 +1,411 @@
+import { CHOI_HAEUN_ID } from './adminStudents.fixture.ts'
+import type { AdminActivity } from './types.ts'
+
+/*
+ * Admin Canonical Growth Activity. Task와 다른 Entity다.
+ * - 최하은 12개(fixture-activity-*): Student Fixture(schoolActivity.fixture.ts) 기록 · 상태 · Reflection · 피드백 · 과정 자료 이름 그대로.
+ *   Admin이 추가한 값은 feedbackRequestedAt(피드백 대기 활동의 Queue 대기 시각)뿐이다. (Student Fixture에 요청 시각 없음 → Gap 보고)
+ * - 나머지는 Admin 전용 학생 활동이다. (fixture-admin-activity-NNN)
+ * - 학생이 쓴 기록 · Reflection은 학생 원문이다. Admin / AI가 고쳐 쓰지 않는다. (Admin은 피드백만 남긴다)
+ * - Queue 포함 조건: status = feedback-waiting (학생이 피드백을 요청한 활동만). 제출만 하고 요청하지 않은 활동은 Queue에 없다.
+ */
+
+const kst = (value: string) => `${value}:00+09:00`
+
+const choi = (fields: Omit<AdminActivity, 'studentId'>): AdminActivity => ({ ...fields, studentId: CHOI_HAEUN_ID })
+
+const choiHaeunActivities: AdminActivity[] = [
+  choi({
+    activityId: 'fixture-activity-biology-club',
+    title: '생명과학 탐구동아리',
+    type: 'club',
+    organizer: '교내 생명과학 탐구동아리',
+    startDate: '2026-09-12',
+    endDate: '2026-09-26',
+    role: '배지 촬영과 관찰 기록지 정리',
+    participationReason: '',
+    process: '',
+    contribution: '손 씻기 전후 손가락을 배지에 찍어 3일 동안 세균 집락 수 변화를 조별로 관찰했어요.',
+    result: '손 씻기 후 집락 수가 평균 70% 정도 줄어든 결과를 조별 결과표로 정리했어요.',
+    followUp: '',
+    status: 'feedback-delivered',
+    reflection: {
+      participationReason: '수행평가에서 다룬 항생제 내성이 실제 세균에서 어떻게 보이는지 궁금했어요.',
+      role: '배지 사진을 같은 각도로 찍고 집락 수를 세어 기록지에 정리했어요.',
+      whatIDid: '손 씻기 전, 물로만 씻은 후, 비누로 씻은 후 세 조건으로 배지를 만들었어요.',
+      difficulty: '집락이 겹쳐 있어 개수를 세는 기준이 사람마다 달랐어요.',
+      learning: '관찰 기준을 먼저 정하지 않으면 같은 배지도 결과가 달라질 수 있다는 걸 알았어요.',
+      nextChange: '집락을 세는 기준을 사진 예시로 먼저 정하고 시작하고 싶어요.',
+      followUpActivity: '',
+    },
+    feedback: {
+      author: '김현우',
+      deliveredAt: '2026-10-02T17:10:00+09:00',
+      strength: '조건을 세 가지로 나눠 비교한 점과 관찰 기준 문제를 스스로 발견한 점이 잘 드러나요.',
+      needsDetail: '집락 수를 셀 때 조원끼리 어떤 기준으로 맞췄는지 한 문장 추가해보세요.',
+      question: '같은 배지를 다른 사람이 세면 결과가 얼마나 달라질까요?',
+      nextSuggestion: '다음 관찰에서는 기준 사진을 먼저 만들어 조원과 공유해볼 수 있어요.',
+    },
+    files: ['배지 사진 6장.zip', '관찰 기록지.pdf', '조별 결과표.xlsx'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a02-lunch-waste',
+    title: '교내 급식 잔반 데이터 분석 프로젝트',
+    type: 'school-project',
+    organizer: '학생자치회 환경부',
+    startDate: '2026-10-01',
+    endDate: '2026-10-25',
+    role: '잔반량 기록 정리 및 데이터 시각화',
+    participationReason: '급식 메뉴에 따라 남는 음식의 양이 달라지는 것 같아 실제 데이터를 확인해보고 싶었다.',
+    process: '점심시간마다 메뉴와 잔반량을 기록하고 요일별 차이를 표로 정리하고 있다.',
+    contribution: '기록 양식을 만들고 모인 값을 스프레드시트로 정리했다.',
+    result: '',
+    followUp: '',
+    status: 'draft',
+    reflection: null,
+    feedback: null,
+    files: ['급식_잔반량_10월1주차.csv', '급식소_관찰메모.txt'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a03-book-talk',
+    title: '영어 원서 북토크 기획',
+    type: 'club',
+    organizer: '교내 영어독서동아리',
+    startDate: '2026-10-08',
+    endDate: '2026-11-05',
+    role: '발표 도서 선정 및 질문 구성',
+    participationReason: '책의 줄거리만 소개하는 발표보다 서로 다른 해석을 비교하는 북토크를 해보고 싶었다.',
+    process: '후보 도서 세 권을 비교하고 토론 질문을 정리하고 있다.',
+    contribution: '후보 도서 비교표를 만들고 첫 번째 토론 질문 초안을 작성했다.',
+    result: '',
+    followUp: '',
+    status: 'draft',
+    reflection: null,
+    feedback: null,
+    files: ['북토크_후보도서_목록.pdf'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a04-data-viz',
+    title: '교내 데이터 시각화 경진대회',
+    type: 'school-competition',
+    organizer: '교내 정보교과부',
+    startDate: '2026-09-14',
+    endDate: '2026-09-30',
+    role: '데이터 정리 및 그래프 제작',
+    participationReason: '통학 시간이 시간대별로 어떻게 달라지는지 데이터를 이용해 직접 보여주고 싶었다.',
+    process: '2주 동안 등교 시간을 기록하고 평균과 편차를 비교했다.',
+    contribution: '원자료를 정리하고 시간대별 막대그래프와 분포 그래프를 제작했다.',
+    result: '교내 발표 자료 제출 완료',
+    followUp: '다음에는 날씨와 지하철 지연 여부도 함께 기록해보고 싶다.',
+    status: 'submitted',
+    reflection: null,
+    feedback: null,
+    files: ['통학시간_원자료.csv', '통학시간_시각화_v1.png'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a05-library',
+    title: '도서관 디지털 이용 안내 봉사',
+    type: 'volunteer',
+    organizer: '학교 도서관',
+    startDate: '2026-09-05',
+    endDate: '2026-09-26',
+    role: '전자책 및 키오스크 이용 안내',
+    participationReason: '전자책 검색이나 무인 대출기를 어려워하는 학생들이 있어 사용 방법을 정리해보고 싶었다.',
+    process: '자주 묻는 질문을 기록하고 실제 화면 순서에 맞춰 안내 문구를 정리했다.',
+    contribution: '전자책 검색과 무인 대출 절차를 한 장짜리 안내자료로 만들었다.',
+    result: '점심시간 디지털 이용 안내 4회 참여',
+    followUp: '질문이 많이 나온 기능을 중심으로 안내자료를 다시 정리해볼 예정이다.',
+    status: 'submitted',
+    reflection: null,
+    feedback: null,
+    files: ['전자책_이용안내_1페이지.pdf'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a06-fine-dust',
+    title: '학교 주변 미세먼지 센서 비교 탐구',
+    type: 'self-study',
+    organizer: '개인 자율 탐구',
+    startDate: '2026-09-21',
+    endDate: '2026-10-07',
+    role: '측정 설계 및 데이터 기록',
+    participationReason: '같은 시간에도 학교 정문과 운동장의 미세먼지 수치가 다른지 확인해보고 싶었다.',
+    process: '등교 직후와 점심시간에 두 지점에서 센서 값을 반복 측정했다.',
+    contribution: '측정 위치와 시간을 고정하고 수치를 표로 정리했다.',
+    result: '두 위치의 평균값 차이를 확인하고 원인 후보를 정리함',
+    followUp: '측정 횟수를 늘리고 풍속 자료와 함께 비교할 계획이다.',
+    status: 'feedback-waiting',
+    reflection: null,
+    feedback: null,
+    files: ['미세먼지_센서기록.csv', '센서설치사진.jpg'],
+    feedbackRequestedAt: kst('2026-10-04T21:00'),
+  }),
+  choi({
+    activityId: 'fixture-activity-a07-coding-volunteer',
+    title: '지역 아동센터 코딩 보조 봉사',
+    type: 'volunteer',
+    organizer: '지역 아동센터',
+    startDate: '2026-09-12',
+    endDate: '2026-10-10',
+    role: '블록 코딩 실습 보조',
+    participationReason: '처음 코딩을 접하는 학생에게 어떤 설명 방식이 이해하기 쉬운지 직접 경험해보고 싶었다.',
+    process: '조건문과 반복문 실습 중 막힌 학생의 화면을 확인하고 단계별 질문으로 해결을 도왔다.',
+    contribution: '정답을 바로 알려주지 않고 학생이 직접 오류 위치를 찾도록 질문 순서를 정리했다.',
+    result: '총 4회 실습 보조 참여',
+    followUp: '초보자가 자주 실수하는 부분을 짧은 체크리스트로 정리해보고 싶다.',
+    status: 'feedback-waiting',
+    reflection: null,
+    feedback: null,
+    files: ['코딩활동_진행메모.txt'],
+    feedbackRequestedAt: kst('2026-10-03T18:00'),
+  }),
+  choi({
+    activityId: 'fixture-activity-a08-science-idea',
+    title: '지역 청소년 과학 아이디어 발표대회',
+    type: 'external-competition',
+    organizer: '지역 청소년과학문화센터',
+    startDate: '2026-08-18',
+    endDate: '2026-09-20',
+    role: '센서 활용 아이디어 조사 및 발표자료 구성',
+    participationReason: '센서를 이용해 교실 환경을 직접 측정하고 개선 방법까지 연결해보고 싶었다.',
+    process: '온도와 이산화탄소 측정 방식을 조사하고 센서 설치 위치를 비교했다.',
+    contribution: '센서 구성도를 만들고 발표에서 데이터 수집 방법을 설명했다.',
+    result: '본선 발표 참가',
+    followUp: '실제 교실에서 일주일 이상 데이터를 모아 시간대별 변화를 확인해보고 싶다.',
+    status: 'feedback-delivered',
+    reflection: {
+      participationReason: '단순 아이디어 제안이 아니라 실제 측정이 가능한 방법을 고민해보고 싶어서 참여했다.',
+      role: '센서 조사와 발표자료 구성을 맡았다.',
+      whatIDid: '센서별 측정 범위와 설치 위치를 조사하고 비교표와 구성도를 만들었다.',
+      difficulty: '측정값이 달라질 수 있는 조건을 어느 범위까지 설명해야 할지 결정하기 어려웠다.',
+      learning: '결과보다 측정 조건을 명확하게 기록하는 것이 중요하다는 점을 배웠다.',
+      nextChange: '다음에는 발표 전에 실제 측정 데이터를 조금이라도 확보하고 싶다.',
+      followUpActivity: '교실 환경 센서 데이터를 일주일간 기록해볼 계획이다.',
+    },
+    feedback: {
+      author: '이서진',
+      deliveredAt: '2026-09-28T16:30:00+09:00',
+      strength: '측정 방법과 설치 위치를 실제 조건과 연결해서 설명한 점이 구체적이에요.',
+      needsDetail: '센서를 선택한 기준과 다른 센서를 제외한 이유를 한두 문장 더 적어보세요.',
+      question: '실제 교실에서 측정한다면 결과에 영향을 줄 수 있는 조건은 무엇이 있을까요?',
+      nextSuggestion: '후속 활동에서 시간대별 값을 기록하면 발표 아이디어를 실제 탐구로 확장할 수 있어요.',
+    },
+    files: ['과학아이디어_발표자료.pdf', '센서구성도.png'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a09-festival-booth',
+    title: '학교 축제 분리배출 안내 부스 운영',
+    type: 'school-project',
+    organizer: '학교 축제 환경 캠페인팀',
+    startDate: '2026-09-16',
+    endDate: '2026-09-18',
+    role: '분리배출 안내판 제작 및 현장 안내',
+    participationReason: '축제 때 음료 용기와 일반 쓰레기가 섞여 버려지는 경우가 많아 안내 방법을 직접 개선해보고 싶었다.',
+    process: '쓰레기 종류를 조사해 안내 문구를 줄이고 실제 배출 위치에 맞춰 표지판을 배치했다.',
+    contribution: '안내판 디자인과 부스 현장 설명을 맡았다.',
+    result: '축제 기간 동안 분리배출 안내 부스 운영 완료',
+    followUp: '다음 행사에서는 가장 많이 헷갈린 쓰레기 종류를 먼저 조사해 안내판에 반영하고 싶다.',
+    status: 'reflected',
+    reflection: {
+      participationReason: '행사장에서 안내문이 많아도 사람들이 읽지 않는 경우가 있어 더 단순한 안내 방식을 만들어보고 싶었다.',
+      role: '안내판 제작과 부스 설명을 맡았다.',
+      whatIDid: '버려지는 쓰레기 유형을 확인하고 안내판 문구와 배치 위치를 수정했다.',
+      difficulty: '정보를 많이 넣으면 정확하지만 한눈에 보기 어려워지는 문제가 있었다.',
+      learning: '내용을 줄이더라도 사용자가 행동해야 할 순간에 필요한 정보가 먼저 보여야 한다는 점을 배웠다.',
+      nextChange: '다음에는 행사 전에 몇 명에게 안내판을 보여주고 이해되는지 먼저 확인하고 싶다.',
+      followUpActivity: '학교 행사 안내물의 가독성을 비교하는 작은 디자인 실험을 해보고 싶다.',
+    },
+    feedback: null,
+    files: ['분리배출_안내포스터.png', '부스운영_기록.pdf'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a10-caffeine-log',
+    title: '카페인 섭취 시간과 집중도 자율 기록',
+    type: 'self-study',
+    organizer: '개인 자율 탐구',
+    startDate: '2026-09-22',
+    endDate: '2026-10-05',
+    role: '기록 설계 및 결과 정리',
+    participationReason: '시험 기간에 커피를 마시는 시간이 공부 집중도와 관련이 있는지 궁금했다.',
+    process: '섭취 시간, 공부 시작 시간, 집중한 시간을 매일 같은 형식으로 기록했다.',
+    contribution: '기록 기준을 직접 정하고 날짜별 데이터를 표로 정리했다.',
+    result: '늦은 시간 섭취일에 취침 시간이 늦어지는 경향을 관찰함',
+    followUp: '카페인 외에 수면 시간과 운동 여부도 같이 기록해보고 싶다.',
+    status: 'reflected',
+    reflection: {
+      participationReason: '평소 습관을 감으로 판단하지 않고 기록으로 확인해보고 싶었다.',
+      role: '개인 탐구라 기록 기준 설정부터 정리까지 직접 수행했다.',
+      whatIDid: '매일 같은 항목을 기록하고 일주일 단위로 패턴을 비교했다.',
+      difficulty: '집중도를 숫자로 표현하는 기준이 매일 달라지지 않게 정하는 것이 어려웠다.',
+      learning: '개인 기록도 기준을 일정하게 유지해야 비교할 의미가 생긴다는 점을 알게 됐다.',
+      nextChange: '다음에는 집중도 기준을 미리 더 구체적으로 정의하고 싶다.',
+      followUpActivity: '수면 시간과 집중도 기록을 추가해 비교해볼 예정이다.',
+    },
+    feedback: null,
+    files: ['집중도_자기기록.csv', '탐구_정리노트.txt'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a11-bioinformatics',
+    title: '바이오인포매틱스 전공 체험',
+    type: 'career',
+    organizer: '대학 연계 진로체험 프로그램',
+    startDate: '2026-07-22',
+    endDate: '2026-07-22',
+    role: '염기서열 비교 실습 참여',
+    participationReason: '생명과학과 소프트웨어가 실제 연구에서 어떻게 함께 사용되는지 궁금했다.',
+    process: '짧은 염기서열 데이터를 비교하고 차이가 있는 위치를 찾는 실습을 했다.',
+    contribution: '실습 결과를 표로 정리하고 조별로 차이가 의미하는 점을 발표했다.',
+    result: '염기서열 비교 실습 및 조별 발표 완료',
+    followUp: 'Python으로 간단한 문자열 비교 프로그램을 직접 만들어보고 싶다.',
+    status: 'archived',
+    reflection: {
+      participationReason: '소프트웨어가 생명과학 연구에서 실제로 어떻게 쓰이는지 직접 보고 싶었다.',
+      role: '염기서열 비교 실습과 결과 정리를 맡았다.',
+      whatIDid: '두 서열을 비교해 다른 위치를 표시하고 결과를 조별 표로 정리했다.',
+      difficulty: '문자가 다른 위치를 찾는 것과 그 차이가 생물학적으로 어떤 의미인지 해석하는 것은 전혀 다른 문제라는 점이 어려웠다.',
+      learning: '데이터 처리 기술과 생명과학 지식이 함께 있어야 분석 결과를 제대로 해석할 수 있다는 점을 배웠다.',
+      nextChange: '다음에는 분석 도구가 어떤 알고리즘으로 서열을 비교하는지 미리 공부해보고 싶다.',
+      followUpActivity: 'Python 문자열 비교로 간단한 서열 차이 찾기 프로그램을 작성해볼 예정이다.',
+    },
+    feedback: null,
+    files: ['염기서열_실습결과.txt', '전공체험_활동지.pdf'],
+  }),
+  choi({
+    activityId: 'fixture-activity-a12-broadcast',
+    title: '교내 방송 행사 운영 기록',
+    type: 'etc',
+    organizer: '교내 방송 지원팀',
+    startDate: '2026-05-20',
+    endDate: '2026-05-22',
+    role: '행사 순서표 확인 및 방송 장비 체크',
+    participationReason: '학교 행사 진행 과정에서 방송팀이 어떤 준비를 하는지 경험해보고 싶었다.',
+    process: '행사 순서에 맞춰 마이크와 음원 재생 시점을 확인하고 장비 체크리스트를 작성했다.',
+    contribution: '행사 전 장비 점검표를 정리하고 리허설 중 수정된 순서를 다시 반영했다.',
+    result: '교내 발표 행사 방송 운영 지원 완료',
+    followUp: '다음에는 방송 장비별 기본 설정 방법을 미리 정리해보고 싶다.',
+    status: 'archived',
+    reflection: {
+      participationReason: '무대 뒤에서 행사가 어떻게 준비되는지 직접 경험해보고 싶었다.',
+      role: '순서표 확인과 장비 점검을 맡았다.',
+      whatIDid: '리허설 전에 장비를 확인하고 실제 행사 순서가 바뀔 때 큐시트를 수정했다.',
+      difficulty: '현장에서 순서가 바뀌었을 때 여러 사람에게 같은 변경 내용을 빠르게 전달하는 것이 어려웠다.',
+      learning: '행사 운영에서는 장비 자체보다 변경된 정보를 팀 전체가 같은 상태로 공유하는 것이 중요하다는 점을 배웠다.',
+      nextChange: '다음에는 변경사항을 표시하는 규칙을 미리 정해두고 싶다.',
+      followUpActivity: '간단한 행사 운영 체크리스트를 다시 만들어볼 계획이다.',
+    },
+    feedback: {
+      author: '박지훈',
+      deliveredAt: '2026-05-28T15:00:00+09:00',
+      strength: '현장에서 순서 변경을 처리한 과정이 구체적으로 기록되어 있어요.',
+      needsDetail: '변경 내용을 누구와 어떤 방식으로 공유했는지 한 가지 사례를 더 적어보세요.',
+      question: '여러 명이 동시에 같은 변경사항을 확인하려면 어떤 기록 방식이 효과적일까요?',
+      nextSuggestion: '다음 행사에서는 수정 이력을 남길 수 있는 공용 체크리스트 방식을 시험해보세요.',
+    },
+    files: ['행사_큐시트.docx', '방송장비_체크리스트.xlsx'],
+  }),
+]
+
+// ---------- Admin 전용 학생 활동 ----------
+
+interface ActivityInput {
+  n: number
+  student: string
+  title: string
+  type: AdminActivity['type']
+  organizer: string
+  start: string
+  end?: string
+  role: string
+  reason: string
+  process: string
+  contribution: string
+  result?: string
+  followUp?: string
+  status: AdminActivity['status']
+  reflection?: AdminActivity['reflection']
+  feedback?: AdminActivity['feedback']
+  files: string[]
+  requestedAt?: string
+}
+
+const activity = (input: ActivityInput): AdminActivity => ({
+  activityId: `fixture-admin-activity-${String(input.n).padStart(3, '0')}`,
+  studentId: `fixture-student-${input.student}`,
+  title: input.title,
+  type: input.type,
+  organizer: input.organizer,
+  startDate: input.start,
+  endDate: input.end ?? '',
+  role: input.role,
+  participationReason: input.reason,
+  process: input.process,
+  contribution: input.contribution,
+  result: input.result ?? '',
+  followUp: input.followUp ?? '',
+  status: input.status,
+  reflection: input.reflection ?? null,
+  feedback: input.feedback ?? null,
+  files: input.files,
+  ...(input.requestedAt ? { feedbackRequestedAt: input.requestedAt } : {}),
+})
+
+const reflection = (participationReason: string, role: string, whatIDid: string, difficulty: string, learning: string, nextChange: string, followUpActivity = '') => ({
+  participationReason,
+  role,
+  whatIDid,
+  difficulty,
+  learning,
+  nextChange,
+  followUpActivity,
+})
+
+const adminOnlyActivities: AdminActivity[] = [
+  activity({ n: 1, student: 'moon-sua', title: '신문 제작 동아리 학교 소식지 발간', type: 'club', organizer: '교내 신문 제작 동아리', start: '2026-09-01', end: '2026-09-30', role: '기획 기사 취재와 편집', reason: '학생들이 실제로 궁금해하는 학교 소식을 직접 취재해보고 싶었다.', process: '설문으로 주제를 고르고 학생회 · 급식실 인터뷰를 진행했다.', contribution: '기획 기사 2편을 쓰고 지면 배치를 맡았다.', result: '9월 소식지 1호 발간', status: 'feedback-waiting', files: ['소식지_1호.pdf', '인터뷰_메모.docx'], requestedAt: kst('2026-10-03T10:00'), reflection: reflection('학교 안의 이야기를 기록으로 남기고 싶었다.', '기획 기사 취재와 편집을 맡았다.', '설문 결과로 주제를 정하고 인터뷰를 정리했다.', '인터뷰 내용이 길어 핵심만 남기는 것이 어려웠다.', '독자가 먼저 궁금해할 내용을 앞에 두는 구성을 배웠다.', '다음 호에서는 사진 설명을 더 구체적으로 쓰고 싶다.') }),
+  activity({ n: 2, student: 'moon-sua', title: '학생회 급식 개선 프로젝트', type: 'school-project', organizer: '학생자치회', start: '2026-08-25', end: '2026-09-19', role: '설문 설계와 결과 발표', reason: '급식 만족도 의견이 흩어져 있어 한 번에 모아 전달하고 싶었다.', process: '전교생 설문을 만들고 학년별 응답을 정리해 영양사 선생님께 전달했다.', contribution: '설문 문항을 만들고 결과 발표 자료를 정리했다.', result: '10월 식단에 학생 의견 2건 반영', status: 'feedback-delivered', files: ['급식설문_결과.pdf'], requestedAt: kst('2026-10-03T12:00'), reflection: reflection('불만을 말하는 데서 끝나지 않고 바꿀 수 있는 방법을 찾고 싶었다.', '설문 설계와 발표를 맡았다.', '설문 문항을 만들고 결과를 학년별로 정리했다.', '응답이 한쪽으로 몰려 문항을 다시 손봐야 했다.', '질문의 표현이 응답을 바꿀 수 있다는 걸 알았다.', '다음에는 예비 설문으로 문항을 먼저 점검하고 싶다.'), feedback: { author: '학원 선생님', deliveredAt: kst('2026-10-05T15:00'), strength: '설문 결과를 실제 식단 변화로 연결한 과정이 잘 드러나요.', needsDetail: '응답이 몰린 문항을 어떻게 고쳤는지 한 문장 더 적어보세요.', question: '설문을 다시 한다면 어떤 학생 의견을 더 듣고 싶나요?', nextSuggestion: '반영된 2건의 만족도를 다시 확인해보는 후속 조사를 해볼 수 있어요.' } }),
+  activity({ n: 3, student: 'oh-minji', title: '노인복지관 디지털 기기 사용 보조', type: 'volunteer', organizer: '지역 노인복지관', start: '2026-09-07', end: '2026-10-04', role: '스마트폰 사용 1:1 보조', reason: '키오스크 사용을 어려워하시는 할머니를 보고 직접 도와드리고 싶었다.', process: '매주 토요일 스마트폰 기본 기능과 키오스크 사용을 함께 연습했다.', contribution: '자주 묻는 기능을 큰 글씨 안내지로 정리했다.', result: '4회 · 총 8시간 봉사', status: 'feedback-waiting', files: ['안내지_큰글씨.pdf', '봉사확인서.pdf'], requestedAt: kst('2026-10-06T00:00'), reflection: reflection('기술 격차가 생활 불편으로 이어지는 걸 가까이에서 보고 싶었다.', '1:1 사용 보조를 맡았다.', '기능별로 따라 하기 쉬운 순서를 만들어 연습했다.', '같은 설명을 반복해도 이해가 다를 때 방법을 바꾸는 것이 어려웠다.', '설명하는 사람이 아니라 사용하는 사람의 속도에 맞춰야 한다는 걸 배웠다.', '다음에는 사용자가 직접 안내지를 고르는 방식을 써보고 싶다.') }),
+  activity({ n: 4, student: 'oh-minji', title: '사회복지관 진로 체험', type: 'career', organizer: '구립 사회복지관', start: '2026-07-15', role: '사례 관리 업무 관찰', reason: '사회복지사가 실제로 어떤 일을 하는지 알고 싶었다.', process: '사례 회의를 참관하고 프로그램 운영 과정을 들었다.', contribution: '체험 내용을 정리해 진로 동아리에서 발표했다.', result: '진로 체험 보고서 작성', status: 'archived', files: ['진로체험_보고서.pdf'], reflection: reflection('막연했던 사회복지사의 일을 구체적으로 알고 싶었다.', '관찰과 기록을 맡았다.', '사례 회의에서 오간 역할 분담을 기록했다.', '개인정보를 지키면서 기록하는 기준을 정하는 것이 어려웠다.', '도움은 한 사람이 아니라 여러 기관이 함께 설계한다는 것을 배웠다.', '다음에는 지역 사회 자원 지도를 직접 만들어보고 싶다.') }),
+  activity({ n: 5, student: 'oh-minji', title: '교내 인권 동아리 캠페인', type: 'club', organizer: '교내 인권 동아리', start: '2026-05-10', end: '2026-06-14', role: '캠페인 문구 기획', reason: '학교 안에서 일어나는 작은 차별을 함께 이야기해보고 싶었다.', process: '사례를 모으고 캠페인 문구를 만들어 점심시간에 홍보했다.', contribution: '캠페인 문구 5개를 만들고 설문 결과를 정리했다.', result: '캠페인 참여 서명 120명', status: 'archived', files: ['캠페인_포스터.png', '참여설문.xlsx'], reflection: reflection('불편함을 말할 수 있는 분위기를 만들고 싶었다.', '문구 기획을 맡았다.', '사례를 분류해 학생들이 공감할 문구로 바꿨다.', '사례를 소개하면서 특정인이 드러나지 않게 하는 것이 어려웠다.', '같은 문제도 표현 방식에 따라 받아들이는 반응이 달라진다는 걸 배웠다.', '다음에는 캠페인 전후 인식 변화를 조사해보고 싶다.') }),
+  activity({ n: 6, student: 'kim-dohyun', title: '교내 창업 아이디어 대회', type: 'school-competition', organizer: '교내 진로교육부', start: '2026-06-02', end: '2026-06-20', role: '시제품 아이디어 설계', reason: '생활 속 불편을 기술로 해결하는 과정을 해보고 싶었다.', process: '등굣길 우산 공유 아이디어를 내고 시장 조사를 했다.', contribution: '아이디어 구조도와 발표 자료를 만들었다.', result: '장려상', status: 'archived', files: ['창업아이디어_발표.pdf'], reflection: reflection('아이디어를 실제 사용자에게 설명해보고 싶었다.', '설계와 발표를 맡았다.', '사용자 인터뷰 5건으로 불편을 확인했다.', '수익 구조를 설명하는 것이 어려웠다.', '기술보다 사용자의 불편을 먼저 정의해야 한다는 것을 배웠다.', '다음에는 시제품을 직접 만들어 시험해보고 싶다.') }),
+  activity({ n: 7, student: 'kim-dohyun', title: '스마트폰 가속도 센서로 엘리베이터 운동 측정', type: 'self-study', organizer: '개인 자율 탐구', start: '2026-08-10', end: '2026-08-24', role: '측정 설계와 데이터 분석', reason: '물리 수행평가 전에 실제 데이터를 직접 모아보고 싶었다.', process: '아파트 엘리베이터에서 층별 가속도 값을 반복 측정했다.', contribution: '측정 앱 설정과 데이터 정리를 직접 했다.', result: '가속 · 감속 구간 그래프 정리', status: 'archived', files: ['가속도_측정값.csv', '그래프.png'], reflection: reflection('교과서 그래프가 실제로도 그렇게 나오는지 궁금했다.', '혼자 측정과 분석을 했다.', '같은 구간을 10번 측정해 평균을 냈다.', '센서 잡음을 어떻게 걸러낼지 정하는 것이 어려웠다.', '측정 조건을 고정해야 비교가 의미 있다는 것을 배웠다.', '다음에는 센서 두 개로 동시에 측정해보고 싶다.') }),
+  activity({ n: 8, student: 'kim-dohyun', title: '전국 학생 수학 탐구 발표회', type: 'external-competition', organizer: '지역 교육청 수학교육센터', start: '2026-09-05', end: '2026-09-27', role: '경로 최적화 모델 발표', reason: '학교 수업에서 배운 벡터를 실제 문제에 써보고 싶었다.', process: '휠체어 이동 경로를 벡터로 나타내 최적 경로를 비교했다.', contribution: '모델 설계와 발표를 맡았다.', result: '본선 발표', status: 'reflected', files: ['수학탐구_발표.pdf'], reflection: reflection('수학이 이동권 문제와 연결될 수 있는지 확인하고 싶었다.', '모델 설계와 발표를 맡았다.', '경사로 길이와 회전 횟수를 변수로 두어 경로를 비교했다.', '현실 조건을 단순화하는 기준을 정하기 어려웠다.', '모델은 단순화의 이유를 설명할 수 있어야 한다는 것을 배웠다.', '다음에는 실제 사용자 의견을 모델에 반영하고 싶다.') }),
+  activity({ n: 9, student: 'lee-seoyeon', title: '환경 동아리 하천 수질 조사', type: 'club', organizer: '교내 환경 동아리', start: '2026-04-12', end: '2026-06-28', role: '수질 측정과 기록', reason: '동네 하천의 수질이 계절마다 달라지는지 궁금했다.', process: '월 2회 세 지점에서 pH와 탁도를 측정했다.', contribution: '측정 일정표와 기록 양식을 만들었다.', result: '측정 결과 보고서 작성', status: 'archived', files: ['하천수질_기록.xlsx', '측정사진.zip'], reflection: reflection('매일 지나치는 하천을 데이터로 보고 싶었다.', '측정과 기록을 맡았다.', '세 지점의 값을 같은 시간대에 측정했다.', '비가 온 다음 날 값이 크게 달라져 해석이 어려웠다.', '환경 데이터는 날씨 같은 조건을 함께 기록해야 한다는 것을 배웠다.', '다음에는 강수량 자료와 함께 비교하고 싶다.') }),
+  activity({ n: 10, student: 'lee-seoyeon', title: '미술 전시 기획 프로젝트 · 우리 동네 물길', type: 'school-project', organizer: '교내 미술 교과', start: '2026-07-01', end: '2026-07-18', role: '전시 동선과 설명문 기획', reason: '하천 조사 결과를 사람들이 보기 쉬운 방식으로 전달하고 싶었다.', process: '조사 사진과 그래프를 작품과 함께 배치하는 전시를 기획했다.', contribution: '전시 동선과 작품 설명문을 맡았다.', result: '교내 전시 1주 운영', status: 'archived', files: ['전시_동선도.pdf', '작품설명문.docx'], reflection: reflection('숫자만 있는 보고서보다 더 많은 사람이 보게 하고 싶었다.', '동선과 설명문 기획을 맡았다.', '관람 순서에 따라 정보가 쌓이도록 배치했다.', '정보를 줄이면서 의미를 지키는 것이 어려웠다.', '같은 데이터도 보여주는 방식에 따라 전달력이 달라진다는 것을 배웠다.', '다음에는 관람객 반응을 짧게 조사해보고 싶다.') }),
+  activity({ n: 11, student: 'lee-seoyeon', title: '지역 아동센터 학습 멘토링 봉사', type: 'volunteer', organizer: '지역 아동센터', start: '2026-08-30', end: '2026-09-27', role: '초등 수학 학습 보조', reason: '공부를 어려워하는 동생들에게 설명하는 방법을 익히고 싶었다.', process: '매주 일요일 분수 단원 문제 풀이를 함께 했다.', contribution: '그림으로 설명하는 분수 카드를 만들었다.', result: '4회 · 총 8시간 봉사', status: 'feedback-waiting', files: ['분수카드.pdf'], requestedAt: kst('2026-10-01T11:00') }),
+  activity({ n: 12, student: 'choi-minjun', title: '진로박람회 의공학과 학과 체험', type: 'career', organizer: '지역 대학 진로박람회', start: '2026-05-23', role: '심전도 측정 실습 참여', reason: '의공학이 의료 현장에서 어떻게 쓰이는지 알고 싶었다.', process: '심전도 측정 원리를 듣고 직접 신호를 측정했다.', contribution: '측정 결과를 정리해 진로 시간에 발표했다.', result: '학과 체험 보고서 작성', status: 'archived', files: ['학과체험_보고서.pdf'], reflection: reflection('의료 기기를 만드는 사람의 역할이 궁금했다.', '실습 참여와 결과 정리를 맡았다.', '심전도 신호를 측정하고 잡음이 생기는 조건을 비교했다.', '신호와 잡음을 구분하는 기준을 이해하기 어려웠다.', '정확한 측정을 위해 수학적인 신호 처리가 필요하다는 것을 배웠다.', '다음에는 간단한 필터를 직접 만들어보고 싶다.') }),
+  activity({ n: 13, student: 'choi-minjun', title: '교내 수학 모델링 대회', type: 'school-competition', organizer: '교내 수학교과부', start: '2026-06-08', end: '2026-06-26', role: '감염병 확산 모델 설계', reason: '수학 모델이 실제 현상을 얼마나 설명할 수 있는지 시험해보고 싶었다.', process: '공개 자료로 확산 모델을 만들고 매개변수를 바꿔 비교했다.', contribution: '모델 식과 그래프를 만들었다.', result: '은상', status: 'archived', files: ['모델링_보고서.pdf'], reflection: reflection('뉴스 속 그래프가 어떻게 만들어지는지 알고 싶었다.', '모델 설계를 맡았다.', '매개변수를 바꿔 결과가 어떻게 달라지는지 비교했다.', '실제 자료와 모델이 맞지 않는 구간을 설명하기 어려웠다.', '모델의 한계를 함께 말해야 결과를 믿을 수 있다는 것을 배웠다.', '다음에는 측정 자료를 직접 모아 모델을 검증하고 싶다.') }),
+  activity({ n: 14, student: 'yoon-seojun', title: '토론 동아리 정책 토론', type: 'club', organizer: '교내 토론 동아리', start: '2026-09-02', end: '2026-09-23', role: '반대 측 입론', reason: '같은 자료를 다른 입장에서 읽는 연습을 하고 싶었다.', process: '청소년 노동 정책을 주제로 입론과 반론을 준비했다.', contribution: '반대 측 입론서를 작성했다.', result: '교내 토론 2회 참여', status: 'submitted', files: ['입론서.docx'] }),
+  activity({ n: 15, student: 'shin-dohyun', title: '교내 체육행사 운영 지원', type: 'etc', organizer: '교내 학생회', start: '2026-10-02', role: '종목별 진행 순서 관리', reason: '', process: '', contribution: '', status: 'draft', files: [] }),
+  activity({ n: 16, student: 'jang-harin', title: '철학 독서 토론 동아리', type: 'club', organizer: '교내 철학 독서 동아리', start: '2026-09-04', end: '2026-10-02', role: '토론 질문 정리', reason: '윤리 수업에서 다룬 질문을 책으로 더 깊이 읽어보고 싶었다.', process: '「정의란 무엇인가」 일부를 읽고 매주 토론 질문을 만들었다.', contribution: '토론 질문 6개를 만들고 기록을 정리했다.', result: '4회 토론 참여', status: 'feedback-waiting', files: ['토론기록.docx'], requestedAt: kst('2026-10-04T15:00'), reflection: reflection('정답이 없는 질문을 다른 사람과 이야기해보고 싶었다.', '질문 정리를 맡았다.', '읽은 부분에서 의견이 갈릴 질문을 골랐다.', '내 의견과 다른 주장을 공정하게 요약하는 것이 어려웠다.', '반대 의견을 정확히 이해해야 내 주장도 분명해진다는 것을 배웠다.', '다음에는 토론 전후 생각이 바뀐 부분을 기록하고 싶다.') }),
+  activity({ n: 17, student: 'lee-jia', title: '청소년 정책 제안 대회', type: 'external-competition', organizer: '시 청소년의회', start: '2026-08-20', end: '2026-09-26', role: '정책 제안서 작성', reason: '학교 앞 통학로 안전 문제를 정책으로 제안해보고 싶었다.', process: '통학로 사진과 설문을 모아 개선 정책을 제안했다.', contribution: '제안서 초안과 발표를 맡았다.', result: '예선 통과', status: 'feedback-waiting', files: ['정책제안서.pdf', '통학로사진.zip'], requestedAt: kst('2026-10-02T07:00') }),
+  activity({ n: 18, student: 'park-seoyeon', title: '바이오 연구소 진로체험', type: 'career', organizer: '지역 바이오 연구소', start: '2026-08-12', role: '세포 배양 관찰', reason: '약학과 연구 현장이 어떻게 연결되는지 알고 싶었다.', process: '세포 배양 과정을 관찰하고 연구원 인터뷰를 했다.', contribution: '인터뷰 내용을 정리해 학급에 공유했다.', result: '진로체험 보고서 작성', status: 'archived', files: ['연구소체험_보고서.pdf'], reflection: reflection('약이 만들어지기 전 연구 과정이 궁금했다.', '관찰과 인터뷰 정리를 맡았다.', '배양 조건이 바뀔 때 생기는 차이를 들었다.', '전문 용어를 이해하기 어려웠다.', '연구는 실패한 실험 기록도 중요하다는 것을 배웠다.', '다음에는 관련 논문 요약을 읽어보고 싶다.') }),
+  activity({ n: 19, student: 'kim-minseo', title: '가정용 보조배터리 사용 시간 기록', type: 'self-study', organizer: '개인 자율 탐구', start: '2026-09-20', role: '측정 기록', reason: '배터리 수행평가와 연결해 실제 사용 데이터를 모으고 싶었다.', process: '', contribution: '', status: 'draft', files: ['배터리_기록_1주차.csv'] }),
+  activity({ n: 20, student: 'yoon-jimin', title: 'AI 코딩 동아리 학교 안내 챗봇 만들기', type: 'club', organizer: '교내 AI 코딩 동아리', start: '2026-09-01', end: '2026-09-29', role: '질문 데이터 정리', reason: '신입생이 자주 묻는 질문에 답하는 챗봇을 만들어보고 싶었다.', process: '자주 묻는 질문 40개를 모아 답변 규칙을 만들었다.', contribution: '질문 데이터를 분류하고 테스트를 맡았다.', result: '시제품 시연', status: 'submitted', files: ['질문데이터.csv', '시연영상.mp4'] }),
+  activity({ n: 21, student: 'seo-hajin', title: '교내 신문 광고 분석 캠페인', type: 'school-project', organizer: '교내 미디어 교육 주간', start: '2026-09-21', end: '2026-10-02', role: '광고 사례 수집과 분석 게시', reason: '광고가 사람들의 선택을 어떻게 바꾸는지 친구들과 나누고 싶었다.', process: '광고 10편을 모아 설득 전략별로 분류해 게시판에 붙였다.', contribution: '분석 카드 10장을 만들었다.', result: '게시판 전시 1주', status: 'feedback-waiting', files: ['광고분석카드.pdf'], requestedAt: kst('2026-10-06T05:00') }),
+  activity({ n: 22, student: 'jang-yeeun', title: '학교 축제 포스터 시각 분석 전시', type: 'school-project', organizer: '교내 미술 동아리', start: '2026-09-10', end: '2026-09-18', role: '포스터 수집과 분석', reason: '눈에 띄는 포스터의 공통점을 찾아보고 싶었다.', process: '역대 축제 포스터 12장을 색 · 글자 크기 기준으로 비교했다.', contribution: '비교표와 전시 설명을 만들었다.', result: '축제 기간 전시', status: 'reflected', files: ['포스터비교표.pdf'], reflection: reflection('디자인이 좋아 보이는 이유를 설명할 수 있게 되고 싶었다.', '수집과 분석을 맡았다.', '같은 기준으로 12장을 비교했다.', '좋다 · 나쁘다를 기준 없이 말하게 되는 점이 어려웠다.', '디자인 판단에도 비교 기준이 필요하다는 것을 배웠다.', '다음에는 실제 학생들에게 선호도를 물어보고 싶다.') }),
+  activity({ n: 23, student: 'jung-hyunwoo', title: '지역 하천 정화 봉사', type: 'volunteer', organizer: '구청 자원봉사센터', start: '2026-09-13', role: '쓰레기 수거와 분류 기록', reason: '봉사 시간을 채우는 것보다 실제로 어떤 쓰레기가 많은지 알고 싶었다.', process: '하천변 1km 구간 쓰레기를 수거하고 종류별로 기록했다.', contribution: '분류 기록표를 만들었다.', result: '봉사 4시간', status: 'submitted', files: ['분류기록표.xlsx'] }),
+  activity({ n: 24, student: 'han-seoyun', title: '기상청 진로 체험', type: 'career', organizer: '지방 기상청', start: '2026-09-09', role: '일기도 분석 실습', reason: '기후 변화 뉴스를 만드는 데이터가 어디서 오는지 알고 싶었다.', process: '관측 장비를 견학하고 일기도 분석 실습을 했다.', contribution: '실습 결과를 정리했다.', result: '체험 보고서 작성', status: 'feedback-delivered', files: ['기상청체험_보고서.pdf'], requestedAt: kst('2026-09-28T20:00'), reflection: reflection('지리 수업의 기후 내용을 현장에서 확인하고 싶었다.', '실습 결과 정리를 맡았다.', '일기도에서 전선 위치를 찾아 다음 날 날씨를 예상했다.', '예상과 실제가 다를 때 이유를 찾는 것이 어려웠다.', '예보는 여러 자료를 함께 해석하는 일이라는 것을 배웠다.', '다음에는 지역 강수량 자료를 직접 분석해보고 싶다.'), feedback: { author: '학원 선생님', deliveredAt: kst('2026-09-30T17:00'), strength: '예상과 실제를 비교한 점이 구체적이에요.', needsDetail: '예상이 틀린 이유를 자료 한 가지와 연결해 적어보세요.', question: '같은 일기도를 다른 사람이 보면 예상이 달라질까요?', nextSuggestion: '세계지리 수행평가와 연결해 지역 강수 자료를 분석해볼 수 있어요.' } }),
+  activity({ n: 25, student: 'ryu-jia', title: '모의 국회 동아리 법안 토론', type: 'club', organizer: '교내 모의 국회 동아리', start: '2026-09-08', end: '2026-10-03', role: '법안 발의 연설', reason: '법이 만들어지는 과정을 직접 경험해보고 싶었다.', process: '청소년 노동 보호 법안을 발의하고 찬반 토론을 진행했다.', contribution: '발의 연설문을 썼다.', result: '법안 가결', status: 'feedback-waiting', files: ['발의연설문.docx'], requestedAt: kst('2026-10-05T23:00') }),
+]
+
+export const adminActivitiesFixture: readonly AdminActivity[] = [...choiHaeunActivities, ...adminOnlyActivities]
+
+export const studentSurfaceActivityIds: readonly string[] = choiHaeunActivities.map((item) => item.activityId)
+
+export const activityTypeLabel: Record<AdminActivity['type'], string> = {
+  'school-competition': '교내대회',
+  'external-competition': '교외대회',
+  volunteer: '봉사활동',
+  club: '동아리',
+  'school-project': '학교 프로젝트',
+  'self-study': '자율 탐구',
+  career: '진로체험',
+  etc: '기타',
+}
+
+export const activityStatusLabel: Record<AdminActivity['status'], string> = {
+  draft: '작성 중',
+  submitted: '제출 완료',
+  'feedback-waiting': '피드백 대기',
+  'feedback-delivered': '피드백 도착',
+  reflected: '보완 완료',
+  archived: 'Archive 저장',
+}
