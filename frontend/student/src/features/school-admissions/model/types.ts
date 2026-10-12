@@ -188,6 +188,34 @@ export interface TaskFinalArtifact {
 export type TaskFinalArtifactState = { status: 'none' } | { status: 'ready'; data: TaskFinalArtifact } | { status: 'error' }
 
 /**
+ * Archive 항목 Read Model (GET /api/student/archive item). 별도 Archive 저장 Entity가 아니다. (API-OD-05)
+ * 완료된 Task / Archived Growth Activity에서 계산하고, sourceId로 원본을 가리킨다. (원본 내용을 복사하지 않는다)
+ */
+export interface ArchiveItemView {
+  source: 'task' | 'growth'
+  sourceId: string
+  title: string
+  periodLabel: string
+  /** 과목 (Task) / Activity Type (Growth) */
+  category: string
+  result: string
+  /** 학생이 쓴 Reflection 요약. Task에는 없다(null). */
+  reflectionSummary: string | null
+  /** 과정 자료 수. 자료 정보가 준비되지 않은 원본은 null (0개와 구분) */
+  evidenceCount: number | null
+}
+
+export type ArchiveSourceFilter = 'all' | 'task' | 'growth'
+
+/** Archive 목록 (페이지 정보는 Contract 의미만 맞춰 둔다. Mockup에 Pagination UI 없음) */
+export interface SchoolArchiveResult {
+  items: ArchiveItemView[]
+  /** 조건 없이 본 전체 항목 수 (전체 Empty와 조건 Empty를 구분) */
+  totalAll: number
+  page: { number: number; size: number; totalElements: number; totalPages: number }
+}
+
+/**
  * 한 Task의 피드백 (GET /api/student/tasks/{taskId}/feedback).
  * not-prepared: 이 Task의 피드백 정보가 Fixture에 없다. error: 피드백만 불러오지 못했다. (Task 전체 오류와 구분)
  */

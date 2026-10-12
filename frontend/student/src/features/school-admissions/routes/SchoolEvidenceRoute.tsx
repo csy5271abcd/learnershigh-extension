@@ -8,7 +8,7 @@ import {
 } from '../fixtures/schoolEvidence.fixture.ts'
 import { schoolStudentContext } from '../fixtures/schoolTasks.fixture.ts'
 import { SchoolEvidencePage } from '../SchoolEvidencePage.tsx'
-import { schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { schoolArchivePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
 // School Evidence. Task 제목을 누르면 그 Task Detail의 과정 자료 Tab으로 간다.
@@ -31,12 +31,13 @@ export function SchoolEvidenceRoute() {
       onEvidenceChanged={() => setEvidenceRevision((value) => value + 1)}
       onTaskOpen={(taskId) => {
         // 목록에서 왔다는 표시: Detail의 돌아가기가 History Back으로 이 화면을 복원한다.
-        const state: SchoolTaskDetailEntryState = { fromTaskList: true }
+        const state: SchoolTaskDetailEntryState = { fromTaskList: true, backTo: 'evidence' }
         navigate(`${schoolTaskPath(taskId)}?tab=process`, { state })
       }}
       studentGrade={schoolStudentContext.grade}
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
+        else if (id === 'archive') navigate(schoolArchivePath)
       }}
     />
   )

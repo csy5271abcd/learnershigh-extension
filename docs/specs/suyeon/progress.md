@@ -757,8 +757,8 @@ Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixt
 Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai dd98b36)
 Student Feedback (피드백 Tab · 반영함 · 다음 할 일): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-feedback b58f93c)
 Student Revision (수정본 V2 / V3 · 7단계 Loop · 수정 기록): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision 22f81c0)
-Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission, 미커밋)
-School Archive Full Page (Archive-00): NOT_STARTED
+Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission c1990e6)
+School Archive (Archive-00, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive, 미커밋) — Growth source PENDING (not connected)
 ```
 
 핵심 Flow:
@@ -849,8 +849,10 @@ IN_PROGRESS
   - 실제 GET …/feedback / 반영 저장 Endpoint / Admin Feedback Review · Queue / Frontend 자동 Test: NOT_STARTED
 - Student Revision (지금 할 일 수정본 제출 · 7단계 Revision Loop · 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-revision 22f81c0)
   - 실제 Version / Revision History API / Diff Schema / Admin Re-review / Frontend 자동 Test: NOT_STARTED
-- Student Final Submission (최종 제출 확인 · 8단계 · 최종 결과물 · 학부모 공유 동의 · Archive Projection): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission, 미커밋)
-  - 실제 최종 제출 API(Contract 없음) / GET · PUT final-artifact / Archive API · Full Page / Admin Report 첨부 / Frontend 자동 Test: NOT_STARTED
+- Student Final Submission (최종 제출 확인 · 8단계 · 최종 결과물 · 학부모 공유 동의 · Archive Projection): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-final-submission c1990e6)
+  - 실제 최종 제출 API(Contract 없음) / GET · PUT final-artifact / Admin Report 첨부 / Frontend 자동 Test: NOT_STARTED
+- School Archive (/school/archive, Task source): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-archive, 미커밋)
+  - 실제 GET /api/student/archive / Growth Activity source(PENDING) / Archive Persistence(API-OD-05) / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1835,8 +1837,8 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture 기반 UI, 미커밋)
-School Archive Full Page: NOT_STARTED (다음 Branch, Archive-00)
+Student Final Submission / Final Artifact / Parent Share Consent / Archive Projection: IMPLEMENTED (Fixture 기반 UI, c1990e6)
+School Archive Full Page: Archive Branch에서 구현
 VERIFIED 아님: 최종 제출 Endpoint 없음(Contract Gap), GET / PUT final-artifact 미연결, Archive 저장 방식 미확정(API-OD-05), Admin Report 첨부 미연결, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1861,6 +1863,45 @@ VERIFIED 아님: 최종 제출 Endpoint 없음(Contract Gap), GET / PUT final-ar
 - Archive Persistence(API-OD-05) 미확정 → Projection으로 계산
 - attached / shared 이후 Student 동의 해제 정책 미정 → Switch 비활성
 - 6 → 8: 선생님 검토 결과가 명시적으로 "추가 수정 없음"일 때만 최종 제출 준비 → 실제 최종 제출로 8단계 (V1만 있다는 이유로 자동 전이 없음). Stage 7 = 수정이 필요할 때의 반복 구간이라는 해석은 Frontend Fixture 정책이며 Domain Rule로 확정하지 않음
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — School Archive (branch: feat/student-school-archive)
+
+### Status
+
+```text
+School Archive (Archive-00, Task source): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Growth source: PENDING (not connected) — Growth Activity 저장소가 없어 빈 목록, Archive 전용 Growth 데이터 만들지 않음
+VERIFIED 아님: GET /api/student/archive 미연결, Archive Persistence 미확정(API-OD-05), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Final Submission 보정 후 Commit(c1990e6): Archive 대상 = 완료(8단계) Task (TaskFinalArtifact 유무 무관). 결과물 없는 완료 Task(Seed 영어 독서 에세이)도 Archive 대상, Detail에는 "최종 결과물 파일 정보가 없어요"(미리보기 / 공유 없음)
+- `/school/archive` Route, 내부 Nav Archive 활성(Activities는 계속 비활성). Global Nav School Activity
+- Archive Projection(Read Model ArchiveItemView): 완료 Task + Growth(빈 목록)를 한 번에 계산, sourceId로 원본 참조 (원본 내용 복사 없음, Task 하나에 하나)
+- 카드(Archive-00): 시기(학기) · 활동 이름 · 출처 Badge(수행평가) · 결과 · Reflection(Task는 없음 → Mockup 문장) · 과목 · Evidence 수(자료 정보가 없는 Task는 숫자 생략)
+- 검색(활동 이름 · 과목 · Reflection) / 출처 Filter(전체 · 수행평가 · 성장 활동): ?query= / ?source= 유지, 카드 → Task Detail → Back으로 검색 · 출처 · Scroll 복원
+- 전체 Empty / 조건 Empty / Loading Skeleton / Error + 다시 시도 구분
+- Task Detail 돌아가기 버튼의 읽기 문구를 들어온 목록에 맞춤 (Archive로 돌아가기 / Evidence로 돌아가기 / Tasks 목록으로 돌아가기)
+
+### Open / Contract Gap
+
+- Archive Persistence(별도 저장 vs Projection) 미확정 → Projection
+- Growth Activity Archive 연결 대기 (growthArchiveItems = [])
+- Mockup의 유형 Chip(발표 / 포스터 / 영상 / 보고서) · 성적 · NEW: 원본에 해당 데이터가 없어 만들지 않음 → 출처 Filter(Contract source)로 대신
+- Archive 정렬 규칙 없음 → 마감일이 늦은 순(완료 시각이 Seed에 없음)
+- 시기 표시: Contract 예시(2026년 2학기)를 따름 (Mockup은 월 단위)
+- Archive item에 Final Artifact 유무 / 공유 상태 필드 없음 → Task Detail에서 원본으로 확인
+- 완료 Task 읽기 전용 / Stage 6 → 8 / Stage 7 해석은 Final Submission과 같은 Frontend 임시 정책
 
 ### Verification
 

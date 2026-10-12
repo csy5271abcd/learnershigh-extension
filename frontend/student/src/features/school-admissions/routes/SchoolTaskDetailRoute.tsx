@@ -28,13 +28,23 @@ import { canSubmitTopic } from '../model/topic.ts'
 import { canSubmitNextVersion } from '../model/feedback.ts'
 import { parseTaskDetailTab, type TaskDetailTabId } from '../model/taskDetail.ts'
 import { SchoolTaskDetailPage } from '../SchoolTaskDetailPage.tsx'
-import { feedbackVersionParam, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
+import { feedbackVersionParam, schoolArchivePath, schoolEvidencePath, schoolTasksPath, topicModalParam, versionModalParam } from './paths.ts'
 import { SchoolTopicModal } from './SchoolTopicModal.tsx'
 import { SchoolVersionSubmitModal } from './SchoolVersionSubmitModal.tsx'
 
-/** Tasks 목록에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해 목록의 Filter / Scroll을 복원한다. */
+/**
+ * School 목록(Tasks / Evidence / Archive)에서 Detail로 들어왔다는 표시. 있으면 돌아가기를 History Back으로 처리해
+ * 목록의 검색 / Filter / Scroll을 복원한다. backTo는 돌아갈 곳 이름 (돌아가기 버튼의 읽기 문구와 실제 이동이 같도록)
+ */
 export interface SchoolTaskDetailEntryState {
   fromTaskList: true
+  backTo: 'tasks' | 'evidence' | 'archive'
+}
+
+const backLabel: Record<SchoolTaskDetailEntryState['backTo'], string> = {
+  tasks: 'Tasks 목록으로 돌아가기',
+  evidence: 'Evidence로 돌아가기',
+  archive: 'Archive로 돌아가기',
 }
 
 const isFromTaskList = (state: unknown): state is SchoolTaskDetailEntryState =>
@@ -218,6 +228,8 @@ export function SchoolTaskDetailRoute() {
         if (isFromTaskList(location.state)) navigate(-1)
         else navigate(schoolTasksPath)
       }}
+      // History Back이면 들어온 목록으로, 아니면(직접 URL 등) Tasks로 간다.
+      backLabel={isFromTaskList(location.state) ? backLabel[location.state.backTo ?? 'tasks'] : backLabel.tasks}
       // 기존 Mentor Activity Case Detail로 이동한다. Back하면 이 Task의 같은 Tab / Scroll로 돌아온다.
       onMentorCaseOpen={(contentId) => navigate(mentorCasePath(contentId))}
       onOpenTopic={openTopic}
@@ -276,6 +288,7 @@ export function SchoolTaskDetailRoute() {
       onSectionSelect={(id) => {
         if (id === 'tasks') navigate(schoolTasksPath)
         else if (id === 'evidence') navigate(schoolEvidencePath)
+        else if (id === 'archive') navigate(schoolArchivePath)
       }}
     />
   )

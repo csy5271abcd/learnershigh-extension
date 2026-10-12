@@ -17,7 +17,7 @@ const sections: SchoolSection[] = [
   { id: 'tasks', label: 'Tasks', available: true },
   { id: 'activities', label: 'Activities', available: false },
   { id: 'evidence', label: 'Evidence', available: true },
-  { id: 'archive', label: 'Archive', available: false },
+  { id: 'archive', label: 'Archive', available: true },
   { id: 'interview', label: 'Interview', available: false, senior: true },
 ]
 

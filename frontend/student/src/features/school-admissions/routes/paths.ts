@@ -4,11 +4,14 @@ export const schoolRoutePattern = 'school'
 export const schoolTasksRoutePattern = 'school/tasks'
 export const schoolTaskRoutePattern = 'school/tasks/:taskId'
 export const schoolEvidenceRoutePattern = 'school/evidence'
+export const schoolArchiveRoutePattern = 'school/archive'
 
 export const schoolPath = '/school'
 export const schoolTasksPath = '/school/tasks'
 /** School Evidence: 로그인 Student의 모든 수행평가 자료 (Evidence-00) */
 export const schoolEvidencePath = '/school/evidence'
+/** School Archive: 완료된 수행평가(와 이후 Growth Activity) 기록 (Archive-00) */
+export const schoolArchivePath = '/school/archive'
 
 /** Tasks 화면 위 수행평가 등록 Modal (?create=1). Browser Back으로 닫히고, 새로고침하면 빈 Form으로 다시 열린다. */
 export const createModalParam = 'create'

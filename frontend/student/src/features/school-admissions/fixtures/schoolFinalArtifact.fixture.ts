@@ -9,7 +9,7 @@
 //   (Task ─ TaskFinalArtifact? : 결과물이 없어도 완료 기록은 Archive에 남는다. API-OD-05 저장 방식 미확정)
 // - 실제 Backend가 아니다. 새로고침하면 Seed로 돌아간다.
 
-import type { StudentTaskSummary, TaskFinalArtifact, TaskFinalArtifactState } from '../model/types.ts'
+import type { ArchiveItemView, StudentTaskSummary, TaskFinalArtifact, TaskFinalArtifactState } from '../model/types.ts'
 import { taskEvidence } from './schoolEvidence.fixture.ts'
 import { taskFeedback } from './schoolFeedback.fixture.ts'
 import { findCreatedTask, findSeedOverride, listCreatedTasks, saveTaskSummary, markTaskStoreChanged } from './schoolTaskRepository.fixture.ts'
@@ -125,17 +125,6 @@ export function createSchoolFinalFixtureService(scenario: SchoolFinalFixtureScen
 
 // ---------- Archive Projection (GET /api/student/archive 의미, source = task) ----------
 
-export interface SchoolArchiveTaskItem {
-  source: 'task'
-  sourceId: string
-  title: string
-  periodLabel: string
-  category: string
-  result: string
-  reflectionSummary: null
-  evidenceCount: number
-}
-
 /** 마감일로 학기 이름을 만든다. (3~7월 1학기, 8~2월 2학기) */
 function periodLabel(deadlineDate: string): string {
   const [year, month] = deadlineDate.split('-').map(Number)
@@ -148,11 +137,13 @@ function periodLabel(deadlineDate: string): string {
  * 완료(8단계)된 Task의 Archive 항목. 그때그때 계산한다. (최종 결과물 유무와 무관)
  * 항목은 sourceId로 Task를 가리킬 뿐 결과물 내용을 복사하지 않는다. (Task 하나에 항목 하나)
  */
-export function archiveTaskProjection(): SchoolArchiveTaskItem[] {
+export function archiveTaskProjection(): ArchiveItemView[] {
   const tasks = [...listCreatedTasks(), ...fixtureStudentTasks.map((task) => findSeedOverride(task.taskId)?.task ?? task)]
   return tasks
     .filter((task) => task.currentStage === 8)
-    .map((task) => ({
+    // 정렬 규칙은 Source에 없다. 완료 시각이 Seed에 없어 마감일이 늦은 순으로 둔다. (같은 Fixture면 늘 같은 순서)
+    .sort((a, b) => b.deadlineDate.localeCompare(a.deadlineDate) || a.taskId.localeCompare(b.taskId))
+    .map((task): ArchiveItemView => ({
       source: 'task',
       sourceId: task.taskId,
       title: task.title,
@@ -160,6 +151,7 @@ export function archiveTaskProjection(): SchoolArchiveTaskItem[] {
       category: task.subject,
       result: task.stageStatus,
       reflectionSummary: null,
-      evidenceCount: taskEvidence(task.taskId).items.length,
+      // 자료 정보가 준비되지 않은 Task는 0개와 구분해 null
+      evidenceCount: taskEvidence(task.taskId).complete ? taskEvidence(task.taskId).items.length : null,
     }))
 }

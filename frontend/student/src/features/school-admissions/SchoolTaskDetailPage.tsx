@@ -54,6 +54,8 @@ interface SchoolTaskDetailPageProps {
   /** 수정 기록의 "피드백 보기": History에 남겨 Back으로 같은 비교(Pair) / Scroll로 돌아온다. */
   onRevisionFeedbackOpen: (versionId: string) => void
   onBackToTasks: () => void
+  /** 돌아가기 버튼의 읽기 문구 (실제 돌아갈 곳) */
+  backLabel: string
   onMentorCaseOpen: (contentId: string) => void
   /** 지금 할 일의 "주제 선정하기 / 주제 수정하기" */
   onOpenTopic: () => void
@@ -99,6 +101,7 @@ export function SchoolTaskDetailPage({
   onCompareVersions,
   onRevisionFeedbackOpen,
   onBackToTasks,
+  backLabel,
   onMentorCaseOpen,
   onOpenTopic,
   renderTopicDialog,
@@ -129,7 +132,7 @@ export function SchoolTaskDetailPage({
     >
       <button type="button" className={styles.back} onClick={onBackToTasks}>
         <span aria-hidden="true">‹</span> School
-        <span className="lh-visually-hidden"> Tasks 목록으로 돌아가기</span>
+        <span className="lh-visually-hidden"> {backLabel}</span>
       </button>
 
       {state.status === 'loading' && (

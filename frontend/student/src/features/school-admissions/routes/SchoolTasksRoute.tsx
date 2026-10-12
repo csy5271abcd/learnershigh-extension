@@ -9,7 +9,7 @@ import {
 } from '../fixtures/schoolTasks.fixture.ts'
 import { parseTaskListFilter, type TaskListFilter } from '../model/tasks.ts'
 import { SchoolTasksPage } from '../SchoolTasksPage.tsx'
-import { createModalParam, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
+import { createModalParam, schoolArchivePath, schoolEvidencePath, schoolTaskPath, schoolTasksPath } from './paths.ts'
 import { SchoolTaskCreateModal } from './SchoolTaskCreateModal.tsx'
 import type { SchoolTaskDetailEntryState } from './SchoolTaskDetailRoute.tsx'
 
@@ -93,7 +93,7 @@ export function SchoolTasksRoute() {
         filter={filter}
         onFilterChange={changeFilter}
         onTaskSelect={(taskId) => {
-          const state: SchoolTaskDetailEntryState = { fromTaskList: true }
+          const state: SchoolTaskDetailEntryState = { fromTaskList: true, backTo: 'tasks' }
           navigate(schoolTaskPath(taskId), { state })
         }}
         onCreateTask={openCreate}
@@ -101,9 +101,10 @@ export function SchoolTasksRoute() {
         createdTaskId={createOpen ? undefined : createdTaskId}
         studentGrade={schoolStudentContext.grade}
         onSectionSelect={(id) => {
-          // 화면이 있는 Section은 Tasks / Evidence다.
+          // 화면이 있는 Section은 Tasks / Evidence / Archive다.
           if (id === 'tasks') navigate(schoolTasksPath)
           else if (id === 'evidence') navigate(schoolEvidencePath)
+          else if (id === 'archive') navigate(schoolArchivePath)
         }}
       />
       {createOpen && <SchoolTaskCreateModal createTask={createTask} snapshotDate={SCHOOL_SNAPSHOT_DATE} onClose={closeCreate} />}
