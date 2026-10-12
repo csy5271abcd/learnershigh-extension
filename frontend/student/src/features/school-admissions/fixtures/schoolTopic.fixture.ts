@@ -15,7 +15,8 @@ function currentTask(taskId: string): StoredTask | undefined {
   const created = findCreatedTask(taskId)
   if (created) return created
   const override = findSeedOverride(taskId)
-  if (override) return override
+  // 요약만 바뀐 Seed Task(예: Version 제출)는 Seed 상세 자료를 그대로 쓴다.
+  if (override) return { task: override.task, detail: override.detail ?? seedTaskDetail(taskId) }
   const task = fixtureStudentTasks.find((item) => item.taskId === taskId)
   return task ? { task, detail: seedTaskDetail(taskId) } : undefined
 }
@@ -30,7 +31,6 @@ const emptyDetail = (): StudentTaskDetailExtra => ({
   references: null,
   feedback: null,
   mentorCases: null,
-  versions: null,
   revisionDiffs: [],
 })
 

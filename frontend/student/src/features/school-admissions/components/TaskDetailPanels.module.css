@@ -430,6 +430,10 @@
   gap: var(--lh-space-2);
 }
 
+.aiTitle:focus {
+  outline: none;
+}
+
 .aiTitle {
   margin: 0;
   display: flex;
@@ -603,6 +607,57 @@
   font-size: var(--lh-font-label);
 }
 
+/* ---- AI 사전 점검 진행 / 실패 (Text + 정적인 Skeleton, 움직임 없음) ---- */
+
+.aiStatusText {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.aiStatusNotice {
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.aiSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.aiSkeleton span {
+  display: block;
+  height: 14px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-skeleton);
+}
+
+.aiSkeleton span:nth-child(2) {
+  width: 80%;
+}
+
+.aiSkeleton span:nth-child(3) {
+  width: 60%;
+}
+
+.retryButton {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retryButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 /* ---- 수정 기록 ---- */
 
 .versionList {
@@ -612,7 +667,7 @@
 
 .versionRow {
   display: grid;
-  grid-template-columns: 48px 140px minmax(0, 1fr) auto;
+  grid-template-columns: 48px 140px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--lh-space-4);
   padding: var(--lh-space-3) var(--lh-space-3);
@@ -636,6 +691,23 @@
 
 .versionNote {
   font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.versionPreview {
+  min-height: 44px;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: none;
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.versionPreview:hover {
+  background: var(--lh-color-accent-subtle);
 }
 
 .pairControls {
@@ -809,8 +881,14 @@
   }
 
   .versionNote,
-  .versionSize {
+  .versionSize,
+  .versionPreview {
     grid-column: 2;
+  }
+
+  .versionPreview {
+    justify-self: start;
+    margin-left: calc(-1 * var(--lh-space-3));
   }
 
   /* 좁은 화면: Before / After를 위아래로 쌓는다. 각 칸에 Before / After를 다시 알린다. */

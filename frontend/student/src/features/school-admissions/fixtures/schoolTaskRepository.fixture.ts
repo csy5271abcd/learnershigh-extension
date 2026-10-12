@@ -66,3 +66,14 @@ export function saveTask(next: StoredTask): void {
   }
   revision += 1
 }
+
+/**
+ * Task 요약(단계 · 상태 · 다음 할 일)만 바꾼다. 상세 자료는 그대로 둔다. (예: Version 제출 / AI 사전 점검 결과)
+ * Seed Task는 Session 변경으로 저장하고, 상세 자료가 없으면 Loader가 Seed 상세 자료를 쓴다.
+ */
+export function saveTaskSummary(task: StudentTaskSummary): void {
+  const createdItem = findCreatedTask(task.taskId)
+  if (createdItem) createdItem.task = task
+  else seedOverrides.set(task.taskId, { task, detail: seedOverrides.get(task.taskId)?.detail ?? null })
+  revision += 1
+}

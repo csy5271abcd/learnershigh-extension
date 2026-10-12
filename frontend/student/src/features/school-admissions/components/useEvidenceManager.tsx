@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import type { SchoolEvidenceService } from '../fixtures/schoolEvidence.fixture.ts'
 import { suggestedStageTag } from '../model/evidence.ts'
+import { restoreFocus } from '../model/focus.ts'
 import type { StudentTaskSummary, TaskEvidence, TaskProcessCategory } from '../model/types.ts'
 import { useGuideFileReader } from '../model/useGuideFileReader.ts'
 import { EvidenceAddDialog, EvidenceDeleteDialog, EvidencePreviewDialog } from './EvidenceDialogs.tsx'
@@ -12,21 +13,6 @@ interface AddState {
   error?: string
   submitting: boolean
   submitFailed: boolean
-}
-
-/**
- * 닫힌 뒤 Focus를 돌려줄 곳. 원래 버튼이 사라졌으면(삭제 등) fallbackId로 옮긴다.
- * 자료를 다시 불러온 뒤 Focus가 문서 밖(body)으로 빠졌으면 한 번 더 돌려준다.
- */
-function restoreFocus(trigger: HTMLElement | null, fallbackId?: string) {
-  const apply = () => {
-    if (trigger?.isConnected) trigger.focus({ preventScroll: true })
-    else if (fallbackId) document.getElementById(fallbackId)?.focus({ preventScroll: true })
-  }
-  requestAnimationFrame(apply)
-  setTimeout(() => {
-    if (!document.activeElement || document.activeElement === document.body) apply()
-  }, 150)
 }
 
 // 자료 추가 / 미리보기 / 삭제 흐름. Task Detail 과정 자료 Tab과 School Evidence가 같은 흐름 · 같은 Service를 쓴다.

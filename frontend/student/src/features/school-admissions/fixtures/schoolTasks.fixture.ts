@@ -36,7 +36,8 @@ export const fixtureStudentTasks: StudentTaskSummary[] = [
     title: '생활 문제 해결 Python 데이터 프로젝트 · 급식 메뉴별 잔반량 분석',
     subject: '정보',
     deadlineDate: '2026-10-09',
-    currentStage: 5,
+    // AI 사전 점검을 마치고 공용 검토 대기열에서 선생님 검토를 기다리는 상태 → 6단계 (Spec Stage 6 = Shared Feedback Queue)
+    currentStage: 6,
     stageStatus: 'V1 검토 대기',
     deliverableSummary: '.py/.ipynb + 결과 화면 + 보고서 2쪽',
     turn: 'waiting',

@@ -36,12 +36,16 @@ interface TaskNowCardProps {
   task: StudentTaskSummary
   card: TaskNowCardModel
   onAction: (action: TaskDetailAction) => void
+  /** Action 결과 안내 (예: 다시 시도할 수 없는 이유). 학생용 문장만 넣는다. */
+  notice?: string
+  /** 처리 중인 Action (예: 다시 시도) → 버튼을 잠시 비활성 */
+  busyLabel?: string
 }
 
 // Overview의 지금 할 일 (TasksDetail-01): 현재 단계 · 상태 / 큰 제목 / 설명 / 사실 한 줄 / Primary CTA / 기다리는 동안 할 수 있는 일.
 // 운영시간 숫자(62시간 등)는 보여주지 않고, 운영 상태는 학생용 문장으로만 알린다.
 // 기다리는 상태(선생님 검토 / AI 분석 / Review 지연)는 움직이는 표시 없이 Text로만 보여준다.
-export function TaskNowCard({ task, card, onAction }: TaskNowCardProps) {
+export function TaskNowCard({ task, card, onAction, notice, busyLabel }: TaskNowCardProps) {
   const waiting = task.turn === 'waiting'
   const attention = task.attentionFlags.map((flag) => studentAttentionMessage[flag])
 
@@ -66,8 +70,19 @@ export function TaskNowCard({ task, card, onAction }: TaskNowCardProps) {
       )}
       {card.primaryAction && (
         <div className={styles.primary}>
-          <TaskActionButton action={card.primaryAction} variant="primary" onAction={onAction} />
+          {busyLabel ? (
+            <button type="button" className={styles.primaryButton} disabled>
+              {busyLabel}
+            </button>
+          ) : (
+            <TaskActionButton action={card.primaryAction} variant="primary" onAction={onAction} />
+          )}
         </div>
+      )}
+      {notice && (
+        <p className={styles.notice} role="alert">
+          {notice}
+        </p>
       )}
       {card.waitingActions.length > 0 && (
         <div className={styles.more}>

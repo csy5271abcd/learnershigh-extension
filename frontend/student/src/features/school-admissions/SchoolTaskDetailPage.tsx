@@ -13,8 +13,11 @@ import { TaskDetailTabs } from './components/TaskDetailTabs.tsx'
 import { TaskCompactStatus, TaskNowCard } from './components/TaskNowCard.tsx'
 import { TaskStageStepper } from './components/TaskStageStepper.tsx'
 import { useEvidenceManager } from './components/useEvidenceManager.tsx'
+import { useVersionManager } from './components/useVersionManager.tsx'
 import type { SchoolEvidenceService } from './fixtures/schoolEvidence.fixture.ts'
+import type { SchoolVersionService } from './fixtures/schoolVersion.fixture.ts'
 import { withEvidenceNowCard } from './model/evidence.ts'
+import { aiStatusHeadingId, latestVersion, withVersionNowCard } from './model/version.ts'
 import styles from './SchoolTaskDetailPage.module.css'
 import {
   fallbackNowCard,
@@ -52,6 +55,14 @@ interface SchoolTaskDetailPageProps {
   evidenceService: SchoolEvidenceService
   /** 자료가 바뀌면 호출 측이 Task를 다시 불러온다. */
   onEvidenceChanged: () => void
+  /** Version 제출 / AI 사전 점검 다시 시도 Boundary. 현재는 Fixture, API 연결 시 POST …/versions, …/ai-analysis/retry */
+  versionService: SchoolVersionService
+  /** Version이 바뀌면 호출 측이 Task를 다시 불러온다. */
+  onVersionChanged: () => void
+  /** 지금 할 일의 "초안 V1 제출 / 수정본 Vn 제출" */
+  onOpenVersionSubmit: () => void
+  /** Version 제출 Modal (Task 값을 불러온 뒤 호출 측이 그린다) */
+  renderVersionDialog?: (data: StudentTaskDetail) => ReactNode
   studentGrade: string
   onSectionSelect: (id: SchoolSectionId) => void
 }
@@ -73,6 +84,10 @@ export function SchoolTaskDetailPage({
   focusNowCard = false,
   evidenceService,
   onEvidenceChanged,
+  versionService,
+  onVersionChanged,
+  onOpenVersionSubmit,
+  renderVersionDialog,
   studentGrade,
   onSectionSelect,
 }: SchoolTaskDetailPageProps) {
@@ -142,8 +157,12 @@ export function SchoolTaskDetailPage({
             focusNowCard={focusNowCard}
             evidenceService={evidenceService}
             onEvidenceChanged={onEvidenceChanged}
+            versionService={versionService}
+            onVersionChanged={onVersionChanged}
+            onOpenVersionSubmit={onOpenVersionSubmit}
           />
           {renderTopicDialog?.(state.data)}
+          {renderVersionDialog?.(state.data)}
         </>
       )}
     </SchoolLayout>
@@ -162,6 +181,9 @@ interface TaskDetailProps {
   focusNowCard: boolean
   evidenceService: SchoolEvidenceService
   onEvidenceChanged: () => void
+  versionService: SchoolVersionService
+  onVersionChanged: () => void
+  onOpenVersionSubmit: () => void
 }
 
 function TaskDetail({
@@ -176,14 +198,25 @@ function TaskDetail({
   focusNowCard,
   evidenceService,
   onEvidenceChanged,
+  versionService,
+  onVersionChanged,
+  onOpenVersionSubmit,
 }: TaskDetailProps) {
   const { task, detail, snapshotDate } = data
-  const nowCard = withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data))
   const evidence = useEvidenceManager({ service: evidenceService, onChanged: onEvidenceChanged, focusFallbackId: 'task-evidence-add' })
+  const version = useVersionManager({ service: versionService, onChanged: onVersionChanged })
+  const latest = latestVersion(data)
+  const latestNotice = latest && version.retryNotice?.versionId === latest.versionId ? version.retryNotice : undefined
+  const versionCard = withVersionNowCard(data, withEvidenceNowCard(data, detail?.nowCard ?? fallbackNowCard(data)))
+  // 다시 시도가 막힌 Version(다시 시도 불가 / 찾을 수 없음 / 이미 분석 중)은 다시 시도 버튼을 두지 않는다.
+  const nowCard =
+    latestNotice?.blocked && versionCard.primaryAction?.kind === 'retryAiAnalysis' ? { ...versionCard, primaryAction: undefined } : versionCard
+  const nowNotice = latestNotice?.message
   const tabs = taskDetailTabs.map((item) => ({ ...item, count: taskDetailTabCount(data, item.id) }))
   // 선생님 검토 / AI 분석을 기다리는 상태와 Review 지연은 Badge 없이 Text로만 보여준다.
   // (Deadline Passed / Hold 등 다른 주의 표시와 학생 차례의 단계 상태는 기존 Badge 유지)
-  const awaiting = isAwaitingOthers(task)
+  // AI 사전 점검 실패도 Error Text로만 보여준다. (상태 Badge 없음)
+  const awaiting = isAwaitingOthers(task) || latest?.aiAnalysisStatus === 'failed'
   const badgeFlags = task.attentionFlags.filter((flag) => flag !== 'reviewDelayed')
   const delayed = task.attentionFlags.includes('reviewDelayed')
 
@@ -192,6 +225,11 @@ function TaskDetail({
     else if (action.kind === 'openTab') onTabChange(action.tab)
     else if (action.kind === 'submitTopic') onOpenTopic()
     else if (action.kind === 'addEvidence') evidence.openAdd(task, document.activeElement as HTMLElement | null)
+    else if (action.kind === 'submitVersion') onOpenVersionSubmit()
+    else if (action.kind === 'retryAiAnalysis') {
+      const target = data.versions.items.find((item) => item.versionId === action.versionId)
+      if (target) version.retry(target, 'task-now-heading')
+    }
   }
 
   // 주제를 제출한 직후: 예전 Scroll 위치 대신 바뀐 지금 할 일이 보이도록 옮긴다.
@@ -208,6 +246,12 @@ function TaskDetail({
         {awaiting ? (
           <p className={styles.statusText}>
             <span className={styles.statusCurrent}>{task.stageStatus}</span>
+            {/* 기다림 / AI 실패 상태 자체는 Text로만. 마감 지남 · 보류 같은 주의 표시는 기존 Badge 유지 */}
+            {badgeFlags.map((flag) => (
+              <span key={flag} className={styles.attentionBadge} data-flag={flag}>
+                {taskAttentionLabel[flag]}
+              </span>
+            ))}
             {delayed && <span className={styles.statusNote}>{studentAttentionMessage.reviewDelayed}</span>}
           </p>
         ) : (
@@ -234,7 +278,13 @@ function TaskDetail({
       <TaskStageStepper currentStage={task.currentStage} />
 
       {tab === 'overview' ? (
-        <TaskNowCard task={task} card={nowCard} onAction={handleAction} />
+        <TaskNowCard
+          task={task}
+          card={nowCard}
+          onAction={handleAction}
+          notice={nowNotice}
+          busyLabel={version.retryingId && version.retryingId === latest?.versionId ? '다시 시도하는 중…' : undefined}
+        />
       ) : (
         <TaskCompactStatus task={task} />
       )}
@@ -258,7 +308,14 @@ function TaskDetail({
               deleteErrorId={evidence.deleteErrorId}
             />
           )}
-          {tab === 'feedback' && <TaskFeedbackPanel data={data} />}
+          {tab === 'feedback' && (
+            <TaskFeedbackPanel
+              data={data}
+              onRetry={(target) => version.retry(target, aiStatusHeadingId(target.versionId))}
+              retryingId={version.retryingId}
+              retryNotice={version.retryNotice}
+            />
+          )}
           {tab === 'mentor-case' && <TaskMentorCasePanel detail={detail} onCaseOpen={onMentorCaseOpen} />}
           {tab === 'revision' && (
             <TaskRevisionPanel
@@ -267,11 +324,13 @@ function TaskDetail({
               toParam={toVersionParam}
               onVersionPairChange={onCompareVersions}
               onFeedbackOpen={() => onTabChange('feedback')}
+              onVersionPreview={version.openPreview}
             />
           )}
         </div>
       </div>
       {evidence.dialogs}
+      {version.dialogs}
     </article>
   )
 }

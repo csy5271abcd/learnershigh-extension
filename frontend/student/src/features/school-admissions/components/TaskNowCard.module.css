@@ -186,3 +186,11 @@
     flex-direction: column;
   }
 }
+
+/* Action 결과 안내 (강한 경고색 없이 Text) */
+.notice {
+  margin-top: var(--lh-space-3);
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}

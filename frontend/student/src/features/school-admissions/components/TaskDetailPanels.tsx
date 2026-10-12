@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { evidenceConditionText } from '../model/evidence.ts'
+import { aiStatusHeadingId, versionAiStatusText } from '../model/version.ts'
+import type { AiRetryNotice } from './useVersionManager.tsx'
 import {
   findRevisionDiff,
   formatDateTime,
@@ -18,6 +20,7 @@ import type {
   TaskRevisionBlock,
   TaskTeacherFeedback,
   TaskTopicState,
+  TaskVersion,
 } from '../model/types.ts'
 import { EvidenceTable } from './EvidenceTable.tsx'
 import styles from './TaskDetailPanels.module.css'
@@ -373,8 +376,79 @@ function AiFeedbackCard({ feedback, teacherReviewed }: { feedback: TaskAiFeedbac
   )
 }
 
-export function TaskFeedbackPanel({ data }: { data: StudentTaskDetail }) {
+/**
+ * 결과가 아직 없는 AI 사전 점검 (분석 중 / 실패). Text로만 알리고, 분석 중에는 결과 자리에 정적인 Skeleton을 둔다.
+ * 회전 표시 · 진행률 · Badge 없음. 실패는 이유와 다시 시도(가능할 때만)를 보여준다.
+ */
+function AiAnalysisStatusCard({
+  version,
+  retrying,
+  notice,
+  onRetry,
+}: {
+  version: TaskVersion
+  retrying: boolean
+  notice?: AiRetryNotice
+  onRetry: (version: TaskVersion) => void
+}) {
+  const headingId = aiStatusHeadingId(version.versionId)
+  const blocked = notice?.blocked ?? false
+  return (
+    <article className={styles.aiFeedback} aria-labelledby={headingId}>
+      <h4 id={headingId} className={styles.aiTitle} tabIndex={-1}>
+        AI 사전 점검 · {version.label}
+      </h4>
+      <p className={styles.feedbackMeta}>
+        {formatDateTime(version.submittedAt)} 제출 · {version.fileName}
+      </p>
+      {version.aiAnalysisStatus === 'processing' ? (
+        <>
+          <p className={styles.aiStatusText}>AI 사전 점검을 진행하고 있어요. 분석이 끝나면 확인할 내용을 여기에서 보여드릴게요.</p>
+          <div className={styles.aiSkeleton} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        </>
+      ) : (
+        <>
+          <p className={styles.aiStatusText}>
+            AI 사전 점검을 완료하지 못했어요. 제출한 {version.label} 파일은 그대로 있어요.
+            {!version.retryAllowed && ' 지금은 다시 시도할 수 없어서 학원에서 확인한 뒤 알려드릴게요.'}
+          </p>
+          {version.retryAllowed && !blocked && (
+            <button
+              type="button"
+              className={styles.retryButton}
+              onClick={() => onRetry(version)}
+              disabled={retrying}
+              aria-describedby={notice ? `${headingId}-notice` : undefined}
+            >
+              {retrying ? '다시 시도하는 중…' : '다시 시도'}
+            </button>
+          )}
+        </>
+      )}
+      {notice && (
+        <p id={`${headingId}-notice`} className={styles.aiStatusNotice} role="alert">
+          {notice.message}
+        </p>
+      )}
+    </article>
+  )
+}
+
+interface TaskFeedbackPanelProps {
+  data: StudentTaskDetail
+  onRetry: (version: TaskVersion) => void
+  retryingId?: string
+  retryNotice?: AiRetryNotice
+}
+
+export function TaskFeedbackPanel({ data, onRetry, retryingId, retryNotice }: TaskFeedbackPanelProps) {
   const feedback = data.detail?.feedback
+  // 결과가 아직 없는 AI 사전 점검 (최근 Version이 먼저)
+  const pendingAi = data.versions.items.filter((version) => version.aiAnalysisStatus !== 'success').reverse()
   if (!feedback) {
     return (
       <div className={styles.panel}>
@@ -382,7 +456,7 @@ export function TaskFeedbackPanel({ data }: { data: StudentTaskDetail }) {
       </div>
     )
   }
-  if (feedback.teacher.length === 0 && feedback.ai.length === 0) {
+  if (feedback.teacher.length === 0 && feedback.ai.length === 0 && pendingAi.length === 0) {
     return (
       <div className={styles.panel}>
         <EmptyNotice>
@@ -412,7 +486,16 @@ export function TaskFeedbackPanel({ data }: { data: StudentTaskDetail }) {
           AI 사전 점검
         </h3>
         <p className={styles.infoBar}>AI 사전 점검은 참고용이에요. 최종 수정 방향은 선생님 피드백을 확인해주세요.</p>
-        {feedback.ai.length === 0 ? (
+        {pendingAi.map((version) => (
+          <AiAnalysisStatusCard
+            key={version.versionId}
+            version={version}
+            retrying={retryingId === version.versionId}
+            notice={retryNotice?.versionId === version.versionId ? retryNotice : undefined}
+            onRetry={onRetry}
+          />
+        ))}
+        {feedback.ai.length === 0 && pendingAi.length === 0 ? (
           <EmptyNotice>아직 AI 사전 점검 결과가 없어요.</EmptyNotice>
         ) : (
           feedback.ai.map((item) => (
@@ -568,14 +651,16 @@ export function TaskRevisionPanel({
   toParam,
   onVersionPairChange,
   onFeedbackOpen,
+  onVersionPreview,
 }: {
   data: StudentTaskDetail
   fromParam: string | null
   toParam: string | null
   onVersionPairChange: (fromVersionId: string, toVersionId: string) => void
   onFeedbackOpen: () => void
+  onVersionPreview: (version: TaskVersion, trigger: HTMLElement) => void
 }) {
-  const versions = data.detail?.versions
+  const versions = data.versions.complete ? data.versions.items : null
   if (!versions) {
     return (
       <div className={styles.panel}>
@@ -618,8 +703,17 @@ export function TaskRevisionPanel({
             <li key={version.versionId} className={styles.versionRow} data-selected={inPair || undefined}>
               <span className={styles.versionLabel}>{version.label}</span>
               <span className={styles.versionDate}>{formatDateTime(version.submittedAt)}</span>
-              <span className={styles.versionNote}>{version.note}</span>
-              <span className={styles.versionSize}>{version.sizeSummary}</span>
+              <span className={styles.versionNote}>{version.note ?? version.fileName}</span>
+              <span className={styles.versionSize}>{version.sizeSummary ?? versionAiStatusText[version.aiAnalysisStatus]}</span>
+              <button
+                type="button"
+                className={styles.versionPreview}
+                aria-label={`${version.label} ${version.fileName} 미리보기`}
+                aria-haspopup="dialog"
+                onClick={(event) => onVersionPreview(version, event.currentTarget)}
+              >
+                미리보기
+              </button>
               {inPair && <span className="lh-visually-hidden"> (비교 중)</span>}
             </li>
           )
@@ -672,9 +766,11 @@ export function TaskRevisionPanel({
               <h3 id="task-diff-heading" className={styles.sectionTitle}>
                 {from.label} → {to.label}에서 바뀐 점
               </h3>
-              <p className={styles.sectionDescription}>
-                {from.sizeSummary} → {to.sizeSummary}
-              </p>
+              {from.sizeSummary && to.sizeSummary && (
+                <p className={styles.sectionDescription}>
+                  {from.sizeSummary} → {to.sizeSummary}
+                </p>
+              )}
             </div>
             {counts && (
               <p className={styles.diffCounts}>

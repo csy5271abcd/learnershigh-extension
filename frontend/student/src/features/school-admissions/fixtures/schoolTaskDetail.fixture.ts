@@ -13,6 +13,7 @@ import { fixtureMentorContent } from '../../mentor-hub/fixtures/mentors.fixture.
 import { caseMaterialName, caseMaterialRoleLabel } from '../../mentor-hub/model/caseMaterials.ts'
 import type { StudentTaskDetail, StudentTaskDetailExtra, TaskMentorCaseLink, TaskMentorCaseView } from '../model/types.ts'
 import { taskEvidence } from './schoolEvidence.fixture.ts'
+import { sessionAiFeedbackFor, taskVersions } from './schoolVersion.fixture.ts'
 import { findCreatedTask, findSeedOverride, taskStoreRevision } from './schoolTaskRepository.fixture.ts'
 import { fixtureStudentTasks, SCHOOL_SNAPSHOT_DATE } from './schoolTasks.fixture.ts'
 
@@ -101,10 +102,6 @@ const speechDetail: StudentTaskDetailExtra = {
     { contentId: fixtureMentorContent.tourGuideCase.contentId, teacherRecommended: false, relationNote: '영어 표현을 읽는 사람 기준으로 고친 과정을 볼 수 있어요.' },
     { contentId: fixtureMentorContent.aiInterviewCase.contentId, teacherRecommended: false, relationNote: 'AI 주제에서 주장과 근거를 나눈 과정을 참고할 수 있어요.' },
   ]),
-  versions: [
-    { versionId: 'speech-v1', label: 'V1', submittedAt: '2026-10-01T22:10:00+09:00', note: '최초 원고', sizeSummary: '4분 20초 · 612단어' },
-    { versionId: 'speech-v2', label: 'V2', submittedAt: '2026-10-03T20:45:00+09:00', note: '반복 표현 정리, 사례 1개 삭제', sizeSummary: '3분 55초 · 548단어' },
-  ],
   revisionDiffs: [
     {
       fromVersionId: 'speech-v1',
@@ -160,7 +157,6 @@ const antibioticDetail: StudentTaskDetailExtra = {
   // 4단계(초안 V1 미제출): 제출한 Version이 없으니 피드백 / 수정 기록도 실제로 없다.
   feedback: { teacher: [], ai: [] },
   mentorCases: caseViews(recommendedCasesFor(antibioticTaskId)),
-  versions: [],
   revisionDiffs: [],
 }
 
@@ -174,7 +170,6 @@ const riverDetail: StudentTaskDetailExtra = {
   references: null,
   feedback: null,
   mentorCases: null,
-  versions: null,
   revisionDiffs: [],
 }
 
@@ -199,6 +194,24 @@ export function readSchoolTaskDetailFixtureScenario(search: string): SchoolTaskD
   return scenarios.find((scenario) => scenario === value) ?? 'success'
 }
 
+/**
+ * 피드백 Tab에 Version 결과를 붙인다.
+ * - 이번 Session의 AI 사전 점검 결과(최근 것이 먼저)
+ * - 공용 검토 대기열에 들어갔지만 아직 선생님 피드백이 없는 Version: "검토 중" 표시만 (가짜 피드백 내용 없음)
+ */
+function withVersionFeedback(taskId: string, detail: StudentTaskDetailExtra | null): StudentTaskDetailExtra | null {
+  if (!detail) return detail
+  const versions = taskVersions(taskId).items
+  const generated = sessionAiFeedbackFor(taskId)
+  const base = detail.feedback ?? { teacher: [], ai: [] }
+  const pendingReviews = versions
+    .filter((version) => version.inFeedbackQueue && !base.teacher.some((item) => item.versionLabel === version.label))
+    .reverse()
+    .map((version) => ({ feedbackId: `${version.versionId}-review`, versionLabel: version.label, status: 'reviewing' as const }))
+  if (generated.length === 0 && pendingReviews.length === 0) return detail
+  return { ...detail, feedback: { teacher: [...pendingReviews, ...base.teacher], ai: [...generated, ...base.ai] } }
+}
+
 export type SchoolTaskDetailLoader = (taskId: string) => Promise<StudentTaskDetail | null>
 
 const loaders = new Map<string, SchoolTaskDetailLoader>()
@@ -220,12 +233,18 @@ export function createSchoolTaskDetailFixtureLoader(scenario: SchoolTaskDetailFi
         case 'success': {
           // 이번 Session에 등록한 Task는 등록할 때 입력한 값만 상세 자료로 가진다.
           const created = findCreatedTask(taskId)
-          const evidence = taskEvidence(taskId)
-          if (created) return Promise.resolve({ task: created.task, detail: created.detail, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE })
           const override = findSeedOverride(taskId)
-          if (override) return Promise.resolve({ task: override.task, detail: override.detail, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE })
-          const task = fixtureStudentTasks.find((item) => item.taskId === taskId)
-          return Promise.resolve(task ? { task, detail: details[taskId] ?? null, evidence, snapshotDate: SCHOOL_SNAPSHOT_DATE } : null)
+          const seed = fixtureStudentTasks.find((item) => item.taskId === taskId)
+          const task = created?.task ?? override?.task ?? seed
+          if (!task) return Promise.resolve(null)
+          const detail = created ? created.detail : (override?.detail ?? details[taskId] ?? null)
+          return Promise.resolve({
+            task,
+            detail: withVersionFeedback(taskId, detail),
+            evidence: taskEvidence(taskId),
+            versions: taskVersions(taskId),
+            snapshotDate: SCHOOL_SNAPSHOT_DATE,
+          })
         }
       }
     }

@@ -35,6 +35,8 @@ export function taskDetailTabCount(data: StudentTaskDetail, tab: TaskDetailTabId
   const { detail } = data
   // 과정 자료는 Canonical Evidence에서 센다. (자료 정보가 준비되지 않은 Task는 표시하지 않는다)
   if (tab === 'process') return data.evidence.complete ? data.evidence.items.length : undefined
+  // 수정 기록은 Canonical Version에서 센다.
+  if (tab === 'revision') return data.versions.complete ? data.versions.items.length : undefined
   if (!detail) return undefined
   switch (tab) {
     case 'references':
@@ -43,8 +45,6 @@ export function taskDetailTabCount(data: StudentTaskDetail, tab: TaskDetailTabId
       return detail.feedback ? deliveredFeedbackCount(detail.feedback) : undefined
     case 'mentor-case':
       return detail.mentorCases?.length
-    case 'revision':
-      return detail.versions?.length
     default:
       return undefined
   }

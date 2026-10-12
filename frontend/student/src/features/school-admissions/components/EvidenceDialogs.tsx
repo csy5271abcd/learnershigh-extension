@@ -6,8 +6,9 @@ import type { StudentTaskSummary, TaskEvidence, TaskProcessCategory } from '../m
 import styles from './EvidenceParts.module.css'
 
 // ---------- 공통 Modal Shell (Native <dialog>: 배경 차단 / Focus 가두기 / ESC) ----------
+// Evidence와 Version 제출 / 미리보기가 같이 쓴다.
 
-function DialogShell({
+export function DialogShell({
   labelledBy,
   onCancel,
   className,
@@ -21,10 +22,14 @@ function DialogShell({
   const dialogRef = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     const dialog = dialogRef.current
+    // 열기 전 Focus를 기억했다가, 닫힐 때(Unmount 포함) Focus가 갈 곳을 잃었으면 돌려준다.
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
     dialog?.showModal()
     dialog?.querySelector<HTMLElement>('[data-autofocus]')?.focus({ preventScroll: true })
     return () => {
       if (dialog?.open) dialog.close()
+      const lost = !document.activeElement || document.activeElement === document.body || dialog?.contains(document.activeElement)
+      if (lost && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true })
     }
   }, [])
   return (
@@ -255,9 +260,8 @@ function ObjectUrlPreview({ file, kind, name }: { file: File; kind: 'image' | 'p
   )
 }
 
-function PreviewBody({ evidence }: { evidence: TaskEvidence }) {
-  const kind = previewKind(evidence.fileName)
-  const file = evidence.file
+function PreviewBody({ fileName, file }: { fileName: string; file?: File }) {
+  const kind = previewKind(fileName)
   const [text, setText] = useState<string>()
 
   useEffect(() => {
@@ -270,17 +274,17 @@ function PreviewBody({ evidence }: { evidence: TaskEvidence }) {
   }, [file, kind])
 
   if (kind === 'unsupported') {
-    return <p className={styles.previewNotice}>미리보기를 지원하지 않는 파일이에요. ({fileExtensionLabel(evidence.fileName)})</p>
+    return <p className={styles.previewNotice}>미리보기를 지원하지 않는 파일이에요. ({fileExtensionLabel(fileName)})</p>
   }
   if (!file) {
     return <p className={styles.previewNotice}>이 자료의 원본 파일이 아직 준비되지 않아 미리볼 수 없어요.</p>
   }
-  if (kind === 'image' || kind === 'pdf') return <ObjectUrlPreview file={file} kind={kind} name={evidence.fileName} />
+  if (kind === 'image' || kind === 'pdf') return <ObjectUrlPreview file={file} kind={kind} name={fileName} />
   if (text === undefined) return null
   if (kind === 'csv') {
     const rows = parseCsv(text)
     return (
-      <div className={styles.previewTableScroll} tabIndex={0} role="region" aria-label={`${evidence.fileName} 표`}>
+      <div className={styles.previewTableScroll} tabIndex={0} role="region" aria-label={`${fileName} 표`}>
         <table className={styles.previewTable}>
           <tbody>
             {rows.map((row, rowIndex) => (
@@ -299,18 +303,33 @@ function PreviewBody({ evidence }: { evidence: TaskEvidence }) {
 // 미리보기 Dialog: Header(형식 · 파일 이름 · 단계 Tag · 닫기) + 내용. Evidence 요구에 Download가 없어 두지 않는다.
 export function EvidencePreviewDialog({ evidence, onClose }: { evidence: TaskEvidence; onClose: () => void }) {
   const tag = processCategories.find((category) => category.id === evidence.stageTag)
+  return <FilePreviewDialog fileName={evidence.fileName} file={evidence.file} subtitle={tag?.label} onClose={onClose} />
+}
+
+/** 파일 미리보기 공통 Dialog (Evidence / Version). subtitle은 단계 Tag나 Version 정보다. */
+export function FilePreviewDialog({
+  fileName,
+  file,
+  subtitle,
+  onClose,
+}: {
+  fileName: string
+  file?: File
+  subtitle?: string
+  onClose: () => void
+}) {
   return (
     <DialogShell labelledBy="evidence-preview-heading" onCancel={onClose} className={styles.previewDialog}>
       <div className={styles.dialogSurface}>
         <header className={styles.previewHeader}>
           <span className={styles.previewType} aria-hidden="true">
-            {fileExtensionLabel(evidence.fileName)}
+            {fileExtensionLabel(fileName)}
           </span>
           <div className={styles.previewTitleBox}>
             <h2 id="evidence-preview-heading" className={styles.previewTitle}>
-              {evidence.fileName}
+              {fileName}
             </h2>
-            <p className={styles.hint}>{tag?.label}</p>
+            {subtitle && <p className={styles.hint}>{subtitle}</p>}
           </div>
           <button type="button" className={styles.closeButton} aria-label="미리보기 닫기" onClick={onClose} data-autofocus>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
@@ -319,7 +338,7 @@ export function EvidencePreviewDialog({ evidence, onClose }: { evidence: TaskEvi
           </button>
         </header>
         <div className={styles.previewBody}>
-          <PreviewBody evidence={evidence} />
+          <PreviewBody fileName={fileName} file={file} />
         </div>
       </div>
     </DialogShell>

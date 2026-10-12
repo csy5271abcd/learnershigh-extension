@@ -753,8 +753,9 @@ School Home / Tasks 목록: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-sc
 Student Task Detail (7 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-detail b807fcb)
 Student Task Create (Modal Wizard): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-task-create 7d28a17)
 Student Topic Submission: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
-Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence, 미커밋)
-Version Upload / AI Result · Retry 이후 Flow: NOT_STARTED
+Student Evidence (Task 과정 자료 Vault + School Evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
+Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai, 미커밋)
+Student Feedback 반영 / Revision V2 이후 Flow: NOT_STARTED
 ```
 
 핵심 Flow:
@@ -837,8 +838,10 @@ IN_PROGRESS
   - 실제 POST /api/student/tasks / File Storage(안내문 파일) / 기존 Performance Task 연결(OD-07) / Frontend 자동 Test: NOT_STARTED
 - Student Topic Submission (Task Detail 위 Modal): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-topic-submission bcec572)
   - 실제 PUT /api/student/tasks/{taskId}/topic / Admin Topic Review / topicApprovalStatus Enum(OD-03) / Frontend 자동 Test: NOT_STARTED
-- Student Evidence (Task Detail 과정 자료 Tab + /school/evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence, 미커밋)
+- Student Evidence (Task Detail 과정 자료 Tab + /school/evidence): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-evidence 1f4bb59)
   - 실제 GET / POST / DELETE /api/student/tasks/{taskId}/evidence / File Storage(OD-09) / stageTag Enum / Frontend 자동 Test: NOT_STARTED
+- Student Version Submit + AI 사전 점검 Result / Retry (Task Detail 위 Modal + 지금 할 일 / 피드백 / 수정 기록 Tab): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-version-ai, 미커밋)
+  - 실제 Version API / AI Analysis / Shared Feedback Queue · Admin Review / File Storage / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -1670,7 +1673,7 @@ Frontend automated component test: NOT_RUN (Framework not yet selected)
 ### Status
 
 ```text
-Student Evidence (Task 과정 자료 Vault + School Evidence 목록): IMPLEMENTED (Fixture 기반 UI, 미커밋)
+Student Evidence (Task 과정 자료 Vault + School Evidence 목록): IMPLEMENTED (Fixture 기반 UI, 1f4bb59)
 VERIFIED 아님: GET / POST / DELETE /api/student/tasks/{taskId}/evidence 미연결, File Storage(OD-09) 미정, stageTag Enum 미확정(Contract 예시는 RESEARCH뿐), 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
 ```
 
@@ -1695,6 +1698,43 @@ VERIFIED 아님: GET / POST / DELETE /api/student/tasks/{taskId}/evidence 미연
 - Evidence-00의 하천 묶음(2개)은 파일 이름이 보이지 않고, 제동거리의 "dd"는 임시 이름이라 Seed에 넣지 않음
 - Speech의 speech_v1 / v2 docx는 Mockup(Evidence-00 / TasksDetail-04)에 Evidence로 표시되어 Evidence Seed로 둠. Version Entity(수정 기록)와는 별개
 - 자료 조사 Stage 완료 후 전이 규칙, 삭제 시 역전 정책 미정
+
+### Verification
+
+```text
+아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~M)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-12 — Student Version Submit + AI 사전 점검 (branch: feat/student-school-version-ai)
+
+### Status
+
+```text
+Student Version Submit + AI 사전 점검 Result / Retry: IMPLEMENTED (Fixture 기반 UI, 미커밋)
+VERIFIED 아님: POST / GET /api/student/tasks/{taskId}/versions · …/ai-analysis/retry 미연결, 실제 AI 분석 · File Storage(OD-09) · Shared Feedback Queue / Admin Review 미연결, aiAnalysisStatus 전체 Enum 미확정, 메모리 Fixture(새로고침 시 Seed로 초기화), Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Version / AI 전용 Mockup 없음 (School&Admissions 18장, Version · Upload · Analysis · Retry 이름 없음) → TasksDetail-01 / 05 / 07 + Task Create · Evidence Dialog 체계 기준
+- Canonical Version 저장소(versionId · taskId · versionNumber · fileName · fileRef · submittedAt · aiAnalysisStatus · retryAllowed · inFeedbackQueue). 기존 Task Detail `versions`를 옮겨 Speech V1 / V2도 같은 저장소에서 읽음. Evidence와 다른 Entity
+- 항생제 Task(4단계) "초안 V1 제출" → Task Detail 위 Modal(`?version=submit`, Browser Back으로 닫힘, 파일 선택 후 나가기 확인). Task 제목 · 과목 · 단계 · V 번호 표시, 실제 file input + FileReader 진행률(서버 Upload 표현 없음)
+- 번호는 latest + 1 (V1 / V2 / V3 같은 흐름, 이전 Version 유지). 제출 즉시 AI 사전 점검 processing, Task 4 → 5단계(AI 사전 점검)
+- 분석 중: Text + 정적인 Skeleton만 (Spinner · 진행률 · Badge 없음). 다른 Tab / 과거 Version 읽기 가능
+- 성공: AI 사전 점검 결과(확인 포인트, 점수 · 등급 없음) + 공용 검토 대기열 진입 표시 + 피드백 Tab에 선생님 피드백 "V1 검토가 진행 중이에요"(내용 없음). 5단계 완료 → 6단계 선생님 피드백 · "V1 검토 대기" (분석 중 / 실패 / 다시 시도는 5단계). Python Seed도 6/8 V1 검토 대기로 정리
+- 실패: Error Text + 다시 시도(같은 Version, 새 Version 없음). 다시 시도 불가 / 이미 분석 중 / 버전 없음은 학생용 문장, 기술 코드 노출 없음
+- 수정 기록 Tab: Version 줄에 파일 · AI 사전 점검 상태 Text + 미리보기(이미지 · PDF · CSV · Text, DOCX 등은 미지원 안내)
+- 결과(성공 / 실패)는 서버 처리 결과라 Student 화면 버튼 없음. 개발 중 `?fixtureAiResult=success | failed | failed-final`로만 재현
+
+### Open / Contract Gap
+
+- aiAnalysisStatus 전체 Enum(Contract는 PROCESSING / SUCCESS, Failed 이름 미정), retry 가능 여부 필드 없음, Version Detail의 AI Summary Schema 없음, Shared Feedback Queue 진입 상태 필드 없음
+- Version note / 분량 요약은 Contract 필드 없음(Seed만), Version 파일 URL / mimeType / size 필드 없음
+- Speech docx는 Evidence Seed와 Version Seed에 같은 파일 이름으로 있으나 서로 다른 Entity로 둠
+- V2 / V3는 Revision(7단계) 진입 Flow가 없어 이번에는 화면에서 열리지 않음 (번호 계산 / 제출 흐름은 공용)
 
 ### Verification
 

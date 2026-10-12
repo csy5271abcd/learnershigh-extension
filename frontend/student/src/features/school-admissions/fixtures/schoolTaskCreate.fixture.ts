@@ -72,7 +72,6 @@ function createTask(draft: TaskCreateDraft): SchoolTaskCreateResult {
       references: [],
       feedback: { teacher: [], ai: [] },
       mentorCases: [],
-      versions: [],
       revisionDiffs: [],
     },
     context: { performanceType: draft.performanceType, startingPoint: draft.startingPoint },

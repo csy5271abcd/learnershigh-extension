@@ -164,16 +164,47 @@ export interface TaskMentorCaseView extends TaskMentorCaseLink {
   materials: { materialId: string; roleLabel: string; name: string; description: string }[]
 }
 
-/** 제출 Version (V1 / V2 …). 존재하는 Version만 둔다. */
+/**
+ * AI 사전 점검 상태 (Student 화면용, Feature 내부 값).
+ * Contract 예시는 PROCESSING / SUCCESS, Domain은 Loading / Success / Failed까지만 확인된다. 전체 Enum은 확정하지 않고 API 연결 시 Mapping한다.
+ */
+export type TaskAiAnalysisStatus = 'processing' | 'success' | 'failed'
+
+/**
+ * 제출 Version (V1 / V2 / V3 …): 학생이 제출한 수행평가 Revision 단위. (POST / GET /api/student/tasks/{taskId}/versions)
+ * Evidence(과정 자료)와 다른 Entity다. 새 Version은 이전 Version을 덮어쓰지 않는다.
+ */
 export interface TaskVersion {
   versionId: string
+  taskId: string
+  /** Task 안에서 1부터 증가 */
+  versionNumber: number
+  /** V1 / V2 … (versionNumber에서 만든 표시값) */
   label: string
+  fileName: string
+  /** 파일 참조. 지금은 개발용 로컬 참조이고, File Storage가 정해지면 fileRef / Storage URL로 바뀐다. (OD-09) */
+  fileRef: string
   /** ISO 8601 */
   submittedAt: string
-  /** 이 Version에서 바꾼 점 (학생이 남긴 메모) */
-  note: string
-  /** 분량 요약 (예: 3분 55초 · 548단어) */
-  sizeSummary: string
+  aiAnalysisStatus: TaskAiAnalysisStatus
+  /** 실패한 분석을 다시 시도할 수 있는지 (AI_ANALYSIS_RETRY_NOT_ALLOWED와 대응) */
+  retryAllowed: boolean
+  /** AI 사전 점검 성공 후 공용 검토 대기열(Shared Feedback Queue)에 들어갔는지. Admin Queue 화면은 아직 없다. */
+  inFeedbackQueue: boolean
+  /** 이 Version에서 바꾼 점 (학생이 남긴 메모, Seed만 있음) */
+  note?: string
+  /** 분량 요약 (예: 3분 55초 · 548단어, Seed만 있음) */
+  sizeSummary?: string
+  mimeType?: string
+  sizeBytes?: number
+  /** 이번 Session에 학생이 제출한 파일. 미리보기에만 쓴다. */
+  file?: File
+}
+
+/** 한 Task의 Version. complete = false면 Version 정보가 Fixture에 없다(준비 안 됨). */
+export interface TaskVersionList {
+  items: TaskVersion[]
+  complete: boolean
 }
 
 /** Diff 한 덩어리. 학생이 직접 쓴 원고를 Version끼리 비교한 것이다. */
@@ -196,6 +227,8 @@ export type TaskDetailAction =
   | { kind: 'compareVersions'; label: string; fromVersionId: string; toVersionId: string }
   | { kind: 'submitTopic'; label: string }
   | { kind: 'addEvidence'; label: string }
+  | { kind: 'submitVersion'; label: string }
+  | { kind: 'retryAiAnalysis'; label: string; versionId: string }
   | { kind: 'openTab'; label: string; tab: 'feedback' | 'mentor-case' }
   | { kind: 'unavailable'; label: string; reason: string }
 
@@ -235,7 +268,6 @@ export interface StudentTaskDetailExtra {
   references: TaskReferenceMaterial[] | null
   feedback: TaskFeedback | null
   mentorCases: TaskMentorCaseView[] | null
-  versions: TaskVersion[] | null
   revisionDiffs: TaskRevisionDiff[]
 }
 
@@ -243,6 +275,8 @@ export interface StudentTaskDetail {
   task: StudentTaskSummary
   /** 과정 자료 Tab / School Evidence가 같은 Canonical Evidence를 읽는다. */
   evidence: TaskEvidenceList
+  /** 피드백 / 수정 기록 Tab과 지금 할 일이 같은 Canonical Version을 읽는다. */
+  versions: TaskVersionList
   /** Detail 자료. null이면 이 Task의 상세 자료가 아직 준비되지 않았다. (목록 정보만 있음) */
   detail: StudentTaskDetailExtra | null
   snapshotDate: string
