@@ -3294,7 +3294,7 @@ POST /api/admin/student-care/cases
 - `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `plan.recheckDate`는 asOf+1 ~ asOf+28.
 - `memo`: 0~1000자. 학생 기록에 잘리지 않고 그대로 남는다.
 - `plan.goal` / `plan.action`: 1~200자, `plan.loadLimit`: 0~100자. 길이 초과는 `400 VALIDATION_ERROR`.
-- 같은 학생에 대한 요청은 순서대로 처리한다. 동시에 두 번 보내도 건은 하나만 생기고 나머지는 `409 ACTIVE_CARE_CASE_EXISTS`(진행 중 건) 또는 `409 STUDENT_NOT_FLAGGED`(방금 종결되어 쉬는 기간에 들어감)다.
+- 같은 학생에 대한 요청은 순서대로 처리한다. 동시에 두 번 보내도 건은 하나만 생기고 나머지는 `409 ACTIVE_CARE_CASE_EXISTS`(진행 중 건) 또는 `409 STUDENT_NOT_FLAGGED`(방금 종결되어 쉬는 기간에 들어감)다. 단, 지점 `cooldownDays = 0`이면 즉시 종결 사유(EXPECTED_CHANGE / RECORD_ISSUE)는 신호가 남아 있으므로 요청마다 건이 생긴다(domain.md §5-1).
 - 422 오류는 `details.fields`에 원인 필드를 담는다: `PLAN_REQUIRED` → `plan`, `plan.goal`, `plan.action` / `STUDENT_AGREEMENT_REQUIRED` → `plan.agreedWithStudent` / `INVALID_RECHECK_DATE` → `plan.recheckDate`(65-6에서는 `recheckDate`).
 
 Response `201`: `CareCase` (65-5).
