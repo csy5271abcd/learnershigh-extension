@@ -1570,6 +1570,9 @@ Extension의 여러 기능에 영향을 많이 주는 Integration Risk 기준의
 관련 정보가 확인된 후
 `api-contract.md`, Domain, ADR 또는 이 문서를 업데이트한다.
 
+원본 코드에서 확인한 Table / Endpoint / Response 표본은 `docs/architecture/existing-learnershigh-data.md`에 둔다.
+연동 방식과 인증은 여전히 Open이다.
+
 ---
 
 # 56. 관련 문서
@@ -1586,6 +1589,9 @@ docs/architecture/overview.md
 
 docs/architecture/integration-boundary.md
 → 기존 LearnersHigh ↔ Extension 연결
+
+docs/architecture/existing-learnershigh-data.md
+→ 원본 코드에서 확인한 Table / Endpoint / Response 표본
 
 docs/architecture/shared-conventions.md
 → ID / Date / Naming / Status 공통 규약
