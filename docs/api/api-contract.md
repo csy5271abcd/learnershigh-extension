@@ -3152,6 +3152,8 @@ Base:
 공통:
 
 - `branchId`, `studentId`는 Existing LearnersHigh ID(문자열)다.
+- `className`은 반이 없는 학생이면 `null`이다.
+- 숫자 필드는 JSON 숫자만 받는다(문자열 `"3"`, 소수, 범위를 넘는 정수는 `400 VALIDATION_ERROR`, `details.fields[].field`는 그 필드 경로).
 - 날짜는 `YYYY-MM-DD`(Asia/Seoul 기준일), 시각은 ISO 8601 Offset(`+09:00`).
 - 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다). 기존 학습 기록을 읽는 Endpoint(board, students/{id}, POST cases, decisions, summary) 모두 해당하며, 실패하면 아무것도 저장하지 않는다.
 - 모든 Endpoint는 `branchId`로 범위를 정한다. 다른 지점의 학생 / 케어 건은 없는 것으로 본다(404).
@@ -3288,7 +3290,7 @@ POST /api/admin/student-care/cases
 }
 ```
 
-- `reason`이 `EXPECTED_CHANGE` / `RECORD_ISSUE`면 `plan`은 무시되고 건은 바로 `CLOSED`.
+- `reason`이 `EXPECTED_CHANGE` / `RECORD_ISSUE`면 `plan`은 검증하지 않고 무시하며 건은 바로 `CLOSED`.
 - `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `plan.recheckDate`는 asOf+1 ~ asOf+28.
 - `memo`: 0~1000자. 학생 기록에 잘리지 않고 그대로 남는다.
 - `plan.goal` / `plan.action`: 1~200자, `plan.loadLimit`: 0~100자. 길이 초과는 `400 VALIDATION_ERROR`.
@@ -3324,7 +3326,7 @@ Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, 
   "recheckDue": false,
   "comparison": null,
   "events": [
-    { "eventId": "evt_...", "type": "ADJUSTMENT_STARTED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "조정 시작 — 큰 수학 항목을 30분씩 4회로 나누기 (재점검 10월 7일)", "noteChannel": null }
+    { "eventId": "evt_...", "caseId": "care_9f0c...", "type": "ADJUSTMENT_STARTED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "조정 시작 — 큰 수학 항목을 30분씩 4회로 나누기 (재점검 10월 7일)", "noteChannel": null }
   ]
 }
 ```

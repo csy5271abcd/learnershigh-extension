@@ -442,8 +442,11 @@ backend/
 
 common/
 ├─ error/                      # ErrorCode, BusinessException, GlobalExceptionHandler
-├─ auth/                       # 인증 Context
+├─ auth/                       # 인증 Context (미구현)
+├─ time/                       # Clock 주입 (e2e Profile: AdjustableClock)
+├─ testsupport/                # e2e 전용 Endpoint (e2e Profile + 환경 변수일 때만 Bean)
 └─ integration/learnershigh/   # ExistingXxxClient (interface) + Real / Mock 구현
+   └─ phapi/                   # 원본 응답 Shape + Mapper (Anti-Corruption, 이 Package 밖에서 import 금지)
 ```
 
 ## 6-2. Layer별 책임
@@ -469,6 +472,7 @@ controller → service → entity / repository
 ```text
 Controller : Request DTO를 받아 Service에 그대로 넘긴다. Response DTO를 받아 반환한다.
 Service    : Request DTO → Entity 생성 / 변경, Entity → XxxResponse.from(entity)
+             변환에 Entity 밖의 값(기준일, 외부 기록 등)이 필요하면 service 패키지의 XxxMapper(static, package-private 권장)로 변환해도 된다.
 Entity     : Service 밖으로 나가지 않는다. Controller와 다른 Domain은 Entity를 보지 않는다.
 ```
 

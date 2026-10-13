@@ -64,3 +64,23 @@ Plan 길이 초과 오류 코드, Contract Error 목록 누락, enum 오류 fiel
 - Existing 접근은 Integration Client 경유, Ownership 폴더 규칙 준수, Mentor 노출 없음
 - 시간 통제(AdjustableClock), E2E 고정 대기 없음, CI e2e Gate
 - Frontend 날짜 처리 Timezone 안전, 요청 경쟁 상태 처리, 중복 제출 방지
+
+---
+
+# Round 2 (HEAD 23cd513, 1차 수정 후)
+
+범위: 학생 케어 전체 + PR #8 Existing 연동(`common/integration/learnershigh/phapi`) + 관련 문서.
+
+| Section | 점수 | 주요 Finding |
+|---|---|---|
+| A | 15 | — (1차 A-1, A-2 해결 확인) |
+| B | 9 | record_no backfill 순서 회귀, 학생 잠금 첫 Tx Rollback 시 Deadlock |
+| C | 1 | `%zz` 쿼리 500, Accept 비JSON 시 404/405 본문 없음, phapi 형식 오류 NPE |
+| D | 4 | OWNERSHIP Today Board 제약 합의 없음, login_first Timezone 미확인 표기 누락 |
+| E | 4 | **P1** 공개 문서에 원본 시스템 보안 동작 서술, e2e Profile이 Test Endpoint 플래그를 스스로 켬 |
+| F | 0 | **P1** 재점검 후 종결 시 active 해제 Test 없음, 미입실 8일+, MIXED 결과, 상세 BRANCH_NOT_FOUND, role_id 필터 (Mutation 51개 중 46 KILLED) |
+| G | 0 | 제출 중 Focus 유실, 긴 URL 가로 넘침, 낡은 상태 409 후 복구 없음, 사유 폼 재제출, 입력 테두리 대비 |
+| H | 10 | P3만 |
+| **합계** | **43 → FAIL** | |
+
+조치: 문서(E P1, D 2건)는 즉시 수정, 나머지는 Round 3 수정 후 재리뷰.
