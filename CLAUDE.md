@@ -378,6 +378,7 @@ ADR-0003 Shared Feedback Queue
 ADR-0004 Parent App 없이 Parent Report 전달
 ADR-0005 Backend Domain-packaged Layered MVC
 ADR-0006 Docker MySQL / Flyway / Testcontainers (Proposed)
+ADR-0007 Playwright E2E (Proposed)
 ```
 
 중요한 방향 변경은 새 ADR로 Supersede한다.
