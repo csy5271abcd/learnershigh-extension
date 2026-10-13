@@ -116,7 +116,9 @@ IN_ADJUSTMENT ──(asOf ≥ recheckDate) 약속 수정────────
 ## 6. 재점검 비교
 
 - 건의 `baseline`에 있는 신호마다 같은 공식으로 asOf 기준 지표를 다시 계산한다.
-- 추세: 좋아지는 방향으로 기준 대비 5% 이상(개수 지표는 1 이상) 움직이면 `IMPROVED`, 반대면 `WORSENED`, 아니면 `SAME`.
+- 추세: 좋아지는 방향으로 최소 폭 이상 움직이면 `IMPROVED`, 반대면 `WORSENED`, 아니면 `SAME`.
+  최소 폭: 일수 1일, 학습 분 max(30분, 기준의 5%), 비중·실행률 3%p, 시작 시각 15분.
+- 지금 기록으로 계산할 수 없는 지표(예: 미입실이라 과목 비중 없음)는 `SAME`으로 보고 값은 비운다.
 - 결과: 모두 IMPROVED → `IMPROVED`(변화 관찰), 모두 SAME → `NO_CHANGE`(변화 없음), IMPROVED 없이 WORSENED 있음 → `WORSENED`(더 나빠짐), 그 외 → `MIXED`(일부 변화).
 - 결과는 표시용이다. 상태를 바꾸지 않는다.
 
