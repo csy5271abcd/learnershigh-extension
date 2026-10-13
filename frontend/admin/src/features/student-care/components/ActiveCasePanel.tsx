@@ -1,14 +1,14 @@
-import { useId, useState } from 'react'
-import { toApiError, type ApiError } from '../api/apiClient.ts'
+import { useId, useRef, useState } from 'react'
+import type { ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
-import { fieldMessage, invalidProps } from '../model/fieldErrors.ts'
+import { fieldMessage, formLevelError, invalidProps } from '../model/fieldErrors.ts'
 import { addDays, DEFAULT_RECHECK_DAYS, metric, monthDay, RECHECK_DAY_CHOICES } from '../model/format.ts'
-import { needsReload, savedNotice } from '../model/savedNotice.ts'
 import type { CareCase, ComparisonRow, DecisionInput, Trend } from '../model/types.ts'
-import { useLatest } from '../model/useLatest.ts'
+import { useCaseCommand } from '../model/useCaseCommand.ts'
+import { useErrorFocus } from '../model/useFocus.ts'
 import { NoteForm } from './NoteForm.tsx'
 import { PlanForm } from './PlanForm.tsx'
-import { FieldError, InlineError } from './StateMessage.tsx'
+import { FieldError, InlineError, LockHint } from './StateMessage.tsx'
 import { Timeline } from './Timeline.tsx'
 
 const TREND_LABEL: Record<Trend, string> = { IMPROVED: '나아짐', SAME: '비슷함', WORSENED: '나빠짐' }
@@ -22,7 +22,8 @@ interface Props {
   stale: boolean
   onDecided: (careCase: CareCase) => void
   onNoteSaved: () => void
-  onReloadNeeded: () => void
+  onStale: (error: ApiError) => void
+  onRetryLatest: () => void
 }
 
 function CompareRow({ row }: { row: ComparisonRow }) {
@@ -48,35 +49,31 @@ export function ActiveCasePanel({
   stale,
   onDecided,
   onNoteSaved,
-  onReloadNeeded,
+  onStale,
+  onRetryLatest,
 }: Props) {
   const id = useId()
   const [mode, setMode] = useState<'idle' | 'continue' | 'revise'>('idle')
   const [continueDays, setContinueDays] = useState(DEFAULT_RECHECK_DAYS)
-  const [pending, setPending] = useState(false)
-  const [error, setError] = useState<ApiError | null>(null)
-  const [decidedRevision, setDecidedRevision] = useState<number | null>(null)
-  const latestRevision = useLatest(revision)
-  const locked = decidedRevision === revision
-  const busy = pending || locked
+  const recheckRef = useRef<HTMLElement>(null)
+  const command = useCaseCommand(revision, onStale)
+  const { busy, pending, locked, error } = command
   const plan = careCase.plan
+  useErrorFocus(error, recheckRef)
 
-  const decide = async (input: DecisionInput) => {
+  const decide = (input: DecisionInput) =>
+    command.run(
+      () => studentCareApi.decide(branchId, careCase.caseId, input),
+      (decided) => {
+        setMode('idle')
+        onDecided(decided)
+      },
+    )
+
+  const toggle = (next: 'continue' | 'revise') => {
     if (busy) return
-    setPending(true)
-    setError(null)
-    try {
-      const decided = await studentCareApi.decide(branchId, careCase.caseId, input)
-      setMode('idle')
-      setDecidedRevision(latestRevision.current)
-      onDecided(decided)
-    } catch (caught) {
-      const apiError = toApiError(caught)
-      setError(apiError)
-      if (needsReload(apiError.code)) onReloadNeeded()
-    } finally {
-      setPending(false)
-    }
+    setMode(mode === next ? 'idle' : next)
+    command.clearError()
   }
 
   const continueError =
@@ -116,7 +113,7 @@ export function ActiveCasePanel({
       )}
 
       {careCase.recheckDue && careCase.comparison && (
-        <section className="sc-section sc-recheck" aria-labelledby={`${id}-recheck`}>
+        <section ref={recheckRef} className="sc-section sc-recheck" aria-labelledby={`${id}-recheck`}>
           <h3 id={`${id}-recheck`} className="sc-section__title">
             재점검 · 같은 기준으로 다시 비교
           </h3>
@@ -138,7 +135,7 @@ export function ActiveCasePanel({
             <button
               type="button"
               className="sc-button sc-button--primary"
-              disabled={busy}
+              aria-disabled={busy || undefined}
               onClick={() => decide({ decision: 'CLOSE' })}
             >
               종결
@@ -147,11 +144,8 @@ export function ActiveCasePanel({
               type="button"
               className="sc-button sc-button--secondary"
               aria-expanded={mode === 'continue'}
-              disabled={busy}
-              onClick={() => {
-                setMode(mode === 'continue' ? 'idle' : 'continue')
-                setError(null)
-              }}
+              aria-disabled={busy || undefined}
+              onClick={() => toggle('continue')}
             >
               같은 약속으로 계속
             </button>
@@ -159,11 +153,8 @@ export function ActiveCasePanel({
               type="button"
               className="sc-button sc-button--secondary"
               aria-expanded={mode === 'revise'}
-              disabled={busy}
-              onClick={() => {
-                setMode(mode === 'revise' ? 'idle' : 'revise')
-                setError(null)
-              }}
+              aria-disabled={busy || undefined}
+              onClick={() => toggle('revise')}
             >
               약속 수정
             </button>
@@ -187,7 +178,7 @@ export function ActiveCasePanel({
               <button
                 type="button"
                 className="sc-button sc-button--primary"
-                disabled={busy}
+                aria-disabled={busy || undefined}
                 onClick={() => decide({ decision: 'CONTINUE', recheckDate: addDays(asOf, continueDays) })}
               >
                 {pending ? '저장 중…' : '계속하기'}
@@ -207,12 +198,12 @@ export function ActiveCasePanel({
               onSubmit={(newPlan, recheckDate) => decide({ decision: 'REVISE', plan: newPlan, recheckDate })}
               onCancel={() => {
                 setMode('idle')
-                setError(null)
+                command.clearError()
               }}
             />
           )}
-          {mode !== 'revise' && <InlineError error={error} />}
-          {locked && <p className="sc-hint">{savedNotice(stale)}</p>}
+          {mode !== 'revise' && <InlineError error={formLevelError(error, [continueError])} />}
+          {locked && <LockHint stale={stale} onRetry={onRetryLatest} />}
         </section>
       )}
 
@@ -220,7 +211,7 @@ export function ActiveCasePanel({
         <h3 id={`${id}-note`} className="sc-section__title">
           면담·통화 메모
         </h3>
-        <NoteForm branchId={branchId} caseId={careCase.caseId} onSaved={onNoteSaved} onReloadNeeded={onReloadNeeded} />
+        <NoteForm branchId={branchId} caseId={careCase.caseId} onSaved={onNoteSaved} onStale={onStale} />
       </section>
     </div>
   )

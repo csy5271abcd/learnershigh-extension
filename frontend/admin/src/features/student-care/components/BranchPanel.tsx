@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from 'react'
 import type { Branch } from '../model/types.ts'
-import type { Remote } from '../model/useRemote.ts'
+import { useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, type Remote } from '../model/useRemote.ts'
 import { ErrorState, Loading, StaleError } from './StateMessage.tsx'
 
 interface Props {
@@ -13,6 +14,9 @@ interface Props {
 export function BranchPanel({ branches, selectedId, onSelect }: Props) {
   const id = useId()
   const [search, setSearch] = useState('')
+  const { anchorRef, retry } = useRetryFocus<HTMLInputElement>(branches)
+  const failure = loadFailure(branches)
+  const retrying = branches.status === 'loading'
   const all = branches.data
   const filtered = useMemo(() => (all ?? []).filter((branch) => branch.name.includes(search.trim())), [all, search])
 
@@ -22,6 +26,7 @@ export function BranchPanel({ branches, selectedId, onSelect }: Props) {
         지점 검색
       </label>
       <input
+        ref={anchorRef}
         id={`${id}-search`}
         className="sc-search"
         type="search"
@@ -30,9 +35,9 @@ export function BranchPanel({ branches, selectedId, onSelect }: Props) {
         disabled={all !== null && all.length === 0}
         onChange={(event) => setSearch(event.target.value)}
       />
-      {branches.status === 'error' && !all && <ErrorState error={branches.error} onRetry={branches.reload} />}
-      {branches.status === 'error' && all && <StaleError what="지점 목록" error={branches.error} onRetry={branches.reload} />}
-      {!all && branches.status === 'loading' && <Loading />}
+      {failure && !all && <ErrorState error={failure} onRetry={retry} retrying={retrying} />}
+      {failure && all && <StaleError what="지점 목록" error={failure} onRetry={retry} retrying={retrying} />}
+      {!all && !failure && branches.status === 'loading' && <Loading />}
       {all && all.length === 0 && <p className="sc-hint">담당 지점이 없습니다.</p>}
       {all && all.length > 0 && filtered.length === 0 && <p className="sc-hint">검색한 지점이 없습니다.</p>}
       <ul className="sc-branches__list">

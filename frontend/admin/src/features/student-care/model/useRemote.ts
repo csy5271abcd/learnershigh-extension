@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { toApiError, type ApiError } from '../api/apiClient.ts'
 
 export type Remote<T> = (
-  | { status: 'loading'; data: T | null }
+  /** `lastError`: 같은 key를 직전에 불러오지 못했고 지금 다시 불러오는 중이면 그 오류 (안내와 다시 시도 버튼을 유지한다). */
+  | { status: 'loading'; data: T | null; lastError: ApiError | null }
   | { status: 'success'; data: T }
   | { status: 'error'; data: T | null; error: ApiError }
 ) & {
@@ -78,10 +79,20 @@ export function useRemote<T>(key: string | null, load: () => Promise<T>, token =
   const revision = loaded.revision
 
   if (loaded.key !== key || loaded.token !== token || loaded.attempt !== attempt) {
-    return { status: 'loading', data, reload, revision }
+    return { status: 'loading', data, lastError: loaded.key === key ? loaded.error : null, reload, revision }
   }
   if (loaded.error) {
     return { status: 'error', data, error: loaded.error, reload, revision }
   }
   return { status: 'success', data: data as T, reload, revision }
+}
+
+/**
+ * 보여줄 불러오기 오류. 실패한 뒤 다시 불러오는 동안에도 직전 오류를 돌려줘
+ * 오류 안내(와 Focus가 있을 수 있는 다시 시도 버튼)가 결과가 나올 때까지 사라지지 않게 한다.
+ */
+export function loadFailure<T>(remote: Remote<T>): ApiError | null {
+  if (remote.status === 'error') return remote.error
+  if (remote.status === 'loading') return remote.lastError
+  return null
 }

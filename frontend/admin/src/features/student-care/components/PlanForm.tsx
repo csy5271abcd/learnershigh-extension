@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent } from 'react'
 import type { ApiError } from '../api/apiClient.ts'
-import { fieldMessage, invalidProps } from '../model/fieldErrors.ts'
+import { fieldMessage, formLevelError, invalidProps } from '../model/fieldErrors.ts'
 import { addDays, daysBetween, DEFAULT_RECHECK_DAYS, monthDay, RECHECK_DAY_CHOICES } from '../model/format.ts'
 import type { PlanFields } from '../model/types.ts'
 import { FieldError, InlineError } from './StateMessage.tsx'
@@ -14,12 +14,24 @@ interface Props {
   /** 저장은 끝났고 새 데이터를 기다리는 중이라 다시 제출하지 않는다. */
   locked?: boolean
   error: ApiError | null
+  /** 이 폼 밖(예: 사유 메모)에서 이미 칸에 보여준 오류. 있으면 폼 아래에 같은 오류를 다시 쓰지 않는다. */
+  extraFieldMessages?: (string | null)[]
   onSubmit: (plan: PlanFields, recheckDate: string) => void
   onCancel?: () => void
 }
 
 /** 약속 한 가지: 목표 · 행동 · 부담 한도 · 재점검일 · 학생 합의. 예시로 채워지고 선생님이 고친다. */
-export function PlanForm({ asOf, initial, submitLabel, pending, locked = false, error, onSubmit, onCancel }: Props) {
+export function PlanForm({
+  asOf,
+  initial,
+  submitLabel,
+  pending,
+  locked = false,
+  error,
+  extraFieldMessages = [],
+  onSubmit,
+  onCancel,
+}: Props) {
   const id = useId()
   const initialDays = initial.recheckDate ? daysBetween(asOf, initial.recheckDate) : DEFAULT_RECHECK_DAYS
   const [goal, setGoal] = useState(initial.goal)
@@ -35,10 +47,11 @@ export function PlanForm({ asOf, initial, submitLabel, pending, locked = false, 
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    if (disabledReason || pending || locked) return
+    if (disabledReason || busy) return
     onSubmit({ goal, action, loadLimit, agreedWithStudent: agreed }, addDays(asOf, recheckDays))
   }
 
+  const busy = pending || locked
   const errors = {
     goal: fieldMessage(error, ['plan.goal'], '목표는 1~200자로 입력하세요.'),
     action: fieldMessage(error, ['plan.action'], '행동은 1~200자로 입력하세요.'),
@@ -113,18 +126,27 @@ export function PlanForm({ asOf, initial, submitLabel, pending, locked = false, 
         </label>
         <FieldError id={`${id}-agreed-error`} message={errors.agreed} />
       </div>
-      <InlineError error={error} />
+      <InlineError error={formLevelError(error, [...Object.values(errors), ...extraFieldMessages])} />
       <div className="sc-actions">
+        {/* 입력이 모자라면 disabled(이유를 옆에 적는다), 보내는 중에는 Focus를 잃지 않게 aria-disabled로만 막는다. */}
         <button
           type="submit"
           className="sc-button sc-button--primary"
-          disabled={disabledReason !== null || pending || locked}
+          disabled={disabledReason !== null}
+          aria-disabled={busy || undefined}
           aria-describedby={disabledReason ? `${id}-disabled` : undefined}
         >
           {pending ? '저장 중…' : submitLabel}
         </button>
         {onCancel && (
-          <button type="button" className="sc-button sc-button--ghost" onClick={onCancel} disabled={pending || locked}>
+          <button
+            type="button"
+            className="sc-button sc-button--ghost"
+            aria-disabled={busy || undefined}
+            onClick={() => {
+              if (!busy) onCancel()
+            }}
+          >
             취소
           </button>
         )}

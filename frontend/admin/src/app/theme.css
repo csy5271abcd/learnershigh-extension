@@ -9,6 +9,8 @@
   --color-text-tertiary: #5d6875;
   --color-border: #dfe3e8;
   --color-border-strong: #b0b8c1;
+  /* 입력 칸 테두리(비텍스트 대비 ≥ 3:1, WCAG 1.4.11): surface #ffffff 대비 3.65:1, surface-muted #f0f3f7 대비 3.28:1 */
+  --color-input-border: #7d8793;
   --color-accent: #3182f6;
   --color-accent-strong: #1b64da;
   --color-accent-pressed: #154fae;
@@ -52,6 +54,8 @@
     --color-text-tertiary: #8b95a1;
     --color-border: #313843;
     --color-border-strong: #4a5361;
+    /* surface #191d24 대비 4.05:1, surface-muted #22272f 대비 3.59:1 */
+    --color-input-border: #737d8a;
     --color-accent: #4c95ff;
     --color-accent-strong: #79afff;
     --color-accent-pressed: #a8caff;

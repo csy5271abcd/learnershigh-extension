@@ -1,14 +1,18 @@
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { monthDay } from '../model/format.ts'
-import { useRemote } from '../model/useRemote.ts'
+import { useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 
 /** 지점 요약: 오늘의 케어 현황과 최근 30일 종결. */
 export function SummaryTab({ branchId, version }: { branchId: string; version: number }) {
   const summary = useRemote(branchId, () => studentCareApi.summary(branchId), version)
+  const { anchorRef, retry } = useRetryFocus<HTMLHeadingElement>(summary)
+  const failure = loadFailure(summary)
+  const retrying = summary.status === 'loading'
 
-  if (summary.status === 'error' && !summary.data) {
-    return <ErrorState error={summary.error} onRetry={summary.reload} />
+  if (failure && !summary.data) {
+    return <ErrorState error={failure} onRetry={retry} retrying={retrying} />
   }
   if (!summary.data) {
     return <Loading />
@@ -23,10 +27,10 @@ export function SummaryTab({ branchId, version }: { branchId: string; version: n
 
   return (
     <section className="sc-summary" aria-labelledby="sc-summary-title">
-      <h2 id="sc-summary-title" className="sc-history__title">
+      <h2 id="sc-summary-title" ref={anchorRef} tabIndex={-1} className="sc-summary__title">
         지점 요약 <span className="sc-hint">{monthDay(data.asOf)} 기준</span>
       </h2>
-      {summary.status === 'error' && <StaleError what="지점 요약" error={summary.error} onRetry={summary.reload} />}
+      {failure && <StaleError what="지점 요약" error={failure} onRetry={retry} retrying={retrying} />}
       <dl className="sc-tiles">
         {tiles.map((tile) => (
           <div key={tile.label} className="sc-tile">

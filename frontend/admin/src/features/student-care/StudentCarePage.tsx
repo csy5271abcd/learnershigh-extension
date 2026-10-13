@@ -1,4 +1,5 @@
-import { useCallback, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from 'react'
+import type { ApiError } from './api/apiClient.ts'
 import { studentCareApi } from './api/studentCareApi.ts'
 import { BranchPanel } from './components/BranchPanel.tsx'
 import { CareBoardTab } from './components/CareBoardTab.tsx'
@@ -6,6 +7,7 @@ import { HistoryTab } from './components/HistoryTab.tsx'
 import { SettingsTab } from './components/SettingsTab.tsx'
 import { Empty } from './components/StateMessage.tsx'
 import { SummaryTab } from './components/SummaryTab.tsx'
+import { staleMessage, staysAtField } from './model/conflicts.ts'
 import type { Outcome } from './model/outcome.ts'
 import { useRemote } from './model/useRemote.ts'
 import './student-care.css'
@@ -36,6 +38,10 @@ export function StudentCarePage() {
   const [version, setVersion] = useState(0)
   const [historyFocus, setHistoryFocus] = useState(0)
   const [notice, setNotice] = useState('')
+  const [alert, setAlert] = useState('')
+  const [alertFocus, setAlertFocus] = useState(0)
+  const alertRef = useRef<HTMLDivElement>(null)
+  const returnFocus = useRef<HTMLElement | null>(null)
 
   // 지점을 고르기 전에는 첫 지점을 보여준다.
   const branchId = selectedBranchId ?? branches.data?.[0]?.branchId ?? null
@@ -45,8 +51,51 @@ export function StudentCarePage() {
 
   const changed = useCallback((outcome: Outcome | null) => {
     setVersion((value) => value + 1)
+    setAlert('')
     if (outcome) setNotice(outcome.message)
   }, [])
+
+  // 보던 상태가 서버와 달라졌다(409 / 재점검일 422): 보드 · 상세 · 기록 · 요약을 모두 다시 불러오고,
+  // 다시 불러온 뒤 버튼이 사라져도 이유를 볼 수 있게 페이지 안내로 남긴다.
+  const stale = useCallback((error: ApiError) => {
+    setVersion((value) => value + 1)
+    setNotice('')
+    setAlert(staleMessage(error))
+    // 재점검일 오류는 그 칸으로 Focus가 가고, 나머지는 안내로 옮긴다 (누른 버튼이 사라질 수 있으므로).
+    if (!staysAtField(error)) setAlertFocus((value) => value + 1)
+  }, [])
+
+  const refresh = useCallback(() => setVersion((value) => value + 1), [])
+
+  useLayoutEffect(() => {
+    if (alertFocus > 0) alertRef.current?.focus()
+  }, [alertFocus])
+
+  /** 안내 / 알림 안으로 들어오기 직전에 Focus가 있던 곳. 닫으면 그곳으로 돌려준다. */
+  const rememberFocus = (event: FocusEvent<HTMLElement>) => {
+    const from = event.relatedTarget
+    if (from instanceof HTMLElement && !event.currentTarget.contains(from)) returnFocus.current = from
+  }
+
+  const restoreFocus = () => {
+    const visible = (element: HTMLElement | null) => element?.isConnected && !element.closest('[hidden]')
+    const remembered = returnFocus.current
+    returnFocus.current = null
+    // 돌아갈 곳이 사라졌으면 상세 제목, 그것도 없으면 지금 탭.
+    const heading = document.getElementById('sc-detail-name')
+    const target = visible(remembered) ? remembered : visible(heading) ? heading : document.getElementById(tabId(tab))
+    target?.focus()
+  }
+
+  const closeNotice = () => {
+    restoreFocus()
+    setNotice('')
+  }
+
+  const closeAlert = () => {
+    restoreFocus()
+    setAlert('')
+  }
 
   const activate = (next: Tab) => {
     setTab(next)
@@ -58,6 +107,7 @@ export function StudentCarePage() {
     setSelectedBranchId(next)
     setStudentId(null)
     setNotice('')
+    setAlert('')
   }
 
   const showHistory = () => {
@@ -102,9 +152,12 @@ export function StudentCarePage() {
             onSelectStudent={(next) => {
               setStudentId(next)
               setNotice('')
+              setAlert('')
             }}
             version={version}
             onChanged={changed}
+            onStale={stale}
+            onRefresh={refresh}
             onShowHistory={showHistory}
           />
         )
@@ -140,16 +193,34 @@ export function StudentCarePage() {
         </div>
 
         {/* Live region은 항상 있고 문구만 바뀐다 (처음부터 있어야 읽어준다). 닫기 버튼은 읽을 문구 밖에 둔다. */}
-        <div className={notice ? 'sc-toast sc-toast--open' : 'sc-toast'}>
+        <div className={notice ? 'sc-toast sc-toast--open' : 'sc-toast'} onFocus={rememberFocus}>
           <p className="sc-toast__text" role="status" aria-live="polite">
             {notice}
           </p>
           {notice && (
-            <button type="button" className="sc-button sc-button--ghost" onClick={() => setNotice('')}>
+            <button type="button" className="sc-button sc-button--ghost" onClick={closeNotice}>
               닫기
             </button>
           )}
         </div>
+
+        {alert && (
+          <div
+            ref={alertRef}
+            className="sc-page-alert"
+            role="alert"
+            tabIndex={-1}
+            aria-labelledby="sc-page-alert-text"
+            onFocus={rememberFocus}
+          >
+            <p id="sc-page-alert-text" className="sc-page-alert__text">
+              {alert}
+            </p>
+            <button type="button" className="sc-button sc-button--ghost" onClick={closeAlert}>
+              닫기
+            </button>
+          </div>
+        )}
 
         {noBranches && (
           <Empty
@@ -165,6 +236,8 @@ export function StudentCarePage() {
             role="tabpanel"
             aria-labelledby={tabId(item.id)}
             className="sc-panel"
+            // 기록 / 요약 패널은 Focus 받을 요소가 없을 수 있어 패널 자체로 Tab 이동이 닿게 한다.
+            tabIndex={item.id === 'history' || item.id === 'summary' ? 0 : undefined}
             hidden={tab !== item.id}
           >
             {panelContent(item.id)}

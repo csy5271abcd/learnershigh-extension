@@ -1,8 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
+import type { ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { outcomeOf, type Outcome } from '../model/outcome.ts'
 import type { CareCase } from '../model/types.ts'
-import { useRemote } from '../model/useRemote.ts'
+import { focusIsLost, useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { ActiveCasePanel } from './ActiveCasePanel.tsx'
 import { ReasonSection } from './ReasonSection.tsx'
 import { SignalBadges } from './SignalBadges.tsx'
@@ -15,20 +17,36 @@ interface Props {
   /** 페이지에서 무언가 바뀌면 올라가는 값. 바뀌면 같은 학생 상세를 다시 불러온다. */
   version: number
   onChanged: (outcome: Outcome | null) => void
+  /** 보던 상태가 서버와 달라졌을 때 (보드 · 상세 · 요약을 모두 다시 불러온다). */
+  onStale: (error: ApiError) => void
+  /** 보드 · 상세 · 요약을 모두 다시 불러온다. */
+  onRefresh: () => void
   onShowHistory: () => void
 }
 
+const NOTE_SAVED = { message: '메모를 남겼습니다' }
+
 /** 카드를 고르면 근거 · 학습량 · 확인할 질문 · 사유 확인 또는 진행 중인 건이 열린다. */
-export function StudentDetailPanel({ branchId, studentId, version, onChanged, onShowHistory }: Props) {
+export function StudentDetailPanel({
+  branchId,
+  studentId,
+  version,
+  onChanged,
+  onStale,
+  onRefresh,
+  onShowHistory,
+}: Props) {
   const detail = useRemote(
     studentId ? `${branchId}/${studentId}` : null,
     () => studentCareApi.detail(branchId, studentId ?? ''),
     version,
   )
   const articleRef = useRef<HTMLElement>(null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  // 저장 / 결정 뒤 새 데이터로 바뀌면 상세 제목으로 Focus를 옮긴다 (누른 버튼이 사라질 수 있으므로).
-  const focusAfterReload = useRef(false)
+  const { anchorRef: headingRef, retry } = useRetryFocus<HTMLHeadingElement>(detail)
+  const failure = loadFailure(detail)
+  const retrying = detail.status === 'loading'
+  // 상세 안에 Focus가 있었는지. 다시 불러온 내용에서 Focus 있던 요소(버튼 · 입력 칸)가 사라지면 상세 제목으로 옮긴다.
+  const focusInside = useRef(false)
   const loadedStudentId = detail.data?.student.studentId ?? null
 
   // 좁은 화면에서는 상세가 목록 아래에 있으므로, 학생을 고르면 상세가 보이게 한다.
@@ -36,12 +54,11 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
     if (loadedStudentId) articleRef.current?.scrollIntoView?.({ block: 'nearest' })
   }, [loadedStudentId])
 
-  useEffect(() => {
-    if (focusAfterReload.current && detail.status === 'success') {
-      focusAfterReload.current = false
-      headingRef.current?.focus()
-    }
-  }, [detail.revision, detail.status])
+  // 새 데이터를 그린 직후(화면에 그리기 전) 확인해 Focus가 잠깐이라도 body에 머물지 않게 한다.
+  // 예: 결정 뒤 건이 종결돼 버튼이 사라짐, 상태 오류 뒤 사유 확인이 사라짐, "최신 상태 다시 불러오기" 뒤 안내가 사라짐.
+  useLayoutEffect(() => {
+    if (focusInside.current && focusIsLost()) headingRef.current?.focus()
+  }, [detail.revision, headingRef])
 
   if (!studentId) {
     return (
@@ -50,10 +67,10 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
       </div>
     )
   }
-  if (detail.status === 'error' && !detail.data) {
+  if (failure && !detail.data) {
     return (
       <div className="sc-detail">
-        <ErrorState error={detail.error} onRetry={detail.reload} />
+        <ErrorState error={failure} onRetry={retry} retrying={retrying} />
       </div>
     )
   }
@@ -68,16 +85,26 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
   const data = detail.data
   const { activeCase } = data
   const stale = detail.status === 'error'
+  // 저장 / 결정이 끝나면 누른 버튼이 곧 사라지므로(폼 초기화 · 건 종결) 바로 상세 제목으로 Focus를 옮긴다.
   const saved = (careCase: CareCase) => {
-    focusAfterReload.current = true
+    headingRef.current?.focus()
     onChanged(outcomeOf(careCase, data.student.studentName))
   }
+
   return (
     <article
       ref={articleRef}
       className="sc-detail"
       aria-labelledby="sc-detail-name"
       aria-busy={detail.status === 'loading'}
+      onFocus={() => {
+        focusInside.current = true
+      }}
+      onBlur={(event) => {
+        // 요소가 사라져 빠진 경우(relatedTarget 없음)는 안에 있던 것으로 둔다.
+        const next = event.relatedTarget
+        if (next instanceof Node && !event.currentTarget.contains(next)) focusInside.current = false
+      }}
     >
       <header className="sc-detail__header">
         <h2 id="sc-detail-name" ref={headingRef} tabIndex={-1} className="sc-detail__name">
@@ -91,7 +118,7 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
         </button>
       </header>
 
-      {detail.status === 'error' && <StaleError what="학생 상세" error={detail.error} onRetry={detail.reload} />}
+      {failure && <StaleError what="학생 상세" error={failure} onRetry={retry} retrying={retrying} />}
 
       <section className="sc-section" aria-label="근거">
         <h3 className="sc-section__title">근거</h3>
@@ -138,8 +165,9 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
           revision={detail.revision}
           stale={stale}
           onDecided={saved}
-          onNoteSaved={() => onChanged(null)}
-          onReloadNeeded={detail.reload}
+          onNoteSaved={() => onChanged(NOTE_SAVED)}
+          onStale={onStale}
+          onRetryLatest={onRefresh}
         />
       ) : (
         data.signals.length > 0 && (
@@ -152,7 +180,8 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
             revision={detail.revision}
             stale={stale}
             onSaved={saved}
-            onReloadNeeded={detail.reload}
+            onStale={onStale}
+            onRetryLatest={onRefresh}
           />
         )
       )}

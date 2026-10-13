@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { studentCareApi } from '../api/studentCareApi.ts'
-import { useRemote } from '../model/useRemote.ts'
+import { useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 import { Timeline } from './Timeline.tsx'
 
@@ -20,7 +21,9 @@ export function HistoryTab({ branchId, studentId, version, focusRequest }: Props
     () => studentCareApi.history(branchId, studentId ?? ''),
     version,
   )
-  const headingRef = useRef<HTMLHeadingElement>(null)
+  const { anchorRef: headingRef, retry } = useRetryFocus<HTMLHeadingElement>(history)
+  const failure = loadFailure(history)
+  const retrying = history.status === 'loading'
   const handledFocus = useRef(0)
   const hasData = history.data !== null
 
@@ -29,13 +32,13 @@ export function HistoryTab({ branchId, studentId, version, focusRequest }: Props
       handledFocus.current = focusRequest
       headingRef.current.focus()
     }
-  }, [focusRequest, hasData])
+  }, [focusRequest, hasData, headingRef])
 
   if (!studentId) {
     return <Empty title="학생을 고르지 않았습니다" description="케어 보드에서 카드를 고르면 그 학생의 기록이 보입니다." />
   }
-  if (history.status === 'error' && !history.data) {
-    return <ErrorState error={history.error} onRetry={history.reload} />
+  if (failure && !history.data) {
+    return <ErrorState error={failure} onRetry={retry} retrying={retrying} />
   }
   if (!history.data) {
     return <Loading />
@@ -45,7 +48,7 @@ export function HistoryTab({ branchId, studentId, version, focusRequest }: Props
       <h2 id="sc-history-title" ref={headingRef} tabIndex={-1} className="sc-history__title">
         {history.data.student.studentName} <span className="sc-hint">학생정보 › 케어 기록</span>
       </h2>
-      {history.status === 'error' && <StaleError what="학생 기록" error={history.error} onRetry={history.reload} />}
+      {failure && <StaleError what="학생 기록" error={failure} onRetry={retry} retrying={retrying} />}
       {history.data.items.length === 0 ? (
         <Empty title="아직 케어 기록이 없습니다" description="사유를 확인하면 이곳에 날짜별로 남습니다." />
       ) : (

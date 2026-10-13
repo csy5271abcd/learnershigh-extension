@@ -1,8 +1,10 @@
-import { useId, useState, type FormEvent } from 'react'
+import { useId, useRef, useState, type FormEvent, type RefObject } from 'react'
 import { toApiError, type ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
+import { fieldMessage } from '../model/fieldErrors.ts'
 import type { CareSettingKey, CareSettings, CareSettingsValues } from '../model/types.ts'
-import { useRemote } from '../model/useRemote.ts'
+import { useErrorFocus, useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { ErrorState, FieldError, InlineError, Loading } from './StateMessage.tsx'
 
 // 허용 범위는 서버 응답의 `ranges`(65-9)만 쓴다. 여기서는 표시 문구만 정한다.
@@ -50,29 +52,33 @@ function validate(values: Values, ranges: Ranges): FieldErrors {
   return errors
 }
 
-/** 서버가 `details.fields`로 가리킨 칸의 문구. */
-function serverFieldError(error: ApiError | null, key: CareSettingKey, ranges: Ranges): string | null {
-  if (!error || !error.hasField(key)) return null
-  return error.code === 'VALIDATION_ERROR'
-    ? `${rangeText(ranges, key)} 사이의 정수로 입력하세요.`
-    : `${rangeText(ranges, key)} 사이로 입력하세요.`
-}
-
 /** 기준값: 지점별 신호 Threshold. 저장하면 케어 보드에 바로 반영된다. */
 export function SettingsTab({ branchId, onSaved }: { branchId: string; onSaved: () => void }) {
   const settings = useRemote(branchId, () => studentCareApi.settings(branchId))
+  const { anchorRef, retry } = useRetryFocus<HTMLHeadingElement>(settings)
+  const failure = loadFailure(settings)
+  const retrying = settings.status === 'loading'
 
-  if (settings.status === 'error' && !settings.data) {
-    return <ErrorState error={settings.error} onRetry={settings.reload} />
+  if (failure && !settings.data) {
+    return <ErrorState error={failure} onRetry={retry} retrying={retrying} />
   }
   if (!settings.data) {
     return <Loading />
   }
-  return <SettingsForm branchId={branchId} initial={settings.data} onSaved={onSaved} />
+  return <SettingsForm branchId={branchId} initial={settings.data} titleRef={anchorRef} onSaved={onSaved} />
 }
 
-function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initial: CareSettings; onSaved: () => void }) {
+interface FormProps {
+  branchId: string
+  initial: CareSettings
+  titleRef: RefObject<HTMLHeadingElement | null>
+  onSaved: () => void
+}
+
+function SettingsForm({ branchId, initial, titleRef, onSaved }: FormProps) {
   const id = useId()
+  const formRef = useRef<HTMLFormElement>(null)
+  const inFlight = useRef(false)
   const [values, setValues] = useState<Values>(() => toValues(initial))
   const [ranges, setRanges] = useState<Ranges>(initial.ranges)
   const [clientErrors, setClientErrors] = useState<FieldErrors>({})
@@ -80,10 +86,13 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
   const [error, setError] = useState<ApiError | null>(null)
   const [savedMessage, setSavedMessage] = useState('')
   const hasClientErrors = Object.keys(clientErrors).length > 0
+  // 서버 오류(422 범위 밖 / 400 / 연결 실패)가 나면 표시한 첫 칸, 없으면 오류 문구로 Focus를 옮긴다.
+  useErrorFocus(error, formRef)
 
+  // 저장 버튼은 보내는 중에도 disabled로 바꾸지 않는다(Focus가 body로 빠지지 않게). 대신 여기서 다시 보내지 않는다.
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (pending) return
+    if (inFlight.current) return
     setSavedMessage('')
     setError(null)
     const errors = validate(values, ranges)
@@ -93,6 +102,7 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
       document.getElementById(`${id}-${firstInvalid.key}`)?.focus()
       return
     }
+    inFlight.current = true
     setPending(true)
     try {
       const payload = Object.fromEntries(
@@ -107,15 +117,18 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
     } catch (caught) {
       setError(toApiError(caught))
     } finally {
+      inFlight.current = false
       setPending(false)
     }
   }
 
-  const fieldError = (key: CareSettingKey) => clientErrors[key] ?? serverFieldError(error, key, ranges)
+  const fieldError = (key: CareSettingKey) =>
+    clientErrors[key] ?? fieldMessage(error, [key], `${rangeText(ranges, key)} 사이의 정수로 입력하세요.`)
+  const serverFieldMatched = FIELDS.some((field) => error?.hasField(field.key))
 
   return (
-    <form className="sc-settings" noValidate onSubmit={submit} aria-labelledby={`${id}-title`}>
-      <h2 id={`${id}-title`} className="sc-history__title">
+    <form ref={formRef} className="sc-settings" noValidate onSubmit={submit} aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`} ref={titleRef} tabIndex={-1} className="sc-settings__title">
         기준값 <span className="sc-hint">이 지점에서 신호를 올리는 기준입니다. 신호는 판정이 아닙니다.</span>
       </h2>
       <div className="sc-table-scroll">
@@ -151,6 +164,8 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
                       aria-describedby={message ? `${inputId}-range ${inputId}-error` : `${inputId}-range`}
                       onChange={(event) => {
                         setValues({ ...values, [field.key]: event.target.value })
+                        // 저장한 뒤 다시 고치기 시작하면 "저장했습니다"는 더 이상 맞지 않는다.
+                        setSavedMessage('')
                         if (clientErrors[field.key]) {
                           const rest = { ...clientErrors }
                           delete rest[field.key]
@@ -172,7 +187,8 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
           </tbody>
         </table>
       </div>
-      {hasClientErrors ? (
+      {/* 칸에 붙은 오류가 있으면 요약만, 칸에 붙일 수 없는 오류(연결 실패 등)만 서버 문구를 보여준다. */}
+      {hasClientErrors || serverFieldMatched ? (
         <p className="sc-inline-error" role="alert">
           {RANGE_SUMMARY}
         </p>
@@ -183,7 +199,7 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
         {savedMessage}
       </p>
       <div className="sc-actions">
-        <button type="submit" className="sc-button sc-button--primary" disabled={pending}>
+        <button type="submit" className="sc-button sc-button--primary" aria-disabled={pending || undefined}>
           {pending ? '저장 중…' : '기준값 저장'}
         </button>
       </div>
