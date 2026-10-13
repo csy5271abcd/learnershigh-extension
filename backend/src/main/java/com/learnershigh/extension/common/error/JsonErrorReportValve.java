@@ -23,10 +23,9 @@ public class JsonErrorReportValve extends ErrorReportValve {
         if (status < 400 || response.getContentWritten() > 0 || !response.setErrorReported()) {
             return;
         }
-        ErrorResponses.Body body = throwable != null && MalformedQuery.isCause(throwable)
-                ? new ErrorResponses.Body(400, ErrorResponse.of(CommonErrorCode.VALIDATION_ERROR.code(),
-                        CommonErrorCode.VALIDATION_ERROR.message(), ErrorResponses.field("query", "invalid")))
-                : ErrorResponses.forStatus(status);
+        // Query 해석 실패(InvalidParameterException)는 여기까지 오지 않는다: MVC 안이면 GlobalExceptionHandler,
+        // MVC 밖으로 나가면 오류 Dispatch(/error)의 JsonErrorController가 본문을 쓴다 (MalformedQueryOutsideMvcHttpTest).
+        ErrorResponses.Body body = ErrorResponses.forStatus(status);
         try {
             response.setStatus(body.status());
             response.setContentType("application/json");

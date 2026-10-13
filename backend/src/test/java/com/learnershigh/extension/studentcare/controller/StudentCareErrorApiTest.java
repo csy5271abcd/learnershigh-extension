@@ -16,6 +16,8 @@ import com.learnershigh.extension.support.MySqlContainerConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -139,6 +141,29 @@ class StudentCareErrorApiTest {
                 {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE","memo":123}""")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("memo"));
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
+    }
+
+    /** 문자열 자리의 Boolean / 소수는 문자열로 바꿔 넣지 않는다 (StrictJsonConfig, api-contract.md §5-1). */
+    @ParameterizedTest
+    @CsvSource(delimiter = '|', value = {
+            "true | memo | EXPECTED_CHANGE",
+            "false | memo | RECORD_ISSUE",
+            "1.5 | memo | EXPECTED_CHANGE",
+            "true | plan.goal | ADJUSTMENT_NEEDED",
+            "1.5 | plan.goal | ADJUSTMENT_NEEDED"})
+    void booleanOrFloatInStringFieldIs400WithFieldPath(String value, String field, String reason) throws Exception {
+        String memo = field.equals("memo") ? value : "\"메모\"";
+        String goal = field.equals("plan.goal") ? value : "\"목표\"";
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_005","reason":"%s","memo":%s,
+                 "plan":{"goal":%s,"action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}"""
+                .formatted(reason, memo, goal))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.details.fields[0].field").value(field))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("invalid"));
+
         assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
     }
 

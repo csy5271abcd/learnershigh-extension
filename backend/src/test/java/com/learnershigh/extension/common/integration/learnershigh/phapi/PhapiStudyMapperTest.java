@@ -136,6 +136,18 @@ class PhapiStudyMapperTest {
                 .isEmpty();
     }
 
+    /**
+     * 같은 날짜 안에서 범위를 넘는 분 / 초. 느슨하게 해석하면 다음 시각(10:75 → 11:15)으로 넘어가 날짜 검사로도 걸리지 않으므로
+     * 해석 단계(ResolverStyle.STRICT)에서 막혀야 한다.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"2026-09-28 10:75:00", "2026-09-28 10:00:61"})
+    void outOfRangeMinuteOrSecondOnTheSameDateIsIntegrationFailure(String loginFirst) {
+        assertThatThrownBy(() -> PhapiStudyMapper.toDailyStudy(FROM, FROM,
+                List.of(report("2026-09-28", loginFirst, "제출완료")), List.of()))
+                .isInstanceOf(ExistingIntegrationException.class);
+    }
+
     @Test
     void unparsableLoginFirstIsIntegrationFailureNotAbsence() {
         for (String loginFirst : new String[] {"", "2026-09-28T18:20:05", "2026-09-28 25:00:00", "2026-02-30 18:00:00",

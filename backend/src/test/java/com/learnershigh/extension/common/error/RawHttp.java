@@ -34,9 +34,9 @@ final class RawHttp {
         return send(port, method, target, accept, jsonBody, jsonBody == null ? null : "application/json");
     }
 
-    static Response send(int port, String method, String target, String accept, String body, String contentType)
-            throws IOException {
-        String jsonBody = body;
+    static Response send(int port, String method, String target, String accept, String requestBody,
+            String contentType) throws IOException {
+        String jsonBody = requestBody;
         try (Socket socket = new Socket("localhost", port)) {
             socket.setSoTimeout(30_000);
             StringBuilder request = new StringBuilder()
