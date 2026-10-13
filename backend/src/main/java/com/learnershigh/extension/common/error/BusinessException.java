@@ -1,5 +1,6 @@
 package com.learnershigh.extension.common.error;
 
+import java.util.List;
 import java.util.Map;
 
 /** Domain / Service에서 던지는 예외. GlobalExceptionHandler가 공통 Error 형식으로 바꾼다. */
@@ -20,6 +21,11 @@ public class BusinessException extends RuntimeException {
         super(message);
         this.errorCode = errorCode;
         this.details = details;
+    }
+
+    /** 입력 오류(400 / 422)의 원인 필드를 {@code details.fields}에 담는다 (api-contract.md §5-2, §65-4). */
+    public static BusinessException withFields(ErrorCode errorCode, FieldViolation... fields) {
+        return new BusinessException(errorCode, errorCode.message(), Map.of("fields", List.of(fields)));
     }
 
     public ErrorCode errorCode() {

@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1001,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "김서준",
+    "status": "ACTIVE",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 14,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "MALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:12:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  },
+  {
+    "id": 1002,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "최학생",
+    "status": "ACTIVE",
+    "memo": null,
+    "user_svc_flag": "1100000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 15,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "FEMALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:15:00",
+    "is_dark_mode": "0",
+    "is_seat": "0"
+  },
+  {
+    "id": 1003,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "박민지",
+    "status": "ACTIVE",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": null,
+    "grade": "고2",
+    "room": {
+      "id": 0,
+      "name": null
+    },
+    "seat_number": 0,
+    "group": {
+      "id": 0,
+      "name": null
+    },
+    "nickname": null,
+    "gender": null,
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-09-28 16:00:00",
+    "is_dark_mode": "0",
+    "is_seat": "0"
+  },
+  {
+    "id": 2001,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 3,
+    "real_name": "이선생",
+    "status": "ACTIVE",
+    "memo": null,
+    "user_svc_flag": "0000000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": null,
+    "grade": null,
+    "room": {
+      "id": 0,
+      "name": null
+    },
+    "seat_number": 0,
+    "group": {
+      "id": 0,
+      "name": null
+    },
+    "nickname": null,
+    "gender": null,
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-01 09:00:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  },
+  {
+    "id": 1004,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "정휴원",
+    "status": "INACTIVE",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 16,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "MALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:20:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  },
+  {
+    "id": 1005,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "한탈퇴",
+    "status": "DELETED",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 0,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "MALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:25:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  }
+]

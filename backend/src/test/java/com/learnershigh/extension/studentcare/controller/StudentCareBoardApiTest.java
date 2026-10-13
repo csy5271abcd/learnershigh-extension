@@ -1,18 +1,22 @@
 package com.learnershigh.extension.studentcare.controller;
 
+import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.ANCHOR;
 import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.BRANCH;
+import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.OTHER_BRANCH;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.learnershigh.extension.common.integration.learnershigh.MockIntegrationSwitch;
 import com.learnershigh.extension.common.time.AdjustableClock;
 import com.learnershigh.extension.support.MySqlContainerConfig;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -20,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -46,12 +51,7 @@ class StudentCareBoardApiTest {
 
     @BeforeEach
     void setUp() {
-        StudentCareApiTestSupport.reset(jdbc, clock);
-    }
-
-    @AfterEach
-    void tearDown() {
-        integration.setStudyDataAvailable(true);
+        StudentCareApiTestSupport.reset(jdbc, clock, integration);
     }
 
     @Test
@@ -78,6 +78,72 @@ class StudentCareBoardApiTest {
                 .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
                 .andExpect(jsonPath("$.deferred[0].studentName").value("장하준"))
                 .andExpect(jsonPath("$.deferred[0].validDays").value(2));
+    }
+
+    @Test
+    void needsCheckIsOrderedBySignalCountThenName() throws Exception {
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
+                .andExpect(jsonPath("$.needsCheck[*].studentName", contains(
+                        "김서준", "오시윤", "윤서연", "이학생", "정예준", "최학생", "한유진")))
+                .andExpect(jsonPath("$.needsCheck[0].signals", hasSize(2)))
+                .andExpect(jsonPath("$.needsCheck[1].signals", hasSize(1)));
+    }
+
+    @Test
+    void inAdjustmentIsOrderedByRecheckDueThenRecheckDate() throws Exception {
+        startAdjustment("stu_005", "2026-10-07");
+        startAdjustment("stu_003", "2026-10-02");
+        startAdjustment("stu_007", "2026-10-05");
+
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
+                .andExpect(jsonPath("$.inAdjustment[*].studentId", contains("stu_003", "stu_007", "stu_005")))
+                .andExpect(jsonPath("$.inAdjustment[*].recheckDue", contains(false, false, false)));
+
+        clock.setDate(ANCHOR.plusDays(5));
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
+                .andExpect(jsonPath("$.inAdjustment[*].studentId", contains("stu_003", "stu_007", "stu_005")))
+                .andExpect(jsonPath("$.inAdjustment[*].recheckDue", contains(true, true, false)))
+                .andExpect(jsonPath("$.inAdjustment[*].recheckDate", contains("2026-10-02", "2026-10-05", "2026-10-07")));
+    }
+
+    @Test
+    void boardWithNobodyFlaggedIsAnEmptyListNotAnError() throws Exception {
+        mvc.perform(put("/api/admin/student-care/settings").param("branchId", OTHER_BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"absenceDays":14,"planMissingDays":7,"studyDropPercent":90,"executionRatePercent":10,
+                                 "subjectShareGapPoints":60,"startShiftMinutes":300,"minValidDays":1,"cooldownDays":7}"""))
+                .andExpect(status().isOk());
+
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", OTHER_BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.needsCheck", hasSize(0)))
+                .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
+                .andExpect(jsonPath("$.deferred", hasSize(0)));
+        mvc.perform(get("/api/admin/student-care/summary").param("branchId", OTHER_BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.needsCheckCount").value(0))
+                .andExpect(jsonPath("$.signalCounts", hasSize(0)));
+    }
+
+    @Test
+    void integrationFailureOnDetailIs503AndChangesNothing() throws Exception {
+        startAdjustment("stu_005", "2026-10-07");
+        String before = StudentCareApiTestSupport.snapshot(jdbc);
+        integration.setStudyDataAvailable(false);
+
+        mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.code").value("EXISTING_STUDY_DATA_UNAVAILABLE"));
+
+        assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
+    }
+
+    private void startAdjustment(String studentId, String recheckDate) throws Exception {
+        mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"branchId":"br_gangnam","studentId":"%s","reason":"ADJUSTMENT_NEEDED",
+                         "plan":{"goal":"목표","action":"행동","recheckDate":"%s","agreedWithStudent":true}}"""
+                        .formatted(studentId, recheckDate)))
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -116,6 +182,17 @@ class StudentCareBoardApiTest {
         mvc.perform(get("/api/admin/student-care/students/stu_101").param("branchId", BRANCH))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("STUDENT_NOT_FOUND"));
+    }
+
+    /** 학생 상세 / 학생 기록도 지점부터 확인한다: 없는 지점은 학생이 있어도 BRANCH_NOT_FOUND (api-contract.md §65-3, 65-8). */
+    @Test
+    void detailAndHistoryWithUnknownBranchAre404BranchNotFound() throws Exception {
+        for (String path : new String[] {"/api/admin/student-care/students/stu_005",
+                "/api/admin/student-care/students/stu_005/history"}) {
+            mvc.perform(get(path).param("branchId", "br_none"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("BRANCH_NOT_FOUND"));
+        }
     }
 
     @Test

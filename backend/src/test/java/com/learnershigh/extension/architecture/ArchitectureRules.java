@@ -37,7 +37,8 @@ final class ArchitectureRules {
                 noServiceImplClasses(),
                 noCrossDomainRepositoryOrEntityAccess(),
                 existingClientsResideInIntegrationPackage(),
-                existingClientImplementationsAreNotUsedOutsideIntegrationPackage());
+                existingClientImplementationsAreNotUsedOutsideIntegrationPackage(),
+                phapiIsUsedOnlyInsideIntegrationPackage());
     }
 
     ArchRule controllerDoesNotAccessRepositoryOrEntity() {
@@ -90,6 +91,15 @@ final class ArchitectureRules {
                 .should().dependOnClassesThat().haveNameMatching(".*\\.(Real|Mock)Existing\\w*Client")
                 .allowEmptyShould(true)
                 .because("Domain은 ExistingXxxClient Interface에만 의존한다 (ADR-0002)");
+    }
+
+    ArchRule phapiIsUsedOnlyInsideIntegrationPackage() {
+        return noClasses().that().resideInAPackage(basePackage + "..")
+                .and().resideOutsideOfPackage(basePackage + "." + EXISTING_INTEGRATION_PACKAGE + "..")
+                .should().dependOnClassesThat()
+                .resideInAPackage(basePackage + "." + EXISTING_INTEGRATION_PACKAGE + ".phapi..")
+                .allowEmptyShould(true)
+                .because("원본 응답(phapi) Record / Mapper는 Anti-Corruption Layer 안에서만 쓴다 (ADR-0002)");
     }
 
     /** {@code <base>.<domain>.repository|entity} 를 다른 Domain에서 참조하면 위반이다. */

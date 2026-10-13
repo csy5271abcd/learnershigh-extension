@@ -12,12 +12,13 @@
 | Admin Frontend | DONE | `frontend/admin/src/features/student-care/` |
 | E2E | DONE | `e2e/tests/student-care.spec.ts` (9 Scenario) |
 
-### 검증 (2026-10-13, 로컬)
+### 검증 (2026-10-14, 로컬)
 
 ```text
-backend  ./gradlew clean build integrationTest : 118 tests, 0 fail (Unit 87 + Integration 31)
+backend  ./gradlew clean build integrationTest : 337 tests, 0 fail (Unit 228 + Integration 109)
 frontend npm run typecheck / lint / build      : pass
-e2e      npm run typecheck / npm test          : 9 passed
+e2e      npm run typecheck / npm test          : 13 passed (fresh DB, 새 Migration 포함)
+review   .claude/rules/code-review.md 적대적 리뷰 3회 (docs/reviews/2026-10-13-student-care.md)
 ```
 
 ### 남은 항목 / Open Decision

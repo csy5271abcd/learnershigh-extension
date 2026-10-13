@@ -1,10 +1,11 @@
 import { useId, useMemo, useState } from 'react'
-import type { Remote } from '../model/useRemote.ts'
 import type { Branch } from '../model/types.ts'
-import { ErrorState, Loading } from './StateMessage.tsx'
+import { useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, type Remote } from '../model/useRemote.ts'
+import { ErrorState, Loading, StaleError } from './StateMessage.tsx'
 
 interface Props {
-  branches: Remote<Branch[]> & { reload: () => void }
+  branches: Remote<Branch[]>
   selectedId: string | null
   onSelect: (branchId: string) => void
 }
@@ -13,10 +14,11 @@ interface Props {
 export function BranchPanel({ branches, selectedId, onSelect }: Props) {
   const id = useId()
   const [search, setSearch] = useState('')
-  const filtered = useMemo(
-    () => (branches.data ?? []).filter((branch) => branch.name.includes(search.trim())),
-    [branches.data, search],
-  )
+  const { anchorRef, retry } = useRetryFocus<HTMLInputElement>(branches)
+  const failure = loadFailure(branches)
+  const retrying = branches.status === 'loading'
+  const all = branches.data
+  const filtered = useMemo(() => (all ?? []).filter((branch) => branch.name.includes(search.trim())), [all, search])
 
   return (
     <nav className="sc-branches" aria-label="지점">
@@ -24,16 +26,20 @@ export function BranchPanel({ branches, selectedId, onSelect }: Props) {
         지점 검색
       </label>
       <input
+        ref={anchorRef}
         id={`${id}-search`}
         className="sc-search"
         type="search"
         placeholder="지점 검색"
         value={search}
+        disabled={all !== null && all.length === 0}
         onChange={(event) => setSearch(event.target.value)}
       />
-      {branches.status === 'error' && !branches.data && <ErrorState error={branches.error} onRetry={branches.reload} />}
-      {!branches.data && branches.status === 'loading' && <Loading />}
-      {branches.data && filtered.length === 0 && <p className="sc-hint">검색한 지점이 없습니다.</p>}
+      {failure && !all && <ErrorState error={failure} onRetry={retry} retrying={retrying} />}
+      {failure && all && <StaleError what="지점 목록" error={failure} onRetry={retry} retrying={retrying} />}
+      {!all && !failure && branches.status === 'loading' && <Loading />}
+      {all && all.length === 0 && <p className="sc-hint">담당 지점이 없습니다.</p>}
+      {all && all.length > 0 && filtered.length === 0 && <p className="sc-hint">검색한 지점이 없습니다.</p>}
       <ul className="sc-branches__list">
         {filtered.map((branch) => (
           <li key={branch.branchId}>

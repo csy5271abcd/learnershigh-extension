@@ -1,6 +1,8 @@
 package com.learnershigh.extension.studentcare.entity;
 
 import com.learnershigh.extension.common.error.BusinessException;
+import com.learnershigh.extension.common.error.CommonErrorCode;
+import com.learnershigh.extension.common.error.FieldViolation;
 import com.learnershigh.extension.studentcare.exception.StudentCareErrorCode;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -17,6 +19,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,12 +33,16 @@ import java.util.UUID;
  * 상태는 이 Entity의 메서드로만 바뀐다.
  */
 @Entity
-@Table(name = "care_case")
+@Table(name = "care_case", uniqueConstraints = @UniqueConstraint(
+        name = CareCase.ACTIVE_STUDENT_UNIQUE_KEY, columnNames = {"branch_id", "active_student_id"}))
 public class CareCase {
 
+    /** 진행 중 건은 지점 × 학생당 하나 (domain.md §5-1). */
+    public static final String ACTIVE_STUDENT_UNIQUE_KEY = "uk_care_case_branch_active_student";
     /** 재점검일은 기준일 다음 날부터 이 일수 안에서 고른다. */
     public static final int MAX_RECHECK_DAYS = 28;
-    static final int MEMO_MAX = 1000;
+    /** 사유 메모 / 면담 메모 최대 길이 (api-contract.md §65-4, 65-7). */
+    public static final int MEMO_MAX = 1000;
 
     @Id
     @Column(name = "id", length = 64)
@@ -47,7 +54,7 @@ public class CareCase {
     @Column(name = "student_id", nullable = false, length = 64)
     private String studentId;
 
-    /** 진행 중일 때만 studentId. Unique 제약으로 학생당 진행 중 건을 하나로 막는다. */
+    /** 진행 중일 때만 studentId. (branch_id, active_student_id) Unique 제약으로 지점 × 학생당 진행 중 건을 하나로 막는다. */
     @Column(name = "active_student_id", length = 64)
     private String activeStudentId;
 
@@ -68,6 +75,10 @@ public class CareCase {
 
     @Column(name = "closed_on")
     private LocalDate closedOn;
+
+    /** 종결 시각. 같은 종결일의 건 중 "나중에 종결된 건"을 가린다 (domain.md §3 cooldownDays). */
+    @Column(name = "closed_at")
+    private Instant closedAt;
 
     @Column(name = "recheck_date")
     private LocalDate recheckDate;
@@ -132,9 +143,9 @@ public class CareCase {
 
     private void startAdjustment(CarePlan plan, LocalDate recheckDate, LocalDate today, Instant now) {
         if (plan == null) {
-            throw new BusinessException(StudentCareErrorCode.PLAN_REQUIRED);
+            throw BusinessException.withFields(StudentCareErrorCode.PLAN_REQUIRED, new FieldViolation("plan", "required"));
         }
-        validateRecheckDate(recheckDate, today);
+        requireValidRecheckDate(recheckDate, today, "plan.recheckDate");
         this.plan = plan;
         this.recheckDate = recheckDate;
         this.status = CareCaseStatus.IN_ADJUSTMENT;
@@ -150,15 +161,15 @@ public class CareCase {
 
     /** 재점검 후 종결. */
     public void closeAfterRecheck(String comparisonText, LocalDate today, Instant now) {
-        requireRecheckDue(today);
+        requireDecidable(today);
         addEvent(CareEventType.RECHECKED, today, now, comparisonText, null);
         close(CareCloseType.AFTER_RECHECK, today, now, "재점검 후 선생님이 종결");
     }
 
     /** 재점검 후 같은 약속으로 계속. */
     public void continueAfterRecheck(String comparisonText, LocalDate nextRecheckDate, LocalDate today, Instant now) {
-        requireRecheckDue(today);
-        validateRecheckDate(nextRecheckDate, today);
+        requireDecidable(today);
+        requireValidRecheckDate(nextRecheckDate, today, "recheckDate");
         addEvent(CareEventType.RECHECKED, today, now, comparisonText, null);
         this.recheckDate = nextRecheckDate;
         touch(now);
@@ -169,11 +180,11 @@ public class CareCase {
     /** 재점검 후 약속 수정. */
     public void reviseAfterRecheck(String comparisonText, CarePlan newPlan, LocalDate nextRecheckDate,
             LocalDate today, Instant now) {
-        requireRecheckDue(today);
+        requireDecidable(today);
         if (newPlan == null) {
-            throw new BusinessException(StudentCareErrorCode.PLAN_REQUIRED);
+            throw BusinessException.withFields(StudentCareErrorCode.PLAN_REQUIRED, new FieldViolation("plan", "required"));
         }
-        validateRecheckDate(nextRecheckDate, today);
+        requireValidRecheckDate(nextRecheckDate, today, "recheckDate");
         addEvent(CareEventType.RECHECKED, today, now, comparisonText, null);
         this.plan = newPlan;
         this.recheckDate = nextRecheckDate;
@@ -184,11 +195,19 @@ public class CareCase {
 
     /** 면담 / 통화 메모. 상태와 관계없이 남길 수 있다. */
     public CareEvent addNote(NoteChannel channel, String content, LocalDate today, Instant now) {
+        String trimmed = content == null ? "" : content.strip();
+        if (trimmed.isEmpty()) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("content", "required"));
+        }
+        if (trimmed.length() > MEMO_MAX) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("content", "length"));
+        }
         touch(now);
-        return addEvent(CareEventType.NOTE, today, now, content.strip(), channel);
+        return addEvent(CareEventType.NOTE, today, now, trimmed, channel);
     }
 
-    private void requireRecheckDue(LocalDate today) {
+    /** 재점검 결정을 할 수 있는지: 진행 중이고 재점검일이 되었어야 한다. 아니면 409. */
+    public void requireDecidable(LocalDate today) {
         if (status != CareCaseStatus.IN_ADJUSTMENT) {
             throw new BusinessException(StudentCareErrorCode.INVALID_STATE_TRANSITION);
         }
@@ -197,9 +216,16 @@ public class CareCase {
         }
     }
 
-    private static void validateRecheckDate(LocalDate recheckDate, LocalDate today) {
-        if (recheckDate == null || !recheckDate.isAfter(today) || recheckDate.isAfter(today.plusDays(MAX_RECHECK_DAYS))) {
-            throw new BusinessException(StudentCareErrorCode.INVALID_RECHECK_DATE);
+    /**
+     * 재점검일은 기준일 다음 날 ~ {@value #MAX_RECHECK_DAYS}일 뒤 (api-contract.md §65-4, 65-6).
+     * 아니면 422 INVALID_RECHECK_DATE, {@code details.fields}에 {@code field}(사유 확인은 plan.recheckDate, 결정은 recheckDate).
+     */
+    public static void requireValidRecheckDate(LocalDate recheckDate, LocalDate today, String field) {
+        if (recheckDate == null) {
+            throw BusinessException.withFields(StudentCareErrorCode.INVALID_RECHECK_DATE, new FieldViolation(field, "required"));
+        }
+        if (!recheckDate.isAfter(today) || recheckDate.isAfter(today.plusDays(MAX_RECHECK_DAYS))) {
+            throw BusinessException.withFields(StudentCareErrorCode.INVALID_RECHECK_DATE, new FieldViolation(field, "range"));
         }
     }
 
@@ -207,6 +233,7 @@ public class CareCase {
         this.status = CareCaseStatus.CLOSED;
         this.closeType = type;
         this.closedOn = today;
+        this.closedAt = now;
         this.recheckDate = null;
         this.activeStudentId = null;
         touch(now);
@@ -231,7 +258,7 @@ public class CareCase {
         };
         String trimmed = memo == null ? "" : memo.strip();
         if (trimmed.length() > MEMO_MAX) {
-            trimmed = trimmed.substring(0, MEMO_MAX);
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("memo", "length"));
         }
         return trimmed.isEmpty() ? "사유 확인: " + label : "사유 확인: " + label + " — " + trimmed;
     }
@@ -246,6 +273,11 @@ public class CareCase {
 
     public String studentId() {
         return studentId;
+    }
+
+    /** 진행 중일 때만 studentId, 종결되면 null (Unique 제약용 값). Domain 밖에서는 쓰지 않는다. */
+    String activeStudentId() {
+        return activeStudentId;
     }
 
     public CareCaseStatus status() {
@@ -266,6 +298,10 @@ public class CareCase {
 
     public LocalDate closedOn() {
         return closedOn;
+    }
+
+    public Instant closedAt() {
+        return closedAt;
     }
 
     public LocalDate recheckDate() {

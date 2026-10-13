@@ -1,19 +1,28 @@
+import type { ApiError } from '../api/apiClient.ts'
 import { monthDay } from '../model/format.ts'
 import type { Outcome } from '../model/outcome.ts'
 import type { CareBoard } from '../model/types.ts'
-import type { Remote } from '../model/useRemote.ts'
+import { useRetryFocus } from '../model/useFocus.ts'
+import { loadFailure, type Remote } from '../model/useRemote.ts'
 import { SignalBadges } from './SignalBadges.tsx'
-import { Empty, ErrorState, Loading } from './StateMessage.tsx'
+import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 import { StudentDetailPanel } from './StudentDetailPanel.tsx'
 
 interface Props {
   branchId: string
-  board: Remote<CareBoard> & { reload: () => void }
+  board: Remote<CareBoard>
   selectedStudentId: string | null
   onSelectStudent: (studentId: string) => void
   version: number
   onChanged: (outcome: Outcome | null) => void
+  onStale: (error: ApiError) => void
+  onRefresh: () => void
   onShowHistory: () => void
+}
+
+/** 화면에는 보이지 않고 읽을 때만 쓰는 구분 기호. 카드 버튼 이름을 "이름 반, 신호: …, 요약"처럼 나눠 읽게 한다. */
+function Separator() {
+  return <span className="sc-visually-hidden">, </span>
 }
 
 /** 케어 보드: 확인할 변화 / 조정 진행 중 목록과 학생 상세 (Master-Detail). */
@@ -24,28 +33,32 @@ export function CareBoardTab({
   onSelectStudent,
   version,
   onChanged,
+  onStale,
+  onRefresh,
   onShowHistory,
 }: Props) {
-  if (board.status === 'error' && !board.data) {
-    return <ErrorState error={board.error} onRetry={board.reload} />
+  const { anchorRef, retry } = useRetryFocus<HTMLHeadingElement>(board)
+  const failure = loadFailure(board)
+  const retrying = board.status === 'loading'
+
+  if (failure && !board.data) {
+    return <ErrorState error={failure} onRetry={retry} retrying={retrying} />
   }
   if (!board.data) {
     return <Loading label="케어 보드를 불러오는 중…" />
   }
   const data = board.data
+  const stale = failure !== null
 
   return (
-    <div className="sc-board" aria-busy={board.status === 'loading'}>
+    <div className={stale ? 'sc-board sc-board--stale' : 'sc-board'} aria-busy={board.status === 'loading'}>
       <div className="sc-board__head">
-        <h2 className="sc-board__title">
+        <h2 ref={anchorRef} tabIndex={-1} className="sc-board__title">
           {monthDay(data.asOf)} 기준 · {data.branch.name}
         </h2>
-        {board.status === 'error' && (
-          <button type="button" className="sc-button sc-button--ghost" onClick={board.reload}>
-            최신 상태 다시 불러오기
-          </button>
-        )}
+        {stale && <span className="sc-tag sc-tag--stale">이전에 불러온 내용</span>}
       </div>
+      {failure && <StaleError what="케어 보드" error={failure} onRetry={retry} retrying={retrying} />}
       {data.deferred.length > 0 && (
         <ul className="sc-deferred" aria-label="판단 보류">
           {data.deferred.map((student) => (
@@ -78,7 +91,9 @@ export function CareBoardTab({
                       <span className="sc-card__name">
                         {card.studentName} <span className="sc-card__class">{card.className}</span>
                       </span>
-                      <SignalBadges signals={card.signals} />
+                      <Separator />
+                      <SignalBadges signals={card.signals} inline />
+                      <Separator />
                       <span className="sc-card__summary">{card.signals[0]?.summary}</span>
                     </button>
                   </li>
@@ -105,9 +120,16 @@ export function CareBoardTab({
                     >
                       <span className="sc-card__name">
                         {card.studentName} <span className="sc-card__class">{card.className}</span>
-                        {card.recheckDue && <span className="sc-tag sc-tag--due">재점검</span>}
+                        {card.recheckDue && (
+                          <>
+                            <Separator />
+                            <span className="sc-tag sc-tag--due">재점검</span>
+                          </>
+                        )}
                       </span>
-                      <SignalBadges signals={card.signals} />
+                      <Separator />
+                      <SignalBadges signals={card.signals} inline />
+                      <Separator />
                       <span className="sc-card__summary">
                         {card.goal} · 재점검 {monthDay(card.recheckDate)}
                       </span>
@@ -124,6 +146,8 @@ export function CareBoardTab({
           studentId={selectedStudentId}
           version={version}
           onChanged={onChanged}
+          onStale={onStale}
+          onRefresh={onRefresh}
           onShowHistory={onShowHistory}
         />
       </div>

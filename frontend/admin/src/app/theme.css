@@ -6,20 +6,24 @@
   --color-surface-muted: #f0f3f7;
   --color-text-primary: #191f28;
   --color-text-secondary: #4e5968;
-  --color-text-tertiary: #6b7684;
+  --color-text-tertiary: #5d6875;
   --color-border: #dfe3e8;
   --color-border-strong: #b0b8c1;
+  /* 입력 칸 테두리(비텍스트 대비 ≥ 3:1, WCAG 1.4.11): surface #ffffff 대비 3.65:1, surface-muted #f0f3f7 대비 3.28:1 */
+  --color-input-border: #7d8793;
   --color-accent: #3182f6;
   --color-accent-strong: #1b64da;
+  --color-accent-pressed: #154fae;
   --color-accent-soft: #e8f3ff;
   --color-on-accent: #ffffff;
-  --color-positive: #12805c;
+  --color-positive: #0d7050;
   --color-positive-soft: #e3f5ec;
   --color-warning: #9a5b00;
   --color-warning-soft: #fff4dc;
   --color-negative: #c92a2a;
   --color-negative-soft: #ffebeb;
   --color-disabled: #c9ced6;
+  --color-chart-muted: #7d8793;
   --color-focus: #3182f6;
 
   --font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
@@ -50,8 +54,11 @@
     --color-text-tertiary: #8b95a1;
     --color-border: #313843;
     --color-border-strong: #4a5361;
+    /* surface #191d24 대비 4.05:1, surface-muted #22272f 대비 3.59:1 */
+    --color-input-border: #737d8a;
     --color-accent: #4c95ff;
     --color-accent-strong: #79afff;
+    --color-accent-pressed: #a8caff;
     --color-accent-soft: #16263d;
     --color-on-accent: #0b1220;
     --color-positive: #4cc38a;
@@ -61,6 +68,7 @@
     --color-negative: #ff7b7b;
     --color-negative-soft: #3a1a1a;
     --color-disabled: #3d4450;
+    --color-chart-muted: #6e7885;
     --color-focus: #79afff;
   }
 }
