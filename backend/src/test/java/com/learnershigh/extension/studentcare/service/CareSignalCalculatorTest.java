@@ -72,7 +72,7 @@ class CareSignalCalculatorTest {
             SignalEvaluation flagged = CareSignalCalculator.evaluate(exactly, AS_OF, settings);
             assertThat(types(flagged)).contains(CareSignalType.CONSECUTIVE_ABSENCE);
             assertThat(flagged.signals().stream().filter(s -> s.type() == CareSignalType.CONSECUTIVE_ABSENCE)
-                    .findFirst().orElseThrow().summary()).isEqualTo(absenceDays + "일째 입실 기록 없음");
+                    .findFirst().orElseThrow().summary()).isEqualTo(absenceDays + "일째 결석");
             assertThat(types(CareSignalCalculator.evaluate(oneShort, AS_OF, settings)))
                     .doesNotContain(CareSignalType.CONSECUTIVE_ABSENCE);
             assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, exactly, AS_OF))
@@ -119,7 +119,7 @@ class CareSignalCalculatorTest {
                     CareSignalType.EXECUTION_GAP);
 
             assertThat(gap.value()).isEqualTo(60);
-            assertThat(gap.summary()).endsWith("(60%)");
+            assertThat(gap.summary()).isEqualTo("최근 2주 실천율 60%");
         }
 
         @Test
@@ -270,8 +270,8 @@ class CareSignalCalculatorTest {
 
             assertThat(types(evaluation)).containsExactly(CareSignalType.CONSECUTIVE_ABSENCE, CareSignalType.PLAN_MISSING);
             DetectedSignal absence = evaluation.signals().getFirst();
-            assertThat(absence.summary()).isEqualTo("4일째 입실 기록 없음");
-            assertThat(absence.evidence()).containsExactly("4일째 입실 기록 없음", "마지막 입실 9월 26일");
+            assertThat(absence.summary()).isEqualTo("4일째 결석");
+            assertThat(absence.evidence()).containsExactly("4일째 결석", "마지막 등원 9월 26일");
             assertThat(absence.value()).isEqualTo(4);
             assertThat(evaluation.deferred()).isFalse();
         }
@@ -300,7 +300,7 @@ class CareSignalCalculatorTest {
                 (offset, day) -> offset <= -7 && offset >= -12 ? day.noPlan() : day));
 
         assertThat(types(flagged)).containsExactly(CareSignalType.PLAN_MISSING);
-        assertThat(flagged.signals().getFirst().summary()).isEqualTo("최근 7일 중 4일 계획 미제출");
+        assertThat(flagged.signals().getFirst().summary()).isEqualTo("최근 7일 중 4일 미제출");
         assertThat(types(older)).isEmpty();
     }
 
@@ -314,8 +314,8 @@ class CareSignalCalculatorTest {
 
             assertThat(types(evaluation)).containsExactly(CareSignalType.STUDY_DROP);
             DetectedSignal drop = evaluation.signals().getFirst();
-            assertThat(drop.summary()).isEqualTo("최근 7일 14시간 · 평소 같은 기간 28시간");
-            assertThat(drop.evidence().getFirst()).endsWith("(50% 감소)");
+            assertThat(drop.summary()).isEqualTo("최근 7일 14시간 · 평소 28시간");
+            assertThat(drop.evidence().getFirst()).endsWith(" · 50% 감소");
             assertThat(drop.value()).isEqualTo(840);
             assertThat(drop.target()).isEqualTo(1680);
         }
@@ -337,7 +337,8 @@ class CareSignalCalculatorTest {
         assertThat(types(evaluation)).containsExactly(CareSignalType.EXECUTION_GAP);
         DetectedSignal gap = evaluation.signals().getFirst();
         assertThat(gap.value()).isEqualTo(53);
-        assertThat(gap.summary()).isEqualTo("최근 2주 계획 105시간 중 56시간 실행 (53%)");
+        assertThat(gap.summary()).isEqualTo("최근 2주 실천율 53%");
+        assertThat(gap.evidence()).containsExactly("계획 105시간 중 56시간 실천");
         assertThat(gap.target()).isEqualTo(60);
     }
 
@@ -349,8 +350,8 @@ class CareSignalCalculatorTest {
         assertThat(types(evaluation)).containsExactly(CareSignalType.SUBJECT_SHARE);
         DetectedSignal share = evaluation.signals().getFirst();
         assertThat(share.subject()).isEqualTo("수학");
-        assertThat(share.summary()).isEqualTo("계획한 수학 비중 25% → 최근 8%");
-        assertThat(share.evidence()).containsExactly("계획한 수학 비중 25% → 최근 8% (전체 학습량은 평소 수준)");
+        assertThat(share.summary()).isEqualTo("수학 계획 25% → 실제 8%");
+        assertThat(share.evidence()).containsExactly("수학 계획 25% → 실제 8% · 전체 공부 시간은 평소 수준");
         assertThat(share.value()).isEqualTo(8);
         assertThat(share.target()).isEqualTo(25);
     }
@@ -362,7 +363,7 @@ class CareSignalCalculatorTest {
 
         assertThat(types(evaluation)).containsExactly(CareSignalType.START_TIME_SHIFT);
         DetectedSignal shift = evaluation.signals().getFirst();
-        assertThat(shift.summary()).isEqualTo("평소 19:00 시작 → 최근 20:30");
+        assertThat(shift.summary()).isEqualTo("평소 19:00 등원 → 최근 20:30");
         assertThat(shift.value()).isEqualTo(20 * 60 + 30);
         assertThat(shift.target()).isEqualTo(19 * 60);
     }

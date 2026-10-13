@@ -53,7 +53,7 @@ public final class CareSignalCalculator {
 
         int planMissing = window.planMissingDays();
         if (planMissing >= settings.planMissingDays()) {
-            String summary = "최근 7일 중 " + planMissing + "일 계획 미제출";
+            String summary = "최근 7일 중 " + planMissing + "일 미제출";
             signals.add(new DetectedSignal(CareSignalType.PLAN_MISSING, summary, List.of(summary), planMissing, null, null));
         }
 
@@ -109,9 +109,9 @@ public final class CareSignalCalculator {
 
     private static DetectedSignal absenceSignal(Window window, int absence) {
         List<String> evidence = new ArrayList<>();
-        evidence.add(absence + "일째 입실 기록 없음");
-        window.lastCheckIn().ifPresent(date -> evidence.add("마지막 입실 " + CareTextFormat.monthDay(date)));
-        return new DetectedSignal(CareSignalType.CONSECUTIVE_ABSENCE, absence + "일째 입실 기록 없음",
+        evidence.add(absence + "일째 결석");
+        window.lastCheckIn().ifPresent(date -> evidence.add("마지막 등원 " + CareTextFormat.monthDay(date)));
+        return new DetectedSignal(CareSignalType.CONSECUTIVE_ABSENCE, absence + "일째 결석",
                 List.copyOf(evidence), absence, null, null);
     }
 
@@ -129,9 +129,9 @@ public final class CareSignalCalculator {
         double usual = usualSum / (double) USUAL_WEEKS;
         int usualRounded = (int) Math.round(usual);
         String summary = "최근 7일 " + CareTextFormat.hoursMinutes(roundTo10((int) recent))
-                + " · 평소 같은 기간 " + CareTextFormat.hoursMinutes(roundTo10(usualRounded));
+                + " · 평소 " + CareTextFormat.hoursMinutes(roundTo10(usualRounded));
         List<String> evidence = List.of(
-                summary + " (" + Math.round((usual - recent) * 100 / usual) + "% 감소)",
+                summary + " · " + Math.round((usual - recent) * 100 / usual) + "% 감소",
                 "하루 평균 " + Math.round(usual / 7.0) + "분 → " + Math.round(recent / 7.0) + "분");
         return Optional.of(new DetectedSignal(CareSignalType.STUDY_DROP, summary, evidence, (int) recent, usualRounded,
                 null));
@@ -145,9 +145,10 @@ public final class CareSignalCalculator {
             return Optional.empty();
         }
         int rate = roundedPercent(executed, planned);
-        String summary = "최근 2주 계획 " + CareTextFormat.hoursMinutes(roundTo10((int) planned))
-                + " 중 " + CareTextFormat.hoursMinutes(roundTo10((int) executed)) + " 실행 (" + rate + "%)";
-        return Optional.of(new DetectedSignal(CareSignalType.EXECUTION_GAP, summary, List.of(summary), rate,
+        String summary = "최근 2주 실천율 " + rate + "%";
+        String evidence = "계획 " + CareTextFormat.hoursMinutes(roundTo10((int) planned))
+                + " 중 " + CareTextFormat.hoursMinutes(roundTo10((int) executed)) + " 실천";
+        return Optional.of(new DetectedSignal(CareSignalType.EXECUTION_GAP, summary, List.of(evidence), rate,
                 settings.executionRatePercent(), null));
     }
 
@@ -180,8 +181,8 @@ public final class CareSignalCalculator {
         }
         int plannedShare = roundedPercent(planned.get(worstSubject), plannedTotal);
         int actualShare = roundedPercent(actual.getOrDefault(worstSubject, 0), actualTotal);
-        String summary = "계획한 " + worstSubject + " 비중 " + plannedShare + "% → 최근 " + actualShare + "%";
-        String evidence = dropFlagged ? summary : summary + " (전체 학습량은 평소 수준)";
+        String summary = worstSubject + " 계획 " + plannedShare + "% → 실제 " + actualShare + "%";
+        String evidence = dropFlagged ? summary : summary + " · 전체 공부 시간은 평소 수준";
         return Optional.of(new DetectedSignal(CareSignalType.SUBJECT_SHARE, summary, List.of(evidence),
                 actualShare, plannedShare, worstSubject));
     }
@@ -200,8 +201,8 @@ public final class CareSignalCalculator {
         }
         int recentAverage = recent.average().getAsInt();
         int usualAverage = usual.average().getAsInt();
-        String summary = "평소 " + CareTextFormat.clock(usualAverage) + " 시작 → 최근 " + CareTextFormat.clock(recentAverage);
-        String evidence = summary + " (최근 7일 입실 " + recent.count() + "일 평균)";
+        String summary = "평소 " + CareTextFormat.clock(usualAverage) + " 등원 → 최근 " + CareTextFormat.clock(recentAverage);
+        String evidence = summary + " · 최근 7일 " + recent.count() + "일 평균";
         return Optional.of(new DetectedSignal(CareSignalType.START_TIME_SHIFT, summary, List.of(evidence),
                 recentAverage, usualAverage, null));
     }

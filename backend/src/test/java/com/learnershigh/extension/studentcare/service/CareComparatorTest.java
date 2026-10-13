@@ -76,15 +76,15 @@ class CareComparatorTest {
     @Test
     void comparesBaselineWithSameFormulaAtRecheckDate() {
         List<CareBaselineSignal> baseline = List.of(
-                new CareBaselineSignal(CareSignalType.PLAN_MISSING, "최근 7일 중 4일 계획 미제출", 4, 0, null),
-                new CareBaselineSignal(CareSignalType.STUDY_DROP, "최근 7일 14시간 · 평소 같은 기간 28시간", 840, 1680, null));
+                new CareBaselineSignal(CareSignalType.PLAN_MISSING, "최근 7일 중 4일 미제출", 4, 0, null),
+                new CareBaselineSignal(CareSignalType.STUDY_DROP, "최근 7일 14시간 · 평소 28시간", 840, 1680, null));
 
         CareComparison comparison = CareComparator.compare(baseline, StudyDays.usual(), AS_OF);
 
         assertThat(comparison.rows()).extracting(CareComparison.Row::now).containsExactly(0, 1680);
         assertThat(comparison.result()).isEqualTo(Result.IMPROVED);
         assertThat(comparison.text())
-                .isEqualTo("재점검 — 변화 관찰: 최근 7일 계획 미제출 4일 → 0일, 최근 7일 학습량 14시간 → 28시간");
+                .isEqualTo("점검 · 좋아짐 — 계획 미제출 4일 → 0일, 7일 공부 14시간 → 28시간");
     }
 
     @Test
@@ -100,8 +100,10 @@ class CareComparatorTest {
         assertThat(CareComparator.compare(List.of(plan, drop),
                 StudyDays.build((offset, day) -> offset >= -2 ? day.noPlan() : day), AS_OF).result())
                 .isEqualTo(Result.MIXED);
-        assertThat(Result.IMPROVED.label()).isEqualTo("변화 관찰");
-        assertThat(Result.NO_CHANGE.label()).isEqualTo("변화 없음");
+        assertThat(Result.IMPROVED.label()).isEqualTo("좋아짐");
+        assertThat(Result.NO_CHANGE.label()).isEqualTo("그대로");
+        assertThat(Result.WORSENED.label()).isEqualTo("나빠짐");
+        assertThat(Result.MIXED.label()).isEqualTo("일부 좋아짐");
     }
 
     /** 결과 규칙 (domain.md §6): 모두 IMPROVED / 모두 SAME / IMPROVED 없이 WORSENED / 그 외 MIXED. */
@@ -140,6 +142,6 @@ class CareComparatorTest {
         assertThat(comparison.rows().getFirst().now()).isNull();
         assertThat(comparison.rows().getFirst().trend()).isEqualTo(Trend.SAME);
         assertThat(comparison.result()).isEqualTo(Result.NO_CHANGE);
-        assertThat(comparison.text()).isEqualTo("재점검 — 변화 없음: 비교할 기록 없음");
+        assertThat(comparison.text()).isEqualTo("점검 · 그대로 — 기록 없음");
     }
 }

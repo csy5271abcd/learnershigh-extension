@@ -15,13 +15,13 @@ import java.util.UUID;
 
 /**
  * 학생 기록 Timeline 한 줄. 추가만 하고 수정 / 삭제하지 않는다.
- * 내용은 자르지 않는다: 메모 / 약속 길이는 Request와 {@link CareCase}가 먼저 확인하고, 그래도 넘으면 Programming Error로 본다.
+ * 내용은 자르지 않는다: 상담 내용 길이는 Request와 {@link CareCase}가 먼저 확인하고, 그래도 넘으면 Programming Error로 본다.
  */
 @Entity
 @Table(name = "care_event")
 public class CareEvent {
 
-    /** 접두어(예: "사유 확인: 조정 필요 — ") + 메모 1000자가 들어가는 길이. */
+    /** 접두어(예: "상담 · 통화 — ") + 상담 내용 1000자가 들어가는 길이. */
     public static final int CONTENT_MAX = 1200;
 
     @Id

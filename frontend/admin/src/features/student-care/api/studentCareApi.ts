@@ -6,7 +6,6 @@ import type {
   CareEvent,
   CareSettings,
   CareSettingsValues,
-  CareSummary,
   DecisionInput,
   NoteChannel,
   OpenCaseInput,
@@ -14,6 +13,7 @@ import type {
   StudentHistory,
 } from '../model/types.ts'
 
+// api-contract.md §65
 const BASE = '/api/admin/student-care'
 
 const query = (branchId: string) => `branchId=${encodeURIComponent(branchId)}`
@@ -48,6 +48,4 @@ export const studentCareApi = {
 
   updateSettings: (branchId: string, values: CareSettingsValues) =>
     request<CareSettings>(`${BASE}/settings?${query(branchId)}`, { method: 'PUT', body: JSON.stringify(values) }),
-
-  summary: (branchId: string) => request<CareSummary>(`${BASE}/summary?${query(branchId)}`),
 }

@@ -1,249 +1,124 @@
-import { useCallback, useLayoutEffect, useRef, useState, type FocusEvent, type KeyboardEvent, type ReactNode } from 'react'
-import type { ApiError } from './api/apiClient.ts'
+import { useCallback, useState } from 'react'
 import { studentCareApi } from './api/studentCareApi.ts'
-import { BranchPanel } from './components/BranchPanel.tsx'
-import { CareBoardTab } from './components/CareBoardTab.tsx'
-import { HistoryTab } from './components/HistoryTab.tsx'
-import { SettingsTab } from './components/SettingsTab.tsx'
-import { Empty } from './components/StateMessage.tsx'
-import { SummaryTab } from './components/SummaryTab.tsx'
-import { staleMessage, staysAtField } from './model/conflicts.ts'
-import type { Outcome } from './model/outcome.ts'
+import { SettingsDialog } from './components/SettingsDialog.tsx'
+import { StudentList } from './components/StudentList.tsx'
+import { StudentPanel } from './components/StudentPanel.tsx'
+import { monthDay } from './model/format.ts'
 import { useRemote } from './model/useRemote.ts'
 import './student-care.css'
 
-type Tab = 'board' | 'history' | 'settings' | 'summary'
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'board', label: '케어 보드' },
-  { id: 'history', label: '학생 기록' },
-  { id: 'settings', label: '기준값' },
-  { id: 'summary', label: '지점 요약' },
-]
-
-const tabId = (tab: Tab) => `sc-tab-${tab}`
-const panelId = (tab: Tab) => `sc-panel-${tab}`
-
-/**
- * 콘솔 › 학습관리 › [지점]학생 케어 (docs/specs/wangyu/features/student-care.md).
- * 네 탭 패널은 처음 열 때 Mount되고 그 뒤에는 숨기기만 한다 — 입력 중인 사유 / 약속 / 메모 / 기준값이 탭을 옮겨도 남는다.
- */
+/** 학습관리 › 학생 케어 (docs/specs/wangyu/features/student-care.md, docs/design/student-care-ux.md). */
 export function StudentCarePage() {
   const branches = useRemote('branches', studentCareApi.branches)
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>('board')
-  const [visited, setVisited] = useState<ReadonlySet<Tab>>(() => new Set<Tab>(['board']))
   const [studentId, setStudentId] = useState<string | null>(null)
-  // 저장 / 결정 / 메모 / 기준값 변경이 있으면 올라간다. 보드 · 상세 · 기록 · 요약이 이 값으로 다시 불러온다.
+  // 저장 / 기준 변경이 있으면 올라간다. 목록 · 상세 · 이력이 이 값으로 다시 불러온다.
   const [version, setVersion] = useState(0)
-  const [historyFocus, setHistoryFocus] = useState(0)
-  const [notice, setNotice] = useState('')
-  const [alert, setAlert] = useState('')
-  const [alertFocus, setAlertFocus] = useState(0)
-  const alertRef = useRef<HTMLDivElement>(null)
-  const returnFocus = useRef<HTMLElement | null>(null)
+  const [status, setStatus] = useState('')
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
-  // 지점을 고르기 전에는 첫 지점을 보여준다.
   const branchId = selectedBranchId ?? branches.data?.[0]?.branchId ?? null
-  const noBranches = branches.status === 'success' && branches.data.length === 0
-
   const board = useRemote(branchId, () => studentCareApi.board(branchId ?? ''), version)
-
-  const changed = useCallback((outcome: Outcome | null) => {
-    setVersion((value) => value + 1)
-    setAlert('')
-    if (outcome) setNotice(outcome.message)
-  }, [])
-
-  // 보던 상태가 서버와 달라졌다(409 / 재점검일 422): 보드 · 상세 · 기록 · 요약을 모두 다시 불러오고,
-  // 다시 불러온 뒤 버튼이 사라져도 이유를 볼 수 있게 페이지 안내로 남긴다.
-  const stale = useCallback((error: ApiError) => {
-    setVersion((value) => value + 1)
-    setNotice('')
-    setAlert(staleMessage(error))
-    // 재점검일 오류는 그 칸으로 Focus가 가고, 나머지는 안내로 옮긴다 (누른 버튼이 사라질 수 있으므로).
-    if (!staysAtField(error)) setAlertFocus((value) => value + 1)
-  }, [])
+  const asOf = board.data?.asOf
 
   const refresh = useCallback(() => setVersion((value) => value + 1), [])
+  const saved = useCallback((message: string) => {
+    setStatus(message)
+    setVersion((value) => value + 1)
+  }, [])
 
-  useLayoutEffect(() => {
-    if (alertFocus > 0) alertRef.current?.focus()
-  }, [alertFocus])
-
-  /** 안내 / 알림 안으로 들어오기 직전에 Focus가 있던 곳. 닫으면 그곳으로 돌려준다. */
-  const rememberFocus = (event: FocusEvent<HTMLElement>) => {
-    const from = event.relatedTarget
-    if (from instanceof HTMLElement && !event.currentTarget.contains(from)) returnFocus.current = from
-  }
-
-  const restoreFocus = () => {
-    const visible = (element: HTMLElement | null) => element?.isConnected && !element.closest('[hidden]')
-    const remembered = returnFocus.current
-    returnFocus.current = null
-    // 돌아갈 곳이 사라졌으면 상세 제목, 그것도 없으면 지금 탭.
-    const heading = document.getElementById('sc-detail-name')
-    const target = visible(remembered) ? remembered : visible(heading) ? heading : document.getElementById(tabId(tab))
-    target?.focus()
-  }
-
-  const closeNotice = () => {
-    restoreFocus()
-    setNotice('')
-  }
-
-  const closeAlert = () => {
-    restoreFocus()
-    setAlert('')
-  }
-
-  const activate = (next: Tab) => {
-    setTab(next)
-    setVisited((previous) => (previous.has(next) ? previous : new Set(previous).add(next)))
-  }
-
-  const selectBranch = (next: string) => {
-    if (next === branchId) return
-    setSelectedBranchId(next)
-    setStudentId(null)
-    setNotice('')
-    setAlert('')
-  }
-
-  const showHistory = () => {
-    activate('history')
-    setHistoryFocus((value) => value + 1)
-  }
-
-  const onTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const index = TABS.findIndex((item) => item.id === tab)
-    let nextIndex: number
-    switch (event.key) {
-      case 'ArrowRight':
-        nextIndex = (index + 1) % TABS.length
-        break
-      case 'ArrowLeft':
-        nextIndex = (index + TABS.length - 1) % TABS.length
-        break
-      case 'Home':
-        nextIndex = 0
-        break
-      case 'End':
-        nextIndex = TABS.length - 1
-        break
-      default:
-        return
-    }
-    event.preventDefault()
-    const next = TABS[nextIndex].id
-    activate(next)
-    document.getElementById(tabId(next))?.focus()
-  }
-
-  const panelContent = (item: Tab): ReactNode => {
-    if (branchId === null || !visited.has(item)) return null
-    switch (item) {
-      case 'board':
-        return (
-          <CareBoardTab
-            branchId={branchId}
-            board={board}
-            selectedStudentId={studentId}
-            onSelectStudent={(next) => {
-              setStudentId(next)
-              setNotice('')
-              setAlert('')
-            }}
-            version={version}
-            onChanged={changed}
-            onStale={stale}
-            onRefresh={refresh}
-            onShowHistory={showHistory}
-          />
-        )
-      case 'history':
-        return <HistoryTab branchId={branchId} studentId={studentId} version={version} focusRequest={historyFocus} />
-      case 'settings':
-        return <SettingsTab key={branchId} branchId={branchId} onSaved={() => changed(null)} />
-      case 'summary':
-        return <SummaryTab branchId={branchId} version={version} />
+  const selectStudent = (next: string) => {
+    setStudentId(next)
+    setStatus('')
+    if (window.matchMedia('(max-width: 899px)').matches) {
+      requestAnimationFrame(() => document.getElementById('sc-panel')?.scrollIntoView({ block: 'start' }))
     }
   }
 
   return (
     <div className="sc-page">
-      <BranchPanel branches={branches} selectedId={branchId} onSelect={selectBranch} />
-      <main className="sc-main">
-        <div className="sc-tabs" role="tablist" aria-label="학생 케어" onKeyDown={onTabKeyDown}>
-          {TABS.map((item) => (
-            <button
-              key={item.id}
-              id={tabId(item.id)}
-              type="button"
-              role="tab"
-              className="sc-tab"
-              aria-selected={tab === item.id}
-              aria-controls={panelId(item.id)}
-              tabIndex={tab === item.id ? 0 : -1}
-              onClick={() => activate(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Live region은 항상 있고 문구만 바뀐다 (처음부터 있어야 읽어준다). 닫기 버튼은 읽을 문구 밖에 둔다. */}
-        <div className={notice ? 'sc-toast sc-toast--open' : 'sc-toast'} onFocus={rememberFocus}>
-          <p className="sc-toast__text" role="status" aria-live="polite">
-            {notice}
-          </p>
-          {notice && (
-            <button type="button" className="sc-button sc-button--ghost" onClick={closeNotice}>
-              닫기
-            </button>
-          )}
-        </div>
-
-        {alert && (
-          <div
-            ref={alertRef}
-            className="sc-page-alert"
-            role="alert"
-            tabIndex={-1}
-            aria-labelledby="sc-page-alert-text"
-            onFocus={rememberFocus}
+      <header className="sc-top">
+        <h1 className="sc-top__title">학생 케어</h1>
+        <div className="sc-top__controls">
+          <label className="sc-visually-hidden" htmlFor="sc-branch">
+            지점
+          </label>
+          <select
+            id="sc-branch"
+            className="sc-select"
+            value={branchId ?? ''}
+            disabled={!branches.data || branches.data.length === 0}
+            onChange={(event) => {
+              setSelectedBranchId(event.target.value)
+              setStudentId(null)
+              setStatus('')
+            }}
           >
-            <p id="sc-page-alert-text" className="sc-page-alert__text">
-              {alert}
-            </p>
-            <button type="button" className="sc-button sc-button--ghost" onClick={closeAlert}>
-              닫기
-            </button>
-          </div>
-        )}
-
-        {noBranches && (
-          <Empty
-            title="담당 지점이 없습니다"
-            description="지점이 연결되면 이곳에서 지점별 학생 케어 보드를 볼 수 있습니다."
-          />
-        )}
-
-        {TABS.map((item) => (
-          <div
-            key={item.id}
-            id={panelId(item.id)}
-            role="tabpanel"
-            aria-labelledby={tabId(item.id)}
-            className="sc-panel"
-            // 기록 / 요약 패널은 Focus 받을 요소가 없을 수 있어 패널 자체로 Tab 이동이 닿게 한다.
-            tabIndex={item.id === 'history' || item.id === 'summary' ? 0 : undefined}
-            hidden={tab !== item.id}
+            {branches.data?.map((branch) => (
+              <option key={branch.branchId} value={branch.branchId}>
+                {branch.name}
+              </option>
+            ))}
+          </select>
+          {asOf && <span className="sc-top__date">기준일 {monthDay(asOf)}</span>}
+          <button
+            type="button"
+            className="sc-icon-button"
+            aria-label="특이사항 기준"
+            title="특이사항 기준"
+            disabled={branchId === null}
+            onClick={() => setSettingsOpen(true)}
           >
-            {panelContent(item.id)}
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"
+              />
+            </svg>
+          </button>
+        </div>
+        <p className="sc-top__status" role="status" aria-live="polite">
+          {status}
+        </p>
+      </header>
+
+      {branches.status === 'error' ? (
+        <div className="sc-state" role="alert">
+          <p>불러오지 못했습니다</p>
+          <button type="button" className="sc-button" onClick={branches.reload}>
+            다시 시도
+          </button>
+        </div>
+      ) : branches.status === 'success' && branches.data.length === 0 ? (
+        <p className="sc-state">지점 없음</p>
+      ) : (
+        <div className="sc-body">
+          <StudentList board={board} selectedId={studentId} onSelect={selectStudent} />
+          <div id="sc-panel" className="sc-panel">
+            {branchId && studentId ? (
+              <StudentPanel
+                key={`${branchId}/${studentId}`}
+                branchId={branchId}
+                studentId={studentId}
+                version={version}
+                onSaved={saved}
+                onStale={refresh}
+              />
+            ) : (
+              <p className="sc-state sc-state--center">학생을 선택하세요</p>
+            )}
           </div>
-        ))}
-      </main>
+        </div>
+      )}
+
+      {branchId && (
+        <SettingsDialog
+          branchId={branchId}
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onSaved={() => saved('특이사항 기준 저장')}
+        />
+      )}
     </div>
   )
 }

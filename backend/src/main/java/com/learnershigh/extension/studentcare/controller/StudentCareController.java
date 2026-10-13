@@ -8,7 +8,6 @@ import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.CareNoteRequest;
 import com.learnershigh.extension.studentcare.dto.CareSettingsRequest;
 import com.learnershigh.extension.studentcare.dto.CareSettingsResponse;
-import com.learnershigh.extension.studentcare.dto.CareSummaryResponse;
 import com.learnershigh.extension.studentcare.dto.OpenCareCaseRequest;
 import com.learnershigh.extension.studentcare.dto.StudentCareDetailResponse;
 import com.learnershigh.extension.studentcare.dto.StudentHistoryResponse;
@@ -92,10 +91,5 @@ public class StudentCareController {
     public CareSettingsResponse updateSettings(@RequestParam @NotBlank String branchId,
             @Valid @RequestBody CareSettingsRequest request) {
         return service.updateSettings(branchId, request);
-    }
-
-    @GetMapping("/summary")
-    public CareSummaryResponse summary(@RequestParam @NotBlank String branchId) {
-        return queryService.summary(branchId);
     }
 }

@@ -39,7 +39,7 @@ class StudentCareLockConflictWebTest {
         when(service.open(any())).thenThrow(new CannotAcquireLockException("Lock wait timeout exceeded"));
 
         mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"branchId":"br_gangnam","studentId":"stu_002","reason":"RECORD_ISSUE"}"""))
+                        {"branchId":"br_gangnam","studentId":"stu_002","channel":"CALL","reason":"RECORD_ISSUE"}"""))
                 .andExpect(status().isConflict())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value("CONCURRENT_MODIFICATION"))

@@ -6,6 +6,7 @@ import com.learnershigh.extension.studentcare.entity.CareBaselineSignal;
 import com.learnershigh.extension.studentcare.entity.CareCase;
 import com.learnershigh.extension.studentcare.entity.CareReason;
 import com.learnershigh.extension.studentcare.entity.CareSignalType;
+import com.learnershigh.extension.studentcare.entity.NoteChannel;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -26,7 +27,7 @@ class CareCooldownTest {
         List<CareBaselineSignal> baseline = java.util.Arrays.stream(types)
                 .map(type -> new CareBaselineSignal(type, "s", 1, null, null)).toList();
         Instant at = closedOn.atTime(hour, 0).atZone(ZONE).toInstant();
-        return CareCase.open("br", studentId, CareReason.EXPECTED_CHANGE, baseline, null, null, null, closedOn, at);
+        return CareCase.open("br", studentId, CareReason.EXPECTED_CHANGE, baseline, NoteChannel.MEETING, null, null, closedOn, at);
     }
 
     @ParameterizedTest
@@ -77,8 +78,7 @@ class CareCooldownTest {
     void studentsAreIndependentAndOpenCasesIgnored() {
         CareCase other = closed("other", CLOSED_ON, 10, CareSignalType.EXECUTION_GAP);
         CareCase open = CareCase.open("br", "stu", CareReason.ADJUSTMENT_NEEDED,
-                List.of(new CareBaselineSignal(CareSignalType.STUDY_DROP, "s", 1, 2, null)), null,
-                com.learnershigh.extension.studentcare.entity.CarePlan.of("목표", "행동", null, true),
+                List.of(new CareBaselineSignal(CareSignalType.STUDY_DROP, "s", 1, 2, null)), NoteChannel.CALL, null,
                 CLOSED_ON.plusDays(7), CLOSED_ON, Instant.EPOCH);
 
         assertThat(CareCooldown.suppressedTypes(List.of(other, open), CLOSED_ON, 7))

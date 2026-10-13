@@ -2,7 +2,6 @@ package com.learnershigh.extension.studentcare.controller;
 
 import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.BRANCH;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -87,7 +86,7 @@ class StudentCareErrorApiTest {
         mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_XML)
                         .content("""
-                                {"branchId":"br_gangnam","studentId":"stu_003","reason":"RECORD_ISSUE"}"""))
+                                {"branchId":"br_gangnam","studentId":"stu_003","channel":"CALL","reason":"RECORD_ISSUE"}"""))
                 .andExpect(status().isNotAcceptable())
                 .andExpect(jsonPath("$.code").value("NOT_ACCEPTABLE"));
         assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
@@ -120,15 +119,7 @@ class StudentCareErrorApiTest {
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.details.fields[0].field").value("absenceDays"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("invalid"));
-        // Boolean 자리의 문자열도 바꿔 넣지 않는다.
-        open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":"true"}}""")
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.agreedWithStudent"));
-
         assertThat(StudentCareApiTestSupport.count(jdbc, "care_settings")).isZero();
-        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
     }
 
     @Test
@@ -138,7 +129,7 @@ class StudentCareErrorApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("reason"));
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE","memo":123}""")
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE","memo":123}""")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("memo"));
         assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
@@ -150,15 +141,12 @@ class StudentCareErrorApiTest {
             "true | memo | EXPECTED_CHANGE",
             "false | memo | RECORD_ISSUE",
             "1.5 | memo | EXPECTED_CHANGE",
-            "true | plan.goal | ADJUSTMENT_NEEDED",
-            "1.5 | plan.goal | ADJUSTMENT_NEEDED"})
+            "true | memo | ADJUSTMENT_NEEDED"})
     void booleanOrFloatInStringFieldIs400WithFieldPath(String value, String field, String reason) throws Exception {
-        String memo = field.equals("memo") ? value : "\"메모\"";
-        String goal = field.equals("plan.goal") ? value : "\"목표\"";
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"%s","memo":%s,
-                 "plan":{"goal":%s,"action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}"""
-                .formatted(reason, memo, goal))
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"%s","memo":%s,
+                 "recheckDate":"2026-10-07"}"""
+                .formatted(reason, value))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.details.fields[0].field").value(field))
@@ -180,26 +168,6 @@ class StudentCareErrorApiTest {
     }
 
     @Test
-    void planIsIgnoredEntirelyUnlessAdjustmentIsNeeded() throws Exception {
-        String longPlan = """
-                {"branchId":"br_gangnam","studentId":"%s","reason":"%s",
-                 "plan":{"goal":"%s","action":"%s","loadLimit":"%s","recheckDate":"2026-01-01","agreedWithStudent":false}}""";
-        open(longPlan.formatted("stu_001", "EXPECTED_CHANGE", "가".repeat(500), "나".repeat(500), "다".repeat(500)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("CLOSED"))
-                .andExpect(jsonPath("$.plan").doesNotExist());
-        open(longPlan.formatted("stu_002", "RECORD_ISSUE", "가".repeat(500), "", ""))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.closeType").value("RECORD_ISSUE"));
-
-        // 같은 plan이라도 ADJUSTMENT_NEEDED면 검증한다.
-        open(longPlan.formatted("stu_005", "ADJUSTMENT_NEEDED", "가".repeat(201), "행동", ""))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.goal"))
-                .andExpect(jsonPath("$.details.fields[0].reason").value("length"));
-    }
-
-    @Test
     void invalidValuesReportTheirJsonPath() throws Exception {
         open("""
                 {"branchId":"br_gangnam","studentId":"stu_005","reason":"UNKNOWN"}""")
@@ -208,10 +176,14 @@ class StudentCareErrorApiTest {
                 .andExpect(jsonPath("$.details.fields[0].field").value("reason"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("invalid"));
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"목표","action":"행동","recheckDate":"2026-13-40","agreedWithStudent":true}}""")
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+                 "recheckDate":"2026-13-40"}""")
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.recheckDate"));
+                .andExpect(jsonPath("$.details.fields[0].field").value("recheckDate"));
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"FAX","reason":"RECORD_ISSUE"}""")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("channel"));
         mvc.perform(post("/api/admin/student-care/cases/{caseId}/decisions", "care_none").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"decision\":\"MAYBE\"}"))
                 .andExpect(status().isBadRequest())
@@ -231,31 +203,12 @@ class StudentCareErrorApiTest {
     }
 
     @Test
-    void planLengthOverLimitIs400WithPlanFieldPath() throws Exception {
-        String body = """
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"%s","action":"%s","loadLimit":"%s","recheckDate":"2026-10-07","agreedWithStudent":true}}""";
-        open(body.formatted("가".repeat(201), "나".repeat(201), "다".repeat(101)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.details.fields[*].field",
-                        containsInAnyOrder("plan.goal", "plan.action", "plan.loadLimit")))
-                .andExpect(jsonPath("$.details.fields[*].reason", containsInAnyOrder("length", "length", "length")));
-        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
-
-        open(body.formatted("가".repeat(200), "나".repeat(200), "다".repeat(100)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.plan.goal").value("가".repeat(200)));
-    }
-
-    @Test
     void decisionBodyErrorsReportFieldPathsEvenWithBranchQuery() throws Exception {
         mvc.perform(post("/api/admin/student-care/cases/{caseId}/decisions", "care_none").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("decision"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("required"));
-        // REVISE plan 길이는 Domain이 검사하므로 건이 있어야 한다 (StudentCareRecheckApiTest.reviseWithTooLongGoalIs400OnThePlanField).
         mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", "care_none").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content("""
                                 {"channel":"CALL","content":"%s"}""".formatted("가".repeat(1001))))
@@ -267,40 +220,10 @@ class StudentCareErrorApiTest {
     @Test
     void memoOverLimitIs400() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_002","reason":"RECORD_ISSUE","memo":"%s"}"""
+                {"branchId":"br_gangnam","studentId":"stu_002","channel":"CALL","reason":"RECORD_ISSUE","memo":"%s"}"""
                 .formatted("가".repeat(1001)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("memo"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("length"));
-    }
-
-    @Test
-    void unprocessableErrorsCarryTheCauseField() throws Exception {
-        String adjustment = """
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":%s,"action":"행동","recheckDate":%s,"agreedWithStudent":%s}}""";
-        open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED"}""")
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("PLAN_REQUIRED"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan"));
-        open(adjustment.formatted("\" \"", "\"2026-10-07\"", "true"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("PLAN_REQUIRED"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.goal"));
-        open(adjustment.formatted("\"목표\"", "\"2026-10-07\"", "false"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("STUDENT_AGREEMENT_REQUIRED"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.agreedWithStudent"));
-        open(adjustment.formatted("\"목표\"", "\"2026-10-29\"", "true"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.recheckDate"));
-        open(adjustment.formatted("\"목표\"", "null", "true"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.recheckDate"));
-
-        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
     }
 }

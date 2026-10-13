@@ -5,7 +5,6 @@ import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.SignalSummary;
 import com.learnershigh.extension.studentcare.entity.CareBaselineSignal;
 import com.learnershigh.extension.studentcare.entity.CareCase;
-import com.learnershigh.extension.studentcare.entity.CarePlan;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -22,7 +21,6 @@ final class CareCaseMapper {
      */
     static CareCaseResponse toResponse(CareCase careCase, LocalDate today, ZoneId zone, CareComparison comparison) {
         boolean due = careCase.isRecheckDue(today);
-        CarePlan plan = careCase.plan();
         return new CareCaseResponse(
                 careCase.id(),
                 careCase.studentId(),
@@ -33,8 +31,6 @@ final class CareCaseMapper {
                 careCase.openedOn(),
                 careCase.closedOn(),
                 careCase.baseline().stream().map(CareCaseMapper::toBaseline).toList(),
-                plan == null ? null
-                        : new CareCaseResponse.Plan(plan.goal(), plan.action(), plan.loadLimit(), plan.agreedWithStudent()),
                 careCase.recheckDate(),
                 due,
                 due && comparison != null ? toComparison(comparison) : null,

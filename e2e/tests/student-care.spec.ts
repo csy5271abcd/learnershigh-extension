@@ -1,279 +1,190 @@
 import { expect, test } from '@playwright/test'
 import {
   API,
-  detail,
-  inAdjustmentList,
-  needsCheckList,
-  openBoard,
+  history,
+  openPage,
+  panel,
   resetBackend,
+  row,
   selectStudent,
   setBackendDate,
   setStudyDataAvailable,
+  studentList,
 } from './support.ts'
 
-// 학생 케어 E2E (docs/specs/wangyu/features/student-care.md §9).
-// 기준일 2026-09-30, Mock Existing 시나리오(MockStudyScenarios) 기준.
+// 학생 케어 E2E (docs/specs/wangyu/features/student-care.md §7, docs/design/student-care-ux.md).
+// 기준일 2026-09-30, Mock Existing 시나리오 기준.
 
 test.beforeEach(async ({ request }) => {
   await resetBackend(request)
 })
 
-test('케어 보드는 달라진 학생과 판단 보류를 기준일과 함께 보여준다', async ({ page }) => {
-  await openBoard(page)
+test('특이사항 학생과 기록 부족을 기준일과 함께 보여준다', async ({ page }) => {
+  await openPage(page)
 
-  await expect(page.getByRole('heading', { name: '9월 30일 기준 · 러너스하이 강남점' })).toBeVisible()
-  await expect(page.getByRole('list', { name: '판단 보류' })).toContainText('장하준 최근 7일 유효 학습일 2일')
-
-  const needsCheck = needsCheckList(page)
-  await expect(needsCheck.getByRole('button')).toHaveCount(7)
-  const first = needsCheck.getByRole('button').first()
+  await expect(page.getByText('기준일 9월 30일')).toBeVisible()
+  await expect(studentList(page).getByRole('button')).toHaveCount(7)
+  const first = studentList(page).getByRole('button').first()
   await expect(first).toContainText('김서준')
-  await expect(first).toContainText('연속 미입실')
-  await expect(first).toContainText('계획 미제출 반복')
-  await expect(first).toContainText('4일째 입실 기록 없음')
-  await expect(inAdjustmentList(page)).toContainText('진행 중인 조정이 없습니다')
+  await expect(first).toContainText('연속 결석')
+  await expect(first).toContainText('계획 미제출')
+  await expect(first).toContainText('4일째 결석')
+  await expect(studentList(page)).toContainText('기록 부족 · 장하준')
+  await expect(page.getByText('학생을 선택하세요')).toBeVisible()
+
+  await selectStudent(page, '윤서연')
+  await expect(panel(page)).toContainText('과목 편중')
+  await expect(panel(page)).toContainText('수학 계획 30% → 실제 12%')
+  await expect(panel(page).getByRole('img', { name: /최근 7일/ })).toBeVisible()
+  await expect(history(page)).toContainText('기록 없음')
 })
 
-test('신호 → 사유 확인 → 약속 → 재점검 → 종결, 과정이 학생 기록에 남는다', async ({ page, request }) => {
-  await openBoard(page)
+test('상담 기록 → 계속 관리 → 점검일에 점검 → 관리 종료, 이력에 남는다', async ({ page, request }) => {
+  await openPage(page)
   await selectStudent(page, '윤서연')
+  const detail = panel(page)
 
-  const panel = detail(page)
-  await expect(panel).toContainText('계획한 수학 비중 30% → 최근 12% (전체 학습량은 평소 수준)')
-  await expect(panel.getByRole('img', { name: /최근 7일 학습/ })).toBeVisible()
-  await expect(panel).toContainText('의도한 시험 대비인지, 수학 항목이 너무 커서 미루고 있는지')
+  // 빠진 항목은 저장하지 않고 그 칸을 알려준다.
+  await detail.getByRole('button', { name: '저장' }).click()
+  await expect(detail.getByText('방식을 고르세요')).toBeVisible()
+  await expect(detail.getByRole('radio', { name: '면담' })).toBeFocused()
 
-  await panel.getByRole('button', { name: /조정 필요/ }).click()
-  await expect(panel.getByRole('button', { name: /조정 필요/ })).toHaveAttribute('aria-pressed', 'true')
-  await expect(panel.getByLabel('목표 한 가지')).toHaveValue('수학 비중을 계획한 30% 가까이')
-  await expect(panel.getByLabel('행동')).toHaveValue('큰 수학 항목을 30분씩 4회로 나누기')
-  await expect(panel.getByLabel('부담 한도')).toHaveValue('주 2시간 추가까지')
-  await expect(panel.getByLabel('재점검일')).toHaveValue('7')
+  await detail.getByRole('radio', { name: '통화' }).check()
+  await detail.getByLabel('내용').fill('시험 범위가 넓어 수학을 미루고 있다고 함. 30분씩 나눠 하기로')
+  await detail.getByRole('radio', { name: '계속 관리' }).check()
+  await expect(detail.getByRole('radio', { name: /1주/ })).toBeChecked()
+  await detail.getByRole('button', { name: '저장' }).click()
 
-  const start = panel.getByRole('button', { name: '조정 시작' })
-  await expect(start).toBeDisabled()
-  await expect(panel).toContainText('학생과 합의한 뒤 시작할 수 있습니다')
+  await expect(page.getByRole('status')).toHaveText('윤서연 · 계속 관리 · 다음 점검 10/7')
+  await expect(row(page, '윤서연')).toContainText('다음 점검 10월 7일')
+  await expect(studentList(page).getByRole('button').last()).toContainText('윤서연')
+  await expect(history(page)).toContainText('상담 · 통화 — 시험 범위가 넓어 수학을 미루고 있다고 함')
+  await expect(history(page)).toContainText('계속 관리 · 다음 점검 10월 7일')
 
-  await panel.getByLabel('사유 메모 (선택)').fill('시험 범위가 넓어 수학을 미루고 있다고 함')
-  await panel.getByLabel('학생과 합의함').check()
-  await start.click()
+  // 관리 중에는 결과 없이 상담 기록만 남긴다. 점검 버튼은 점검일 전에는 없다.
+  await expect(detail.getByRole('radio', { name: '계속 관리' })).toHaveCount(0)
+  await expect(detail.getByRole('button', { name: '관리 종료' })).toHaveCount(0)
+  await detail.getByRole('radio', { name: '면담' }).check()
+  await detail.getByLabel('내용').fill('수학 30분씩 3번 함')
+  await detail.getByRole('button', { name: '저장' }).click()
+  await expect(history(page).getByRole('listitem').first()).toContainText('상담 · 면담 — 수학 30분씩 3번 함')
 
-  await expect(page.getByRole('status').filter({ hasText: '윤서연: 조정을 시작했습니다' })).toBeVisible()
-  await expect(needsCheckList(page).getByRole('button')).toHaveCount(6)
-  await expect(inAdjustmentList(page).getByRole('button', { name: /^윤서연/ })).toContainText('재점검 10월 7일')
-  await expect(panel).toContainText('조정 진행 중')
-  await expect(panel).toContainText('조정 시작 — 큰 수학 항목을 30분씩 4회로 나누기 (재점검 10월 7일)')
-  await expect(panel).toContainText('재점검일(10월 7일)에 같은 기준으로 다시 비교합니다')
-  await expect(panel.getByRole('button', { name: '종결', exact: true })).toHaveCount(0)
-
-  await panel.getByLabel('구분').selectOption('CALL')
-  await panel.getByLabel('메모', { exact: true }).fill('어머니와 통화. 시험 끝나면 수학 시간을 늘리기로 함')
-  await panel.getByRole('button', { name: '메모 남기기' }).click()
-  await expect(panel.getByRole('list', { name: '이 건의 기록' })).toContainText('어머니와 통화')
-
-  // 재점검일이 되면 같은 기준으로 다시 비교한다.
+  // 다음 점검일: 점검일이 된 학생이 맨 위에 표시된다.
   await setBackendDate(request, '2026-10-07')
   await page.reload()
-  await expect(page.getByRole('heading', { name: '10월 7일 기준 · 러너스하이 강남점' })).toBeVisible()
-  const due = inAdjustmentList(page).getByRole('button', { name: /^윤서연/ })
-  await expect(due).toContainText('재점검')
+  await expect(page.getByText('기준일 10월 7일')).toBeVisible()
+  const due = studentList(page).getByRole('button').first()
+  await expect(due).toContainText('윤서연')
+  await expect(due).toContainText('점검일')
   await due.click()
 
-  const recheck = detail(page).getByRole('region', { name: '재점검 · 같은 기준으로 다시 비교' })
-  await expect(recheck).toContainText('과목 배분 차이')
-  await expect(recheck).toContainText('12% → 24%')
-  await expect(recheck).toContainText('기준 30%')
-  await expect(recheck).toContainText('변화 관찰')
-  await expect(recheck).toContainText('판정이 아니라 비교 결과입니다')
+  const check = detail.getByRole('region', { name: /점검/ })
+  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('12%')
+  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('24%')
+  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('좋아짐')
 
-  await recheck.getByRole('button', { name: '종결', exact: true }).click()
-  await expect(page.getByRole('status').filter({ hasText: '윤서연: 종결했습니다' })).toBeVisible()
-  await expect(inAdjustmentList(page)).toContainText('진행 중인 조정이 없습니다')
-
-  await detail(page).getByRole('button', { name: '학생 기록 보기' }).click()
-  const timeline = page.getByRole('list', { name: '케어 기록' })
-  await expect(page.getByRole('heading', { name: /윤서연/ })).toBeVisible()
-  await expect(timeline.getByRole('listitem')).toHaveCount(5)
-  await expect(timeline.getByRole('listitem').first()).toContainText('재점검 후 선생님이 종결')
-  await expect(timeline).toContainText('재점검 — 변화 관찰: 수학 비중 12% → 24%')
-  await expect(timeline).toContainText('어머니와 통화')
-  await expect(timeline.getByRole('listitem').last()).toContainText(
-    '사유 확인: 조정 필요 — 시험 범위가 넓어 수학을 미루고 있다고 함',
-  )
-})
-
-test('예상된 변화는 기록만 남기고 종결하며 쉬는 기간 동안 다시 올리지 않는다', async ({ page }) => {
-  await openBoard(page)
-  await selectStudent(page, '김서준')
-
-  const panel = detail(page)
-  await expect(panel).toContainText('마지막 입실 9월 26일')
-  await panel.getByRole('button', { name: /예상된 변화/ }).click()
-  await panel.getByLabel('사유 메모 (선택)').fill('가족 여행으로 결석, 다음 주 복귀')
-  await panel.getByRole('button', { name: '기록하고 종결' }).click()
-
-  await expect(page.getByRole('status').filter({ hasText: '김서준: 종결했습니다' })).toBeVisible()
-  await expect(needsCheckList(page).getByRole('button', { name: /^김서준/ })).toHaveCount(0)
-  await expect(panel).toContainText('지금 올라온 신호가 없습니다')
-
-  await page.getByRole('tab', { name: '학생 기록' }).click()
-  const timeline = page.getByRole('list', { name: '케어 기록' })
-  await expect(timeline.getByRole('listitem').first()).toContainText('기록만 남기고 종결')
-  await expect(timeline).toContainText('사유 확인: 예상된 변화 — 가족 여행으로 결석, 다음 주 복귀')
-})
-
-test('변화가 없으면 같은 약속으로 계속하거나 약속을 고친다', async ({ page, request }) => {
-  await openBoard(page)
-  await selectStudent(page, '오시윤')
-  const panel = detail(page)
-  await panel.getByRole('button', { name: /조정 필요/ }).click()
-  await panel.getByLabel('학생과 합의함').check()
-  await panel.getByRole('button', { name: '조정 시작' }).click()
-  await expect(inAdjustmentList(page).getByRole('button', { name: /^오시윤/ })).toBeVisible()
-
-  await setBackendDate(request, '2026-10-07')
-  await page.reload()
-  await inAdjustmentList(page).getByRole('button', { name: /^오시윤/ }).click()
-  const recheck = detail(page).getByRole('region', { name: '재점검 · 같은 기준으로 다시 비교' })
-  await expect(recheck).toContainText('변화 없음')
-
-  await recheck.getByRole('button', { name: '같은 약속으로 계속' }).click()
-  await recheck.getByLabel('다음 재점검일').selectOption('7')
-  await recheck.getByRole('button', { name: '계속하기' }).click()
-  await expect(page.getByRole('status').filter({ hasText: '오시윤: 결정을 저장했습니다' })).toBeVisible()
-  await expect(detail(page)).toContainText('같은 약속으로 계속 (다음 재점검 10월 14일)')
-  await expect(detail(page)).toContainText('재점검일(10월 14일)에 같은 기준으로 다시 비교합니다')
+  await check.getByRole('button', { name: '계속 관리', exact: true }).click()
+  await check.getByRole('radio', { name: /1주/ }).check()
+  await check.getByRole('button', { name: '계속 관리 저장' }).click()
+  await expect(page.getByRole('status')).toHaveText('윤서연 · 계속 관리 · 다음 점검 10/14')
+  await expect(row(page, '윤서연')).toContainText('다음 점검 10월 14일')
+  await expect(history(page)).toContainText('점검 · 좋아짐 — 수학 비중 12% → 24%')
 
   await setBackendDate(request, '2026-10-14')
   await page.reload()
-  await inAdjustmentList(page).getByRole('button', { name: /^오시윤/ }).click()
-  const second = detail(page).getByRole('region', { name: '재점검 · 같은 기준으로 다시 비교' })
-  await second.getByRole('button', { name: '약속 수정' }).click()
-  await second.getByLabel('목표 한 가지').fill('주간 학습량 15시간 이상')
-  await second.getByLabel('행동').fill('주말 오전 2시간을 고정 학습 시간으로 잡기')
-  await second.getByLabel('학생과 합의함').check()
-  await second.getByRole('button', { name: '새 약속으로 시작' }).click()
-
-  await expect(detail(page).getByRole('region', { name: '조정 약속' })).toContainText('주간 학습량 15시간 이상')
-  await expect(detail(page)).toContainText('약속 수정 — 주말 오전 2시간을 고정 학습 시간으로 잡기 (재점검 10월 21일)')
+  await selectStudent(page, '윤서연')
+  await detail.getByRole('button', { name: '관리 종료' }).click()
+  await expect(page.getByRole('status')).toHaveText('윤서연 · 관리 종료')
+  await expect(row(page, '윤서연')).toHaveCount(0)
+  await expect(history(page).getByRole('listitem').first()).toHaveText(/관리 종료/)
+  await expect(history(page).getByRole('listitem')).toHaveCount(7)
 })
 
-test('기준값을 바꾸면 보드에 바로 반영되고, 범위를 벗어나면 저장하지 않는다', async ({ page }) => {
-  await openBoard(page)
-  await page.getByRole('tab', { name: '기준값' }).click()
+test('문제없음은 바로 관리 종료되고 쉬는 기간에는 목록에 다시 오르지 않는다', async ({ page, request }) => {
+  await openPage(page)
+  await selectStudent(page, '김서준')
+  const detail = panel(page)
 
-  const absence = page.getByLabel('연속 미입실')
+  await detail.getByRole('radio', { name: '문자' }).check()
+  await detail.getByLabel('내용').fill('가족 여행')
+  await detail.getByRole('radio', { name: '문제없음' }).check()
+  await expect(detail.getByRole('group', { name: '다음 점검일' })).toHaveCount(0)
+  await detail.getByRole('button', { name: '저장' }).click()
+
+  await expect(page.getByRole('status')).toHaveText('김서준 · 문제없음 · 관리 종료')
+  await expect(row(page, '김서준')).toHaveCount(0)
+  await expect(detail.getByRole('heading', { name: '상담 기록' })).toHaveCount(0)
+  await expect(history(page)).toContainText('상담 · 문자 — 가족 여행')
+  await expect(history(page)).toContainText('문제없음 · 관리 종료')
+
+  await setBackendDate(request, '2026-10-02')
+  await page.reload()
+  await expect(row(page, '최학생')).toBeVisible()
+  await expect(row(page, '김서준')).toHaveCount(0)
+})
+
+test('특이사항 기준을 바꾸면 목록에 반영되고 범위 밖 값은 저장하지 않는다', async ({ page }) => {
+  await openPage(page)
+  await page.getByRole('button', { name: '특이사항 기준' }).click()
+  const dialog = page.getByRole('dialog', { name: '특이사항 기준' })
+  const absence = dialog.getByLabel('연속 결석')
   await expect(absence).toHaveValue('3')
-  await absence.fill('1')
-  await page.getByRole('button', { name: '기준값 저장' }).click()
-  await expect(page.getByRole('alert')).toContainText('기준값 범위를 확인해주세요')
+
+  await absence.fill('15')
+  await dialog.getByRole('button', { name: '저장' }).click()
+  await expect(dialog.getByRole('alert')).toBeVisible()
   await expect(absence).toHaveAttribute('aria-invalid', 'true')
+  await expect(absence).toBeFocused()
+  await expect(row(page, '김서준')).toContainText('연속 결석')
 
   await absence.fill('5')
-  await page.getByRole('button', { name: '기준값 저장' }).click()
-  await expect(page.getByRole('status').filter({ hasText: '저장했습니다' })).toBeVisible()
-
-  await page.getByRole('tab', { name: '케어 보드' }).click()
-  const kim = needsCheckList(page).getByRole('button', { name: /^김서준/ })
-  await expect(kim).toBeVisible()
-  await expect(kim).not.toContainText('연속 미입실')
+  await dialog.getByRole('button', { name: '저장' }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page.getByRole('status')).toHaveText('특이사항 기준 저장')
+  await expect(row(page, '김서준')).not.toContainText('연속 결석')
+  await expect(row(page, '김서준')).toContainText('계획 미제출')
+  await expect(page.getByRole('button', { name: '특이사항 기준' })).toBeFocused()
 })
 
-test('기존 학습 기록 연동이 실패하면 빈 보드가 아니라 오류와 다시 시도를 보여준다', async ({ page, request }) => {
+test('기존 학습 기록 연동 실패는 빈 목록이 아니라 오류로 보여준다', async ({ page, request }) => {
   await setStudyDataAvailable(request, false)
-  await page.goto('/')
+  try {
+    await page.goto('/')
+    const list = studentList(page)
+    await expect(list.getByRole('alert')).toContainText('불러오지 못했습니다')
+    await expect(list).not.toContainText('특이사항 없음')
+    await expect(list.getByRole('button', { name: /^김서준/ })).toHaveCount(0)
 
-  const alert = page.getByRole('alert')
-  await expect(alert).toContainText('학습 기록을 불러오지 못했습니다')
-  await expect(page.getByText('평소와 달라진 학생이 없습니다')).toHaveCount(0)
-
-  await setStudyDataAvailable(request, true)
-  await alert.getByRole('button', { name: '다시 시도' }).click()
-  await expect(needsCheckList(page).getByRole('button')).toHaveCount(7)
+    await setStudyDataAvailable(request, true)
+    await list.getByRole('button', { name: '다시 시도' }).click()
+    await expect(row(page, '김서준')).toBeVisible()
+  } finally {
+    await setStudyDataAvailable(request, true)
+  }
 })
 
-test('지점을 바꾸면 그 지점 기준으로 보드와 요약을 다시 불러온다', async ({ page }) => {
-  await openBoard(page)
-  await page.getByRole('navigation', { name: '지점' }).getByRole('button', { name: /러너스하이 분당점/ }).click()
-
-  await expect(page.getByRole('heading', { name: '9월 30일 기준 · 러너스하이 분당점' })).toBeVisible()
-  await expect(needsCheckList(page).getByRole('button')).toHaveCount(1)
-  await expect(needsCheckList(page)).toContainText('서지우')
-
-  await page.getByRole('tab', { name: '지점 요약' }).click()
-  const tiles = page.getByRole('region', { name: /지점 요약/ })
-  await expect(tiles).toContainText('확인할 변화1명')
-  await expect(tiles).toContainText('학습량 감소')
-})
-
-test('학생을 고르지 않으면 학생 기록 탭이 안내를 보여준다', async ({ page }) => {
-  await openBoard(page)
-  await page.getByRole('tab', { name: '학생 기록' }).click()
-  await expect(page.getByText('케어 보드에서 카드를 고르면 그 학생의 기록이 보입니다.')).toBeVisible()
-})
-
-test('탭은 키보드 방향키로 옮길 수 있다', async ({ page }) => {
-  await openBoard(page)
-  await page.getByRole('tab', { name: '케어 보드' }).focus()
-  await page.keyboard.press('ArrowRight')
-  await expect(page.getByRole('tab', { name: '학생 기록' })).toBeFocused()
-  await expect(page.getByRole('tab', { name: '학생 기록' })).toHaveAttribute('aria-selected', 'true')
-})
-
-test('달라진 학생이 없으면 오류가 아니라 빈 상태 안내를 보여준다', async ({ page, request }) => {
-  const settingsUrl = `${API}/api/admin/student-care/settings?branchId=br_bundang`
-  const current = await (await request.get(settingsUrl)).json()
-  const { ranges: _ranges, ...values } = current
-  const saved = await request.put(settingsUrl, { data: { ...values, studyDropPercent: 90 } })
-  expect(saved.ok()).toBeTruthy()
-
-  await openBoard(page)
-  await page.getByRole('navigation', { name: '지점' }).getByRole('button', { name: /러너스하이 분당점/ }).click()
-  await expect(page.getByRole('heading', { name: '9월 30일 기준 · 러너스하이 분당점' })).toBeVisible()
-  await expect(needsCheckList(page)).toContainText('평소와 달라진 학생이 없습니다')
-  await expect(page.getByRole('alert')).toHaveCount(0)
-})
-
-test('탭을 옮겼다 돌아와도 작성 중인 약속이 남아 있다', async ({ page }) => {
-  await openBoard(page)
+test('지점을 바꾸면 그 지점 학생만 보이고 선택이 풀린다', async ({ page }) => {
+  await openPage(page)
   await selectStudent(page, '윤서연')
-  const panel = detail(page)
-  await panel.getByRole('button', { name: /조정 필요/ }).click()
-  await panel.getByLabel('목표 한 가지').fill('수학을 매일 한 번은 펼치기')
 
-  await page.getByRole('tab', { name: '지점 요약' }).click()
-  await page.getByRole('tab', { name: '케어 보드' }).click()
-
-  await expect(detail(page).getByLabel('목표 한 가지')).toHaveValue('수학을 매일 한 번은 펼치기')
+  await page.getByLabel('지점').selectOption({ label: '러너스하이 분당점' })
+  await expect(row(page, '서지우')).toBeVisible()
+  await expect(row(page, '윤서연')).toHaveCount(0)
+  await expect(page.getByText('학생을 선택하세요')).toBeVisible()
+  await expect(studentList(page)).not.toContainText('기록 부족')
 })
 
-test('조정 시작을 연달아 눌러도 케어 건은 하나만 생긴다', async ({ page, request }) => {
-  await openBoard(page)
-  await selectStudent(page, '윤서연')
-  const panel = detail(page)
-  await panel.getByRole('button', { name: /조정 필요/ }).click()
-  await panel.getByLabel('학생과 합의함').check()
-  let openRequests = 0
-  page.on('request', (sent) => {
-    if (sent.method() === 'POST' && sent.url().endsWith('/api/admin/student-care/cases')) openRequests += 1
-  })
-  await panel.getByRole('button', { name: '조정 시작' }).dblclick()
+test('저장을 연달아 눌러도 관리는 하나만 생긴다', async ({ page, request }) => {
+  await openPage(page)
+  await selectStudent(page, '최학생')
+  const detail = panel(page)
+  await detail.getByRole('radio', { name: '면담' }).check()
+  await detail.getByRole('radio', { name: '계속 관리' }).check()
+  await detail.getByRole('button', { name: '저장' }).dblclick()
 
-  await expect(page.getByRole('status').filter({ hasText: '윤서연: 조정을 시작했습니다' })).toBeVisible()
-  await expect(inAdjustmentList(page).getByRole('button', { name: /^윤서연/ })).toHaveCount(1)
-
-  const board = await (await request.get(`${API}/api/admin/student-care/board?branchId=br_gangnam`)).json()
-  expect(board.inAdjustment.filter((item: { studentId: string }) => item.studentId === 'stu_005')).toHaveLength(1)
-  // 화면이 두 번째 요청을 보내지 않는다 (서버 잠금에만 기대지 않는다).
-  expect(openRequests).toBe(1)
-  await expect(page.getByRole('alert')).toHaveCount(0)
-})
-
-test('탭은 Home / End 키로 처음과 끝으로 옮길 수 있다', async ({ page }) => {
-  await openBoard(page)
-  await page.getByRole('tab', { name: '케어 보드' }).focus()
-  await page.keyboard.press('End')
-  await expect(page.getByRole('tab', { name: '지점 요약' })).toBeFocused()
-  await page.keyboard.press('Home')
-  await expect(page.getByRole('tab', { name: '케어 보드' })).toBeFocused()
+  await expect(page.getByRole('status')).toHaveText('최학생 · 계속 관리 · 다음 점검 10/7')
+  await expect(detail.getByRole('alert')).toHaveCount(0)
+  const response = await request.get(`${API}/api/admin/student-care/students/stu_002/history?branchId=br_gangnam`)
+  const body = (await response.json()) as { items: { type: string }[] }
+  expect(body.items.map((item) => item.type)).toEqual(['ADJUSTMENT_STARTED', 'REASON_CONFIRMED'])
 })
