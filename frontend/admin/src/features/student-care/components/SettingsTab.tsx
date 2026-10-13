@@ -159,6 +159,8 @@ function SettingsForm({ branchId, initial, titleRef, onSaved }: FormProps) {
                       min={ranges[field.key].min}
                       max={ranges[field.key].max}
                       required
+                      // 저장하는 동안 고친 값이 응답 값에 덮여 사라지지 않게, 보내는 중에는 읽기 전용이다.
+                      readOnly={pending}
                       value={values[field.key]}
                       aria-invalid={message ? true : undefined}
                       aria-describedby={message ? `${inputId}-range ${inputId}-error` : `${inputId}-range`}

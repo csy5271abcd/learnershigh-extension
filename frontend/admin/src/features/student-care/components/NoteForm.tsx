@@ -5,7 +5,7 @@ import { fieldMessage, formLevelError, invalidProps } from '../model/fieldErrors
 import { CHANNEL_LABEL } from '../model/format.ts'
 import type { NoteChannel } from '../model/types.ts'
 import { useCaseCommand } from '../model/useCaseCommand.ts'
-import { useErrorFocus } from '../model/useFocus.ts'
+import { mayReclaimFocus, useErrorFocus } from '../model/useFocus.ts'
 import { FieldError, InlineError } from './StateMessage.tsx'
 
 const CHANNELS: NoteChannel[] = ['MEETING', 'CALL', 'MESSAGE', 'OTHER']
@@ -37,7 +37,7 @@ export function NoteForm({ branchId, caseId, onSaved, onStale }: Props) {
       () => studentCareApi.addNote(branchId, caseId, channel, trimmed),
       () => {
         // 비우면 버튼이 disabled가 되므로, 먼저 입력 칸으로 Focus를 옮겨 다음 메모를 바로 쓸 수 있게 한다.
-        contentRef.current?.focus()
+        if (mayReclaimFocus()) contentRef.current?.focus()
         setContent('')
         onSaved()
       },

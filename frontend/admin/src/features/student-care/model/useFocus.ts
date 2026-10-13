@@ -11,6 +11,15 @@ export function useErrorFocus(error: ApiError | null, container: RefObject<HTMLE
   }, [error, container])
 }
 
+/**
+ * 요청이 끝났을 때 Focus를 옮겨도 되는지: Focus가 사라졌거나, 아직 보내는 중 표시(aria-disabled)인 그 버튼에 있을 때만.
+ * 사용자가 그사이 다른 칸으로 옮겨 입력 중이면 Focus를 가져오지 않는다 (WCAG 3.2.2).
+ */
+export function mayReclaimFocus(): boolean {
+  if (focusIsLost()) return true
+  return document.activeElement?.getAttribute('aria-disabled') === 'true'
+}
+
 /** Focus가 어디에도 없는지 (누른 버튼이 사라져 body로 빠졌는지). */
 export function focusIsLost(): boolean {
   const active = document.activeElement

@@ -103,6 +103,7 @@ export function ReasonSection({
             rows={2}
             maxLength={1000}
             value={memo}
+            readOnly={command.pending}
             placeholder="학생이 말한 사정이나 확인한 내용"
             onChange={(event) => setMemo(event.target.value)}
             {...invalidProps(`${id}-memo-error`, memoError)}

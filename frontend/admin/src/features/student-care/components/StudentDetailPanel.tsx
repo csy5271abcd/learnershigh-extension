@@ -3,7 +3,7 @@ import type { ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { outcomeOf, type Outcome } from '../model/outcome.ts'
 import type { CareCase } from '../model/types.ts'
-import { focusIsLost, useRetryFocus } from '../model/useFocus.ts'
+import { focusIsLost, mayReclaimFocus, useRetryFocus } from '../model/useFocus.ts'
 import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { ActiveCasePanel } from './ActiveCasePanel.tsx'
 import { ReasonSection } from './ReasonSection.tsx'
@@ -87,7 +87,7 @@ export function StudentDetailPanel({
   const stale = detail.status === 'error'
   // 저장 / 결정이 끝나면 누른 버튼이 곧 사라지므로(폼 초기화 · 건 종결) 바로 상세 제목으로 Focus를 옮긴다.
   const saved = (careCase: CareCase) => {
-    headingRef.current?.focus()
+    if (mayReclaimFocus()) headingRef.current?.focus()
     onChanged(outcomeOf(careCase, data.student.studentName))
   }
 
