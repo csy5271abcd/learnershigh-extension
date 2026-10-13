@@ -14,3 +14,29 @@ spring:
     hibernate:
       # Schema 변경은 Migration으로만 관리한다 (.claude/rules/database.md). Hibernate가 Schema를 만들지 않는다.
       ddl-auto: none
+
+app:
+  # 기준일 계산 Timezone (shared-conventions.md §13)
+  zone: Asia/Seoul
+
+learnershigh:
+  integration:
+    # Existing LearnersHigh 실제 API가 확정되기 전까지 mock (ADR-0002)
+    mode: mock
+  mock:
+    # 비어 있으면 Application 시작일을 시연 기준일로 쓴다.
+    anchor-date:
+
+---
+# E2E (ADR-0007): 기준일 고정 + 조정 가능한 Clock + /api/test/** 등록
+spring:
+  config:
+    activate:
+      on-profile: e2e
+
+app:
+  fixed-date: 2026-09-30
+
+learnershigh:
+  mock:
+    anchor-date: 2026-09-30

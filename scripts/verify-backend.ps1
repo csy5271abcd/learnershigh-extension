@@ -128,6 +128,27 @@ try {
     else {
         & $gradleWrapper clean build
         Assert-LastExitCode -Operation "Gradle clean build"
+
+        # Integration Test는 Testcontainers(MySQL)를 쓰므로 Docker가 필요하다 (ADR-0006).
+        Write-Step "Integration tests (Testcontainers)"
+
+        $dockerAvailable = $false
+
+        if ($null -ne (Get-Command "docker" -ErrorAction SilentlyContinue)) {
+            & docker info *> $null
+            $dockerAvailable = ($LASTEXITCODE -eq 0)
+        }
+
+        if ($dockerAvailable) {
+            & $gradleWrapper integrationTest
+            Assert-LastExitCode -Operation "Gradle integrationTest"
+        }
+        elseif ($Strict) {
+            throw "Docker를 사용할 수 없어 integrationTest를 실행하지 못했습니다. (-Strict)"
+        }
+        else {
+            Write-Warn "Docker를 사용할 수 없어 integrationTest를 건너뜁니다. Docker 실행 후 다시 검증하세요."
+        }
     }
 }
 finally {

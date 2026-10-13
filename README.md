@@ -219,9 +219,14 @@ Backend
 → Gradle 9.7.1 Wrapper, Kotlin DSL (Maven 사용 안 함)
 → Domain-packaged Layered MVC (ADR-0005)
 → Test: JUnit Jupiter + Spring Boot Test (BOM 관리) + ArchUnit
+→ Migration: Flyway (database/migrations/, ADR-0006)
+→ Integration Test: Testcontainers MySQL (ADR-0006)
+
+E2E
+→ Playwright 1.63.0 (e2e/ 별도 npm Package, ADR-0007 Proposed)
 
 Database
-→ MySQL
+→ MySQL 8.4 (로컬: docker-compose.yml)
 
 API
 → REST-style JSON Contract
@@ -239,8 +244,8 @@ Frontend
 → Test Framework
 
 Backend / Database
-→ Migration Tool
-→ MySQL Integration Test 실행 방식
+→ Seed 적용 방식
+→ 시연 / 배포 환경
 
 Infrastructure / Integration
 → Authentication 방식
@@ -395,7 +400,8 @@ learnershigh-extension
 │  │  ├─ 0002-existing-learnershigh-integration-boundary.md
 │  │  ├─ 0003-shared-feedback-queue.md
 │  │  ├─ 0004-parent-report-without-parent-app.md
-│  │  └─ 0005-domain-packaged-layered-mvc-backend.md
+│  │  ├─ 0005-domain-packaged-layered-mvc-backend.md
+│  │  └─ 0006-docker-mysql-flyway-testcontainers.md
 │  │
 │  └─ source/
 │     └─ archive/
@@ -906,7 +912,13 @@ Progress 문서는 Requirement Source가 아니다.
 
 ## 20. Current Project Status
 
-현재 Repository는 Harness / Architecture / Specification 정리를 마치고 **Frontend / Backend Scaffold 단계**에 있다. (Feature 코드는 아직 없다.)
+현재 Repository는 Scaffold 위에서 Feature 구현 단계에 있다.
+
+구현된 Feature:
+
+```text
+학생 케어 (Wangyu, Admin) — docs/specs/wangyu/progress.md
+```
 
 현재까지 준비된 주요 문서:
 
@@ -927,7 +939,7 @@ CLAUDE.md
 .gitignore
 ```
 
-Feature 코드 구현은 Scaffold Branch가 merge된 뒤 Feature 단위 Branch에서 시작한다.
+Feature 코드는 Feature 단위 Branch에서 구현한다.
 
 ---
 
@@ -960,7 +972,15 @@ Claude Code 또는 개발자가 구현 편의를 위해 임의로 확정하지 �
 ```text
 Node.js 22 (^22.12.0) + npm
 JDK 17 이상 (Gradle 실행용). Java 21 toolchain은 없으면 Gradle이 자동으로 내려받는다.
-MySQL (Backend 실행 시)
+Docker Desktop (로컬 MySQL / integrationTest)
+```
+
+### Local MySQL
+
+```powershell
+copy .env.example .env      # 필요하면 값 수정
+docker compose up -d        # mysql:8.4, localhost:3306
+docker compose down         # 중지 (Data 유지, 삭제는 down -v)
 ```
 
 Global Gradle / Maven 설치는 필요 없다. Backend는 `backend/gradlew(.bat)`만 사용한다.
@@ -982,19 +1002,51 @@ npm run build
 
 ```powershell
 cd backend
-.\gradlew.bat build      # compile + test + bootJar
-.\gradlew.bat bootRun    # DB 환경 변수 필요
+.\gradlew.bat build            # compile + Unit / ArchUnit test + bootJar (Docker 불필요)
+.\gradlew.bat integrationTest  # @Tag("integration") Test, Testcontainers MySQL (Docker 필요)
+.\gradlew.bat bootRun          # DB 환경 변수 필요, 시작 시 Flyway Migration 적용
 ```
 
 Backend 실행에는 Extension MySQL 연결 정보를 환경 변수로 넣어야 한다. 값은 Git에 커밋하지 않는다.
 
 ```text
-DB_URL        예: jdbc:mysql://<host>:3306/<database>
-DB_USERNAME
-DB_PASSWORD
+DB_URL        로컬: jdbc:mysql://localhost:3306/learnershigh_extension
+DB_USERNAME   로컬: learnershigh
+DB_PASSWORD   로컬: learnershigh
 ```
 
-아직 정하지 않은 것: Migration Tool, Seed, E2E, Existing LearnersHigh 연결 방식.
+Migration 파일 규칙: `database/migrations/README.md`
+
+### E2E (Playwright, ADR-0007)
+
+Backend(`e2e` Profile) + MySQL + Admin preview를 띄운 뒤 실행한다.
+`e2e` Profile은 Existing LearnersHigh Mock 데이터와 조정 가능한 기준일(기본 2026-09-30)을 쓰고, `/api/test/**` Endpoint를 연다.
+
+```powershell
+docker compose up -d
+cd backend
+$env:SPRING_PROFILES_ACTIVE="e2e"; .\gradlew.bat bootRun   # DB_* 환경 변수 필요, :8080
+
+cd frontend
+npm run build --workspace=@learnershigh/admin
+npm run preview --workspace=@learnershigh/admin            # :4174, /api → :8080
+
+cd e2e
+npm ci
+npx playwright install chromium
+npm run typecheck
+npm test
+```
+
+| 환경 변수 | 기본값 | 의미 |
+|---|---|---|
+| `E2E_BASE_URL` | `http://localhost:4174` | Admin 화면 |
+| `E2E_API_URL` | `http://localhost:8080` | Backend (`/api/test/**` 호출) |
+| `PLAYWRIGHT_CHROMIUM_PATH` | (없음) | 설치된 Chromium을 쓸 때 경로 |
+
+CI는 `.github/workflows/ci.yml`의 `e2e` Job에서 같은 순서로 실행한다.
+
+아직 정하지 않은 것: Seed, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
 README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---
@@ -1082,9 +1134,15 @@ Parent Report Without Parent App
 
 ADR-0005
 Domain-packaged Layered MVC Backend
+
+ADR-0006 (Proposed)
+Docker MySQL / Flyway / Testcontainers
+
+ADR-0007 (Proposed)
+Playwright E2E with Mock Existing Data
 ```
 
-위 ADR은 모두 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
+ADR-0001 ~ 0005는 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
 
 Accepted ADR을 변경하려면
 기존 문서를 조용히 덮어쓰지 않고 새 ADR에서 Supersede한다.

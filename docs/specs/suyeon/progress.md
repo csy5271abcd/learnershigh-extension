@@ -1009,9 +1009,11 @@ Frontend build: PASS (student / admin / mentor)
 
 Backend compile: PASS (gradlew classes)
 Backend test: PASS (ArchUnit 21 tests, DB / Docker 불필요)
+Backend integrationTest: PASS (ApplicationContextTest 1, Testcontainers mysql:8.4 + Flyway, ADR-0006)
+Local MySQL (docker compose up -d): PASS (mysql 8.4.11 healthy)
 Backend runtime: NOT_RUN (DB_URL / DB_USERNAME / DB_PASSWORD 미설정 시 DataSource 생성 실패 확인)
 
-DB migration: NOT_RUN (Migration Tool 미확정)
+DB migration: Flyway 적용 확인 (Migration 파일 0개, pending 0)
 E2E: NOT_RUN
 
 Markdown link validation: PASS (2026-10-09 Harness 작업)
@@ -1189,6 +1191,30 @@ verify-frontend.ps1 npm-only 시나리오 11개 (scratch fixture): 기대대로 
 Markdown link validation: PASS (Markdown Link 14개, broken 0)
 Inline code path 점검: reward-dashboard.png 1건 누락 (보고만, 미수정)
 ```
+
+## 2026-10-09 — Docker MySQL / Flyway / Testcontainers (ADR-0006, Proposed)
+
+### Done
+
+- `docker-compose.yml`(mysql:8.4), `.env.example`
+- Backend: Flyway(`database/migrations/` → `classpath:db/migration`), Testcontainers MySQL, `integrationTest` Gradle Task(`@Tag("integration")`)
+- `ApplicationContextTest`: 실제 MySQL에서 Context + Flyway 검증
+- `scripts/verify-backend.ps1`: Docker가 있으면 integrationTest 실행, `-Strict`에서 Docker 없으면 실패
+- CI Backend Job: `windows-latest` → `ubuntu-latest`
+- 문서: ADR-0006, ARCHITECTURE / CLAUDE / AGENTS / README / overview / backend · database rule
+
+### Verification
+
+```text
+./gradlew clean build integrationTest: PASS (test 21, integrationTest 1)
+docker compose config / up: PASS (mysql 8.4.11 healthy)
+scripts/verify-backend.ps1: NOT_RUN (작업 환경에 pwsh 없음)
+GitHub Actions: NOT_RUN (Push 전)
+```
+
+### Not Decided
+
+- Seed 적용 방식, E2E 도구, 시연 / 배포 환경
 
 ## 2026-10-09 — Project Scaffold (branch: chore/project-scaffold)
 
@@ -2319,4 +2345,30 @@ Shared Conventions
 
 Progress는 실제 상태를 기록하고,
 Requirement는 Source of Truth 문서를 따른다.
+```
+
+## 2026-10-13 — Admin + Student Care Integration (branch: chore/integrate-main-student-care)
+
+### Done
+
+- `origin/main`(PR #5 Student Extension · PR #7 Wangyu 학생 케어) Merge, 충돌: `frontend/admin/src/App.tsx`, `frontend/admin/src/main.tsx`
+- Admin Host = Suyeon AdminShell + 주소 Router 유지. Wangyu 개발용 App Shell(별도 Header)은 쓰지 않음
+- 학생 케어: `/student-care` Feature Route(`app/StudentCareRoute.tsx`), Sidebar 학습관리 › Today Board 다음 "학생 케어", Breadcrumb 학습관리 › 학생 케어
+- `features/student-care/**` 변경 0. Wangyu 배경(--color-background)은 Route Wrapper 영역에만
+- `main.tsx`: `app/theme.css`(Wangyu --color-*) → `index.css`(Suyeon --lh-*, Shell 전역) 순서로 둘 다 import
+- E2E 진입 경로 `/` → `/student-care` (`e2e/tests/support.ts`, `student-care.spec.ts` 연동 실패 Scenario 1곳, Shared Harness 변경 · 승인됨)
+
+### Gap
+
+- Today Board 관리 포인트 ↔ 학생 케어 신호: 아직 분리 (향후 StudentCareQueryService 공개 Boundary 소비)
+- Student identity: Suyeon fixture-student-* ↔ Wangyu stu_* (ExistingStudentClient 통합 때 정리)
+- Theme: --lh-* / --color-* 공존, Wangyu Token만 Dark mode 대응 (Shared Theme 후속)
+
+### Verification
+
+```text
+Docker daemon 미실행: Backend integrationTest / Wangyu E2E / verify -Strict(Backend) NOT_RUN — Docker unavailable
+Backend unit (gradlew build): PASS (87 tests)
+Admin / Student / Mentor build, verify-frontend: PASS
+Suyeon Browser Test 494 + 통합 Smoke 24: PASS
 ```

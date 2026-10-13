@@ -387,8 +387,7 @@ docs/specs/
    └─ features/
 ```
 
-`docs/specs/wangyu/` 문서(features / `domain.md` / `progress.md`)는 아직 생성 전이다.
-아래 §8, §14의 Wangyu 경로는 해당 문서가 생성된 이후 사용하며, 존재할 경우에만 확인한다.
+`docs/specs/wangyu/`에는 학생 케어(`features/student-care.md`)와 `domain.md`, `progress.md`가 있다.
 
 수연 담당 Feature Spec:
 
@@ -508,6 +507,8 @@ docs/adr/
 0003-shared-feedback-queue.md
 0004-parent-report-without-parent-app.md
 0005-domain-packaged-layered-mvc-backend.md
+0006-docker-mysql-flyway-testcontainers.md
+0007-playwright-e2e.md
 ```
 
 ADR은 다음 상황에서 작성한다.

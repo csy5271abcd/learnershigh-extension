@@ -1,0 +1,34 @@
+# Local development MySQL (ADR-0006).
+# Backend는 이 Container에 붙고, Test는 Testcontainers가 별도 Container를 띄운다.
+#
+#   docker compose up -d      # 시작
+#   docker compose down       # 중지 (Data 유지)
+#   docker compose down -v    # 중지 + Data 삭제
+#
+# 값은 .env(.env.example 참고)로 덮어쓸 수 있다. 실제 운영 Password를 이 파일에 쓰지 않는다.
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: learnershigh-mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-learnershigh_extension}
+      MYSQL_USER: ${MYSQL_USER:-learnershigh}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-learnershigh}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      TZ: UTC
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  mysql-data:

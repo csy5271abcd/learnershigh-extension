@@ -32,12 +32,15 @@ import {
   TaskInspectorRoute,
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
+import { StudentCareRoute, studentCarePath } from './app/StudentCareRoute.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
 // Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Mentor 추천 · Connection · Interview · Operations)
+// 학생 케어(features/student-care, Wangyu)는 같은 AdminShell 안의 Feature Route(/student-care)로 연결한다. (별도 App Shell을 쓰지 않는다)
 const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
+  'student-care': studentCarePath,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -106,6 +109,10 @@ function App() {
     current = 'interview'
     pageLabel = 'Interview 관리'
     page = <InterviewRoute location={location} />
+  } else if (pathname === studentCarePath) {
+    current = 'student-care'
+    pageLabel = '학생 케어'
+    page = <StudentCareRoute />
   } else if (pathname === operationsPath) {
     current = 'operations'
     pageLabel = 'Operations'

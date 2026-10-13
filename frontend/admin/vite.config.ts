@@ -1,6 +1,9 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+// Backend API (Spring Boot). E2E / 로컬 모두 /api 를 Backend로 넘긴다.
+const apiTarget = process.env.VITE_API_TARGET ?? 'http://localhost:8080'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -8,5 +11,11 @@ export default defineConfig({
   server: {
     port: 5174,
     strictPort: true,
+    proxy: { '/api': apiTarget },
+  },
+  preview: {
+    port: 4174,
+    strictPort: true,
+    proxy: { '/api': apiTarget },
   },
 })

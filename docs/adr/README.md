@@ -138,6 +138,8 @@ NNNN-short-decision-title.md
 0003-shared-feedback-queue.md
 0004-parent-report-without-parent-app.md
 0005-domain-packaged-layered-mvc-backend.md
+0006-docker-mysql-flyway-testcontainers.md
+0007-playwright-e2e.md
 ```
 
 ---
@@ -261,6 +263,8 @@ Claude Code는:
 | ADR-0003 | Feedback을 Shared Queue로 운영 | Accepted |
 | ADR-0004 | 별도 Parent App 없이 Admin Parent Report 전달 | Accepted |
 | ADR-0005 | Backend를 Domain 패키지 안의 Layered MVC로 구성 | Accepted |
+| ADR-0006 | 로컬 MySQL Docker Compose, Flyway Migration, Testcontainers Integration Test | Proposed |
+| ADR-0007 | Playwright E2E, Mock Existing Data, e2e Profile | Proposed |
 
 ---
 

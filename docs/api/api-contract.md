@@ -3121,3 +3121,315 @@ Do not hide Integration failures as Empty.
 Do not expose PII across Surface boundaries.
 Do not invent Counseling APIs in Suyeon scope.
 Do not finalize unresolved states by guessing.
+
+---
+
+# 65. Admin — Student Care (Wangyu)
+
+> Spec: `docs/specs/wangyu/features/student-care.md`, Domain: `docs/specs/wangyu/domain.md`  
+> Actor: `ADMIN`. 인증 방식은 미확정(§7)이며, 확정 전까지 이 Endpoint는 Admin Surface에서만 호출한다.
+
+Base:
+
+```text
+/api/admin/student-care
+```
+
+공통:
+
+- `branchId`, `studentId`는 Existing LearnersHigh ID(문자열)다.
+- 날짜는 `YYYY-MM-DD`(Asia/Seoul 기준일), 시각은 ISO 8601 Offset(`+09:00`).
+- 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다).
+
+Enum:
+
+```text
+signalType : CONSECUTIVE_ABSENCE | PLAN_MISSING | STUDY_DROP | EXECUTION_GAP | SUBJECT_SHARE | START_TIME_SHIFT
+reason     : EXPECTED_CHANGE | RECORD_ISSUE | ADJUSTMENT_NEEDED
+status     : IN_ADJUSTMENT | CLOSED
+closeType  : EXPECTED_CHANGE | RECORD_ISSUE | AFTER_RECHECK
+decision   : CLOSE | CONTINUE | REVISE
+eventType  : REASON_CONFIRMED | ADJUSTMENT_STARTED | RECHECKED | CONTINUED | REVISED | CLOSED | NOTE
+noteChannel: MEETING | CALL | MESSAGE | OTHER
+trend      : IMPROVED | SAME | WORSENED
+result     : IMPROVED | NO_CHANGE | WORSENED | MIXED
+```
+
+## 65-1. Branch List
+
+```http
+GET /api/admin/student-care/branches
+```
+
+```json
+{
+  "items": [
+    { "branchId": "br_gangnam", "name": "러너스하이 강남점", "studentCount": 10 }
+  ]
+}
+```
+
+## 65-2. Care Board
+
+```http
+GET /api/admin/student-care/board?branchId=br_gangnam
+```
+
+```json
+{
+  "asOf": "2026-09-30",
+  "branch": { "branchId": "br_gangnam", "name": "러너스하이 강남점" },
+  "needsCheck": [
+    {
+      "studentId": "stu_001",
+      "studentName": "김서준",
+      "className": "고3 A반",
+      "signals": [
+        { "type": "CONSECUTIVE_ABSENCE", "label": "연속 미입실", "summary": "4일째 입실 기록 없음" }
+      ]
+    }
+  ],
+  "inAdjustment": [
+    {
+      "caseId": "care_9f0c...",
+      "studentId": "stu_005",
+      "studentName": "윤서연",
+      "className": "고3 A반",
+      "signals": [ { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "summary": "계획한 수학 비중 30% → 최근 12%" } ],
+      "goal": "수학 비중을 계획한 30% 가까이",
+      "recheckDate": "2026-10-07",
+      "recheckDue": false
+    }
+  ],
+  "deferred": [
+    { "studentId": "stu_008", "studentName": "장하준", "className": "고3 A반", "validDays": 2 }
+  ]
+}
+```
+
+Error: `404 BRANCH_NOT_FOUND`, `400 VALIDATION_ERROR`(branchId 없음).
+
+## 65-3. Student Care Detail
+
+```http
+GET /api/admin/student-care/students/{studentId}?branchId=br_gangnam
+```
+
+```json
+{
+  "asOf": "2026-09-30",
+  "student": { "studentId": "stu_005", "studentName": "윤서연", "className": "고3 A반", "branchId": "br_gangnam" },
+  "signals": [
+    {
+      "type": "SUBJECT_SHARE",
+      "label": "과목 배분 차이",
+      "summary": "계획한 수학 비중 30% → 최근 12%",
+      "evidence": ["계획한 수학 비중 30% → 최근 12% (전체 학습량은 평소 수준)"],
+      "question": "의도한 시험 대비인지, 수학 항목이 너무 커서 미루고 있는지"
+    }
+  ],
+  "deferred": null,
+  "dailyStudy": [ { "date": "2026-09-17", "minutes": 260 } ],
+  "usualDailyMinutes": 252,
+  "planSuggestion": {
+    "goal": "수학 비중을 계획한 30% 가까이",
+    "action": "큰 수학 항목을 30분씩 4회로 나누기",
+    "loadLimit": "주 2시간 추가까지",
+    "recheckDate": "2026-10-07"
+  },
+  "activeCase": null
+}
+```
+
+- `dailyStudy`: last14, 날짜 오름차순.
+- `deferred`: 판단 보류면 `{ "validDays": 2 }`, 아니면 `null`.
+- `planSuggestion`: 신호가 있고 진행 중 건이 없을 때만 값이 있다.
+- `activeCase`: 진행 중 건(65-5 `CareCase`) 또는 `null`.
+
+Error: `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`.
+
+## 65-4. Open Care Case (사유 확인 / 조정 시작)
+
+```http
+POST /api/admin/student-care/cases
+```
+
+```json
+{
+  "branchId": "br_gangnam",
+  "studentId": "stu_005",
+  "reason": "ADJUSTMENT_NEEDED",
+  "memo": "시험 범위가 넓어 수학을 미루고 있다고 함",
+  "plan": {
+    "goal": "수학 비중을 계획한 30% 가까이",
+    "action": "큰 수학 항목을 30분씩 4회로 나누기",
+    "loadLimit": "주 2시간 추가까지",
+    "recheckDate": "2026-10-07",
+    "agreedWithStudent": true
+  }
+}
+```
+
+- `reason`이 `EXPECTED_CHANGE` / `RECORD_ISSUE`면 `plan`은 무시되고 건은 바로 `CLOSED`.
+- `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `recheckDate`는 asOf+1 ~ asOf+28.
+- `memo`: 0~1000자.
+
+Response `201`: `CareCase` (65-5).
+
+Error: `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_FLAGGED`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `400 VALIDATION_ERROR`.
+
+## 65-5. CareCase Shape
+
+```json
+{
+  "caseId": "care_9f0c...",
+  "studentId": "stu_005",
+  "branchId": "br_gangnam",
+  "status": "IN_ADJUSTMENT",
+  "reason": "ADJUSTMENT_NEEDED",
+  "closeType": null,
+  "openedOn": "2026-09-30",
+  "closedOn": null,
+  "baseline": [
+    { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "summary": "계획한 수학 비중 30% → 최근 12%", "value": 12, "target": 30, "unit": "PERCENT" }
+  ],
+  "plan": {
+    "goal": "수학 비중을 계획한 30% 가까이",
+    "action": "큰 수학 항목을 30분씩 4회로 나누기",
+    "loadLimit": "주 2시간 추가까지",
+    "agreedWithStudent": true
+  },
+  "recheckDate": "2026-10-07",
+  "recheckDue": false,
+  "comparison": null,
+  "events": [
+    { "eventId": "evt_...", "type": "ADJUSTMENT_STARTED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "조정 시작 — 큰 수학 항목을 30분씩 4회로 나누기 (재점검 10월 7일)", "noteChannel": null }
+  ]
+}
+```
+
+- `unit`: `DAYS` | `MINUTES` | `PERCENT` | `CLOCK_MINUTES`(자정 기준 분).
+- `comparison`: `recheckDue`가 `true`일 때만 값이 있다.
+
+```json
+{
+  "rows": [
+    { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "before": 12, "now": 24, "target": 30, "unit": "PERCENT", "trend": "IMPROVED" }
+  ],
+  "result": "IMPROVED",
+  "resultLabel": "변화 관찰"
+}
+```
+
+- `events`: 이 건의 이벤트, 오래된 순.
+
+## 65-6. Decide After Recheck
+
+```http
+POST /api/admin/student-care/cases/{caseId}/decisions
+```
+
+```json
+{ "decision": "REVISE", "recheckDate": "2026-10-14", "plan": { "goal": "...", "action": "...", "loadLimit": "...", "agreedWithStudent": true } }
+```
+
+- `CLOSE`: 추가 필드 없음.
+- `CONTINUE`: `recheckDate` 필수 (asOf+1 ~ asOf+28).
+- `REVISE`: `plan`, `recheckDate` 필수.
+
+Response `200`: `CareCase`.
+
+Error: `404 CARE_CASE_NOT_FOUND`, `409 RECHECK_NOT_DUE`, `409 INVALID_STATE_TRANSITION`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`.
+
+## 65-7. Add Note (면담 / 통화 메모)
+
+```http
+POST /api/admin/student-care/cases/{caseId}/notes
+```
+
+```json
+{ "channel": "CALL", "content": "어머니와 통화. 다음 주 시험 끝나면 정상 등원 예정" }
+```
+
+Response `201`: `CareEvent` (65-5 `events` 항목). `content` 1~1000자.
+
+Error: `404 CARE_CASE_NOT_FOUND`, `400 VALIDATION_ERROR`.
+
+## 65-8. Student Care History
+
+```http
+GET /api/admin/student-care/students/{studentId}/history?branchId=br_gangnam
+```
+
+```json
+{
+  "student": { "studentId": "stu_005", "studentName": "윤서연", "className": "고3 A반", "branchId": "br_gangnam" },
+  "items": [
+    { "eventId": "evt_...", "caseId": "care_...", "type": "CLOSED", "occurredOn": "2026-10-07", "createdAt": "2026-10-07T09:00:00+09:00", "content": "재점검 후 선생님이 종결", "noteChannel": null }
+  ]
+}
+```
+
+- 학생의 모든 건 이벤트, 최신순.
+
+## 65-9. Care Settings
+
+```http
+GET /api/admin/student-care/settings?branchId=br_gangnam
+PUT /api/admin/student-care/settings?branchId=br_gangnam
+```
+
+```json
+{
+  "absenceDays": 3,
+  "planMissingDays": 3,
+  "studyDropPercent": 40,
+  "executionRatePercent": 60,
+  "subjectShareGapPoints": 15,
+  "startShiftMinutes": 90,
+  "minValidDays": 3,
+  "cooldownDays": 7
+}
+```
+
+- PUT은 전체 값을 받는다. 범위는 `docs/specs/wangyu/domain.md` §4-3. 범위 밖: `422 INVALID_CARE_SETTINGS` (`details.fields`).
+
+## 65-10. Branch Summary
+
+```http
+GET /api/admin/student-care/summary?branchId=br_gangnam
+```
+
+```json
+{
+  "asOf": "2026-09-30",
+  "needsCheckCount": 7,
+  "deferredCount": 1,
+  "inAdjustmentCount": 1,
+  "recheckDueCount": 0,
+  "signalCounts": [ { "type": "STUDY_DROP", "label": "학습량 감소", "count": 2 } ],
+  "closedLast30Days": { "expectedChange": 0, "recordIssue": 0, "afterRecheck": 0 }
+}
+```
+
+## 65-11. Endpoint Inventory
+
+```text
+GET    /api/admin/student-care/branches
+GET    /api/admin/student-care/board
+GET    /api/admin/student-care/students/{studentId}
+GET    /api/admin/student-care/students/{studentId}/history
+POST   /api/admin/student-care/cases
+POST   /api/admin/student-care/cases/{caseId}/decisions
+POST   /api/admin/student-care/cases/{caseId}/notes
+GET    /api/admin/student-care/settings
+PUT    /api/admin/student-care/settings
+GET    /api/admin/student-care/summary
+```
+
+E2E 전용(`e2e` Profile에서만 등록, 운영 Build에 노출하지 않음):
+
+```text
+PUT    /api/test/clock          { "date": "2026-10-07" }
+POST   /api/test/reset
+```

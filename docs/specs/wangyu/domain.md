@@ -1,0 +1,127 @@
+# Wangyu Domain — Student Care
+
+> 위치: `docs/specs/wangyu/domain.md`  
+> 학생 케어(Student Care)의 Entity / State / 신호 계산 기준이다. 기능 흐름은 `features/student-care.md`, API는 `docs/api/api-contract.md` §65.
+
+## 1. Bounded Context
+
+```text
+studentcare  (backend package: com.learnershigh.extension.studentcare)
+```
+
+읽는 외부 데이터 (Existing LearnersHigh, Read only):
+
+| Client | 내용 |
+|---|---|
+| `ExistingStudentClient` | 지점 목록, 지점 학생 (studentId, 이름, 반) |
+| `ExistingStudyClient` | 학생별 하루 기록: 입실 여부 / 첫 입실 시각, 과목별 학습 분, 계획 제출 여부, 과목별 계획 분 |
+
+실제 Existing API가 확정되기 전까지 `MockExistingStudentClient` / `MockExistingStudyClient`(시나리오 데이터)를 쓴다.
+연동 실패는 `EXISTING_STUDY_DATA_UNAVAILABLE`(503)이며 빈 목록으로 바꾸지 않는다.
+
+## 2. 기준일 / 기간
+
+- 기준일 `asOf` = 서버 `Clock`의 오늘 (Asia/Seoul).
+- `last7` = asOf-6 ~ asOf, `last14` = asOf-13 ~ asOf, `prev21` = asOf-27 ~ asOf-7.
+- 유효 학습일 = 그날 학습 30분 이상.
+
+## 3. 신호 (CareSignalType)
+
+우선순위 순서. 신호는 판정이 아니라 "확인할 변화"다.
+
+| Type | 라벨 | 조건 | 비교 지표 (재점검) | 좋아지는 방향 |
+|---|---|---|---|---|
+| `CONSECUTIVE_ABSENCE` | 연속 미입실 | asOf부터 거꾸로 연속 미입실 일수 ≥ `absenceDays` | 연속 미입실 일수 | 낮을수록 |
+| `PLAN_MISSING` | 계획 미제출 반복 | last7 계획 미제출 일수 ≥ `planMissingDays` | last7 미제출 일수 | 낮을수록 |
+| `STUDY_DROP` | 학습량 감소 | 평소(prev21 합 ÷ 3) > 0 이고 (평소 − last7 합) ÷ 평소 ≥ `studyDropPercent`% | last7 학습 분 | 높을수록 |
+| `EXECUTION_GAP` | 계획 대비 실행 부족 | last14 계획 분 > 0 이고 실행 분 ÷ 계획 분 < `executionRatePercent`% | 실행률 % | 높을수록 |
+| `SUBJECT_SHARE` | 과목 배분 차이 | last7 계획 비중 − 실제 비중이 가장 큰 과목의 차이 ≥ `subjectShareGapPoints`%p | 그 과목 실제 비중 % | 높을수록 |
+| `START_TIME_SHIFT` | 시작 시각 변화 | last7 평균 첫 입실 시각 − prev21 평균 ≥ `startShiftMinutes`분 (각 기간 입실 3일 이상) | last7 평균 시작 분 | 낮을수록 |
+
+규칙:
+
+- `CONSECUTIVE_ABSENCE`가 있으면 학습량 계열(`STUDY_DROP`, `EXECUTION_GAP`, `SUBJECT_SHARE`, `START_TIME_SHIFT`)은 계산하지 않는다.
+- 판단 보류(`deferred`): last7 유효 학습일 < `minValidDays`이고 `CONSECUTIVE_ABSENCE`가 없으면 학습량 계열을 계산하지 않는다. 남은 신호가 없으면 판단 보류 목록에 둔다.
+- `cooldownDays`: 학생의 가장 최근 종결 건이 asOf − cooldownDays 이후에 종결됐으면, 그 건의 기준 신호와 같은 Type은 보드에 올리지 않는다.
+- 진행 중(`IN_ADJUSTMENT`) 건이 있는 학생은 "확인할 변화"가 아니라 "조정 진행 중"에 둔다.
+
+## 4. Entity
+
+### 4-1. CareCase (케어 건)
+
+| Field | 설명 |
+|---|---|
+| `caseId` | `care_<uuid>` |
+| `branchId`, `studentId` | Existing ID (문자열) |
+| `status` | `IN_ADJUSTMENT` / `CLOSED` |
+| `reason` | `EXPECTED_CHANGE` / `RECORD_ISSUE` / `ADJUSTMENT_NEEDED` |
+| `closeType` | `EXPECTED_CHANGE` / `RECORD_ISSUE` / `AFTER_RECHECK` (CLOSED일 때) |
+| `openedOn`, `closedOn` | 날짜 |
+| `baseline` | 건을 연 시점의 신호 목록과 비교 지표 값 (Snapshot, 이후 원본 변경으로 덮어쓰지 않음) |
+| `plan` | 목표 / 행동 / 부담 한도 / 학생 합의 (ADJUSTMENT_NEEDED만) |
+| `recheckDate` | 재점검일 (IN_ADJUSTMENT일 때) |
+
+### 4-2. CareEvent (학생 기록)
+
+| Type | 남는 시점 |
+|---|---|
+| `REASON_CONFIRMED` | 사유 확인 (메모 포함 가능) |
+| `ADJUSTMENT_STARTED` | 조정 시작 (약속 요약) |
+| `RECHECKED` | 재점검 결정 시 비교 결과 요약 |
+| `CONTINUED` | 같은 약속으로 계속 (새 재점검일) |
+| `REVISED` | 약속 수정 (새 약속 / 새 재점검일) |
+| `CLOSED` | 종결 |
+| `NOTE` | 면담 / 통화 / 메시지 / 기타 메모 |
+
+이벤트는 추가만 한다(수정 / 삭제 없음).
+
+### 4-3. CareSettings (기준값)
+
+지점별 1건. 없으면 기본값을 쓴다. 범위:
+
+| Key | 기본 | 범위 |
+|---|---|---|
+| absenceDays | 3 | 2~14 |
+| planMissingDays | 3 | 1~7 |
+| studyDropPercent | 40 | 10~90 |
+| executionRatePercent | 60 | 10~100 |
+| subjectShareGapPoints | 15 | 5~60 |
+| startShiftMinutes | 90 | 30~300 |
+| minValidDays | 3 | 1~7 |
+| cooldownDays | 7 | 0~30 |
+
+## 5. State Transition
+
+```text
+(없음) ──사유: EXPECTED_CHANGE──▶ CLOSED (closeType EXPECTED_CHANGE)
+(없음) ──사유: RECORD_ISSUE─────▶ CLOSED (closeType RECORD_ISSUE)
+(없음) ──사유: ADJUSTMENT_NEEDED + 약속 + 합의──▶ IN_ADJUSTMENT
+
+IN_ADJUSTMENT ──(asOf ≥ recheckDate) 종결──────────▶ CLOSED (AFTER_RECHECK)
+IN_ADJUSTMENT ──(asOf ≥ recheckDate) 계속(새 재점검일)──▶ IN_ADJUSTMENT
+IN_ADJUSTMENT ──(asOf ≥ recheckDate) 약속 수정────────▶ IN_ADJUSTMENT
+```
+
+잘못된 전이 (409):
+
+| 상황 | Error Code |
+|---|---|
+| 진행 중 건이 있는데 새 건 | `ACTIVE_CARE_CASE_EXISTS` |
+| 신호가 없는 학생으로 새 건 | `STUDENT_NOT_FLAGGED` |
+| 재점검일 전 결정 | `RECHECK_NOT_DUE` |
+| CLOSED 건에 결정 | `INVALID_STATE_TRANSITION` |
+
+입력 오류 (422): `PLAN_REQUIRED`, `STUDENT_AGREEMENT_REQUIRED`, `INVALID_RECHECK_DATE`, `INVALID_CARE_SETTINGS`.
+
+## 6. 재점검 비교
+
+- 건의 `baseline`에 있는 신호마다 같은 공식으로 asOf 기준 지표를 다시 계산한다.
+- 추세: 좋아지는 방향으로 최소 폭 이상 움직이면 `IMPROVED`, 반대면 `WORSENED`, 아니면 `SAME`.
+  최소 폭: 일수 1일, 학습 분 max(30분, 기준의 5%), 비중·실행률 3%p, 시작 시각 15분.
+- 지금 기록으로 계산할 수 없는 지표(예: 미입실이라 과목 비중 없음)는 `SAME`으로 보고 값은 비운다.
+- 결과: 모두 IMPROVED → `IMPROVED`(변화 관찰), 모두 SAME → `NO_CHANGE`(변화 없음), IMPROVED 없이 WORSENED 있음 → `WORSENED`(더 나빠짐), 그 외 → `MIXED`(일부 변화).
+- 결과는 표시용이다. 상태를 바꾸지 않는다.
+
+## 7. 약속 예시 / 확인할 질문
+
+첫 신호(우선순위) 기준 규칙 템플릿으로 채운다. AI 생성이 아니다. 문구는 `StudentCareTexts`가 관리한다.
