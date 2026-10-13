@@ -424,6 +424,8 @@ scripts/verify-backend.ps1
 
 Test / Build / Typecheck / Lint가 실패하면 완료라고 보고하지 않는다.
 
+PR / Feature 완료 전 리뷰는 `.claude/rules/code-review.md`(Section 점수제 + 적대적 리뷰)를 따른다.
+
 ## 20. Completion Report
 
 완료 보고에는 최소한 다음을 포함한다.
