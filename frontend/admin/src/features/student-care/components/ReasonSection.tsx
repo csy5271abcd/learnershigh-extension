@@ -1,10 +1,13 @@
 import { useId, useState } from 'react'
-import { ApiError } from '../api/apiClient.ts'
+import { toApiError, type ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
+import { fieldMessage, invalidProps } from '../model/fieldErrors.ts'
 import { REASON_LABEL } from '../model/format.ts'
-import type { CareCase, CareReason, PlanInput, PlanSuggestion } from '../model/types.ts'
+import { needsReload, savedNotice } from '../model/savedNotice.ts'
+import type { CareCase, CareReason, PlanFields, PlanSuggestion } from '../model/types.ts'
+import { useLatest } from '../model/useLatest.ts'
 import { PlanForm } from './PlanForm.tsx'
-import { InlineError } from './StateMessage.tsx'
+import { FieldError, InlineError } from './StateMessage.tsx'
 
 const REASONS: { reason: CareReason; description: string }[] = [
   { reason: 'EXPECTED_CHANGE', description: '시험 뒤 휴식, 시간표 변경 등. 기록만 남기고 종결' },
@@ -17,19 +20,27 @@ interface Props {
   studentId: string
   asOf: string
   suggestion: PlanSuggestion | null
+  /** 상세 데이터의 revision. 저장 뒤 새 데이터가 오기 전까지 다시 제출하지 않는다. */
+  revision: number
+  /** 상세를 다시 불러오지 못해 지금 보이는 내용이 오래된 값인지. */
+  stale: boolean
   onSaved: (careCase: CareCase) => void
+  onReloadNeeded: () => void
 }
 
 /** 사유 확인: 예상된 변화 / 기록 문제 / 조정 필요. 결정은 선생님이 한다. */
-export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }: Props) {
+export function ReasonSection({ branchId, studentId, asOf, suggestion, revision, stale, onSaved, onReloadNeeded }: Props) {
   const id = useId()
   const [reason, setReason] = useState<CareReason | null>(null)
   const [memo, setMemo] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
+  const [savedRevision, setSavedRevision] = useState<number | null>(null)
+  const latestRevision = useLatest(revision)
+  const locked = savedRevision === revision
 
-  const save = async (plan?: PlanInput) => {
-    if (!reason || pending) return
+  const save = async (plan?: PlanFields, recheckDate?: string) => {
+    if (!reason || pending || locked) return
     setPending(true)
     setError(null)
     try {
@@ -38,14 +49,20 @@ export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }
         studentId,
         reason,
         memo: memo.trim() || undefined,
-        plan,
+        plan: plan && recheckDate ? { ...plan, recheckDate } : undefined,
       })
+      setSavedRevision(latestRevision.current)
       onSaved(careCase)
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught : new ApiError(0, 'UNKNOWN_ERROR', String(caught), []))
+      const apiError = toApiError(caught)
+      setError(apiError)
+      if (needsReload(apiError.code)) onReloadNeeded()
+    } finally {
       setPending(false)
     }
   }
+
+  const memoError = fieldMessage(error, ['memo'], '사유 메모는 1000자 이내로 입력하세요.')
 
   return (
     <section className="sc-section" aria-labelledby={`${id}-title`}>
@@ -59,6 +76,7 @@ export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }
             type="button"
             className="sc-reason"
             aria-pressed={reason === option.reason}
+            disabled={pending || locked}
             onClick={() => {
               setReason(option.reason)
               setError(null)
@@ -80,7 +98,9 @@ export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }
             value={memo}
             placeholder="학생이 말한 사정이나 확인한 내용"
             onChange={(event) => setMemo(event.target.value)}
+            {...invalidProps(`${id}-memo-error`, memoError)}
           />
+          <FieldError id={`${id}-memo-error`} message={memoError} />
         </div>
       )}
 
@@ -88,7 +108,12 @@ export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }
         <>
           <InlineError error={error} />
           <div className="sc-actions">
-            <button type="button" className="sc-button sc-button--primary" disabled={pending} onClick={() => save()}>
+            <button
+              type="button"
+              className="sc-button sc-button--primary"
+              disabled={pending || locked}
+              onClick={() => save()}
+            >
               {pending ? '저장 중…' : '기록하고 종결'}
             </button>
           </div>
@@ -106,10 +131,13 @@ export function ReasonSection({ branchId, studentId, asOf, suggestion, onSaved }
           }}
           submitLabel="조정 시작"
           pending={pending}
+          locked={locked}
           error={error}
-          onSubmit={(plan) => save(plan)}
+          onSubmit={(plan, recheckDate) => save(plan, recheckDate)}
         />
       )}
+
+      {locked && <p className="sc-hint">{savedNotice(stale)}</p>}
     </section>
   )
 }

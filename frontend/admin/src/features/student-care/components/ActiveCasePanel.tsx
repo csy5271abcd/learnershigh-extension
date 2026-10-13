@@ -1,46 +1,86 @@
 import { useId, useState } from 'react'
-import { ApiError } from '../api/apiClient.ts'
+import { toApiError, type ApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
-import { addDays, metric, monthDay } from '../model/format.ts'
-import type { CareCase, DecisionInput, Trend } from '../model/types.ts'
+import { fieldMessage, invalidProps } from '../model/fieldErrors.ts'
+import { addDays, DEFAULT_RECHECK_DAYS, metric, monthDay, RECHECK_DAY_CHOICES } from '../model/format.ts'
+import { needsReload, savedNotice } from '../model/savedNotice.ts'
+import type { CareCase, ComparisonRow, DecisionInput, Trend } from '../model/types.ts'
+import { useLatest } from '../model/useLatest.ts'
 import { NoteForm } from './NoteForm.tsx'
 import { PlanForm } from './PlanForm.tsx'
-import { InlineError } from './StateMessage.tsx'
+import { FieldError, InlineError } from './StateMessage.tsx'
 import { Timeline } from './Timeline.tsx'
 
 const TREND_LABEL: Record<Trend, string> = { IMPROVED: '나아짐', SAME: '비슷함', WORSENED: '나빠짐' }
-const CONTINUE_OPTIONS = [3, 7, 14]
 
 interface Props {
+  branchId: string
   careCase: CareCase
   asOf: string
+  /** 상세 데이터의 revision. 결정 뒤 새 데이터가 오기 전까지 결정 버튼을 잠근다. */
+  revision: number
+  stale: boolean
   onDecided: (careCase: CareCase) => void
   onNoteSaved: () => void
+  onReloadNeeded: () => void
+}
+
+function CompareRow({ row }: { row: ComparisonRow }) {
+  return (
+    <li className="sc-compare__row">
+      <span className="sc-compare__label">{row.label}</span>
+      <span className="sc-compare__values">
+        {metric(row.before, row.unit)} →{' '}
+        {row.now === null ? <strong>비교할 기록 없음</strong> : <strong>{metric(row.now, row.unit)}</strong>}
+        {row.target !== null && <span className="sc-compare__target"> · 기준 {metric(row.target, row.unit)}</span>}
+      </span>
+      {row.now !== null && <span className={`sc-trend sc-trend--${row.trend.toLowerCase()}`}>{TREND_LABEL[row.trend]}</span>}
+    </li>
+  )
 }
 
 /** 조정 진행 중인 건: 기록, 약속, 재점검 비교와 선생님 결정, 면담·통화 메모. */
-export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Props) {
+export function ActiveCasePanel({
+  branchId,
+  careCase,
+  asOf,
+  revision,
+  stale,
+  onDecided,
+  onNoteSaved,
+  onReloadNeeded,
+}: Props) {
   const id = useId()
   const [mode, setMode] = useState<'idle' | 'continue' | 'revise'>('idle')
-  const [continueDays, setContinueDays] = useState(7)
+  const [continueDays, setContinueDays] = useState(DEFAULT_RECHECK_DAYS)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<ApiError | null>(null)
+  const [decidedRevision, setDecidedRevision] = useState<number | null>(null)
+  const latestRevision = useLatest(revision)
+  const locked = decidedRevision === revision
+  const busy = pending || locked
   const plan = careCase.plan
 
   const decide = async (input: DecisionInput) => {
-    if (pending) return
+    if (busy) return
     setPending(true)
     setError(null)
     try {
-      const decided = await studentCareApi.decide(careCase.caseId, input)
+      const decided = await studentCareApi.decide(branchId, careCase.caseId, input)
       setMode('idle')
+      setDecidedRevision(latestRevision.current)
       onDecided(decided)
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught : new ApiError(0, 'UNKNOWN_ERROR', String(caught), []))
+      const apiError = toApiError(caught)
+      setError(apiError)
+      if (needsReload(apiError.code)) onReloadNeeded()
     } finally {
       setPending(false)
     }
   }
+
+  const continueError =
+    mode === 'continue' ? fieldMessage(error, ['recheckDate'], '다음 재점검일을 다시 골라주세요.') : null
 
   return (
     <div className="sc-case">
@@ -82,16 +122,7 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
           </h3>
           <ul className="sc-compare">
             {careCase.comparison.rows.map((row) => (
-              <li key={row.type} className="sc-compare__row">
-                <span className="sc-compare__label">{row.label}</span>
-                <span className="sc-compare__values">
-                  {metric(row.before, row.unit)} → <strong>{row.now === null ? '계산할 기록 없음' : metric(row.now, row.unit)}</strong>
-                  {row.target !== null && row.type !== 'CONSECUTIVE_ABSENCE' && row.type !== 'PLAN_MISSING' && (
-                    <span className="sc-compare__target"> · 기준 {metric(row.target, row.unit)}</span>
-                  )}
-                </span>
-                <span className={`sc-trend sc-trend--${row.trend.toLowerCase()}`}>{TREND_LABEL[row.trend]}</span>
-              </li>
+              <CompareRow key={row.type} row={row} />
             ))}
           </ul>
           <p className="sc-result">
@@ -107,7 +138,7 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
             <button
               type="button"
               className="sc-button sc-button--primary"
-              disabled={pending}
+              disabled={busy}
               onClick={() => decide({ decision: 'CLOSE' })}
             >
               종결
@@ -116,8 +147,11 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
               type="button"
               className="sc-button sc-button--secondary"
               aria-expanded={mode === 'continue'}
-              disabled={pending}
-              onClick={() => setMode(mode === 'continue' ? 'idle' : 'continue')}
+              disabled={busy}
+              onClick={() => {
+                setMode(mode === 'continue' ? 'idle' : 'continue')
+                setError(null)
+              }}
             >
               같은 약속으로 계속
             </button>
@@ -125,8 +159,11 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
               type="button"
               className="sc-button sc-button--secondary"
               aria-expanded={mode === 'revise'}
-              disabled={pending}
-              onClick={() => setMode(mode === 'revise' ? 'idle' : 'revise')}
+              disabled={busy}
+              onClick={() => {
+                setMode(mode === 'revise' ? 'idle' : 'revise')
+                setError(null)
+              }}
             >
               약속 수정
             </button>
@@ -139,8 +176,9 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
                 id={`${id}-next`}
                 value={continueDays}
                 onChange={(event) => setContinueDays(Number(event.target.value))}
+                {...invalidProps(`${id}-next-error`, continueError)}
               >
-                {CONTINUE_OPTIONS.map((days) => (
+                {RECHECK_DAY_CHOICES.map((days) => (
                   <option key={days} value={days}>
                     {monthDay(addDays(asOf, days))} ({days}일 뒤)
                   </option>
@@ -149,11 +187,12 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
               <button
                 type="button"
                 className="sc-button sc-button--primary"
-                disabled={pending}
+                disabled={busy}
                 onClick={() => decide({ decision: 'CONTINUE', recheckDate: addDays(asOf, continueDays) })}
               >
-                계속하기
+                {pending ? '저장 중…' : '계속하기'}
               </button>
+              <FieldError id={`${id}-next-error`} message={continueError} />
             </div>
           )}
 
@@ -163,12 +202,17 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
               initial={{ goal: plan.goal, action: plan.action, loadLimit: plan.loadLimit, recheckDate: null }}
               submitLabel="새 약속으로 시작"
               pending={pending}
+              locked={locked}
               error={error}
-              onSubmit={(newPlan) => decide({ decision: 'REVISE', plan: newPlan, recheckDate: newPlan.recheckDate })}
-              onCancel={() => setMode('idle')}
+              onSubmit={(newPlan, recheckDate) => decide({ decision: 'REVISE', plan: newPlan, recheckDate })}
+              onCancel={() => {
+                setMode('idle')
+                setError(null)
+              }}
             />
           )}
           {mode !== 'revise' && <InlineError error={error} />}
+          {locked && <p className="sc-hint">{savedNotice(stale)}</p>}
         </section>
       )}
 
@@ -176,7 +220,7 @@ export function ActiveCasePanel({ careCase, asOf, onDecided, onNoteSaved }: Prop
         <h3 id={`${id}-note`} className="sc-section__title">
           면담·통화 메모
         </h3>
-        <NoteForm caseId={careCase.caseId} onSaved={onNoteSaved} />
+        <NoteForm branchId={branchId} caseId={careCase.caseId} onSaved={onNoteSaved} onReloadNeeded={onReloadNeeded} />
       </section>
     </div>
   )

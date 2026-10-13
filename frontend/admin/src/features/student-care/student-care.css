@@ -12,6 +12,9 @@
   position: absolute;
   width: 1px;
   height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
@@ -77,8 +80,9 @@
   background: var(--color-surface-muted);
 }
 
+/* on-accent / accent-strong: Light 5.41:1, Dark 8.37:1 */
 .sc-branch[aria-current='true'] {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-on-accent);
 }
 
@@ -88,7 +92,6 @@
 
 .sc-branch__count {
   font-size: var(--font-size-supporting);
-  opacity: 0.85;
 }
 
 /* Main / tabs */
@@ -125,16 +128,55 @@
   border-bottom-color: var(--color-accent);
 }
 
+/* Toast: 문구가 없을 때도 live region은 남아 있고 공간만 차지하지 않는다. */
 .sc-toast {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+.sc-toast__text {
+  margin: 0;
+}
+
+.sc-toast--open {
   margin-bottom: var(--space-3);
   padding: var(--space-2) var(--space-3);
   background: var(--color-positive-soft);
   color: var(--color-positive);
   border-radius: var(--radius-medium);
+  font-weight: 600;
+}
+
+/* 다시 불러오기 실패: 빈 상태와 다르게, 이전 내용이 오래됐을 수 있음을 알린다. */
+.sc-stale {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-negative);
+  border-radius: var(--radius-medium);
+  background: var(--color-negative-soft);
+  color: var(--color-negative);
+}
+
+.sc-stale__text {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sc-stale__reason {
+  font-size: var(--font-size-supporting);
+}
+
+.sc-board--stale .sc-list {
+  outline: 1px dashed var(--color-border-strong);
+  outline-offset: -1px;
 }
 
 /* Board */
@@ -267,6 +309,11 @@
   font-weight: 700;
 }
 
+.sc-tag--stale {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
 .sc-tag--due {
   margin-left: var(--space-1);
   background: var(--color-accent-soft);
@@ -295,6 +342,11 @@
   margin-left: auto;
   padding: var(--space-1) var(--space-3);
   font-size: var(--font-size-supporting);
+}
+
+.sc-detail__name,
+.sc-history__title {
+  scroll-margin-top: var(--space-4);
 }
 
 .sc-detail__name {
@@ -371,8 +423,9 @@
   height: auto;
 }
 
+/* 막대(비텍스트) 대비 ≥ 3:1 — chart-muted: Light 3.65:1, Dark 3.77:1 / accent: Light 3.71:1, Dark 5.67:1 */
 .sc-chart__bar {
-  fill: var(--color-disabled);
+  fill: var(--color-chart-muted);
 }
 
 .sc-chart__bar--recent {
@@ -477,6 +530,12 @@
   font-weight: 600;
 }
 
+.sc-check-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .sc-check input {
   width: 18px;
   height: 18px;
@@ -509,13 +568,14 @@
   color: var(--color-text-tertiary);
 }
 
+/* on-accent / accent-strong: Light 5.41:1, Dark 8.37:1 (hover accent-pressed: 7.60:1 / 11.20:1) */
 .sc-button--primary:not(:disabled) {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-on-accent);
 }
 
 .sc-button--primary:not(:disabled):hover {
-  background: var(--color-accent-strong);
+  background: var(--color-accent-pressed);
 }
 
 .sc-button--secondary:not(:disabled) {
@@ -532,6 +592,13 @@
 .sc-inline-error {
   margin: 0;
   color: var(--color-negative);
+  font-weight: 600;
+}
+
+.sc-field-error {
+  margin: 0;
+  color: var(--color-negative);
+  font-size: var(--font-size-supporting);
   font-weight: 600;
 }
 
@@ -679,6 +746,11 @@
 }
 
 /* Settings / summary */
+.sc-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .sc-table {
   width: 100%;
   border-collapse: collapse;

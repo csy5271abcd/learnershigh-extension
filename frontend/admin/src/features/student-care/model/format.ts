@@ -19,6 +19,18 @@ export function addDays(date: string, days: number): string {
   return next.toISOString().slice(0, 10)
 }
 
+/** 두 날짜 사이 일수 (to − from). */
+export function daysBetween(from: string, to: string): number {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000)
+}
+
+/**
+ * 재점검일 선택지 (기준일 asOf로부터 N일 뒤). 서버 허용 범위는 asOf+1 ~ asOf+28 (65-4, 65-6).
+ * 날짜는 항상 가장 최근에 불러온 asOf로 계산한다.
+ */
+export const RECHECK_DAY_CHOICES: readonly number[] = [3, 7, 14]
+export const DEFAULT_RECHECK_DAYS = 7
+
 export function hoursMinutes(minutes: number): string {
   const hours = Math.floor(minutes / 60)
   const rest = minutes % 60

@@ -6,12 +6,13 @@ import { useRemote } from '../model/useRemote.ts'
 import { ActiveCasePanel } from './ActiveCasePanel.tsx'
 import { ReasonSection } from './ReasonSection.tsx'
 import { SignalBadges } from './SignalBadges.tsx'
-import { Empty, ErrorState, Loading } from './StateMessage.tsx'
+import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 import { StudyChart } from './StudyChart.tsx'
 
 interface Props {
   branchId: string
   studentId: string | null
+  /** 페이지에서 무언가 바뀌면 올라가는 값. 바뀌면 같은 학생 상세를 다시 불러온다. */
   version: number
   onChanged: (outcome: Outcome | null) => void
   onShowHistory: () => void
@@ -19,21 +20,28 @@ interface Props {
 
 /** 카드를 고르면 근거 · 학습량 · 확인할 질문 · 사유 확인 또는 진행 중인 건이 열린다. */
 export function StudentDetailPanel({ branchId, studentId, version, onChanged, onShowHistory }: Props) {
-  const detail = useRemote(studentId ? `${branchId}/${studentId}` : null, () =>
-    studentCareApi.detail(branchId, studentId ?? ''),
+  const detail = useRemote(
+    studentId ? `${branchId}/${studentId}` : null,
+    () => studentCareApi.detail(branchId, studentId ?? ''),
+    version,
   )
-  const { reload } = detail
   const articleRef = useRef<HTMLElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  // 저장 / 결정 뒤 새 데이터로 바뀌면 상세 제목으로 Focus를 옮긴다 (누른 버튼이 사라질 수 있으므로).
+  const focusAfterReload = useRef(false)
+  const loadedStudentId = detail.data?.student.studentId ?? null
 
   // 좁은 화면에서는 상세가 목록 아래에 있으므로, 학생을 고르면 상세가 보이게 한다.
   useEffect(() => {
-    if (studentId && detail.data) articleRef.current?.scrollIntoView?.({ block: 'nearest' })
-  }, [studentId, detail.data])
+    if (loadedStudentId) articleRef.current?.scrollIntoView?.({ block: 'nearest' })
+  }, [loadedStudentId])
 
-  // 보드에서 무언가 바뀌면(version) 같은 학생 상세를 다시 불러온다.
   useEffect(() => {
-    if (version > 0) reload()
-  }, [version, reload])
+    if (focusAfterReload.current && detail.status === 'success') {
+      focusAfterReload.current = false
+      headingRef.current?.focus()
+    }
+  }, [detail.revision, detail.status])
 
   if (!studentId) {
     return (
@@ -59,7 +67,11 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
 
   const data = detail.data
   const { activeCase } = data
-  const saved = (careCase: CareCase) => onChanged(outcomeOf(careCase, data.student.studentName))
+  const stale = detail.status === 'error'
+  const saved = (careCase: CareCase) => {
+    focusAfterReload.current = true
+    onChanged(outcomeOf(careCase, data.student.studentName))
+  }
   return (
     <article
       ref={articleRef}
@@ -68,7 +80,7 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
       aria-busy={detail.status === 'loading'}
     >
       <header className="sc-detail__header">
-        <h2 id="sc-detail-name" className="sc-detail__name">
+        <h2 id="sc-detail-name" ref={headingRef} tabIndex={-1} className="sc-detail__name">
           {data.student.studentName}
           <span className="sc-detail__class">{data.student.className}</span>
         </h2>
@@ -79,7 +91,7 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
         </button>
       </header>
 
-      {detail.status === 'error' && <ErrorState error={detail.error} onRetry={detail.reload} />}
+      {detail.status === 'error' && <StaleError what="학생 상세" error={detail.error} onRetry={detail.reload} />}
 
       <section className="sc-section" aria-label="근거">
         <h3 className="sc-section__title">근거</h3>
@@ -120,10 +132,14 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
       {activeCase ? (
         <ActiveCasePanel
           key={activeCase.caseId}
+          branchId={branchId}
           careCase={activeCase}
           asOf={data.asOf}
+          revision={detail.revision}
+          stale={stale}
           onDecided={saved}
           onNoteSaved={() => onChanged(null)}
+          onReloadNeeded={detail.reload}
         />
       ) : (
         data.signals.length > 0 && (
@@ -133,7 +149,10 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged, on
             studentId={data.student.studentId}
             asOf={data.asOf}
             suggestion={data.planSuggestion}
+            revision={detail.revision}
+            stale={stale}
             onSaved={saved}
+            onReloadNeeded={detail.reload}
           />
         )
       )}

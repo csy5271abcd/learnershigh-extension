@@ -1,4 +1,4 @@
-import { hoursMinutes, shortDate } from '../model/format.ts'
+import { hoursMinutes, monthDay, shortDate } from '../model/format.ts'
 
 interface Props {
   days: { date: string; minutes: number }[]
@@ -10,7 +10,10 @@ const HEIGHT = 120
 const PADDING_TOP = 10
 const PADDING_BOTTOM = 22
 
-/** 최근 14일 하루 학습량. 빨간 점선은 평소 하루 평균, 최근 7일은 진한 색으로 구분한다. */
+/**
+ * 최근 14일 하루 학습량. 빨간 점선은 평소 하루 평균, 최근 7일은 진한 색과 아래 글자로 구분한다.
+ * 화면 읽기 프로그램은 그래프 요약(aria-label)과 숨긴 표로 날짜별 값을 읽는다.
+ */
 export function StudyChart({ days, usualDailyMinutes }: Props) {
   const max = Math.max(usualDailyMinutes, ...days.map((day) => day.minutes), 60) * 1.15
   const plotHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM
@@ -57,6 +60,25 @@ export function StudyChart({ days, usualDailyMinutes }: Props) {
           최근 7일
         </text>
       </svg>
+      <table className="sc-visually-hidden">
+        <caption>최근 14일 하루 학습량</caption>
+        <thead>
+          <tr>
+            <th scope="col">날짜</th>
+            <th scope="col">학습량</th>
+            <th scope="col">구간</th>
+          </tr>
+        </thead>
+        <tbody>
+          {days.map((day, index) => (
+            <tr key={day.date}>
+              <th scope="row">{monthDay(day.date)}</th>
+              <td>{hoursMinutes(day.minutes)}</td>
+              <td>{index >= recentFrom ? '최근 7일' : '그 전 7일'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </figure>
   )
 }

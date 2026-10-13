@@ -16,9 +16,21 @@ export class ApiError extends Error {
     this.code = code
     this.fields = fields
   }
+
+  /** `details.fields[].field`(JSON 경로, 예: `plan.goal`) 중 하나라도 이 오류의 원인인지. */
+  hasField(...paths: string[]): boolean {
+    return this.fields.some((violation) => paths.includes(violation.field))
+  }
 }
 
 const NETWORK_MESSAGE = '서버에 연결하지 못했습니다. 네트워크를 확인한 뒤 다시 시도해주세요.'
+
+/** catch로 받은 값을 ApiError로 정규화한다. 모든 화면은 이 함수만 쓴다. */
+export function toApiError(caught: unknown): ApiError {
+  if (caught instanceof ApiError) return caught
+  const message = caught instanceof Error ? caught.message : String(caught)
+  return new ApiError(0, 'UNKNOWN_ERROR', message || '요청을 처리하지 못했습니다.', [])
+}
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response

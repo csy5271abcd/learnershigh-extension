@@ -3,12 +3,12 @@ import type { Outcome } from '../model/outcome.ts'
 import type { CareBoard } from '../model/types.ts'
 import type { Remote } from '../model/useRemote.ts'
 import { SignalBadges } from './SignalBadges.tsx'
-import { Empty, ErrorState, Loading } from './StateMessage.tsx'
+import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 import { StudentDetailPanel } from './StudentDetailPanel.tsx'
 
 interface Props {
   branchId: string
-  board: Remote<CareBoard> & { reload: () => void }
+  board: Remote<CareBoard>
   selectedStudentId: string | null
   onSelectStudent: (studentId: string) => void
   version: number
@@ -33,19 +33,17 @@ export function CareBoardTab({
     return <Loading label="케어 보드를 불러오는 중…" />
   }
   const data = board.data
+  const stale = board.status === 'error'
 
   return (
-    <div className="sc-board" aria-busy={board.status === 'loading'}>
+    <div className={stale ? 'sc-board sc-board--stale' : 'sc-board'} aria-busy={board.status === 'loading'}>
       <div className="sc-board__head">
         <h2 className="sc-board__title">
           {monthDay(data.asOf)} 기준 · {data.branch.name}
         </h2>
-        {board.status === 'error' && (
-          <button type="button" className="sc-button sc-button--ghost" onClick={board.reload}>
-            최신 상태 다시 불러오기
-          </button>
-        )}
+        {stale && <span className="sc-tag sc-tag--stale">이전에 불러온 내용</span>}
       </div>
+      {stale && <StaleError what="케어 보드" error={board.error} onRetry={board.reload} />}
       {data.deferred.length > 0 && (
         <ul className="sc-deferred" aria-label="판단 보류">
           {data.deferred.map((student) => (

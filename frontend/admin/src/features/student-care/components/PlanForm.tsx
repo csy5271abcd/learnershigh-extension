@@ -1,33 +1,33 @@
 import { useId, useState, type FormEvent } from 'react'
 import type { ApiError } from '../api/apiClient.ts'
-import { addDays, monthDay } from '../model/format.ts'
-import type { PlanInput } from '../model/types.ts'
-import { InlineError } from './StateMessage.tsx'
-
-const RECHECK_OPTIONS = [3, 7, 14]
+import { fieldMessage, invalidProps } from '../model/fieldErrors.ts'
+import { addDays, daysBetween, DEFAULT_RECHECK_DAYS, monthDay, RECHECK_DAY_CHOICES } from '../model/format.ts'
+import type { PlanFields } from '../model/types.ts'
+import { FieldError, InlineError } from './StateMessage.tsx'
 
 interface Props {
+  /** 가장 최근에 불러온 기준일. 재점검일은 제출 시점에 이 값으로 계산한다. */
   asOf: string
   initial: { goal: string; action: string; loadLimit: string | null; recheckDate: string | null }
   submitLabel: string
   pending: boolean
+  /** 저장은 끝났고 새 데이터를 기다리는 중이라 다시 제출하지 않는다. */
+  locked?: boolean
   error: ApiError | null
-  onSubmit: (plan: PlanInput) => void
+  onSubmit: (plan: PlanFields, recheckDate: string) => void
   onCancel?: () => void
 }
 
-function daysBetween(from: string, to: string): number {
-  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000)
-}
-
 /** 약속 한 가지: 목표 · 행동 · 부담 한도 · 재점검일 · 학생 합의. 예시로 채워지고 선생님이 고친다. */
-export function PlanForm({ asOf, initial, submitLabel, pending, error, onSubmit, onCancel }: Props) {
+export function PlanForm({ asOf, initial, submitLabel, pending, locked = false, error, onSubmit, onCancel }: Props) {
   const id = useId()
-  const initialDays = initial.recheckDate ? daysBetween(asOf, initial.recheckDate) : 7
+  const initialDays = initial.recheckDate ? daysBetween(asOf, initial.recheckDate) : DEFAULT_RECHECK_DAYS
   const [goal, setGoal] = useState(initial.goal)
   const [action, setAction] = useState(initial.action)
   const [loadLimit, setLoadLimit] = useState(initial.loadLimit ?? '')
-  const [recheckDays, setRecheckDays] = useState(RECHECK_OPTIONS.includes(initialDays) ? initialDays : 7)
+  const [recheckDays, setRecheckDays] = useState(
+    RECHECK_DAY_CHOICES.includes(initialDays) ? initialDays : DEFAULT_RECHECK_DAYS,
+  )
   const [agreed, setAgreed] = useState(false)
 
   const filled = goal.trim().length > 0 && action.trim().length > 0
@@ -35,11 +35,17 @@ export function PlanForm({ asOf, initial, submitLabel, pending, error, onSubmit,
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    if (disabledReason || pending) return
-    onSubmit({ goal, action, loadLimit, recheckDate: addDays(asOf, recheckDays), agreedWithStudent: agreed })
+    if (disabledReason || pending || locked) return
+    onSubmit({ goal, action, loadLimit, agreedWithStudent: agreed }, addDays(asOf, recheckDays))
   }
 
-  const fieldError = (field: string) => error?.fields.some((violation) => violation.field.endsWith(field))
+  const errors = {
+    goal: fieldMessage(error, ['plan.goal'], '목표는 1~200자로 입력하세요.'),
+    action: fieldMessage(error, ['plan.action'], '행동은 1~200자로 입력하세요.'),
+    loadLimit: fieldMessage(error, ['plan.loadLimit'], '부담 한도는 100자 이내로 입력하세요.'),
+    recheck: fieldMessage(error, ['plan.recheckDate', 'recheckDate'], '재점검일을 다시 골라주세요.'),
+    agreed: fieldMessage(error, ['plan.agreedWithStudent'], '학생과 합의한 뒤 시작할 수 있습니다.'),
+  }
 
   return (
     <form className="sc-plan" onSubmit={submit} aria-label="조정 약속">
@@ -50,12 +56,20 @@ export function PlanForm({ asOf, initial, submitLabel, pending, error, onSubmit,
           value={goal}
           maxLength={200}
           onChange={(event) => setGoal(event.target.value)}
-          aria-invalid={fieldError('goal')}
+          {...invalidProps(`${id}-goal-error`, errors.goal)}
         />
+        <FieldError id={`${id}-goal-error`} message={errors.goal} />
       </div>
       <div className="sc-field">
         <label htmlFor={`${id}-action`}>행동</label>
-        <input id={`${id}-action`} value={action} maxLength={200} onChange={(event) => setAction(event.target.value)} />
+        <input
+          id={`${id}-action`}
+          value={action}
+          maxLength={200}
+          onChange={(event) => setAction(event.target.value)}
+          {...invalidProps(`${id}-action-error`, errors.action)}
+        />
+        <FieldError id={`${id}-action-error`} message={errors.action} />
       </div>
       <div className="sc-plan__row">
         <div className="sc-field">
@@ -66,7 +80,9 @@ export function PlanForm({ asOf, initial, submitLabel, pending, error, onSubmit,
             maxLength={100}
             placeholder="예: 주 2시간 추가까지"
             onChange={(event) => setLoadLimit(event.target.value)}
+            {...invalidProps(`${id}-load-error`, errors.loadLimit)}
           />
+          <FieldError id={`${id}-load-error`} message={errors.loadLimit} />
         </div>
         <div className="sc-field">
           <label htmlFor={`${id}-recheck`}>재점검일</label>
@@ -74,31 +90,41 @@ export function PlanForm({ asOf, initial, submitLabel, pending, error, onSubmit,
             id={`${id}-recheck`}
             value={recheckDays}
             onChange={(event) => setRecheckDays(Number(event.target.value))}
+            {...invalidProps(`${id}-recheck-error`, errors.recheck)}
           >
-            {RECHECK_OPTIONS.map((days) => (
+            {RECHECK_DAY_CHOICES.map((days) => (
               <option key={days} value={days}>
                 {monthDay(addDays(asOf, days))} ({days}일 뒤)
               </option>
             ))}
           </select>
+          <FieldError id={`${id}-recheck-error`} message={errors.recheck} />
         </div>
       </div>
-      <label className="sc-check">
-        <input type="checkbox" checked={agreed} onChange={(event) => setAgreed(event.target.checked)} />
-        학생과 합의함
-      </label>
+      <div className="sc-check-field">
+        <label className="sc-check">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(event) => setAgreed(event.target.checked)}
+            {...invalidProps(`${id}-agreed-error`, errors.agreed)}
+          />
+          학생과 합의함
+        </label>
+        <FieldError id={`${id}-agreed-error`} message={errors.agreed} />
+      </div>
       <InlineError error={error} />
       <div className="sc-actions">
         <button
           type="submit"
           className="sc-button sc-button--primary"
-          disabled={disabledReason !== null || pending}
+          disabled={disabledReason !== null || pending || locked}
           aria-describedby={disabledReason ? `${id}-disabled` : undefined}
         >
           {pending ? '저장 중…' : submitLabel}
         </button>
         {onCancel && (
-          <button type="button" className="sc-button sc-button--ghost" onClick={onCancel} disabled={pending}>
+          <button type="button" className="sc-button sc-button--ghost" onClick={onCancel} disabled={pending || locked}>
             취소
           </button>
         )}

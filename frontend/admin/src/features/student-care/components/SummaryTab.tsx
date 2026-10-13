@@ -1,11 +1,11 @@
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { monthDay } from '../model/format.ts'
 import { useRemote } from '../model/useRemote.ts'
-import { Empty, ErrorState, Loading } from './StateMessage.tsx'
+import { Empty, ErrorState, Loading, StaleError } from './StateMessage.tsx'
 
 /** 지점 요약: 오늘의 케어 현황과 최근 30일 종결. */
 export function SummaryTab({ branchId, version }: { branchId: string; version: number }) {
-  const summary = useRemote(`${branchId}/${version}`, () => studentCareApi.summary(branchId))
+  const summary = useRemote(branchId, () => studentCareApi.summary(branchId), version)
 
   if (summary.status === 'error' && !summary.data) {
     return <ErrorState error={summary.error} onRetry={summary.reload} />
@@ -26,6 +26,7 @@ export function SummaryTab({ branchId, version }: { branchId: string; version: n
       <h2 id="sc-summary-title" className="sc-history__title">
         지점 요약 <span className="sc-hint">{monthDay(data.asOf)} 기준</span>
       </h2>
+      {summary.status === 'error' && <StaleError what="지점 요약" error={summary.error} onRetry={summary.reload} />}
       <dl className="sc-tiles">
         {tiles.map((tile) => (
           <div key={tile.label} className="sc-tile">

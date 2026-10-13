@@ -149,7 +149,7 @@ export interface StudentHistory {
   items: CareEvent[]
 }
 
-export interface CareSettings {
+export interface CareSettingsValues {
   absenceDays: number
   planMissingDays: number
   studyDropPercent: number
@@ -158,6 +158,13 @@ export interface CareSettings {
   startShiftMinutes: number
   minValidDays: number
   cooldownDays: number
+}
+
+export type CareSettingKey = keyof CareSettingsValues
+
+/** GET / PUT settings 응답. `ranges`는 서버가 정한 각 값의 허용 범위다 (65-9). */
+export interface CareSettings extends CareSettingsValues {
+  ranges: Record<CareSettingKey, { min: number; max: number }>
 }
 
 export interface CareSummary {
@@ -170,11 +177,11 @@ export interface CareSummary {
   closedLast30Days: { expectedChange: number; recordIssue: number; afterRecheck: number }
 }
 
-export interface PlanInput {
+/** 약속 내용. 결정(65-6)에서는 재점검일을 최상위 `recheckDate`로 따로 보낸다. */
+export interface PlanFields {
   goal: string
   action: string
   loadLimit: string
-  recheckDate: string
   agreedWithStudent: boolean
 }
 
@@ -183,11 +190,11 @@ export interface OpenCaseInput {
   studentId: string
   reason: CareReason
   memo?: string
-  plan?: PlanInput
+  plan?: PlanFields & { recheckDate: string }
 }
 
 export interface DecisionInput {
   decision: Decision
   recheckDate?: string
-  plan?: PlanInput
+  plan?: PlanFields
 }
