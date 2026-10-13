@@ -42,7 +42,8 @@ public class CarePlan {
     /**
      * 목표 / 행동 필수, 학생 합의 필수 (domain.md §4-1, api-contract.md §65-4).
      * 빈 목표 / 행동은 422 PLAN_REQUIRED, 합의 없음은 422 STUDENT_AGREEMENT_REQUIRED, 길이 초과는 400 VALIDATION_ERROR이며
-     * 모두 원인 필드({@code plan.goal} 등)를 담는다. 길이는 Request에서 먼저 막지만 Column 길이를 지키는 불변식으로 다시 확인한다.
+     * 모두 원인 필드({@code plan.goal} 등)를 담는다. 사유 확인의 약속은 ADJUSTMENT_NEEDED일 때만 여기서 검증한다(api-contract.md §65-4).
+     * 길이 검사는 Column 길이를 지키는 불변식이기도 하다.
      */
     public static CarePlan of(String goal, String action, String loadLimit, boolean agreedWithStudent) {
         String trimmedGoal = trim(goal);

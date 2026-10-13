@@ -111,6 +111,70 @@ class StudentCareErrorApiTest {
     }
 
     @Test
+    void numberAsStringIs400WithFieldAndNotSaved() throws Exception {
+        mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON).content(SETTINGS.formatted("\"3\"")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.details.fields[0].field").value("absenceDays"))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("invalid"));
+        // Boolean 자리의 문자열도 바꿔 넣지 않는다.
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
+                 "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":"true"}}""")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("plan.agreedWithStudent"));
+
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_settings")).isZero();
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
+    }
+
+    @Test
+    void enumAsNumberOrWrongTypeIs400() throws Exception {
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_001","reason":0}""")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("reason"));
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE","memo":123}""")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("memo"));
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
+    }
+
+    @Test
+    void integerOverflowIs400OnTheFieldNotBody() throws Exception {
+        for (String tooBig : new String[] {"2147483648", "99999999999999999999", "-2147483649"}) {
+            mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
+                            .contentType(MediaType.APPLICATION_JSON).content(SETTINGS.formatted(tooBig)))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                    .andExpect(jsonPath("$.details.fields[0].field").value("absenceDays"));
+        }
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_settings")).isZero();
+    }
+
+    @Test
+    void planIsIgnoredEntirelyUnlessAdjustmentIsNeeded() throws Exception {
+        String longPlan = """
+                {"branchId":"br_gangnam","studentId":"%s","reason":"%s",
+                 "plan":{"goal":"%s","action":"%s","loadLimit":"%s","recheckDate":"2026-01-01","agreedWithStudent":false}}""";
+        open(longPlan.formatted("stu_001", "EXPECTED_CHANGE", "가".repeat(500), "나".repeat(500), "다".repeat(500)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("CLOSED"))
+                .andExpect(jsonPath("$.plan").doesNotExist());
+        open(longPlan.formatted("stu_002", "RECORD_ISSUE", "가".repeat(500), "", ""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.closeType").value("RECORD_ISSUE"));
+
+        // 같은 plan이라도 ADJUSTMENT_NEEDED면 검증한다.
+        open(longPlan.formatted("stu_005", "ADJUSTMENT_NEEDED", "가".repeat(201), "행동", ""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("plan.goal"))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("length"));
+    }
+
+    @Test
     void invalidValuesReportTheirJsonPath() throws Exception {
         open("""
                 {"branchId":"br_gangnam","studentId":"stu_005","reason":"UNKNOWN"}""")
@@ -166,13 +230,7 @@ class StudentCareErrorApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("decision"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("required"));
-        mvc.perform(post("/api/admin/student-care/cases/{caseId}/decisions", "care_none").param("branchId", BRANCH)
-                        .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"decision":"REVISE","recheckDate":"2026-10-07",
-                                 "plan":{"goal":"목표","action":"%s","agreedWithStudent":true}}""".formatted("나".repeat(201))))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.action"))
-                .andExpect(jsonPath("$.details.fields[0].reason").value("length"));
+        // REVISE plan 길이는 Domain이 검사하므로 건이 있어야 한다 (StudentCareRecheckApiTest.reviseWithTooLongGoalIs400OnThePlanField).
         mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", "care_none").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content("""
                                 {"channel":"CALL","content":"%s"}""".formatted("가".repeat(1001))))

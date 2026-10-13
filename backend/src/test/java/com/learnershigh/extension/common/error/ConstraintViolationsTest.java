@@ -1,4 +1,4 @@
-package com.learnershigh.extension.studentcare.service;
+package com.learnershigh.extension.common.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -18,9 +18,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** e2e Profile이어도 learnershigh.test-endpoints.enabled=true가 없으면 /api/test/** 가 없다 (ADR-0007). */
+/**
+ * e2e Profile만으로는 /api/test/** 가 없다 (ADR-0007). application.yml의 e2e Profile은 test-endpoints를 켜지 않고,
+ * E2E 실행 환경만 LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true로 켠다. 여기서는 그 속성을 주지 않는다.
+ */
 @Tag("integration")
-@SpringBootTest(properties = "learnershigh.test-endpoints.enabled=false")
+@SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -34,6 +37,7 @@ class E2eEndpointsRequirePropertyTest {
 
     @Test
     void e2eProfileAloneDoesNotRegisterTestEndpoints() throws Exception {
+        assertThat(context.getEnvironment().getProperty("learnershigh.test-endpoints.enabled")).isNull();
         assertThat(context.getBeanNamesForType(E2eTestSupport.class)).isEmpty();
         assertThat(context.getBeanNamesForType(E2eTestSupportController.class)).isEmpty();
 

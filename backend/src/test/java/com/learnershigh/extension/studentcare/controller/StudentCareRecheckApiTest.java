@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,6 +71,31 @@ class StudentCareRecheckApiTest {
     private ResultActions decide(String caseId, String body) throws Exception {
         return mvc.perform(post("/api/admin/student-care/cases/{caseId}/decisions", caseId).param("branchId", BRANCH)
                 .contentType(MediaType.APPLICATION_JSON).content(body));
+    }
+
+    /** 재점검 후 종결하면 진행 중 표시(active_student_id)가 풀려, 쉬는 기간이 0일이면 같은 학생의 새 건을 바로 열 수 있다. */
+    @Test
+    void closingAfterRecheckFreesTheStudentForANewCase() throws Exception {
+        mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"absenceDays":3,"planMissingDays":3,"studyDropPercent":40,"executionRatePercent":60,
+                                 "subjectShareGapPoints":15,"startShiftMinutes":90,"minValidDays":3,"cooldownDays":0}"""))
+                .andExpect(status().isOk());
+        // stu_001은 anchor-3 ~ anchor+2 미입실이라 재점검일(anchor+1)에도 신호가 남아 있다.
+        String caseId = startAdjustment("stu_001", "2026-10-01");
+        clock.setDate(ANCHOR.plusDays(1));
+
+        decide(caseId, "{\"decision\":\"CLOSE\"}")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CLOSED"));
+        assertThat(jdbc.queryForObject("select active_student_id from care_case where id = ?", String.class, caseId))
+                .isNull();
+
+        String next = startAdjustment("stu_001", "2026-10-08");
+        assertThat(next).isNotEqualTo(caseId);
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
+                .andExpect(jsonPath("$.inAdjustment[*].caseId", contains(next)));
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isEqualTo(2);
     }
 
     @Test
@@ -158,6 +184,34 @@ class StudentCareRecheckApiTest {
         decide(caseId, "{\"decision\":\"REVISE\"}")
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("RECHECK_NOT_DUE"));
+    }
+
+    @Test
+    void planIsIgnoredUnlessRevising() throws Exception {
+        String caseId = startAdjustment("stu_003", "2026-10-03");
+        clock.setDate(ANCHOR.plusDays(3));
+
+        decide(caseId, "{\"decision\":\"CONTINUE\",\"recheckDate\":\"2026-10-10\",\"plan\":{\"goal\":\"%s\"}}"
+                .formatted("가".repeat(201)))
+                .andExpect(status().isOk());
+        clock.setDate(ANCHOR.plusDays(10));
+        decide(caseId, "{\"decision\":\"CLOSE\",\"plan\":{\"goal\":\"%s\",\"action\":\"\"}}"
+                .formatted("가".repeat(201)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CLOSED"));
+    }
+
+    @Test
+    void reviseWithTooLongGoalIs400OnThePlanField() throws Exception {
+        String caseId = startAdjustment("stu_003", "2026-10-03");
+        clock.setDate(ANCHOR.plusDays(3));
+
+        decide(caseId, """
+                {"decision":"REVISE","recheckDate":"2026-10-10","plan":{"goal":"%s","action":"행동","agreedWithStudent":true}}"""
+                .formatted("가".repeat(201)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.details.fields[0].field").value("plan.goal"));
     }
 
     @Test

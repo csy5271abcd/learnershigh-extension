@@ -1,11 +1,14 @@
-package com.learnershigh.extension.studentcare.service;
+package com.learnershigh.extension.common.error;
 
 import java.sql.SQLException;
 import java.util.Locale;
 import org.hibernate.exception.ConstraintViolationException;
 
-/** DB 제약 위반이 특정 제약(Unique / Primary Key 이름) 때문인지 판별한다. 다른 위반을 업무 오류로 바꾸지 않기 위해 쓴다. */
-final class ConstraintViolations {
+/**
+ * DB 제약 위반이 특정 제약(Unique / Primary Key 이름) 때문인지 판별한다. 다른 위반을 업무 오류로 바꾸지 않기 위해 쓴다.
+ * 특정 Domain에 묶이지 않는 공통 판별이라 common/error에 둔다(어느 Domain Service든 같은 방식으로 쓴다).
+ */
+public final class ConstraintViolations {
 
     private ConstraintViolations() {
     }
@@ -14,7 +17,7 @@ final class ConstraintViolations {
      * {@code exception}의 원인 중 이름이 {@code constraintName}인 제약 위반이 있는지.
      * MySQL은 제약 이름을 {@code table.key}로 알려 주므로 Table 접두어는 무시한다.
      */
-    static boolean violates(Throwable exception, String constraintName) {
+    public static boolean violates(Throwable exception, String constraintName) {
         String expected = constraintName.toLowerCase(Locale.ROOT);
         for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
             if (cause instanceof ConstraintViolationException violation && violation.getConstraintName() != null) {

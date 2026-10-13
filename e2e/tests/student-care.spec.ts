@@ -253,6 +253,10 @@ test('조정 시작을 연달아 눌러도 케어 건은 하나만 생긴다', a
   const panel = detail(page)
   await panel.getByRole('button', { name: /조정 필요/ }).click()
   await panel.getByLabel('학생과 합의함').check()
+  let openRequests = 0
+  page.on('request', (sent) => {
+    if (sent.method() === 'POST' && sent.url().endsWith('/api/admin/student-care/cases')) openRequests += 1
+  })
   await panel.getByRole('button', { name: '조정 시작' }).dblclick()
 
   await expect(page.getByRole('status').filter({ hasText: '윤서연: 조정을 시작했습니다' })).toBeVisible()
@@ -260,6 +264,9 @@ test('조정 시작을 연달아 눌러도 케어 건은 하나만 생긴다', a
 
   const board = await (await request.get(`${API}/api/admin/student-care/board?branchId=br_gangnam`)).json()
   expect(board.inAdjustment.filter((item: { studentId: string }) => item.studentId === 'stu_005')).toHaveLength(1)
+  // 화면이 두 번째 요청을 보내지 않는다 (서버 잠금에만 기대지 않는다).
+  expect(openRequests).toBe(1)
+  await expect(page.getByRole('alert')).toHaveCount(0)
 })
 
 test('탭은 Home / End 키로 처음과 끝으로 옮길 수 있다', async ({ page }) => {

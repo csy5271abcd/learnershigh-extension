@@ -115,5 +115,122 @@
     "last_login_at": null,
     "is_dark_mode": "0",
     "is_seat": "0"
+  },
+  {
+    "id": 2001,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 3,
+    "real_name": "이선생",
+    "status": "ACTIVE",
+    "loginid": "teacher01",
+    "memo": null,
+    "user_svc_flag": "0000000000",
+    "session_time": null,
+    "device_id": null,
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": null,
+    "grade": null,
+    "room": {
+      "id": 0,
+      "name": null
+    },
+    "seat_number": 0,
+    "group": {
+      "id": 0,
+      "name": null
+    },
+    "nickname": null,
+    "gender": null,
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-01 09:00:00",
+    "last_login_at": "2026-09-30 08:55:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  },
+  {
+    "id": 1004,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "정휴원",
+    "status": "INACTIVE",
+    "loginid": "student04",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "session_time": null,
+    "device_id": null,
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 16,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "MALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:20:00",
+    "last_login_at": "2026-08-31 18:00:00",
+    "is_dark_mode": "0",
+    "is_seat": "1"
+  },
+  {
+    "id": 1005,
+    "brand": {
+      "id": 3,
+      "name": "러너스하이"
+    },
+    "role_id": 5,
+    "real_name": "한탈퇴",
+    "status": "DELETED",
+    "loginid": "student05",
+    "memo": null,
+    "user_svc_flag": "1000000000",
+    "session_time": null,
+    "device_id": null,
+    "phone": null,
+    "parents_phone": null,
+    "parents_email": null,
+    "school": "샘플고등학교",
+    "grade": "고3",
+    "room": {
+      "id": 7,
+      "name": "1관"
+    },
+    "seat_number": 0,
+    "group": {
+      "id": 21,
+      "name": "고3 A반"
+    },
+    "nickname": null,
+    "gender": "MALE",
+    "birth_date": null,
+    "email": null,
+    "address": "//",
+    "profile_img_url": null,
+    "created_at": "2026-03-02 10:25:00",
+    "last_login_at": null,
+    "is_dark_mode": "0",
+    "is_seat": "1"
   }
 ]

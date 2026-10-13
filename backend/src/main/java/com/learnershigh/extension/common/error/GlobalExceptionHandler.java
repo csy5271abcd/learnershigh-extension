@@ -3,11 +3,11 @@ package com.learnershigh.extension.common.error;
 import com.learnershigh.extension.common.integration.learnershigh.ExistingIntegrationException;
 import java.util.List;
 import java.util.Map;
+import org.apache.tomcat.util.http.InvalidParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.dao.PessimisticLockingFailureException;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.method.ParameterErrors;
@@ -22,7 +22,6 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.DatabindException;
 
 /** 모든 예외를 api-contract.md §5 공통 Error 형식으로 바꾼다. Controller / Service는 Error Response를 직접 만들지 않는다. */
 @RestControllerAdvice
@@ -32,9 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     ResponseEntity<ErrorResponse> handleBusiness(BusinessException exception) {
-        ErrorCode errorCode = exception.errorCode();
-        return ResponseEntity.status(errorCode.status())
-                .body(ErrorResponse.of(errorCode.code(), exception.getMessage(), exception.details()));
+        return ErrorResponses.of(exception.errorCode(), exception.getMessage(), exception.details());
     }
 
     @ExceptionHandler(ExistingIntegrationException.class)
@@ -75,6 +72,15 @@ public class GlobalExceptionHandler {
                 Map.of("fields", List.of(new FieldViolation(exception.getParameterName(), "required"))));
     }
 
+    /**
+     * Query 문자열을 해석할 수 없다(잘못된 퍼센트 인코딩 {@code %zz}, 깨진 UTF-8). 어느 파라미터인지 믿을 수 없으므로
+     * field는 {@code query}다. 원문 값은 로그에 남기지 않는다.
+     */
+    @ExceptionHandler(InvalidParameterException.class)
+    ResponseEntity<ErrorResponse> handleMalformedQuery(InvalidParameterException exception) {
+        return of(CommonErrorCode.VALIDATION_ERROR, ErrorResponses.field("query", "invalid"));
+    }
+
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
         return of(CommonErrorCode.VALIDATION_ERROR,
@@ -82,8 +88,8 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * JSON 형식 오류. 값의 형식 / Enum / 정수 필드의 소수처럼 위치를 알 수 있으면 JSON 경로(예: {@code plan.recheckDate})로,
-     * 문법 오류처럼 위치를 알 수 없으면 {@code body}로 알린다 (api-contract.md §5-1).
+     * JSON 형식 오류. 값의 형식 / Enum / 정수 필드의 소수 / 숫자 자리의 문자열 / 범위를 넘는 정수처럼 위치를 알 수 있으면
+     * JSON 경로(예: {@code plan.recheckDate})로, 문법 오류처럼 위치를 알 수 없으면 {@code body}로 알린다 (api-contract.md §5-1).
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException exception) {
@@ -97,16 +103,10 @@ public class GlobalExceptionHandler {
         return of(CommonErrorCode.UNSUPPORTED_MEDIA_TYPE, Map.of());
     }
 
-    /**
-     * Accept가 JSON을 허용하지 않는다. Content-Type을 미리 정해 두면 Accept 협상 없이 JSON 오류 본문을 쓴다.
-     * (협상이 다시 실패하는 경우에도 Spring이 본문 없이 406으로 응답한다.)
-     */
+    /** Accept가 JSON을 허용하지 않는다. 모든 Error 응답처럼 Content-Type을 미리 정해 Accept 협상 없이 JSON 본문을 쓴다. */
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     ResponseEntity<ErrorResponse> handleNotAcceptable(HttpMediaTypeNotAcceptableException exception) {
-        return ResponseEntity.status(CommonErrorCode.NOT_ACCEPTABLE.status())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(ErrorResponse.of(CommonErrorCode.NOT_ACCEPTABLE.code(), CommonErrorCode.NOT_ACCEPTABLE.message(),
-                        Map.of()));
+        return of(CommonErrorCode.NOT_ACCEPTABLE, Map.of());
     }
 
     /** 같은 자원을 동시에 바꿔 이번 요청이 반영되지 않았다 (@Version 충돌, 잠금 대기 실패). 500이 아니라 409로 알린다. */
@@ -133,16 +133,16 @@ public class GlobalExceptionHandler {
     }
 
     private static ResponseEntity<ErrorResponse> of(ErrorCode errorCode, Map<String, Object> details) {
-        return ResponseEntity.status(errorCode.status())
-                .body(ErrorResponse.of(errorCode.code(), errorCode.message(), details));
+        return ErrorResponses.of(errorCode, details);
     }
 
     /** Jackson 바인딩 오류의 JSON 경로. 예: [plan, recheckDate] → "plan.recheckDate", [items, 0] → "items[0]". */
     private static String jsonPathOf(Throwable exception) {
         for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
-            if (cause instanceof DatabindException databind && !databind.getPath().isEmpty()) {
+            // 정수 범위 초과처럼 Parser 단계 예외(StreamReadException)도 Jackson 3에서는 경로를 가진다.
+            if (cause instanceof JacksonException jackson && !jackson.getPath().isEmpty()) {
                 StringBuilder path = new StringBuilder();
-                for (JacksonException.Reference reference : databind.getPath()) {
+                for (JacksonException.Reference reference : jackson.getPath()) {
                     if (reference.getPropertyName() != null) {
                         if (!path.isEmpty()) {
                             path.append('.');

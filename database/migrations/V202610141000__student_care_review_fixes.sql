@@ -29,13 +29,25 @@ WHERE signal_type IN ('CONSECUTIVE_ABSENCE', 'PLAN_MISSING');
 
 -- 3. 학생 기록은 잘리지 않는다: 접두어(사유 확인 등) + 메모 1000자가 들어간다 (api-contract.md §65-4).
 --    record_no: 같은 시각에 남은 이벤트를 기록한 순서대로 보여 주기 위한 전역 순번 (api-contract.md §65-8).
+--    기존 행은 Primary Key(무작위 UUID) 순서가 아니라 기록 순서(created_at → 건 → 건 안 sequence)로 결정적으로 채운다.
+--    (AUTO_INCREMENT Column을 바로 추가하면 기존 행이 PK 순서로 번호를 받아 같은 시각의 기록 순서가 뒤집힐 수 있다.)
 ALTER TABLE care_event
     MODIFY content VARCHAR(1200) NOT NULL,
-    ADD COLUMN record_no BIGINT NOT NULL AUTO_INCREMENT,
+    ADD COLUMN record_no BIGINT NULL;
+
+UPDATE care_event e
+    JOIN (SELECT id, ROW_NUMBER() OVER (ORDER BY created_at, case_id, sequence) AS rn FROM care_event) ordered
+    ON ordered.id = e.id
+SET e.record_no = ordered.rn;
+
+-- 채운 뒤 NOT NULL AUTO_INCREMENT로 바꾼다. MySQL은 기존 Column을 AUTO_INCREMENT로 바꿀 때 다음 값을 MAX(record_no) + 1로 잡는다.
+ALTER TABLE care_event
+    MODIFY record_no BIGINT NOT NULL AUTO_INCREMENT,
     ADD CONSTRAINT uk_care_event_record_no UNIQUE (record_no);
 
 -- 4. 같은 학생의 사유 확인(새 건)을 순서대로 처리하기 위한 학생 단위 잠금 행 (domain.md §5-1).
---    StudentCareService.open()이 Transaction 처음에 이 행을 배타 잠금한다. 업무 데이터는 담지 않는다.
+--    행은 짧은 별도 Transaction으로 먼저 만들어 Commit하고, 사유 확인 Transaction은 그 행을 SELECT ... FOR UPDATE로 잠근다
+--    (StudentCareLocks). 업무 데이터는 담지 않는다.
 CREATE TABLE care_student_lock (
     branch_id  VARCHAR(64) NOT NULL,
     student_id VARCHAR(64) NOT NULL,

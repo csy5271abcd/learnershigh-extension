@@ -42,6 +42,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class StudentCareQueryService {
 
     private static final int CLOSED_SUMMARY_DAYS = 30;
+    /** 이름 순. 연동 Contract상 이름은 비어 있지 않지만, 비어 있어도 정렬이 실패하지 않게 맨 뒤로 보낸다. */
+    static final Comparator<String> NAME_ORDER = Comparator.nullsLast(Comparator.naturalOrder());
 
     private final StudentCareReader reader;
     private final CareCaseRepository caseRepository;
@@ -180,7 +182,7 @@ public class StudentCareQueryService {
         }
         // 신호 수 많은 순 → 이름 순 (student-care.md §3-1). 같은 이름은 학생 ID로 순서를 고정한다.
         needsCheck.sort(Comparator.comparing((CareBoardResponse.NeedsCheckCard card) -> -card.signals().size())
-                .thenComparing(CareBoardResponse.NeedsCheckCard::studentName)
+                .thenComparing(CareBoardResponse.NeedsCheckCard::studentName, NAME_ORDER)
                 .thenComparing(CareBoardResponse.NeedsCheckCard::studentId));
 
         List<CareBoardResponse.InAdjustmentCard> inAdjustment = active.values().stream()
@@ -194,7 +196,7 @@ public class StudentCareQueryService {
                 // 재점검이 된 건 먼저 → 재점검일 빠른 순 (student-care.md §3-2) → 이름 → 건 ID
                 .sorted(Comparator.comparing((CareBoardResponse.InAdjustmentCard card) -> !card.recheckDue())
                         .thenComparing(CareBoardResponse.InAdjustmentCard::recheckDate)
-                        .thenComparing(CareBoardResponse.InAdjustmentCard::studentName)
+                        .thenComparing(CareBoardResponse.InAdjustmentCard::studentName, NAME_ORDER)
                         .thenComparing(CareBoardResponse.InAdjustmentCard::caseId))
                 .toList();
 

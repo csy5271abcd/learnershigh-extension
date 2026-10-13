@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 그때 {@code reportDate}는 null, {@code userStatus}는 "대기", {@code planStatus}는 "제출전"이다.
  * 시간 값은 {@code formatSecToTime()} 결과인 {@code "HH:MM:SS"} 문자열이다.
  * {@code progress_rate}는 원본에서 todo / done을 뒤집어 계산하므로 읽지 않는다.
+ * 개수 값은 원본에서 null이 올 수 있어 Boxed 타입으로 받는다(Mapping에 쓰지 않는 참고 값이다).
  *
  * @param reportDate     {@code report_date} (yyyy-MM-dd)
  * @param dailyStart     {@code daily_start} (yyyy-MM-dd HH:mm:ss)
@@ -17,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param logoutLast     {@code logout_last}
  * @param totalTimeStay  {@code total_time_stay} ("HH:MM:SS")
  * @param totalTimeStudy {@code total_time_study} ("HH:MM:SS")
+ * @param todoCount      {@code todo_count} (참고, null 가능)
+ * @param doneCount      {@code done_count} (참고, null 가능)
  * @param userStatus     {@code user_status}: 대기/로그인/학습/경고/식사/휴식/외출/학원/학원후귀가/귀가/미입실
  * @param planStatus     {@code plan_status}: 제출전/제출완료/컨펌완료
  * @param reportStatus   {@code report_status}: 제출전/제출완료/컨펌완료, report가 없으면 "-"
@@ -29,8 +32,8 @@ public record PhapiDailyReport(
         @JsonProperty("logout_last") String logoutLast,
         @JsonProperty("total_time_stay") String totalTimeStay,
         @JsonProperty("total_time_study") String totalTimeStudy,
-        @JsonProperty("todo_count") int todoCount,
-        @JsonProperty("done_count") int doneCount,
+        @JsonProperty("todo_count") Integer todoCount,
+        @JsonProperty("done_count") Integer doneCount,
         @JsonProperty("user_status") String userStatus,
         @JsonProperty("plan_status") String planStatus,
         @JsonProperty("report_status") String reportStatus) {

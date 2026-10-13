@@ -333,6 +333,34 @@ class CareCaseTest {
         }
     }
 
+    /** (branch_id, active_student_id) Unique 제약은 진행 중 건에만 값이 있어야 같은 학생의 다음 건을 막지 않는다 (domain.md §5-1). */
+    @Nested
+    class ActiveStudent {
+
+        @Test
+        void adjustmentHoldsTheActiveStudentUntilClosedAfterRecheck() {
+            CareCase careCase = adjusting();
+            assertThat(careCase.activeStudentId()).isEqualTo("stu");
+
+            careCase.continueAfterRecheck("비교", TODAY.plusDays(14), TODAY.plusDays(7), NOW);
+            assertThat(careCase.activeStudentId()).isEqualTo("stu");
+
+            careCase.reviseAfterRecheck("비교", plan(), TODAY.plusDays(21), TODAY.plusDays(14), NOW);
+            assertThat(careCase.activeStudentId()).isEqualTo("stu");
+
+            careCase.closeAfterRecheck("비교", TODAY.plusDays(21), NOW);
+            assertThat(careCase.activeStudentId()).isNull();
+        }
+
+        @Test
+        void casesClosedImmediatelyNeverHoldTheActiveStudent() {
+            assertThat(CareCase.open("br", "stu", CareReason.EXPECTED_CHANGE, BASELINE, null, null, null, TODAY, NOW)
+                    .activeStudentId()).isNull();
+            assertThat(CareCase.open("br", "stu", CareReason.RECORD_ISSUE, BASELINE, null, null, null, TODAY, NOW)
+                    .activeStudentId()).isNull();
+        }
+    }
+
     @Test
     void timelineSequencesAreConsecutive() {
         CareCase careCase = adjusting();

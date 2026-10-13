@@ -46,7 +46,7 @@ Real Adapter(`RealExistingStudyClient`)는 인증 방식이 정해진 뒤 phapi 
 | 항목 | 상태 | 내용 |
 |---|---|---|
 | `login_first` 등 DATETIME의 Timezone | `UNCONFIRMED` | Mapper는 Asia/Seoul 벽시계 값으로 가정한다. 원본 DB / PHP Timezone 확인 필요 |
-| 학습일과 다른 날짜의 `login_first` (자정 이후 입실) | `UNCONFIRMED` | 현재는 그 학습일의 시각(시:분)으로만 쓴다 |
+| 학습일과 다른 날짜의 `login_first` (자정 이후 입실) | `UNCONFIRMED` | 원본 의미가 확인되기 전까지 연동 형식 오류(503)로 처리한다 |
 
 ## 2-1. 식별자
 
@@ -155,7 +155,9 @@ activity_item_code_subject   1국어 2수학 3영어 5사회 6과학 13공무원
 | `studyMinutesBySubject` | PDFBYDAY 행을 날짜 × 과목 코드명으로 초 단위 합산 → 분 (내림), 0분 과목 제외 |
 | `plannedMinutesBySubject` | 같은 방식. 계획 미제출일이면 비어 있다 |
 | 기간 안 report 없는 날 | 미입실 / 미제출 / 빈 기록 |
-| 형식 오류 | `ExistingIntegrationException` → 503 |
+| 학생 범위 | `role_id = 5` 그리고 `status = ACTIVE`만. INACTIVE / DELETED / 비학생 계정은 제외 |
+| 형식 오류 | `ExistingIntegrationException` → 503. 필수 값 누락(과목 이름, student_list, user / id, 재원 학생 real_name), 해석할 수 없는 날짜 / 시각, 음수 · 부호 붙은 시간 문자열, 분 · 초 60 이상 포함. 미입실로 바꾸지 않는다 |
+| 과목별 통계의 삭제된 할 일 | 응답에 할 일 status가 없어 걸러낼 수 없다 (원본 API 확인 필요) |
 
 ---
 

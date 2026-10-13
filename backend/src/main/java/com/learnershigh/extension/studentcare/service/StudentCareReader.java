@@ -80,11 +80,11 @@ class StudentCareReader {
         return studyClient.findDailyStudy(studentId, CareSignalCalculator.historyFrom(asOf), asOf);
     }
 
-    /** 최근 종결 건 때문에 다시 올리지 않을 신호 (domain.md §3 cooldownDays). 학생 ID → 신호 Type. */
+    /**
+     * 최근 종결 건 때문에 다시 올리지 않을 신호 (domain.md §3 cooldownDays). 학생 ID → 신호 Type.
+     * cooldownDays = 0 처리는 {@link CareCooldown} 한 곳에서 한다(그때 조회 범위는 비어 있다).
+     */
     Map<String, Set<CareSignalType>> cooldown(String branchId, LocalDate asOf, CareSettings.Values settings) {
-        if (settings.cooldownDays() <= 0) {
-            return Map.of();
-        }
         List<CareCase> closed = caseRepository.findByBranchIdAndStatusAndClosedOnBetween(branchId,
                 CareCaseStatus.CLOSED, CareCooldown.windowStart(asOf, settings.cooldownDays()), asOf);
         return CareCooldown.suppressedTypes(closed, asOf, settings.cooldownDays());

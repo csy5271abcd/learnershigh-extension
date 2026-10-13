@@ -7,5 +7,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * PHP {@code intval(null)}이라 연결이 없으면 id는 0, name은 null로 온다.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record PhapiRef(long id, String name) {
+public record PhapiRef(Long id, String name) {
 }

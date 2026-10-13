@@ -104,6 +104,32 @@ class CareComparatorTest {
         assertThat(Result.NO_CHANGE.label()).isEqualTo("변화 없음");
     }
 
+    /** 결과 규칙 (domain.md §6): 모두 IMPROVED / 모두 SAME / IMPROVED 없이 WORSENED / 그 외 MIXED. */
+    @Test
+    void resultCombinesRowTrends() {
+        CareBaselineSignal improved = new CareBaselineSignal(CareSignalType.PLAN_MISSING, "s", 4, null, null);
+        CareBaselineSignal same = new CareBaselineSignal(CareSignalType.CONSECUTIVE_ABSENCE, "s", 0, null, null);
+        CareBaselineSignal worsened = new CareBaselineSignal(CareSignalType.STUDY_DROP, "s", 2000, 2000, null);
+
+        assertThat(trends(List.of(improved, same, worsened)))
+                .containsExactly(Trend.IMPROVED, Trend.SAME, Trend.WORSENED);
+        assertThat(result(improved, same)).isEqualTo(Result.MIXED);
+        assertThat(result(worsened, same)).isEqualTo(Result.WORSENED);
+        assertThat(result(improved, worsened)).isEqualTo(Result.MIXED);
+        assertThat(result(improved, same, worsened)).isEqualTo(Result.MIXED);
+        assertThat(result(same, same)).isEqualTo(Result.NO_CHANGE);
+        assertThat(result(improved, improved)).isEqualTo(Result.IMPROVED);
+    }
+
+    private static List<Trend> trends(List<CareBaselineSignal> baseline) {
+        return CareComparator.compare(baseline, StudyDays.usual(), AS_OF).rows().stream()
+                .map(CareComparison.Row::trend).toList();
+    }
+
+    private static Result result(CareBaselineSignal... baseline) {
+        return CareComparator.compare(List.of(baseline), StudyDays.usual(), AS_OF).result();
+    }
+
     @Test
     void unmeasurableSignalCountsAsSame() {
         CareBaselineSignal share = new CareBaselineSignal(CareSignalType.SUBJECT_SHARE, "s", 12, 30, "수학");

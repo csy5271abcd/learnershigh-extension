@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * phapi 학생 객체. {@code v2/branches/select_students.php}의 배열 원소와
  * {@code v2/branches/select_study_reports_period.php}의 {@code student_list[].user}가 같은 Shape이다.
  *
- * <p>원본 응답의 다른 필드(인증 / 연락처 등)는 읽지 않는다 ({@code ignoreUnknown}).
+ * <p>원본 응답의 다른 필드(인증 / 연락처 / 학교 등)는 읽지 않는다 ({@code ignoreUnknown}).
+ * 원본에서 null이 올 수 있는 값은 Boxed 타입으로 받고, 필수 값이 비어 있으면 {@link PhapiStudyMapper}가 연동 실패로 본다.
  *
  * @param id          {@code user.id} (bigint)
  * @param roleId      {@code user.role_id}. 학생은 5
@@ -19,12 +20,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PhapiStudent(
-        long id,
-        @JsonProperty("role_id") int roleId,
+        Long id,
+        @JsonProperty("role_id") Integer roleId,
         @JsonProperty("real_name") String realName,
         String status,
         @JsonProperty("user_svc_flag") String userSvcFlag,
-        String school,
         String grade,
         PhapiRef group) {
 

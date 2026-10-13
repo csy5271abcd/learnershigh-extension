@@ -275,6 +275,11 @@ public class CareCase {
         return studentId;
     }
 
+    /** 진행 중일 때만 studentId, 종결되면 null (Unique 제약용 값). Domain 밖에서는 쓰지 않는다. */
+    String activeStudentId() {
+        return activeStudentId;
+    }
+
     public CareCaseStatus status() {
         return status;
     }

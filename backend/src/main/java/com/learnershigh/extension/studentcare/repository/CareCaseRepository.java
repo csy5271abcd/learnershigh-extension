@@ -35,13 +35,31 @@ public interface CareCaseRepository extends JpaRepository<CareCase, String> {
             LocalDate closedFrom, LocalDate closedTo);
 
     /**
-     * 학생 단위 잠금 (domain.md §5-1). 잠금 행이 없으면 만들고, 있으면 그 행을 배타 잠금한다. Transaction이 끝날 때 풀린다.
-     *
-     * <p>INSERT IGNORE + SELECT ... FOR UPDATE는 중복 시 공유 잠금을 먼저 잡아, 셋 이상이 동시에 오면 공유 → 배타 승격에서
-     * Deadlock이 난다. ON DUPLICATE KEY UPDATE는 중복 행에 처음부터 배타 잠금을 잡으므로 대기만 하고 순서대로 진행한다.
+     * 학생 단위 잠금 행이 있는지 (domain.md §5-1). 잠금 없이 읽는다. {@code StudentCareLocks}가 행을 만들지 정할 때만 쓴다.
+     */
+    @Query(value = "select count(*) from care_student_lock where branch_id = :branchId and student_id = :studentId",
+            nativeQuery = true)
+    long countStudentLock(String branchId, String studentId);
+
+    /**
+     * 학생 단위 잠금 행을 만든다. 호출하는 쪽이 짧은 별도 Transaction에서 부르고 바로 Commit한다.
+     * 같은 행을 동시에 만들면 한쪽은 Primary Key 중복으로 실패하며, 호출하는 쪽이 그 중복을 무시한다.
      */
     @Modifying
-    @Query(value = "insert into care_student_lock (branch_id, student_id) values (:branchId, :studentId)"
-            + " on duplicate key update student_id = student_id", nativeQuery = true)
-    void lockStudent(String branchId, String studentId);
+    @Query(value = "insert into care_student_lock (branch_id, student_id) values (:branchId, :studentId)",
+            nativeQuery = true)
+    void insertStudentLock(String branchId, String studentId);
+
+    /**
+     * 이미 Commit된 학생 단위 잠금 행을 배타 잠금한다(SELECT ... FOR UPDATE). 호출한 Transaction이 끝날 때 풀린다.
+     *
+     * <p>행 생성(INSERT)과 잠금을 같은 Transaction에서 하지 않는다: 행을 처음 만든 Transaction이 되돌려지면,
+     * 그 INSERT의 중복 검사를 기다리던 Transaction들이 서로의 잠금을 기다려 Deadlock(1213)이 난다.
+     * 이미 있는 행에 대한 FOR UPDATE는 기다렸다가 순서대로 진행한다.
+     *
+     * @return 잠근 행의 student_id (행이 있으면 1개)
+     */
+    @Query(value = "select student_id from care_student_lock where branch_id = :branchId and student_id = :studentId"
+            + " for update", nativeQuery = true)
+    List<String> lockStudent(String branchId, String studentId);
 }

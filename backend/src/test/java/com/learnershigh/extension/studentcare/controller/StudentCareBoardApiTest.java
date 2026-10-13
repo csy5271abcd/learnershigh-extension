@@ -184,6 +184,17 @@ class StudentCareBoardApiTest {
                 .andExpect(jsonPath("$.code").value("STUDENT_NOT_FOUND"));
     }
 
+    /** 학생 상세 / 학생 기록도 지점부터 확인한다: 없는 지점은 학생이 있어도 BRANCH_NOT_FOUND (api-contract.md §65-3, 65-8). */
+    @Test
+    void detailAndHistoryWithUnknownBranchAre404BranchNotFound() throws Exception {
+        for (String path : new String[] {"/api/admin/student-care/students/stu_005",
+                "/api/admin/student-care/students/stu_005/history"}) {
+            mvc.perform(get(path).param("branchId", "br_none"))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("BRANCH_NOT_FOUND"));
+        }
+    }
+
     @Test
     void missingBranchIdIsValidationError() throws Exception {
         mvc.perform(get("/api/admin/student-care/board"))

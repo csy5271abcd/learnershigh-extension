@@ -3358,7 +3358,7 @@ POST /api/admin/student-care/cases/{caseId}/decisions?branchId=br_gangnam
 { "decision": "REVISE", "recheckDate": "2026-10-14", "plan": { "goal": "...", "action": "...", "loadLimit": "...", "agreedWithStudent": true } }
 ```
 
-- `CLOSE`: 추가 필드 없음.
+- `CLOSE`: 추가 필드 없음. `CLOSE` / `CONTINUE`에서 `plan`이 오면 검증하지 않고 무시한다.
 - `CONTINUE`: `recheckDate` 필수 (asOf+1 ~ asOf+28).
 - `REVISE`: `plan`, `recheckDate` 필수. 새 재점검일은 최상위 `recheckDate`다(`plan.recheckDate`는 쓰지 않는다).
 - 같은 건에 대한 결정 / 메모는 순서대로 처리한다. 이미 종결된 건에 대한 두 번째 결정은 `409 INVALID_STATE_TRANSITION`.

@@ -61,6 +61,29 @@ class CareSignalCalculatorTest {
                     .isFalse();
         }
 
+        /** 연속 미입실은 7일 창이 아니라 조회한 28일 전체에서 센다: absenceDays 최대 14까지 정확히 판정한다. */
+        @ParameterizedTest(name = "absenceDays {0}")
+        @CsvSource({"10", "14"})
+        void consecutiveAbsenceBeyondSevenDays(int absenceDays) {
+            CareSettings.Values settings = settingsWith("absenceDays", absenceDays);
+            List<ExistingDailyStudy> exactly = StudyDays.build((o, d) -> o > -absenceDays ? d.absent() : d);
+            List<ExistingDailyStudy> oneShort = StudyDays.build((o, d) -> o > -(absenceDays - 1) ? d.absent() : d);
+
+            SignalEvaluation flagged = CareSignalCalculator.evaluate(exactly, AS_OF, settings);
+            assertThat(types(flagged)).contains(CareSignalType.CONSECUTIVE_ABSENCE);
+            assertThat(flagged.signals().stream().filter(s -> s.type() == CareSignalType.CONSECUTIVE_ABSENCE)
+                    .findFirst().orElseThrow().summary()).isEqualTo(absenceDays + "일째 입실 기록 없음");
+            assertThat(types(CareSignalCalculator.evaluate(oneShort, AS_OF, settings)))
+                    .doesNotContain(CareSignalType.CONSECUTIVE_ABSENCE);
+            assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, exactly, AS_OF))
+                    .hasValue(absenceDays);
+        }
+
+        @Test
+        void historyWindowCoversTheLargestAbsenceThreshold() {
+            assertThat(CareSignalCalculator.HISTORY_DAYS).isGreaterThan(CareSettings.RANGES.get("absenceDays").max());
+        }
+
         @Test
         void planMissingThreeDaysVersusTwo() {
             assertThat(flagged(StudyDays.build((o, d) -> o >= -2 ? d.noPlan() : d), CareSignalType.PLAN_MISSING))

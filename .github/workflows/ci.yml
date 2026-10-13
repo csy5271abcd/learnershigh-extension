@@ -285,6 +285,8 @@ jobs:
 
     env:
       SPRING_PROFILES_ACTIVE: e2e
+      # /api/test/**는 e2e Profile만으로 열리지 않는다. E2E Job에서만 명시적으로 켠다 (ADR-0007).
+      LEARNERSHIGH_TEST_ENDPOINTS_ENABLED: "true"
       DB_URL: jdbc:mysql://127.0.0.1:3306/learnershigh_extension
       DB_USERNAME: learnershigh
       DB_PASSWORD: learnershigh

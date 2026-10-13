@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * cooldownDays (domain.md §3): 학생의 <b>가장 최근 종결 건</b> 하나만 본다.
  * 그 건의 종결일이 asOf − cooldownDays 보다 뒤면(종결일 포함 cooldownDays일 동안) 그 건의 기준 신호와 같은 Type을 보드에 올리지 않는다.
- * cooldownDays = 0이면 숨기지 않는다. 순수 계산이다.
+ * cooldownDays = 0이면 숨기지 않는다(이 판단은 여기 한 곳에서만 한다). 순수 계산이다.
  */
 final class CareCooldown {
 

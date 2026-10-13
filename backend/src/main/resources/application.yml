@@ -19,6 +19,13 @@ spring:
     deserialization:
       # 정수 필드에 소수(2.5)가 오면 잘라 저장하지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
       accept-float-as-int: false
+    mapper:
+      # 숫자 / Boolean 필드에 문자열("3", "true")이 오면 바꿔 넣지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §65 공통).
+      allow-coercion-of-scalars: false
+    datatype:
+      enum:
+        # Enum 자리에 숫자(0, 1 …)가 오면 순서로 바꿔 넣지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
+        fail-on-numbers-for-enums: true
 
 app:
   # 기준일 계산 Timezone (shared-conventions.md §13)
@@ -34,8 +41,10 @@ learnershigh:
     anchor-date:
 
 ---
-# E2E (ADR-0007): 기준일 고정 + 조정 가능한 Clock + /api/test/** 등록
+# E2E (ADR-0007): 기준일 고정 + 조정 가능한 Clock
 # /api/test/**는 e2e Profile과 learnershigh.test-endpoints.enabled=true가 둘 다 있을 때만 등록된다.
+# 이 Profile은 test-endpoints를 켜지 않는다. E2E 실행 환경에서만 환경 변수
+# LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true로 켠다(e2e Profile만 실수로 켜도 /api/test/**가 열리지 않게).
 spring:
   config:
     activate:
@@ -47,5 +56,3 @@ app:
 learnershigh:
   mock:
     anchor-date: 2026-09-30
-  test-endpoints:
-    enabled: true
