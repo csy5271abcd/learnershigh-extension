@@ -1,7 +1,7 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test'
 
 // Backend e2e Profile 전용 Endpoint (api-contract.md §65-11).
-const API = process.env.E2E_API_URL ?? 'http://localhost:8080'
+export const API = process.env.E2E_API_URL ?? 'http://localhost:8080'
 
 export const ANCHOR = '2026-09-30'
 

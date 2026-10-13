@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  API,
   detail,
   inAdjustmentList,
   needsCheckList,
@@ -217,4 +218,55 @@ test('탭은 키보드 방향키로 옮길 수 있다', async ({ page }) => {
   await page.keyboard.press('ArrowRight')
   await expect(page.getByRole('tab', { name: '학생 기록' })).toBeFocused()
   await expect(page.getByRole('tab', { name: '학생 기록' })).toHaveAttribute('aria-selected', 'true')
+})
+
+test('달라진 학생이 없으면 오류가 아니라 빈 상태 안내를 보여준다', async ({ page, request }) => {
+  const settingsUrl = `${API}/api/admin/student-care/settings?branchId=br_bundang`
+  const current = await (await request.get(settingsUrl)).json()
+  const { ranges: _ranges, ...values } = current
+  const saved = await request.put(settingsUrl, { data: { ...values, studyDropPercent: 90 } })
+  expect(saved.ok()).toBeTruthy()
+
+  await openBoard(page)
+  await page.getByRole('navigation', { name: '지점' }).getByRole('button', { name: /러너스하이 분당점/ }).click()
+  await expect(page.getByRole('heading', { name: '9월 30일 기준 · 러너스하이 분당점' })).toBeVisible()
+  await expect(needsCheckList(page)).toContainText('평소와 달라진 학생이 없습니다')
+  await expect(page.getByRole('alert')).toHaveCount(0)
+})
+
+test('탭을 옮겼다 돌아와도 작성 중인 약속이 남아 있다', async ({ page }) => {
+  await openBoard(page)
+  await selectStudent(page, '윤서연')
+  const panel = detail(page)
+  await panel.getByRole('button', { name: /조정 필요/ }).click()
+  await panel.getByLabel('목표 한 가지').fill('수학을 매일 한 번은 펼치기')
+
+  await page.getByRole('tab', { name: '지점 요약' }).click()
+  await page.getByRole('tab', { name: '케어 보드' }).click()
+
+  await expect(detail(page).getByLabel('목표 한 가지')).toHaveValue('수학을 매일 한 번은 펼치기')
+})
+
+test('조정 시작을 연달아 눌러도 케어 건은 하나만 생긴다', async ({ page, request }) => {
+  await openBoard(page)
+  await selectStudent(page, '윤서연')
+  const panel = detail(page)
+  await panel.getByRole('button', { name: /조정 필요/ }).click()
+  await panel.getByLabel('학생과 합의함').check()
+  await panel.getByRole('button', { name: '조정 시작' }).dblclick()
+
+  await expect(page.getByRole('status').filter({ hasText: '윤서연: 조정을 시작했습니다' })).toBeVisible()
+  await expect(inAdjustmentList(page).getByRole('button', { name: /^윤서연/ })).toHaveCount(1)
+
+  const board = await (await request.get(`${API}/api/admin/student-care/board?branchId=br_gangnam`)).json()
+  expect(board.inAdjustment.filter((item: { studentId: string }) => item.studentId === 'stu_005')).toHaveLength(1)
+})
+
+test('탭은 Home / End 키로 처음과 끝으로 옮길 수 있다', async ({ page }) => {
+  await openBoard(page)
+  await page.getByRole('tab', { name: '케어 보드' }).focus()
+  await page.keyboard.press('End')
+  await expect(page.getByRole('tab', { name: '지점 요약' })).toBeFocused()
+  await page.keyboard.press('Home')
+  await expect(page.getByRole('tab', { name: '케어 보드' })).toBeFocused()
 })
