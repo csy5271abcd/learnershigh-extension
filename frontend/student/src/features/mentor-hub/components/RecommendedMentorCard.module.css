@@ -1,0 +1,159 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  height: 100%;
+  padding: var(--lh-space-5) var(--lh-space-5) var(--lh-space-3);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-3);
+}
+
+.identityText {
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.admissionType {
+  padding: 1px 6px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.affiliation {
+  color: var(--lh-color-text-secondary);
+}
+
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Mockup Blue를 그대로 쓰고, 굵기로 Label 성격을 보강한다. */
+.reasonLabel {
+  color: var(--lh-color-accent);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.reasonText {
+  font-weight: 500;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: var(--lh-space-2);
+}
+
+.fact dt {
+  color: var(--lh-color-text-tertiary);
+}
+
+.fact dd {
+  color: var(--lh-color-text-primary);
+}
+
+.relatedList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.relatedItem {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--lh-space-2) var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  text-align: left;
+  cursor: pointer;
+}
+
+.relatedItem:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.kind {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.relatedTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-title-sm);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--lh-space-2);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+/* Card 높이가 달라도 CTA를 아래쪽에 맞춘다. */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.profileButton {
+  min-height: 44px;
+  padding: 0 var(--lh-space-1);
+  border: 0;
+  background: none;
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profileButton:hover {
+  text-decoration: underline;
+}

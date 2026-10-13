@@ -1,0 +1,91 @@
+/* Routine-01 Mockup "Habit": 원형 체크 + 제목 · 주기 · 설명 Card */
+.habits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.heading {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+}
+
+.lead {
+  margin-bottom: var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  cursor: pointer;
+}
+
+.card:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* native checkbox를 Mockup의 원형 체크로 표시한다. 선택 여부는 체크 표시 + 색 + 상태(Screen Reader)로 전달한다. */
+.check {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: 2px solid var(--lh-color-border);
+  border-radius: 50%;
+  background: var(--lh-color-surface-raised)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5 5.5-6' fill='none' stroke='%23c3c8d0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 14px no-repeat;
+  appearance: none;
+  cursor: pointer;
+}
+
+.check:checked {
+  border-color: var(--lh-color-accent);
+  background-color: var(--lh-color-accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5 5.5-6' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.description {
+  margin-top: var(--lh-space-1);
+  color: var(--lh-color-text-secondary);
+}
+
+.empty {
+  padding: var(--lh-space-6);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}

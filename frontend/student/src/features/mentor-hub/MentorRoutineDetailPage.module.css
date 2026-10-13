@@ -1,0 +1,150 @@
+/* Routine Detail (Routine-01 Mockup). 기본 여백은 MentorHubHomePage / MentorProfilePage의 .page를 함께 쓴다. */
+
+/* 제목 · Mentor는 왼쪽, "습관만 적용 / 전체 적용"은 Mentor 줄 높이의 오른쪽, 설명은 그 아래 */
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'heading actions'
+    'description description';
+  align-items: end;
+  column-gap: var(--lh-space-8);
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-3);
+  grid-area: heading;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--lh-space-2);
+  grid-area: actions;
+}
+
+.actionButtons {
+  display: flex;
+  gap: var(--lh-space-2);
+}
+
+.habitsButton,
+.allButton {
+  min-height: 48px;
+  padding: 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.habitsButton {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+}
+
+.allButton {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.allButton:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+}
+
+.habitsButton:disabled,
+.allButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actionHint {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.description {
+  grid-area: description;
+  margin-top: var(--lh-space-5);
+}
+
+/* 왼쪽 Timeline, 오른쪽 Habit (Mockup) */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--lh-space-12);
+  align-items: start;
+}
+
+/* ---------- Skeleton ---------- */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+}
+
+.skeletonTitle {
+  width: 360px;
+  max-width: 80%;
+  height: 38px;
+}
+
+.skeletonLine {
+  width: 300px;
+  max-width: 70%;
+  height: 40px;
+}
+
+.skeletonPanel {
+  height: 420px;
+  border-radius: var(--lh-radius-xl);
+}
+
+/* Tablet 이하: Timeline → Habit 순서로 쌓고, 적용 버튼은 제목 아래 */
+@media (max-width: 1023px) {
+  .summary {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'heading'
+      'actions'
+      'description';
+    row-gap: var(--lh-space-4);
+  }
+
+  .actions {
+    align-items: flex-start;
+  }
+
+  .description {
+    margin-top: 0;
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--lh-space-10);
+  }
+
+  .skeletonPanel {
+    height: 280px;
+  }
+}
+
+@media (max-width: 639px) {
+  .actions,
+  .actionButtons {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .actionButtons > * {
+    flex: 1;
+    padding: 0 var(--lh-space-3);
+  }
+}

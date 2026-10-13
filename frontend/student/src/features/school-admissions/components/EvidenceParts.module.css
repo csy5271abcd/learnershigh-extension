@@ -1,0 +1,601 @@
+/* Evidence 표 / 추가 · 미리보기 · 삭제 Dialog (Evidence-00 / TasksDetail-04 Mockup, Dialog는 TaskRegister Modal 체계) */
+
+/* ---- 표 ---- */
+
+.table {
+  display: flex;
+  flex-direction: column;
+}
+
+.headRow,
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 72px 96px 72px 96px;
+  align-items: center;
+  gap: var(--lh-space-3);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.headRow {
+  padding: 0 var(--lh-space-2) var(--lh-space-3);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.row {
+  min-height: 60px;
+  padding: var(--lh-space-2);
+}
+
+.fileCell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+/* 파일 모양 표시 (Mockup의 겹친 사각형) */
+.fileIcon {
+  width: 16px;
+  height: 18px;
+  border: 1.5px solid var(--lh-color-text-tertiary);
+  border-radius: 3px;
+  box-shadow: 3px -3px 0 -1.5px var(--lh-color-background), 3px -3px 0 0 var(--lh-color-text-tertiary);
+}
+
+.fileName {
+  font-size: var(--lh-font-title-sm);
+  overflow-wrap: anywhere;
+}
+
+.rowError {
+  grid-column: 2;
+  margin-top: var(--lh-space-1);
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.metaCell {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.mobileLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.tag,
+.done {
+  display: inline-block;
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.done {
+  background: var(--lh-color-positive-subtle);
+  color: var(--lh-color-positive);
+}
+
+.actionCell {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--lh-space-1);
+}
+
+.iconButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: none;
+  color: var(--lh-color-text-tertiary);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+/* ---- Dialog 공통 ---- */
+
+.dialog {
+  width: min(640px, calc(100vw - 48px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.18);
+  overflow: hidden;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.dialogSurface {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 48px);
+}
+
+.dialogHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-8) var(--lh-space-8) var(--lh-space-4);
+}
+
+.dialogTitle {
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+}
+
+.dialogTitle:focus {
+  outline: none;
+}
+
+.dialogContext {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  overflow-wrap: anywhere;
+}
+
+.dialogBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--lh-space-6);
+  min-height: 0;
+  padding: var(--lh-space-2) var(--lh-space-8) var(--lh-space-6);
+  overflow-y: auto;
+}
+
+.field,
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.label {
+  padding: 0;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.fileBox {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-title-sm);
+  overflow-wrap: anywhere;
+}
+
+.fileBox[data-empty] {
+  color: var(--lh-color-text-tertiary);
+}
+
+.fileBox[aria-invalid='true'] {
+  border-color: var(--lh-color-negative);
+}
+
+.fileBox:focus {
+  outline: none;
+}
+
+.fileActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
+.fileButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fileButton:has(input:focus-visible),
+.chip:has(input:focus-visible) {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 2px;
+}
+
+.textButton {
+  min-height: 44px;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fileReady {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+/* 파일 준비 진행률: 하나의 가로 막대 (회전 표시 없음) */
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.progressText {
+  display: flex;
+  justify-content: space-between;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.progressPercent {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progressTrack {
+  height: 8px;
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-chip);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--lh-color-accent);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--lh-space-4);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  cursor: pointer;
+}
+
+.chip:has(input:checked) {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent);
+  font-weight: 700;
+}
+
+.error {
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-body);
+  font-weight: 500;
+}
+
+.submitError {
+  margin: 0 var(--lh-space-8);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.dialogFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-5) var(--lh-space-8) var(--lh-space-8);
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-width: 76px;
+  min-height: 52px;
+  padding: 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.primaryButton[data-inactive] {
+  opacity: 0.45;
+}
+
+.secondaryButton {
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+}
+
+.dangerButton {
+  background: var(--lh-color-negative);
+  color: var(--lh-color-on-accent);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+/* ---- 미리보기 ---- */
+
+.previewDialog {
+  width: min(960px, calc(100vw - 48px));
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-5) var(--lh-space-6);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.previewType {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 var(--lh-space-2);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.previewTitleBox {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.previewTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.closeButton {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: none;
+  color: var(--lh-color-text-tertiary);
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.previewBody {
+  flex: 1;
+  min-height: 0;
+  padding: var(--lh-space-5) var(--lh-space-6);
+  overflow: auto;
+  background: var(--lh-color-surface);
+}
+
+.previewNotice {
+  padding: var(--lh-space-12) var(--lh-space-4);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}
+
+.previewImage {
+  display: block;
+  max-width: 100%;
+  max-height: 70dvh;
+  margin: 0 auto;
+}
+
+.previewFrame {
+  display: block;
+  width: 100%;
+  height: 70dvh;
+  border: 0;
+  background: var(--lh-color-surface-raised);
+}
+
+.previewText {
+  margin: 0;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: var(--lh-font-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.previewTableScroll {
+  overflow-x: auto;
+}
+
+.previewTable {
+  border-collapse: collapse;
+  font-size: var(--lh-font-body);
+}
+
+.previewTable th,
+.previewTable td {
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  background: var(--lh-color-surface-raised);
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* ---- 삭제 확인 ---- */
+
+.confirmDialog {
+  width: min(420px, calc(100vw - 32px));
+}
+
+.confirmSurface {
+  padding: var(--lh-space-6);
+}
+
+.confirmTitle {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+}
+
+.confirmText {
+  margin-top: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--lh-space-2);
+  margin-top: var(--lh-space-6);
+}
+
+@media (max-width: 1023px) {
+  .headRow,
+  .row {
+    grid-template-columns: minmax(0, 1fr) 64px 64px 88px 64px 96px;
+  }
+}
+
+/* 좁은 화면: 표 머리글을 숨기고 줄마다 Card처럼 쌓는다. */
+@media (max-width: 639px) {
+  .headRow {
+    display: none;
+  }
+
+  /* 첫 줄: 파일 이름 + 미리보기 · 삭제 / 다음 줄: 형식 · 단계 · 날짜 · 상태 */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: var(--lh-space-1);
+    padding: var(--lh-space-2) 0 var(--lh-space-3);
+  }
+
+  .fileCell {
+    flex: 1 1 calc(100% - 112px);
+  }
+
+  .actionCell {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  .metaCell {
+    order: 2;
+  }
+
+  .metaCell {
+    font-size: var(--lh-font-label);
+  }
+
+  .dialog,
+  .previewDialog {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: var(--lh-radius-lg);
+  }
+
+  .dialogSurface {
+    max-height: calc(100dvh - 16px);
+  }
+
+  .dialogHeader {
+    padding: var(--lh-space-5) var(--lh-space-5) var(--lh-space-3);
+  }
+
+  .dialogTitle {
+    font-size: var(--lh-font-title-md);
+  }
+
+  .dialogBody {
+    padding: var(--lh-space-1) var(--lh-space-5) var(--lh-space-5);
+  }
+
+  .submitError {
+    margin: 0 var(--lh-space-5);
+  }
+
+  .dialogFooter {
+    padding: var(--lh-space-4) var(--lh-space-5) var(--lh-space-5);
+    border-top: 1px solid var(--lh-color-border);
+  }
+
+  .primaryButton {
+    flex: 1;
+  }
+
+  .confirmActions {
+    flex-direction: column-reverse;
+  }
+
+  .confirmActions button {
+    width: 100%;
+  }
+}

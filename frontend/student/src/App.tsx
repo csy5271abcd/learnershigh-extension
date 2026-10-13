@@ -1,10 +1,8 @@
-// 개발용 App Shell이다. Product 화면이 아니며 Feature는 src/features/<feature>/에 추가한다.
+import { RouterProvider } from 'react-router'
+import { studentRouter } from './app/router.tsx'
+
 function App() {
-  return (
-    <main>
-      <h1>LearnersHigh Student Extension</h1>
-    </main>
-  )
+  return <RouterProvider router={studentRouter} />
 }
 
 export default App

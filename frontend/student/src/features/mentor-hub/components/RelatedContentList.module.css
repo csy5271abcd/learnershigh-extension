@@ -1,0 +1,63 @@
+/* 관련 콘텐츠 줄 (Q&A 답변 / Record Detail) */
+.related {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relatedItem {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-3);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--lh-space-2) var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  font: inherit;
+  text-align: left;
+}
+
+button.relatedItem {
+  cursor: pointer;
+}
+
+button.relatedItem:hover .relatedTitle {
+  text-decoration: underline;
+}
+
+.relatedKind {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.relatedTitle {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.relatedChevron {
+  color: var(--lh-color-text-tertiary);
+  font-size: 1.25rem;
+}
+
+.relatedStatic {
+  color: var(--lh-color-text-secondary);
+}
+
+.relatedNote {
+  flex-shrink: 0;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
