@@ -6,7 +6,6 @@ import com.learnershigh.extension.common.integration.learnershigh.ExistingDailyS
 import com.learnershigh.extension.common.integration.learnershigh.ExistingStudent;
 import com.learnershigh.extension.common.integration.learnershigh.ExistingStudentClient;
 import com.learnershigh.extension.common.integration.learnershigh.ExistingStudyClient;
-import com.learnershigh.extension.studentcare.entity.CareBaselineSignal;
 import com.learnershigh.extension.studentcare.entity.CareCase;
 import com.learnershigh.extension.studentcare.entity.CareCaseStatus;
 import com.learnershigh.extension.studentcare.entity.CareSettings;
@@ -18,8 +17,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,32 +80,19 @@ class StudentCareReader {
         return studyClient.findDailyStudy(studentId, CareSignalCalculator.historyFrom(asOf), asOf);
     }
 
-    /** 최근 종결 건 때문에 다시 올리지 않을 신호 (domain.md §3 cooldownDays). */
+    /** 최근 종결 건 때문에 다시 올리지 않을 신호 (domain.md §3 cooldownDays). 학생 ID → 신호 Type. */
     Map<String, Set<CareSignalType>> cooldown(String branchId, LocalDate asOf, CareSettings.Values settings) {
-        Map<String, Set<CareSignalType>> suppressed = new HashMap<>();
         if (settings.cooldownDays() <= 0) {
-            return suppressed;
+            return Map.of();
         }
-        LocalDate closedFrom = asOf.minusDays(settings.cooldownDays() - 1L);
-        for (CareCase closed : caseRepository.findByBranchIdAndStatusAndClosedOnGreaterThanEqual(
-                branchId, CareCaseStatus.CLOSED, closedFrom)) {
-            Set<CareSignalType> types = suppressed.computeIfAbsent(closed.studentId(),
-                    key -> EnumSet.noneOf(CareSignalType.class));
-            closed.baseline().stream().map(CareBaselineSignal::type).forEach(types::add);
-        }
-        return suppressed;
+        List<CareCase> closed = caseRepository.findByBranchIdAndStatusAndClosedOnBetween(branchId,
+                CareCaseStatus.CLOSED, CareCooldown.windowStart(asOf, settings.cooldownDays()), asOf);
+        return CareCooldown.suppressedTypes(closed, asOf, settings.cooldownDays());
     }
 
-    /** 신호 계산 후 cooldown 신호를 뺀다. */
+    /** 신호 계산 후 cooldown 신호를 뺀다. 판단 보류는 뺀 뒤의 결과로 정해진다 ({@link SignalEvaluation#deferred()}). */
     SignalEvaluation evaluate(List<ExistingDailyStudy> history, LocalDate asOf, CareSettings.Values settings,
             Set<CareSignalType> suppressed) {
-        SignalEvaluation evaluation = CareSignalCalculator.evaluate(history, asOf, settings);
-        if (suppressed.isEmpty()) {
-            return evaluation;
-        }
-        List<DetectedSignal> remaining = evaluation.signals().stream()
-                .filter(signal -> !suppressed.contains(signal.type()))
-                .toList();
-        return new SignalEvaluation(remaining, evaluation.deferred(), evaluation.validDays());
+        return CareSignalCalculator.evaluate(history, asOf, settings).without(suppressed);
     }
 }

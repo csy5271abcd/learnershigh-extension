@@ -13,7 +13,11 @@ public class CareBaselineSignal {
     @Column(name = "signal_type", nullable = false, length = 40)
     private CareSignalType type;
 
-    @Column(name = "summary", nullable = false, length = 200)
+    /** Column 길이. 값은 신호 계산이 만든 문구 / Existing 과목명(이미 100자로 맞춘 값)이라 넘으면 Programming Error다. */
+    public static final int SUMMARY_MAX = 200;
+    public static final int SUBJECT_MAX = 100;
+
+    @Column(name = "summary", nullable = false, length = SUMMARY_MAX)
     private String summary;
 
     @Column(name = "metric_value", nullable = false)
@@ -23,13 +27,19 @@ public class CareBaselineSignal {
     private Integer target;
 
     /** SUBJECT_SHARE 신호의 과목. 그 외는 null. */
-    @Column(name = "subject", length = 40)
+    @Column(name = "subject", length = SUBJECT_MAX)
     private String subject;
 
     protected CareBaselineSignal() {
     }
 
     public CareBaselineSignal(CareSignalType type, String summary, int value, Integer target, String subject) {
+        if (summary.codePointCount(0, summary.length()) > SUMMARY_MAX) {
+            throw new IllegalArgumentException("baseline summary exceeds " + SUMMARY_MAX + " characters");
+        }
+        if (subject != null && subject.codePointCount(0, subject.length()) > SUBJECT_MAX) {
+            throw new IllegalArgumentException("baseline subject exceeds " + SUBJECT_MAX + " characters");
+        }
         this.type = type;
         this.summary = summary;
         this.value = value;

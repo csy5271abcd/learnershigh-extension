@@ -15,13 +15,19 @@ spring:
       # Schema 변경은 Migration으로만 관리한다 (.claude/rules/database.md). Hibernate가 Schema를 만들지 않는다.
       ddl-auto: none
 
+  jackson:
+    deserialization:
+      # 정수 필드에 소수(2.5)가 오면 잘라 저장하지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
+      accept-float-as-int: false
+
 app:
   # 기준일 계산 Timezone (shared-conventions.md §13)
   zone: Asia/Seoul
 
 learnershigh:
   integration:
-    # Existing LearnersHigh 실제 API가 확정되기 전까지 mock (ADR-0002)
+    # Existing LearnersHigh 실제 Client는 아직 없다 (Open Decision: api-contract.md API-OD-07, domain.md §1).
+    # 그때까지 mock을 명시적으로 쓴다. 다른 값이면 ExistingXxxClient Bean이 없어 Application이 시작하지 않는다.
     mode: mock
   mock:
     # 비어 있으면 Application 시작일을 시연 기준일로 쓴다.
@@ -29,6 +35,7 @@ learnershigh:
 
 ---
 # E2E (ADR-0007): 기준일 고정 + 조정 가능한 Clock + /api/test/** 등록
+# /api/test/**는 e2e Profile과 learnershigh.test-endpoints.enabled=true가 둘 다 있을 때만 등록된다.
 spring:
   config:
     activate:
@@ -40,3 +47,5 @@ app:
 learnershigh:
   mock:
     anchor-date: 2026-09-30
+  test-endpoints:
+    enabled: true

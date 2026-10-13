@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * {@code learnershigh.mock.anchor-date}가 없으면 시작 시점의 오늘을 시연 기준일로 쓴다.
  */
 @Component
-@ConditionalOnProperty(name = "learnershigh.integration.mode", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "learnershigh.integration.mode", havingValue = "mock")
 public class MockExistingStudyClient implements ExistingStudyClient, MockIntegrationSwitch {
 
     private final LocalDate anchor;

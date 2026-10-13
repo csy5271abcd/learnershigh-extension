@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.learnershigh.extension.support.MySqlContainerConfig;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+/** /api/test/** (api-contract.md §65-11, ADR-0007). 기준일 / 연동 스위치를 바꾸므로 끝나면 항상 되돌린다. */
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -26,6 +28,14 @@ class E2eTestSupportControllerTest {
 
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    E2eTestSupport support;
+
+    @AfterEach
+    void restore() {
+        support.reset();
+    }
 
     @Test
     void clockIntegrationSwitchAndResetDriveTheBoard() throws Exception {

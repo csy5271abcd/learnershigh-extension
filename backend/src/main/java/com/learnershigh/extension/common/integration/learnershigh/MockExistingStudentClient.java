@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * 학생 Identity는 {@link MockStudyScenarios}와 같은 ID를 쓴다.
  */
 @Component
-@ConditionalOnProperty(name = "learnershigh.integration.mode", havingValue = "mock", matchIfMissing = true)
+@ConditionalOnProperty(name = "learnershigh.integration.mode", havingValue = "mock")
 public class MockExistingStudentClient implements ExistingStudentClient {
 
     private static final List<ExistingBranch> BRANCHES = List.of(

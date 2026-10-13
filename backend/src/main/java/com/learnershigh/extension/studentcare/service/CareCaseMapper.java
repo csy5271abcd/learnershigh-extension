@@ -1,6 +1,5 @@
 package com.learnershigh.extension.studentcare.service;
 
-import com.learnershigh.extension.common.integration.learnershigh.ExistingDailyStudy;
 import com.learnershigh.extension.studentcare.dto.CareCaseResponse;
 import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.SignalSummary;
@@ -17,12 +16,12 @@ final class CareCaseMapper {
     private CareCaseMapper() {
     }
 
-    /** {@code history}가 있고 재점검일이 되었으면 비교 결과를 함께 담는다. */
-    static CareCaseResponse toResponse(CareCase careCase, LocalDate today, ZoneId zone, List<ExistingDailyStudy> history) {
+    /**
+     * 재점검일이 되었으면 {@code comparison}(호출한 쪽이 한 번 계산한 값)을 함께 담는다.
+     * 재점검일 전이거나 종결된 건은 비교가 없다 (api-contract.md §65-5).
+     */
+    static CareCaseResponse toResponse(CareCase careCase, LocalDate today, ZoneId zone, CareComparison comparison) {
         boolean due = careCase.isRecheckDue(today);
-        CareCaseResponse.Comparison comparison = due && history != null
-                ? toComparison(CareComparator.compare(careCase.baseline(), history, today))
-                : null;
         CarePlan plan = careCase.plan();
         return new CareCaseResponse(
                 careCase.id(),
@@ -38,7 +37,7 @@ final class CareCaseMapper {
                         : new CareCaseResponse.Plan(plan.goal(), plan.action(), plan.loadLimit(), plan.agreedWithStudent()),
                 careCase.recheckDate(),
                 due,
-                comparison,
+                due && comparison != null ? toComparison(comparison) : null,
                 careCase.events().stream().map(event -> CareEventResponse.from(event, zone)).toList());
     }
 
@@ -46,7 +45,7 @@ final class CareCaseMapper {
         return careCase.baseline().stream().map(signal -> SignalSummary.of(signal.type(), signal.summary())).toList();
     }
 
-    static CareCaseResponse.Comparison toComparison(CareComparison comparison) {
+    private static CareCaseResponse.Comparison toComparison(CareComparison comparison) {
         List<CareCaseResponse.ComparisonRow> rows = comparison.rows().stream()
                 .map(row -> new CareCaseResponse.ComparisonRow(row.type(), row.type().label(), row.before(), row.now(),
                         row.target(), row.type().unit(), row.trend().name()))
