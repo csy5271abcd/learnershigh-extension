@@ -135,6 +135,7 @@ docs/architecture/integration-boundary.md
 | Frontend ↔ Backend Request / Response | `docs/api/api-contract.md` |
 | 시스템 구조 | `docs/architecture/overview.md` |
 | 기존 LearnersHigh와의 연결 경계 | `docs/architecture/integration-boundary.md` |
+| 기존 LearnersHigh Entity / Table / API / ID (확인된 것만) | `docs/architecture/existing-data-model.md` |
 | 프로젝트 공통 Naming / Data Convention | `docs/architecture/shared-conventions.md` |
 | 신규 UI Design 원칙 | `docs/design/tds-web-guidelines.md` |
 | 신규 화면의 구체적 Visual Layout | `references/claude-design-mockup/` |

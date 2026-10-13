@@ -236,6 +236,8 @@ ExistingReportSummary
 
 이 Contract는 Extension이 실제로 필요한 필드만 가진다.
 
+기존 시스템의 실제 Entity / Table / API와 Contract Mapping은 `docs/architecture/existing-data-model.md`에 확인된 것만 기록한다.
+
 ---
 
 # 6. Student Integration
