@@ -52,12 +52,12 @@ interface ChipGroup {
   onChange: (value: string) => void
 }
 
-/** 업무 종류별 시각 언어: 글자 Label + 옅은 Tone + Action 위계 (Icon 없이 글자로 구분 · 색만으로 구분하지 않는다) */
+/** 업무 종류: 모두 Neutral 글자 Label로 구분하고, Action만 Blue 3단계(채움 = 우선 검토 · Soft = 검토 · 글자 = 주제 검토)로 나눈다 */
 const workflowVisual: Record<QueueWorkflow, { tone: VisualTone; action: 'soft' | 'text' }> = {
-  topic: { tone: 'topic', action: 'text' },
-  feedback: { tone: 'feedback', action: 'soft' },
-  revision: { tone: 'revision', action: 'soft' },
-  activity: { tone: 'activity', action: 'soft' },
+  topic: { tone: 'neutral', action: 'text' },
+  feedback: { tone: 'neutral', action: 'soft' },
+  revision: { tone: 'neutral', action: 'soft' },
+  activity: { tone: 'neutral', action: 'soft' },
 }
 
 // Feedback Dashboard (FeedbackDashboard-00): 오늘 처리할 검토 업무를 보는 공용 Queue.
@@ -421,7 +421,7 @@ function QueueRow({ item, onOpen, onOpenStudent }: { item: FeedbackQueueItem; on
         </span>
       </td>
       <td className={styles.actionCell}>
-        <ToneButton variant={critical ? 'primary' : visual.action} tone={visual.tone} onClick={onOpen}>
+        <ToneButton variant={critical ? 'primary' : visual.action} tone="feedback" onClick={onOpen}>
           {primaryActionLabel(item)}
           <span className="lh-visually-hidden">
             : {item.student.displayName} · {item.title}

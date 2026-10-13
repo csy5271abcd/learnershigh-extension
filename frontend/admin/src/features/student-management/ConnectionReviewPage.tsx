@@ -37,8 +37,8 @@ interface ConnectionReviewPageProps {
   onOpenStudent: (studentId: string) => void
 }
 
-/** 상태는 글자가 기본. 옅은 Tone은 검토 대기만 (확정 · 제외는 중립) */
-const stateTone = { candidate: 'topic', confirmed: 'neutral', rejected: 'neutral' } as const
+/** 상태는 글자가 기본. 검토 대기 · 제외는 Neutral, 확정만 옅은 Blue */
+const stateTone = { candidate: 'neutral', confirmed: 'feedback', rejected: 'neutral' } as const
 
 export function ConnectionReviewPage({ state, load, onRetry, filter, onFilterChange, onOpenSource, onCreateQuestion, onOpenQuestion, onOpenStudent }: ConnectionReviewPageProps) {
   const [draft, setDraft] = useState(filter.query)

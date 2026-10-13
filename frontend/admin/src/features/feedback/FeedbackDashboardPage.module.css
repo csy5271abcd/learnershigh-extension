@@ -306,8 +306,8 @@
 }
 
 .status[data-status='revision-review'] {
-  background: var(--lh-color-warning-subtle);
-  color: var(--lh-color-warning);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
 }
 
 .status[data-status='feedback-requested'] {
@@ -440,7 +440,7 @@
 }
 
 .kpiValue[data-tone='warning'] {
-  color: var(--lh-color-warning);
+  color: var(--lh-color-text-secondary);
 }
 
 .studentLink {
@@ -555,7 +555,7 @@
 }
 
 .itemEyebrow[data-type='activity'] {
-  color: var(--lh-tone-activity);
+  color: var(--lh-color-text-secondary);
 }
 
 .deadline {

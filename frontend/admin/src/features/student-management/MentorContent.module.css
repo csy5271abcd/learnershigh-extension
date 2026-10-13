@@ -280,7 +280,7 @@
   flex-direction: column;
   gap: 2px;
   padding-left: var(--lh-space-3);
-  border-left: 2px solid var(--lh-color-accent-subtle);
+  border-left: 2px solid var(--lh-color-border);
 }
 
 .termRow {
@@ -379,7 +379,7 @@
   grid-template-columns: 112px minmax(0, 1fr);
   gap: var(--lh-space-4);
   padding: var(--lh-space-3) 0;
-  border-left: 2px solid var(--lh-tone-revision-subtle);
+  border-left: 2px solid var(--lh-color-chip);
   padding-left: var(--lh-space-4);
 }
 
@@ -405,9 +405,9 @@
 .storyBody blockquote {
   margin: 0;
   padding: var(--lh-space-3) var(--lh-space-4);
-  border-left: 3px solid var(--lh-tone-topic);
+  border-left: 3px solid var(--lh-color-border);
   border-radius: 0 var(--lh-radius-md) var(--lh-radius-md) 0;
-  background: var(--lh-tone-topic-subtle);
+  background: var(--lh-color-surface);
 }
 
 .photoMemo {
@@ -469,7 +469,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--lh-tone-revision);
+  color: var(--lh-color-text-secondary);
   font-size: var(--lh-font-caption);
   font-weight: 700;
 }

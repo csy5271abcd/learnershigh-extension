@@ -106,7 +106,7 @@
 }
 
 .kpiValue[data-tone='warning'] {
-  color: var(--lh-color-warning);
+  color: var(--lh-color-text-secondary);
 }
 
 .kpiNote {
@@ -270,7 +270,7 @@
 }
 
 .text[data-tone='warning'] {
-  color: var(--lh-color-warning);
+  color: var(--lh-color-text-secondary);
   font-weight: 600;
 }
 
@@ -304,8 +304,8 @@
 }
 
 .badge[data-tone='warning'] {
-  background: var(--lh-color-warning-subtle);
-  color: var(--lh-color-warning);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
 }
 
 .badge[data-tone='accent'] {

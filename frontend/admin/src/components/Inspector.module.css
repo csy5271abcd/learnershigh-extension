@@ -83,7 +83,7 @@
   gap: var(--lh-space-2);
   padding: var(--lh-space-3);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-color-warning-subtle);
+  background: var(--lh-color-chip);
   font-size: var(--lh-font-label);
 }
 
@@ -182,7 +182,7 @@
 }
 
 .diffBlock[data-kind='changed'] {
-  border-left-color: var(--lh-color-warning);
+  border-left-color: var(--lh-color-text-secondary);
 }
 
 .diffBlock[data-kind='removed'] {
@@ -237,7 +237,7 @@
 
 .quote {
   padding: var(--lh-space-2) var(--lh-space-3);
-  border-left: 3px solid var(--lh-color-accent);
+  border-left: 3px solid var(--lh-color-border);
   background: var(--lh-color-surface);
 }
 

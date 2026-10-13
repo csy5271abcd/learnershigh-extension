@@ -541,12 +541,12 @@
   gap: var(--lh-space-3);
   padding: var(--lh-space-4);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-tone-complete-subtle);
+  background: var(--lh-color-chip);
   color: var(--lh-color-text-primary);
 }
 
 .preparedNotice > svg {
-  color: var(--lh-tone-complete);
+  color: var(--lh-color-text-secondary);
 }
 
 @media (max-width: 1279px) {
@@ -572,8 +572,8 @@
   gap: 6px;
   padding: var(--lh-space-3) var(--lh-space-4);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-tone-revision-subtle);
-  color: var(--lh-tone-revision);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
   font-size: var(--lh-font-label);
   font-weight: 600;
 }
@@ -593,7 +593,7 @@
 }
 
 .sourceLabel[data-source='ai'] {
-  color: var(--lh-tone-ai-text);
+  color: var(--lh-color-text-secondary);
 }
 
 .sourceLabel[data-source='staff'] {
@@ -606,9 +606,9 @@
   flex-direction: column;
   gap: var(--lh-space-2);
   padding: var(--lh-space-4);
-  border: 1px solid var(--lh-tone-ai-border);
+  border: 1px solid var(--lh-color-border);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-tone-ai-surface);
+  background: var(--lh-color-surface);
 }
 
 .caseAiFacts {
@@ -642,7 +642,7 @@
   margin: 0;
   padding: var(--lh-space-4);
   border: 1px solid var(--lh-color-border);
-  border-left: 3px solid var(--lh-color-accent);
+  border-left: 3px solid var(--lh-color-border);
   border-radius: var(--lh-radius-md);
   background: var(--lh-color-surface-raised);
 }

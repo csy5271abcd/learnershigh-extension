@@ -19,14 +19,14 @@
   min-width: 200px;
   padding: var(--lh-space-4) var(--lh-space-6);
   border-radius: var(--lh-radius-lg);
-  background: var(--lh-tone-topic-subtle);
+  background: var(--lh-color-surface);
 }
 
 .summaryPrimary dt {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--lh-tone-topic);
+  color: var(--lh-color-text-secondary);
   font-size: var(--lh-font-label);
   font-weight: 700;
 }
@@ -35,14 +35,6 @@
   font-size: 2.25rem;
   font-weight: 800;
   line-height: 1.2;
-}
-
-.summaryPrimary[data-tone='feedback'] {
-  background: var(--lh-color-accent-subtle);
-}
-
-.summaryPrimary[data-tone='feedback'] dt {
-  color: var(--lh-color-accent-hover);
 }
 
 .summaryStats {
@@ -207,7 +199,7 @@
   top: 50%;
   right: calc(var(--lh-space-2) * -1);
   left: calc(var(--lh-space-2) * -1);
-  border-top: 2px dashed var(--lh-tone-ai-border);
+  border-top: 2px dashed var(--lh-color-border);
 }
 
 .reason {
@@ -217,9 +209,9 @@
   gap: 2px;
   width: 100%;
   padding: var(--lh-space-2) var(--lh-space-3);
-  border: 1px solid var(--lh-tone-ai-border);
+  border: 1px solid var(--lh-color-border);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-tone-ai-surface);
+  background: var(--lh-color-surface);
   font-size: var(--lh-font-label);
 }
 
@@ -227,7 +219,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--lh-tone-ai-text);
+  color: var(--lh-color-text-secondary);
   font-size: var(--lh-font-caption);
   font-weight: 700;
 }
@@ -257,9 +249,9 @@
   flex-direction: column;
   gap: 4px;
   padding: var(--lh-space-3) var(--lh-space-4);
-  border: 1px solid var(--lh-tone-ai-border);
+  border: 1px solid var(--lh-color-border);
   border-radius: var(--lh-radius-md);
-  background: var(--lh-tone-ai-surface);
+  background: var(--lh-color-surface);
 }
 
 .detailSource {
@@ -363,11 +355,12 @@
 }
 
 /* 공개: 글자 + 작은 체크 (초록 Badge로 칠하지 않는다) */
+/* 공개: 옅은 Blue 글자 (배경 · Icon 없음) */
 .publishedText {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  color: var(--lh-color-text-secondary);
+  color: var(--lh-color-accent-hover);
   font-size: var(--lh-font-caption);
   font-weight: 700;
 }
@@ -461,7 +454,7 @@
     left: 50%;
     right: auto;
     border-top: 0;
-    border-left: 2px dashed var(--lh-tone-ai-border);
+    border-left: 2px dashed var(--lh-color-border);
   }
 
   .questionRow {
