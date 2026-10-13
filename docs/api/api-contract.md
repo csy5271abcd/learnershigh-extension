@@ -2935,6 +2935,8 @@ Student / Plan / Library / Study / Existing Task 관련 실제 Endpoint 미확�
 
 Frontend는 이 미확정 Existing API를 직접 호출하지 않는다.
 
+확인된 Existing API와 Extension Client Mapping은 `docs/architecture/existing-data-model.md` §3-2에 기록한다.
+
 ---
 
 # 62. Endpoint Inventory

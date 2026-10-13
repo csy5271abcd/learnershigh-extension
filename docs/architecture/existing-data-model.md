@@ -54,6 +54,34 @@
 | 수행평가 (Performance Task) | `UNCONFIRMED` | School & Admissions |
 | 매니저 / 관리자 계정 | `UNCONFIRMED` | Admin 인증 |
 
+## 3-2. Existing API
+
+기존 LearnersHigh가 제공하는 API를 적는다. Extension이 **만드는** API는 `docs/api/api-contract.md`에 둔다(Frontend는 Existing API를 직접 호출하지 않는다, API-OD-07).
+
+확인되면 API마다 아래를 적는다.
+
+```text
+- Method / Path, 상태 / 출처
+- 인증 (Header, Token 종류, 권한 범위)
+- Request 파라미터 (기간, 지점, Paging)
+- Response 필드 (Extension이 쓰는 것만), 빈 값 / Null 표현
+- Error 형식, Timeout, Rate Limit
+```
+
+Extension이 필요로 하는 조회 (Endpoint는 미확인):
+
+| 필요한 조회 | 사용 Feature | Extension Client | 실제 Endpoint |
+|---|---|---|---|
+| 지점 목록 / 단건 | 학생 케어 | `ExistingStudentClient.findBranches / findBranch` | `UNCONFIRMED` |
+| 지점 학생 목록 / 단건 | 학생 케어, Admin 학생관리 | `ExistingStudentClient.findStudents / findStudent` | `UNCONFIRMED` |
+| 학생 기간별 출결 · 순공 · 계획 | 학생 케어 | `ExistingStudyClient.findDailyStudy` | `UNCONFIRMED` |
+| 학생 학습계획 조회 / Mentor Plan 반영 | Mentor Hub | (미구현) | `UNCONFIRMED` |
+| 라이브러리 조회 | Mentor Hub | (미구현) | `UNCONFIRMED` |
+| 수행평가 조회 | School & Admissions | (미구현) | `UNCONFIRMED` |
+| 로그인 / SSO 토큰 검증 | 전체 Surface | (미구현) | `UNCONFIRMED` |
+
+여러 학생을 한 번에 조회하는 API가 없으면 학생 수만큼 호출(N+1)하게 되므로 Batch 조회 가능 여부를 함께 확인한다(`integration-boundary.md` §24).
+
 ## 4. Extension Contract Mapping
 
 Extension 코드가 실제로 쓰는 통합 Contract다. 원본이 확인되면 오른쪽 열을 채우고 Mock을 실제 Client로 바꾼다.
