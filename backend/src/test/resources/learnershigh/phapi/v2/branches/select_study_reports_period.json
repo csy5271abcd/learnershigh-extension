@@ -1,0 +1,408 @@
+{
+  "student_list": [
+    {
+      "user": {
+        "id": 1001,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "김서준",
+        "status": "ACTIVE",
+        "loginid": "seojun01",
+        "memo": null,
+        "user_svc_flag": "1000000000",
+        "device_id": "12",
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": "샘플고등학교",
+        "grade": "고3",
+        "room": {
+          "id": 7,
+          "name": "1관",
+          "seat_start_number": 1
+        },
+        "seat_number": 14,
+        "group": {
+          "id": 21,
+          "name": "고3 A반"
+        },
+        "nickname": null,
+        "gender": "MALE",
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-03-02 10:12:00",
+        "last_login_at": "2026-09-30 18:22:41",
+        "is_dark_mode": 0,
+        "is_seat": 1
+      },
+      "report": {
+        "report_date": "2026-09-28",
+        "daily_start": "2026-09-28 18:24:10",
+        "login_open_last": null,
+        "login_first": "2026-09-28 18:20:05",
+        "logout_last": "2026-09-28 23:02:44",
+        "study_open_last": null,
+        "total_time_stay": "04:42:39",
+        "total_time_study": "02:55:40",
+        "study_rate": "62.15%",
+        "now_study_time": "",
+        "todo_count": 4,
+        "done_count": 3,
+        "progress_rate": "133.33%",
+        "user_status": "귀가",
+        "plan_status": "제출완료",
+        "report_status": "제출완료"
+      }
+    },
+    {
+      "user": {
+        "id": 1001,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "김서준",
+        "status": "ACTIVE",
+        "loginid": "seojun01",
+        "memo": null,
+        "user_svc_flag": "1000000000",
+        "device_id": "12",
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": "샘플고등학교",
+        "grade": "고3",
+        "room": {
+          "id": 7,
+          "name": "1관",
+          "seat_start_number": 1
+        },
+        "seat_number": 14,
+        "group": {
+          "id": 21,
+          "name": "고3 A반"
+        },
+        "nickname": null,
+        "gender": "MALE",
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-03-02 10:12:00",
+        "last_login_at": "2026-09-30 18:22:41",
+        "is_dark_mode": 0,
+        "is_seat": 1
+      },
+      "report": {
+        "report_date": "2026-09-29",
+        "daily_start": "2026-09-29 18:35:02",
+        "login_open_last": null,
+        "login_first": "2026-09-29 18:31:47",
+        "logout_last": "2026-09-29 22:58:01",
+        "study_open_last": null,
+        "total_time_stay": "04:26:14",
+        "total_time_study": "01:45:00",
+        "study_rate": "39.44%",
+        "now_study_time": "",
+        "todo_count": 2,
+        "done_count": 2,
+        "progress_rate": "100.00%",
+        "user_status": "귀가",
+        "plan_status": "컨펌완료",
+        "report_status": "제출완료"
+      }
+    },
+    {
+      "user": {
+        "id": 1001,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "김서준",
+        "status": "ACTIVE",
+        "loginid": "seojun01",
+        "memo": null,
+        "user_svc_flag": "1000000000",
+        "device_id": "12",
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": "샘플고등학교",
+        "grade": "고3",
+        "room": {
+          "id": 7,
+          "name": "1관",
+          "seat_start_number": 1
+        },
+        "seat_number": 14,
+        "group": {
+          "id": 21,
+          "name": "고3 A반"
+        },
+        "nickname": null,
+        "gender": "MALE",
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-03-02 10:12:00",
+        "last_login_at": "2026-09-30 18:22:41",
+        "is_dark_mode": 0,
+        "is_seat": 1
+      },
+      "report": {
+        "report_date": "2026-09-30",
+        "daily_start": null,
+        "login_open_last": null,
+        "login_first": null,
+        "logout_last": null,
+        "study_open_last": null,
+        "total_time_stay": "00:00:00",
+        "total_time_study": "00:00:00",
+        "study_rate": "0.00%",
+        "now_study_time": "",
+        "todo_count": 1,
+        "done_count": 0,
+        "progress_rate": "0.00%",
+        "user_status": "미입실",
+        "plan_status": "제출전",
+        "report_status": "제출전"
+      }
+    },
+    {
+      "user": {
+        "id": 1002,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "최학생",
+        "status": "ACTIVE",
+        "loginid": "student02",
+        "memo": null,
+        "user_svc_flag": "1100000000",
+        "device_id": null,
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": "샘플고등학교",
+        "grade": "고3",
+        "room": {
+          "id": 7,
+          "name": "1관",
+          "seat_start_number": 1
+        },
+        "seat_number": 15,
+        "group": {
+          "id": 21,
+          "name": "고3 A반"
+        },
+        "nickname": null,
+        "gender": "FEMALE",
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-03-02 10:15:00",
+        "last_login_at": "2026-09-29 18:05:12",
+        "is_dark_mode": 0,
+        "is_seat": 0
+      },
+      "report": {
+        "report_date": "2026-09-28",
+        "daily_start": "2026-09-28 18:10:00",
+        "login_open_last": null,
+        "login_first": "2026-09-28 18:05:12",
+        "logout_last": "2026-09-28 22:30:40",
+        "study_open_last": null,
+        "total_time_stay": "04:25:28",
+        "total_time_study": "03:10:00",
+        "study_rate": "71.57%",
+        "now_study_time": "",
+        "todo_count": 0,
+        "done_count": 0,
+        "progress_rate": "0.00%",
+        "user_status": "귀가",
+        "plan_status": "제출전",
+        "report_status": "제출완료"
+      }
+    },
+    {
+      "user": {
+        "id": 1002,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "최학생",
+        "status": "ACTIVE",
+        "loginid": "student02",
+        "memo": null,
+        "user_svc_flag": "1100000000",
+        "device_id": null,
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": "샘플고등학교",
+        "grade": "고3",
+        "room": {
+          "id": 7,
+          "name": "1관",
+          "seat_start_number": 1
+        },
+        "seat_number": 15,
+        "group": {
+          "id": 21,
+          "name": "고3 A반"
+        },
+        "nickname": null,
+        "gender": "FEMALE",
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-03-02 10:15:00",
+        "last_login_at": "2026-09-29 18:05:12",
+        "is_dark_mode": 0,
+        "is_seat": 0
+      },
+      "report": {
+        "report_date": "2026-09-29",
+        "daily_start": "2026-09-29 18:12:31",
+        "login_open_last": null,
+        "login_first": "2026-09-29 18:08:55",
+        "logout_last": "2026-09-29 22:41:03",
+        "study_open_last": null,
+        "total_time_stay": "04:32:08",
+        "total_time_study": "03:25:00",
+        "study_rate": "75.33%",
+        "now_study_time": "",
+        "todo_count": 0,
+        "done_count": 0,
+        "progress_rate": "0.00%",
+        "user_status": "귀가",
+        "plan_status": "제출전",
+        "report_status": "제출완료"
+      }
+    },
+    {
+      "user": {
+        "id": 1003,
+        "brand": {
+          "id": 3,
+          "name": "러너스하이"
+        },
+        "branch": {
+          "id": 501,
+          "svc_flag_console": "1111111111"
+        },
+        "role_id": 5,
+        "real_name": "박민지",
+        "status": "ACTIVE",
+        "loginid": "minji03",
+        "memo": null,
+        "user_svc_flag": "1000000000",
+        "device_id": null,
+        "phone": null,
+        "parents_phone": null,
+        "parents_email": null,
+        "school": null,
+        "grade": "고2",
+        "room": {
+          "id": 0,
+          "name": null,
+          "seat_start_number": 0
+        },
+        "seat_number": null,
+        "group": {
+          "id": 0,
+          "name": null
+        },
+        "nickname": null,
+        "gender": null,
+        "birth_date": null,
+        "email": null,
+        "address": "//",
+        "profile_img_url": null,
+        "created_at": "2026-09-28 16:00:00",
+        "last_login_at": null,
+        "is_dark_mode": 0,
+        "is_seat": 0
+      },
+      "report": {
+        "report_date": null,
+        "daily_start": null,
+        "login_open_last": null,
+        "login_first": null,
+        "logout_last": null,
+        "study_open_last": null,
+        "total_time_stay": "00:00:00",
+        "total_time_study": "00:00:00",
+        "study_rate": "0.00%",
+        "now_study_time": "",
+        "todo_count": 0,
+        "done_count": 0,
+        "progress_rate": "0.00%",
+        "user_status": "대기",
+        "plan_status": "제출전",
+        "report_status": "-"
+      }
+    }
+  ],
+  "brand": {
+    "id": 3,
+    "name": "러너스하이",
+    "status": "ACTIVE",
+    "service_domain": null,
+    "homepage_url": null,
+    "phone": null,
+    "email": null,
+    "is_management": "0",
+    "business_registration_number": null,
+    "sms_phone": null,
+    "sms_phone_confirm": "0",
+    "device_max": 100,
+    "device_cur": 41,
+    "student_max": 100,
+    "student_cur": 38,
+    "service_start_date": "2026-03-01",
+    "service_end_date": null,
+    "memo": null,
+    "address": null,
+    "svc_flag": "1111111111",
+    "menu_flag": "1111111111",
+    "refresh_sec": "36000",
+    "created_at": "2026-02-20 09:00:00",
+    "head": ""
+  }
+}
