@@ -1,0 +1,277 @@
+/* 주제 제출 Modal: 수행평가 등록 Modal(TaskRegister)과 같은 크기 · 여백 · 버튼 체계 */
+
+.dialog {
+  width: min(640px, calc(100vw - 48px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  border: 0;
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 0.18);
+  overflow: hidden;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+.surface {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 48px);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-8) var(--lh-space-8) var(--lh-space-4);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+}
+
+.title {
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.close {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: -6px -8px 0 0;
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: none;
+  color: var(--lh-color-text-tertiary);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+/* 어떤 수행평가인지: 회색 Card 한 장 */
+.context {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.contextTitle {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.contextMeta {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+  min-height: 0;
+  padding: var(--lh-space-2) var(--lh-space-8) var(--lh-space-6);
+  overflow-y: auto;
+}
+
+/* 선생님 방향: 차분한 Text 영역 (오류처럼 보이지 않게 강한 경고색을 쓰지 않는다) */
+.guidance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-left: 3px solid var(--lh-color-accent);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.guidanceLabel {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.previous {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+}
+
+.previousLabel {
+  color: var(--lh-color-text-tertiary);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.label {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.field:focus-within > .label {
+  color: var(--lh-color-accent);
+}
+
+.hint {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-primary);
+  font: inherit;
+  font-size: var(--lh-font-title-sm);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.textarea::placeholder {
+  color: var(--lh-color-text-tertiary);
+}
+
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--lh-color-accent);
+  box-shadow: 0 0 0 1px var(--lh-color-accent);
+  background: var(--lh-color-surface-raised);
+}
+
+.textarea[aria-invalid='true'] {
+  border-color: var(--lh-color-negative);
+}
+
+.error {
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-body);
+  font-weight: 500;
+}
+
+.submitError {
+  margin: 0 var(--lh-space-8);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-5) var(--lh-space-8) var(--lh-space-8);
+}
+
+.primaryButton,
+.secondaryButton {
+  min-width: 76px;
+  min-height: 52px;
+  padding: 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+}
+
+.primaryButton[data-inactive] {
+  opacity: 0.45;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.secondaryButton {
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--lh-color-surface-hover);
+}
+
+@media (max-width: 639px) {
+  .dialog {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: var(--lh-radius-lg);
+  }
+
+  .surface {
+    max-height: calc(100dvh - 16px);
+  }
+
+  .header {
+    padding: var(--lh-space-5) var(--lh-space-5) var(--lh-space-3);
+  }
+
+  .title {
+    font-size: var(--lh-font-title-md);
+  }
+
+  .body {
+    padding: var(--lh-space-1) var(--lh-space-5) var(--lh-space-5);
+  }
+
+  .textarea {
+    min-height: 140px;
+  }
+
+  .submitError {
+    margin: 0 var(--lh-space-5);
+  }
+
+  .footer {
+    padding: var(--lh-space-4) var(--lh-space-5) var(--lh-space-5);
+    border-top: 1px solid var(--lh-color-border);
+  }
+
+  .primaryButton {
+    flex: 1;
+  }
+}

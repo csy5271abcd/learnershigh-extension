@@ -1,0 +1,106 @@
+/*
+ * Plan-01 Mockup: 요일 | 할 일(+과목) | Memo 3열. 폭은 Mentor Hub Page 최대 폭(1920px)을 따른다.
+ * Tablet 이하(1023px): Memo가 할 일 아래 보조 정보로 내려가는 2열 구조.
+ */
+
+.panel {
+  padding-top: var(--lh-space-4);
+}
+
+.columns,
+.item {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1.4fr) minmax(0, 1fr);
+  column-gap: var(--lh-space-4);
+}
+
+.columns {
+  padding: 0 0 var(--lh-space-3);
+  border-bottom: 1px solid var(--lh-color-border);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.columns span:last-child {
+  grid-column: 3;
+}
+
+.item {
+  align-items: center;
+  padding: var(--lh-space-4) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.day {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.task {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.taskTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.subject {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+/* Memo는 보조 정보: 할 일보다 작고 옅게, 회색 Surface 안에 둔다. */
+.memo {
+  grid-column: 3;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  padding: var(--lh-space-8) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .columns {
+    display: none;
+  }
+
+  .item {
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: start;
+    row-gap: var(--lh-space-2);
+  }
+
+  .day {
+    line-height: 1.5;
+  }
+
+  .memo {
+    grid-column: 2;
+    padding: var(--lh-space-2) var(--lh-space-3);
+  }
+}
+
+@media (max-width: 639px) {
+  .item {
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: var(--lh-space-3);
+  }
+
+  .day {
+    font-size: var(--lh-font-title-sm);
+  }
+}

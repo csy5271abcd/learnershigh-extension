@@ -1,0 +1,243 @@
+/* School Home / Tasks (Tasks-00 Mockup) */
+
+.list {
+  /* Task | 마감 | 현재 단계 | 상태 (Mockup 1920px 기준 열 비율) */
+  --task-columns: minmax(0, 1fr) 140px 220px 200px 24px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- 새 수행평가 등록 안내 ---- */
+
+.createBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-4);
+  margin-bottom: var(--lh-space-5);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.createText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.createTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.createDescription {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.createAction {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--lh-space-1);
+  flex-shrink: 0;
+}
+
+.createButton {
+  min-height: 48px;
+  padding: 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.createButton {
+  cursor: pointer;
+}
+
+.createButton:hover {
+  background: var(--lh-color-accent-hover);
+}
+
+/* ---- Filter Chip ---- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+  margin-bottom: var(--lh-space-5);
+}
+
+.filterChip {
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.filterChip:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* 선택 Chip은 배경 반전 + 굵기로 함께 표시한다. */
+.filterChip[aria-pressed='true'] {
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+  font-weight: 700;
+}
+
+/* ---- 목록 ---- */
+
+.columns {
+  display: grid;
+  grid-template-columns: var(--task-columns);
+  column-gap: var(--lh-space-6);
+  padding-bottom: var(--lh-space-3);
+  border-bottom: 1px solid var(--lh-color-border);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Loading / Empty / Error ---- */
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.skeletonChips,
+.skeletonRow {
+  display: block;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-skeleton);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeletonChips {
+  width: 360px;
+  max-width: 100%;
+  height: 36px;
+  margin-bottom: var(--lh-space-3);
+}
+
+.skeletonRow {
+  height: 72px;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonChips,
+  .skeletonRow {
+    animation: none;
+  }
+}
+
+.emptyNotice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-8) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  text-align: center;
+}
+
+.errorNotice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-12) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  text-align: center;
+}
+
+.errorTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.errorDescription {
+  color: var(--lh-color-text-secondary);
+}
+
+.retryButton {
+  min-height: 44px;
+  margin-top: var(--lh-space-2);
+  padding: 0 var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* Tablet 이하: 열 머리글 대신 각 Row가 스스로 정보를 보여준다. */
+@media (max-width: 1023px) {
+  .columns {
+    display: none;
+  }
+
+  .rows {
+    border-top: 1px solid var(--lh-color-border);
+  }
+}
+
+@media (max-width: 639px) {
+  .createBanner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .createAction {
+    align-items: stretch;
+    text-align: center;
+  }
+
+  /* Chip이 길면 줄바꿈 대신 가로 Scroll */
+  .filters {
+    flex-wrap: nowrap;
+    margin-right: calc(var(--lh-space-4) * -1);
+    padding-right: var(--lh-space-4);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filterChip {
+    flex-shrink: 0;
+    min-height: 40px;
+  }
+}

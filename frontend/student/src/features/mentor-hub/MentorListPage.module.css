@@ -1,0 +1,11 @@
+/* Mentor List Tab Panel. 여백 / Grid는 MentorHubHomePage.module.css를 함께 쓴다. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+}
+
+.cardSkeleton {
+  height: 210px;
+  border-radius: var(--lh-radius-xl);
+}

@@ -1,0 +1,158 @@
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--lh-space-6);
+  padding: var(--lh-space-6) var(--lh-space-8);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-3);
+}
+
+.adminBadge {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.kindBadge {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.title {
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.mentor {
+  color: var(--lh-color-text-secondary);
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  margin-top: var(--lh-space-2);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+}
+
+.linkLabel {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.linkTask {
+  font-weight: 700;
+}
+
+.linkReason {
+  color: var(--lh-color-text-secondary);
+}
+
+.meta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--lh-space-6);
+  min-width: 0;
+}
+
+.stepsLabel {
+  margin-bottom: var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-1) var(--lh-space-3) var(--lh-space-1) var(--lh-space-1);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-surface-raised);
+  font-size: var(--lh-font-label);
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.caseButton {
+  min-height: 44px;
+  padding: 0 var(--lh-space-5);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.caseButton:hover {
+  background: var(--lh-color-accent-hover);
+}
+
+/* Tablet 이하: 과정과 CTA를 본문 아래로 내린다. */
+@media (max-width: 1023px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--lh-space-6);
+    padding: var(--lh-space-6);
+  }
+}
+
+@media (max-width: 639px) {
+  .panel {
+    padding: var(--lh-space-5);
+  }
+
+  .title {
+    font-size: var(--lh-font-title-md);
+  }
+
+  .caseButton {
+    width: 100%;
+  }
+}

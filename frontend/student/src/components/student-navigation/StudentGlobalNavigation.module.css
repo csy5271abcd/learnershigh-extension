@@ -1,0 +1,232 @@
+/*
+ * 기존 LearnersHigh Student Header의 Existing Visual Context.
+ * (references/existing-runners-high/screens/student/report/monthly-report.png 실측)
+ * Mentor Hub 본문 Token(TDS / #3182F6)과 섞지 않도록 이 Component 안에서만 쓴다.
+ */
+.header {
+  --existing-nav-bg: #000000;
+  --existing-nav-icon: #bbbbbb;
+  --existing-nav-icon-hover: #ffffff;
+  --existing-nav-text: #ffffff;
+  --existing-nav-active-bg: #232529;
+  --existing-nav-active: #50faff;
+  --existing-nav-item-width: 60px;
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-areas: 'brand nav user';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  column-gap: var(--lh-space-4);
+  height: var(--lh-student-nav-height);
+  padding: 0 var(--lh-space-4) 0 var(--lh-space-5);
+  background: var(--existing-nav-bg);
+  color: var(--existing-nav-text);
+}
+
+.brand {
+  grid-area: brand;
+  align-self: center;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.nav {
+  grid-area: nav;
+  display: flex;
+  min-width: 0;
+  height: 50px;
+}
+
+.list {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.list > li {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.item {
+  /* 숨김 Label(absolute)이 스크롤 영역 밖으로 빠져 Page 폭을 늘리지 않도록 기준을 버튼으로 둔다. */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: var(--existing-nav-item-width);
+  height: 100%;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  background: none;
+  color: var(--existing-nav-icon);
+  cursor: pointer;
+}
+
+.item:hover {
+  color: var(--existing-nav-icon-hover);
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--existing-nav-active);
+  outline-offset: -4px;
+}
+
+/* 기존 Header처럼 Active 메뉴는 칸 전체 배경 + Cyan 아이콘으로 표시한다. */
+.item[aria-current='page'] {
+  background: var(--existing-nav-active-bg);
+  color: var(--existing-nav-active);
+  font-weight: 700;
+}
+
+.extension {
+  padding: 0 var(--lh-space-4);
+}
+
+.label {
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.item[aria-current='page'] .label {
+  font-weight: 700;
+}
+
+/* Reference 아이콘 실측 18~22px에 맞춘다. (24px 상자 안의 Line Icon) */
+.icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.user {
+  position: relative;
+  grid-area: user;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 50px;
+}
+
+.userName {
+  margin: 0 var(--lh-space-1) 0 var(--lh-space-2);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.userButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--lh-space-2);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--existing-nav-icon);
+  cursor: pointer;
+}
+
+.userButton:hover {
+  color: var(--existing-nav-icon-hover);
+}
+
+.userButton:focus-visible {
+  outline: 2px solid var(--existing-nav-active);
+  outline-offset: -2px;
+}
+
+.checkout {
+  color: var(--existing-nav-text);
+}
+
+.checkoutLabel {
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+}
+
+/* Laptop: 메뉴 폭을 줄여 한 줄에 모두 들어오게 한다. */
+@media (max-width: 1439px) {
+  .header {
+    --existing-nav-item-width: 52px;
+  }
+
+  .item {
+    padding: 0 var(--lh-space-2);
+  }
+
+  .extension {
+    padding: 0 var(--lh-space-3);
+  }
+}
+
+/* Tablet: 아이콘 중심 + 가로 스크롤. 신규 메뉴 Label은 스크린 리더용으로만 남긴다. */
+@media (max-width: 1023px) {
+  .label,
+  .userName {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .extension {
+    padding: 0 var(--lh-space-2);
+  }
+}
+
+/* Mobile: Brand / 사용자 영역 아래 줄에 메뉴를 가로 스크롤로 둔다. */
+@media (max-width: 639px) {
+  .header {
+    grid-template-areas:
+      'brand user'
+      'nav nav';
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 50px 44px;
+    padding: 0;
+  }
+
+  .brand {
+    padding-left: var(--lh-space-4);
+  }
+
+  .user {
+    padding-right: var(--lh-space-2);
+  }
+
+  .nav {
+    height: 44px;
+    border-top: 1px solid var(--existing-nav-active-bg);
+  }
+
+  .item {
+    min-width: 48px;
+  }
+
+  .checkoutLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

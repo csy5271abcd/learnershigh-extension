@@ -1,0 +1,11 @@
+/* Plan / Routine 목록 Tab Panel (Plan-00 / Routine-00 Mockup). 여백 / Grid는 MentorHubHomePage.module.css를 함께 쓴다. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+}
+
+.cardSkeleton {
+  height: 190px;
+  border-radius: var(--lh-radius-xl);
+}
