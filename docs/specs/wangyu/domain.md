@@ -34,15 +34,17 @@ studentcare  (backend package: com.learnershigh.extension.studentcare)
 | `CONSECUTIVE_ABSENCE` | 연속 미입실 | asOf부터 거꾸로 연속 미입실 일수 ≥ `absenceDays` | 연속 미입실 일수 | 낮을수록 |
 | `PLAN_MISSING` | 계획 미제출 반복 | last7 계획 미제출 일수 ≥ `planMissingDays` | last7 미제출 일수 | 낮을수록 |
 | `STUDY_DROP` | 학습량 감소 | 평소(prev21 합 ÷ 3) > 0 이고 (평소 − last7 합) ÷ 평소 ≥ `studyDropPercent`% | last7 학습 분 | 높을수록 |
-| `EXECUTION_GAP` | 계획 대비 실행 부족 | last14 계획 분 > 0 이고 실행 분 ÷ 계획 분 < `executionRatePercent`% | 실행률 % | 높을수록 |
+| `EXECUTION_GAP` | 계획 대비 실행 부족 | last14 중 계획을 제출한 날의 계획 분 합 > 0 이고, 그날들의 실행 분 합 ÷ 계획 분 합 < `executionRatePercent`% | 실행률 % | 높을수록 |
 | `SUBJECT_SHARE` | 과목 배분 차이 | last7 계획 비중 − 실제 비중이 가장 큰 과목의 차이 ≥ `subjectShareGapPoints`%p | 그 과목 실제 비중 % | 높을수록 |
 | `START_TIME_SHIFT` | 시작 시각 변화 | last7 평균 첫 입실 시각 − prev21 평균 ≥ `startShiftMinutes`분 (각 기간 입실 3일 이상) | last7 평균 시작 분 | 낮을수록 |
 
 규칙:
 
+- 판정은 반올림하지 않은 값으로 한다. 화면 / 요약 / Baseline 값만 정수로 반올림한다. (예: 실행률 59.6%는 60% 미만이다.)
 - `CONSECUTIVE_ABSENCE`가 있으면 학습량 계열(`STUDY_DROP`, `EXECUTION_GAP`, `SUBJECT_SHARE`, `START_TIME_SHIFT`)은 계산하지 않는다.
-- 판단 보류(`deferred`): last7 유효 학습일 < `minValidDays`이고 `CONSECUTIVE_ABSENCE`가 없으면 학습량 계열을 계산하지 않는다. 남은 신호가 없으면 판단 보류 목록에 둔다.
-- `cooldownDays`: 학생의 가장 최근 종결 건이 asOf − cooldownDays 이후에 종결됐으면, 그 건의 기준 신호와 같은 Type은 보드에 올리지 않는다.
+- 판단 보류(`deferred`): last7 유효 학습일 < `minValidDays`이고 `CONSECUTIVE_ABSENCE`가 없으면 학습량 계열을 계산하지 않는다. **cooldown을 적용한 뒤** 남은 신호가 없으면 판단 보류 목록에 둔다.
+- `cooldownDays`: 학생의 **가장 최근 종결 건**(closedOn이 가장 늦은 건, 같으면 나중에 종결된 건) 하나만 본다. closedOn > asOf − cooldownDays 이면(종결일 포함 cooldownDays일 동안) 그 건의 기준 신호와 같은 Type은 보드에 올리지 않는다. cooldownDays = 0이면 숨기지 않는다.
+  예: cooldown 7일, 9/23 종결 → 9/23~9/29 숨김, 9/30부터 다시 올림.
 - 진행 중(`IN_ADJUSTMENT`) 건이 있는 학생은 "확인할 변화"가 아니라 "조정 진행 중"에 둔다.
 
 ## 4. Entity
@@ -113,15 +115,35 @@ IN_ADJUSTMENT ──(asOf ≥ recheckDate) 약속 수정────────
 
 입력 오류 (422): `PLAN_REQUIRED`, `STUDENT_AGREEMENT_REQUIRED`, `INVALID_RECHECK_DATE`, `INVALID_CARE_SETTINGS`.
 
+## 5-1. 동시 요청
+
+- 같은 학생의 사유 확인(새 건)은 학생 단위 잠금으로 순서대로 처리한다. 즉시 종결(EXPECTED_CHANGE / RECORD_ISSUE)을 두 번 동시에 보내도 건은 하나다. 두 번째는 쉬는 기간 때문에 `STUDENT_NOT_FLAGGED`가 된다(cooldownDays = 0이면 신호가 남아 있으므로 새 건이 정상적으로 하나 더 생긴다).
+- 진행 중 건은 지점 × 학생당 하나다(DB Unique `branch_id, active_student_id`).
+- 같은 건의 결정 / 메모는 건 단위 잠금으로 순서대로 처리한다. 그래도 충돌하면 `409 CONCURRENT_MODIFICATION`.
+
+## 5-2. 지점 범위
+
+- 케어 건과 학생 기록은 지점 단위다. 다른 지점에서 연 건은 보이지 않고 변경할 수 없다(404).
+- 학생이 지점을 옮겼을 때 이전 지점 기록을 이어 보여 줄지는 Open Decision이다(§8).
+
 ## 6. 재점검 비교
 
 - 건의 `baseline`에 있는 신호마다 같은 공식으로 asOf 기준 지표를 다시 계산한다.
 - 추세: 좋아지는 방향으로 최소 폭 이상 움직이면 `IMPROVED`, 반대면 `WORSENED`, 아니면 `SAME`.
   최소 폭: 일수 1일, 학습 분 max(30분, 기준의 5%), 비중·실행률 3%p, 시작 시각 15분.
-- 지금 기록으로 계산할 수 없는 지표(예: 미입실이라 과목 비중 없음)는 `SAME`으로 보고 값은 비운다.
+- 지금 기록으로 계산할 수 없는 지표(예: 미입실이라 과목 비중 없음)는 `SAME`으로 보고 값은 비운다. 화면은 "비교할 기록 없음"으로 표시한다.
 - 결과: 모두 IMPROVED → `IMPROVED`(변화 관찰), 모두 SAME → `NO_CHANGE`(변화 없음), IMPROVED 없이 WORSENED 있음 → `WORSENED`(더 나빠짐), 그 외 → `MIXED`(일부 변화).
 - 결과는 표시용이다. 상태를 바꾸지 않는다.
 
 ## 7. 약속 예시 / 확인할 질문
 
 첫 신호(우선순위) 기준 규칙 템플릿으로 채운다. AI 생성이 아니다. 문구는 `StudentCareTexts`가 관리한다.
+
+## 8. Open Decision
+
+| 항목 | 내용 |
+|---|---|
+| 무계획모드 | Existing `user_svc_flag` 2째자리 `'1'`인 학생은 계획 상태가 계속 "제출전"이라 `PLAN_MISSING`이 오탐한다(`docs/architecture/existing-learnershigh-data.md` §5-2). Contract에 반영할지, 이 학생은 `PLAN_MISSING` / `EXECUTION_GAP` / `SUBJECT_SHARE`를 계산하지 않을지 결정 필요. |
+| 표준 과목 | Existing 과목은 지점별 코드명이라 `SUBJECT_SHARE` 기준이 지점마다 다르다. 표준 과목 Mapping 필요. |
+| 지점 이동 | 학생이 지점을 옮기면 이전 지점 케어 기록을 이어 볼지. 현재는 지점 단위로 분리. |
+| 인증 / 권한 | 관리자가 볼 수 있는 지점 범위. 현재는 `branchId` 파라미터로만 범위를 정한다. |

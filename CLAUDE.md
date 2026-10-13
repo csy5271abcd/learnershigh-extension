@@ -52,7 +52,7 @@ Study Room
 
 ```text
 + docs/architecture/integration-boundary.md
-+ docs/architecture/existing-data-model.md
++ docs/architecture/existing-learnershigh-data.md
 + docs/product/existing-runners-high-analysis.md
 + 관련 references/existing-runners-high/screens/
 ```
@@ -94,7 +94,7 @@ Architecture
 → references/claude-design-mockup/
 
 기존 LearnersHigh Entity / Table / API (확인된 것만)
-→ docs/architecture/existing-data-model.md
+→ docs/architecture/existing-learnershigh-data.md
 
 기존 LearnersHigh Context / IA / Interaction
 → docs/product/existing-runners-high-analysis.md

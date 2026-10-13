@@ -246,6 +246,18 @@ Pagination이 필요 없는 소규모 목록은 단순 `items`만 사용할 수 
 502/503 Integration Failure
 ```
 
+공통 Error Code (모든 Endpoint):
+
+| Status | Code | 상황 |
+|---|---|---|
+| 400 | `VALIDATION_ERROR` | 필수값 누락, 길이 / 형식 / Enum 오류, 정수 필드에 소수. `details.fields[].field`는 JSON 경로(`plan.goal`) |
+| 404 | `NOT_FOUND` | 없는 경로 |
+| 405 | `METHOD_NOT_ALLOWED` | 지원하지 않는 Method |
+| 406 | `NOT_ACCEPTABLE` | `Accept`가 JSON을 허용하지 않음 |
+| 409 | `CONCURRENT_MODIFICATION` | 같은 자원을 동시에 변경해 이번 요청이 반영되지 않음. 다시 불러온 뒤 재시도 |
+| 415 | `UNSUPPORTED_MEDIA_TYPE` | Body가 있는데 `Content-Type: application/json`이 아님 |
+| 500 | `INTERNAL_ERROR` | 예상하지 못한 서버 오류 |
+
 ---
 
 ## 5-2. Validation Error
@@ -2935,7 +2947,7 @@ Student / Plan / Library / Study / Existing Task 관련 실제 Endpoint 미확�
 
 Frontend는 이 미확정 Existing API를 직접 호출하지 않는다.
 
-확인된 Existing API와 Extension Client Mapping은 `docs/architecture/existing-data-model.md` §3-2에 기록한다.
+확인된 Existing API와 Extension Client Mapping은 `docs/architecture/existing-learnershigh-data.md`에 기록한다.
 
 ---
 
@@ -3141,7 +3153,9 @@ Base:
 
 - `branchId`, `studentId`는 Existing LearnersHigh ID(문자열)다.
 - 날짜는 `YYYY-MM-DD`(Asia/Seoul 기준일), 시각은 ISO 8601 Offset(`+09:00`).
-- 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다).
+- 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다). 기존 학습 기록을 읽는 Endpoint(board, students/{id}, POST cases, decisions, summary) 모두 해당하며, 실패하면 아무것도 저장하지 않는다.
+- 모든 Endpoint는 `branchId`로 범위를 정한다. 다른 지점의 학생 / 케어 건은 없는 것으로 본다(404).
+- 공통 Error(§5-1 표)는 Endpoint별 Error 목록에 다시 적지 않는다.
 
 Enum:
 
@@ -3170,6 +3184,8 @@ GET /api/admin/student-care/branches
   ]
 }
 ```
+
+- 지점이 없으면 `items: []` (Empty). 지점 / 학생 연동 실패는 `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-2. Care Board
 
@@ -3209,7 +3225,7 @@ GET /api/admin/student-care/board?branchId=br_gangnam
 }
 ```
 
-Error: `404 BRANCH_NOT_FOUND`, `400 VALIDATION_ERROR`(branchId 없음).
+Error: `400 VALIDATION_ERROR`(branchId 없음), `404 BRANCH_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-3. Student Care Detail
 
@@ -3248,7 +3264,7 @@ GET /api/admin/student-care/students/{studentId}?branchId=br_gangnam
 - `planSuggestion`: 신호가 있고 진행 중 건이 없을 때만 값이 있다.
 - `activeCase`: 진행 중 건(65-5 `CareCase`) 또는 `null`.
 
-Error: `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`.
+Error: `400 VALIDATION_ERROR`(branchId 없음), `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-4. Open Care Case (사유 확인 / 조정 시작)
 
@@ -3273,12 +3289,15 @@ POST /api/admin/student-care/cases
 ```
 
 - `reason`이 `EXPECTED_CHANGE` / `RECORD_ISSUE`면 `plan`은 무시되고 건은 바로 `CLOSED`.
-- `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `recheckDate`는 asOf+1 ~ asOf+28.
-- `memo`: 0~1000자.
+- `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `plan.recheckDate`는 asOf+1 ~ asOf+28.
+- `memo`: 0~1000자. 학생 기록에 잘리지 않고 그대로 남는다.
+- `plan.goal` / `plan.action`: 1~200자, `plan.loadLimit`: 0~100자. 길이 초과는 `400 VALIDATION_ERROR`.
+- 같은 학생에 대한 요청은 순서대로 처리한다. 동시에 두 번 보내도 건은 하나만 생기고 나머지는 `409 ACTIVE_CARE_CASE_EXISTS`(진행 중 건) 또는 `409 STUDENT_NOT_FLAGGED`(방금 종결되어 쉬는 기간에 들어감)다.
+- 422 오류는 `details.fields`에 원인 필드를 담는다: `PLAN_REQUIRED` → `plan`, `plan.goal`, `plan.action` / `STUDENT_AGREEMENT_REQUIRED` → `plan.agreedWithStudent` / `INVALID_RECHECK_DATE` → `plan.recheckDate`(65-6에서는 `recheckDate`).
 
 Response `201`: `CareCase` (65-5).
 
-Error: `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_FLAGGED`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `400 VALIDATION_ERROR`.
+Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_FLAGGED`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-5. CareCase Shape
 
@@ -3312,6 +3331,7 @@ Error: `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_
 
 - `unit`: `DAYS` | `MINUTES` | `PERCENT` | `CLOCK_MINUTES`(자정 기준 분).
 - `comparison`: `recheckDue`가 `true`일 때만 값이 있다.
+- `baseline[].target` / `comparison.rows[].target`: 비교 기준이 있는 신호만 값이 있다. `STUDY_DROP`(평소 7일 학습 분), `EXECUTION_GAP`(기준 실행률), `SUBJECT_SHARE`(계획 비중), `START_TIME_SHIFT`(평소 시작 시각). `CONSECUTIVE_ABSENCE` / `PLAN_MISSING`은 `null`.
 
 ```json
 {
@@ -3323,12 +3343,13 @@ Error: `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_
 }
 ```
 
+- `rows[].now`가 `null`이면 지금 기록으로 계산할 수 없는 지표다. 이때 `trend`는 `SAME`이지만 화면은 "비교할 기록 없음"으로 표시하고 추세를 보여 주지 않는다.
 - `events`: 이 건의 이벤트, 오래된 순.
 
 ## 65-6. Decide After Recheck
 
 ```http
-POST /api/admin/student-care/cases/{caseId}/decisions
+POST /api/admin/student-care/cases/{caseId}/decisions?branchId=br_gangnam
 ```
 
 ```json
@@ -3337,16 +3358,17 @@ POST /api/admin/student-care/cases/{caseId}/decisions
 
 - `CLOSE`: 추가 필드 없음.
 - `CONTINUE`: `recheckDate` 필수 (asOf+1 ~ asOf+28).
-- `REVISE`: `plan`, `recheckDate` 필수.
+- `REVISE`: `plan`, `recheckDate` 필수. 새 재점검일은 최상위 `recheckDate`다(`plan.recheckDate`는 쓰지 않는다).
+- 같은 건에 대한 결정 / 메모는 순서대로 처리한다. 이미 종결된 건에 대한 두 번째 결정은 `409 INVALID_STATE_TRANSITION`.
 
 Response `200`: `CareCase`.
 
-Error: `404 CARE_CASE_NOT_FOUND`, `409 RECHECK_NOT_DUE`, `409 INVALID_STATE_TRANSITION`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`.
+Error: `400 VALIDATION_ERROR`(branchId 없음 등), `404 CARE_CASE_NOT_FOUND`(없거나 다른 지점 건), `409 RECHECK_NOT_DUE`, `409 INVALID_STATE_TRANSITION`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-7. Add Note (면담 / 통화 메모)
 
 ```http
-POST /api/admin/student-care/cases/{caseId}/notes
+POST /api/admin/student-care/cases/{caseId}/notes?branchId=br_gangnam
 ```
 
 ```json
@@ -3355,7 +3377,9 @@ POST /api/admin/student-care/cases/{caseId}/notes
 
 Response `201`: `CareEvent` (65-5 `events` 항목). `content` 1~1000자.
 
-Error: `404 CARE_CASE_NOT_FOUND`, `400 VALIDATION_ERROR`.
+종결된 건에도 메모를 남길 수 있다.
+
+Error: `400 VALIDATION_ERROR`, `404 CARE_CASE_NOT_FOUND`(없거나 다른 지점 건).
 
 ## 65-8. Student Care History
 
@@ -3372,7 +3396,9 @@ GET /api/admin/student-care/students/{studentId}/history?branchId=br_gangnam
 }
 ```
 
-- 학생의 모든 건 이벤트, 최신순.
+- 그 지점에서 연 이 학생의 모든 건 이벤트, 최신순(같은 시각이면 나중에 기록된 것 먼저).
+
+Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`.
 
 ## 65-9. Care Settings
 
@@ -3394,7 +3420,18 @@ PUT /api/admin/student-care/settings?branchId=br_gangnam
 }
 ```
 
-- PUT은 전체 값을 받는다. 범위는 `docs/specs/wangyu/domain.md` §4-3. 범위 밖: `422 INVALID_CARE_SETTINGS` (`details.fields`).
+- PUT은 전체 값을 받는다. 모두 정수다(소수는 `400 VALIDATION_ERROR`). 범위는 `docs/specs/wangyu/domain.md` §4-3. 범위 밖: `422 INVALID_CARE_SETTINGS` (`details.fields`).
+- 응답에 각 값의 허용 범위를 함께 준다. 화면은 이 범위로 안내한다.
+
+```json
+{
+  "absenceDays": 3,
+  "...": "...",
+  "ranges": { "absenceDays": { "min": 2, "max": 14 }, "...": "..." }
+}
+```
+
+Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `422 INVALID_CARE_SETTINGS`.
 
 ## 65-10. Branch Summary
 
@@ -3413,6 +3450,10 @@ GET /api/admin/student-care/summary?branchId=br_gangnam
   "closedLast30Days": { "expectedChange": 0, "recordIssue": 0, "afterRecheck": 0 }
 }
 ```
+
+- `closedLast30Days`: closedOn이 asOf−29 ~ asOf인 건.
+
+Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-11. Endpoint Inventory
 
@@ -3434,4 +3475,7 @@ E2E 전용(`e2e` Profile에서만 등록, 운영 Build에 노출하지 않음):
 ```text
 PUT    /api/test/clock          { "date": "2026-10-07" }
 POST   /api/test/reset
+PUT    /api/test/integration    { "studyDataAvailable": false }   Existing 학습 기록 연동 실패 재현
 ```
+
+등록 조건: `e2e` Profile **그리고** `learnershigh.test-endpoints.enabled=true`(e2e Profile 설정에만 있음). 둘 중 하나라도 없으면 Bean이 없다.

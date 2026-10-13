@@ -192,7 +192,26 @@ ID          Mock "stu_001"         실제 bigint ("1001")
 
 ---
 
-# 6. 확인 출처
+# 6. Extension이 필요로 하는 조회
+
+Extension이 **만드는** API는 `docs/api/api-contract.md`에 둔다. Frontend는 Existing API를 직접 호출하지 않는다(API-OD-07).
+
+| 필요한 조회 | 사용 Feature | Extension Client | 원본 | 상태 |
+|---|---|---|---|---|
+| 지점 목록 / 단건 | 학생 케어 | `ExistingStudentClient.findBranches / findBranch` | — | 표본 없음 |
+| 지점 학생 목록 / 단건 | 학생 케어, Admin 학생관리 | `ExistingStudentClient.findStudents / findStudent` | §3-1 | 확인 |
+| 학생 기간별 출결 · 계획 제출 | 학생 케어 | `ExistingStudyClient.findDailyStudy` | §3-2 | 확인 |
+| 학생 기간별 과목 계획 / 순공 | 학생 케어 | `ExistingStudyClient.findDailyStudy` | §3-3 | 확인 (N+1, §5-3) |
+| 학생 학습계획 조회 / Mentor Plan 반영 | Mentor Hub | (미구현) | — | 미확인 |
+| 라이브러리 조회 | Mentor Hub | (미구현) | — | 미확인 |
+| 수행평가 조회 | School & Admissions | (미구현) | — | 미확인 |
+| 로그인 / SSO 토큰 검증 | 전체 Surface | (미구현) | — | 미확인 (Open) |
+
+새로 확인하면 §2~§4에 Table / Endpoint / Mapping을 추가하고 이 표의 상태를 바꾼다. 원본 소스 / 스키마 자체는 저장소에 올리지 않는다(Public Repository).
+
+---
+
+# 7. 확인 출처
 
 ```text
 studylab_web_php_tot_r4/docs/db-schema.md
