@@ -1,6 +1,8 @@
 # Existing LearnersHigh — 확인된 Data / API 표본
 
-> 기존 LearnersHigh 원본 코드(`studylab_web_php_tot_r4`)에서 **직접 확인한** Table / Column / Endpoint / Response Shape을 정리한다.
+> 기존 LearnersHigh 원본 코드(비공개 원본 저장소)에서 **직접 확인한** Table / Column / Response Shape 중 Extension Contract에 필요한 것만 정리한다.
+>
+> 이 저장소는 Public이다. 원본 저장소 이름, 정확한 Endpoint 경로 / 파라미터, 원본 시스템의 보안 관련 동작은 여기에 적지 않고 팀 비공개 채널에서 관리한다.
 > `integration-boundary.md` §55의 "확인 후 업데이트" 대상이며, §41 Mock → Real 전환 1~2단계의 근거 자료다.
 >
 > 연동 방식(A. Existing API / B. Shared Module / C. DB Read Adapter)과 인증은 아직 **Open Decision**이다. 이 문서는 그것을 닫지 않는다.
@@ -21,10 +23,10 @@ ExistingBranch       ← branch            (Response 표본 미작성)
 
 ```text
 backend/.../common/integration/learnershigh/phapi/
-├─ PhapiStudent, PhapiRef               select_students.php / student_list[].user
+├─ PhapiStudent, PhapiRef               학생 목록 API / 기간별 일일 현황의 user
 ├─ PhapiDailyReport                     student_list[].report
-├─ PhapiStudyReportsPeriodResponse      select_study_reports_period.php
-├─ PhapiSubjectStudyStat                subject_study_stats.php (PDFBYDAY)
+├─ PhapiStudyReportsPeriodResponse      기간별 일일 현황 API
+├─ PhapiSubjectStudyStat                과목별 통계 API (일자별)
 └─ PhapiStudyMapper                     phapi Response → Integration Contract
 
 backend/src/test/resources/learnershigh/phapi/v2/   Response 표본 (가짜 값, 원본 Key / 형식 그대로)
@@ -37,7 +39,14 @@ Real Adapter(`RealExistingStudyClient`)는 인증 방식이 정해진 뒤 phapi 
 
 # 2. Table
 
-원본 문서: `studylab_web_php_tot_r4/docs/db-schema.md`
+원본: 비공개 원본 저장소의 DB Schema 문서
+
+## 2-0. 시간 기준
+
+| 항목 | 상태 | 내용 |
+|---|---|---|
+| `login_first` 등 DATETIME의 Timezone | `UNCONFIRMED` | Mapper는 Asia/Seoul 벽시계 값으로 가정한다. 원본 DB / PHP Timezone 확인 필요 |
+| 학습일과 다른 날짜의 `login_first` (자정 이후 입실) | `UNCONFIRMED` | 현재는 그 학습일의 시각(시:분)으로만 쓴다 |
 
 ## 2-1. 식별자
 
@@ -104,7 +113,7 @@ activity_item_code_subject   1국어 2수학 3영어 5사회 6과학 13공무원
 ## 3-1. 학생 목록
 
 ```text
-GET /phapi/v2/branches/select_students.php?branch_id={id}
+학생 목록 API (지점 단위)
 → user WHERE branch_id = ? AND role_id = 5
 → 표본: v2/branches/select_students.json
 ```
@@ -112,8 +121,8 @@ GET /phapi/v2/branches/select_students.php?branch_id={id}
 ## 3-2. 기간별 일일 현황 (입실 / 계획 제출)
 
 ```text
-GET /phapi/v2/branches/select_study_reports_period.php?branch_id&from_date&to_date[&room_id&group_id&status&sortmode]
-→ { student_list: [ { user, report } ], brand, query }
+기간별 일일 현황 API (지점 · 기간 단위)
+→ { student_list: [ { user, report } ], ... }
 → 표본: v2/branches/select_study_reports_period.json
 ```
 
@@ -124,7 +133,7 @@ GET /phapi/v2/branches/select_study_reports_period.php?branch_id&from_date&to_da
 ## 3-3. 과목별 계획 / 순공
 
 ```text
-GET /phapi/v2/items/stats/subject_study_stats.php?student_id&from_date&to_date&period_type=PDFBYDAY
+과목별 통계 API (학생 · 기간 단위, 일자별 모드)
 → [ { name, total_time_plan, total_time_study, offset(report_date) } ]
 → 표본: v2/items/stats/subject_study_stats_PDFBYDAY.json
 ```
@@ -155,13 +164,13 @@ GET /phapi/v2/items/stats/subject_study_stats.php?student_id&from_date&to_date&p
 ## 5-1. 사용하면 안 되는 값
 
 ```text
-password, php_session_id      두 학생 API 모두 응답에 그대로 포함된다. Adapter에서 읽지 않는다.
-query                         select_study_reports_period.php가 실행한 SQL 원문을 돌려준다.
+인증 / 세션 / 내부 처리 관련 필드   Adapter는 아래 Mapping에 쓰는 필드만 읽고 나머지는 무시한다.
+                                   (원본 응답의 보안 관련 동작은 원본 시스템 담당자에게 비공개로 전달한다.)
 progress_rate                 원본이 todo / done으로 뒤집어 계산한다.
-phone, parents_phone          select_students.php는 user가 아니라 branch 조회 결과에서 읽어 항상 null이다.
+phone, parents_phone          학생 목록 API에서는 항상 null이다.
 ```
 
-표본 JSON에서는 이 값들을 `"<redacted>"` 또는 null로 둔다.
+표본 JSON에는 Mapping에 쓰는 필드와 형식 확인에 필요한 필드만 둔다.
 
 ## 5-2. 현재 Contract로 표현되지 않는 것
 
@@ -170,7 +179,7 @@ phone, parents_phone          select_students.php는 user가 아니라 branch �
                   ExistingStudent / ExistingDailyStudy에 필드가 없어 학생 케어 "계획 미제출" 신호가 오탐한다.
                   → PhapiStudent.noPlanMode()까지만 구현. Contract 반영은 studentcare 담당 확인 후.
 
-표준 과목         subject_study_stats.php는 과목 코드명만 준다 (subject_id 없음).
+표준 과목         과목별 통계 API는 과목 코드명만 준다 (subject_id 없음).
                   지점마다 "수학(미적분)", "사탐(생윤)"처럼 달라 과목 비중 신호의 기준이 지점마다 달라진다.
                   → 원본 API에 subject_id 추가 또는 코드 → 표준 과목 Mapping 필요 (Open).
 
@@ -179,7 +188,7 @@ phone, parents_phone          select_students.php는 user가 아니라 branch �
 
 ## 5-3. 호출 비용
 
-`subject_study_stats.php`는 학생 단위다. 지점 전체 케어 보드를 그리면 학생 수만큼 호출한다 (N+1).
+과목별 통계 API는 학생 단위다. 지점 전체 케어 보드를 그리면 학생 수만큼 호출한다 (N+1).
 
 ## 5-4. Mock 시나리오와의 차이
 
@@ -213,12 +222,4 @@ Extension이 **만드는** API는 `docs/api/api-contract.md`에 둔다. Frontend
 
 # 7. 확인 출처
 
-```text
-studylab_web_php_tot_r4/docs/db-schema.md
-studylab_web_php_tot_r4/phapi/CLAUDE.md
-studylab_web_php_tot_r4/phapi/v2/branches/select_students.php
-studylab_web_php_tot_r4/phapi/v2/branches/select_study_reports_period.php
-studylab_web_php_tot_r4/phapi/v2/items/stats/subject_study_stats.php
-studylab_web_php_tot_r4/phapi/v2/util/util.php            formatSecToTime
-studylab_web_php_tot_r4/console/assets/js/common_jh_260205_lbh.js   planMode (user_svc_flag 2째자리)
-```
+비공개 원본 저장소의 DB Schema 문서, 학생 목록 / 기간별 일일 현황 / 과목별 통계 API 구현, 시간 Format Util, 관리자 콘솔의 무계획모드 판정 Script (2026-10-13 확인). 정확한 경로는 팀 비공개 채널에 둔다.

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * phapi 학생 객체. {@code v2/branches/select_students.php}의 배열 원소와
  * {@code v2/branches/select_study_reports_period.php}의 {@code student_list[].user}가 같은 Shape이다.
  *
- * <p>원본 응답에는 {@code password}, {@code php_session_id}, 연락처 등이 함께 오지만 읽지 않는다.
+ * <p>원본 응답의 다른 필드(인증 / 연락처 등)는 읽지 않는다 ({@code ignoreUnknown}).
  *
  * @param id          {@code user.id} (bigint)
  * @param roleId      {@code user.role_id}. 학생은 5
