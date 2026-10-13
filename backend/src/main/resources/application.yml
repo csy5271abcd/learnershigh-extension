@@ -15,6 +15,12 @@ spring:
       # Schema 변경은 Migration으로만 관리한다 (.claude/rules/database.md). Hibernate가 Schema를 만들지 않는다.
       ddl-auto: none
 
+  mvc:
+    formcontent:
+      filter:
+        # JSON 전용 API다. PUT / PATCH / DELETE의 form 본문을 Filter가 미리 해석하다 500이 나지 않게 끈다 → 415 (api-contract.md §5-1).
+        enabled: false
+
   jackson:
     deserialization:
       # 정수 필드에 소수(2.5)가 오면 잘라 저장하지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).

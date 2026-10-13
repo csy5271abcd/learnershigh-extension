@@ -89,6 +89,19 @@ class ErrorResponseHttpTest {
         }
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"PUT", "PATCH", "DELETE", "POST"})
+    void formBodyOnJsonApiIs415NotServerError(String method) throws Exception {
+        String target = "/api/admin/student-care/settings?branchId=br_gangnam";
+        RawHttp.Response response = RawHttp.send(port, method, target, "application/json", "a=%zz",
+                "application/x-www-form-urlencoded");
+        assertThat(response.status()).isIn(405, 415);
+        assertThat(response.body()).contains("\"code\"");
+        if (method.equals("PUT") || method.equals("POST")) {
+            assertThat(response.status()).isEqualTo(method.equals("PUT") ? 415 : 405);
+        }
+    }
+
     @Test
     void notAcceptableAndBusinessErrorsAreJson() throws Exception {
         assertJsonError(get(BOARD + "?branchId=br_gangnam", "text/plain"), 406, "NOT_ACCEPTABLE");

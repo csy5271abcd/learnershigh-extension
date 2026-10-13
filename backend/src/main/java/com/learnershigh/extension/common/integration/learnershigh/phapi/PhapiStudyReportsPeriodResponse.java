@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code GET /phapi/v2/branches/select_study_reports_period.php?branch_id&from_date&to_date} 응답.
+ * 기간별 일일 현황 API 응답.
  * 지점 학생(role_id=5) × 기간 안의 report 일자마다 한 행이다.
  *
  * <p>원본 응답의 다른 최상위 필드는 읽지 않는다.

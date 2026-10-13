@@ -66,7 +66,7 @@ Extension Contract는 String으로 받는다 (String.valueOf(user.id))
 | `real_name` | name | Admin Surface 전용 (Mentor 노출 금지) |
 | `role_id` | 학생 필터 | 5 = STUDENT |
 | `status` | | ACTIVE / INACTIVE / DELETED |
-| `user_svc_flag` | 무계획모드 | 2째자리 `'1'` = 무계획모드 사용 (`console/.../common_jh_*.js`의 `planMode`) |
+| `user_svc_flag` | 무계획모드 | 2째자리 `'1'` = 무계획모드 사용 (관리자 콘솔의 무계획모드 판정 기준) |
 
 ## 2-3. activity_report (하루 1행, `type = DAILY`)
 

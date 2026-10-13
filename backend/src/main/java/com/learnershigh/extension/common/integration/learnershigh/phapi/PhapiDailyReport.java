@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * {@code select_study_reports_period.php}의 {@code student_list[].report} ({@code activity_report} DAILY 1행).
+ * 기간별 일일 현황 API의 {@code student_list[].report} ({@code activity_report} DAILY 1행).
  *
  * <p>원본이 {@code LEFT OUTER JOIN}이라 기간 안에 report가 없는 학생도 행이 하나 오며,
  * 그때 {@code reportDate}는 null, {@code userStatus}는 "대기", {@code planStatus}는 "제출전"이다.

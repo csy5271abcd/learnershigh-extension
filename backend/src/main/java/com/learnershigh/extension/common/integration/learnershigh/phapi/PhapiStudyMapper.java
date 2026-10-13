@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
  * 실제 Adapter(RealExisting*Client)는 phapi를 호출한 뒤 {@link PhapiJson}과 이 Mapper만 거친다.
  *
  * <pre>
- * ExistingStudent      ← select_students.php
- * ExistingDailyStudy   ← select_study_reports_period.php (입실 / 계획 제출)
- *                        + subject_study_stats.php?period_type=PDFBYDAY (과목별 순공 / 계획)
+ * ExistingStudent      ← 학생 목록 API
+ * ExistingDailyStudy   ← 기간별 일일 현황 API (입실 / 계획 제출)
+ *                        + 과목별 통계 API 일자별 모드 (과목별 순공 / 계획)
  * </pre>
  *
  * <h2>형식 오류 정책</h2>

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * phapi 학생 객체. {@code v2/branches/select_students.php}의 배열 원소와
- * {@code v2/branches/select_study_reports_period.php}의 {@code student_list[].user}가 같은 Shape이다.
+ * phapi 학생 객체. 학생 목록 API의 배열 원소와
+ * 기간별 일일 현황 API의 {@code student_list[].user}가 같은 Shape이다.
  *
  * <p>원본 응답의 다른 필드(인증 / 연락처 / 학교 등)는 읽지 않는다 ({@code ignoreUnknown}).
  * 원본에서 null이 올 수 있는 값은 Boxed 타입으로 받고, 필수 값이 비어 있으면 {@link PhapiStudyMapper}가 연동 실패로 본다.

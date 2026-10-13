@@ -31,6 +31,12 @@ final class RawHttp {
     }
 
     static Response send(int port, String method, String target, String accept, String jsonBody) throws IOException {
+        return send(port, method, target, accept, jsonBody, jsonBody == null ? null : "application/json");
+    }
+
+    static Response send(int port, String method, String target, String accept, String body, String contentType)
+            throws IOException {
+        String jsonBody = body;
         try (Socket socket = new Socket("localhost", port)) {
             socket.setSoTimeout(30_000);
             StringBuilder request = new StringBuilder()
@@ -41,8 +47,8 @@ final class RawHttp {
                 request.append("Accept: ").append(accept).append("\r\n");
             }
             byte[] body = jsonBody == null ? new byte[0] : jsonBody.getBytes(StandardCharsets.UTF_8);
-            if (jsonBody != null) {
-                request.append("Content-Type: application/json\r\n");
+            if (contentType != null) {
+                request.append("Content-Type: ").append(contentType).append("\r\n");
             }
             request.append("Content-Length: ").append(body.length).append("\r\n\r\n");
             OutputStream out = socket.getOutputStream();

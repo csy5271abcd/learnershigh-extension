@@ -8,17 +8,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "김서준",
         "status": "ACTIVE",
-        "loginid": "seojun01",
         "memo": null,
         "user_svc_flag": "1000000000",
-        "session_time": "2026-09-30 22:41:10",
-        "device_id": "12",
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -41,7 +37,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-03-02 10:12:00",
-        "last_login_at": "2026-09-30 18:22:41",
         "is_dark_mode": 0,
         "is_seat": 1
       },
@@ -72,17 +67,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "김서준",
         "status": "ACTIVE",
-        "loginid": "seojun01",
         "memo": null,
         "user_svc_flag": "1000000000",
-        "session_time": "2026-09-30 22:41:10",
-        "device_id": "12",
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -105,7 +96,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-03-02 10:12:00",
-        "last_login_at": "2026-09-30 18:22:41",
         "is_dark_mode": 0,
         "is_seat": 1
       },
@@ -136,17 +126,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "김서준",
         "status": "ACTIVE",
-        "loginid": "seojun01",
         "memo": null,
         "user_svc_flag": "1000000000",
-        "session_time": "2026-09-30 22:41:10",
-        "device_id": "12",
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -169,7 +155,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-03-02 10:12:00",
-        "last_login_at": "2026-09-30 18:22:41",
         "is_dark_mode": 0,
         "is_seat": 1
       },
@@ -200,17 +185,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "최학생",
         "status": "ACTIVE",
-        "loginid": "student02",
         "memo": null,
         "user_svc_flag": "1100000000",
-        "session_time": null,
-        "device_id": null,
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -233,7 +214,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-03-02 10:15:00",
-        "last_login_at": "2026-09-29 18:05:12",
         "is_dark_mode": 0,
         "is_seat": 0
       },
@@ -264,17 +244,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "최학생",
         "status": "ACTIVE",
-        "loginid": "student02",
         "memo": null,
         "user_svc_flag": "1100000000",
-        "session_time": null,
-        "device_id": null,
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -297,7 +273,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-03-02 10:15:00",
-        "last_login_at": "2026-09-29 18:05:12",
         "is_dark_mode": 0,
         "is_seat": 0
       },
@@ -328,17 +303,13 @@
           "name": "러너스하이"
         },
         "branch": {
-          "id": 501,
-          "svc_flag_console": "1111111111"
+          "id": 501
         },
         "role_id": 5,
         "real_name": "박민지",
         "status": "ACTIVE",
-        "loginid": "minji03",
         "memo": null,
         "user_svc_flag": "1000000000",
-        "session_time": null,
-        "device_id": null,
         "phone": null,
         "parents_phone": null,
         "parents_email": null,
@@ -361,7 +332,6 @@
         "address": "//",
         "profile_img_url": null,
         "created_at": "2026-09-28 16:00:00",
-        "last_login_at": null,
         "is_dark_mode": 0,
         "is_seat": 0
       },
@@ -394,7 +364,6 @@
     "phone": null,
     "email": null,
     "is_management": "0",
-    "business_registration_number": null,
     "sms_phone": null,
     "sms_phone_confirm": "0",
     "device_max": 100,
@@ -405,9 +374,6 @@
     "service_end_date": null,
     "memo": null,
     "address": null,
-    "svc_flag": "1111111111",
-    "menu_flag": "1111111111",
-    "refresh_sec": "36000",
     "created_at": "2026-02-20 09:00:00",
     "head": ""
   }
