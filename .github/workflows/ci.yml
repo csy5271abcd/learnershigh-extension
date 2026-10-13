@@ -200,7 +200,8 @@ jobs:
   backend:
     name: Backend
     needs: harness
-    runs-on: windows-latest
+    # Testcontainers(MySQL)에 Docker가 필요하다. Windows Runner는 Linux Container를 쓸 수 없어 Ubuntu에서 실행한다 (ADR-0006).
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
@@ -214,8 +215,8 @@ jobs:
 
           $buildFiles = @(
             @(
-              ".\backend\build.gradle",
-              ".\backend\build.gradle.kts"
+              "./backend/build.gradle",
+              "./backend/build.gradle.kts"
             ) | Where-Object { Test-Path -LiteralPath $_ }
           )
 
@@ -246,7 +247,7 @@ jobs:
       - name: Verify backend
         if: steps.backend-meta.outputs.has_backend == 'true'
         run: |
-          .\scripts\verify-backend.ps1 -Strict
+          ./scripts/verify-backend.ps1 -Strict
 
       - name: Backend not scaffolded yet
         if: steps.backend-meta.outputs.has_backend != 'true'

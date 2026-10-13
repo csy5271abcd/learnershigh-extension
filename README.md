@@ -219,9 +219,11 @@ Backend
 → Gradle 9.7.1 Wrapper, Kotlin DSL (Maven 사용 안 함)
 → Domain-packaged Layered MVC (ADR-0005)
 → Test: JUnit Jupiter + Spring Boot Test (BOM 관리) + ArchUnit
+→ Migration: Flyway (database/migrations/, ADR-0006)
+→ Integration Test: Testcontainers MySQL (ADR-0006)
 
 Database
-→ MySQL
+→ MySQL 8.4 (로컬: docker-compose.yml)
 
 API
 → REST-style JSON Contract
@@ -239,8 +241,9 @@ Frontend
 → Test Framework
 
 Backend / Database
-→ Migration Tool
-→ MySQL Integration Test 실행 방식
+→ Seed 적용 방식
+→ E2E Test 도구
+→ 시연 / 배포 환경
 
 Infrastructure / Integration
 → Authentication 방식
@@ -395,7 +398,8 @@ learnershigh-extension
 │  │  ├─ 0002-existing-learnershigh-integration-boundary.md
 │  │  ├─ 0003-shared-feedback-queue.md
 │  │  ├─ 0004-parent-report-without-parent-app.md
-│  │  └─ 0005-domain-packaged-layered-mvc-backend.md
+│  │  ├─ 0005-domain-packaged-layered-mvc-backend.md
+│  │  └─ 0006-docker-mysql-flyway-testcontainers.md
 │  │
 │  └─ source/
 │     └─ archive/
@@ -960,7 +964,15 @@ Claude Code 또는 개발자가 구현 편의를 위해 임의로 확정하지 �
 ```text
 Node.js 22 (^22.12.0) + npm
 JDK 17 이상 (Gradle 실행용). Java 21 toolchain은 없으면 Gradle이 자동으로 내려받는다.
-MySQL (Backend 실행 시)
+Docker Desktop (로컬 MySQL / integrationTest)
+```
+
+### Local MySQL
+
+```powershell
+copy .env.example .env      # 필요하면 값 수정
+docker compose up -d        # mysql:8.4, localhost:3306
+docker compose down         # 중지 (Data 유지, 삭제는 down -v)
 ```
 
 Global Gradle / Maven 설치는 필요 없다. Backend는 `backend/gradlew(.bat)`만 사용한다.
@@ -982,19 +994,22 @@ npm run build
 
 ```powershell
 cd backend
-.\gradlew.bat build      # compile + test + bootJar
-.\gradlew.bat bootRun    # DB 환경 변수 필요
+.\gradlew.bat build            # compile + Unit / ArchUnit test + bootJar (Docker 불필요)
+.\gradlew.bat integrationTest  # @Tag("integration") Test, Testcontainers MySQL (Docker 필요)
+.\gradlew.bat bootRun          # DB 환경 변수 필요, 시작 시 Flyway Migration 적용
 ```
 
 Backend 실행에는 Extension MySQL 연결 정보를 환경 변수로 넣어야 한다. 값은 Git에 커밋하지 않는다.
 
 ```text
-DB_URL        예: jdbc:mysql://<host>:3306/<database>
-DB_USERNAME
-DB_PASSWORD
+DB_URL        로컬: jdbc:mysql://localhost:3306/learnershigh_extension
+DB_USERNAME   로컬: learnershigh
+DB_PASSWORD   로컬: learnershigh
 ```
 
-아직 정하지 않은 것: Migration Tool, Seed, E2E, Existing LearnersHigh 연결 방식.
+Migration 파일 규칙: `database/migrations/README.md`
+
+아직 정하지 않은 것: Seed, E2E, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
 README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---
@@ -1082,9 +1097,12 @@ Parent Report Without Parent App
 
 ADR-0005
 Domain-packaged Layered MVC Backend
+
+ADR-0006 (Proposed)
+Docker MySQL / Flyway / Testcontainers
 ```
 
-위 ADR은 모두 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
+ADR-0001 ~ 0005는 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
 
 Accepted ADR을 변경하려면
 기존 문서를 조용히 덮어쓰지 않고 새 ADR에서 Supersede한다.

@@ -207,7 +207,8 @@ JavaScript 전용 Source, 다른 Node Major Version을 도입하지 않는다. N
 
 Spring Boot + MySQL, REST-style JSON API를 사용하며 Backend는 Domain 기준으로 구성한다.
 Java 21, Spring Boot 4.1.1, Gradle Wrapper(Kotlin DSL)를 사용한다. Build는 `backend/gradlew(.bat)`만 사용하며 Maven 파일(`pom.xml`, `mvnw`, `.mvn/`)을 만들지 않는다.
-Base package는 `com.learnershigh.extension`이고, 의존 규칙은 `ArchitectureTest`(ArchUnit)가 검증한다. Migration Tool은 미확정이다.
+Base package는 `com.learnershigh.extension`이고, 의존 규칙은 `ArchitectureTest`(ArchUnit)가 검증한다.
+Migration은 Flyway(`database/migrations/`), MySQL Integration Test는 Testcontainers(`@Tag("integration")`, `./gradlew integrationTest`)를 사용한다. 로컬 MySQL은 `docker compose up -d`로 띄운다. (ADR-0006, Proposed)
 
 ```text
 mentor/
@@ -376,6 +377,7 @@ ADR-0002 Existing LearnersHigh Integration Boundary
 ADR-0003 Shared Feedback Queue
 ADR-0004 Parent App 없이 Parent Report 전달
 ADR-0005 Backend Domain-packaged Layered MVC
+ADR-0006 Docker MySQL / Flyway / Testcontainers (Proposed)
 ```
 
 중요한 방향 변경은 새 ADR로 Supersede한다.
