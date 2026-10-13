@@ -3472,7 +3472,7 @@ PUT    /api/admin/student-care/settings
 GET    /api/admin/student-care/summary
 ```
 
-E2E 전용(`e2e` Profile에서만 등록, 운영 Build에 노출하지 않음):
+E2E 전용(운영에서는 등록하지 않음):
 
 ```text
 PUT    /api/test/clock          { "date": "2026-10-07" }
@@ -3480,4 +3480,6 @@ POST   /api/test/reset
 PUT    /api/test/integration    { "studyDataAvailable": false }   Existing 학습 기록 연동 실패 재현
 ```
 
-등록 조건: `e2e` Profile **그리고** `learnershigh.test-endpoints.enabled=true`(e2e Profile 설정에만 있음). 둘 중 하나라도 없으면 Bean이 없다.
+등록 조건: `e2e` Profile **그리고** 실행 환경 변수 `LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true`(설정 파일에는 없음, E2E 실행 명령 / CI e2e Job에서만 지정). 둘 중 하나라도 없으면 Bean이 없다.
+
+- 65-8 history, 65-9 settings도 지점 조회가 Existing 연동이므로 실패하면 `503 EXISTING_STUDY_DATA_UNAVAILABLE`이다.
