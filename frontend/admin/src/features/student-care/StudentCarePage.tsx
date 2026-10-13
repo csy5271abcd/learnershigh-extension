@@ -37,10 +37,7 @@ export function StudentCarePage() {
     (outcome: Outcome | null) => {
       setVersion((value) => value + 1)
       reloadBoard()
-      if (outcome) {
-        setNotice(outcome.message)
-        if (!outcome.keepSelection) setStudentId(null)
-      }
+      if (outcome) setNotice(outcome.message)
     },
     [reloadBoard],
   )
@@ -103,6 +100,7 @@ export function StudentCarePage() {
               }}
               version={version}
               onChanged={changed}
+              onShowHistory={() => setTab('history')}
             />
           ) : tab === 'history' ? (
             <HistoryTab branchId={branchId} studentId={studentId} />

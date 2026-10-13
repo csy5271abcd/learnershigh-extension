@@ -13,10 +13,19 @@ interface Props {
   onSelectStudent: (studentId: string) => void
   version: number
   onChanged: (outcome: Outcome | null) => void
+  onShowHistory: () => void
 }
 
 /** 케어 보드: 확인할 변화 / 조정 진행 중 목록과 학생 상세 (Master-Detail). */
-export function CareBoardTab({ branchId, board, selectedStudentId, onSelectStudent, version, onChanged }: Props) {
+export function CareBoardTab({
+  branchId,
+  board,
+  selectedStudentId,
+  onSelectStudent,
+  version,
+  onChanged,
+  onShowHistory,
+}: Props) {
   if (board.status === 'error' && !board.data) {
     return <ErrorState error={board.error} onRetry={board.reload} />
   }
@@ -115,6 +124,7 @@ export function CareBoardTab({ branchId, board, selectedStudentId, onSelectStude
           studentId={selectedStudentId}
           version={version}
           onChanged={onChanged}
+          onShowHistory={onShowHistory}
         />
       </div>
     </div>

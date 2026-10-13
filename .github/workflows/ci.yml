@@ -255,6 +255,117 @@ jobs:
           Write-Host "backend build file이 없어 Backend 검증을 실행하지 않았습니다."
           Write-Host "Harness 단계에서는 정상이며, scaffold가 추가되면 이 job이 자동으로 활성화됩니다."
 
+  e2e:
+    name: E2E (Playwright)
+    needs:
+      - frontend
+      - backend
+    # Backend(e2e Profile) + MySQL + Admin preview + Playwright를 한 Runner에서 띄운다 (ADR-0007).
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: learnershigh_extension
+          MYSQL_USER: learnershigh
+          MYSQL_PASSWORD: learnershigh
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      SPRING_PROFILES_ACTIVE: e2e
+      DB_URL: jdbc:mysql://127.0.0.1:3306/learnershigh_extension
+      DB_USERNAME: learnershigh
+      DB_PASSWORD: learnershigh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+          cache-dependency-path: |
+            backend/*.gradle*
+            backend/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Build backend
+        working-directory: backend
+        run: ./gradlew bootJar --no-daemon
+
+      - name: Start backend (e2e profile)
+        run: |
+          jar=$(ls backend/build/libs/*.jar | grep -v plain | head -n 1)
+          nohup java -jar "$jar" > backend-e2e.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8080/api/admin/student-care/branches > /dev/null; then
+              echo "backend ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat backend-e2e.log
+          exit 1
+
+      - name: Build and preview admin
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build --workspace=@learnershigh/admin
+          nohup npm run preview --workspace=@learnershigh/admin -- --strictPort > ../admin-preview.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4174/ > /dev/null; then
+              echo "admin ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat ../admin-preview.log
+          exit 1
+
+      - name: Install Playwright
+        working-directory: e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run E2E
+        working-directory: e2e
+        run: |
+          npm run typecheck
+          npm run test:ci
+
+      - name: Upload E2E report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+            backend-e2e.log
+            admin-preview.log
+          retention-days: 7
+
   result:
     name: CI Result
     if: always()
@@ -262,6 +373,7 @@ jobs:
       - harness
       - frontend
       - backend
+      - e2e
     runs-on: windows-latest
     timeout-minutes: 5
 
@@ -272,6 +384,7 @@ jobs:
             harness = "${{ needs.harness.result }}"
             frontend = "${{ needs.frontend.result }}"
             backend = "${{ needs.backend.result }}"
+            e2e = "${{ needs.e2e.result }}"
           }
 
           $results.GetEnumerator() |

@@ -60,7 +60,7 @@ function SettingsForm({ branchId, initial, onSaved }: { branchId: string; initia
   const invalid = (key: string) => error?.fields.some((field) => field.field === key) ?? false
 
   return (
-    <form className="sc-settings" onSubmit={submit} aria-labelledby={`${id}-title`}>
+    <form className="sc-settings" noValidate onSubmit={submit} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`} className="sc-history__title">
         기준값 <span className="sc-hint">이 지점에서 신호를 올리는 기준입니다. 신호는 판정이 아닙니다.</span>
       </h2>

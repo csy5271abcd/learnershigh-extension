@@ -222,6 +222,9 @@ Backend
 → Migration: Flyway (database/migrations/, ADR-0006)
 → Integration Test: Testcontainers MySQL (ADR-0006)
 
+E2E
+→ Playwright 1.63.0 (e2e/ 별도 npm Package, ADR-0007 Proposed)
+
 Database
 → MySQL 8.4 (로컬: docker-compose.yml)
 
@@ -242,7 +245,6 @@ Frontend
 
 Backend / Database
 → Seed 적용 방식
-→ E2E Test 도구
 → 시연 / 배포 환경
 
 Infrastructure / Integration
@@ -910,7 +912,13 @@ Progress 문서는 Requirement Source가 아니다.
 
 ## 20. Current Project Status
 
-현재 Repository는 Harness / Architecture / Specification 정리를 마치고 **Frontend / Backend Scaffold 단계**에 있다. (Feature 코드는 아직 없다.)
+현재 Repository는 Scaffold 위에서 Feature 구현 단계에 있다.
+
+구현된 Feature:
+
+```text
+학생 케어 (Wangyu, Admin) — docs/specs/wangyu/progress.md
+```
 
 현재까지 준비된 주요 문서:
 
@@ -931,7 +939,7 @@ CLAUDE.md
 .gitignore
 ```
 
-Feature 코드 구현은 Scaffold Branch가 merge된 뒤 Feature 단위 Branch에서 시작한다.
+Feature 코드는 Feature 단위 Branch에서 구현한다.
 
 ---
 
@@ -1009,7 +1017,36 @@ DB_PASSWORD   로컬: learnershigh
 
 Migration 파일 규칙: `database/migrations/README.md`
 
-아직 정하지 않은 것: Seed, E2E, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
+### E2E (Playwright, ADR-0007)
+
+Backend(`e2e` Profile) + MySQL + Admin preview를 띄운 뒤 실행한다.
+`e2e` Profile은 Existing LearnersHigh Mock 데이터와 조정 가능한 기준일(기본 2026-09-30)을 쓰고, `/api/test/**` Endpoint를 연다.
+
+```powershell
+docker compose up -d
+cd backend
+$env:SPRING_PROFILES_ACTIVE="e2e"; .\gradlew.bat bootRun   # DB_* 환경 변수 필요, :8080
+
+cd frontend
+npm run build --workspace=@learnershigh/admin
+npm run preview --workspace=@learnershigh/admin            # :4174, /api → :8080
+
+cd e2e
+npm ci
+npx playwright install chromium
+npm run typecheck
+npm test
+```
+
+| 환경 변수 | 기본값 | 의미 |
+|---|---|---|
+| `E2E_BASE_URL` | `http://localhost:4174` | Admin 화면 |
+| `E2E_API_URL` | `http://localhost:8080` | Backend (`/api/test/**` 호출) |
+| `PLAYWRIGHT_CHROMIUM_PATH` | (없음) | 설치된 Chromium을 쓸 때 경로 |
+
+CI는 `.github/workflows/ci.yml`의 `e2e` Job에서 같은 순서로 실행한다.
+
+아직 정하지 않은 것: Seed, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
 README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---
@@ -1100,6 +1137,9 @@ Domain-packaged Layered MVC Backend
 
 ADR-0006 (Proposed)
 Docker MySQL / Flyway / Testcontainers
+
+ADR-0007 (Proposed)
+Playwright E2E with Mock Existing Data
 ```
 
 ADR-0001 ~ 0005는 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.

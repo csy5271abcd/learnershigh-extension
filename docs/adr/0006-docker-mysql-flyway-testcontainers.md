@@ -110,7 +110,7 @@ XML / YAML Changelog 관리 비용이 크다. 현재 규모에서는 SQL 기반 
 ## Not Decided Here
 
 ```text
-- E2E Test 도구 / 실행 방식 (첫 Cross-Surface Flow 구현 후)
+- E2E Test 도구 / 실행 방식 → ADR-0007
 - 시연 / 배포 환경 (Backend / Frontend Container Image, Server)
 - Seed 적용 방식
 ```

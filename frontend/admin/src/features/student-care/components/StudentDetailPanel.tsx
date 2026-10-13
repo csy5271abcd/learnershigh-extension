@@ -14,10 +14,11 @@ interface Props {
   studentId: string | null
   version: number
   onChanged: (outcome: Outcome | null) => void
+  onShowHistory: () => void
 }
 
 /** 카드를 고르면 근거 · 학습량 · 확인할 질문 · 사유 확인 또는 진행 중인 건이 열린다. */
-export function StudentDetailPanel({ branchId, studentId, version, onChanged }: Props) {
+export function StudentDetailPanel({ branchId, studentId, version, onChanged, onShowHistory }: Props) {
   const detail = useRemote(studentId ? `${branchId}/${studentId}` : null, () =>
     studentCareApi.detail(branchId, studentId ?? ''),
   )
@@ -73,6 +74,9 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged }: 
         </h2>
         <SignalBadges signals={activeCase ? activeCase.baseline : data.signals} />
         {activeCase && <span className="sc-status">조정 진행 중</span>}
+        <button type="button" className="sc-button sc-button--ghost sc-detail__history" onClick={onShowHistory}>
+          학생 기록 보기
+        </button>
       </header>
 
       {detail.status === 'error' && <ErrorState error={detail.error} onRetry={detail.reload} />}
@@ -96,7 +100,7 @@ export function StudentDetailPanel({ branchId, studentId, version, onChanged }: 
             최근 7일 유효 학습일이 {data.deferred.validDays}일이라 학습량을 비교하지 않습니다 (판단 보류).
           </p>
         ) : (
-          <p className="sc-notice">지금은 평소와 달라진 점이 없습니다.</p>
+          <p className="sc-notice">지금 올라온 신호가 없습니다. 최근 종결한 건은 학생 기록에서 볼 수 있습니다.</p>
         )}
       </section>
 
