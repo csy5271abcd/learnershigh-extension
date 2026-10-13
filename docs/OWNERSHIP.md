@@ -306,13 +306,23 @@ Counseling-related Today Board Action
 Counseling-related Operations KPI
 ```
 
-상담 기능의 실제 세부 범위는:
+또한 **학생 케어(Student Care)** 를 담당한다. 평소와 달라진 학생을 찾고, 사유 확인 → 약속 → 재점검을 기록하는 Admin 기능이며
+면담·통화 메모가 케어 건에 남으므로 상담 경계와 함께 둔다.
+
+```text
+backend/.../studentcare/
+frontend/admin/src/features/student-care/
+```
+
+Today Board(Suyeon)는 학생 케어 신호를 직접 계산하지 않고 `StudentCareQueryService`를 소비한다.
+
+상담 / 학생 케어 기능의 실제 세부 범위는:
 
 ```text
 docs/specs/wangyu/
 ```
 
-에서 정의한다. (Wangyu Spec은 아직 생성 전이며, 생성된 이후 이 위치를 기준으로 한다.)
+에서 정의한다.
 
 ---
 

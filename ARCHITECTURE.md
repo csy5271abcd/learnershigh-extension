@@ -42,11 +42,12 @@
 | Frontend | React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, oxlint (Lint), npm workspaces, Node.js 22 | 상태관리 / Router / Data Fetching / UI / CSS / Form Library, Test Framework, Node.js exact Version |
 | Backend | Java 21, Spring Boot 4.1.1, Gradle 9.7.1 Wrapper (Kotlin DSL), Domain-packaged Layered MVC (ADR-0005), JUnit Jupiter + Spring Boot Test + ArchUnit, Flyway, Testcontainers (ADR-0006) | — |
 | Database / API | MySQL 8.4 (로컬: `docker-compose.yml`, ADR-0006), REST-style JSON | Seed 적용 방식 |
-| Infrastructure | — | Authentication, File Storage, AI / Delivery Provider, Existing LearnersHigh 실제 API / DB / Auth, E2E 도구, 시연 / 배포 환경 |
+| E2E | Playwright 1.63.0, `e2e/` 별도 npm Package (ADR-0007, Proposed) | — |
+| Infrastructure | — | Authentication, File Storage, AI / Delivery Provider, Existing LearnersHigh 실제 API / DB / Auth, 시연 / 배포 환경 |
 
 ## 2. Code Map
 
-> `frontend/`(student / admin / mentor App Shell)와 `backend/`(Spring Boot App + Architecture Test)는 Scaffold만 있고 Feature는 아직 없다. `database/migrations/`는 Flyway Migration 위치다(ADR-0006). `frontend/shared/`, `database/seed/`, `e2e/`는 실제로 필요해질 때 만든다. 아래는 목표 구조다.
+> 첫 Feature로 학생 케어(`backend/.../studentcare/`, `frontend/admin/src/features/student-care/`, `e2e/`)가 구현되어 있다. `database/migrations/`는 Flyway Migration 위치다(ADR-0006). `frontend/shared/`, `database/seed/`는 실제로 필요해질 때 만든다. 아래는 목표 구조다.
 >
 > Frontend는 `frontend/package.json`의 npm workspaces(`student`, `admin`, `mentor`)와 `frontend/package-lock.json` 하나로 관리한다. Backend base package는 `com.learnershigh.extension`이다.
 
@@ -157,7 +158,7 @@ Read-only 원본 (기존 화면 캡처, Claude Design Mockup, 원본 PDF). 수�
 | API / Contract | Contract Test로 `api-contract.md`와 DTO 일치 검증 |
 | Repository / Migration | `@Tag("integration")` + Testcontainers MySQL, `./gradlew integrationTest` (ADR-0006) |
 | Frontend 화면 | Test After — 상태(Loading / Empty / Error / Disabled) 분기와 핵심 Interaction 위주 |
-| Cross-Surface Flow | 소수의 E2E (`.claude/rules/testing.md` §8) |
+| Cross-Surface Flow | 소수의 Playwright E2E (`.claude/rules/testing.md` §8, ADR-0007) |
 
 ### 유지보수성
 
