@@ -84,3 +84,27 @@ Plan 길이 초과 오류 코드, Contract Error 목록 누락, enum 오류 fiel
 | **합계** | **43 → FAIL** | |
 
 조치: 문서(E P1, D 2건)는 즉시 수정, 나머지는 Round 3 수정 후 재리뷰.
+
+---
+
+# Round 3 (HEAD 90bc825, 2차 수정 후) — 마지막 리뷰
+
+| Section | 점수 | Finding | 조치 (리뷰 후 수정, 재리뷰는 하지 않음) |
+|---|---|---|---|
+| A | 12 | P2: Contract §65-4와 domain §5-1의 cooldownDays=0 예외 불일치 | Contract 문장 추가 |
+| B | 15 | — (잠금 재설계, record_no backfill 실측 확인) | — |
+| C | 4 | P2: form 본문 500, P2: Contract의 Test Endpoint 등록 조건 낡음 | FormContentFilter 끔(415) + 회귀 Test, Contract 수정 |
+| D | 10 | — | — |
+| E | 4 | **P1: 원본 시스템 보안 정보가 이미 push된 커밋(958df1c)에 남음**, P2: phapi 주석 / 표본의 원본 경로와 불필요 필드 | P2: 주석 일반화, 표본 필드 정리. P1: 코드로 해결 불가 (아래) |
+| F | 3 | P2 ×4: 잠금 실패 409 연결, Container 오류 매핑, Strict JSON 일부, Migration 데이터 변환 | Test 추가 (Mutation으로 실패 확인) |
+| G | 4 | P2: 저장 후 다른 칸 입력 중 Focus 가져감, P2: 기준값 저장 중 수정값 덮어씀 | Focus 회수 조건, 저장 중 읽기 전용 |
+| H | 10 | P3만 | — |
+| **합계** | **62 → FAIL** | | 수정 반영 시 예상: P1 1건 외 감점 없음 (92). P1 제외 시 100 |
+
+## 남은 Blocker (PR 범위 밖)
+
+- 958df1c(#8)가 담은 원본 시스템 보안 관련 서술은 HEAD에서 지웠지만 Git 기록과 PR Ref에 남는다. Force-push 금지 / PR Ref 보존 때문에 이 PR로 지울 수 없다. 저장소 Private 전환과 원본 시스템 담당자 공유가 필요하다(사용자 판단).
+
+## 리뷰 종료
+
+사용자 요청으로 Round 3까지만 수행하고, Round 3 Finding을 반영해 Merge한다.
