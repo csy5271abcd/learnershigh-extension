@@ -30,9 +30,10 @@
 
 /* ---- KPI ---- */
 
+/* Hero(Feedback Pending) 1개 + Compact 3개. Hero가 가장 넓다. */
 .kpis {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.9fr) repeat(3, minmax(0, 1fr));
   gap: var(--lh-space-3);
 }
 
@@ -90,11 +91,40 @@
   font-size: var(--lh-font-label);
 }
 
+.filterPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--lh-space-2) var(--lh-space-4);
+  align-items: flex-end;
+  gap: var(--lh-space-3) var(--lh-space-6);
+}
+
+/* 추가 필터: 주 Filter와 구분되는 옅은 면 */
+.moreFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-3) var(--lh-space-6);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.moreFilters[hidden] {
+  display: none;
+}
+
+.moreFilters .segment {
+  background: var(--lh-color-surface-raised);
+}
+
+.moreFilters .segmentItem[aria-pressed='true'] {
+  background: var(--lh-color-chip);
+  box-shadow: none;
 }
 
 .search {
@@ -127,13 +157,15 @@
 
 .filterGroup {
   display: flex;
-  align-items: center;
-  gap: var(--lh-space-2);
+  flex-direction: column;
+  gap: 4px;
 }
 
 .filterLabel {
-  color: var(--lh-color-text-secondary);
-  font-size: var(--lh-font-label);
+  padding-left: 2px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -195,7 +227,7 @@
 .table th,
 .table td {
   padding: var(--lh-space-3) var(--lh-space-3);
-  border-bottom: 1px solid var(--lh-color-border);
+  border-bottom: 1px solid #f0f2f4;
   text-align: left;
   vertical-align: middle;
 }
@@ -369,9 +401,22 @@
 }
 
 @media (max-width: 1279px) {
-  .kpis,
+  .kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .kpis > :first-child {
+    grid-column: 1 / -1;
+  }
+
   .skeletonKpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .kpis {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -466,4 +511,81 @@
   margin-left: var(--lh-space-2);
   color: var(--lh-color-text-tertiary);
   font-size: var(--lh-font-caption);
+}
+
+/* ---- Workflow Row (업무 종류 · 우선순위 표현) ---- */
+
+.gradeCell,
+.stageCell {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  white-space: nowrap;
+}
+
+.workflowCell {
+  white-space: nowrap;
+}
+
+.workflowCell > * + * {
+  margin-top: 4px;
+}
+
+.statusText,
+.riskText {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--lh-font-caption);
+}
+
+.statusText {
+  color: var(--lh-color-text-tertiary);
+}
+
+.riskText {
+  color: var(--lh-color-negative);
+  font-weight: 700;
+}
+
+.itemEyebrow {
+  display: block;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.itemEyebrow[data-type='activity'] {
+  color: var(--lh-tone-activity);
+}
+
+.deadline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+/* D-day는 날짜보다 작게. 임박 / 지남만 작은 Accent */
+.dday {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+/* 임박 / 지남: 작은 빨간 글자만 (배경 칠 없음 · 같은 행의 Risk 글자와 중복 강조하지 않는다) */
+.dday[data-tone='soon'],
+.dday[data-tone='passed'] {
+  color: var(--lh-color-negative);
+  font-weight: 700;
+}
+
+/* 대기 시간: 48시간 초과만 굵은 글자 */
+.waitText {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.waitText[data-long] {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
 }

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { AdminIcon } from '../../components/AdminIcons.tsx'
+import { CompactMetric, DisclosureButton, SummaryHero, ToneButton, ToneTag, type VisualTone } from '../../components/AdminVisual.tsx'
 import type { ScreenLoadState } from '../../app/useScreenLoad.ts'
 import { ADMIN_SNAPSHOT_DATE } from '../../fixtures/snapshot.ts'
 import type { AdminState } from '../../store/adminStore.ts'
@@ -21,10 +23,14 @@ import {
   isFilterActive,
   paginate,
   presentValues,
+  isDeadlineCritical,
   primaryActionLabel,
   QUEUE_PAGE_SIZE,
+  queueWorkflow,
+  queueWorkflowLabel,
   sourceTypeLabel,
   type FeedbackQueueFilter,
+  type QueueWorkflow,
 } from './model/feedbackQueue.ts'
 import styles from './FeedbackDashboardPage.module.css'
 
@@ -46,9 +52,18 @@ interface ChipGroup {
   onChange: (value: string) => void
 }
 
+/** 업무 종류별 시각 언어: 글자 Label + 옅은 Tone + Action 위계 (Icon 없이 글자로 구분 · 색만으로 구분하지 않는다) */
+const workflowVisual: Record<QueueWorkflow, { tone: VisualTone; action: 'soft' | 'text' }> = {
+  topic: { tone: 'topic', action: 'text' },
+  feedback: { tone: 'feedback', action: 'soft' },
+  revision: { tone: 'revision', action: 'soft' },
+  activity: { tone: 'activity', action: 'soft' },
+}
+
 // Feedback Dashboard (FeedbackDashboard-00): 오늘 처리할 검토 업무를 보는 공용 Queue.
 // 수행평가 검토 · 주제 검토 · 성장활동 피드백이 한 Queue에 있다. 특정 Staff / 과목으로 나누지 않는다. (Filter는 보기 조건일 뿐)
 export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterChange, onOpen, onOpenStudent }: FeedbackDashboardPageProps) {
+  const [moreOpen, setMoreOpen] = useState(false)
   // 입력 중인 검색어 (주소는 입력할 때마다 바꾸되 History는 쌓지 않는다)
   const [draft, setDraft] = useState(filter.query)
   const [syncedQuery, setSyncedQuery] = useState(filter.query)
@@ -115,6 +130,23 @@ export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterCh
     const stages = presentValues(all, (item) => item.stage, Object.keys(queueStageLabel) as QueueStage[])
     const statuses = presentValues(all, (item) => item.status, Object.keys(queueStatusLabel) as QueueStatus[])
     const active = isFilterActive(filter)
+    const secondaryActive = [filter.stage, filter.deadline, filter.waiting].filter((value) => value !== 'all').length
+    const moreShown = moreOpen || secondaryActive > 0
+    const primaryGroups = ['유형', '학년', 'Status']
+    const renderGroup = (group: ChipGroup) => (
+      <div key={group.label} className={styles.filterGroup} role="group" aria-label={group.label}>
+        <span className={styles.filterLabel} aria-hidden="true">
+          {group.label}
+        </span>
+        <div className={styles.segment}>
+          {group.options.map((option) => (
+            <button key={option.value} type="button" className={styles.segmentItem} aria-pressed={group.value === option.value} onClick={() => group.onChange(option.value)}>
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
 
     const groups: ChipGroup[] = [
       {
@@ -170,11 +202,34 @@ export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterCh
           <h2 id="feedback-kpi-heading" className="lh-visually-hidden">
             오늘 검토 현황
           </h2>
+          {/* 위계: Feedback Pending(오늘 처리할 업무 전체) → 마감 임박 · 수정 미반영 · 이번 주 완료 */}
           <dl className={styles.kpis}>
-            <Kpi label="Feedback Pending" value={kpi.feedbackPending} note="수행평가 검토 + 주제 검토 + 활동 피드백" />
-            <Kpi label="마감 임박" value={kpi.deadlineSoon} note={`Queue 중 Deadline D-${DEADLINE_SOON_DAYS} 이내`} tone={kpi.deadlineSoon > 0 ? 'negative' : undefined} />
-            <Kpi label="수정 미반영" value={kpi.revisionNotApplied} note={`Staff Feedback 후 ${REVISION_NOT_APPLIED_HOURS}시간 경과`} tone={kpi.revisionNotApplied > 0 ? 'warning' : undefined} />
-            <Kpi label="이번 주 완료" value={kpi.completedThisWeek} note="이번 주 월요일부터 학생에게 전달" />
+            <SummaryHero
+              label="Feedback Pending"
+              value={kpi.feedbackPending}
+              unit="건"
+              note="지금 공용 Queue에서 검토를 기다리는 업무"
+              breakdown={(['feedback', 'revision', 'topic', 'activity'] as const).map((workflow) => ({
+                label: queueWorkflowLabel[workflow],
+                value: all.filter((item) => queueWorkflow(item) === workflow).length,
+                tone: workflowVisual[workflow].tone,
+              }))}
+            />
+            <CompactMetric
+              label="마감 임박"
+              tone={kpi.deadlineSoon > 0 ? 'risk' : 'neutral'}
+              value={kpi.deadlineSoon}
+              note={`Queue 중 Deadline D-${DEADLINE_SOON_DAYS} 이내`}
+              action={
+                kpi.deadlineSoon > 0 && filter.deadline !== 'd3' ? (
+                  <ToneButton variant="text" tone="risk" onClick={() => update({ deadline: 'd3' })}>
+                    마감 임박만 보기
+                  </ToneButton>
+                ) : undefined
+              }
+            />
+            <CompactMetric label="수정 미반영" tone={kpi.revisionNotApplied > 0 ? 'revision' : 'neutral'} value={kpi.revisionNotApplied} note={`Staff Feedback 후 ${REVISION_NOT_APPLIED_HOURS}시간 경과`} />
+            <CompactMetric label="이번 주 완료" tone="complete" value={kpi.completedThisWeek} note="이번 주 월요일부터 학생에게 전달" />
           </dl>
         </section>
 
@@ -189,48 +244,38 @@ export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterCh
           </div>
 
           {all.length > 0 && (
-            <div className={styles.toolbar}>
-              <label className={styles.search}>
-                <span className="lh-visually-hidden">학생, 과목, 제목 검색</span>
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                  <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                  <path d="m16 16 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-                <input
-                  type="search"
-                  value={draft}
-                  placeholder="학생, 과목, 제목 검색"
-                  onChange={(event) => {
-                    setDraft(event.target.value)
-                    update({ query: event.target.value })
-                  }}
-                />
-              </label>
-              {groups.map((group) => (
-                <div key={group.label} className={styles.filterGroup} role="group" aria-label={group.label}>
-                  <span className={styles.filterLabel} aria-hidden="true">
-                    {group.label}
-                  </span>
-                  <div className={styles.segment}>
-                    {group.options.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        className={styles.segmentItem}
-                        aria-pressed={group.value === option.value}
-                        onClick={() => group.onChange(option.value)}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {active && (
-                <button type="button" className={styles.resetButton} onClick={reset}>
-                  조건 초기화
-                </button>
-              )}
+            <div className={styles.filterPanel}>
+              <div className={styles.toolbar}>
+                <label className={styles.search}>
+                  <span className="lh-visually-hidden">학생, 과목, 제목 검색</span>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                    <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                    <path d="m16 16 4 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                  <input
+                    type="search"
+                    value={draft}
+                    placeholder="학생, 과목, 제목 검색"
+                    onChange={(event) => {
+                      setDraft(event.target.value)
+                      update({ query: event.target.value })
+                    }}
+                  />
+                </label>
+                {groups.filter((group) => primaryGroups.includes(group.label)).map(renderGroup)}
+                <DisclosureButton expanded={moreShown} controls="feedback-more-filters" onToggle={() => setMoreOpen(!moreShown)}>
+                  추가 필터{secondaryActive > 0 ? ` ${secondaryActive}개 적용` : ''}
+                </DisclosureButton>
+                {active && (
+                  <button type="button" className={styles.resetButton} onClick={reset}>
+                    조건 초기화
+                  </button>
+                )}
+              </div>
+              {/* 추가 필터: 접혀 있어도 주소 Query 조건은 그대로 적용된다. 적용 중이면 펼쳐 보여준다. */}
+              <div id="feedback-more-filters" className={styles.moreFilters} hidden={!moreShown}>
+                {groups.filter((group) => !primaryGroups.includes(group.label)).map(renderGroup)}
+              </div>
             </div>
           )}
 
@@ -257,12 +302,11 @@ export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterCh
                     <tr>
                       <th scope="col">학생</th>
                       <th scope="col">학년</th>
-                      <th scope="col">유형</th>
+                      <th scope="col">업무</th>
                       <th scope="col">Task / 활동</th>
                       <th scope="col">Stage</th>
                       <th scope="col">Deadline</th>
                       <th scope="col">Waiting</th>
-                      <th scope="col">Status</th>
                       <th scope="col">
                         <span className="lh-visually-hidden">Action</span>
                       </th>
@@ -313,25 +357,15 @@ export function FeedbackDashboardPage({ state, load, onRetry, filter, onFilterCh
   }
 }
 
-function Kpi({ label, value, note, tone }: { label: string; value: number; note: string; tone?: 'negative' | 'warning' }) {
-  return (
-    <div className={styles.kpi}>
-      <dt className={styles.kpiLabel}>{label}</dt>
-      <dd className={styles.kpiValue} data-tone={tone}>
-        {value}
-      </dd>
-      <dd className={styles.kpiNote}>{note}</dd>
-    </div>
-  )
-}
-
 function QueueRow({ item, onOpen, onOpenStudent }: { item: FeedbackQueueItem; onOpen: () => void; onOpenStudent?: (studentId: string) => void }) {
   const days = item.deadlineDate ? daysUntil(item.deadlineDate) : null
   const longWait = item.waitingHours > LONG_WAIT_HOURS
   const soon = days !== null && days <= DEADLINE_SOON_DAYS
-  const priority = item.status === 'deadline-risk' || item.status === 'deadline-passed'
+  const critical = isDeadlineCritical(item)
+  const workflow = queueWorkflow(item)
+  const visual = workflowVisual[workflow]
   return (
-    <tr>
+    <tr data-critical={critical || undefined}>
       <th scope="row" className={styles.student}>
         {onOpenStudent ? (
           <button type="button" className={styles.studentLink} onClick={() => onOpenStudent(item.student.studentId)}>
@@ -342,46 +376,57 @@ function QueueRow({ item, onOpen, onOpenStudent }: { item: FeedbackQueueItem; on
           item.student.displayName
         )}
       </th>
-      <td>{item.grade}</td>
-      <td>
-        <span className={styles.typeTag}>{sourceTypeLabel[item.type]}</span>
+      <td className={styles.gradeCell}>{item.grade}</td>
+      <td className={styles.workflowCell}>
+        <ToneTag tone={visual.tone}>
+          {queueWorkflowLabel[workflow]}
+        </ToneTag>
+        {/* 운영 상태: Deadline Risk / 마감 지남만 Risk 표시, 나머지는 보조 글자 */}
+        {critical ? (
+          <span className={styles.riskText}>
+            <AdminIcon name="alert" size={13} />
+            {queueStatusLabel[item.status]}
+          </span>
+        ) : (
+          <span className={styles.statusText}>{queueStatusLabel[item.status]}</span>
+        )}
       </td>
       <td className={styles.titleCell}>
-        <span className={styles.itemTitle}>{item.title}</span>
-        <span className={styles.itemSub}>
-          {item.subject} · {item.target}
+        <span className={styles.itemEyebrow} data-type={item.type}>
+          {sourceTypeLabel[item.type]}
+          <span aria-hidden="true"> · </span>
+          {item.subject}
         </span>
+        <span className={styles.itemTitle}>{item.title}</span>
+        <span className={styles.itemSub}>{item.type === 'task' ? (item.kind === 'topic-review' ? '주제 선정 검토' : `${item.subject} · ${item.target} 제출본`) : 'Activity Feedback 요청'}</span>
       </td>
-      <td>{queueStageLabel[item.stage]}</td>
+      <td className={styles.stageCell}>{queueStageLabel[item.stage]}</td>
       <td>
         {item.deadlineDate && days !== null ? (
-          <>
+          <span className={styles.deadline}>
             <span className={styles.cellMain}>{formatMonthDay(item.deadlineDate)}</span>
-            <span className={styles.cellSub} data-tone={soon ? 'negative' : undefined}>
+            <span className={styles.dday} data-tone={days < 0 ? 'passed' : soon ? 'soon' : undefined}>
               {formatDday(days)}
               {days < 0 ? <span className="lh-visually-hidden"> (마감 지남)</span> : soon && <span className="lh-visually-hidden"> (마감 임박)</span>}
             </span>
-          </>
+          </span>
         ) : (
           <span className={styles.cellSub}>마감 없음</span>
         )}
       </td>
-      <td className={styles.waiting} data-tone={longWait ? 'negative' : undefined}>
-        {formatWaiting(item.waitingHours)}
-        {longWait && <span className="lh-visually-hidden"> ({LONG_WAIT_HOURS}시간 초과)</span>}
-      </td>
-      <td>
-        <span className={styles.status} data-status={item.status}>
-          {queueStatusLabel[item.status]}
+      <td className={styles.waiting}>
+        <span className={styles.waitText} data-long={longWait || undefined}>
+          {formatWaiting(item.waitingHours)}
+          {longWait && <span className="lh-visually-hidden"> ({LONG_WAIT_HOURS}시간 초과)</span>}
         </span>
       </td>
       <td className={styles.actionCell}>
-        <button type="button" className={styles.rowAction} data-priority={priority || undefined} onClick={onOpen}>
+        <ToneButton variant={critical ? 'primary' : visual.action} tone={visual.tone} onClick={onOpen}>
           {primaryActionLabel(item)}
           <span className="lh-visually-hidden">
             : {item.student.displayName} · {item.title}
           </span>
-        </button>
+        </ToneButton>
       </td>
     </tr>
   )

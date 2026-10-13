@@ -19,6 +19,8 @@ import type {
   MentorApplication,
   MentorCaseRecommendation,
   MentorCaseRef,
+  MentorContentRecommendationDraft,
+  StudentOutreachDraft,
   TaskReview,
 } from '../fixtures/types.ts'
 
@@ -43,6 +45,10 @@ export interface AdminState {
   recommendations: readonly MentorCaseRecommendation[]
   applications: readonly MentorApplication[]
   parentReports: readonly AdminParentReport[]
+  /** Case 외 Mentor Content 추천 임시 기록 (Admin 추천 API 미정 · 학생 Mentor Hub 미반영). Seed 없음 */
+  contentRecommendationDrafts: readonly MentorContentRecommendationDraft[]
+  /** Today Board 메시지 · 리마인더 발송 요청 준비 기록 (Delivery Provider 미연결 · 실제 전송 아님). Seed 없음 */
+  outreachDrafts: readonly StudentOutreachDraft[]
 }
 
 const seed = (): AdminState =>
@@ -60,6 +66,8 @@ const seed = (): AdminState =>
     recommendations: mentorCaseRecommendationsFixture,
     applications: mentorApplicationsFixture,
     parentReports: adminParentReportsFixture,
+    contentRecommendationDrafts: [],
+    outreachDrafts: [],
   }) as AdminState
 
 let state: AdminState = seed()

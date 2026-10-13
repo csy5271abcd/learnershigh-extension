@@ -3,6 +3,7 @@ import { readScreenScenario, useScreenLoad } from '../../../app/useScreenLoad.ts
 import { useAdminState } from '../../../store/adminStore.ts'
 import { FeedbackDashboardPage } from '../FeedbackDashboardPage.tsx'
 import { parseFeedbackFilter, writeFeedbackFilter } from '../model/feedbackQueue.ts'
+import { inAppEntry, student360Path } from '../../student-management/routes/paths.ts'
 import { feedbackReviewPath, type FeedbackReviewEntry } from './paths.ts'
 
 // Feedback Dashboard. Filter / 검색 / page는 주소 Query(type · grade · stage · deadline · waiting · status · q · page)에 두어
@@ -24,6 +25,7 @@ export function FeedbackDashboardRoute({ location }: { location: AdminLocation }
         const entry: FeedbackReviewEntry = { fromDashboard: true }
         navigate(feedbackReviewPath(item.feedbackId), { entry })
       }}
+      onOpenStudent={(studentId) => navigate(student360Path(studentId), { entry: inAppEntry })}
     />
   )
 }

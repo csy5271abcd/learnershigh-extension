@@ -20,9 +20,13 @@ export const SCORE_DROP = 5
 
 export type ManagementPointKind = 'absence' | 'plan-drop' | 'plan-low' | 'test-decline' | 'deadline-passed' | 'deadline-risk' | 'ai-failed' | 'revision-not-applied' | 'feedback-delay'
 
+/** 관리 포인트를 눌렀을 때 갈 화면 (실제 업무 Action) */
+export type PointTarget = { kind: 'review'; feedbackId: string } | { kind: 'task'; taskId: string } | { kind: 'tab'; studentId: string; tab: 'study' | 'school' | 'activities' }
+
 export interface ManagementPoint {
   kind: ManagementPointKind
   label: string
+  target: PointTarget
 }
 
 export const managementPointKindLabel: Record<ManagementPointKind, string> = {
@@ -104,26 +108,26 @@ export function studentInsights(state: AdminState): Map<string, StudentInsight> 
     const queueItems = queue.filter((item) => item.student.studentId === student.studentId)
 
     const points: ManagementPoint[] = []
-    if (study && study.consecutiveAbsentDays >= CONSECUTIVE_ABSENT_DAYS) points.push({ kind: 'absence', label: `연속 미등원 ${study.consecutiveAbsentDays}일` })
+    if (study && study.consecutiveAbsentDays >= CONSECUTIVE_ABSENT_DAYS) points.push({ kind: 'absence', label: `연속 미등원 ${study.consecutiveAbsentDays}일`, target: { kind: 'tab', studentId: student.studentId, tab: 'study' } })
     if (study) {
       const drop = Math.round((study.previous7DayPlanRate - study.recent7DayPlanRate) * 100)
-      if (drop >= PLAN_DROP_POINTS) points.push({ kind: 'plan-drop', label: `Plan ${formatPercent(study.previous7DayPlanRate)} → ${formatPercent(study.recent7DayPlanRate)}` })
-      else if (study.recent7DayPlanRate < PLAN_LOW_RATE) points.push({ kind: 'plan-low', label: `최근 7일 Plan ${formatPercent(study.recent7DayPlanRate)}` })
+      if (drop >= PLAN_DROP_POINTS) points.push({ kind: 'plan-drop', label: `Plan ${formatPercent(study.previous7DayPlanRate)} → ${formatPercent(study.recent7DayPlanRate)}`, target: { kind: 'tab', studentId: student.studentId, tab: 'study' } })
+      else if (study.recent7DayPlanRate < PLAN_LOW_RATE) points.push({ kind: 'plan-low', label: `최근 7일 Plan ${formatPercent(study.recent7DayPlanRate)}`, target: { kind: 'tab', studentId: student.studentId, tab: 'study' } })
     }
     // 가장 최근 시험이 하락했을 때만 (지난 시험의 하락을 계속 끌고 오지 않는다)
-    if (latestChange && isDecline(latestChange)) points.push({ kind: 'test-decline', label: latestChange.label })
+    if (latestChange && isDecline(latestChange)) points.push({ kind: 'test-decline', label: latestChange.label, target: { kind: 'tab', studentId: student.studentId, tab: 'study' } })
     for (const task of activeTasks) {
       const days = daysUntil(task.deadlineDate)
-      if (days < 0) points.push({ kind: 'deadline-passed', label: `수행평가 마감 지남 ${formatDday(days)} · ${task.subject}` })
-      else if (days <= 3) points.push({ kind: 'deadline-risk', label: `수행평가 ${formatDday(days)} · ${task.subject}` })
+      if (days < 0) points.push({ kind: 'deadline-passed', label: `수행평가 마감 지남 ${formatDday(days)} · ${task.subject}`, target: { kind: 'task', taskId: task.taskId } })
+      else if (days <= 3) points.push({ kind: 'deadline-risk', label: `수행평가 ${formatDday(days)} · ${task.subject}`, target: { kind: 'task', taskId: task.taskId } })
     }
     for (const task of activeTasks) {
       const latest = task.versions?.at(-1)
-      if (latest?.aiStatus === 'failed') points.push({ kind: 'ai-failed', label: `AI 사전 점검 실패 · ${task.subject} V${latest.number}` })
-      if (notApplied.has(task.taskId)) points.push({ kind: 'revision-not-applied', label: `피드백 후 수정 미반영 · ${task.subject}` })
+      if (latest?.aiStatus === 'failed') points.push({ kind: 'ai-failed', label: `AI 사전 점검 실패 · ${task.subject} V${latest.number}`, target: { kind: 'task', taskId: task.taskId } })
+      if (notApplied.has(task.taskId)) points.push({ kind: 'revision-not-applied', label: `피드백 후 수정 미반영 · ${task.subject}`, target: { kind: 'task', taskId: task.taskId } })
     }
     const longest = queueItems.filter((item) => item.waitingHours > LONG_WAIT_HOURS).sort((a, b) => b.waitingHours - a.waitingHours)[0]
-    if (longest) points.push({ kind: 'feedback-delay', label: `Feedback ${longest.waitingHours}시간 대기` })
+    if (longest) points.push({ kind: 'feedback-delay', label: `Feedback ${longest.waitingHours}시간 대기`, target: { kind: 'review', feedbackId: longest.feedbackId } })
 
     result.set(student.studentId, {
       student,

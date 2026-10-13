@@ -4,19 +4,22 @@ import styles from './AdminShell.module.css'
 /** 기존 LearnersHigh Admin Sidebar의 상위 메뉴 (references/existing-runners-high/screens/admin, FeedbackDashboard-00). 기존 기능이라 여기서 이동하지 않는다. */
 const existingMenus = ['학원관리', '문자관리', '학생관리', '학습관리', '학습조정', '학원비결제', '리워드', '솔루션결제'] as const
 
-export type AdminExtensionEntryId = 'feedback-dashboard'
+export type AdminExtensionEntryId = 'today-board' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations'
 
 interface AdminExtensionEntry {
-  id: AdminExtensionEntryId | 'today-board'
+  id: AdminExtensionEntryId
   label: string
-  /** 이 Branch에서 화면이 있는 Entry만 이동한다. */
-  available: boolean
 }
 
 // 기존 "학습관리" 아래에 붙는 Extension Entry (Integration Boundary §22: 기존 Sidebar Context 안에 연결)
+// 상담 관련 Entry는 Wangyu 담당 영역이라 두지 않는다. Student 360은 Today Board · Queue에서 학생을 골라 들어간다. (별도 학생 목록 Mockup 없음)
 const extensionEntries: AdminExtensionEntry[] = [
-  { id: 'today-board', label: 'Today Board', available: false },
-  { id: 'feedback-dashboard', label: 'Feedback Dashboard', available: true },
+  { id: 'today-board', label: 'Today Board' },
+  { id: 'feedback-dashboard', label: 'Feedback Dashboard' },
+  { id: 'mentor-cases', label: 'Mentor 추천' },
+  { id: 'connections', label: 'Connection 검토' },
+  { id: 'interview', label: 'Interview 관리' },
+  { id: 'operations', label: 'Operations' },
 ]
 
 interface AdminShellProps {
@@ -58,21 +61,9 @@ export function AdminShell({ current, pageLabel, onEntrySelect, children }: Admi
                 <ul className={styles.submenu} aria-label="학습관리 확장 기능">
                   {extensionEntries.map((entry) => (
                     <li key={entry.id}>
-                      {entry.available ? (
-                        <button
-                          type="button"
-                          className={styles.entry}
-                          aria-current={entry.id === current ? 'page' : undefined}
-                          onClick={() => onEntrySelect(entry.id as AdminExtensionEntryId)}
-                        >
-                          {entry.label}
-                        </button>
-                      ) : (
-                        <button type="button" className={styles.entry} disabled title={`${entry.label} 화면은 준비 중이에요`}>
-                          {entry.label}
-                          <span className="lh-visually-hidden"> (준비 중)</span>
-                        </button>
-                      )}
+                      <button type="button" className={styles.entry} aria-current={entry.id === current ? 'page' : undefined} onClick={() => onEntrySelect(entry.id)}>
+                        {entry.label}
+                      </button>
                     </li>
                   ))}
                 </ul>

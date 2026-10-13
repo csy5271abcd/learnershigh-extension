@@ -1,0 +1,766 @@
+/* Admin Student Management 화면 전용 Style (공통은 components/AdminUi.module.css) */
+
+.taskCell {
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.reasonCell {
+  min-width: 260px;
+  max-width: 420px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.questionCell {
+  display: table-cell;
+  min-width: 280px;
+  max-width: 480px;
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--lh-font-label);
+}
+
+.big {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.spread {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.checkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checkList legend {
+  margin-bottom: var(--lh-space-2);
+}
+
+/* Inspector 화면: 왼쪽 요약 · 연결 / 오른쪽 상세 */
+.inspectorLayout {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--lh-space-6);
+}
+
+/* Mentor Case 상세: 단계 탐색 · 본문 · 추천 Context */
+.caseLayout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) minmax(280px, 340px);
+  align-items: start;
+  gap: var(--lh-space-6);
+}
+
+.stickyNav {
+  position: sticky;
+  top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+}
+
+.stepNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepNav button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: var(--lh-space-1) var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  text-decoration: none;
+}
+
+.stepNav button:hover,
+.stepNav button:focus-visible {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.caseSection h2:focus {
+  outline: none;
+}
+
+.caseSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+  scroll-margin-top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--lh-space-2);
+}
+
+@media (max-width: 1279px) {
+  .caseLayout {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+  }
+
+  .caseLayout > nav {
+    grid-column: 1 / -1;
+    position: static;
+  }
+
+  .caseLayout > nav .stepNav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .caseLayout > nav .stepNav button {
+    width: auto;
+  }
+}
+
+@media (max-width: 1023px) {
+  .inspectorLayout,
+  .caseLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stickyNav {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* dl 안의 묶음 행 (dt · dd 한 쌍을 Grid 두 칸에 그대로 둔다) */
+.factRow {
+  display: contents;
+}
+
+/* ---- Today Board (요약 위계 · 학생 행 표현) ---- */
+
+.todayKpis {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) repeat(3, minmax(0, 1fr));
+  gap: var(--lh-space-3);
+}
+
+.metricProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.providerNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.todayTable td,
+.todayTable th {
+  vertical-align: top;
+}
+
+.todayStudent {
+  display: table-cell;
+  min-width: 132px;
+}
+
+.todayTable .taskCell {
+  min-width: 190px;
+  max-width: 260px;
+}
+
+.studentLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.gradeText {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+/* 우선 확인: 중립 면 + 작은 빨간 글자 (행 선 · 행 배경 없음) */
+.criticalLabel {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--lh-color-chip);
+  color: var(--lh-color-negative);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mutedCell {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.studyTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendanceText {
+  display: block;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.attendanceText[data-absent] {
+  color: var(--lh-color-text-secondary);
+  font-weight: 700;
+}
+
+.studyTime[data-empty] {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  color: var(--lh-color-text-tertiary);
+}
+
+.planCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.planRate {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.taskLine {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--lh-space-2);
+}
+
+.taskText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* D-day: 작은 Countdown 칩. 임박만 옅은 Red, 지남만 채운 Red */
+.countdown {
+  display: inline-block;
+  flex: none;
+  min-width: 44px;
+  padding: 1px 6px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.countdown[data-tone='risk'] {
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+}
+
+.countdown[data-tone='risk-strong'] {
+  background: var(--lh-color-negative);
+  color: var(--lh-color-on-accent);
+}
+
+.changeInsight {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.changeValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pointCell {
+  min-width: 210px;
+}
+
+.pointStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* 주요 관리 포인트: 문장 + 근거 (Badge 대신 Typography 위계) */
+.primaryInsightButton {
+  display: block;
+  width: 100%;
+  padding: 6px var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.primaryInsightButton:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.primaryInsight {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.insightEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.insightHeadline {
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.insightMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+}
+
+.secondaryPoint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px var(--lh-space-1);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  text-align: left;
+  cursor: pointer;
+}
+
+.secondaryPoint:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.morePoints[hidden] {
+  display: none;
+}
+
+.morePoints {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stableText {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+  min-width: 164px;
+}
+
+.quickActions > :last-child {
+  flex-basis: 100%;
+  justify-content: flex-start;
+}
+
+.iconAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 var(--lh-space-2);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.iconAction:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.compactLink {
+  min-height: 32px;
+  font-size: var(--lh-font-caption);
+}
+
+.pointFollow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--lh-space-2);
+}
+
+.pointFollow > ul {
+  flex-basis: 100%;
+}
+
+.pointFollow :global(button[aria-expanded]) {
+  min-height: 28px;
+  font-size: var(--lh-font-caption);
+}
+
+.preparedText {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+/* ---- 메시지 · 리마인더 Dialog ---- */
+
+.outreachContext {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--lh-space-1) var(--lh-space-4);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-label);
+}
+
+.outreachContext > div {
+  display: contents;
+}
+
+.outreachContext dt {
+  color: var(--lh-color-text-tertiary);
+}
+
+.outreachContext dd {
+  font-weight: 600;
+}
+
+.templateRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.templateChip {
+  min-height: 34px;
+  padding: 0 var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: 999px;
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.templateChip[aria-pressed='true'] {
+  border-color: var(--lh-color-accent);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-hover);
+}
+
+.templateChip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.preparedNotice {
+  display: flex;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-tone-complete-subtle);
+  color: var(--lh-color-text-primary);
+}
+
+.preparedNotice > svg {
+  color: var(--lh-tone-complete);
+}
+
+@media (max-width: 1279px) {
+  .todayKpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .todayKpis > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .todayKpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* API가 없어 학생 화면에 반영되지 않는 동작의 경계 안내 */
+.boundaryNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-tone-revision-subtle);
+  color: var(--lh-tone-revision);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.boundaryNote > svg {
+  margin-top: 2px;
+}
+
+/* ---- Mentor Case 상세: AI 사전 점검 · 선생님 피드백 · 자료 Card ---- */
+
+.sourceLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.sourceLabel[data-source='ai'] {
+  color: var(--lh-tone-ai-text);
+}
+
+.sourceLabel[data-source='staff'] {
+  color: var(--lh-color-accent-hover);
+}
+
+/* AI: 차가운 Surface + 옅은 Border */
+.caseAiBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border: 1px solid var(--lh-tone-ai-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-tone-ai-surface);
+}
+
+.caseAiFacts {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: var(--lh-space-2) var(--lh-space-4);
+  font-size: var(--lh-font-label);
+}
+
+.caseAiFacts dt {
+  color: var(--lh-color-text-tertiary);
+}
+
+.checkItems {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.checkItems li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 선생님 피드백: 흰 면 + Accent 왼쪽 선 (AI와 다른 Surface) */
+.staffFeedback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  margin: 0;
+  padding: var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-left: 3px solid var(--lh-color-accent);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.staffFeedbackHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.staffFeedbackBody {
+  margin: 0;
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+}
+
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--lh-space-3);
+}
+
+.materialGrid > li {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.materialCard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md) var(--lh-radius-md) 0 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.materialCard:hover {
+  background: var(--lh-color-surface);
+}
+
+.materialTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
+.materialRole {
+  padding: 1px 8px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.materialFormat {
+  padding: 1px 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.materialExcerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.materialName {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  overflow-wrap: anywhere;
+}
+
+.materialState {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: var(--lh-space-2) var(--lh-space-4) var(--lh-space-3);
+}
+
+.historyTarget {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font: inherit;
+  font-size: var(--lh-font-label);
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--lh-color-border);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.historyTarget:hover {
+  color: var(--lh-color-accent-hover);
+}
+
+@media (max-width: 767px) {
+  .caseAiFacts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

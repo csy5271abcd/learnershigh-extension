@@ -13,5 +13,6 @@ export interface FeedbackReviewEntry {
   fromDashboard: true
 }
 
+/** Dashboard 또는 다른 Admin 화면(inApp)에서 들어왔는지. 그렇다면 돌아가기 = History Back */
 export const isFromDashboard = (entry: unknown) =>
-  typeof entry === 'object' && entry !== null && (entry as Partial<FeedbackReviewEntry>).fromDashboard === true
+  typeof entry === 'object' && entry !== null && ((entry as Partial<FeedbackReviewEntry>).fromDashboard === true || (entry as { inApp?: boolean }).inApp === true)

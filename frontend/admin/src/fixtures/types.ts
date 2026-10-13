@@ -58,6 +58,45 @@ export interface AdminTaskTopic {
 
 export type AiAnalysisStatus = 'processing' | 'success' | 'failed'
 
+/**
+ * 원본 파일 Resource (Admin assets의 개발용 Sample 파일). 미리보기 · 다운로드는 이 값이 있을 때만 한다.
+ * 파일 이름만 있고 이 값이 없으면 "원본 파일 준비 전"이다. (File Storage 미정 OD-09)
+ */
+export interface FileBacking {
+  url: string
+  mimeType: string
+  sizeBytes: number
+}
+
+/** Task 과정 자료 단계 Tag (Student TaskProcessCategory와 같은 값: 계획 · 조사 · 초안 · 최종 · 발표) */
+export type EvidenceStageTag = 'plan' | 'research' | 'draft' | 'final' | 'presentation'
+
+/** Task 과정 자료 (Student TaskEvidence와 같은 의미). Version과 다른 Entity다. */
+export interface AdminTaskEvidence {
+  evidenceId: string
+  taskId: string
+  fileName: string
+  stageTag: EvidenceStageTag
+  /** ISO 8601 */
+  createdAt: string
+  file?: FileBacking
+}
+
+/** Revision 비교 Block (Student revisionDiffs와 같은 Shape) */
+export type RevisionDiffBlock =
+  | { kind: 'same'; text: string }
+  | { kind: 'changed'; before: string; after: string }
+  | { kind: 'removed'; before: string }
+  | { kind: 'added'; after: string }
+
+export interface RevisionDiff {
+  fromVersionId: string
+  toVersionId: string
+  /** 이 수정이 반영한 선생님 피드백 (feedbackId) */
+  appliedFeedbackId?: string
+  blocks: RevisionDiffBlock[]
+}
+
 export interface AdminTaskVersion {
   versionId: string
   number: number
@@ -69,6 +108,10 @@ export interface AdminTaskVersion {
   aiAnalyzedAt?: string
   /** 실패 시 다시 시도 가능 여부 (Student가 다시 시도한다) */
   retryAllowed?: boolean
+  /** AI 사전 점검 시도 이력 (실패 후 다시 시도한 경우만. 상태 수준만, 내부 Log 없음) */
+  aiAttempts?: { status: AiAnalysisStatus; at: string }[]
+  /** 제출 파일 원본 (없으면 파일 이름만) */
+  file?: FileBacking
 }
 
 export type ParentShareStatus = 'not_shared' | 'consented' | 'attached' | 'shared'
@@ -95,13 +138,19 @@ export interface AdminTask {
   turn: 'student' | 'waiting' | 'done'
   onHold?: boolean
   topic?: AdminTaskTopic
-  /** 과정 자료 수. null = 자료 정보 없음 (0개와 구분) */
-  evidenceCount: number | null
+  /** 과정 자료. null = 자료 정보 없음 (빈 배열 = 실제로 없음과 구분) */
+  evidence: AdminTaskEvidence[] | null
   /** 제출 Version. null = Version 정보 없음 (Student Fixture에도 없음), [] = 실제로 제출 없음 */
   versions: AdminTaskVersion[] | null
   /** 평가 기준 (안내문에서 읽은 값). null = 정보 없음 */
   criteria: { criterionId: string; name: string; points: number | null; aiCheck?: string }[] | null
   finalArtifact: AdminFinalArtifact | null
+  /** Version 사이 내용 비교 (내용 비교 Fixture가 있는 Task만, Student revisionDiffs 의미) */
+  revisionDiffs?: RevisionDiff[]
+  /** 수행평가 안내문 (Stage 1 등록 파일, 정보가 있는 Task만) */
+  guideFile?: { fileName: string; registeredDate: string }
+  /** 학생이 정리한 참고 자료 (정보가 있는 Task만) */
+  references?: { referenceId: string; kind: 'link' | 'article' | 'textbook'; title: string; source: string; usage: string }[]
   /** Task와 연결된 Mentor Activity Case (contentId) */
   relatedMentorCaseIds: string[]
 }
@@ -195,8 +244,12 @@ export interface AdminActivity {
   status: ActivityStatus
   reflection: ActivityReflection | null
   feedback: ActivityFeedback | null
-  /** 과정 자료 파일 이름 */
+  /** 과정 자료 파일 이름 (Task Evidence와 다른 저장소) */
   files: string[]
+  /** 과정 자료 원본 (파일 이름 → 원본). 없으면 파일 이름만 있다. */
+  fileBackings?: Record<string, FileBacking>
+  /** 활동 Tag (학생 입력) */
+  tags?: string[]
   /** 학생이 피드백을 요청한 시각 (Admin Queue 대기 시간 기준). Student Fixture에 없는 Admin Queue Metadata */
   feedbackRequestedAt?: string
 }
@@ -321,4 +374,179 @@ export interface AdminParentReport {
   /** Contract에 알려진 문자열 그대로 (전역 Enum으로 고정하지 않는다) */
   status: 'Draft' | 'Reviewing' | 'Ready' | 'Sent'
   sentAt: string | null
+}
+
+// ---------- Mentor Activity Case 상세 (Student activityCases.fixture.ts와 같은 값) ----------
+
+export type CaseMaterialRole = 'evidence' | 'draft' | 'feedback' | 'revision' | 'final'
+
+export interface CaseDocumentPage {
+  pageNumber: number
+  title: string
+  lead?: string
+  body?: string
+  bullets?: string[]
+  paragraphs?: string[]
+  footnote?: string
+}
+
+/** Case 자료 미리보기 View Model (원본 파일을 해석한 것이 아니라 Student Case가 쓰는 표시용 값) */
+export type CaseMaterialPreview =
+  | { kind: 'slides'; pages: CaseDocumentPage[] }
+  | { kind: 'document'; pages: CaseDocumentPage[] }
+  | { kind: 'table'; title: string; description?: string; columns: string[]; rows: string[][]; footnote?: string }
+
+export interface CaseMaterial {
+  materialId: string
+  role: CaseMaterialRole
+  title: string
+  format: string
+  description: string
+  stageId: string
+  fileName?: string
+  preview?: CaseMaterialPreview
+  original?: { url: string; mimeType: string; fileSizeBytes: number }
+}
+
+export interface CaseStage {
+  stageId: string
+  title: string
+  summary: string
+  description: string
+  checklist: string[]
+  planChange?: { before: string; after: string }
+  feedback?: { source: string; text: string; note: string }
+}
+
+export interface MentorCaseDetail {
+  contentId: string
+  summary: string
+  activities: string[]
+  stages: CaseStage[]
+  materials: CaseMaterial[]
+  reflection: string
+  followUp?: string
+  relatedContent: { contentId: string; kind: string; title: string; summary: string; mentorName: string }[]
+}
+
+// ---------- Mentor Profile / Content (Student Mentor Hub Canonical Fixture와 같은 값 · Admin Mentor 추천 화면용) ----------
+
+export type MentorContentType = 'case' | 'plan' | 'routine' | 'story' | 'record'
+
+export interface MentorProfileRecord {
+  mentorId: string
+  name: string
+  university: string
+  major: string
+  admissionType: string
+  highSchoolContext: string
+  representativeExperience: string
+  tags: string[]
+  verified: boolean
+  scoreSummary: {
+    note?: string
+    schoolGrades?: { scaleLabel: string; terms: { term: string; averageGrade: number }[] }
+    csat?: { basisLabel: string; subjects: { area: string; subject: string; grade: number; percentile: number | null }[]; minimumRequirement?: string }
+  } | null
+  experiences: { title: string; description: string }[]
+}
+
+export type MentorPlanDay = '월' | '화' | '수' | '목' | '금' | '토' | '일'
+
+export interface MentorTimeSlot {
+  start: string
+  end: string
+}
+
+export interface MentorPlanContent {
+  contentId: string
+  kind: 'plan'
+  title: string
+  mentorId: string
+  summary: string
+  description: string
+  durationWeeks: number
+  daysPerWeek: number
+  weeks: { week: number; items: { itemId: string; day: MentorPlanDay; task: string; subject: string; memo?: string }[] }[]
+}
+
+export interface MentorRoutineContent {
+  contentId: string
+  kind: 'routine'
+  title: string
+  mentorId: string
+  summary: string
+  description: string
+  timelineTitle: string
+  applyDays: MentorPlanDay[]
+  timeline: { blockId: string; slot: MentorTimeSlot; title: string; description: string }[]
+  habits: { habitId: string; title: string; frequency: string; slot: MentorTimeSlot; description: string }[]
+}
+
+export type MentorStoryBlock = { type: 'paragraph'; text: string } | { type: 'heading'; text: string } | { type: 'photoMemo'; caption: string } | { type: 'quote'; text: string }
+
+export interface MentorStoryContent {
+  contentId: string
+  kind: 'story'
+  title: string
+  mentorId: string
+  summary: string
+  /** Student storyTopics.ts 화면 이름 */
+  topics: string[]
+  readMinutes: number
+  publishedDate: string
+  body: MentorStoryBlock[]
+}
+
+export interface MentorRecordContent {
+  contentId: string
+  kind: 'record'
+  title: string
+  mentorId: string
+  summary: string
+  grade: 1 | 2 | 3
+  semester?: 1 | 2
+  /** Student records.ts 영역 이름 */
+  areaLabel: string
+  subjectOrActivity: string
+  /** 개인정보를 제거한 기록 문장 (읽기 전용 · 원본 파일 없음) */
+  recordText: string
+  linkedActivity: { title: string; description: string; caseId?: string }
+  relatedContent: { contentId: string; kind: string; title: string }[]
+  mentorNote: string
+}
+
+/**
+ * Case 외 Mentor Content 추천 기록 (Plan · Routine · Story · Record).
+ * Admin 추천 Mutation API가 Contract에 없다. (Gap: MENTOR-CONTENT-RECOMMENDATION-API)
+ * Admin 화면 안의 임시 기록일 뿐이며 학생 Mentor Hub에는 반영하지 않는다.
+ */
+export interface MentorContentRecommendationDraft {
+  draftId: string
+  studentId: string
+  contentId: string
+  kind: Exclude<MentorContentType, 'case'>
+  taskId: string | null
+  activityId: string | null
+  reason: string
+  createdAt: string
+}
+
+// ---------- Today Board 메시지 · 리마인더 (Delivery Provider / API 미정 · Gap: MESSAGE-REMINDER-DELIVERY) ----------
+
+/** 발송 요청 준비 기록. 실제 학생 알림 전송이 아니다. (전송 완료 상태 값을 만들지 않는다) */
+export interface StudentOutreachDraft {
+  outreachId: string
+  kind: 'message' | 'reminder'
+  studentId: string
+  /** 리마인더 관련 대상 (선택) */
+  taskId: string | null
+  activityId: string | null
+  title: string | null
+  body: string
+  /** 리마인더 전달 예정 시각 (YYYY-MM-DDTHH:mm, 메시지는 null) */
+  scheduledAt: string | null
+  /** 메시지 Template 이름 (선택) */
+  template: string | null
+  preparedAt: string
 }

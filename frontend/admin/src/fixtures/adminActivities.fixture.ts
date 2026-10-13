@@ -1,4 +1,5 @@
 import { CHOI_HAEUN_ID } from './adminStudents.fixture.ts'
+import { activityFileBackings } from './adminEvidence.fixture.ts'
 import type { AdminActivity } from './types.ts'
 
 /*
@@ -28,6 +29,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '손 씻기 전후 손가락을 배지에 찍어 3일 동안 세균 집락 수 변화를 조별로 관찰했어요.',
     result: '손 씻기 후 집락 수가 평균 70% 정도 줄어든 결과를 조별 결과표로 정리했어요.',
     followUp: '',
+    tags: [],
     status: 'feedback-delivered',
     reflection: {
       participationReason: '수행평가에서 다룬 항생제 내성이 실제 세균에서 어떻게 보이는지 궁금했어요.',
@@ -61,6 +63,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '기록 양식을 만들고 모인 값을 스프레드시트로 정리했다.',
     result: '',
     followUp: '',
+    tags: ['급식', '환경', '데이터분석', '시각화'],
     status: 'draft',
     reflection: null,
     feedback: null,
@@ -79,6 +82,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '후보 도서 비교표를 만들고 첫 번째 토론 질문 초안을 작성했다.',
     result: '',
     followUp: '',
+    tags: ['영어', '독서', '북토크', '토론'],
     status: 'draft',
     reflection: null,
     feedback: null,
@@ -97,6 +101,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '원자료를 정리하고 시간대별 막대그래프와 분포 그래프를 제작했다.',
     result: '교내 발표 자료 제출 완료',
     followUp: '다음에는 날씨와 지하철 지연 여부도 함께 기록해보고 싶다.',
+    tags: ['정보', '데이터', '통학', '시각화'],
     status: 'submitted',
     reflection: null,
     feedback: null,
@@ -115,6 +120,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '전자책 검색과 무인 대출 절차를 한 장짜리 안내자료로 만들었다.',
     result: '점심시간 디지털 이용 안내 4회 참여',
     followUp: '질문이 많이 나온 기능을 중심으로 안내자료를 다시 정리해볼 예정이다.',
+    tags: ['봉사', '도서관', '디지털', '안내'],
     status: 'submitted',
     reflection: null,
     feedback: null,
@@ -133,6 +139,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '측정 위치와 시간을 고정하고 수치를 표로 정리했다.',
     result: '두 위치의 평균값 차이를 확인하고 원인 후보를 정리함',
     followUp: '측정 횟수를 늘리고 풍속 자료와 함께 비교할 계획이다.',
+    tags: ['환경', '미세먼지', '센서', '자율탐구'],
     status: 'feedback-waiting',
     reflection: null,
     feedback: null,
@@ -152,6 +159,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '정답을 바로 알려주지 않고 학생이 직접 오류 위치를 찾도록 질문 순서를 정리했다.',
     result: '총 4회 실습 보조 참여',
     followUp: '초보자가 자주 실수하는 부분을 짧은 체크리스트로 정리해보고 싶다.',
+    tags: ['봉사', '코딩', '교육', '블록코딩'],
     status: 'feedback-waiting',
     reflection: null,
     feedback: null,
@@ -171,6 +179,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '센서 구성도를 만들고 발표에서 데이터 수집 방법을 설명했다.',
     result: '본선 발표 참가',
     followUp: '실제 교실에서 일주일 이상 데이터를 모아 시간대별 변화를 확인해보고 싶다.',
+    tags: ['과학', '센서', '발표', '교외대회'],
     status: 'feedback-delivered',
     reflection: {
       participationReason: '단순 아이디어 제안이 아니라 실제 측정이 가능한 방법을 고민해보고 싶어서 참여했다.',
@@ -204,6 +213,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '안내판 디자인과 부스 현장 설명을 맡았다.',
     result: '축제 기간 동안 분리배출 안내 부스 운영 완료',
     followUp: '다음 행사에서는 가장 많이 헷갈린 쓰레기 종류를 먼저 조사해 안내판에 반영하고 싶다.',
+    tags: ['환경', '축제', '캠페인', '디자인'],
     status: 'reflected',
     reflection: {
       participationReason: '행사장에서 안내문이 많아도 사람들이 읽지 않는 경우가 있어 더 단순한 안내 방식을 만들어보고 싶었다.',
@@ -230,6 +240,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '기록 기준을 직접 정하고 날짜별 데이터를 표로 정리했다.',
     result: '늦은 시간 섭취일에 취침 시간이 늦어지는 경향을 관찰함',
     followUp: '카페인 외에 수면 시간과 운동 여부도 같이 기록해보고 싶다.',
+    tags: ['자율탐구', '생활데이터', '집중', '기록'],
     status: 'reflected',
     reflection: {
       participationReason: '평소 습관을 감으로 판단하지 않고 기록으로 확인해보고 싶었다.',
@@ -256,6 +267,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '실습 결과를 표로 정리하고 조별로 차이가 의미하는 점을 발표했다.',
     result: '염기서열 비교 실습 및 조별 발표 완료',
     followUp: 'Python으로 간단한 문자열 비교 프로그램을 직접 만들어보고 싶다.',
+    tags: ['진로', '생명과학', '소프트웨어', '바이오인포매틱스'],
     status: 'archived',
     reflection: {
       participationReason: '소프트웨어가 생명과학 연구에서 실제로 어떻게 쓰이는지 직접 보고 싶었다.',
@@ -282,6 +294,7 @@ const choiHaeunActivities: AdminActivity[] = [
     contribution: '행사 전 장비 점검표를 정리하고 리허설 중 수정된 순서를 다시 반영했다.',
     result: '교내 발표 행사 방송 운영 지원 완료',
     followUp: '다음에는 방송 장비별 기본 설정 방법을 미리 정리해보고 싶다.',
+    tags: ['행사', '방송', '운영', '기록'],
     status: 'archived',
     reflection: {
       participationReason: '무대 뒤에서 행사가 어떻게 준비되는지 직접 경험해보고 싶었다.',
@@ -345,6 +358,7 @@ const activity = (input: ActivityInput): AdminActivity => ({
   reflection: input.reflection ?? null,
   feedback: input.feedback ?? null,
   files: input.files,
+  ...(activityFileBackings[`fixture-admin-activity-${String(input.n).padStart(3, '0')}`] ? { fileBackings: activityFileBackings[`fixture-admin-activity-${String(input.n).padStart(3, '0')}`] } : {}),
   ...(input.requestedAt ? { feedbackRequestedAt: input.requestedAt } : {}),
 })
 
@@ -365,7 +379,7 @@ const adminOnlyActivities: AdminActivity[] = [
   activity({ n: 4, student: 'oh-minji', title: '사회복지관 진로 체험', type: 'career', organizer: '구립 사회복지관', start: '2026-07-15', role: '사례 관리 업무 관찰', reason: '사회복지사가 실제로 어떤 일을 하는지 알고 싶었다.', process: '사례 회의를 참관하고 프로그램 운영 과정을 들었다.', contribution: '체험 내용을 정리해 진로 동아리에서 발표했다.', result: '진로 체험 보고서 작성', status: 'archived', files: ['진로체험_보고서.pdf'], reflection: reflection('막연했던 사회복지사의 일을 구체적으로 알고 싶었다.', '관찰과 기록을 맡았다.', '사례 회의에서 오간 역할 분담을 기록했다.', '개인정보를 지키면서 기록하는 기준을 정하는 것이 어려웠다.', '도움은 한 사람이 아니라 여러 기관이 함께 설계한다는 것을 배웠다.', '다음에는 지역 사회 자원 지도를 직접 만들어보고 싶다.') }),
   activity({ n: 5, student: 'oh-minji', title: '교내 인권 동아리 캠페인', type: 'club', organizer: '교내 인권 동아리', start: '2026-05-10', end: '2026-06-14', role: '캠페인 문구 기획', reason: '학교 안에서 일어나는 작은 차별을 함께 이야기해보고 싶었다.', process: '사례를 모으고 캠페인 문구를 만들어 점심시간에 홍보했다.', contribution: '캠페인 문구 5개를 만들고 설문 결과를 정리했다.', result: '캠페인 참여 서명 120명', status: 'archived', files: ['캠페인_포스터.png', '참여설문.xlsx'], reflection: reflection('불편함을 말할 수 있는 분위기를 만들고 싶었다.', '문구 기획을 맡았다.', '사례를 분류해 학생들이 공감할 문구로 바꿨다.', '사례를 소개하면서 특정인이 드러나지 않게 하는 것이 어려웠다.', '같은 문제도 표현 방식에 따라 받아들이는 반응이 달라진다는 걸 배웠다.', '다음에는 캠페인 전후 인식 변화를 조사해보고 싶다.') }),
   activity({ n: 6, student: 'kim-dohyun', title: '교내 창업 아이디어 대회', type: 'school-competition', organizer: '교내 진로교육부', start: '2026-06-02', end: '2026-06-20', role: '시제품 아이디어 설계', reason: '생활 속 불편을 기술로 해결하는 과정을 해보고 싶었다.', process: '등굣길 우산 공유 아이디어를 내고 시장 조사를 했다.', contribution: '아이디어 구조도와 발표 자료를 만들었다.', result: '장려상', status: 'archived', files: ['창업아이디어_발표.pdf'], reflection: reflection('아이디어를 실제 사용자에게 설명해보고 싶었다.', '설계와 발표를 맡았다.', '사용자 인터뷰 5건으로 불편을 확인했다.', '수익 구조를 설명하는 것이 어려웠다.', '기술보다 사용자의 불편을 먼저 정의해야 한다는 것을 배웠다.', '다음에는 시제품을 직접 만들어 시험해보고 싶다.') }),
-  activity({ n: 7, student: 'kim-dohyun', title: '스마트폰 가속도 센서로 엘리베이터 운동 측정', type: 'self-study', organizer: '개인 자율 탐구', start: '2026-08-10', end: '2026-08-24', role: '측정 설계와 데이터 분석', reason: '물리 수행평가 전에 실제 데이터를 직접 모아보고 싶었다.', process: '아파트 엘리베이터에서 층별 가속도 값을 반복 측정했다.', contribution: '측정 앱 설정과 데이터 정리를 직접 했다.', result: '가속 · 감속 구간 그래프 정리', status: 'archived', files: ['가속도_측정값.csv', '그래프.png'], reflection: reflection('교과서 그래프가 실제로도 그렇게 나오는지 궁금했다.', '혼자 측정과 분석을 했다.', '같은 구간을 10번 측정해 평균을 냈다.', '센서 잡음을 어떻게 걸러낼지 정하는 것이 어려웠다.', '측정 조건을 고정해야 비교가 의미 있다는 것을 배웠다.', '다음에는 센서 두 개로 동시에 측정해보고 싶다.') }),
+  activity({ n: 7, student: 'kim-dohyun', title: '스마트폰 가속도 센서로 엘리베이터 운동 측정', type: 'self-study', organizer: '개인 자율 탐구', start: '2026-08-10', end: '2026-08-24', role: '측정 설계와 데이터 분석', reason: '물리 수행평가 전에 실제 데이터를 직접 모아보고 싶었다.', process: '아파트 엘리베이터에서 층별 가속도 값을 반복 측정했다.', contribution: '측정 앱 설정과 데이터 정리를 직접 했다.', result: '가속 · 감속 구간 그래프 정리', status: 'archived', files: ['가속도_측정값.csv', '그래프.png', '측정_메모.docx'], reflection: reflection('교과서 그래프가 실제로도 그렇게 나오는지 궁금했다.', '혼자 측정과 분석을 했다.', '같은 구간을 10번 측정해 평균을 냈다.', '센서 잡음을 어떻게 걸러낼지 정하는 것이 어려웠다.', '측정 조건을 고정해야 비교가 의미 있다는 것을 배웠다.', '다음에는 센서 두 개로 동시에 측정해보고 싶다.') }),
   activity({ n: 8, student: 'kim-dohyun', title: '전국 학생 수학 탐구 발표회', type: 'external-competition', organizer: '지역 교육청 수학교육센터', start: '2026-09-05', end: '2026-09-27', role: '경로 최적화 모델 발표', reason: '학교 수업에서 배운 벡터를 실제 문제에 써보고 싶었다.', process: '휠체어 이동 경로를 벡터로 나타내 최적 경로를 비교했다.', contribution: '모델 설계와 발표를 맡았다.', result: '본선 발표', status: 'reflected', files: ['수학탐구_발표.pdf'], reflection: reflection('수학이 이동권 문제와 연결될 수 있는지 확인하고 싶었다.', '모델 설계와 발표를 맡았다.', '경사로 길이와 회전 횟수를 변수로 두어 경로를 비교했다.', '현실 조건을 단순화하는 기준을 정하기 어려웠다.', '모델은 단순화의 이유를 설명할 수 있어야 한다는 것을 배웠다.', '다음에는 실제 사용자 의견을 모델에 반영하고 싶다.') }),
   activity({ n: 9, student: 'lee-seoyeon', title: '환경 동아리 하천 수질 조사', type: 'club', organizer: '교내 환경 동아리', start: '2026-04-12', end: '2026-06-28', role: '수질 측정과 기록', reason: '동네 하천의 수질이 계절마다 달라지는지 궁금했다.', process: '월 2회 세 지점에서 pH와 탁도를 측정했다.', contribution: '측정 일정표와 기록 양식을 만들었다.', result: '측정 결과 보고서 작성', status: 'archived', files: ['하천수질_기록.xlsx', '측정사진.zip'], reflection: reflection('매일 지나치는 하천을 데이터로 보고 싶었다.', '측정과 기록을 맡았다.', '세 지점의 값을 같은 시간대에 측정했다.', '비가 온 다음 날 값이 크게 달라져 해석이 어려웠다.', '환경 데이터는 날씨 같은 조건을 함께 기록해야 한다는 것을 배웠다.', '다음에는 강수량 자료와 함께 비교하고 싶다.') }),
   activity({ n: 10, student: 'lee-seoyeon', title: '미술 전시 기획 프로젝트 · 우리 동네 물길', type: 'school-project', organizer: '교내 미술 교과', start: '2026-07-01', end: '2026-07-18', role: '전시 동선과 설명문 기획', reason: '하천 조사 결과를 사람들이 보기 쉬운 방식으로 전달하고 싶었다.', process: '조사 사진과 그래프를 작품과 함께 배치하는 전시를 기획했다.', contribution: '전시 동선과 작품 설명문을 맡았다.', result: '교내 전시 1주 운영', status: 'archived', files: ['전시_동선도.pdf', '작품설명문.docx'], reflection: reflection('숫자만 있는 보고서보다 더 많은 사람이 보게 하고 싶었다.', '동선과 설명문 기획을 맡았다.', '관람 순서에 따라 정보가 쌓이도록 배치했다.', '정보를 줄이면서 의미를 지키는 것이 어려웠다.', '같은 데이터도 보여주는 방식에 따라 전달력이 달라진다는 것을 배웠다.', '다음에는 관람객 반응을 짧게 조사해보고 싶다.') }),

@@ -764,11 +764,11 @@ Activity Mock Data (Canonical 12): IMPLEMENTED (Fixture, 2026-10-12, feat/studen
 Activity Reflection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
 Activity Feedback Request / Display: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
 Growth Archive Connection: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
-Admin Activity Feedback: NOT_STARTED
-Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 2026-10-13, feat/student-extension 5f2ef2a) — Admin Connection Review NOT_STARTED
+Admin Activity Feedback: IMPLEMENTED (Admin Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+Cross-subject Connection: BOUNDARY_IMPLEMENTED (Fixture / 읽기 모델만, 2026-10-13, feat/student-extension 5f2ef2a) — Admin Connection Review IMPLEMENTED (Admin Fixture UI, feat/admin-student-management, 미커밋)
 Interview Bridge (Student): IMPLEMENTED (Fixture UI, 2026-10-13, feat/student-extension 5f2ef2a)
 Student aggregate: feat/student-extension (5f2ef2a, Student Mentor + School 전체) — GitHub pushed (origin/feat/student-extension)
-Admin Interview Management: NOT_STARTED
+Admin Interview Management: IMPLEMENTED (Admin Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
 ```
 
 핵심 Flow:
@@ -797,11 +797,21 @@ IN_PROGRESS
   - 최하은 Task 9 · Activity 12 · Connection 3 · Interview 7 · Mentor Case 연결은 Student Canonical Fixture 값 그대로
 - Feedback Dashboard (/ · /feedback): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-feedback-dashboard)
   - Canonical Queue 28건(수행평가 검토 15 · 주제 검토 4 · 활동 피드백 9), KPI 4개 모두 계산값, Filter 7종 + 검색 + Pagination(10건)
-  - Review 진입 Boundary(/feedback/:feedbackId, 동작 없음 · 안내만)
-- Feedback Review: NOT_STARTED (다음 Branch feat/admin-student-management)
-- Topic Review / Activity Feedback Review / Mentor Case Recommendation / Today Board / Student 360 / TestResult /
-  SchoolRecordSnapshot / Connection Review / Interview Management / Operations / Admin Settings: NOT_STARTED
-- 실제 API(GET /api/admin/feedback/dashboard · /api/admin/feedback) / Frontend 자동 Test: NOT_STARTED
+  - (1fd1c27) Review 진입 Boundary → (feat/admin-student-management, 미커밋) 실제 Review 화면으로 교체, 학생 이름 → Student 360
+- Feedback Review (/feedback/:feedbackId, Task 3-column · AI ACCEPT / EXCLUDE / EDIT_AND_DELIVER · Comment · Next Action · Parent 후보 · 전달): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+  - 임시 저장 · 최종 승인: 이유와 함께 비활성 (Contract §29-2 action 값 미확정)
+- Topic Review (APPROVE / REQUEST_DIRECTION): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Activity Feedback Review (활동 기록 Viewer + 4항목 + Parent 후보): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Today Board (/today): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋) — 메시지 · 리마인드는 Delivery Provider 전이라 비활성 Boundary
+- Student 360 (/students/:studentId?tab=): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋) — Overview · Study · School · Activities · Mentor · Reports
+- TestResult Display (Student 360 Study, 유형별 3 Table · 읽기만): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋) — 입력 / 수정 Flow는 §35-2 미확정이라 없음
+- SchoolRecordSnapshot (Student 360 School, confirmed / candidate 구분 + candidate → confirmed 표시 Dialog): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋) — 전환 기준 미확정 Gap
+- Mentor Case Recommendation (/mentor-cases): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Connection Review (/connections): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Interview Management (/interview, 추가 · 편집 · 삭제 · 활동 연결 · Publish): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Operations Dashboard (/operations, KPI 9 + Alert 5): IMPLEMENTED (Fixture UI, 2026-10-13, feat/admin-student-management, 미커밋)
+- Admin Settings Integration / Parent Progress: NOT_STARTED (이번 Branch 범위 밖)
+- 실제 Admin API 연결 / Backend / Frontend 자동 Test: NOT_STARTED (VERIFIED 아님)
 ```
 
 예정:
@@ -876,11 +886,11 @@ IN_PROGRESS
   - 실제 GET /api/student/archive / Archive Persistence(API-OD-05) / Frontend 자동 Test: NOT_STARTED
 - School Activities (/school/activities, /school/activities/:activityId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activities 5f6a5e1)
 - Activity Reflection · Feedback Request / Display · Archive Command · Growth Archive 연결: IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-activity-reflection d113e06)
-  - 실제 Activity API(§17-1 ~ 17-4) / Admin Activity Feedback / Frontend 자동 Test: NOT_STARTED
+  - 실제 Activity API(§17-1 ~ 17-4) / Frontend 자동 Test: NOT_STARTED · Admin Activity Feedback: IMPLEMENTED (Admin Fixture, 미커밋)
 - Cross-subject Connection: BOUNDARY_IMPLEMENTED (Canonical Fixture + 확정 Connection 읽기만, feat/student-extension 5f2ef2a)
-  - Admin Connection Review / 실제 AI 후보 생성 / Connection API: NOT_STARTED
+  - 실제 AI 후보 생성 / Connection API: NOT_STARTED · Admin Connection Review: IMPLEMENTED (Admin Fixture, 미커밋)
 - Interview Bridge (/school/interview, /school/interview/:questionId): IMPLEMENTED (Fixture UI, 2026-10-13, feat/student-extension 5f2ef2a)
-  - 실제 Interview API(§19) / Admin Interview Management(AI Draft · 추가 · 편집 · 삭제 · Publish) / Frontend 자동 Test: NOT_STARTED
+  - 실제 Interview API(§19) / AI Draft 생성 / Frontend 자동 Test: NOT_STARTED · Admin Interview Management(추가 · 편집 · 삭제 · Publish): IMPLEMENTED (Admin Fixture, 미커밋)
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -2128,6 +2138,138 @@ VERIFIED 아님: Admin API 미연결, 메모리 Fixture, Theme 연결 전, Front
 ```text
 scripts/verify.ps1 -Strict: PASS (Frontend typecheck · lint · build student/admin/mentor, Backend Gradle build/test)
 Browser (Headless Chrome CDP): Dashboard 회귀 33/33 PASS, Canonical Data Integrity D1~D16 17/17 PASS
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-13 — Admin Student Management (branch: feat/admin-student-management, 미커밋)
+
+### Status
+
+```text
+기반: 1fd1c27 feat: implement admin feedback dashboard (feat/admin-feedback-dashboard)
+Feedback Review · Topic Review · Activity Feedback · Today Board · Student 360 · TestResult · SchoolRecordSnapshot ·
+Mentor Case Recommendation · Connection Review · Interview Management · Operations: IMPLEMENTED (Admin Fixture UI)
+VERIFIED 아님: Admin API · Backend 미연결, Session 메모리 Fixture, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- 공통: store/adminCommands.ts(Contract Endpoint 단위 Command · 잘못된 전이 오류 Code · 중복 요청 거절), read-model/studentProjection.ts(Student 화면 반영 의미),
+  read-model/student360.ts, components/AdminUi(Loading · Error · Empty · Filter · Dialog), Admin Sidebar Extension Entry 6개(상담 없음)
+- Feedback Review: 전달 시 Queue 제외 · KPI 재계산 · Task 다음 할 일 갱신(단계 유지, Student Fixture 규칙), 이전 / 다음 · J / K, 실패 시 입력 유지 + 다시 시도
+- Today Board: KPI 4(오늘 등원 · 관리 필요 · Feedback Pending · Parent Report 미발송), 관리 포인트 = 출결 · Plan 변화 · 시험 변화 · 마감 · AI 실패 · 수정 미반영 · Feedback 지연
+- Student 360: 같은 Read Model로 6 Tab, 학생 바꾸기 · Tab 주소 · Back 복원
+- Connection 확정 → Interview 초안 근거(자동 공개 없음), Interview Publish → Student 노출 Projection
+- Mentor Case 추천 → Task.relatedMentorCaseIds + Mentor Hub 추천 Projection 동시 갱신
+
+### Open / Contract Gap
+
+- Review action(임시 저장 · 최종 승인) 값, Next Action 선택지 → needsAnotherRevision 대응은 Fixture 해석
+- Topic 방향 요청 Comment 필수 여부, Activity Feedback 4항목 필수 여부, Mentor 추천 이유 필수 여부: Source 없음(UI 규칙)
+- Interview 공개 후 편집 · 삭제 규칙 없음 → 초안만 편집 · 삭제 / Interview Create Request에 connectionId 없음
+- SchoolRecord candidate → confirmed 기준 미확정(표시만 변경) / TestResult 입력 Flow 미확정(읽기만) / TestResult Item에 subject · date 없음
+- Today Board 관리 포인트 기준값(Plan -15%p · 점수 -5 · 연속 미등원 2일) · 기관(branchId) Filter 미구현 · Message / Reminder Provider 없음
+- 최하은 studentId · Activity 피드백 요청 시각 · fixture-task-03 V1 기록은 Student Fixture에 없어 Admin 값 (Student에는 고2라 Interview 질문 미노출)
+- Mockup Student 360은 Right Drawer → 여러 진입점 · 주소 유지를 위해 전체 화면
+
+### Verification
+
+```text
+아래 완료 보고 참고 (Browser Test 228항목 · verify -Strict)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-13 — Admin Detail Refinement (branch: feat/admin-student-management, 미커밋)
+
+### Status
+
+```text
+기존 Admin 화면 IMPLEMENTED 유지 (Fixture UI). VERIFIED 아님: Admin API · Backend 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Notes (refinement)
+
+- Detailed submission / evidence viewer: Feedback Review LEFT = 제출물 · 과정 자료 · 수정 기록 · 피드백 이력 · 평가 기준 (components/TaskInspector.tsx)
+  - V1 / V2 / V3 선택(읽기 전용) · "현재 검토 중" 글자 표시 · 현재 검토본으로 돌아가기. 전달 대상은 Queue 항목 Version으로 고정
+- Version history / before-after: Student revisionDiffs(fixture-task-02) 그대로 + 실제 Text 원본(이지아 건의문 V1~V3) 줄 단위 비교. 그 외 형식은 "내용 비교 미지원"
+- Feedback history: Version별 AI 사전 점검(실패 → 다시 시도 이력) · 전달된 선생님 피드백 원문 · 현재 Staff Review와 분리
+- Admin file preview(components/AdminFilePreview.tsx): Student previewKind 규칙. 미지원 / 원본 없음 / 불러오기 실패 구분, 원본 있을 때만 다운로드
+  - Admin assets: 검증용 Sample 원본 10개(CSV · TXT · PDF · SVG · PNG) + Mentor Case-01 원본 5개(Student assets 복사)
+- Activity inspector: 기본 정보 · 활동 과정 · 과정 자료 · Reflection 7문항(미작성 표시) · 전달된 피드백 (Activity Feedback Review · /activities/:activityId)
+- Task inspector (/tasks/:taskId, 읽기 전용): Queue 밖 Task 확인, 검토 대기면 Review 연결
+- Mentor case detail (/mentor-cases/:caseId): Student Activity Case 24개 상세를 같은 contentId로 옮김(fixtures/adminMentorCaseDetails.fixture.ts), 단계 이동 · 자료 Preview · 결과물 · Reflection · 후속 활동 · 관련 Content · 추천 Context
+- Drill-down: Today Board 관리 포인트 → Review / Task 상세, Student 360 다음 Action → Review · Connection · Interview · Task, Operations KPI → 필터된 Queue / Today Board · Deadline Risk 목록 · Report 미발송 학생
+- Connection 기록 요약(결과 · 배운 점 · 자료 수) + 상세 이동, Interview 관련 활동 → Activity 상세, TestResult 상세 Dialog, Student 360 Activities 상태 Filter(astatus)
+- Data: Task Evidence Entity 120 (evidenceCount 대체), Version 40 (V3 1 · AI 재시도 이력 1), Queue 29건
+- Admin inventory audit: Feedback Dashboard / Queue = /feedback 한 화면(combined), Activity Archive = Student 360 Activities Archive Filter (전체 Archive 화면은 Spec / Mockup 근거 없음 → 미정 Gap),
+  Admin Settings Integration = BLOCKED (기존 LearnersHigh Settings / API 미확인), Parent Report 화면 = 다음 Branch
+
+### Open / Contract Gap
+
+- Admin Mentor Case Detail API Shape 미정 (§32-1은 목록 검색만) / Admin Task · Activity 상세 API 미정 (§34 Student 360 하위 구분 미확정)
+- File Storage 미정(OD-09): Student Fixture 자료는 원본이 없어 Admin도 파일 이름만 표시. Case-01 원본은 Student assets와 같은 파일을 Admin assets에 복사
+- Version Text 비교는 txt 원본에서만 계산. PDF / Office 의미 비교는 Backend 처리 결정 필요
+
+### Verification
+
+```text
+아래 완료 보고 참고 (Browser Test 316항목 · verify -Strict)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+---
+
+## 2026-10-13 — Admin UI/UX 보강 (branch: feat/admin-student-management, 미커밋)
+
+### Status
+
+```text
+기존 Admin 화면 IMPLEMENTED 유지 (Fixture UI). VERIFIED 아님: Admin API · Backend 미연결, Frontend 자동 Test Framework 미선택
+```
+
+### Notes
+
+- Admin 시각 구성 요소(components/AdminVisual.tsx · AdminIcons.tsx): 업무 의미 Token(topic · revision · activity · complete · ai, index.css),
+  Tone Tag(Icon + 글자 + 옅은 배경) · Summary Hero · Compact Metric · Inline Stats · Delta · Mini Progress · Action 위계(primary / soft / text). 새 Package 없음
+- Feedback Dashboard: 업무 종류(주제 검토 · 선생님 피드백 · 수정본 재검토 · 활동 피드백)별 Icon · Tone · Action, 우선 검토(마감 지남 · D-3)만 채운 버튼 + 왼쪽 Rail,
+  KPI Hero(Feedback Pending + 업무 구성) + Compact 3, Filter 주(유형 · 학년 · Status) / 추가 필터(Stage · Deadline · Waiting, 적용 중이면 펼침)
+- Feedback Detail: Staff Review 패널 1280px 이상 sticky + 독립 Scroll(Header 높이 Token 기준), 검토 진행 요약(동의 · 수정 · 제외 · 미확인 → 가운데 AI 항목 이동),
+  순서 검토 진행 → Comment → Next Action → Parent 후보 → 전달(패널 아래 고정). 1279px 이하 일반 흐름
+- Today Board: 관리 필요 Hero(출처 수행평가 · 학습 변화 · 출결 · Feedback) + Compact 3, 학생 행: 순공(Clock) · Plan(중립 막대 + 직전 7일 대비) · Task Countdown ·
+  시험 변화(이전 → 현재 + Delta) · 주요 관리 포인트 1개 문장 + 보조 1줄 + "+N개 더 보기" · 우선 확인(마감 지남 · 연속 미등원 · 마감 오늘/내일)만 Rail
+- 메시지 · 리마인더(OutreachDialogs.tsx): 발송 요청 준비만 (State outreachDrafts, 전송 상태 없음). 기존 "문자관리"는 기존 Admin 소관 · API 미확인
+- Mentor 추천(/mentor-content, Case 탭 = /mentor-cases): 유형 탭 전체 · Case · Plan · Routine · Story · Record, 유형별 Card 구조
+  Mentor Profile(/mentors/:mentorId) · Plan / Routine / Story / Record 상세(/mentor-content/:contentId)
+  Data: Student Mentor Hub Canonical 값을 adminMentorContent.fixture.ts로 옮김 (Mentor 24 · Plan 7 · Routine 6 · Story 10 · Record 7, Profile 사진 제외)
+- Mentor Case 상세: 추천 이력(학생 → Student 360 · Task / 활동 → Inspector), 과정 자료 Card, PDF Browser 미리보기 + Case 표시 내용 전환,
+  AI 사전 점검(평가 항목 · 분석 내용 없음 명시) / 선생님 피드백(작성자 · 시각 공개 정보 없음 명시) 구분 표시
+- Plan · Routine · Story · Record 추천: Admin 임시 기록만 (contentRecommendationDrafts, 학생 Mentor Hub 미반영)
+- Connection: 관계 Card(기록 A ↕ AI 제안 이유 ↕ 기록 B), 검토 대기 Primary + 확정 · 제외 Inline, 상세 Panel(?selected=) · 연결된 면접 질문 이동. 화면 글자 "거절" → "제외"
+- Interview: 공개 대기(초안) Primary, 검색 · 학생 · 학년 · 상태 Filter, 질문 목록 | 상세 Workspace(근거 활동 · Connection · 학생 화면 미리보기), 공개 질문 읽기 전용 + 이유
+- Integrity D25 ~ D33 (Mentor id · contentId · 추천 참조 · 임시 추천 · Connection 출처 · Interview 관련 활동 · 확정 근거 · 메시지 / 리마인더 학생)
+- UI Refinement: 반복 목록(Feedback Queue · Today Board · Interview · Connection · Mentor Card)의 왼쪽 색 선 제거, 선택은 Gray 면(--lh-color-row-selected),
+  장식 Icon 제거(실제 Warning · 메시지 / 리마인더 Action · 검색 · 파일 · 미리보기만 유지), 변화는 글자 기호(↑ / ↓)
+- Mentor 사진: Student Mentor Hub와 같은 mentorId → 같은 사진 (frontend/student/assets/mentor-* 를 Admin이 참조만, 복사 없음 · 사진 없는 Mentor는 첫 글자 Placeholder)
+- 자료 역할(read-model/materialRole.ts): Evidence stageTag → 계획서 · 조사 자료 · 초안 · 최종본 · 발표 자료(Student 이름 그대로), Version → 초안 V1 / 수정본 Vn,
+  FinalArtifact → 최종 제출본, 안내문 · 참고 자료(references). Mentor Case 자료는 역할 + "N단계 · 단계 이름". Entity는 합치지 않음
+- Gap: 참고 자료 / 조사 자료는 Evidence stageTag만으로 구분 불가 (research는 모두 조사 자료) · Mentor 사진 frontend/shared 승격은 별도 Shared 변경
+
+### Open / Contract Gap
+
+- MENTOR-CONTENT-RECOMMENDATION-API: Plan · Routine · Story · Record Admin 추천 Mutation 없음 (Case 추천만 §32)
+- MESSAGE-REMINDER-DELIVERY: Delivery Provider / Message · Reminder API 미정 (기존 문자관리 연결 여부 미확인)
+- Admin Mentor Profile / Content 상세 · Connection 상세 · Interview 질문 상세 GET API Shape 없음 (목록 / Canonical Fixture lookup)
+- Today Board "우선 확인" 기준 · 관리 포인트 표시 순서는 화면 표시 규칙 (Spec 수치 없음)
+- File Storage / Office 변환 미정 (Office 원본은 미리보기 미지원, Case-01만 원본)
+
+### Verification
+
+```text
+아래 완료 보고 참고 (Browser Test 494항목 · verify -Strict, 2026-10-13 UI Refinement 포함)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

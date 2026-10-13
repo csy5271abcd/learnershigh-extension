@@ -1,3 +1,5 @@
+import { mentorCaseDetailsFixture } from '../fixtures/adminMentorCaseDetails.fixture.ts'
+import { mentorPlansFixture, mentorProfilesFixture, mentorRecordsFixture, mentorRoutinesFixture, mentorStoriesFixture } from '../fixtures/adminMentorContent.fixture.ts'
 import type { AdminState } from '../store/adminStore.ts'
 
 /*
@@ -30,6 +32,7 @@ export function checkIntegrity(state: AdminState): IntegrityReport {
     ['taskId', state.tasks.map((item) => item.taskId)],
     ['versionId', state.tasks.flatMap((item) => item.versions?.map((version) => version.versionId) ?? [])],
     ['feedbackId', state.reviews.map((item) => item.feedbackId)],
+    ['evidenceId', state.tasks.flatMap((item) => item.evidence?.map((evidence) => evidence.evidenceId) ?? [])],
     ['activityId', state.activities.map((item) => item.activityId)],
     ['testResultId', state.testResults.map((item) => item.testResultId)],
     ['schoolRecordSnapshotId', state.schoolRecords.map((item) => item.schoolRecordSnapshotId)],
@@ -97,6 +100,38 @@ export function checkIntegrity(state: AdminState): IntegrityReport {
     }
   }
 
+  // ---- D17 ~ D24: Version · Evidence · Mentor Case 상세 ----
+  for (const task of state.tasks) {
+    const versions = task.versions ?? []
+    task.evidence?.forEach((item) => push(item.taskId !== task.taskId, `evidence ${item.evidenceId} → 다른 Task(${item.taskId})`))
+    push(duplicates(versions.map((item) => String(item.number))).length > 0, `task ${task.taskId} → Version 번호 중복`)
+    for (const version of versions) {
+      const attempts = version.aiAttempts ?? []
+      push(attempts.length > 0 && attempts.at(-1)!.status !== version.aiStatus, `task ${task.taskId} ${version.versionId} → AI 시도 이력의 마지막 상태 ≠ 현재 상태`)
+    }
+    const waiting = state.reviews.filter((item) => item.taskId === task.taskId && !item.delivery)
+    push(waiting.length > 1, `task ${task.taskId} → 검토 대기 Version이 ${waiting.length}개`)
+    push(waiting.length === 1 && waiting[0].versionId !== versions.at(-1)?.versionId, `task ${task.taskId} → 검토 대기 Version이 최신 Version이 아님`)
+    for (const diff of task.revisionDiffs ?? []) {
+      const from = versions.find((item) => item.versionId === diff.fromVersionId)
+      const to = versions.find((item) => item.versionId === diff.toVersionId)
+      push(!from || !to || from.number >= to.number, `task ${task.taskId} → 내용 비교의 Version 짝이 없음 / 순서 틀림`)
+      push(Boolean(diff.appliedFeedbackId) && !state.reviews.some((item) => item.feedbackId === diff.appliedFeedbackId && item.taskId === task.taskId), `task ${task.taskId} → 비교가 가리키는 피드백 없음`)
+    }
+  }
+  for (const activity of state.activities) {
+    Object.keys(activity.fileBackings ?? {}).forEach((name) => push(!activity.files.includes(name), `activity ${activity.activityId} → 자료 목록에 없는 원본 ${name}`))
+  }
+  for (const caseRef of state.mentorCases) {
+    const detail = mentorCaseDetailsFixture.find((item) => item.contentId === caseRef.contentId)
+    push(!detail, `mentorCase ${caseRef.contentId} → 상세 정보 없음`)
+    if (!detail) continue
+    const stageIds = new Set(detail.stages.map((stage) => stage.stageId))
+    detail.materials.forEach((material) => push(!stageIds.has(material.stageId), `mentorCase ${caseRef.contentId} 자료 ${material.materialId} → 없는 단계 ${material.stageId}`))
+    detail.materials.forEach((material) => push(Boolean(material.original) && !material.fileName, `mentorCase ${caseRef.contentId} 자료 ${material.materialId} → 원본은 있는데 파일 이름 없음`))
+  }
+  push(mentorCaseDetailsFixture.some((item) => !state.mentorCases.some((caseRef) => caseRef.contentId === item.contentId)), 'mentorCase 상세에 목록에 없는 Case')
+
   // ---- Stage / 상태 의미 검사 ----
   for (const task of state.tasks) {
     const versions = task.versions ?? []
@@ -129,6 +164,58 @@ export function checkIntegrity(state: AdminState): IntegrityReport {
     push(question.studentId !== 'fixture-student-choi-haeun' && student?.grade !== '고3', `interview ${question.questionId} → 고3이 아닌 학생`)
   }
 
+  // ---- D25 ~ D33: Mentor Content · 추천 · Connection / Interview 출처 · 메시지 / 리마인더 ----
+  const mentorById = new Map(mentorProfilesFixture.map((item) => [item.mentorId, item]))
+  const nonCase = [...mentorPlansFixture, ...mentorRoutinesFixture, ...mentorStoriesFixture, ...mentorRecordsFixture]
+  const contentIds = new Set([...caseIds, ...nonCase.map((item) => item.contentId)])
+  for (const id of duplicates(mentorProfilesFixture.map((item) => item.mentorId))) problems.push(`D25 중복 mentorId ${id}`)
+  for (const id of duplicates([...state.mentorCases.map((item) => item.contentId), ...nonCase.map((item) => item.contentId)])) problems.push(`D25 중복 contentId ${id}`)
+  for (const item of state.mentorCases) {
+    const mentor = mentorById.get(item.mentorId)
+    push(!mentor, `D26 case ${item.contentId} → 없는 mentorId ${item.mentorId}`)
+    push(Boolean(mentor) && (mentor!.name !== item.mentorName || `${mentor!.university} ${mentor!.major}` !== item.mentorAffiliation), `D26 case ${item.contentId} → Mentor 이름 · 소속이 Profile과 다름`)
+  }
+  for (const item of nonCase) push(!mentorById.has(item.mentorId), `D26 content ${item.contentId} → 없는 mentorId ${item.mentorId}`)
+  for (const item of mentorRecordsFixture) {
+    push(Boolean(item.linkedActivity.caseId) && !caseIds.has(item.linkedActivity.caseId!), `D27 record ${item.contentId} → 없는 연결 Case`)
+    for (const related of item.relatedContent) push(!contentIds.has(related.contentId), `D27 record ${item.contentId} → 없는 관련 Content ${related.contentId}`)
+  }
+  for (const detail of mentorCaseDetailsFixture) for (const related of detail.relatedContent) push(!contentIds.has(related.contentId), `D27 case ${detail.contentId} → 없는 관련 Content ${related.contentId}`)
+  for (const item of state.recommendations) {
+    push(!studentIds.has(item.studentId), `D28 recommendation ${item.recommendationId} → 없는 학생`)
+    push(!caseIds.has(item.caseId), `D28 recommendation ${item.recommendationId} → 없는 Case`)
+    const task = item.taskId ? taskById.get(item.taskId) : null
+    const activity = item.activityId ? activityById.get(item.activityId) : null
+    push(!task && !activity, `D28 recommendation ${item.recommendationId} → 연결 Task / 활동 없음`)
+    push(Boolean(task) && task!.studentId !== item.studentId, `D28 recommendation ${item.recommendationId} → 다른 학생의 Task`)
+    push(Boolean(activity) && activity!.studentId !== item.studentId, `D28 recommendation ${item.recommendationId} → 다른 학생의 활동`)
+    push(Boolean(task) && !task!.relatedMentorCaseIds.includes(item.caseId), `D28 recommendation ${item.recommendationId} → Task Case 연결 누락`)
+  }
+  for (const item of state.contentRecommendationDrafts) {
+    push(!studentIds.has(item.studentId), `D29 content draft ${item.draftId} → 없는 학생`)
+    push(!nonCase.some((content) => content.contentId === item.contentId && content.kind === item.kind), `D29 content draft ${item.draftId} → 없는 Content / 유형 불일치`)
+    push(Boolean(item.taskId) && taskById.get(item.taskId!)?.studentId !== item.studentId, `D29 content draft ${item.draftId} → 다른 학생의 Task`)
+    push(Boolean(item.activityId) && activityById.get(item.activityId!)?.studentId !== item.studentId, `D29 content draft ${item.draftId} → 다른 학생의 활동`)
+  }
+  for (const connection of state.connections) {
+    for (const ref of connection.sourceRefs) {
+      const owner = ref.source === 'task' ? taskById.get(ref.sourceId)?.studentId : activityById.get(ref.sourceId)?.studentId
+      push(owner !== connection.studentId, `D30 connection ${connection.connectionId} → 출처 ${ref.sourceId} 없음 / 다른 학생`)
+    }
+    push(connection.reviewState !== 'candidate' && !connection.reviewedAt && connection.connectionId.startsWith('fixture-admin-'), `D30 connection ${connection.connectionId} → 검토 시각 없음`)
+  }
+  for (const question of state.interview) {
+    for (const id of question.relatedActivityIds) push(activityById.get(id)?.studentId !== question.studentId, `D31 interview ${question.questionId} → 관련 활동 ${id} 없음 / 다른 학생`)
+    const connection = question.connectionId ? state.connections.find((item) => item.connectionId === question.connectionId) : null
+    push(Boolean(question.connectionId) && (!connection || connection.reviewState !== 'confirmed' || connection.studentId !== question.studentId), `D32 interview ${question.questionId} → 근거 Connection 미확정 / 다른 학생`)
+  }
+  for (const item of state.outreachDrafts) {
+    push(!studentIds.has(item.studentId), `D33 outreach ${item.outreachId} → 없는 학생`)
+    push(Boolean(item.taskId) && taskById.get(item.taskId!)?.studentId !== item.studentId, `D33 outreach ${item.outreachId} → 다른 학생의 Task`)
+    push(Boolean(item.activityId) && activityById.get(item.activityId!)?.studentId !== item.studentId, `D33 outreach ${item.outreachId} → 다른 학생의 활동`)
+    push(item.kind === 'reminder' && (!item.scheduledAt || !item.title), `D33 outreach ${item.outreachId} → 리마인더 제목 / 예정 시각 없음`)
+  }
+
   return {
     problems,
     counts: {
@@ -140,6 +227,14 @@ export function checkIntegrity(state: AdminState): IntegrityReport {
       schoolRecords: state.schoolRecords.length,
       connections: state.connections.length,
       interviewQuestions: state.interview.length,
+      versions: state.tasks.reduce((sum, item) => sum + (item.versions?.length ?? 0), 0),
+      taskEvidence: state.tasks.reduce((sum, item) => sum + (item.evidence?.length ?? 0), 0),
+      caseDetails: mentorCaseDetailsFixture.length,
+      mentors: mentorProfilesFixture.length,
+      mentorContents: contentIds.size,
+      recommendations: state.recommendations.length,
+      contentRecommendationDrafts: state.contentRecommendationDrafts.length,
+      outreachDrafts: state.outreachDrafts.length,
     },
   }
 }

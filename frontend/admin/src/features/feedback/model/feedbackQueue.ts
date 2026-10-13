@@ -36,11 +36,32 @@ export const QUEUE_PAGE_SIZE = 10
 
 export const sourceTypeLabel: Record<QueueSourceType, string> = { task: '수행평가', activity: '성장활동' }
 
+export type QueueWorkflow = 'topic' | 'feedback' | 'revision' | 'activity'
+
+/** 업무 종류 (화면 표시용 구분. Queue 순서 · Routing을 바꾸지 않는다) */
+export function queueWorkflow(item: FeedbackQueueItem): QueueWorkflow {
+  if (item.kind === 'topic-review') return 'topic'
+  if (item.kind === 'activity-feedback') return 'activity'
+  return item.target !== 'V1' ? 'revision' : 'feedback'
+}
+
+export const queueWorkflowLabel: Record<QueueWorkflow, string> = {
+  topic: '주제 검토',
+  feedback: '선생님 피드백',
+  revision: '수정본 재검토',
+  activity: '활동 피드백',
+}
+
+/** 마감이 지났거나 D-3 이내인 수행평가 검토 (우선 검토 대상) */
+export const isDeadlineCritical = (item: FeedbackQueueItem) => item.status === 'deadline-risk' || item.status === 'deadline-passed'
+
 /** 행의 주 Action 문구 */
 export function primaryActionLabel(item: FeedbackQueueItem): string {
-  if (item.kind === 'topic-review') return '주제 검토'
-  if (item.kind === 'activity-feedback') return '피드백'
-  return item.status === 'deadline-risk' || item.status === 'deadline-passed' ? '우선 검토' : '검토하기'
+  const workflow = queueWorkflow(item)
+  if (workflow === 'topic') return '주제 검토'
+  if (workflow === 'activity') return '피드백 작성'
+  if (isDeadlineCritical(item)) return '우선 검토'
+  return workflow === 'revision' ? '수정본 확인' : '검토하기'
 }
 
 const pick = <T extends string>(value: string | null, allowed: readonly T[]): T | 'all' =>

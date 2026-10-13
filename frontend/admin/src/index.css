@@ -27,6 +27,29 @@
   --lh-color-warning-subtle: #fff4e5;
   --lh-color-skeleton: #e9ecef;
 
+  /*
+   * Admin 업무 의미 Token (Admin-local). 강한 색은 Accent(Blue) · Negative(Red)만 쓰고,
+   * Topic(Violet) · Revision(Amber) · Activity(Teal) · Complete(Green)는 옅은 배경 + 작은 Icon · 글자에만 쓴다. (Rainbow UI 금지)
+   * 글자색은 옅은 배경 위에서 4.5:1 이상이다.
+   */
+  --lh-tone-topic: #6741d9;
+  --lh-tone-topic-subtle: #f3f0ff;
+  --lh-tone-revision: #a14a07;
+  --lh-tone-revision-subtle: #fff4e5;
+  --lh-tone-activity: #0b6e66;
+  --lh-tone-activity-subtle: #e6f6f3;
+  --lh-tone-complete: #22704a;
+  --lh-tone-complete-subtle: #eaf6ef;
+  /* AI 분석 영역 (Staff 내용과 구분되는 차가운 Surface) */
+  --lh-tone-ai-surface: #f2f6fc;
+  --lh-tone-ai-border: #d9e5f5;
+  --lh-tone-ai-text: #2c5aa0;
+  /* 반복 목록 Row: Hover는 아주 옅은 Gray, 선택은 한 단계 진한 Gray (색 선 · Blue 배경을 쓰지 않는다) */
+  --lh-color-row-hover: #f7f8fa;
+  --lh-color-row-selected: #eceef1;
+  /* Floating Layer 전용 그림자 (Card에는 쓰지 않는다) */
+  --lh-shadow-floating: 0 12px 32px rgb(0 0 0 / 0.14);
+
   --lh-space-1: 4px;
   --lh-space-2: 8px;
   --lh-space-3: 12px;
