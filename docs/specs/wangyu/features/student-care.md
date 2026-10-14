@@ -75,7 +75,7 @@ frontend/admin  →  /api/admin/student-care/**
 | `absenceDays` | 3 | 연속 결석 일수 이상 |
 | `planMissingDays` | 3 | 최근 7일 계획 미제출 일수 이상 |
 | `studyDropPercent` | 40 | 최근 7일 공부 시간이 평소보다 N% 이상 감소 |
-| `executionRatePercent` | 60 | 최근 2주 계획 대비 실천율 N% 미만 |
+| `executionRatePercent` | 60 | 최근 2주 계획 대비 달성률 N% 미만 |
 | `subjectShareGapPoints` | 15 | 계획 과목 비중과 실제 비중 차이 N%p 이상 |
 | `startShiftMinutes` | 90 | 평소보다 등원 시간이 N분 이상 늦어짐 |
 | `minValidDays` | 3 | 최근 7일 공부한 날이 N일 미만이면 기록 부족 |

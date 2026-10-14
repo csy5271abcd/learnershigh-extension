@@ -82,7 +82,7 @@ public class StudentCareQueryService {
                 .orElse(null);
 
         List<StudentCareDetailResponse.Signal> signals = evaluation.signals().stream()
-                .map(signal -> new StudentCareDetailResponse.Signal(signal.type(), signal.type().label(),
+                .map(signal -> new StudentCareDetailResponse.Signal(signal.type(), signal.type().labelFor(signal.subject()),
                         signal.summary(), signal.evidence()))
                 .toList();
         List<StudentCareDetailResponse.DailyStudy> daily = CareSignalCalculator.last14(history, asOf).stream()
@@ -134,7 +134,7 @@ public class StudentCareQueryService {
             if (!evaluation.signals().isEmpty()) {
                 needsCheck.add(new CareBoardResponse.NeedsCheckCard(student.studentId(), student.name(),
                         student.className(), evaluation.signals().stream()
-                                .map(signal -> SignalSummary.of(signal.type(), signal.summary())).toList()));
+                                .map(signal -> SignalSummary.of(signal.type(), signal.subject(), signal.summary())).toList()));
             } else if (evaluation.deferred()) {
                 deferred.add(new CareBoardResponse.DeferredStudent(student.studentId(), student.name(),
                         student.className(), evaluation.validDays()));

@@ -38,6 +38,9 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
   const active = data.activeCase
   const name = data.student.studentName
 
+  // 관리 중인 학생은 지금 수치가 나아져도 관리를 시작한 특이사항을 보여 준다 (목록과 같게).
+  const shownSignals = data.signals.length > 0 ? data.signals : (data.activeCase?.baseline ?? [])
+
   return (
     <article className="sc-detail" aria-labelledby="sc-detail-name">
       <header className="sc-detail__head">
@@ -52,12 +55,12 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
       </header>
 
       <ul className="sc-changes">
-        {data.signals.map((signal) => (
+        {shownSignals.map((signal) => (
           <li key={signal.type}>
             <span className="sc-tag">{signal.label}</span> {signal.summary}
           </li>
         ))}
-        {data.signals.length === 0 && (
+        {shownSignals.length === 0 && (
           <li className="sc-changes__none">
             {data.deferred ? `기록 부족 · 최근 7일 공부한 날 ${data.deferred.validDays}일` : '특이사항 없음'}
           </li>

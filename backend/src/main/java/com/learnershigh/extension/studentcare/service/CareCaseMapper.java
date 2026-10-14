@@ -38,19 +38,19 @@ final class CareCaseMapper {
     }
 
     static List<SignalSummary> signals(CareCase careCase) {
-        return careCase.baseline().stream().map(signal -> SignalSummary.of(signal.type(), signal.summary())).toList();
+        return careCase.baseline().stream().map(signal -> SignalSummary.of(signal.type(), signal.subject(), signal.summary())).toList();
     }
 
     private static CareCaseResponse.Comparison toComparison(CareComparison comparison) {
         List<CareCaseResponse.ComparisonRow> rows = comparison.rows().stream()
-                .map(row -> new CareCaseResponse.ComparisonRow(row.type(), row.type().label(), row.before(), row.now(),
+                .map(row -> new CareCaseResponse.ComparisonRow(row.type(), row.type().labelFor(row.subject()), row.before(), row.now(),
                         row.target(), row.type().unit(), row.trend().name()))
                 .toList();
         return new CareCaseResponse.Comparison(rows, comparison.result().name(), comparison.result().label());
     }
 
     private static CareCaseResponse.Baseline toBaseline(CareBaselineSignal signal) {
-        return new CareCaseResponse.Baseline(signal.type(), signal.type().label(), signal.summary(), signal.value(),
+        return new CareCaseResponse.Baseline(signal.type(), signal.type().labelFor(signal.subject()), signal.summary(), signal.value(),
                 signal.target(), signal.type().unit());
     }
 }

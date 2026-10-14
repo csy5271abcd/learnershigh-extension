@@ -33,7 +33,7 @@ test('특이사항 학생과 기록 부족을 기준일과 함께 보여준다',
   await expect(page.getByText('학생을 선택하세요')).toBeVisible()
 
   await selectStudent(page, '윤서연')
-  await expect(panel(page)).toContainText('과목 편중')
+  await expect(panel(page)).toContainText('수학 계획 미달성')
   await expect(panel(page)).toContainText('수학 계획 30% → 실제 12%')
   await expect(panel(page).getByRole('img', { name: /최근 7일/ })).toBeVisible()
   await expect(history(page)).toContainText('기록 없음')
@@ -79,9 +79,9 @@ test('상담 기록 → 계속 관리 → 점검일에 점검 → 관리 종료,
   await due.click()
 
   const check = detail.getByRole('region', { name: /점검/ })
-  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('12%')
-  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('24%')
-  await expect(check.getByRole('row', { name: /과목 편중/ })).toContainText('좋아짐')
+  await expect(check.getByRole('row', { name: /수학 계획 미달성/ })).toContainText('12%')
+  await expect(check.getByRole('row', { name: /수학 계획 미달성/ })).toContainText('24%')
+  await expect(check.getByRole('row', { name: /수학 계획 미달성/ })).toContainText('좋아짐')
 
   await check.getByRole('button', { name: '계속 관리', exact: true }).click()
   await check.getByRole('radio', { name: /1주/ }).check()

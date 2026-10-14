@@ -119,7 +119,7 @@ class CareSignalCalculatorTest {
                     CareSignalType.EXECUTION_GAP);
 
             assertThat(gap.value()).isEqualTo(60);
-            assertThat(gap.summary()).isEqualTo("최근 2주 실천율 60%");
+            assertThat(gap.summary()).isEqualTo("최근 2주 계획 달성률 60%");
         }
 
         @Test
@@ -337,8 +337,8 @@ class CareSignalCalculatorTest {
         assertThat(types(evaluation)).containsExactly(CareSignalType.EXECUTION_GAP);
         DetectedSignal gap = evaluation.signals().getFirst();
         assertThat(gap.value()).isEqualTo(53);
-        assertThat(gap.summary()).isEqualTo("최근 2주 실천율 53%");
-        assertThat(gap.evidence()).containsExactly("계획 105시간 중 56시간 실천");
+        assertThat(gap.summary()).isEqualTo("최근 2주 계획 달성률 53%");
+        assertThat(gap.evidence()).containsExactly("계획 105시간 중 56시간 달성");
         assertThat(gap.target()).isEqualTo(60);
     }
 

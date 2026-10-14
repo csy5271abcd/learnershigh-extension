@@ -5,8 +5,8 @@ public enum CareSignalType {
     CONSECUTIVE_ABSENCE("연속 결석", MetricUnit.DAYS, false, false),
     PLAN_MISSING("계획 미제출", MetricUnit.DAYS, false, false),
     STUDY_DROP("공부 시간 감소", MetricUnit.MINUTES, true, true),
-    EXECUTION_GAP("계획 대비 실천 부족", MetricUnit.PERCENT, true, true),
-    SUBJECT_SHARE("과목 편중", MetricUnit.PERCENT, true, true),
+    EXECUTION_GAP("계획 미달성", MetricUnit.PERCENT, true, true),
+    SUBJECT_SHARE("과목 계획 미달성", MetricUnit.PERCENT, true, true),
     START_TIME_SHIFT("등원 시간 늦어짐", MetricUnit.CLOCK_MINUTES, false, true);
 
     private final String label;
@@ -22,6 +22,14 @@ public enum CareSignalType {
     }
 
     public String label() {
+        return label;
+    }
+
+    /** 과목이 정해지는 특이사항은 과목 이름을 붙인다. 예: "수학 계획 미달성". */
+    public String labelFor(String subject) {
+        if (this == SUBJECT_SHARE && subject != null && !subject.isBlank()) {
+            return subject + " 계획 미달성";
+        }
         return label;
     }
 

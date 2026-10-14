@@ -107,7 +107,7 @@ class StudentCareCaseApiTest {
                 .andExpect(jsonPath("$.needsCheck[*].studentId", not(hasItem("stu_005"))))
                 .andExpect(jsonPath("$.inAdjustment[0].studentName").value("윤서연"))
                 .andExpect(jsonPath("$.inAdjustment[0].goal").doesNotExist())
-                .andExpect(jsonPath("$.inAdjustment[0].signals[0].label").value("과목 편중"))
+                .andExpect(jsonPath("$.inAdjustment[0].signals[0].label").value("수학 계획 미달성"))
                 .andExpect(jsonPath("$.inAdjustment[0].recheckDue").value(false));
 
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))

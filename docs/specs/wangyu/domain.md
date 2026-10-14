@@ -34,8 +34,8 @@ studentcare  (backend package: com.learnershigh.extension.studentcare)
 | `CONSECUTIVE_ABSENCE` | 연속 결석 | asOf부터 거꾸로 연속 미입실 일수 ≥ `absenceDays` | 연속 미입실 일수 | 낮을수록 |
 | `PLAN_MISSING` | 계획 미제출 | last7 계획 미제출 일수 ≥ `planMissingDays` | last7 미제출 일수 | 낮을수록 |
 | `STUDY_DROP` | 공부 시간 감소 | 평소(prev21 합 ÷ 3) > 0 이고 (평소 − last7 합) ÷ 평소 ≥ `studyDropPercent`% | last7 학습 분 | 높을수록 |
-| `EXECUTION_GAP` | 계획 대비 실천 부족 | last14 중 계획을 제출한 날의 계획 분 합 > 0 이고, 그날들의 실행 분 합 ÷ 계획 분 합 < `executionRatePercent`% | 실행률 % | 높을수록 |
-| `SUBJECT_SHARE` | 과목 편중 | last7 계획 비중 − 실제 비중이 가장 큰 과목의 차이 ≥ `subjectShareGapPoints`%p | 그 과목 실제 비중 % | 높을수록 |
+| `EXECUTION_GAP` | 계획 미달성 | last14 중 계획을 제출한 날의 계획 분 합 > 0 이고, 그날들의 실행 분 합 ÷ 계획 분 합 < `executionRatePercent`% | 실행률 % | 높을수록 |
+| `SUBJECT_SHARE` | 과목 계획 미달성 (화면: "<과목> 계획 미달성") | last7 계획 비중 − 실제 비중이 가장 큰 과목의 차이 ≥ `subjectShareGapPoints`%p | 그 과목 실제 비중 % | 높을수록 |
 | `START_TIME_SHIFT` | 등원 시간 늦어짐 | last7 평균 첫 입실 시각 − prev21 평균 ≥ `startShiftMinutes`분 (각 기간 입실 3일 이상) | last7 평균 시작 분 | 낮을수록 |
 
 규칙:

@@ -145,9 +145,9 @@ public final class CareSignalCalculator {
             return Optional.empty();
         }
         int rate = roundedPercent(executed, planned);
-        String summary = "최근 2주 실천율 " + rate + "%";
+        String summary = "최근 2주 계획 달성률 " + rate + "%";
         String evidence = "계획 " + CareTextFormat.hoursMinutes(roundTo10((int) planned))
-                + " 중 " + CareTextFormat.hoursMinutes(roundTo10((int) executed)) + " 실천";
+                + " 중 " + CareTextFormat.hoursMinutes(roundTo10((int) executed)) + " 달성";
         return Optional.of(new DetectedSignal(CareSignalType.EXECUTION_GAP, summary, List.of(evidence), rate,
                 settings.executionRatePercent(), null));
     }

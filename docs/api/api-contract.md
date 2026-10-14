@@ -3215,7 +3215,7 @@ GET /api/admin/student-care/board?branchId=br_gangnam
       "studentId": "stu_005",
       "studentName": "윤서연",
       "className": "고3 A반",
-      "signals": [ { "type": "SUBJECT_SHARE", "label": "과목 편중", "summary": "수학 계획 30% → 실제 12%" } ],
+      "signals": [ { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "summary": "수학 계획 30% → 실제 12%" } ],
       "recheckDate": "2026-10-07",
       "recheckDue": false
     }
@@ -3245,7 +3245,7 @@ GET /api/admin/student-care/students/{studentId}?branchId=br_gangnam
   "signals": [
     {
       "type": "SUBJECT_SHARE",
-      "label": "과목 편중",
+      "label": "수학 계획 미달성",
       "summary": "수학 계획 30% → 실제 12%",
       "evidence": ["수학 계획 30% → 실제 12% · 전체 공부 시간은 평소 수준"]
     }
@@ -3302,7 +3302,7 @@ Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, 
   "openedOn": "2026-09-30",
   "closedOn": null,
   "baseline": [
-    { "type": "SUBJECT_SHARE", "label": "과목 편중", "summary": "수학 계획 30% → 실제 12%", "value": 12, "target": 30, "unit": "PERCENT" }
+    { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "summary": "수학 계획 30% → 실제 12%", "value": 12, "target": 30, "unit": "PERCENT" }
   ],
   "recheckDate": "2026-10-07",
   "recheckDue": false,
@@ -3316,13 +3316,13 @@ Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, 
 
 - `unit`: `DAYS` | `MINUTES` | `PERCENT` | `CLOCK_MINUTES`(자정 기준 분).
 - `comparison`: `recheckDue`가 `true`일 때만 값이 있다.
-- `baseline[].target` / `comparison.rows[].target`: 비교 기준이 있는 신호만 값이 있다. `STUDY_DROP`(평소 7일 공부 분), `EXECUTION_GAP`(기준 실천율), `SUBJECT_SHARE`(계획 비중), `START_TIME_SHIFT`(평소 등원 시각). `CONSECUTIVE_ABSENCE` / `PLAN_MISSING`은 `null`.
+- `baseline[].target` / `comparison.rows[].target`: 비교 기준이 있는 신호만 값이 있다. `STUDY_DROP`(평소 7일 공부 분), `EXECUTION_GAP`(기준 달성률), `SUBJECT_SHARE`(계획 비중), `START_TIME_SHIFT`(평소 등원 시각). `CONSECUTIVE_ABSENCE` / `PLAN_MISSING`은 `null`.
 - `events[].content`: 화면에 그대로 보여 주는 한 줄. `events`는 오래된 순.
 
 ```json
 {
   "rows": [
-    { "type": "SUBJECT_SHARE", "label": "과목 편중", "before": 12, "now": 24, "target": 30, "unit": "PERCENT", "trend": "IMPROVED" }
+    { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "before": 12, "now": 24, "target": 30, "unit": "PERCENT", "trend": "IMPROVED" }
   ],
   "result": "IMPROVED",
   "resultLabel": "좋아짐"

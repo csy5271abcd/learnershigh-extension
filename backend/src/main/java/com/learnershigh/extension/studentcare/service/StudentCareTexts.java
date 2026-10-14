@@ -16,7 +16,7 @@ public final class StudentCareTexts {
             case PLAN_MISSING -> "계획 미제출 " + before + "일 → " + now + "일";
             case STUDY_DROP -> "7일 공부 " + CareTextFormat.hoursMinutes(before) + " → "
                     + CareTextFormat.hoursMinutes(now);
-            case EXECUTION_GAP -> "실천율 " + before + "% → " + now + "%";
+            case EXECUTION_GAP -> "달성률 " + before + "% → " + now + "%";
             case SUBJECT_SHARE -> subject + " 비중 " + before + "% → " + now + "%";
             case START_TIME_SHIFT -> "등원 " + CareTextFormat.clock(before) + " → " + CareTextFormat.clock(now);
         };

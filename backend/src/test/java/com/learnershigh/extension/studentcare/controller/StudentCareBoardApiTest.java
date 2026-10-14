@@ -148,7 +148,7 @@ class StudentCareBoardApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.student.studentName").value("윤서연"))
                 .andExpect(jsonPath("$.signals[0].type").value("SUBJECT_SHARE"))
-                .andExpect(jsonPath("$.signals[0].label").value("과목 편중"))
+                .andExpect(jsonPath("$.signals[0].label").value("수학 계획 미달성"))
                 .andExpect(jsonPath("$.signals[0].summary").value("수학 계획 30% → 실제 12%"))
                 .andExpect(jsonPath("$.signals[0].evidence[0]").value("수학 계획 30% → 실제 12% · 전체 공부 시간은 평소 수준"))
                 .andExpect(jsonPath("$.signals[0].question").doesNotExist())

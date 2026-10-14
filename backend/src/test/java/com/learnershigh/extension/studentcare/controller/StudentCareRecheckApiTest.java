@@ -118,7 +118,7 @@ class StudentCareRecheckApiTest {
 
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.activeCase.recheckDue").value(true))
-                .andExpect(jsonPath("$.activeCase.comparison.rows[0].label").value("과목 편중"))
+                .andExpect(jsonPath("$.activeCase.comparison.rows[0].label").value("수학 계획 미달성"))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].before").value(12))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].now").value(24))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].target").value(30))
