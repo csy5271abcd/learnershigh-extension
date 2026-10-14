@@ -9,6 +9,7 @@ import {
   selectStudent,
   setBackendDate,
   setStudyDataAvailable,
+  STUDENT_CARE_PATH,
   studentList,
 } from './support.ts'
 
@@ -149,7 +150,7 @@ test('특이사항 기준을 바꾸면 목록에 반영되고 범위 밖 값은 
 test('기존 학습 기록 연동 실패는 빈 목록이 아니라 오류로 보여준다', async ({ page, request }) => {
   await setStudyDataAvailable(request, false)
   try {
-    await page.goto('/')
+    await page.goto(STUDENT_CARE_PATH)
     const list = studentList(page)
     await expect(list.getByRole('alert')).toContainText('불러오지 못했습니다')
     await expect(list).not.toContainText('특이사항 없음')

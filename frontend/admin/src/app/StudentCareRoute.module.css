@@ -1,0 +1,7 @@
+/* 학생 케어 영역만 Wangyu Theme 배경(--color-background, app/theme.css)을 쓴다. Feature 내부 Style은 student-care.css 그대로 */
+.surface {
+  min-width: 0;
+  overflow-x: auto;
+  border-radius: var(--lh-radius-lg);
+  background: var(--color-background);
+}

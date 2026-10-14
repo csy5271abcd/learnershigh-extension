@@ -1,0 +1,469 @@
+/*
+ * Connection 검토 · Interview 관리 (관계 · 업무 흐름이 보이는 구성)
+ * Card: 옅은 Border + 여백. 그림자 없음. 선택한 항목만 Accent Border.
+ */
+
+/* ---- 요약 ---- */
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--lh-space-3);
+}
+
+.summaryPrimary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  padding: var(--lh-space-4) var(--lh-space-6);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.summaryPrimary dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.summaryPrimary dd {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.summaryStats {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 220px;
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.summaryStats dd {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---- Connection 목록 + 상세 ---- */
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--lh-space-5);
+}
+
+.workspace[data-selected] {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+}
+
+/* 선택: 중립 Gray 면 (색 선 · Blue 테두리 없음) */
+.card[aria-current='true'] {
+  background: var(--lh-color-row-selected);
+}
+
+.card[aria-current='true'] .source {
+  background: var(--lh-color-surface-raised);
+}
+
+/* 제외된 연결: 흐리게 (읽기는 가능) */
+.card[data-state='rejected'] {
+  background: var(--lh-color-surface);
+}
+
+.card[data-state='rejected'] .pair {
+  opacity: 0.72;
+}
+
+.cardHead,
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.studentLine {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.footRight {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-3);
+  margin-left: auto;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
+.detailLink {
+  padding: 4px var(--lh-space-2);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.detailLink:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+/* 관계 UI: A | 이유 | B (좁으면 A ↕ 이유 ↕ B) */
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--lh-space-2);
+}
+
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.source:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.sourceLabel {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.sourceTitle {
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--lh-color-border);
+  text-underline-offset: 3px;
+}
+
+.connector {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.connectorLine {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--lh-space-2) * -1);
+  left: calc(var(--lh-space-2) * -1);
+  border-top: 2px dashed var(--lh-color-border);
+}
+
+.reason {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-label);
+}
+
+.reasonLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.detail {
+  position: sticky;
+  top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  max-height: calc(100vh - var(--lh-admin-header-height) - var(--lh-space-8));
+  overflow-y: auto;
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.detailHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.aiBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.detailSource {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.sourceFacts {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 4px var(--lh-space-3);
+  font-size: var(--lh-font-label);
+}
+
+.sourceFacts dt {
+  color: var(--lh-color-text-tertiary);
+}
+
+/* ---- Interview Workspace ---- */
+
+.interviewWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+  align-items: start;
+  gap: var(--lh-space-5);
+}
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  overflow: hidden;
+}
+
+.questionRow {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  gap: var(--lh-space-4);
+  width: 100%;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border: 0;
+  border-bottom: 1px solid #f0f2f4;
+  background: var(--lh-color-surface-raised);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.questionList > li:last-child .questionRow {
+  border-bottom: 0;
+}
+
+/* Hover: 아주 옅은 Gray · 선택: 한 단계 진한 Gray (왼쪽 색 선 · Blue 배경 없음, 글자색 그대로) */
+.questionRow:hover {
+  background: var(--lh-color-row-hover);
+}
+
+.questionRow[aria-current='true'],
+.questionRow[aria-current='true']:hover {
+  background: var(--lh-color-row-selected);
+}
+
+/* Keyboard Focus는 선택과 따로 (안쪽 Outline) */
+.questionRow:focus-visible {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: -2px;
+}
+
+.questionWho {
+  display: flex;
+  flex-direction: column;
+}
+
+.questionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.questionMain {
+  display: -webkit-box;
+  overflow: hidden;
+  font-weight: 600;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.questionState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+/* 공개: 글자 + 작은 체크 (초록 Badge로 칠하지 않는다) */
+/* 공개: 옅은 Blue 글자 (배경 · Icon 없음) */
+.publishedText {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--lh-color-accent-hover);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.questionDetail {
+  position: sticky;
+  top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  max-height: calc(100vh - var(--lh-admin-header-height) - var(--lh-space-8));
+  overflow-y: auto;
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.questionDetail h2:focus {
+  outline: none;
+}
+
+.questionBody {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+/* 학생 화면 미리보기: Student Interview Card 표현 (질문 번호 · 질문 · 관련 활동 · 상태) */
+.studentPreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border: 1px dashed var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.previewIndex {
+  color: var(--lh-color-accent-hover);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.previewTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.previewTags span {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+@media (max-width: 1279px) {
+  .workspace[data-selected],
+  .interviewWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail,
+  .questionDetail {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 1023px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .connectorLine {
+    top: calc(var(--lh-space-2) * -1);
+    bottom: calc(var(--lh-space-2) * -1);
+    left: 50%;
+    right: auto;
+    border-top: 0;
+    border-left: 2px dashed var(--lh-color-border);
+  }
+
+  .questionRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .questionState {
+    flex-direction: row;
+    align-items: center;
+  }
+}
