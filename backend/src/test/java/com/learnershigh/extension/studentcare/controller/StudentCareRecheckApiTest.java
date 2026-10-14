@@ -31,7 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-/** 재점검 비교 / 선생님 결정 (api-contract.md §65-5, 65-6). */
+/** 점검 비교 / 관리 종료 · 계속 관리 (api-contract.md §65-5, 65-6). */
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -58,9 +58,8 @@ class StudentCareRecheckApiTest {
 
     private String startAdjustment(String studentId, String recheckDate) throws Exception {
         String body = """
-                {"branchId":"br_gangnam","studentId":"%s","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"목표 한 가지","action":"행동 한 가지","loadLimit":"주 2시간 추가까지",
-                         "recheckDate":"%s","agreedWithStudent":true}}""".formatted(studentId, recheckDate);
+                {"branchId":"br_gangnam","studentId":"%s","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+                 "memo":"수학을 30분씩 나눠 하기로","recheckDate":"%s"}""".formatted(studentId, recheckDate);
         String response = mvc.perform(post("/api/admin/student-care/cases")
                         .contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isCreated())
@@ -119,13 +118,13 @@ class StudentCareRecheckApiTest {
 
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.activeCase.recheckDue").value(true))
-                .andExpect(jsonPath("$.activeCase.comparison.rows[0].label").value("과목 배분 차이"))
+                .andExpect(jsonPath("$.activeCase.comparison.rows[0].label").value("수학 계획 미달성"))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].before").value(12))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].now").value(24))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].target").value(30))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].trend").value("IMPROVED"))
                 .andExpect(jsonPath("$.activeCase.comparison.result").value("IMPROVED"))
-                .andExpect(jsonPath("$.activeCase.comparison.resultLabel").value("변화 관찰"));
+                .andExpect(jsonPath("$.activeCase.comparison.resultLabel").value("좋아짐"));
 
         decide(caseId, "{\"decision\":\"CLOSE\"}")
                 .andExpect(status().isOk())
@@ -134,7 +133,8 @@ class StudentCareRecheckApiTest {
                 .andExpect(jsonPath("$.closedOn").value("2026-10-07"))
                 .andExpect(jsonPath("$.events[*].type",
                         contains("REASON_CONFIRMED", "ADJUSTMENT_STARTED", "RECHECKED", "CLOSED")))
-                .andExpect(jsonPath("$.events[2].content").value("재점검 — 변화 관찰: 수학 비중 12% → 24%"));
+                .andExpect(jsonPath("$.events[3].content").value("관리 종료"))
+                .andExpect(jsonPath("$.events[2].content").value("점검 · 좋아짐 — 수학 비중 12% → 24%"));
 
         mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
@@ -152,7 +152,7 @@ class StudentCareRecheckApiTest {
 
         mvc.perform(get("/api/admin/student-care/students/stu_007").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.activeCase.comparison.rows[0].trend").value("SAME"))
-                .andExpect(jsonPath("$.activeCase.comparison.resultLabel").value("변화 없음"));
+                .andExpect(jsonPath("$.activeCase.comparison.resultLabel").value("그대로"));
 
         decide(caseId, "{\"decision\":\"CONTINUE\"}")
                 .andExpect(status().isUnprocessableContent())
@@ -163,89 +163,13 @@ class StudentCareRecheckApiTest {
                 .andExpect(jsonPath("$.status").value("IN_ADJUSTMENT"))
                 .andExpect(jsonPath("$.recheckDate").value("2026-10-14"))
                 .andExpect(jsonPath("$.recheckDue").value(false))
-                .andExpect(jsonPath("$.events[-1].content").value("같은 약속으로 계속 (다음 재점검 10월 14일)"));
-    }
-
-    @Test
-    void reviseWithContractBodyUsesTopLevelRecheckDate() throws Exception {
-        String caseId = startAdjustment("stu_003", "2026-10-03");
-        clock.setDate(ANCHOR.plusDays(3));
-
-        // api-contract.md §65-6 예시 그대로: 새 재점검일은 최상위 recheckDate, plan에는 재점검일이 없다.
-        decide(caseId, """
-                {"decision":"REVISE","recheckDate":"2026-10-10","plan":{"goal":"주 15시간 이상","action":"주말 오전 2시간 추가",
-                 "loadLimit":"주 3시간 추가까지","agreedWithStudent":true}}""")
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.plan.goal").value("주 15시간 이상"))
-                .andExpect(jsonPath("$.recheckDate").value("2026-10-10"))
-                .andExpect(jsonPath("$.events[*].type", contains(
-                        "REASON_CONFIRMED", "ADJUSTMENT_STARTED", "RECHECKED", "REVISED")));
-
-        decide(caseId, "{\"decision\":\"REVISE\"}")
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("RECHECK_NOT_DUE"));
-    }
-
-    @Test
-    void planIsIgnoredUnlessRevising() throws Exception {
-        String caseId = startAdjustment("stu_003", "2026-10-03");
-        clock.setDate(ANCHOR.plusDays(3));
-
-        decide(caseId, "{\"decision\":\"CONTINUE\",\"recheckDate\":\"2026-10-10\",\"plan\":{\"goal\":\"%s\"}}"
-                .formatted("가".repeat(201)))
-                .andExpect(status().isOk());
-        clock.setDate(ANCHOR.plusDays(10));
-        decide(caseId, "{\"decision\":\"CLOSE\",\"plan\":{\"goal\":\"%s\",\"action\":\"\"}}"
-                .formatted("가".repeat(201)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("CLOSED"));
-    }
-
-    @Test
-    void reviseWithTooLongGoalIs400OnThePlanField() throws Exception {
-        String caseId = startAdjustment("stu_003", "2026-10-03");
-        clock.setDate(ANCHOR.plusDays(3));
-
-        decide(caseId, """
-                {"decision":"REVISE","recheckDate":"2026-10-10","plan":{"goal":"%s","action":"행동","agreedWithStudent":true}}"""
-                .formatted("가".repeat(201)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan.goal"));
-    }
-
-    @Test
-    void reviseWithoutPlanIs422() throws Exception {
-        String caseId = startAdjustment("stu_003", "2026-10-03");
-        clock.setDate(ANCHOR.plusDays(3));
-
-        decide(caseId, "{\"decision\":\"REVISE\",\"recheckDate\":\"2026-10-10\"}")
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("PLAN_REQUIRED"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("plan"));
-    }
-
-    @Test
-    void planRecheckDateIsNotTheDecisionRecheckDate() throws Exception {
-        String caseId = startAdjustment("stu_003", "2026-10-03");
-        clock.setDate(ANCHOR.plusDays(3));
-        String before = StudentCareApiTestSupport.snapshot(jdbc);
-
-        decide(caseId, """
-                {"decision":"REVISE","plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-10",
-                 "agreedWithStudent":true}}""")
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
-                .andExpect(jsonPath("$.details.fields[0].field").value("recheckDate"));
-        assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
+                .andExpect(jsonPath("$.events[-1].content").value("계속 관리 · 다음 점검 10월 14일"));
     }
 
     @Test
     void nextRecheckDateMustBeTomorrowUntilTwentyEightDaysLater() throws Exception {
         String caseId = startAdjustment("stu_007", "2026-10-07");
         clock.setDate(ANCHOR.plusDays(7));
-        String revise = """
-                {"decision":"REVISE","recheckDate":"%s","plan":{"goal":"목표","action":"행동","agreedWithStudent":true}}""";
         String before = StudentCareApiTestSupport.snapshot(jdbc);
 
         for (String invalid : java.util.List.of("2026-10-07", "2026-11-05")) {
@@ -253,14 +177,11 @@ class StudentCareRecheckApiTest {
                     .andExpect(status().isUnprocessableContent())
                     .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
                     .andExpect(jsonPath("$.details.fields[0].field").value("recheckDate"));
-            decide(caseId, revise.formatted(invalid))
-                    .andExpect(status().isUnprocessableContent())
-                    .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"));
         }
         // 실패한 결정은 학생 기록에 아무것도 남기지 않는다.
         assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
 
-        decide(caseId, revise.formatted("2026-10-08"))
+        decide(caseId, "{\"decision\":\"CONTINUE\",\"recheckDate\":\"2026-10-08\"}")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.recheckDate").value("2026-10-08"));
         clock.setDate(ANCHOR.plusDays(8));
@@ -300,18 +221,17 @@ class StudentCareRecheckApiTest {
         clock.setDate(ANCHOR.plusDays(7));
         decide(caseId, "{\"decision\":\"CONTINUE\",\"recheckDate\":\"2026-10-14\"}").andExpect(status().isOk());
         clock.setDate(ANCHOR.plusDays(14));
-        decide(caseId, """
-                {"decision":"REVISE","recheckDate":"2026-10-21","plan":{"goal":"목표","action":"새 행동","agreedWithStudent":true}}""")
-                .andExpect(status().isOk());
+        decide(caseId, "{\"decision\":\"CONTINUE\",\"recheckDate\":\"2026-10-21\"}").andExpect(status().isOk());
         clock.setDate(ANCHOR.plusDays(21));
         decide(caseId, "{\"decision\":\"CLOSE\"}").andExpect(status().isOk());
 
         mvc.perform(get("/api/admin/student-care/students/stu_007/history").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.items[*].type", contains("CLOSED", "RECHECKED", "REVISED", "RECHECKED",
+                .andExpect(jsonPath("$.items[*].type", contains("CLOSED", "RECHECKED", "CONTINUED", "RECHECKED",
                         "CONTINUED", "RECHECKED", "NOTE", "ADJUSTMENT_STARTED", "REASON_CONFIRMED")))
                 .andExpect(jsonPath("$.items[*].occurredOn", contains("2026-10-21", "2026-10-21", "2026-10-14",
                         "2026-10-14", "2026-10-07", "2026-10-07", "2026-09-30", "2026-09-30", "2026-09-30")))
-                .andExpect(jsonPath("$.items[2].content").value("약속 수정 — 새 행동 (재점검 10월 21일)"));
+                .andExpect(jsonPath("$.items[2].content").value("계속 관리 · 다음 점검 10월 21일"))
+                .andExpect(jsonPath("$.items[6].content").value("상담 · 면담 — 면담"));
     }
 
     @Test
@@ -356,6 +276,17 @@ class StudentCareRecheckApiTest {
         assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
         assertThat(jdbc.queryForObject("select status from care_case where id = ?", String.class, caseId))
                 .isEqualTo("IN_ADJUSTMENT");
+    }
+
+    @Test
+    void reviseIsNoLongerADecision() throws Exception {
+        String caseId = startAdjustment("stu_003", "2026-10-03");
+        clock.setDate(ANCHOR.plusDays(3));
+
+        decide(caseId, "{\"decision\":\"REVISE\",\"recheckDate\":\"2026-10-10\"}")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.details.fields[0].field").value("decision"));
     }
 
     @Test

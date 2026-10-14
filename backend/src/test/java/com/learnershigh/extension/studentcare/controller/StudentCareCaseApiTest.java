@@ -32,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-/** 사유 확인 / 조정 시작 / 메모 / 학생 기록 (api-contract.md §65-4, 65-7, 65-8). */
+/** 상담 기록 / 계속 관리 / 관리 중 상담 기록 / 이력 (api-contract.md §65-4, 65-7, 65-8). */
 @Tag("integration")
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -41,10 +41,8 @@ import org.springframework.test.web.servlet.ResultActions;
 class StudentCareCaseApiTest {
 
     static final String ADJUSTMENT = """
-            {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-             "memo":"시험 범위가 넓어 수학을 미루고 있다고 함",
-             "plan":{"goal":"수학 비중을 계획한 30% 가까이","action":"큰 수학 항목을 30분씩 4회로 나누기",
-                     "loadLimit":"주 2시간 추가까지","recheckDate":"2026-10-07","agreedWithStudent":true}}""";
+            {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+             "memo":"시험 범위가 넓어 수학을 미루고 있다고 함","recheckDate":"2026-10-07"}""";
 
     @Autowired
     MockMvc mvc;
@@ -97,22 +95,23 @@ class StudentCareCaseApiTest {
                 .andExpect(jsonPath("$.baseline[0].value").value(12))
                 .andExpect(jsonPath("$.baseline[0].target").value(30))
                 .andExpect(jsonPath("$.baseline[0].unit").value("PERCENT"))
-                .andExpect(jsonPath("$.plan.agreedWithStudent").value(true))
+                .andExpect(jsonPath("$.plan").doesNotExist())
                 .andExpect(jsonPath("$.events[*].type", contains("REASON_CONFIRMED", "ADJUSTMENT_STARTED")))
-                .andExpect(jsonPath("$.events[0].content").value("사유 확인: 조정 필요 — 시험 범위가 넓어 수학을 미루고 있다고 함"))
+                .andExpect(jsonPath("$.events[0].content").value("상담 · 통화 — 시험 범위가 넓어 수학을 미루고 있다고 함"))
+                .andExpect(jsonPath("$.events[0].noteChannel").value("CALL"))
+                .andExpect(jsonPath("$.events[1].content").value("계속 관리 · 다음 점검 10월 7일"))
                 .andExpect(jsonPath("$.events[1].createdAt", startsWith("2026-09-30T12:00:00+09:00")));
 
         mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.needsCheck", hasSize(6)))
                 .andExpect(jsonPath("$.needsCheck[*].studentId", not(hasItem("stu_005"))))
                 .andExpect(jsonPath("$.inAdjustment[0].studentName").value("윤서연"))
-                .andExpect(jsonPath("$.inAdjustment[0].goal").value("수학 비중을 계획한 30% 가까이"))
-                .andExpect(jsonPath("$.inAdjustment[0].signals[0].label").value("과목 배분 차이"))
+                .andExpect(jsonPath("$.inAdjustment[0].goal").doesNotExist())
+                .andExpect(jsonPath("$.inAdjustment[0].signals[0].label").value("수학 계획 미달성"))
                 .andExpect(jsonPath("$.inAdjustment[0].recheckDue").value(false));
 
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.activeCase.status").value("IN_ADJUSTMENT"))
-                .andExpect(jsonPath("$.planSuggestion").doesNotExist());
+                .andExpect(jsonPath("$.activeCase.status").value("IN_ADJUSTMENT"));
     }
 
     @Test
@@ -132,7 +131,7 @@ class StudentCareCaseApiTest {
 
         for (String reason : java.util.List.of("EXPECTED_CHANGE", "RECORD_ISSUE")) {
             open("""
-                    {"branchId":"br_gangnam","studentId":"stu_005","reason":"%s"}""".formatted(reason))
+                    {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"%s"}""".formatted(reason))
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.code").value("ACTIVE_CARE_CASE_EXISTS"));
         }
@@ -146,13 +145,13 @@ class StudentCareCaseApiTest {
         assertThat(memo).hasSize(1000);
 
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_002","reason":"RECORD_ISSUE","memo":"%s"}""".formatted(memo))
+                {"branchId":"br_gangnam","studentId":"stu_002","channel":"CALL","reason":"RECORD_ISSUE","memo":"%s"}""".formatted(memo))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.events[0].content").value("사유 확인: 기록 문제 — " + memo));
+                .andExpect(jsonPath("$.events[0].content").value("상담 · 통화 — " + memo));
 
         mvc.perform(get("/api/admin/student-care/students/stu_002/history").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.items[1].type").value("REASON_CONFIRMED"))
-                .andExpect(jsonPath("$.items[1].content").value("사유 확인: 기록 문제 — " + memo));
+                .andExpect(jsonPath("$.items[1].content").value("상담 · 통화 — " + memo));
     }
 
     @Test
@@ -164,7 +163,7 @@ class StudentCareCaseApiTest {
                 .andExpect(status().isServiceUnavailable())
                 .andExpect(jsonPath("$.code").value("EXISTING_STUDY_DATA_UNAVAILABLE"));
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE"}""")
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE"}""")
                 .andExpect(status().isServiceUnavailable());
 
         assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
@@ -175,7 +174,7 @@ class StudentCareCaseApiTest {
         // stu_001은 anchor-3 ~ anchor+2 미입실. cooldown 2일 → 9/30, 10/1 숨김, 10/2부터 다시 올림.
         saveSettings(3, 3, 3, 2);
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE"}""")
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE"}""")
                 .andExpect(status().isCreated());
 
         board().andExpect(jsonPath("$.needsCheck[*].studentId", not(hasItem("stu_001"))));
@@ -194,7 +193,7 @@ class StudentCareCaseApiTest {
         // 9/30에 연속 미입실만 신호인 상태(계획 미제출 기준 7일)로 종결한 뒤 기준을 되돌리면 계획 미제출은 다시 보인다.
         saveSettings(3, 7, 3, 7);
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE"}""")
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE"}""")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.baseline[*].type", contains("CONSECUTIVE_ABSENCE")));
         saveSettings(3, 3, 3, 7);
@@ -207,7 +206,7 @@ class StudentCareCaseApiTest {
     void zeroCooldownHidesNothingAndAllowsAnotherCase() throws Exception {
         saveSettings(3, 3, 3, 0);
         String body = """
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE"}""";
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE"}""";
         open(body).andExpect(status().isCreated());
 
         board().andExpect(jsonPath("$.needsCheck[?(@.studentId == 'stu_001')].signals[*].type",
@@ -249,16 +248,13 @@ class StudentCareCaseApiTest {
                 .andExpect(jsonPath("$.deferred[0].validDays").value(3));
         mvc.perform(get("/api/admin/student-care/students/stu_001").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.signals", hasSize(0)))
-                .andExpect(jsonPath("$.deferred.validDays").value(3))
-                .andExpect(jsonPath("$.planSuggestion").doesNotExist());
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.deferredCount").value(2));
+                .andExpect(jsonPath("$.deferred.validDays").value(3));
     }
 
     @Test
     void expectedChangeClosesAndHidesSameSignalDuringCooldown() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE","memo":"가족 여행"}""")
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE","memo":"가족 여행"}""")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("CLOSED"))
                 .andExpect(jsonPath("$.closeType").value("EXPECTED_CHANGE"))
@@ -276,7 +272,7 @@ class StudentCareCaseApiTest {
     @Test
     void recordIssueCloses() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_002","reason":"RECORD_ISSUE"}""")
+                {"branchId":"br_gangnam","studentId":"stu_002","channel":"CALL","reason":"RECORD_ISSUE"}""")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.closeType").value("RECORD_ISSUE"));
     }
@@ -284,35 +280,49 @@ class StudentCareCaseApiTest {
     @Test
     void studentWithoutSignalCannotOpenCase() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_009","reason":"EXPECTED_CHANGE"}""")
+                {"branchId":"br_gangnam","studentId":"stu_009","channel":"CALL","reason":"EXPECTED_CHANGE"}""")
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("STUDENT_NOT_FLAGGED"));
     }
 
     @Test
-    void adjustmentInputErrorsAre422() throws Exception {
+    void continueRequiresAValidRecheckDate() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED"}""")
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED"}""")
                 .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("PLAN_REQUIRED"));
-        open(ADJUSTMENT.replace("\"agreedWithStudent\":true", "\"agreedWithStudent\":false"))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("STUDENT_AGREEMENT_REQUIRED"));
+                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
+                .andExpect(jsonPath("$.details.fields[0].field").value("recheckDate"))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("required"));
         open(ADJUSTMENT.replace("2026-10-07", "2026-09-30"))
                 .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"));
-        open(ADJUSTMENT.replace("\"goal\":\"수학 비중을 계획한 30% 가까이\"", "\"goal\":\"  \""))
-                .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.code").value("PLAN_REQUIRED"));
+                .andExpect(jsonPath("$.code").value("INVALID_RECHECK_DATE"))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("range"));
+        assertThat(StudentCareApiTestSupport.count(jdbc, "care_case")).isZero();
+    }
+
+    @Test
+    void recheckDateIsIgnoredWhenClosingImmediately() throws Exception {
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"MESSAGE","reason":"EXPECTED_CHANGE",
+                 "recheckDate":"2026-01-01"}""")
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.recheckDate").doesNotExist())
+                .andExpect(jsonPath("$.events[0].content").value("상담 · 문자"))
+                .andExpect(jsonPath("$.events[1].content").value("문제없음 · 관리 종료"));
     }
 
     @Test
     void malformedRequestIsValidationError() throws Exception {
         open("""
-                {"branchId":"br_gangnam","studentId":"stu_005"}""")
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL"}""")
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.details.fields[0].field").value("reason"))
+                .andExpect(jsonPath("$.details.fields[0].reason").value("required"));
+        open("""
+                {"branchId":"br_gangnam","studentId":"stu_005","reason":"RECORD_ISSUE"}""")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("channel"))
                 .andExpect(jsonPath("$.details.fields[0].reason").value("required"));
         open("""
                 {"branchId":"br_gangnam","studentId":"stu_005","reason":"UNKNOWN"}""")
@@ -337,7 +347,7 @@ class StudentCareCaseApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.student.studentName").value("윤서연"))
                 .andExpect(jsonPath("$.items[*].type", contains("NOTE", "ADJUSTMENT_STARTED", "REASON_CONFIRMED")))
-                .andExpect(jsonPath("$.items[0].content").value("어머니와 통화. 시험 끝나면 수학 시간을 늘리기로 함"));
+                .andExpect(jsonPath("$.items[0].content").value("상담 · 통화 — 어머니와 통화. 시험 끝나면 수학 시간을 늘리기로 함"));
     }
 
     @Test

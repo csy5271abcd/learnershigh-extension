@@ -30,7 +30,7 @@ public interface CareCaseRepository extends JpaRepository<CareCase, String> {
 
     boolean existsByBranchIdAndActiveStudentId(String branchId, String activeStudentId);
 
-    /** cooldown / 지점 요약용: 종결일이 from ~ to(양 끝 포함)인 건. */
+    /** cooldown용: 종결일이 from ~ to(양 끝 포함)인 건. */
     List<CareCase> findByBranchIdAndStatusAndClosedOnBetween(String branchId, CareCaseStatus status,
             LocalDate closedFrom, LocalDate closedTo);
 

@@ -3155,7 +3155,7 @@ Base:
 - `className`은 반이 없는 학생이면 `null`이다.
 - 숫자 필드는 JSON 숫자만 받는다(문자열 `"3"`, 소수, 범위를 넘는 정수는 `400 VALIDATION_ERROR`, `details.fields[].field`는 그 필드 경로).
 - 날짜는 `YYYY-MM-DD`(Asia/Seoul 기준일), 시각은 ISO 8601 Offset(`+09:00`).
-- 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다). 기존 학습 기록을 읽는 Endpoint(board, students/{id}, POST cases, decisions, summary) 모두 해당하며, 실패하면 아무것도 저장하지 않는다.
+- 기존 학습 데이터 연동 실패: `503 EXISTING_STUDY_DATA_UNAVAILABLE` (빈 목록으로 응답하지 않는다). 기존 학습 기록을 읽는 Endpoint(board, students/{id}, POST cases, decisions) 모두 해당하며, 실패하면 아무것도 저장하지 않는다.
 - 모든 Endpoint는 `branchId`로 범위를 정한다. 다른 지점의 학생 / 케어 건은 없는 것으로 본다(404).
 - 공통 Error(§5-1 표)는 Endpoint별 Error 목록에 다시 적지 않는다.
 
@@ -3163,14 +3163,14 @@ Enum:
 
 ```text
 signalType : CONSECUTIVE_ABSENCE | PLAN_MISSING | STUDY_DROP | EXECUTION_GAP | SUBJECT_SHARE | START_TIME_SHIFT
-reason     : EXPECTED_CHANGE | RECORD_ISSUE | ADJUSTMENT_NEEDED
-status     : IN_ADJUSTMENT | CLOSED
+reason     : EXPECTED_CHANGE | RECORD_ISSUE | ADJUSTMENT_NEEDED        (화면: 문제없음 | 기록 오류 | 계속 관리)
+status     : IN_ADJUSTMENT | CLOSED                                   (화면: 관리 중 | 관리 종료)
 closeType  : EXPECTED_CHANGE | RECORD_ISSUE | AFTER_RECHECK
-decision   : CLOSE | CONTINUE | REVISE
-eventType  : REASON_CONFIRMED | ADJUSTMENT_STARTED | RECHECKED | CONTINUED | REVISED | CLOSED | NOTE
-noteChannel: MEETING | CALL | MESSAGE | OTHER
+decision   : CLOSE | CONTINUE                                         (화면: 관리 종료 | 계속 관리)
+eventType  : REASON_CONFIRMED | ADJUSTMENT_STARTED | RECHECKED | CONTINUED | CLOSED | NOTE   (REVISED: 이전 기록에만)
+noteChannel: MEETING | CALL | MESSAGE                                  (화면: 면담 | 통화 | 문자. OTHER: 이전 기록에만, 요청에서는 받지만 화면에 없음)
 trend      : IMPROVED | SAME | WORSENED
-result     : IMPROVED | NO_CHANGE | WORSENED | MIXED
+result     : IMPROVED | NO_CHANGE | WORSENED | MIXED                  (화면: 좋아짐 | 그대로 | 나빠짐 | 일부 좋아짐)
 ```
 
 ## 65-1. Branch List
@@ -3205,7 +3205,7 @@ GET /api/admin/student-care/board?branchId=br_gangnam
       "studentName": "김서준",
       "className": "고3 A반",
       "signals": [
-        { "type": "CONSECUTIVE_ABSENCE", "label": "연속 미입실", "summary": "4일째 입실 기록 없음" }
+        { "type": "CONSECUTIVE_ABSENCE", "label": "연속 결석", "summary": "4일째 결석" }
       ]
     }
   ],
@@ -3215,8 +3215,7 @@ GET /api/admin/student-care/board?branchId=br_gangnam
       "studentId": "stu_005",
       "studentName": "윤서연",
       "className": "고3 A반",
-      "signals": [ { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "summary": "계획한 수학 비중 30% → 최근 12%" } ],
-      "goal": "수학 비중을 계획한 30% 가까이",
+      "signals": [ { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "summary": "수학 계획 30% → 실제 12%" } ],
       "recheckDate": "2026-10-07",
       "recheckDue": false
     }
@@ -3226,6 +3225,10 @@ GET /api/admin/student-care/board?branchId=br_gangnam
   ]
 }
 ```
+
+- `needsCheck`: 특이사항이 있고 관리 중이 아닌 학생. 신호 수 많은 순 → 이름.
+- `inAdjustment`: 관리 중. 점검일이 된 건 먼저 → 다음 점검일 빠른 순.
+- `deferred`: 기록 부족.
 
 Error: `400 VALIDATION_ERROR`(branchId 없음), `404 BRANCH_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
@@ -3242,33 +3245,25 @@ GET /api/admin/student-care/students/{studentId}?branchId=br_gangnam
   "signals": [
     {
       "type": "SUBJECT_SHARE",
-      "label": "과목 배분 차이",
-      "summary": "계획한 수학 비중 30% → 최근 12%",
-      "evidence": ["계획한 수학 비중 30% → 최근 12% (전체 학습량은 평소 수준)"],
-      "question": "의도한 시험 대비인지, 수학 항목이 너무 커서 미루고 있는지"
+      "label": "수학 계획 미달성",
+      "summary": "수학 계획 30% → 실제 12%",
+      "evidence": ["수학 계획 30% → 실제 12% · 전체 공부 시간은 평소 수준"]
     }
   ],
   "deferred": null,
   "dailyStudy": [ { "date": "2026-09-17", "minutes": 260 } ],
   "usualDailyMinutes": 252,
-  "planSuggestion": {
-    "goal": "수학 비중을 계획한 30% 가까이",
-    "action": "큰 수학 항목을 30분씩 4회로 나누기",
-    "loadLimit": "주 2시간 추가까지",
-    "recheckDate": "2026-10-07"
-  },
   "activeCase": null
 }
 ```
 
 - `dailyStudy`: last14, 날짜 오름차순.
-- `deferred`: 판단 보류면 `{ "validDays": 2 }`, 아니면 `null`.
-- `planSuggestion`: 신호가 있고 진행 중 건이 없을 때만 값이 있다.
-- `activeCase`: 진행 중 건(65-5 `CareCase`) 또는 `null`.
+- `deferred`: 기록 부족이면 `{ "validDays": 2 }`, 아니면 `null`.
+- `activeCase`: 관리 중 건(65-5 `CareCase`) 또는 `null`.
 
 Error: `400 VALIDATION_ERROR`(branchId 없음), `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
-## 65-4. Open Care Case (사유 확인 / 조정 시작)
+## 65-4. Open Care Case (상담 기록)
 
 ```http
 POST /api/admin/student-care/cases
@@ -3278,28 +3273,21 @@ POST /api/admin/student-care/cases
 {
   "branchId": "br_gangnam",
   "studentId": "stu_005",
+  "channel": "CALL",
+  "memo": "시험 범위가 넓어 수학을 미루고 있다고 함. 수학을 30분씩 나눠 하기로",
   "reason": "ADJUSTMENT_NEEDED",
-  "memo": "시험 범위가 넓어 수학을 미루고 있다고 함",
-  "plan": {
-    "goal": "수학 비중을 계획한 30% 가까이",
-    "action": "큰 수학 항목을 30분씩 4회로 나누기",
-    "loadLimit": "주 2시간 추가까지",
-    "recheckDate": "2026-10-07",
-    "agreedWithStudent": true
-  }
+  "recheckDate": "2026-10-07"
 }
 ```
 
-- `reason`이 `EXPECTED_CHANGE` / `RECORD_ISSUE`면 `plan`은 검증하지 않고 무시하며 건은 바로 `CLOSED`.
-- `ADJUSTMENT_NEEDED`면 `plan` 필수, `agreedWithStudent: true` 필수, `plan.recheckDate`는 asOf+1 ~ asOf+28.
-- `memo`: 0~1000자. 학생 기록에 잘리지 않고 그대로 남는다.
-- `plan.goal` / `plan.action`: 1~200자, `plan.loadLimit`: 0~100자. 길이 초과는 `400 VALIDATION_ERROR`.
-- 같은 학생에 대한 요청은 순서대로 처리한다. 동시에 두 번 보내도 건은 하나만 생기고 나머지는 `409 ACTIVE_CARE_CASE_EXISTS`(진행 중 건) 또는 `409 STUDENT_NOT_FLAGGED`(방금 종결되어 쉬는 기간에 들어감)다. 단, 지점 `cooldownDays = 0`이면 즉시 종결 사유(EXPECTED_CHANGE / RECORD_ISSUE)는 신호가 남아 있으므로 요청마다 건이 생긴다(domain.md §5-1).
-- 422 오류는 `details.fields`에 원인 필드를 담는다: `PLAN_REQUIRED` → `plan`, `plan.goal`, `plan.action` / `STUDENT_AGREEMENT_REQUIRED` → `plan.agreedWithStudent` / `INVALID_RECHECK_DATE` → `plan.recheckDate`(65-6에서는 `recheckDate`).
+- `channel` 필수. `memo` 0~1000자, 이력에 잘리지 않고 남는다.
+- `EXPECTED_CHANGE` / `RECORD_ISSUE`: 건은 바로 `CLOSED`. `recheckDate`는 검증하지 않고 무시한다.
+- `ADJUSTMENT_NEEDED`: `recheckDate` 필수, asOf+1 ~ asOf+28. 아니면 `422 INVALID_RECHECK_DATE`(`details.fields[].field` = `recheckDate`).
+- 같은 학생에 대한 요청은 순서대로 처리한다. 동시에 두 번 보내도 건은 하나만 생기고 나머지는 `409 ACTIVE_CARE_CASE_EXISTS`(관리 중) 또는 `409 STUDENT_NOT_FLAGGED`(방금 종결되어 쉬는 기간)다. 단, `cooldownDays = 0`이면 즉시 종결 결과는 신호가 남아 있으므로 요청마다 건이 생긴다(domain.md §5-1).
 
 Response `201`: `CareCase` (65-5).
 
-Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_FLAGGED`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
+Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, `409 ACTIVE_CARE_CASE_EXISTS`, `409 STUDENT_NOT_FLAGGED`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-5. CareCase Shape
 
@@ -3314,60 +3302,54 @@ Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`, 
   "openedOn": "2026-09-30",
   "closedOn": null,
   "baseline": [
-    { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "summary": "계획한 수학 비중 30% → 최근 12%", "value": 12, "target": 30, "unit": "PERCENT" }
+    { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "summary": "수학 계획 30% → 실제 12%", "value": 12, "target": 30, "unit": "PERCENT" }
   ],
-  "plan": {
-    "goal": "수학 비중을 계획한 30% 가까이",
-    "action": "큰 수학 항목을 30분씩 4회로 나누기",
-    "loadLimit": "주 2시간 추가까지",
-    "agreedWithStudent": true
-  },
   "recheckDate": "2026-10-07",
   "recheckDue": false,
   "comparison": null,
   "events": [
-    { "eventId": "evt_...", "caseId": "care_9f0c...", "type": "ADJUSTMENT_STARTED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "조정 시작 — 큰 수학 항목을 30분씩 4회로 나누기 (재점검 10월 7일)", "noteChannel": null }
+    { "eventId": "evt_...", "caseId": "care_9f0c...", "type": "REASON_CONFIRMED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "상담 · 통화 — 시험 범위가 넓어 수학을 미루고 있다고 함", "noteChannel": "CALL" },
+    { "eventId": "evt_...", "caseId": "care_9f0c...", "type": "ADJUSTMENT_STARTED", "occurredOn": "2026-09-30", "createdAt": "2026-09-30T10:12:00+09:00", "content": "계속 관리 · 다음 점검 10월 7일", "noteChannel": null }
   ]
 }
 ```
 
 - `unit`: `DAYS` | `MINUTES` | `PERCENT` | `CLOCK_MINUTES`(자정 기준 분).
 - `comparison`: `recheckDue`가 `true`일 때만 값이 있다.
-- `baseline[].target` / `comparison.rows[].target`: 비교 기준이 있는 신호만 값이 있다. `STUDY_DROP`(평소 7일 학습 분), `EXECUTION_GAP`(기준 실행률), `SUBJECT_SHARE`(계획 비중), `START_TIME_SHIFT`(평소 시작 시각). `CONSECUTIVE_ABSENCE` / `PLAN_MISSING`은 `null`.
+- `baseline[].target` / `comparison.rows[].target`: 비교 기준이 있는 신호만 값이 있다. `STUDY_DROP`(평소 7일 공부 분), `EXECUTION_GAP`(기준 달성률), `SUBJECT_SHARE`(계획 비중), `START_TIME_SHIFT`(평소 등원 시각). `CONSECUTIVE_ABSENCE` / `PLAN_MISSING`은 `null`.
+- `events[].content`: 화면에 그대로 보여 주는 한 줄. `events`는 오래된 순.
 
 ```json
 {
   "rows": [
-    { "type": "SUBJECT_SHARE", "label": "과목 배분 차이", "before": 12, "now": 24, "target": 30, "unit": "PERCENT", "trend": "IMPROVED" }
+    { "type": "SUBJECT_SHARE", "label": "수학 계획 미달성", "before": 12, "now": 24, "target": 30, "unit": "PERCENT", "trend": "IMPROVED" }
   ],
   "result": "IMPROVED",
-  "resultLabel": "변화 관찰"
+  "resultLabel": "좋아짐"
 }
 ```
 
-- `rows[].now`가 `null`이면 지금 기록으로 계산할 수 없는 지표다. 이때 `trend`는 `SAME`이지만 화면은 "비교할 기록 없음"으로 표시하고 추세를 보여 주지 않는다.
-- `events`: 이 건의 이벤트, 오래된 순.
+- `rows[].now`가 `null`이면 지금 기록으로 계산할 수 없는 지표다. `trend`는 `SAME`이지만 화면은 "기록 없음"으로 표시한다.
 
-## 65-6. Decide After Recheck
+## 65-6. Decide After Recheck (점검)
 
 ```http
 POST /api/admin/student-care/cases/{caseId}/decisions?branchId=br_gangnam
 ```
 
 ```json
-{ "decision": "REVISE", "recheckDate": "2026-10-14", "plan": { "goal": "...", "action": "...", "loadLimit": "...", "agreedWithStudent": true } }
+{ "decision": "CONTINUE", "recheckDate": "2026-10-14" }
 ```
 
-- `CLOSE`: 추가 필드 없음. `CLOSE` / `CONTINUE`에서 `plan`이 오면 검증하지 않고 무시한다.
-- `CONTINUE`: `recheckDate` 필수 (asOf+1 ~ asOf+28).
-- `REVISE`: `plan`, `recheckDate` 필수. 새 재점검일은 최상위 `recheckDate`다(`plan.recheckDate`는 쓰지 않는다).
-- 같은 건에 대한 결정 / 메모는 순서대로 처리한다. 이미 종결된 건에 대한 두 번째 결정은 `409 INVALID_STATE_TRANSITION`.
+- `CLOSE`: 관리 종료. `recheckDate`는 무시한다.
+- `CONTINUE`: 계속 관리. `recheckDate` 필수 (asOf+1 ~ asOf+28), 아니면 `422 INVALID_RECHECK_DATE`.
+- 같은 건에 대한 결정 / 상담 기록은 순서대로 처리한다. 이미 종결된 건에 대한 두 번째 결정은 `409 INVALID_STATE_TRANSITION`.
 
 Response `200`: `CareCase`.
 
-Error: `400 VALIDATION_ERROR`(branchId 없음 등), `404 CARE_CASE_NOT_FOUND`(없거나 다른 지점 건), `409 RECHECK_NOT_DUE`, `409 INVALID_STATE_TRANSITION`, `422 PLAN_REQUIRED`, `422 STUDENT_AGREEMENT_REQUIRED`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
+Error: `400 VALIDATION_ERROR`(branchId 없음, 알 수 없는 decision 등), `404 CARE_CASE_NOT_FOUND`(없거나 다른 지점 건), `409 RECHECK_NOT_DUE`, `409 INVALID_STATE_TRANSITION`, `422 INVALID_RECHECK_DATE`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
-## 65-7. Add Note (면담 / 통화 메모)
+## 65-7. Add Note (관리 중 상담 기록)
 
 ```http
 POST /api/admin/student-care/cases/{caseId}/notes?branchId=br_gangnam
@@ -3377,9 +3359,9 @@ POST /api/admin/student-care/cases/{caseId}/notes?branchId=br_gangnam
 { "channel": "CALL", "content": "어머니와 통화. 다음 주 시험 끝나면 정상 등원 예정" }
 ```
 
-Response `201`: `CareEvent` (65-5 `events` 항목). `content` 1~1000자.
+Response `201`: `CareEvent` (65-5 `events` 항목, `content`는 `상담 · 통화 — …`). `content` 1~1000자.
 
-종결된 건에도 메모를 남길 수 있다.
+종결된 건에도 남길 수 있다.
 
 Error: `400 VALIDATION_ERROR`, `404 CARE_CASE_NOT_FOUND`(없거나 다른 지점 건).
 
@@ -3393,7 +3375,7 @@ GET /api/admin/student-care/students/{studentId}/history?branchId=br_gangnam
 {
   "student": { "studentId": "stu_005", "studentName": "윤서연", "className": "고3 A반", "branchId": "br_gangnam" },
   "items": [
-    { "eventId": "evt_...", "caseId": "care_...", "type": "CLOSED", "occurredOn": "2026-10-07", "createdAt": "2026-10-07T09:00:00+09:00", "content": "재점검 후 선생님이 종결", "noteChannel": null }
+    { "eventId": "evt_...", "caseId": "care_...", "type": "CLOSED", "occurredOn": "2026-10-07", "createdAt": "2026-10-07T09:00:00+09:00", "content": "관리 종료", "noteChannel": null }
   ]
 }
 ```
@@ -3402,7 +3384,7 @@ GET /api/admin/student-care/students/{studentId}/history?branchId=br_gangnam
 
 Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `404 STUDENT_NOT_FOUND`.
 
-## 65-9. Care Settings
+## 65-9. Care Settings (특이사항 기준)
 
 ```http
 GET /api/admin/student-care/settings?branchId=br_gangnam
@@ -3423,7 +3405,7 @@ PUT /api/admin/student-care/settings?branchId=br_gangnam
 ```
 
 - PUT은 전체 값을 받는다. 모두 정수다(소수는 `400 VALIDATION_ERROR`). 범위는 `docs/specs/wangyu/domain.md` §4-3. 범위 밖: `422 INVALID_CARE_SETTINGS` (`details.fields`).
-- 응답에 각 값의 허용 범위를 함께 준다. 화면은 이 범위로 안내한다.
+- 응답에 각 값의 허용 범위를 함께 준다.
 
 ```json
 {
@@ -3435,29 +3417,7 @@ PUT /api/admin/student-care/settings?branchId=br_gangnam
 
 Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `422 INVALID_CARE_SETTINGS`.
 
-## 65-10. Branch Summary
-
-```http
-GET /api/admin/student-care/summary?branchId=br_gangnam
-```
-
-```json
-{
-  "asOf": "2026-09-30",
-  "needsCheckCount": 7,
-  "deferredCount": 1,
-  "inAdjustmentCount": 1,
-  "recheckDueCount": 0,
-  "signalCounts": [ { "type": "STUDY_DROP", "label": "학습량 감소", "count": 2 } ],
-  "closedLast30Days": { "expectedChange": 0, "recordIssue": 0, "afterRecheck": 0 }
-}
-```
-
-- `closedLast30Days`: closedOn이 asOf−29 ~ asOf인 건.
-
-Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
-
-## 65-11. Endpoint Inventory
+## 65-10. Endpoint Inventory
 
 ```text
 GET    /api/admin/student-care/branches
@@ -3469,8 +3429,9 @@ POST   /api/admin/student-care/cases/{caseId}/decisions
 POST   /api/admin/student-care/cases/{caseId}/notes
 GET    /api/admin/student-care/settings
 PUT    /api/admin/student-care/settings
-GET    /api/admin/student-care/summary
 ```
+
+지점 요약(`GET /summary`)은 없앴다(`docs/design/student-care-ux.md` "이번에 넣지 않는 것").
 
 E2E 전용(운영에서는 등록하지 않음):
 

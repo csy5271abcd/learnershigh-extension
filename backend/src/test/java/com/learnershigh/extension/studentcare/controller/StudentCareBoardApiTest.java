@@ -71,8 +71,8 @@ class StudentCareBoardApiTest {
                 .andExpect(jsonPath("$.branch.name").value("러너스하이 강남점"))
                 .andExpect(jsonPath("$.needsCheck", hasSize(7)))
                 .andExpect(jsonPath("$.needsCheck[0].studentName").value("김서준"))
-                .andExpect(jsonPath("$.needsCheck[0].signals[*].label", contains("연속 미입실", "계획 미제출 반복")))
-                .andExpect(jsonPath("$.needsCheck[0].signals[0].summary").value("4일째 입실 기록 없음"))
+                .andExpect(jsonPath("$.needsCheck[0].signals[*].label", contains("연속 결석", "계획 미제출")))
+                .andExpect(jsonPath("$.needsCheck[0].signals[0].summary").value("4일째 결석"))
                 .andExpect(jsonPath("$.needsCheck[*].studentName", containsInAnyOrder(
                         "김서준", "최학생", "한유진", "정예준", "윤서연", "이학생", "오시윤")))
                 .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
@@ -119,10 +119,6 @@ class StudentCareBoardApiTest {
                 .andExpect(jsonPath("$.needsCheck", hasSize(0)))
                 .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
                 .andExpect(jsonPath("$.deferred", hasSize(0)));
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", OTHER_BRANCH))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.needsCheckCount").value(0))
-                .andExpect(jsonPath("$.signalCounts", hasSize(0)));
     }
 
     @Test
@@ -140,38 +136,36 @@ class StudentCareBoardApiTest {
 
     private void startAdjustment(String studentId, String recheckDate) throws Exception {
         mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"branchId":"br_gangnam","studentId":"%s","reason":"ADJUSTMENT_NEEDED",
-                         "plan":{"goal":"목표","action":"행동","recheckDate":"%s","agreedWithStudent":true}}"""
+                        {"branchId":"br_gangnam","studentId":"%s","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+                         "recheckDate":"%s"}"""
                         .formatted(studentId, recheckDate)))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    void detailHasEvidenceQuestionChartAndSuggestion() throws Exception {
+    void detailHasEvidenceAndChart() throws Exception {
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.student.studentName").value("윤서연"))
                 .andExpect(jsonPath("$.signals[0].type").value("SUBJECT_SHARE"))
-                .andExpect(jsonPath("$.signals[0].summary").value("계획한 수학 비중 30% → 최근 12%"))
-                .andExpect(jsonPath("$.signals[0].evidence[0]").value("계획한 수학 비중 30% → 최근 12% (전체 학습량은 평소 수준)"))
-                .andExpect(jsonPath("$.signals[0].question").value("의도한 시험 대비인지, 수학 항목이 너무 커서 미루고 있는지"))
+                .andExpect(jsonPath("$.signals[0].label").value("수학 계획 미달성"))
+                .andExpect(jsonPath("$.signals[0].summary").value("수학 계획 30% → 실제 12%"))
+                .andExpect(jsonPath("$.signals[0].evidence[0]").value("수학 계획 30% → 실제 12% · 전체 공부 시간은 평소 수준"))
+                .andExpect(jsonPath("$.signals[0].question").doesNotExist())
                 .andExpect(jsonPath("$.dailyStudy", hasSize(14)))
                 .andExpect(jsonPath("$.dailyStudy[0].date").value("2026-09-17"))
                 .andExpect(jsonPath("$.usualDailyMinutes").isNumber())
-                .andExpect(jsonPath("$.planSuggestion.goal").value("수학 비중을 계획한 30% 가까이"))
-                .andExpect(jsonPath("$.planSuggestion.action").value("큰 수학 항목을 30분씩 4회로 나누기"))
-                .andExpect(jsonPath("$.planSuggestion.recheckDate").value("2026-10-07"))
+                .andExpect(jsonPath("$.planSuggestion").doesNotExist())
                 .andExpect(jsonPath("$.deferred").value(nullValue()))
                 .andExpect(jsonPath("$.activeCase").value(nullValue()));
     }
 
     @Test
-    void detailOfDeferredStudentHasNoSuggestion() throws Exception {
+    void detailOfDeferredStudentHasNoSignals() throws Exception {
         mvc.perform(get("/api/admin/student-care/students/stu_008").param("branchId", BRANCH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.signals", hasSize(0)))
-                .andExpect(jsonPath("$.deferred.validDays").value(2))
-                .andExpect(jsonPath("$.planSuggestion").value(nullValue()));
+                .andExpect(jsonPath("$.deferred.validDays").value(2));
     }
 
     @Test

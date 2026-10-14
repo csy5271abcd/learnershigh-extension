@@ -102,8 +102,8 @@ class StudentCareConcurrencyApiTest {
 
     private String startAdjustment() throws Exception {
         String response = mvc.perform(open("""
-                        {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                         "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}"""))
+                        {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+                         "recheckDate":"2026-10-07"}"""))
                 .andReturn().getResponse().getContentAsString();
         return JsonPath.read(response, "$.caseId");
     }
@@ -111,8 +111,8 @@ class StudentCareConcurrencyApiTest {
     @Test
     void concurrentAdjustmentStartsCreateExactlyOneCase() throws Exception {
         List<Reply> replies = concurrently(CONCURRENCY, open("""
-                {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}"""));
+                {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+                 "recheckDate":"2026-10-07"}"""));
 
         assertThat(replies).filteredOn(reply -> reply.status() == 201).hasSize(1);
         assertThat(replies).filteredOn(reply -> reply.status() != 201)
@@ -127,7 +127,7 @@ class StudentCareConcurrencyApiTest {
     @Test
     void concurrentExpectedChangeConfirmationsCreateExactlyOneCase() throws Exception {
         List<Reply> replies = concurrently(CONCURRENCY, open("""
-                {"branchId":"br_gangnam","studentId":"stu_001","reason":"EXPECTED_CHANGE","memo":"가족 여행"}"""));
+                {"branchId":"br_gangnam","studentId":"stu_001","channel":"CALL","reason":"EXPECTED_CHANGE","memo":"가족 여행"}"""));
 
         assertThat(replies).filteredOn(reply -> reply.status() == 201).hasSize(1);
         assertThat(replies).filteredOn(reply -> reply.status() != 201)

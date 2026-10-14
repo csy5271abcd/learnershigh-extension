@@ -3,7 +3,7 @@ package com.learnershigh.extension.studentcare.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-/** 케어 보드 (api-contract.md §65-2). */
+/** 특이사항 / 관리 목록 (api-contract.md §65-2). */
 public record CareBoardResponse(
         LocalDate asOf,
         BranchRef branch,
@@ -20,7 +20,6 @@ public record CareBoardResponse(
             String studentName,
             String className,
             List<SignalSummary> signals,
-            String goal,
             LocalDate recheckDate,
             boolean recheckDue) {
     }

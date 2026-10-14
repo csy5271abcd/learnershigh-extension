@@ -56,8 +56,8 @@ class StudentCareLockFailureApiTest {
 
     private static final int WAITERS = 3;
     private static final String BODY = """
-            {"branchId":"br_gangnam","studentId":"stu_005","reason":"ADJUSTMENT_NEEDED",
-             "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}""";
+            {"branchId":"br_gangnam","studentId":"stu_005","channel":"CALL","reason":"ADJUSTMENT_NEEDED",
+             "recheckDate":"2026-10-07"}""";
 
     /** 첫 요청이 학생 잠금을 잡은 뒤 어떻게 끝나는지. */
     enum FirstRequestFailure {

@@ -3,7 +3,6 @@ package com.learnershigh.extension.studentcare.service;
 import com.learnershigh.extension.common.error.BusinessException;
 import com.learnershigh.extension.common.error.CommonErrorCode;
 import com.learnershigh.extension.common.error.ConstraintViolations;
-import com.learnershigh.extension.common.error.FieldViolation;
 import com.learnershigh.extension.common.integration.learnershigh.ExistingDailyStudy;
 import com.learnershigh.extension.studentcare.dto.CareCaseResponse;
 import com.learnershigh.extension.studentcare.dto.CareDecisionRequest;
@@ -15,7 +14,6 @@ import com.learnershigh.extension.studentcare.dto.OpenCareCaseRequest;
 import com.learnershigh.extension.studentcare.entity.CareBaselineSignal;
 import com.learnershigh.extension.studentcare.entity.CareCase;
 import com.learnershigh.extension.studentcare.entity.CareEvent;
-import com.learnershigh.extension.studentcare.entity.CarePlan;
 import com.learnershigh.extension.studentcare.entity.CareReason;
 import com.learnershigh.extension.studentcare.entity.CareSettings;
 import com.learnershigh.extension.studentcare.entity.CareSignalType;
@@ -38,9 +36,9 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * 학생 케어 변경 Use Case (api-contract.md §65-4, 65-6, 65-7, 65-9). 상태 전이는 CareCase 메서드가 한다.
  *
- * <p>동시 요청 (domain.md §5-1): 사유 확인은 학생 단위 잠금({@link StudentCareLocks}), 결정 / 메모는 건 단위 잠금으로
- * 순서대로 처리한다. 잠금을 기다린 요청이 앞 요청이 남긴 결과를 읽도록 READ_COMMITTED를 쓴다.
- * 외부(Existing) 조회가 실패하면 아무것도 저장되지 않는다: 사유 확인은 기록을 잠금 전에 읽고,
+ * <p>동시 요청 (domain.md §5-1): 상담 기록(새 건)은 학생 단위 잠금({@link StudentCareLocks}), 결정 / 상담 기록(notes)은
+ * 건 단위 잠금으로 순서대로 처리한다. 잠금을 기다린 요청이 앞 요청이 남긴 결과를 읽도록 READ_COMMITTED를 쓴다.
+ * 외부(Existing) 조회가 실패하면 아무것도 저장되지 않는다: 상담 기록은 기록을 잠금 전에 읽고,
  * 결정은 예외로 Transaction 전체가 되돌아간다.
  */
 @Service
@@ -67,7 +65,7 @@ public class StudentCareService {
     }
 
     /**
-     * 사유 확인. 지금 신호(cooldown 적용 후)를 Baseline으로 저장한다.
+     * 상담 기록으로 관리를 연다. 지금 신호(cooldown 적용 후)를 Baseline으로 저장한다.
      *
      * <p>Transaction 순서: (1) 입력 / 학생 / 기존 기록 조회는 Transaction 밖에서 (2) 학생 잠금 행을 별도 Transaction으로 보장
      * (3) 업무 Transaction에서 잠금 → 진행 중 건 / cooldown 확인 → 저장. 한 요청이 DB 연결을 둘 이상 동시에 잡지 않는다.
@@ -79,29 +77,22 @@ public class StudentCareService {
         LocalDate today = reader.today();
         Instant now = reader.now();
 
-        // 약속은 ADJUSTMENT_NEEDED일 때만 검증한다. 다른 사유의 plan은 무시한다 (api-contract.md §65-4).
-        CarePlan plan = null;
+        // 다음 점검일은 계속 관리일 때만 검증한다. 다른 결과의 recheckDate는 무시한다 (api-contract.md §65-4).
         LocalDate recheckDate = null;
         if (request.reason() == CareReason.ADJUSTMENT_NEEDED) {
-            if (request.plan() == null) {
-                throw planRequired();
-            }
-            plan = toPlan(request.plan().goal(), request.plan().action(), request.plan().loadLimit(),
-                    request.plan().agreedWithStudent());
-            recheckDate = request.plan().recheckDate();
-            CareCase.requireValidRecheckDate(recheckDate, today, "plan.recheckDate");
+            recheckDate = request.recheckDate();
+            CareCase.requireValidRecheckDate(recheckDate, today, "recheckDate");
         }
         reader.student(branchId, studentId);
         // 기존 기록은 DB 상태와 관계없으므로 잠금 전에 읽는다. 실패(503)하면 잠금 행도 만들지 않는다.
         List<ExistingDailyStudy> history = reader.history(studentId, today);
 
         studentLocks.ensureRow(branchId, studentId);
-        CarePlan agreedPlan = plan;
-        LocalDate agreedRecheckDate = recheckDate;
-        return lockedTransaction.execute(status -> openLocked(request, history, agreedPlan, agreedRecheckDate, today, now));
+        LocalDate validRecheckDate = recheckDate;
+        return lockedTransaction.execute(status -> openLocked(request, history, validRecheckDate, today, now));
     }
 
-    private CareCaseResponse openLocked(OpenCareCaseRequest request, List<ExistingDailyStudy> history, CarePlan plan,
+    private CareCaseResponse openLocked(OpenCareCaseRequest request, List<ExistingDailyStudy> history,
             LocalDate recheckDate, LocalDate today, Instant now) {
         String branchId = request.branchId();
         String studentId = request.studentId();
@@ -117,8 +108,8 @@ public class StudentCareService {
                 .map(DetectedSignal::toBaseline)
                 .toList();
 
-        CareCase careCase = CareCase.open(branchId, studentId, request.reason(), baseline, request.memo(), plan,
-                recheckDate, today, now);
+        CareCase careCase = CareCase.open(branchId, studentId, request.reason(), baseline, request.channel(),
+                request.memo(), recheckDate, today, now);
         try {
             caseRepository.saveAndFlush(careCase);
         } catch (DataIntegrityViolationException exception) {
@@ -131,29 +122,17 @@ public class StudentCareService {
         return CareCaseMapper.toResponse(careCase, today, reader.zone(), null);
     }
 
-    /** 재점검 후 선생님 결정. 비교 결과는 학생 기록에 남는다. */
+    /** 점검 후 결정(관리 종료 / 계속 관리). 비교 결과는 이력에 남는다. */
     public CareCaseResponse decide(String branchId, String caseId, CareDecisionRequest request) {
         CareCase careCase = caseRepository.findForUpdate(caseId, branchId)
                 .orElseThrow(() -> new BusinessException(StudentCareErrorCode.CARE_CASE_NOT_FOUND));
         LocalDate today = reader.today();
         Instant now = reader.now();
 
-        // 외부 조회 전에 빠르게 실패: 상태 / 재점검일 도래(409), 결정 입력(422)
+        // 외부 조회 전에 빠르게 실패: 상태 / 점검일 도래(409), 다음 점검일(422)
         careCase.requireDecidable(today);
-        CarePlan revisedPlan = null;
-        switch (request.decision()) {
-            case CLOSE -> {
-                // 추가 입력 없음
-            }
-            case CONTINUE -> CareCase.requireValidRecheckDate(request.recheckDate(), today, "recheckDate");
-            case REVISE -> {
-                CareDecisionRequest.Plan input = request.plan();
-                if (input == null) {
-                    throw planRequired();
-                }
-                revisedPlan = toPlan(input.goal(), input.action(), input.loadLimit(), input.agreedWithStudent());
-                CareCase.requireValidRecheckDate(request.recheckDate(), today, "recheckDate");
-            }
+        if (request.decision() == CareDecisionRequest.Decision.CONTINUE) {
+            CareCase.requireValidRecheckDate(request.recheckDate(), today, "recheckDate");
         }
 
         List<ExistingDailyStudy> history = reader.history(careCase.studentId(), today);
@@ -162,13 +141,12 @@ public class StudentCareService {
         switch (request.decision()) {
             case CLOSE -> careCase.closeAfterRecheck(comparisonText, today, now);
             case CONTINUE -> careCase.continueAfterRecheck(comparisonText, request.recheckDate(), today, now);
-            case REVISE -> careCase.reviseAfterRecheck(comparisonText, revisedPlan, request.recheckDate(), today, now);
         }
         caseRepository.saveAndFlush(careCase);
         return CareCaseMapper.toResponse(careCase, today, reader.zone(), comparison);
     }
 
-    /** 면담 / 통화 메모. 종결된 건에도 남길 수 있다. */
+    /** 관리 중 상담 기록. 종결된 건에도 남길 수 있다. */
     public CareEventResponse addNote(String branchId, String caseId, CareNoteRequest request) {
         CareCase careCase = caseRepository.findForUpdate(caseId, branchId)
                 .orElseThrow(() -> new BusinessException(StudentCareErrorCode.CARE_CASE_NOT_FOUND));
@@ -196,13 +174,5 @@ public class StudentCareService {
             throw exception;
         }
         return CareSettingsResponse.from(settings.values());
-    }
-
-    private static CarePlan toPlan(String goal, String action, String loadLimit, Boolean agreedWithStudent) {
-        return CarePlan.of(goal, action, loadLimit, Boolean.TRUE.equals(agreedWithStudent));
-    }
-
-    private static BusinessException planRequired() {
-        return BusinessException.withFields(StudentCareErrorCode.PLAN_REQUIRED, new FieldViolation("plan", "required"));
     }
 }

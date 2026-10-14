@@ -12,18 +12,14 @@ public record StudentCareDetailResponse(
         Deferred deferred,
         List<DailyStudy> dailyStudy,
         int usualDailyMinutes,
-        PlanSuggestion planSuggestion,
         CareCaseResponse activeCase) {
 
-    public record Signal(CareSignalType type, String label, String summary, List<String> evidence, String question) {
+    public record Signal(CareSignalType type, String label, String summary, List<String> evidence) {
     }
 
     public record Deferred(int validDays) {
     }
 
     public record DailyStudy(LocalDate date, int minutes) {
-    }
-
-    public record PlanSuggestion(String goal, String action, String loadLimit, LocalDate recheckDate) {
     }
 }

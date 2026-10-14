@@ -1,18 +1,14 @@
 package com.learnershigh.extension.studentcare.controller;
 
-import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.ANCHOR;
 import static com.learnershigh.extension.studentcare.controller.StudentCareApiTestSupport.BRANCH;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.jayway.jsonpath.JsonPath;
 import com.learnershigh.extension.common.integration.learnershigh.MockIntegrationSwitch;
 import com.learnershigh.extension.common.time.AdjustableClock;
 import com.learnershigh.extension.support.MySqlContainerConfig;
@@ -142,78 +138,8 @@ class StudentCareSettingsApiTest {
     }
 
     @Test
-    void summaryCountsBoardAndRecentClosures() throws Exception {
-        mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON).content("""
-                {"branchId":"br_gangnam","studentId":"stu_002","reason":"RECORD_ISSUE"}""")).andExpect(status().isCreated());
-        mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON).content("""
-                {"branchId":"br_gangnam","studentId":"stu_003","reason":"ADJUSTMENT_NEEDED",
-                 "plan":{"goal":"목표","action":"행동","recheckDate":"2026-10-07","agreedWithStudent":true}}"""))
-                .andExpect(status().isCreated());
-
+    void branchSummaryEndpointIsRemoved() throws Exception {
         mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.asOf").value("2026-09-30"))
-                .andExpect(jsonPath("$.needsCheckCount").value(5))
-                .andExpect(jsonPath("$.deferredCount").value(1))
-                .andExpect(jsonPath("$.inAdjustmentCount").value(1))
-                .andExpect(jsonPath("$.recheckDueCount").value(0))
-                .andExpect(jsonPath("$.signalCounts[?(@.type == 'STUDY_DROP')].count").value(1))
-                .andExpect(jsonPath("$.signalCounts[?(@.type == 'CONSECUTIVE_ABSENCE')].label").value("연속 미입실"))
-                .andExpect(jsonPath("$.closedLast30Days.recordIssue").value(1))
-                .andExpect(jsonPath("$.closedLast30Days.expectedChange").value(0))
-                .andExpect(jsonPath("$.closedLast30Days.afterRecheck").value(0));
-    }
-
-    @Test
-    void summaryCountsRecheckDueAndAfterRecheckClosuresWithinThirtyDays() throws Exception {
-        String early = startAdjustment("stu_003", "2026-10-03");
-        startAdjustment("stu_005", "2026-10-07");
-
-        clock.setDate(ANCHOR.plusDays(3));
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.inAdjustmentCount").value(2))
-                .andExpect(jsonPath("$.recheckDueCount").value(1));
-
-        mvc.perform(post("/api/admin/student-care/cases/{caseId}/decisions", early).param("branchId", BRANCH)
-                        .contentType(MediaType.APPLICATION_JSON).content("{\"decision\":\"CLOSE\"}"))
-                .andExpect(status().isOk());
-
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.inAdjustmentCount").value(1))
-                .andExpect(jsonPath("$.recheckDueCount").value(0))
-                .andExpect(jsonPath("$.closedLast30Days.afterRecheck").value(1));
-
-        // 10/3 종결 → asOf−29 ~ asOf에 들어가는 마지막 날은 11/1, 11/2부터 빠진다.
-        clock.setDate(java.time.LocalDate.of(2026, 11, 1));
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.closedLast30Days.afterRecheck").value(1))
-                .andExpect(jsonPath("$.recheckDueCount").value(1));
-        clock.setDate(java.time.LocalDate.of(2026, 11, 2));
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.closedLast30Days.afterRecheck").value(0));
-    }
-
-    @Test
-    void integrationFailureOnSummaryIs503AndChangesNothing() throws Exception {
-        startAdjustment("stu_003", "2026-10-03");
-        String before = StudentCareApiTestSupport.snapshot(jdbc);
-        integration.setStudyDataAvailable(false);
-
-        mvc.perform(get("/api/admin/student-care/summary").param("branchId", BRANCH))
-                .andExpect(status().isServiceUnavailable())
-                .andExpect(jsonPath("$.code").value("EXISTING_STUDY_DATA_UNAVAILABLE"));
-
-        assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
-    }
-
-    private String startAdjustment(String studentId, String recheckDate) throws Exception {
-        String response = mvc.perform(post("/api/admin/student-care/cases").contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"branchId":"br_gangnam","studentId":"%s","reason":"ADJUSTMENT_NEEDED",
-                                 "plan":{"goal":"목표","action":"행동","recheckDate":"%s","agreedWithStudent":true}}"""
-                                .formatted(studentId, recheckDate)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        return JsonPath.read(response, "$.caseId");
+                .andExpect(status().isNotFound());
     }
 }
