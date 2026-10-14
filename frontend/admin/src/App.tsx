@@ -38,6 +38,7 @@ import { configureCommandScenario } from './store/adminCommands.ts'
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
 // Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Mentor 추천 · Connection · Interview · Operations)
 // 학생 케어(features/student-care, Wangyu)는 같은 AdminShell 안의 Feature Route(/student-care)로 연결한다. (별도 App Shell을 쓰지 않는다)
+// 학생 케어 화면 제목 · 지점 선택은 StudentCarePage가 직접 그린다. (origin/main의 개발용 App은 StudentCarePage만 렌더링)
 const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
   'student-care': studentCarePath,

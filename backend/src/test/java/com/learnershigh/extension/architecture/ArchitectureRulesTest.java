@@ -44,7 +44,8 @@ class ArchitectureRulesTest {
                 ArchitectureRules::noServiceImplClasses, "AlphaServiceImpl",
                 ArchitectureRules::noCrossDomainRepositoryOrEntityAccess, "BetaService",
                 ArchitectureRules::existingClientsResideInIntegrationPackage, "ExistingGammaClient",
-                ArchitectureRules::existingClientImplementationsAreNotUsedOutsideIntegrationPackage, "BetaService");
+                ArchitectureRules::existingClientImplementationsAreNotUsedOutsideIntegrationPackage, "BetaService",
+                ArchitectureRules::phapiIsUsedOnlyInsideIntegrationPackage, "GammaQueryService");
 
         return expectations.entrySet().stream().map(expectation -> {
             ArchRule rule = expectation.getKey().apply(rules);

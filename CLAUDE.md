@@ -52,6 +52,7 @@ Study Room
 
 ```text
 + docs/architecture/integration-boundary.md
++ docs/architecture/existing-learnershigh-data.md
 + docs/product/existing-runners-high-analysis.md
 + 관련 references/existing-runners-high/screens/
 ```
@@ -91,6 +92,9 @@ Architecture
 
 신규 Layout
 → references/claude-design-mockup/
+
+기존 LearnersHigh Entity / Table / API (확인된 것만)
+→ docs/architecture/existing-learnershigh-data.md
 
 기존 LearnersHigh Context / IA / Interaction
 → docs/product/existing-runners-high-analysis.md
@@ -419,6 +423,8 @@ scripts/verify-backend.ps1
 ```
 
 Test / Build / Typecheck / Lint가 실패하면 완료라고 보고하지 않는다.
+
+PR / Feature 완료 전 리뷰는 `.claude/rules/code-review.md`(Section 점수제 + 적대적 리뷰)를 따른다.
 
 ## 20. Completion Report
 

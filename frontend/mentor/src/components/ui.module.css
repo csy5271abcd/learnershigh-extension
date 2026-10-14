@@ -1,0 +1,389 @@
+/* Mentor Surface 공통 Layout / Button / Form Style. 3개 Feature(content / qna / profile)가 함께 쓴다. */
+
+/* ---------- Page Layout ---------- */
+.page {
+  width: 100%;
+  max-width: calc(var(--lh-page-max-width) + var(--lh-page-gutter) * 2);
+  padding: var(--lh-space-8) var(--lh-page-gutter) var(--lh-space-12);
+}
+
+.pageHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--lh-space-4);
+  margin-bottom: var(--lh-space-6);
+}
+
+.pageTitle {
+  font-size: var(--lh-font-page-title);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.pageTitle:focus {
+  outline: none;
+}
+
+.pageLead {
+  margin-top: var(--lh-space-1);
+  color: var(--lh-color-text-secondary);
+}
+
+/* 본문 + 오른쪽 Context Panel. Tablet 이하에서는 한 줄로 내려간다. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--lh-space-8);
+  align-items: start;
+}
+
+.aside {
+  position: sticky;
+  top: var(--lh-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+}
+
+@media (max-width: 1023px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--lh-space-6);
+  }
+
+  .aside {
+    position: static;
+  }
+}
+
+/* Context Panel: Box 대신 얇은 Divider로 나눈다. */
+.panel {
+  padding-bottom: var(--lh-space-5);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.panel:last-child {
+  border-bottom: 0;
+}
+
+.panelTitle {
+  margin-bottom: var(--lh-space-3);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.sectionTitle {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.meta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+/* 정의 목록 (상태 / 수정일 등) */
+.facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--lh-space-2) var(--lh-space-4);
+}
+
+.facts dt {
+  color: var(--lh-color-text-tertiary);
+}
+
+.facts dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ---------- Button ---------- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lh-space-2);
+  min-height: 44px;
+  padding: 0 var(--lh-space-5);
+  border: 1px solid transparent;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+}
+
+.secondary {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-text);
+}
+
+.neutral {
+  border-color: var(--lh-color-border);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+}
+
+.neutral:hover:not(:disabled) {
+  background: var(--lh-color-surface-hover);
+}
+
+.ghost {
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-weight: 600;
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--lh-color-surface-hover);
+}
+
+.danger {
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+}
+
+.small {
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  font-size: var(--lh-font-label);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-1);
+  min-height: 36px;
+  margin: 0 0 var(--lh-space-4) calc(var(--lh-space-2) * -1);
+  padding: 0 var(--lh-space-2);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-body);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.backLink:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+/* 여러 Button을 한 줄로. 좁으면 줄바꿈 */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+/* 화면 아래에 붙는 작성 Action Bar (TDS Fixed Bottom CTA의 Web 재해석) */
+.actionBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  margin-top: var(--lh-space-8);
+  padding: var(--lh-space-4) 0;
+  border-top: 1px solid var(--lh-color-border);
+  background: var(--lh-color-background);
+}
+
+.actionBarHint {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+/* 작은 간격 세로 묶음 */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+/* ---------- Form ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-6);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+}
+
+.compactLabel {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.optional {
+  margin-left: var(--lh-space-1);
+  color: var(--lh-color-text-tertiary);
+  font-weight: 500;
+}
+
+.help {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.fieldError {
+  color: var(--lh-color-negative);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border: 1px solid var(--lh-color-border-strong);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  font-size: var(--lh-font-body);
+}
+
+.textarea {
+  min-height: 120px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 0;
+  border-color: var(--lh-color-accent);
+}
+
+.input[aria-invalid='true'],
+.textarea[aria-invalid='true'] {
+  border-color: var(--lh-color-negative);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--lh-space-4);
+}
+
+/* Form 오류 / 안내 Box */
+.alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-body);
+}
+
+.alertError {
+  background: var(--lh-color-negative-subtle);
+  color: var(--lh-color-negative);
+}
+
+.alertInfo {
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+}
+
+.alertWarning {
+  background: var(--lh-color-warning-subtle);
+  color: var(--lh-color-warning);
+}
+
+/* Chip 선택 (Filter / 주제) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-1);
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+.chip[aria-pressed='true'],
+.chip[aria-checked='true'] {
+  border-color: var(--lh-color-text-primary);
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-1);
+}
+
+.tag {
+  padding: 2px var(--lh-space-2);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+/* Mobile: 아래 Tab Bar 위에 붙인다. */
+@media (max-width: 767px) {
+  .actionBar {
+    bottom: var(--lh-mobile-bar-height);
+  }
+}

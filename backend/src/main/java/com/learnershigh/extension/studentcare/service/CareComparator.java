@@ -30,23 +30,30 @@ public final class CareComparator {
                 trend(signal.type(), signal.value(), now.getAsInt()));
     }
 
-    /** 의미 있는 변화로 보는 최소 폭: 일수 1, 학습 분 max(30, 5%), 비중·실행률 3%p, 시작 시각 15분. */
+    /**
+     * 의미 있는 변화로 보는 최소 폭 (domain.md §6): 일수 1일, 학습 분 max(30분, 기준의 5%), 비중·실행률 3%p, 시작 시각 15분.
+     * 좋아지는 방향으로 최소 폭 이상이면 IMPROVED, 반대 방향으로 최소 폭 이상이면 WORSENED, 아니면 SAME.
+     */
     static Trend trend(CareSignalType type, int before, int now) {
-        int delta = now - before;
-        int better = type.higherIsBetter() ? delta : -delta;
-        int minimum = switch (type.unit()) {
-            case DAYS -> 1;
-            case MINUTES -> Math.max(30, (int) Math.round(Math.abs(before) * 0.05));
-            case PERCENT -> 3;
-            case CLOCK_MINUTES -> 15;
-        };
-        if (better >= minimum) {
+        long delta = (long) now - before;
+        long better = type.higherIsBetter() ? delta : -delta;
+        if (reachesMinimum(type, before, better)) {
             return Trend.IMPROVED;
         }
-        if (better <= -minimum) {
+        if (reachesMinimum(type, before, -better)) {
             return Trend.WORSENED;
         }
         return Trend.SAME;
+    }
+
+    private static boolean reachesMinimum(CareSignalType type, int before, long change) {
+        return switch (type.unit()) {
+            case DAYS -> change >= 1;
+            // change ≥ max(30, before × 5%)  ⇔  change ≥ 30 이고 change × 20 ≥ before (반올림 없이 비교)
+            case MINUTES -> change >= 30 && change * 20 >= Math.abs((long) before);
+            case PERCENT -> change >= 3;
+            case CLOCK_MINUTES -> change >= 15;
+        };
     }
 
     private static Result resultOf(List<Row> rows) {

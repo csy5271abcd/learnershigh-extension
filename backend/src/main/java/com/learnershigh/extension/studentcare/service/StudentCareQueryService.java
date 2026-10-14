@@ -9,14 +9,12 @@ import com.learnershigh.extension.studentcare.dto.CareBoardResponse;
 import com.learnershigh.extension.studentcare.dto.CareCaseResponse;
 import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.CareSettingsResponse;
-import com.learnershigh.extension.studentcare.dto.CareSummaryResponse;
 import com.learnershigh.extension.studentcare.dto.SignalSummary;
 import com.learnershigh.extension.studentcare.dto.StudentCareDetailResponse;
 import com.learnershigh.extension.studentcare.dto.StudentHistoryResponse;
 import com.learnershigh.extension.studentcare.dto.StudentRef;
 import com.learnershigh.extension.studentcare.entity.CareCase;
 import com.learnershigh.extension.studentcare.entity.CareCaseStatus;
-import com.learnershigh.extension.studentcare.entity.CareCloseType;
 import com.learnershigh.extension.studentcare.entity.CareSettings;
 import com.learnershigh.extension.studentcare.entity.CareSignalType;
 import com.learnershigh.extension.studentcare.repository.CareCaseRepository;
@@ -24,7 +22,6 @@ import com.learnershigh.extension.studentcare.repository.CareEventRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,7 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class StudentCareQueryService {
 
-    private static final int CLOSED_SUMMARY_DAYS = 30;
+    /** 이름 순. 연동 Contract상 이름은 비어 있지 않지만, 비어 있어도 정렬이 실패하지 않게 맨 뒤로 보낸다. */
+    static final Comparator<String> NAME_ORDER = Comparator.nullsLast(Comparator.naturalOrder());
 
     private final StudentCareReader reader;
     private final CareCaseRepository caseRepository;
@@ -79,17 +77,17 @@ public class StudentCareQueryService {
 
         Set<CareSignalType> suppressed = reader.cooldown(branchId, asOf, settings).getOrDefault(studentId, Set.of());
         SignalEvaluation evaluation = reader.evaluate(history, asOf, settings, suppressed);
+        CareComparison comparison = active.filter(careCase -> careCase.isRecheckDue(asOf))
+                .map(careCase -> CareComparator.compare(careCase.baseline(), history, asOf))
+                .orElse(null);
 
         List<StudentCareDetailResponse.Signal> signals = evaluation.signals().stream()
-                .map(signal -> new StudentCareDetailResponse.Signal(signal.type(), signal.type().label(),
-                        signal.summary(), signal.evidence(), StudentCareTexts.question(signal)))
+                .map(signal -> new StudentCareDetailResponse.Signal(signal.type(), signal.type().labelFor(signal.subject()),
+                        signal.summary(), signal.evidence()))
                 .toList();
         List<StudentCareDetailResponse.DailyStudy> daily = CareSignalCalculator.last14(history, asOf).stream()
                 .map(day -> new StudentCareDetailResponse.DailyStudy(day.date(), day.studyMinutes()))
                 .toList();
-        StudentCareDetailResponse.PlanSuggestion suggestion = active.isPresent() || evaluation.signals().isEmpty()
-                ? null
-                : toSuggestion(StudentCareTexts.suggestion(evaluation.signals().getFirst(), asOf));
 
         return new StudentCareDetailResponse(
                 asOf,
@@ -98,13 +96,13 @@ public class StudentCareQueryService {
                 evaluation.deferred() ? new StudentCareDetailResponse.Deferred(evaluation.validDays()) : null,
                 daily,
                 CareSignalCalculator.usualDailyMinutes(history, asOf),
-                suggestion,
-                active.map(careCase -> CareCaseMapper.toResponse(careCase, asOf, reader.zone(), history)).orElse(null));
+                active.map(careCase -> CareCaseMapper.toResponse(careCase, asOf, reader.zone(), comparison)).orElse(null));
     }
 
+    /** 그 지점에서 연 이 학생의 모든 건 이벤트, 최신순 (api-contract.md §65-8). */
     public StudentHistoryResponse history(String branchId, String studentId) {
         ExistingStudent student = reader.student(branchId, studentId);
-        List<CareEventResponse> items = eventRepository.findTimeline(studentId).stream()
+        List<CareEventResponse> items = eventRepository.findTimeline(branchId, studentId).stream()
                 .map(event -> CareEventResponse.from(event, reader.zone()))
                 .toList();
         return new StudentHistoryResponse(toRef(student), items);
@@ -113,37 +111,6 @@ public class StudentCareQueryService {
     public CareSettingsResponse settings(String branchId) {
         reader.branch(branchId);
         return CareSettingsResponse.from(reader.settings(branchId));
-    }
-
-    public CareSummaryResponse summary(String branchId) {
-        reader.branch(branchId);
-        Board board = buildBoard(branchId);
-
-        Map<CareSignalType, Integer> counts = new EnumMap<>(CareSignalType.class);
-        board.needsCheck().forEach(card -> card.signals()
-                .forEach(signal -> counts.merge(signal.type(), 1, Integer::sum)));
-        List<CareSummaryResponse.SignalCount> signalCounts = counts.entrySet().stream()
-                .map(entry -> new CareSummaryResponse.SignalCount(entry.getKey(), entry.getKey().label(), entry.getValue()))
-                .toList();
-
-        List<CareCase> closed = caseRepository.findByBranchIdAndStatusAndClosedOnGreaterThanEqual(
-                branchId, CareCaseStatus.CLOSED, board.asOf().minusDays(CLOSED_SUMMARY_DAYS - 1L));
-        Map<CareCloseType, Long> closedCounts = closed.stream()
-                .collect(Collectors.groupingBy(CareCase::closeType, () -> new EnumMap<>(CareCloseType.class),
-                        Collectors.counting()));
-
-        int recheckDue = (int) board.inAdjustment().stream().filter(CareBoardResponse.InAdjustmentCard::recheckDue).count();
-        return new CareSummaryResponse(
-                board.asOf(),
-                board.needsCheck().size(),
-                board.deferred().size(),
-                board.inAdjustment().size(),
-                recheckDue,
-                signalCounts,
-                new CareSummaryResponse.ClosedCounts(
-                        closedCounts.getOrDefault(CareCloseType.EXPECTED_CHANGE, 0L).intValue(),
-                        closedCounts.getOrDefault(CareCloseType.RECORD_ISSUE, 0L).intValue(),
-                        closedCounts.getOrDefault(CareCloseType.AFTER_RECHECK, 0L).intValue()));
     }
 
     private Board buildBoard(String branchId) {
@@ -167,34 +134,33 @@ public class StudentCareQueryService {
             if (!evaluation.signals().isEmpty()) {
                 needsCheck.add(new CareBoardResponse.NeedsCheckCard(student.studentId(), student.name(),
                         student.className(), evaluation.signals().stream()
-                                .map(signal -> SignalSummary.of(signal.type(), signal.summary())).toList()));
+                                .map(signal -> SignalSummary.of(signal.type(), signal.subject(), signal.summary())).toList()));
             } else if (evaluation.deferred()) {
                 deferred.add(new CareBoardResponse.DeferredStudent(student.studentId(), student.name(),
                         student.className(), evaluation.validDays()));
             }
         }
+        // 신호 수 많은 순 → 이름 순 (student-care.md §3). 같은 이름은 학생 ID로 순서를 고정한다.
         needsCheck.sort(Comparator.comparing((CareBoardResponse.NeedsCheckCard card) -> -card.signals().size())
-                .thenComparing(CareBoardResponse.NeedsCheckCard::studentName));
+                .thenComparing(CareBoardResponse.NeedsCheckCard::studentName, NAME_ORDER)
+                .thenComparing(CareBoardResponse.NeedsCheckCard::studentId));
 
         List<CareBoardResponse.InAdjustmentCard> inAdjustment = active.values().stream()
                 .filter(careCase -> byId.containsKey(careCase.studentId()))
                 .map(careCase -> {
                     ExistingStudent student = byId.get(careCase.studentId());
                     return new CareBoardResponse.InAdjustmentCard(careCase.id(), student.studentId(), student.name(),
-                            student.className(), CareCaseMapper.signals(careCase), careCase.plan().goal(),
+                            student.className(), CareCaseMapper.signals(careCase),
                             careCase.recheckDate(), careCase.isRecheckDue(asOf));
                 })
+                // 점검일이 된 건 먼저 → 다음 점검일 빠른 순 (student-care.md §3) → 이름 → 건 ID
                 .sorted(Comparator.comparing((CareBoardResponse.InAdjustmentCard card) -> !card.recheckDue())
                         .thenComparing(CareBoardResponse.InAdjustmentCard::recheckDate)
-                        .thenComparing(CareBoardResponse.InAdjustmentCard::studentName))
+                        .thenComparing(CareBoardResponse.InAdjustmentCard::studentName, NAME_ORDER)
+                        .thenComparing(CareBoardResponse.InAdjustmentCard::caseId))
                 .toList();
 
         return new Board(asOf, List.copyOf(needsCheck), inAdjustment, List.copyOf(deferred));
-    }
-
-    private static StudentCareDetailResponse.PlanSuggestion toSuggestion(StudentCareTexts.Suggestion suggestion) {
-        return new StudentCareDetailResponse.PlanSuggestion(suggestion.goal(), suggestion.action(),
-                suggestion.loadLimit(), suggestion.recheckDate());
     }
 
     private static StudentRef toRef(ExistingStudent student) {

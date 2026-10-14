@@ -1,0 +1,87 @@
+/* Content 유형별 본문 Editor */
+
+.editorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+}
+
+.editorGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.editorItem {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.2fr) auto;
+  gap: var(--lh-space-2);
+  align-items: end;
+}
+
+.habitItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) 120px 120px auto;
+  gap: var(--lh-space-2);
+  align-items: end;
+}
+
+.habitItem .wide {
+  grid-column: 1 / -2;
+}
+
+.stageItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--lh-space-2);
+  align-items: end;
+}
+
+.itemDivider {
+  padding-top: var(--lh-space-3);
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.itemDivider:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (max-width: 767px) {
+  .editorItem,
+  .habitItem {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .habitItem .wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.privacyBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-warning-subtle);
+  color: var(--lh-color-text-primary);
+}
+
+.privacyBox strong {
+  color: var(--lh-color-warning);
+}
+
+.privacyList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-1) var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}

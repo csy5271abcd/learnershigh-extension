@@ -1,4 +1,4 @@
-import type { CareReason, EventType, MetricUnit, NoteChannel } from './types.ts'
+import type { CareReason, MetricUnit, NoteChannel, Trend } from './types.ts'
 
 /** 2026-10-07 → "10월 7일" */
 export function monthDay(date: string): string {
@@ -12,12 +12,18 @@ export function shortDate(date: string): string {
   return `${month}/${day}`
 }
 
-/** 날짜 문자열에 일수를 더한다 (Timezone 영향 없이 날짜만 계산). */
+/** 날짜에 일수를 더한다 (Timezone 영향 없이 날짜만). */
 export function addDays(date: string, days: number): string {
   const [year, month, day] = date.split('-').map(Number)
-  const next = new Date(Date.UTC(year, month - 1, day + days))
-  return next.toISOString().slice(0, 10)
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10)
 }
+
+/** 다음 점검일 선택지. 서버 허용 범위는 기준일+1 ~ +28 (65-4, 65-6). */
+export const RECHECK_CHOICES: readonly { days: number; label: string }[] = [
+  { days: 3, label: '3일' },
+  { days: 7, label: '1주' },
+  { days: 14, label: '2주' },
+]
 
 export function hoursMinutes(minutes: number): string {
   const hours = Math.floor(minutes / 60)
@@ -39,25 +45,20 @@ export function metric(value: number, unit: MetricUnit): string {
   }
 }
 
-export const REASON_LABEL: Record<CareReason, string> = {
-  EXPECTED_CHANGE: '예상된 변화',
-  RECORD_ISSUE: '기록 문제',
-  ADJUSTMENT_NEEDED: '조정 필요',
-}
+export const CHANNELS: readonly { value: NoteChannel; label: string }[] = [
+  { value: 'MEETING', label: '면담' },
+  { value: 'CALL', label: '통화' },
+  { value: 'MESSAGE', label: '문자' },
+]
 
-export const EVENT_LABEL: Record<EventType, string> = {
-  REASON_CONFIRMED: '사유 확인',
-  ADJUSTMENT_STARTED: '조정',
-  RECHECKED: '재점검',
-  CONTINUED: '계속',
-  REVISED: '약속 수정',
-  CLOSED: '결과·종결',
-  NOTE: '메모',
-}
+export const REASONS: readonly { value: CareReason; label: string }[] = [
+  { value: 'EXPECTED_CHANGE', label: '문제없음' },
+  { value: 'RECORD_ISSUE', label: '기록 오류' },
+  { value: 'ADJUSTMENT_NEEDED', label: '계속 관리' },
+]
 
-export const CHANNEL_LABEL: Record<NoteChannel, string> = {
-  MEETING: '면담',
-  CALL: '통화',
-  MESSAGE: '메시지',
-  OTHER: '기타',
+export const TREND_LABEL: Record<Trend, string> = {
+  IMPROVED: '좋아짐',
+  SAME: '그대로',
+  WORSENED: '나빠짐',
 }

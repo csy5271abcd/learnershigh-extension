@@ -1,0 +1,21 @@
+.author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-1) var(--lh-space-2);
+  font-size: var(--lh-font-label);
+}
+
+.name {
+  color: var(--lh-color-text-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.name:hover {
+  text-decoration: underline;
+}
+
+.affiliation {
+  color: var(--lh-color-text-tertiary);
+}

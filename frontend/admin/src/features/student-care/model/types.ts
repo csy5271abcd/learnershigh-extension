@@ -11,7 +11,7 @@ export type SignalType =
 export type CareReason = 'EXPECTED_CHANGE' | 'RECORD_ISSUE' | 'ADJUSTMENT_NEEDED'
 export type CareStatus = 'IN_ADJUSTMENT' | 'CLOSED'
 export type CloseType = 'EXPECTED_CHANGE' | 'RECORD_ISSUE' | 'AFTER_RECHECK'
-export type Decision = 'CLOSE' | 'CONTINUE' | 'REVISE'
+export type Decision = 'CLOSE' | 'CONTINUE'
 export type EventType =
   | 'REASON_CONFIRMED'
   | 'ADJUSTMENT_STARTED'
@@ -50,7 +50,6 @@ export interface InAdjustmentCard {
   studentName: string
   className: string
   signals: SignalSummary[]
-  goal: string
   recheckDate: string
   recheckDue: boolean
 }
@@ -79,14 +78,6 @@ export interface StudentRef {
 
 export interface SignalDetail extends SignalSummary {
   evidence: string[]
-  question: string
-}
-
-export interface PlanSuggestion {
-  goal: string
-  action: string
-  loadLimit: string | null
-  recheckDate: string
 }
 
 export interface CareEvent {
@@ -126,7 +117,6 @@ export interface CareCase {
     target: number | null
     unit: MetricUnit
   }[]
-  plan: { goal: string; action: string; loadLimit: string | null; agreedWithStudent: boolean } | null
   recheckDate: string | null
   recheckDue: boolean
   comparison: { rows: ComparisonRow[]; result: ComparisonResult; resultLabel: string } | null
@@ -140,7 +130,6 @@ export interface StudentCareDetail {
   deferred: { validDays: number } | null
   dailyStudy: { date: string; minutes: number }[]
   usualDailyMinutes: number
-  planSuggestion: PlanSuggestion | null
   activeCase: CareCase | null
 }
 
@@ -149,7 +138,7 @@ export interface StudentHistory {
   items: CareEvent[]
 }
 
-export interface CareSettings {
+export interface CareSettingsValues {
   absenceDays: number
   planMissingDays: number
   studyDropPercent: number
@@ -160,34 +149,23 @@ export interface CareSettings {
   cooldownDays: number
 }
 
-export interface CareSummary {
-  asOf: string
-  needsCheckCount: number
-  deferredCount: number
-  inAdjustmentCount: number
-  recheckDueCount: number
-  signalCounts: { type: SignalType; label: string; count: number }[]
-  closedLast30Days: { expectedChange: number; recordIssue: number; afterRecheck: number }
-}
+export type CareSettingKey = keyof CareSettingsValues
 
-export interface PlanInput {
-  goal: string
-  action: string
-  loadLimit: string
-  recheckDate: string
-  agreedWithStudent: boolean
+/** GET / PUT settings 응답. `ranges`는 서버가 정한 각 값의 허용 범위다 (65-9). */
+export interface CareSettings extends CareSettingsValues {
+  ranges: Record<CareSettingKey, { min: number; max: number }>
 }
 
 export interface OpenCaseInput {
   branchId: string
   studentId: string
+  channel: NoteChannel
+  memo: string
   reason: CareReason
-  memo?: string
-  plan?: PlanInput
+  recheckDate?: string
 }
 
 export interface DecisionInput {
   decision: Decision
   recheckDate?: string
-  plan?: PlanInput
 }

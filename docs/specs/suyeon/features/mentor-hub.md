@@ -462,6 +462,32 @@ Mentor에게 Student의 실제 관리 데이터는 제공하지 않는다.
 
 ---
 
+## Mentor Discover
+
+Mentor는 다른 Mentor의 공개 정보를 참고 목적으로 열람할 수 있다.
+
+열람 가능:
+
+- 다른 Mentor의 Public Profile (이름 · 사진 · 대학 · 학과 · 전형 · 인증 · 고교 Context · 대표 경험 · Tag)
+- 다른 Mentor의 Published Content (Plan / Routine / Story / Record / Case)
+
+열람 불가:
+
+- Draft
+- Review Pending (Record / Case 검수 중)
+- Q&A (질문 / 답변 / 답변 Draft)
+- Private Metrics (조회 · 저장 · Apply 수)
+- Admin Review Data, Student Data
+
+다른 Mentor Content는 읽기 전용이다. 수정 / 삭제 / 공개 / 검수 요청 / 복제 / 내 콘텐츠로 복사 Action을 제공하지 않는다.
+Like / Comment / Follow / DM / Ranking 같은 SNS 기능은 두지 않는다.
+
+Record / Case Privacy Rule(개인정보 제거 · 검수 후 공개)은 다른 Mentor에게도 같이 적용한다.
+
+Backend API / Public Projection Contract는 미정이다. (Open Decision)
+
+---
+
 ---
 
 # 6. Cross-Surface Flow
@@ -596,6 +622,8 @@ PII Detection
 - Preview
 - Review Pending
 - Profile
+- Home (Workspace Home)
+- Discover / Discover Content Detail / Other Mentor Profile
 
 ---
 

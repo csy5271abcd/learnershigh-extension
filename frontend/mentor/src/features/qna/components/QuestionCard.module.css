@@ -1,0 +1,11 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.detail {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-title-sm);
+  line-height: 1.6;
+}

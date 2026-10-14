@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Map;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,9 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** E2E 전용 Endpoint (api-contract.md §65-11). 운영 Profile에는 등록되지 않는다. */
+/**
+ * E2E 전용 Endpoint (api-contract.md §65-11, ADR-0007).
+ * e2e Profile과 {@code learnershigh.test-endpoints.enabled=true}가 둘 다 있을 때만 등록된다.
+ */
 @RestController
 @Profile("e2e")
+@ConditionalOnProperty(name = "learnershigh.test-endpoints.enabled", havingValue = "true")
 @RequestMapping("/api/test")
 public class E2eTestSupportController {
 

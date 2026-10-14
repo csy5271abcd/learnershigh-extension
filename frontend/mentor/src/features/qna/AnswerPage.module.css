@@ -1,0 +1,10 @@
+.answered {
+  margin-top: var(--lh-space-5);
+}
+
+/* Tablet 이하: 받은 질문을 답변 입력보다 먼저 보여 준다. */
+@media (max-width: 1023px) {
+  .questionAside {
+    order: -1;
+  }
+}

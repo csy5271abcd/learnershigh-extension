@@ -35,7 +35,8 @@ MySQL (docker compose / CI service)
 
 - Existing LearnersHigh는 Mock Client(시나리오 데이터)를 쓴다.
 - 기준일은 조정 가능한 `Clock`(기본 2026-09-30)이다.
-- E2E 전용 Endpoint `PUT /api/test/clock`, `POST /api/test/reset`을 등록한다. 다른 Profile에서는 Bean 자체가 없다.
+- E2E 전용 Endpoint `PUT /api/test/clock`, `POST /api/test/reset`, `PUT /api/test/integration`(연동 실패 재현)을 등록한다.
+- 등록 조건은 `e2e` Profile **과** `learnershigh.test-endpoints.enabled=true` 둘 다다. 운영 Profile에 `e2e`가 섞여도 속성이 없으면 Bean이 없다.
 
 ### 3. CI
 

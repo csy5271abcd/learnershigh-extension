@@ -5,7 +5,7 @@ import type {
   CareCase,
   CareEvent,
   CareSettings,
-  CareSummary,
+  CareSettingsValues,
   DecisionInput,
   NoteChannel,
   OpenCaseInput,
@@ -13,6 +13,7 @@ import type {
   StudentHistory,
 } from '../model/types.ts'
 
+// api-contract.md §65
 const BASE = '/api/admin/student-care'
 
 const query = (branchId: string) => `branchId=${encodeURIComponent(branchId)}`
@@ -31,22 +32,20 @@ export const studentCareApi = {
   openCase: (input: OpenCaseInput) =>
     request<CareCase>(`${BASE}/cases`, { method: 'POST', body: JSON.stringify(input) }),
 
-  decide: (caseId: string, input: DecisionInput) =>
-    request<CareCase>(`${BASE}/cases/${encodeURIComponent(caseId)}/decisions`, {
+  decide: (branchId: string, caseId: string, input: DecisionInput) =>
+    request<CareCase>(`${BASE}/cases/${encodeURIComponent(caseId)}/decisions?${query(branchId)}`, {
       method: 'POST',
       body: JSON.stringify(input),
     }),
 
-  addNote: (caseId: string, channel: NoteChannel, content: string) =>
-    request<CareEvent>(`${BASE}/cases/${encodeURIComponent(caseId)}/notes`, {
+  addNote: (branchId: string, caseId: string, channel: NoteChannel, content: string) =>
+    request<CareEvent>(`${BASE}/cases/${encodeURIComponent(caseId)}/notes?${query(branchId)}`, {
       method: 'POST',
       body: JSON.stringify({ channel, content }),
     }),
 
   settings: (branchId: string) => request<CareSettings>(`${BASE}/settings?${query(branchId)}`),
 
-  updateSettings: (branchId: string, settings: CareSettings) =>
-    request<CareSettings>(`${BASE}/settings?${query(branchId)}`, { method: 'PUT', body: JSON.stringify(settings) }),
-
-  summary: (branchId: string) => request<CareSummary>(`${BASE}/summary?${query(branchId)}`),
+  updateSettings: (branchId: string, values: CareSettingsValues) =>
+    request<CareSettings>(`${BASE}/settings?${query(branchId)}`, { method: 'PUT', body: JSON.stringify(values) }),
 }

@@ -1,0 +1,224 @@
+.header {
+  margin-bottom: var(--lh-space-6);
+}
+
+.notice {
+  margin-bottom: var(--lh-space-6);
+}
+
+.regionTitle {
+  margin-bottom: var(--lh-space-4);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.regionTitle:focus {
+  outline: none;
+}
+
+/* ---------- 유형 선택 ---------- */
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--lh-space-3);
+  max-width: 1080px;
+}
+
+.typeOption {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  cursor: pointer;
+}
+
+.typeOption:hover {
+  background: var(--lh-color-surface);
+}
+
+.typeOption input {
+  position: absolute;
+  opacity: 0;
+}
+
+.typeOption:has(input:focus-visible) {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 2px;
+}
+
+.typeName {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.typeDescription {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+/* ---------- 작성 영역 ---------- */
+.workArea {
+  min-width: 0;
+  max-width: 880px;
+}
+
+.titleInput {
+  width: 100%;
+  padding: var(--lh-space-2) 0;
+  border: 0;
+  border-bottom: 1px solid var(--lh-color-border);
+  background: none;
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+}
+
+.titleInput:focus-visible {
+  outline: none;
+  border-bottom-color: var(--lh-color-accent);
+}
+
+.titleInput[aria-invalid='true'] {
+  border-bottom-color: var(--lh-color-negative);
+}
+
+/* ---------- 작성 정보 ---------- */
+.info {
+  gap: var(--lh-space-5);
+}
+
+.typeSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-1);
+  margin-bottom: var(--lh-space-2);
+}
+
+.typeChip {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.typeChip input {
+  position: absolute;
+  opacity: 0;
+}
+
+.typeChip span {
+  padding: var(--lh-space-1) var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-pill);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.typeChip input:checked + span {
+  border-color: var(--lh-color-text-primary);
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+}
+
+.typeChip input:focus-visible + span {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 2px;
+}
+
+.typeChip input:disabled + span {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.visibility {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  margin-bottom: var(--lh-space-2);
+  font-weight: 600;
+}
+
+.visibility input {
+  accent-color: var(--lh-color-accent);
+}
+
+.privacyItems {
+  margin-top: var(--lh-space-2);
+  color: var(--lh-color-warning);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.progressItem {
+  display: grid;
+  grid-template-columns: 20px auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.progressMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--lh-color-border-strong);
+  border-radius: 50%;
+  font-size: 0.6875rem;
+}
+
+.progressDone {
+  color: var(--lh-color-text-primary);
+}
+
+.progressDone .progressMark {
+  border-color: var(--lh-color-text-primary);
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+}
+
+.progressLabel {
+  font-weight: 600;
+}
+
+.progressDetail {
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+/* Tablet 이하: 작성 정보는 작성 영역 아래로, Action은 화면 아래에 붙인다. */
+@media (max-width: 1023px) {
+  .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: var(--lh-space-3) 0;
+    border-top: 1px solid var(--lh-color-border);
+    background: var(--lh-color-background);
+  }
+}
+
+@media (max-width: 767px) {
+  .actions {
+    bottom: var(--lh-mobile-bar-height);
+  }
+}

@@ -8,7 +8,7 @@ import com.learnershigh.extension.studentcare.entity.MetricUnit;
 import java.time.LocalDate;
 import java.util.List;
 
-/** 케어 건 (api-contract.md §65-5). */
+/** 관리 (api-contract.md §65-5). */
 public record CareCaseResponse(
         String caseId,
         String studentId,
@@ -19,16 +19,12 @@ public record CareCaseResponse(
         LocalDate openedOn,
         LocalDate closedOn,
         List<Baseline> baseline,
-        Plan plan,
         LocalDate recheckDate,
         boolean recheckDue,
         Comparison comparison,
         List<CareEventResponse> events) {
 
     public record Baseline(CareSignalType type, String label, String summary, int value, Integer target, MetricUnit unit) {
-    }
-
-    public record Plan(String goal, String action, String loadLimit, boolean agreedWithStudent) {
     }
 
     public record Comparison(List<ComparisonRow> rows, String result, String resultLabel) {

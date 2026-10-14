@@ -1,0 +1,27 @@
+.form {
+  max-width: 720px;
+}
+
+.note {
+  margin-top: var(--lh-space-3);
+}
+
+.photo {
+  padding-bottom: var(--lh-space-5);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.photoRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-6);
+}
+
+.photoActions {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 220px;
+}

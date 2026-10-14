@@ -6,6 +6,7 @@ public enum CareEventType {
     ADJUSTMENT_STARTED,
     RECHECKED,
     CONTINUED,
+    /** 이전 기록(약속 수정)에만 있다. 새로 만들지 않는다. */
     REVISED,
     CLOSED,
     NOTE

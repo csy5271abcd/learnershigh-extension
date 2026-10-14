@@ -8,7 +8,6 @@ import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.CareNoteRequest;
 import com.learnershigh.extension.studentcare.dto.CareSettingsRequest;
 import com.learnershigh.extension.studentcare.dto.CareSettingsResponse;
-import com.learnershigh.extension.studentcare.dto.CareSummaryResponse;
 import com.learnershigh.extension.studentcare.dto.OpenCareCaseRequest;
 import com.learnershigh.extension.studentcare.dto.StudentCareDetailResponse;
 import com.learnershigh.extension.studentcare.dto.StudentHistoryResponse;
@@ -17,6 +16,7 @@ import com.learnershigh.extension.studentcare.service.StudentCareService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +27,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Admin 학생 케어 API (api-contract.md §65). Actor: ADMIN. */
+/**
+ * Admin 학생 케어 API (api-contract.md §65). Actor: ADMIN.
+ * 응답은 JSON만 제공한다. Accept가 JSON을 허용하지 않으면 Handler를 실행하기 전에 406이다(변경 요청이 저장된 뒤 406이 나지 않는다).
+ */
 @RestController
-@RequestMapping("/api/admin/student-care")
+@RequestMapping(path = "/api/admin/student-care", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StudentCareController {
 
     private final StudentCareQueryService queryService;
@@ -67,14 +70,16 @@ public class StudentCareController {
     }
 
     @PostMapping("/cases/{caseId}/decisions")
-    public CareCaseResponse decide(@PathVariable String caseId, @Valid @RequestBody CareDecisionRequest request) {
-        return service.decide(caseId, request);
+    public CareCaseResponse decide(@PathVariable String caseId, @RequestParam @NotBlank String branchId,
+            @Valid @RequestBody CareDecisionRequest request) {
+        return service.decide(branchId, caseId, request);
     }
 
     @PostMapping("/cases/{caseId}/notes")
     @ResponseStatus(HttpStatus.CREATED)
-    public CareEventResponse addNote(@PathVariable String caseId, @Valid @RequestBody CareNoteRequest request) {
-        return service.addNote(caseId, request);
+    public CareEventResponse addNote(@PathVariable String caseId, @RequestParam @NotBlank String branchId,
+            @Valid @RequestBody CareNoteRequest request) {
+        return service.addNote(branchId, caseId, request);
     }
 
     @GetMapping("/settings")
@@ -86,10 +91,5 @@ public class StudentCareController {
     public CareSettingsResponse updateSettings(@RequestParam @NotBlank String branchId,
             @Valid @RequestBody CareSettingsRequest request) {
         return service.updateSettings(branchId, request);
-    }
-
-    @GetMapping("/summary")
-    public CareSummaryResponse summary(@RequestParam @NotBlank String branchId) {
-        return queryService.summary(branchId);
     }
 }

@@ -1020,12 +1020,13 @@ Migration 파일 규칙: `database/migrations/README.md`
 ### E2E (Playwright, ADR-0007)
 
 Backend(`e2e` Profile) + MySQL + Admin preview를 띄운 뒤 실행한다.
-`e2e` Profile은 Existing LearnersHigh Mock 데이터와 조정 가능한 기준일(기본 2026-09-30)을 쓰고, `/api/test/**` Endpoint를 연다.
+`e2e` Profile은 Existing LearnersHigh Mock 데이터와 조정 가능한 기준일(기본 2026-09-30)을 쓴다.
+`/api/test/**` Endpoint는 `e2e` Profile만으로는 열리지 않고, 환경 변수 `LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true`를 함께 줄 때만 열린다.
 
 ```powershell
 docker compose up -d
 cd backend
-$env:SPRING_PROFILES_ACTIVE="e2e"; .\gradlew.bat bootRun   # DB_* 환경 변수 필요, :8080
+$env:SPRING_PROFILES_ACTIVE="e2e"; $env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED="true"; .\gradlew.bat bootRun   # DB_* 환경 변수 필요, :8080
 
 cd frontend
 npm run build --workspace=@learnershigh/admin

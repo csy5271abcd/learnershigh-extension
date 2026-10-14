@@ -1,0 +1,19 @@
+.region {
+  position: fixed;
+  left: 50%;
+  bottom: var(--lh-space-8);
+  z-index: 50;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - var(--lh-space-8));
+  pointer-events: none;
+}
+
+.toast {
+  padding: var(--lh-space-3) var(--lh-space-5);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-text-primary);
+  color: var(--lh-color-background);
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+}

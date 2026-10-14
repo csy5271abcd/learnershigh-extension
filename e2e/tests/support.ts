@@ -1,7 +1,7 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test'
 
-// Backend e2e Profile 전용 Endpoint (api-contract.md §65-11).
-const API = process.env.E2E_API_URL ?? 'http://localhost:8080'
+// Backend e2e Profile 전용 Endpoint (api-contract.md §65 E2E 전용).
+export const API = process.env.E2E_API_URL ?? 'http://localhost:8080'
 
 export const ANCHOR = '2026-09-30'
 
@@ -20,24 +20,33 @@ export async function setStudyDataAvailable(request: APIRequestContext, availabl
   expect(response.status()).toBe(204)
 }
 
-export function needsCheckList(page: Page) {
-  return page.getByRole('region', { name: /확인할 변화/ })
+/** 왼쪽 특이사항 학생 목록. */
+export function studentList(page: Page) {
+  return page.getByRole('region', { name: /특이사항 학생/ })
 }
 
-export function inAdjustmentList(page: Page) {
-  return page.getByRole('region', { name: /조정 진행 중/ })
-}
-
-export function detail(page: Page) {
+/** 오른쪽 선택한 학생. */
+export function panel(page: Page) {
   return page.locator('article.sc-detail')
 }
 
-export async function openBoard(page: Page) {
-  await page.goto('/student-care')
-  await expect(page.getByRole('heading', { name: /기준 · 러너스하이 강남점/ })).toBeVisible()
+export function row(page: Page, name: string) {
+  return studentList(page).getByRole('button', { name: new RegExp(`^${name}`) })
+}
+
+// 학생 케어는 Admin Shell 안의 /student-care Route로 연결된다. (frontend/admin App.tsx, '/'는 Feedback Dashboard)
+export const STUDENT_CARE_PATH = '/student-care'
+
+export async function openPage(page: Page) {
+  await page.goto(STUDENT_CARE_PATH)
+  await expect(studentList(page).getByRole('button').first()).toBeVisible()
 }
 
 export async function selectStudent(page: Page, name: string) {
-  await page.getByRole('button', { name: new RegExp(`^${name}`) }).click()
-  await expect(detail(page).getByRole('heading', { level: 2, name: new RegExp(name) })).toBeVisible()
+  await row(page, name).click()
+  await expect(panel(page).getByRole('heading', { level: 2, name })).toBeVisible()
+}
+
+export function history(page: Page) {
+  return page.getByRole('region', { name: '이력' })
 }

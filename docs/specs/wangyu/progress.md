@@ -10,14 +10,15 @@
 | Spec / Domain / API Contract | DONE | `features/student-care.md`, `domain.md`, `api-contract.md` §65 |
 | Backend | DONE | `studentcare` Domain, Migration `V202610131200` |
 | Admin Frontend | DONE | `frontend/admin/src/features/student-care/` |
-| E2E | DONE | `e2e/tests/student-care.spec.ts` (9 Scenario) |
+| E2E | DONE | `e2e/tests/student-care.spec.ts` (7 Scenario) |
+| 최소 UX 재구성 | DONE | `docs/design/student-care-ux.md`: 단일 화면, 상담 기록, 약속·지점 요약·약속 수정 제거 |
 
-### 검증 (2026-10-13, 로컬)
+### 검증 (2026-10-13, 로컬, 최소 UX 재구성 후)
 
 ```text
-backend  ./gradlew clean build integrationTest : 118 tests, 0 fail (Unit 87 + Integration 31)
+backend  ./gradlew clean build integrationTest : 322 tests, 0 fail (Unit 222 + Integration 100)
 frontend npm run typecheck / lint / build      : pass
-e2e      npm run typecheck / npm test          : 9 passed
+e2e      npm run typecheck / playwright test   : 7 passed
 ```
 
 ### 남은 항목 / Open Decision
