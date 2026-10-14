@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router'
 import { mentorApi } from '../../api/mentorApi.ts'
 import type { MentorProfile, MentorProfileUpdateRequest } from '../../api/types.ts'
 import { profilePath } from '../../app/paths.ts'
+import { Avatar } from '../../components/Avatar.tsx'
 import { TextAreaField } from '../../components/FormFields.tsx'
 import { ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
@@ -30,6 +31,19 @@ export function ProfileEditPage() {
 
 type ProfileDraft = Required<MentorProfileUpdateRequest>
 
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+/** Prototype 한도. 실제 크기 제한은 Profile Image Storage / Upload Contract에서 정한다. (Open Decision) */
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024
+
+function readAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result))
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+}
+
 /**
  * PATCH /api/mentor/profile: 공개 Profile Field만 고친다. (api-contract §27-2)
  * 이름 / 대학 / 학과 / 전형 / 인증은 인증 대상이라 여기서 바꾸지 않는다. 수정 가능 Field 목록은 Open Decision이다.
@@ -42,11 +56,36 @@ function ProfileForm({ profile }: { profile: MentorProfile }) {
     highSchoolContext: profile.highSchoolContext,
     representativeExperience: profile.representativeExperience,
     tags: [...profile.tags],
+    profileImageUrl: profile.profileImageUrl ?? null,
   }))
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [photoError, setPhotoError] = useState<string>()
   const [errors, setErrors] = useState<{ highSchoolContext?: string; representativeExperience?: string }>({})
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<unknown>(null)
   const inFlight = useRef(false)
+
+  // 사진은 고르는 즉시 미리보기로 보여 주고, "저장"할 때 Profile에 반영한다. (Backend Upload API 없음)
+  const pickPhoto = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      setPhotoError('JPG · PNG · WebP 사진만 쓸 수 있어요.')
+      return
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setPhotoError('2MB 이하 사진을 골라 주세요.')
+      return
+    }
+    try {
+      const dataUrl = await readAsDataUrl(file)
+      setPhotoError(undefined)
+      draft.update((value) => ({ ...value, profileImageUrl: dataUrl }))
+    } catch {
+      setPhotoError('사진을 읽지 못했어요. 다른 사진을 골라 주세요.')
+    }
+  }
 
   const save = async () => {
     if (inFlight.current) return
@@ -86,6 +125,48 @@ function ProfileForm({ profile }: { profile: MentorProfile }) {
       <div id="profile-edit-title">
         <PageTitle>프로필 수정</PageTitle>
       </div>
+
+      <section className={styles.photo} aria-labelledby="photo-title">
+        <h2 id="photo-title" className={ui.panelTitle}>
+          프로필 사진
+        </h2>
+        <div className={styles.photoRow}>
+          <Avatar name={profile.name} imageUrl={draft.value.profileImageUrl} size={104} />
+          <div className={styles.photoActions}>
+            <div className={ui.actions}>
+              <button type="button" className={`${ui.button} ${ui.neutral}`} onClick={() => fileRef.current?.click()}>
+                사진 변경
+              </button>
+              <button
+                type="button"
+                className={`${ui.button} ${ui.ghost}`}
+                disabled={!draft.value.profileImageUrl}
+                onClick={() => {
+                  setPhotoError(undefined)
+                  draft.update((value) => ({ ...value, profileImageUrl: null }))
+                }}
+              >
+                사진 삭제
+              </button>
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="visually-hidden"
+              tabIndex={-1}
+              aria-label="프로필 사진 파일 고르기"
+              onChange={pickPhoto}
+            />
+            <p className={ui.help}>JPG · PNG · WebP, 2MB 이하. 저장하기 전까지는 미리보기예요. 사진이 없으면 이름 첫 글자를 보여 줘요.</p>
+            {photoError && (
+              <p className={ui.fieldError} role="alert">
+                {photoError}
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
 
       <section className={ui.panel} aria-labelledby="verified-info-title">
         <h2 id="verified-info-title" className={ui.panelTitle}>

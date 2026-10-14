@@ -2,8 +2,8 @@ import type { PlanBody, PlanBodyItem, PlanDay } from '../../../api/types.ts'
 import { SelectField, TextAreaField, TextField } from '../../../components/FormFields.tsx'
 import ui from '../../../components/ui.module.css'
 import { newLocalId } from '../model/contentForm.ts'
-import { planDays } from '../model/labels.ts'
-import styles from './body.module.css'
+import { planDays } from '../../../content-body/labels.ts'
+import styles from './editor.module.css'
 
 interface PlanEditorProps {
   value: PlanBody

@@ -49,7 +49,7 @@ function ReviewPending({ content }: { content: MentorContentDetail }) {
       <div className={ui.actions}>
         <Badge>{contentTypeLabel(content.type)}</Badge>
         <Badge tone={published ? 'positive' : inReview ? 'warning' : 'neutral'}>
-          {published ? '공개됨' : inReview ? '검수 대기' : '초안'}
+          {published ? '공개' : inReview ? '검수 대기' : '초안'}
         </Badge>
       </div>
       <div id="review-title">

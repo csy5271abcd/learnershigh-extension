@@ -2,8 +2,8 @@ import type { CaseBody, CaseStageBody, RecordGrade } from '../../../api/types.ts
 import { SelectField, TextAreaField, TextField } from '../../../components/FormFields.tsx'
 import ui from '../../../components/ui.module.css'
 import { newLocalId } from '../model/contentForm.ts'
-import { recordGrades } from '../model/labels.ts'
-import styles from './body.module.css'
+import { recordGrades } from '../../../content-body/labels.ts'
+import styles from './editor.module.css'
 import { PrivacyChecklist } from './PrivacyChecklist.tsx'
 
 interface CaseEditorProps {

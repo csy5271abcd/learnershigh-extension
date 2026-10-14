@@ -10,7 +10,7 @@ import { formatDate, formatRelativeTime } from '../../lib/format.ts'
 import { useResource } from '../../lib/useResource.ts'
 import { contentTypeLabel } from '../../model/contentMeta.ts'
 import { QuestionCard } from './components/QuestionCard.tsx'
-import { anonymousContextText, questionCategoryLabel, questionStatusView } from './model/questionMeta.ts'
+import { anonymousContextText, questionCategoryLabel, questionStatusView } from '../../model/questionMeta.ts'
 import styles from './QuestionDetailPage.module.css'
 
 export function QuestionDetailPage() {

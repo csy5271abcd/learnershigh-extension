@@ -1,7 +1,7 @@
-import type { StoryBody } from '../../../api/types.ts'
-import ui from '../../../components/ui.module.css'
-import { storyTopicLabel } from '../model/labels.ts'
-import styles from './body.module.css'
+import type { StoryBody } from '../api/types.ts'
+import ui from '../components/ui.module.css'
+import { storyTopicLabel } from './labels.ts'
+import styles from './contentBody.module.css'
 
 // Story: 본문 중심
 export function StoryView({ body }: { body: StoryBody }) {

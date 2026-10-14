@@ -1,6 +1,6 @@
-import type { RecordBody } from '../../../api/types.ts'
-import { recordAreaLabel, recordPeriodText } from '../model/labels.ts'
-import styles from './body.module.css'
+import type { RecordBody } from '../api/types.ts'
+import { recordAreaLabel, recordPeriodText } from './labels.ts'
+import styles from './contentBody.module.css'
 
 // Record: 개인정보를 지운 기록 문장 + 연결된 활동. 원본 파일 / 복사 / "내 기록으로 만들기" Action은 두지 않는다. (domain.md §33)
 export function RecordView({ body }: { body: RecordBody }) {

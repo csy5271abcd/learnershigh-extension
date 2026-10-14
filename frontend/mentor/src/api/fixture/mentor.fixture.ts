@@ -6,6 +6,7 @@
 // Workspace 경계를 넘어 import하지 않으려고 공개 Profile 값을 그대로 옮겨 적었다. (domain.md §57)
 // frontend/shared 또는 Backend Seed가 생기면 한 곳으로 합친다. 값을 바꿀 때는 Student Fixture와 함께 바꾼다.
 
+import profileImage from '../../assets/mentors/fixture-mentor-01.webp'
 import type { MentorProfile } from '../types.ts'
 
 export const currentMentorFixture: MentorProfile = {
@@ -18,4 +19,6 @@ export const currentMentorFixture: MentorProfile = {
   representativeExperience: '내신 1.3 유지, 교내 생명과학 탐구대회 금상, 교외 · 대학 연계 실험캠프',
   verified: true,
   tags: ['내신', '교과전형', '교내대회', '생명과학'],
+  // Student Mentor Hub와 같은 사진(mentor-woman-01)을 192px로 줄인 사본 (TEMPORARY ASSET DUPLICATION)
+  profileImageUrl: profileImage,
 }

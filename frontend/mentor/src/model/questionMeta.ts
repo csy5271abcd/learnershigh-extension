@@ -1,6 +1,7 @@
-import type { AnonymousStudentContext, MentorQuestionStatus, QuestionCategory } from '../../../api/types.ts'
-import type { BadgeTone } from '../../../components/Badge.tsx'
+import type { AnonymousStudentContext, MentorQuestionStatus, QuestionCategory } from '../api/types.ts'
+import type { BadgeTone } from '../components/Badge.tsx'
 
+// Q&A Inbox · Question Detail · Home이 함께 쓴다.
 // Category 이름은 Student Q&A 화면과 같은 문구를 쓴다. (frontend/student/.../questions.ts, TEMPORARY FIXTURE DUPLICATION)
 export const questionCategories: { id: QuestionCategory; label: string }[] = [
   { id: 'STUDY_METHOD', label: '공부법' },

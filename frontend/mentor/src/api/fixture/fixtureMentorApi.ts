@@ -241,6 +241,7 @@ export function createFixtureMentorApi(): MentorApi {
         highSchoolContext: request.highSchoolContext?.trim() ?? profile.highSchoolContext,
         representativeExperience: request.representativeExperience?.trim() ?? profile.representativeExperience,
         tags: request.tags ?? profile.tags,
+        profileImageUrl: request.profileImageUrl === undefined ? profile.profileImageUrl : request.profileImageUrl,
       }
       return clone(profile)
     },

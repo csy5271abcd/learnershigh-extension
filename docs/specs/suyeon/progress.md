@@ -872,6 +872,9 @@ IN_PROGRESS
 - Mentor Surface (My Content · Content Detail / Edit · Create · Preview · Review Pending · Q&A Inbox / Detail / Answer · Profile / Edit): IMPLEMENTED (Fixture Adapter, 2026-10-14, feat/mentor-surface)
   - Browser Flow 19개 PASS (Headless Chrome)
   - 실제 /api/mentor/** Backend / 인증(OD-10) / Record·Case Review State(OD-05) / Student Q&A 실제 반영 / Frontend 자동 Test: NOT_STARTED
+- Mentor Workspace Refinement + Mentor Discover (Home · Left Rail · Secondary Sidebar · Discover · 다른 Mentor Profile · 사진): IMPLEMENTED (Frontend-only Prototype, 2026-10-14, feat/mentor-surface)
+  - Browser Flow 29개 PASS (Headless Chrome)
+  - Discover Backend API / Public Projection Contract / Profile Image Storage: NOT_STARTED (Open Decision)
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -2144,6 +2147,44 @@ Headless Chrome (CDP) Browser Flow 19개: PASS
   Story 공개, Record 검수 요청(즉시 공개 아님), Case 검수 요청, 공개 Record 수정 차단, Q&A Filter, 답변 + 관련 Content 연결,
   Privacy(응답 Key / DOM), Profile 표시 · 수정, Empty 4종, Error → Retry 5곳 / Loading / Not Found / Submit 실패 유지,
   main · h1 1개, Keyboard(Skip Link · Focus), 1440 / 1024 / 768 / 390 / 320 가로 Overflow 없음, Dark Theme
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+## 2026-10-14 — Mentor Workspace Refinement + Mentor Discover (branch: feat/mentor-surface)
+
+### Status
+
+```text
+Mentor Workspace / Discover: IMPLEMENTED (Frontend-only Prototype)
+VERIFIED 아님: Discover Backend / Public Projection Contract / Profile Image Upload 없음, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Shell: Top Navigation → Global Left Rail(홈 / 내 콘텐츠 / 둘러보기 / Q&A / 작성 + 내 사진) + 필요한 화면만 Secondary Sidebar(접기 / 펼치기) + Main Workspace. Mobile은 아래 Tab Bar
+- Home: 인사 + 빠른 작업(새 콘텐츠 / 답변 대기 / 내 초안 / 둘러보기) + 최근 작업 · 답변 대기 질문 · 동료 새 콘텐츠 (KPI Card 없음)
+- My Content: Sidebar(전체 / 초안 / 공개 / 검수 대기, 유형) + 검색 + Divider 목록. 왼쪽 세로선 제거, 유형은 Text Label, 상태만 Badge
+- Q&A Inbox: Sidebar(전체 / 답변 대기 / 기한 초과 / 답변 완료) + 질문 검색 + Divider 목록
+- Create: Rail "작성" Launcher Popover(유형) → Composer(작성 영역 + 작성 정보) → 미리보기 → Submit
+- Discover: 다른 Mentor 공개 Profile / Published Content (공개 Projection, 읽기 전용, 복제 · Metrics · Q&A · Draft 없음)
+- Profile: 사진(Student와 같은 한지수 사진), 사진 변경 · 삭제(Frontend Prototype, 즉시 미리보기), 이니셜 Fallback
+- mentor-hub.md: Mentor Discover 공개 범위 최소 추가
+
+### Open / Contract Gap
+
+- Mentor Discover Backend API / Public Projection Contract
+- Profile Image Storage / Upload Contract (현재 Data URL, 2MB Prototype 한도)
+- Public Metrics 공개 여부 (현재 다른 Mentor에게 비공개)
+- TEMPORARY FIXTURE / ASSET DUPLICATION: 동료 Mentor 7명 Profile · 사진 · Content를 Student Fixture에서 옮김
+
+### Verification
+
+```text
+mentor typecheck / lint / build: PASS
+scripts/verify-frontend.ps1: PASS (student / admin / mentor)
+Headless Chrome (CDP) Browser Flow 29개: PASS
+  기존 Flow 회귀 15개, Discover 4개(탐색 · 읽기 전용 · 다른 Mentor Profile · 공개 Projection Privacy),
+  UI 10개(세로선 없음 · Rail · Sidebar 접기 · 사진 Fallback · Launcher Keyboard · Home KPI 없음 · Semantics · Skip Link · 1440~320 Overflow · Dark)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

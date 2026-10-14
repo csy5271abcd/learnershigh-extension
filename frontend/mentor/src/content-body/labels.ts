@@ -1,7 +1,7 @@
 // Content 본문 표시 이름. URL / 저장 값에는 내부 Key를 쓰고 화면에는 이름을 쓴다.
 // Story 주제 / Record 영역 이름은 Student Mentor Hub(storyTopics.ts, records.ts)와 같은 문구를 쓴다. (TEMPORARY FIXTURE DUPLICATION)
 
-import type { PlanDay, RecordArea, RecordBody, RecordGrade, StoryTopic } from '../../../api/types.ts'
+import type { PlanDay, RecordArea, RecordBody, RecordGrade, StoryTopic } from '../api/types.ts'
 
 export const planDays: PlanDay[] = ['월', '화', '수', '목', '금', '토', '일']
 

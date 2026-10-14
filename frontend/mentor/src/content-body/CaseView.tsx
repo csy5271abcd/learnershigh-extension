@@ -1,5 +1,5 @@
-import type { CaseBody } from '../../../api/types.ts'
-import styles from './body.module.css'
+import type { CaseBody } from '../api/types.ts'
+import styles from './contentBody.module.css'
 
 // Case: 활동 단계 / Evidence Summary / 결과 / Reflection. 단계 수와 이름은 Case마다 다르다. (domain.md §34)
 export function CaseView({ body }: { body: CaseBody }) {

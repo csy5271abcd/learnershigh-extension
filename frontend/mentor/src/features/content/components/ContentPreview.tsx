@@ -3,7 +3,7 @@ import { Badge } from '../../../components/Badge.tsx'
 import ui from '../../../components/ui.module.css'
 import { useResource } from '../../../lib/useResource.ts'
 import { contentTypeLabel, isReviewRequired } from '../../../model/contentMeta.ts'
-import { ContentBodyView, type TypedBody } from '../body/ContentBodyView.tsx'
+import { ContentBodyView, type TypedBody } from '../../../content-body/ContentBodyView.tsx'
 import styles from './ContentPreview.module.css'
 
 interface ContentPreviewProps {

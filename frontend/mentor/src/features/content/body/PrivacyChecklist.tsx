@@ -1,5 +1,5 @@
-import { recordPrivacyItems } from '../model/labels.ts'
-import styles from './body.module.css'
+import { recordPrivacyItems } from '../../../content-body/labels.ts'
+import styles from './editor.module.css'
 
 // Record / Case 작성 안내. 실제 PII Detection / Admin Review는 검수 단계에서 한다. (domain.md §29-1)
 export function PrivacyChecklist() {

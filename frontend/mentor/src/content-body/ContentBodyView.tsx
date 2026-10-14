@@ -1,4 +1,4 @@
-import type { MentorContentBodyByType, MentorContentType } from '../../../api/types.ts'
+import type { MentorContentBodyByType, MentorContentType } from '../api/types.ts'
 import { CaseView } from './CaseView.tsx'
 import { PlanView } from './PlanView.tsx'
 import { RecordView } from './RecordView.tsx'

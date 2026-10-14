@@ -1,7 +1,7 @@
 import type { RecordArea, RecordBody, RecordGrade } from '../../../api/types.ts'
 import { SelectField, TextAreaField, TextField } from '../../../components/FormFields.tsx'
 import ui from '../../../components/ui.module.css'
-import { recordAreas, recordGrades } from '../model/labels.ts'
+import { recordAreas, recordGrades } from '../../../content-body/labels.ts'
 import { PrivacyChecklist } from './PrivacyChecklist.tsx'
 
 interface RecordEditorProps {

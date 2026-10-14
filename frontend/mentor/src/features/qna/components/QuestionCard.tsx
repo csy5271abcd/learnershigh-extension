@@ -3,7 +3,7 @@ import type { MentorQuestion } from '../../../api/types.ts'
 import { Badge } from '../../../components/Badge.tsx'
 import ui from '../../../components/ui.module.css'
 import { formatRelativeTime } from '../../../lib/format.ts'
-import { anonymousContextText, questionCategoryLabel, questionStatusView } from '../model/questionMeta.ts'
+import { anonymousContextText, questionCategoryLabel, questionStatusView } from '../../../model/questionMeta.ts'
 import styles from './QuestionCard.module.css'
 
 interface QuestionCardProps {

@@ -1,0 +1,79 @@
+.wrap {
+  position: relative;
+}
+
+.popover {
+  position: absolute;
+  top: -8px;
+  left: calc(100% + 12px);
+  z-index: 40;
+  width: 360px;
+  padding: var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.12);
+}
+
+.title {
+  margin-bottom: var(--lh-space-4);
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--lh-space-1);
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-3) 0;
+  border-radius: var(--lh-radius-md);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  text-decoration: none;
+}
+
+.option:hover,
+.option:focus-visible {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.optionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-primary);
+}
+
+.optionLabel {
+  font-weight: 600;
+}
+
+.hint {
+  margin-top: var(--lh-space-3);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+/* Mobile: 아래 Tab Bar 위로 연다. */
+@media (max-width: 767px) {
+  .popover {
+    position: fixed;
+    top: auto;
+    right: var(--lh-space-3);
+    bottom: calc(var(--lh-mobile-bar-height) + var(--lh-space-2));
+    left: var(--lh-space-3);
+    width: auto;
+  }
+}

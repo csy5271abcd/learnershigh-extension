@@ -1,0 +1,30 @@
+.article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-8);
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  padding-bottom: var(--lh-space-6);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.type {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.tags {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.profileLink {
+  width: 100%;
+  margin-top: var(--lh-space-3);
+}

@@ -29,9 +29,10 @@
   --lh-color-warning: #b45309;
   --lh-color-warning-subtle: #fff4e5;
   --lh-color-skeleton: #e9ecef;
-  --lh-color-header: #111214;
-  --lh-color-on-header: #f2f4f6;
-  --lh-color-on-header-muted: #a3abb5;
+  /* Mentor Workspace Rail: 본문보다 아주 살짝 구분되는 Neutral Surface */
+  --lh-color-rail: #f7f8fa;
+  --lh-color-rail-active: #e9ebee;
+  --lh-color-search: #f2f4f6;
 
   --lh-space-1: 4px;
   --lh-space-2: 8px;
@@ -58,9 +59,18 @@
   --lh-font-title-lg: 1.5rem;
   --lh-font-page-title: 1.75rem;
 
-  /* Mentor 본문 최대 폭과 좌우 여백 */
-  --lh-page-max-width: 1200px;
-  --lh-page-gutter: var(--lh-space-8);
+  /* Mentor Workspace 폭 / 여백 */
+  --lh-rail-width: 80px;
+  --lh-sidebar-width: 232px;
+  --lh-mobile-bar-height: 64px;
+  --lh-page-max-width: 1280px;
+  --lh-page-gutter: var(--lh-space-10);
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --lh-page-gutter: var(--lh-space-6);
+  }
 }
 
 @media (max-width: 767px) {
@@ -94,7 +104,9 @@
     --lh-color-warning: #ffb067;
     --lh-color-warning-subtle: #3a2a17;
     --lh-color-skeleton: #2c2c35;
-    --lh-color-header: #0c0c0f;
+    --lh-color-rail: #1c1c22;
+    --lh-color-rail-active: #33333d;
+    --lh-color-search: #26262e;
   }
 }
 

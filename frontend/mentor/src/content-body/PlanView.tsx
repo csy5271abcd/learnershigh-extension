@@ -1,5 +1,5 @@
-import type { PlanBody } from '../../../api/types.ts'
-import styles from './body.module.css'
+import type { PlanBody } from '../api/types.ts'
+import styles from './contentBody.module.css'
 
 // Plan: 주차 → 요일 · 할 일 · 과목 · Memo (Plan-01 Mockup의 표 구성)
 export function PlanView({ body }: { body: PlanBody }) {

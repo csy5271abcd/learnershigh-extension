@@ -1,7 +1,7 @@
 import type { StoryBody, StoryTopic } from '../../../api/types.ts'
 import { TextAreaField, TextField } from '../../../components/FormFields.tsx'
 import ui from '../../../components/ui.module.css'
-import { storyTopics } from '../model/labels.ts'
+import { storyTopics } from '../../../content-body/labels.ts'
 
 interface StoryEditorProps {
   value: StoryBody

@@ -4,107 +4,98 @@ import { mentorApi } from '../../api/mentorApi.ts'
 import type { MentorContentType } from '../../api/types.ts'
 import { contentPath, contentReviewPendingPath } from '../../app/paths.ts'
 import { ConfirmDialog } from '../../components/ConfirmDialog.tsx'
-import { TextField } from '../../components/FormFields.tsx'
+import { TypeIcon } from '../../components/icons.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import { TagInput } from '../../components/TagInput.tsx'
 import { useToast } from '../../components/toastContext.ts'
 import ui from '../../components/ui.module.css'
+import type { TypedBody } from '../../content-body/ContentBodyView.tsx'
+import { recordPrivacyItems } from '../../content-body/labels.ts'
 import { errorMessage } from '../../lib/format.ts'
 import { useSessionDraft } from '../../lib/useSessionDraft.ts'
 import { invalidateResources, primeResource, useResource } from '../../lib/useResource.ts'
-import { contentTypes, isReviewRequired } from '../../model/contentMeta.ts'
+import { contentTypeLabel, contentTypes, isReviewRequired } from '../../model/contentMeta.ts'
 import { ContentBodyEditor } from './body/ContentBodyEditor.tsx'
-import type { TypedBody } from './body/ContentBodyView.tsx'
 import { ContentPreview } from './components/ContentPreview.tsx'
-import { CreateStepper, type StepItem } from './components/CreateStepper.tsx'
 import { FormErrorSummary } from './components/FormErrorSummary.tsx'
 import styles from './CreatePostPage.module.css'
-import { bodyOf, createEmptyForm, toCreateRequest, validateForm, type ContentFormValue } from './model/contentForm.ts'
+import { bodyOf, createEmptyForm, hasErrors, toCreateRequest, validateForm, type ContentFormValue } from './model/contentForm.ts'
 
-type StepId = 'type' | 'tag' | 'body' | 'visibility' | 'preview'
-
-// mentor-hub.md §5 Create Post: Type → Tag → Body → Visibility → Preview → Submit
-const steps: StepItem<StepId>[] = [
-  { id: 'type', label: '유형' },
-  { id: 'tag', label: '태그' },
-  { id: 'body', label: '본문' },
-  { id: 'visibility', label: '공개 범위' },
-  { id: 'preview', label: '미리보기' },
-]
-
-/** Draft는 Tab Session 동안 보존한다. (Back / 다른 메뉴 이동 / Preview ↔ 본문 / 새로고침) */
+/** Draft는 Tab Session 동안 보존한다. (Back / 다른 메뉴 이동 / Preview ↔ 편집 / 새로고침) */
 const CREATE_DRAFT_KEY = 'create'
 
-function stepErrors(step: StepId, form: ContentFormValue): string[] {
-  if (step === 'type') return form.type ? [] : ['유형을 골라 주세요.']
-  if (step === 'body') {
-    const errors = validateForm(form)
-    return [...(errors.title ? [errors.title] : []), ...errors.body]
-  }
-  return []
-}
+const parseType = (value: string | null) => contentTypes.find((item) => item.id === value)?.id
 
-/** 앞 단계가 모두 끝난 곳까지 갈 수 있다. */
-function reachableIndex(form: ContentFormValue) {
-  const blocked = steps.findIndex((step) => stepErrors(step.id, form).length > 0)
-  return blocked === -1 ? steps.length - 1 : blocked
-}
-
+// Create Post (mentor-hub.md §5: Type → Tag → Body → Visibility → Preview → Submit)
+// - 유형: Rail "작성" Launcher(?type=) 또는 이 화면의 유형 선택
+// - 작성: 왼쪽 작성 영역(제목 · 태그 · 본문) + 오른쪽 작성 정보(유형 · 공개 범위 · 개인정보 안내 · 진행)
+// - 미리보기(?mode=preview): Published Layout으로 확인한 뒤에만 Submit한다.
 export function CreatePostPage() {
   const navigate = useNavigate()
   const toast = useToast()
   const [searchParams, setSearchParams] = useSearchParams()
   const draft = useSessionDraft<ContentFormValue>(CREATE_DRAFT_KEY, createEmptyForm)
+  const { update: updateDraft } = draft
   const form = draft.value
   const { state: profile } = useResource('profile', () => mentorApi.getProfile())
 
-  const requested = steps.find((step) => step.id === searchParams.get('step'))?.id ?? 'type'
-  const maxIndex = reachableIndex(form)
-  // 주소로 앞 단계를 건너뛰어 들어오면 아직 끝나지 않은 단계를 보여 준다.
-  const current = steps.findIndex((step) => step.id === requested) > maxIndex ? steps[maxIndex].id : requested
-  const currentIndex = steps.findIndex((step) => step.id === current)
+  const launchedType = parseType(searchParams.get('type'))
+  const preview = searchParams.get('mode') === 'preview' && form.type !== null
 
-  // 0이면 오류를 숨긴다. "다음"을 눌러 막힐 때마다 올려 오류 목록으로 Focus를 다시 옮긴다.
   const [errorTick, setErrorTick] = useState(0)
-  const showErrors = errorTick > 0
   const [showRestored, setShowRestored] = useState(draft.restored)
   const [confirmDiscard, setConfirmDiscard] = useState(false)
   const [submitting, setSubmitting] = useState<'draft' | 'publish' | null>(null)
   const [submitError, setSubmitError] = useState<unknown>(null)
   const errorRef = useRef<HTMLDivElement>(null)
+  const regionRef = useRef<HTMLHeadingElement>(null)
   const inFlight = useRef(false)
 
-  const errors = showErrors ? stepErrors(current, form) : []
+  // Launcher에서 고른 유형을 Draft에 넣고 주소에서는 지운다. (유형별 본문은 그대로 보관)
+  useEffect(() => {
+    if (!launchedType) return
+    updateDraft((value) => ({ ...value, type: launchedType }))
+    setSearchParams(
+      (params) => {
+        const next = new URLSearchParams(params)
+        next.delete('type')
+        return next
+      },
+      { replace: true },
+    )
+  }, [launchedType, updateDraft, setSearchParams])
 
   useEffect(() => {
     if (errorTick > 0) errorRef.current?.focus()
   }, [errorTick])
 
-  // 단계가 바뀌면 새 단계 제목으로 Focus를 옮긴다. (처음 화면은 PageTitle 규칙을 따른다)
-  const stepTitleRef = useRef<HTMLHeadingElement>(null)
-  const previousStep = useRef(current)
+  // 작성 ↔ 미리보기가 바뀌면 영역 제목으로 Focus를 옮긴다.
+  const previousMode = useRef(preview)
   useEffect(() => {
-    if (previousStep.current === current) return
-    previousStep.current = current
-    stepTitleRef.current?.focus({ preventScroll: true })
-    stepTitleRef.current?.scrollIntoView({ block: 'nearest' })
-  }, [current])
+    if (previousMode.current === preview) return
+    previousMode.current = preview
+    regionRef.current?.focus({ preventScroll: true })
+    window.scrollTo({ top: 0 })
+  }, [preview])
 
-  const goTo = (step: StepId) => {
-    setErrorTick(0)
+  const validation = validateForm(form)
+  const errors = errorTick > 0 ? [...(validation.title ? [validation.title] : []), ...validation.body] : []
+
+  const setMode = (mode: 'edit' | 'preview') =>
     setSearchParams((params) => {
       const next = new URLSearchParams(params)
-      next.set('step', step)
+      if (mode === 'preview') next.set('mode', 'preview')
+      else next.delete('mode')
       return next
     })
-  }
 
-  const next = () => {
-    if (stepErrors(current, form).length > 0) {
+  const openPreview = () => {
+    if (hasErrors(validation)) {
       setErrorTick((tick) => tick + 1)
       return
     }
-    goTo(steps[currentIndex + 1].id)
+    setErrorTick(0)
+    setMode('preview')
   }
 
   const update = (patch: Partial<ContentFormValue>) => draft.update((value) => ({ ...value, ...patch }))
@@ -139,7 +130,7 @@ export function CreatePostPage() {
       } else if (isReviewRequired(saved.type)) {
         navigate(contentReviewPendingPath(saved.contentId), { replace: true })
       } else {
-        toast('공개했어요. 이제 Student에게 보여요.')
+        toast('공개했어요. 이제 Student와 다른 멘토에게 보여요.')
         navigate(contentPath(saved.contentId), { replace: true })
       }
     } catch (error) {
@@ -152,18 +143,17 @@ export function CreatePostPage() {
 
   const reviewRequired = form.type ? isReviewRequired(form.type) : false
   const typed = form.type ? ({ type: form.type, body: bodyOf(form, form.type) } as TypedBody) : null
+  const bodyReady = form.type !== null && !hasErrors(validation)
 
   return (
     <div className={ui.page}>
-      <header className={ui.pageHeader}>
-        <div>
-          <PageTitle>새 글 쓰기</PageTitle>
-          <p className={ui.pageLead}>쓰는 중인 내용은 이 탭을 닫기 전까지 자동으로 보관돼요.</p>
-        </div>
+      <header className={styles.header}>
+        <PageTitle>{form.type ? `새 ${contentTypeLabel(form.type)}` : '새 콘텐츠'}</PageTitle>
+        <p className={ui.pageLead}>쓰는 중인 내용은 이 탭을 닫기 전까지 자동으로 보관돼요.</p>
       </header>
 
       {showRestored && (
-        <div className={`${ui.alert} ${ui.alertInfo} ${styles.restored}`}>
+        <div className={`${ui.alert} ${ui.alertInfo} ${styles.notice}`}>
           <span>작성 중이던 글을 불러왔어요.</span>
           <button type="button" className={`${ui.button} ${ui.ghost} ${ui.small}`} onClick={() => setConfirmDiscard(true)}>
             새로 쓰기
@@ -171,16 +161,12 @@ export function CreatePostPage() {
         </div>
       )}
 
-      <CreateStepper steps={steps} current={current} reachableIndex={maxIndex} onSelect={goTo} />
-
-      <section className={current === 'preview' ? styles.wide : styles.narrow} aria-labelledby="step-title">
-        <h2 id="step-title" ref={stepTitleRef} tabIndex={-1} className={`${ui.sectionTitle} ${styles.stepTitle}`}>
-          {currentIndex + 1}. {steps[currentIndex].label}
-        </h2>
-        <FormErrorSummary ref={errorRef} errors={errors} />
-
-        {current === 'type' && (
-          <fieldset className={ui.field}>
+      {!typed ? (
+        <section aria-labelledby="type-picker-title">
+          <h2 id="type-picker-title" ref={regionRef} tabIndex={-1} className={styles.regionTitle}>
+            어떤 콘텐츠를 쓸까요?
+          </h2>
+          <fieldset>
             <legend className="visually-hidden">콘텐츠 유형</legend>
             <div className={styles.typeGrid}>
               {contentTypes.map((type) => (
@@ -192,99 +178,155 @@ export function CreatePostPage() {
                     checked={form.type === type.id}
                     onChange={() => update({ type: type.id as MentorContentType })}
                   />
+                  <span className={styles.typeIcon}>
+                    <TypeIcon type={type.id} />
+                  </span>
                   <span className={styles.typeName}>{type.label}</span>
-                  <span className={ui.help}>{type.description}</span>
+                  <span className={styles.typeDescription}>{type.description}</span>
                 </label>
               ))}
             </div>
-            <p className={ui.help}>유형을 바꿔도 앞서 쓴 본문은 유형별로 보관돼요.</p>
           </fieldset>
-        )}
-
-        {current === 'tag' && (
-          <TagInput
-            tags={form.tags}
-            onChange={(tags) => update({ tags })}
-            suggestions={profile.status === 'success' ? profile.data.tags : []}
-          />
-        )}
-
-        {current === 'body' && typed && (
-          <div className={ui.form}>
-            <TextField
-              label="제목"
-              value={form.title}
-              maxLength={80}
-              onChange={(event) => update({ title: event.target.value })}
-              error={showErrors && !form.title.trim() ? '제목을 입력해 주세요.' : undefined}
-            />
-            <ContentBodyEditor
-              content={typed}
-              onChange={(body) => draft.update((value) => ({ ...value, bodies: { ...value.bodies, [typed.type]: body } }))}
-            />
-          </div>
-        )}
-
-        {current === 'visibility' && (
-          <fieldset className={ui.field}>
-            <legend className={ui.label}>누구에게 보일까요?</legend>
-            <label className={styles.typeOption}>
-              <input type="radio" name="visibility" value="PUBLIC" checked={form.visibility === 'PUBLIC'} readOnly />
-              <span className={styles.typeName}>전체 Student 공개</span>
-              <span className={ui.help}>
-                {reviewRequired
-                  ? 'Record / Case는 개인정보 확인과 운영팀 검수를 마친 뒤에 공개돼요.'
-                  : '공개하면 Mentor Hub에서 Student가 볼 수 있어요.'}
-              </span>
-            </label>
-            <p className={ui.help}>다른 공개 범위는 아직 제공하지 않아요.</p>
-          </fieldset>
-        )}
-
-        {current === 'preview' && typed && <ContentPreview content={{ ...typed, title: form.title, tags: form.tags }} />}
-
-        {submitError !== null && (
-          <div className={`${ui.alert} ${ui.alertError} ${styles.submitError}`} role="alert">
-            <span>{errorMessage(submitError, '저장하지 못했어요.')} 작성한 내용은 그대로 있어요.</span>
-          </div>
-        )}
-
-        <div className={ui.actionBar}>
-          <div className={ui.actions}>
-            {currentIndex > 0 && (
-              <button type="button" className={`${ui.button} ${ui.neutral}`} onClick={() => goTo(steps[currentIndex - 1].id)}>
-                이전
-              </button>
+        </section>
+      ) : (
+        <div className={ui.split}>
+          <section className={styles.workArea} aria-labelledby="work-area-title">
+            <h2 id="work-area-title" ref={regionRef} tabIndex={-1} className={styles.regionTitle}>
+              {preview ? '미리보기' : '작성'}
+            </h2>
+            <FormErrorSummary ref={errorRef} errors={errors} />
+            {preview ? (
+              <ContentPreview content={{ ...typed, title: form.title, tags: form.tags }} />
+            ) : (
+              <div className={ui.form}>
+                <div className={ui.field}>
+                  <label htmlFor="composer-title" className="visually-hidden">
+                    제목
+                  </label>
+                  <input
+                    id="composer-title"
+                    className={styles.titleInput}
+                    placeholder="제목을 입력해 주세요"
+                    value={form.title}
+                    maxLength={80}
+                    aria-invalid={errorTick > 0 && Boolean(validation.title)}
+                    onChange={(event) => update({ title: event.target.value })}
+                  />
+                  {errorTick > 0 && validation.title && <p className={ui.fieldError}>{validation.title}</p>}
+                </div>
+                <TagInput
+                  tags={form.tags}
+                  onChange={(tags) => update({ tags })}
+                  suggestions={profile.status === 'success' ? profile.data.tags : []}
+                />
+                <ContentBodyEditor
+                  content={typed}
+                  onChange={(body) => draft.update((value) => ({ ...value, bodies: { ...value.bodies, [typed.type]: body } }))}
+                />
+              </div>
             )}
-          </div>
-          {current === 'preview' ? (
-            <div className={ui.actions}>
-              <button
-                type="button"
-                className={`${ui.button} ${ui.neutral}`}
-                onClick={() => submit('draft')}
-                disabled={submitting !== null}
-                aria-busy={submitting === 'draft'}
-              >
-                {submitting === 'draft' ? '저장 중…' : '초안으로 저장'}
-              </button>
-              <button
-                type="button"
-                className={`${ui.button} ${ui.primary}`}
-                onClick={() => submit('publish')}
-                disabled={submitting !== null}
-                aria-busy={submitting === 'publish'}
-              >
-                {submitting === 'publish' ? '요청 중…' : reviewRequired ? '검수 요청하기' : '공개하기'}
-              </button>
+          </section>
+
+          <aside className={`${ui.aside} ${styles.info}`} aria-label="작성 정보">
+            <section className={ui.panel} aria-labelledby="composer-type-title">
+              <h2 id="composer-type-title" className={ui.panelTitle}>
+                유형
+              </h2>
+              <div className={styles.typeSwitch} role="radiogroup" aria-label="유형 바꾸기">
+                {contentTypes.map((type) => (
+                  <label key={type.id} className={styles.typeChip}>
+                    <input
+                      type="radio"
+                      name="composer-type"
+                      value={type.id}
+                      checked={form.type === type.id}
+                      disabled={preview || submitting !== null}
+                      onChange={() => update({ type: type.id })}
+                    />
+                    <span>{type.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className={ui.help}>유형을 바꿔도 앞서 쓴 본문은 유형별로 보관돼요.</p>
+            </section>
+
+            <section className={ui.panel} aria-labelledby="composer-visibility-title">
+              <h2 id="composer-visibility-title" className={ui.panelTitle}>
+                공개 범위
+              </h2>
+              <label className={styles.visibility}>
+                <input type="radio" name="visibility" value="PUBLIC" checked={form.visibility === 'PUBLIC'} readOnly />
+                <span>Student · 다른 멘토에게 공개</span>
+              </label>
+              <p className={ui.help}>
+                {reviewRequired ? '개인정보 확인과 운영팀 검수를 마친 뒤에 공개돼요.' : '공개하면 바로 보여요.'} 다른 공개 범위는 아직
+                제공하지 않아요.
+              </p>
+            </section>
+
+            {reviewRequired && (
+              <section className={ui.panel} aria-labelledby="composer-privacy-title">
+                <h2 id="composer-privacy-title" className={ui.panelTitle}>
+                  개인정보 안내
+                </h2>
+                <p className={ui.help}>아래 정보는 지운 뒤 적어 주세요. 다른 멘토에게도 같은 기준이 적용돼요.</p>
+                <p className={styles.privacyItems}>{recordPrivacyItems.join(' · ')}</p>
+              </section>
+            )}
+
+            <section className={ui.panel} aria-labelledby="composer-progress-title">
+              <h2 id="composer-progress-title" className={ui.panelTitle}>
+                진행
+              </h2>
+              <ol className={styles.progress}>
+                <ProgressItem done label="유형" detail={contentTypeLabel(typed.type)} />
+                <ProgressItem done={form.tags.length > 0} label="태그" detail={form.tags.length > 0 ? `${form.tags.length}개` : '선택'} />
+                <ProgressItem done={bodyReady} label="본문" detail={bodyReady ? '입력 완료' : '입력 필요'} />
+                <ProgressItem done label="공개 범위" detail="전체 공개" />
+                <ProgressItem done={preview} current={preview} label="미리보기" detail={preview ? '확인 중' : '제출 전 확인'} />
+              </ol>
+            </section>
+
+            {submitError !== null && (
+              <div className={`${ui.alert} ${ui.alertError}`} role="alert">
+                <span>{errorMessage(submitError, '저장하지 못했어요.')} 작성한 내용은 그대로 있어요.</span>
+              </div>
+            )}
+
+            <div className={styles.actions}>
+              {preview ? (
+                <>
+                  <button
+                    type="button"
+                    className={`${ui.button} ${ui.primary}`}
+                    onClick={() => submit('publish')}
+                    disabled={submitting !== null}
+                    aria-busy={submitting === 'publish'}
+                  >
+                    {submitting === 'publish' ? '요청 중…' : reviewRequired ? '검수 요청하기' : '공개하기'}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${ui.button} ${ui.neutral}`}
+                    onClick={() => submit('draft')}
+                    disabled={submitting !== null}
+                    aria-busy={submitting === 'draft'}
+                  >
+                    {submitting === 'draft' ? '저장 중…' : '초안으로 저장'}
+                  </button>
+                  <button type="button" className={`${ui.button} ${ui.ghost}`} onClick={() => setMode('edit')} disabled={submitting !== null}>
+                    편집으로 돌아가기
+                  </button>
+                </>
+              ) : (
+                <button type="button" className={`${ui.button} ${ui.primary}`} onClick={openPreview}>
+                  미리보기
+                </button>
+              )}
             </div>
-          ) : (
-            <button type="button" className={`${ui.button} ${ui.primary}`} onClick={next}>
-              다음
-            </button>
-          )}
+          </aside>
         </div>
-      </section>
+      )}
 
       <ConfirmDialog
         open={confirmDiscard}
@@ -295,12 +337,27 @@ export function CreatePostPage() {
           setConfirmDiscard(false)
           setShowRestored(false)
           draft.discard()
-          goTo('type')
+          setMode('edit')
         }}
         onCancel={() => setConfirmDiscard(false)}
       >
         지금까지 쓴 유형 · 태그 · 본문이 모두 지워져요.
       </ConfirmDialog>
     </div>
+  )
+}
+
+function ProgressItem({ done, current, label, detail }: { done: boolean; current?: boolean; label: string; detail: string }) {
+  return (
+    <li className={`${styles.progressItem} ${done ? styles.progressDone : ''}`} aria-current={current ? 'step' : undefined}>
+      <span className={styles.progressMark} aria-hidden="true">
+        {done ? '✓' : ''}
+      </span>
+      <span className={styles.progressLabel}>{label}</span>
+      <span className={styles.progressDetail}>
+        {detail}
+        <span className="visually-hidden">{done ? ' (완료)' : ''}</span>
+      </span>
+    </li>
   )
 }

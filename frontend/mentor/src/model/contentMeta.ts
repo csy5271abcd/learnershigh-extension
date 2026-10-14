@@ -26,7 +26,7 @@ export type ContentStatusView = { label: string; tone: BadgeTone }
  * "검수 대기"는 Canonical Review State 확정 전 UI-only representation이다. (OD-05)
  */
 export function contentStatusView(item: Pick<MentorContentListItem, 'status' | 'review'>): ContentStatusView {
-  if (item.status === 'PUBLISHED') return { label: '공개됨', tone: 'positive' }
+  if (item.status === 'PUBLISHED') return { label: '공개', tone: 'positive' }
   if (item.review.publishRequestSubmitted) return { label: '검수 대기', tone: 'warning' }
   return { label: '초안', tone: 'neutral' }
 }

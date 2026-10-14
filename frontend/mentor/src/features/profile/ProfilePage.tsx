@@ -1,18 +1,17 @@
-import { useState } from 'react'
 import { Link } from 'react-router'
 import { mentorApi } from '../../api/mentorApi.ts'
-import type { MentorContentType, MentorProfile } from '../../api/types.ts'
+import type { MentorProfile } from '../../api/types.ts'
 import { contentPath, createPath, profileEditPath } from '../../app/paths.ts'
-import { Badge } from '../../components/Badge.tsx'
+import { Avatar } from '../../components/Avatar.tsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
+import styles from '../../components/ProfileLayout.module.css'
 import ui from '../../components/ui.module.css'
-import { formatCount } from '../../lib/format.ts'
+import { formatCount, formatDate } from '../../lib/format.ts'
 import { useResource } from '../../lib/useResource.ts'
 import { contentTypeLabel, contentTypes } from '../../model/contentMeta.ts'
-import styles from './ProfilePage.module.css'
 
-// Mentor 공개 Profile: Student Mentor Hub의 Mentor Profile에 보이는 값과 같은 Entity다. (domain.md §28)
+// 내 Profile (Manage Identity): Student Mentor Hub와 다른 Mentor에게 보이는 내 공개 정보와 공개 콘텐츠.
 // Student 관리 데이터는 다루지 않는다. (frontend-mentor.md §11)
 export function ProfilePage() {
   const { state, reload } = useResource('profile', () => mentorApi.getProfile())
@@ -25,7 +24,8 @@ export function ProfilePage() {
       )}
       {state.status === 'success' && (
         <>
-          <ProfileHeader profile={state.data} />
+          <ProfileIdentity profile={state.data} />
+          <PublicFields profile={state.data} />
           <PublishedContent />
         </>
       )}
@@ -33,52 +33,50 @@ export function ProfilePage() {
   )
 }
 
-function ProfileHeader({ profile }: { profile: MentorProfile }) {
+function ProfileIdentity({ profile }: { profile: MentorProfile }) {
   return (
-    <section className={styles.header} aria-labelledby="profile-name">
-      <div className={styles.identity}>
-        <span className={styles.avatar} aria-hidden="true">
-          {profile.name.slice(0, 1)}
-        </span>
-        <div>
-          <div className={styles.nameRow} id="profile-name">
-            <PageTitle>{profile.name}</PageTitle>
-            {profile.verified && <Badge tone="positive">재학 인증</Badge>}
-          </div>
-          <p className={styles.affiliation}>
-            {profile.university} {profile.major}
-          </p>
+    <section className={styles.identity} aria-labelledby="profile-name">
+      <Avatar name={profile.name} imageUrl={profile.profileImageUrl} size={104} />
+      <div className={styles.identityText}>
+        <div id="profile-name">
+          <PageTitle>{profile.name}</PageTitle>
         </div>
-        <Link to={profileEditPath} className={`${ui.button} ${ui.neutral} ${styles.edit}`}>
-          프로필 수정
-        </Link>
+        <p className={styles.affiliation}>
+          {profile.university} · {profile.major}
+        </p>
+        <p className={styles.meta}>
+          {profile.admissionType}
+          {profile.verified && ' · 인증 Mentor'}
+        </p>
       </div>
-      <p className={ui.help}>Student가 Mentor Hub에서 보는 내 공개 프로필이에요.</p>
+      <Link to={profileEditPath} className={`${ui.button} ${ui.neutral}`}>
+        프로필 수정
+      </Link>
+    </section>
+  )
+}
 
-      <dl className={styles.facts}>
-        <div className={styles.fact}>
-          <dt>고교 당시</dt>
+function PublicFields({ profile }: { profile: MentorProfile }) {
+  return (
+    <section className={styles.section} aria-labelledby="public-profile-title">
+      <h2 id="public-profile-title" className={styles.sectionTitle}>
+        공개 프로필
+      </h2>
+      <p className={`${ui.help} ${styles.sectionHelp}`}>Student와 다른 멘토가 보는 정보예요.</p>
+      <dl className={styles.fields}>
+        <div className={styles.field}>
+          <dt>고교 Context</dt>
           <dd>{profile.highSchoolContext}</dd>
         </div>
-        <div className={styles.fact}>
-          <dt>전형</dt>
-          <dd>{profile.admissionType}</dd>
-        </div>
-        <div className={`${styles.fact} ${styles.factWide}`}>
+        <div className={styles.field}>
           <dt>대표 경험</dt>
           <dd>{profile.representativeExperience}</dd>
         </div>
+        <div className={styles.field}>
+          <dt>태그</dt>
+          <dd className={styles.tags}>{profile.tags.length > 0 ? profile.tags.join(' · ') : '없음'}</dd>
+        </div>
       </dl>
-
-      {profile.tags.length > 0 && (
-        <ul className={ui.tagList} aria-label="태그">
-          {profile.tags.map((tag) => (
-            <li key={tag} className={ui.tag}>
-              {tag}
-            </li>
-          ))}
-        </ul>
-      )}
     </section>
   )
 }
@@ -87,64 +85,51 @@ function PublishedContent() {
   const { state, reload } = useResource('content:list:all:PUBLISHED', () =>
     mentorApi.listContent({ status: 'PUBLISHED', size: 100 }),
   )
-  const [type, setType] = useState<MentorContentType | 'ALL'>('ALL')
 
   return (
-    <section className={styles.contents} aria-labelledby="published-title">
-      <h2 id="published-title" className={ui.sectionTitle}>
-        공개한 콘텐츠
+    <section className={styles.section} aria-labelledby="published-title">
+      <h2 id="published-title" className={styles.sectionTitle}>
+        내 공개 콘텐츠
       </h2>
       {state.status === 'loading' && <LoadingState label="공개한 콘텐츠를 불러오는 중이에요." rows={2} />}
       {(state.status === 'error' || state.status === 'notFound') && (
-        <ErrorState
-          title="공개한 콘텐츠를 불러오지 못했어요."
-          error={state.status === 'error' ? state.error : null}
-          onRetry={reload}
-        />
+        <ErrorState title="공개한 콘텐츠를 불러오지 못했어요." error={state.status === 'error' ? state.error : null} onRetry={reload} />
       )}
       {state.status === 'success' &&
         (state.data.items.length === 0 ? (
-          <EmptyState title="아직 공개한 콘텐츠가 없어요." description="공개한 콘텐츠는 Student가 내 프로필에서 볼 수 있어요.">
+          <EmptyState title="아직 공개한 콘텐츠가 없어요." description="공개한 콘텐츠는 Student와 다른 멘토가 내 프로필에서 볼 수 있어요.">
             <Link to={createPath} className={`${ui.button} ${ui.primary}`}>
-              새 글 쓰기
+              새 콘텐츠 작성
             </Link>
           </EmptyState>
         ) : (
           <>
-            <div className={ui.chips} role="group" aria-label="유형">
-              <button type="button" className={ui.chip} aria-pressed={type === 'ALL'} onClick={() => setType('ALL')}>
-                전체 {state.data.items.length}
-              </button>
-              {contentTypes.map((item) => {
-                const count = state.data.items.filter((content) => content.type === item.id).length
-                if (count === 0) return null
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={ui.chip}
-                    aria-pressed={type === item.id}
-                    onClick={() => setType(item.id)}
-                  >
-                    {item.label} {count}
-                  </button>
-                )
+            <p className={styles.typeCounts} aria-label="유형별 공개 콘텐츠 수">
+              {contentTypes.map((type) => {
+                const count = state.data.items.filter((item) => item.type === type.id).length
+                return count > 0 ? (
+                  <span key={type.id}>
+                    {type.label}
+                    <strong>{count}</strong>
+                  </span>
+                ) : null
               })}
-            </div>
-            <ul className={styles.cards}>
-              {state.data.items
-                .filter((content) => type === 'ALL' || content.type === type)
-                .map((content) => (
-                  <li key={content.contentId}>
-                    <Link to={contentPath(content.contentId)} className={styles.card}>
-                      <Badge>{contentTypeLabel(content.type)}</Badge>
-                      <span className={styles.cardTitle}>{content.title}</span>
-                      <span className={ui.meta}>
-                        조회 {formatCount(content.metrics.viewCount)} · 저장 {formatCount(content.metrics.saveCount)}
-                      </span>
+            </p>
+            <ul className={styles.list}>
+              {state.data.items.map((content) => (
+                <li key={content.contentId} className={styles.row}>
+                  <div className={styles.rowMain}>
+                    <p className={styles.type}>{contentTypeLabel(content.type)}</p>
+                    <Link to={contentPath(content.contentId)} className={styles.rowLink}>
+                      {content.title}
                     </Link>
-                  </li>
-                ))}
+                    <p className={styles.summary}>
+                      조회 {formatCount(content.metrics.viewCount)} · 저장 {formatCount(content.metrics.saveCount)}
+                    </p>
+                  </div>
+                  {content.publishedAt && <span className={styles.date}>{formatDate(content.publishedAt)}</span>}
+                </li>
+              ))}
             </ul>
           </>
         ))}

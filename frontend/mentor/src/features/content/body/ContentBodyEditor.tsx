@@ -1,6 +1,6 @@
 import type { MentorContentBody } from '../../../api/types.ts'
 import { CaseEditor } from './CaseEditor.tsx'
-import type { TypedBody } from './ContentBodyView.tsx'
+import type { TypedBody } from '../../../content-body/ContentBodyView.tsx'
 import { PlanEditor } from './PlanEditor.tsx'
 import { RecordEditor } from './RecordEditor.tsx'
 import { RoutineEditor } from './RoutineEditor.tsx'

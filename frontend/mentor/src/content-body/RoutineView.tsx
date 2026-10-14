@@ -1,5 +1,5 @@
-import type { RoutineBody } from '../../../api/types.ts'
-import styles from './body.module.css'
+import type { RoutineBody } from '../api/types.ts'
+import styles from './contentBody.module.css'
 
 // Routine: Habit · 주기 · 시간 · 설명
 export function RoutineView({ body }: { body: RoutineBody }) {

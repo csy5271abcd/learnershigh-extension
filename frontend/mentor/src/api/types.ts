@@ -271,6 +271,8 @@ export interface MentorProfile {
   representativeExperience: string
   verified: boolean
   tags: string[]
+  /** Frontend Presentation Field (Contract Gap). 없거나 불러오지 못하면 이름 첫 글자로 대체한다. */
+  profileImageUrl?: string | null
 }
 
 /**
@@ -281,4 +283,9 @@ export interface MentorProfileUpdateRequest {
   highSchoolContext?: string
   representativeExperience?: string
   tags?: string[]
+  /**
+   * Frontend Prototype: 선택한 사진의 Data URL, null이면 삭제. (Contract Gap)
+   * Profile Image Storage / Upload Contract가 정해지면 fileRef 같은 방식으로 바뀐다. (Open Decision)
+   */
+  profileImageUrl?: string | null
 }

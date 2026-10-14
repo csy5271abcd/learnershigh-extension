@@ -3,8 +3,7 @@
 /* ---------- Page Layout ---------- */
 .page {
   width: 100%;
-  max-width: var(--lh-page-max-width);
-  margin: 0 auto;
+  max-width: calc(var(--lh-page-max-width) + var(--lh-page-gutter) * 2);
   padding: var(--lh-space-8) var(--lh-page-gutter) var(--lh-space-12);
 }
 
@@ -60,10 +59,14 @@
   }
 }
 
+/* Context Panel: Box 대신 얇은 Divider로 나눈다. */
 .panel {
-  padding: var(--lh-space-5);
-  border-radius: var(--lh-radius-lg);
-  background: var(--lh-color-surface);
+  padding-bottom: var(--lh-space-5);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.panel:last-child {
+  border-bottom: 0;
 }
 
 .panelTitle {
@@ -376,4 +379,11 @@
   color: var(--lh-color-text-secondary);
   font-size: var(--lh-font-caption);
   font-weight: 600;
+}
+
+/* Mobile: 아래 Tab Bar 위에 붙인다. */
+@media (max-width: 767px) {
+  .actionBar {
+    bottom: var(--lh-mobile-bar-height);
+  }
 }

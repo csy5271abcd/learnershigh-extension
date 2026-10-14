@@ -12,7 +12,7 @@ import ui from '../../components/ui.module.css'
 import { errorMessage, formatCount, formatDate } from '../../lib/format.ts'
 import { invalidateResources, useResource } from '../../lib/useResource.ts'
 import { contentStatusView, contentTypeLabel, hasApply, isInReview, isReviewRequired } from '../../model/contentMeta.ts'
-import { ContentBodyView } from './body/ContentBodyView.tsx'
+import { ContentBodyView } from '../../content-body/ContentBodyView.tsx'
 import { editBlockedReason } from './model/editability.ts'
 
 export function ContentDetailPage() {

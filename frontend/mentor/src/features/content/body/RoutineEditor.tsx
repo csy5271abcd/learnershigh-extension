@@ -2,7 +2,7 @@ import type { RoutineBody, RoutineHabit } from '../../../api/types.ts'
 import { TextAreaField, TextField } from '../../../components/FormFields.tsx'
 import ui from '../../../components/ui.module.css'
 import { newLocalId } from '../model/contentForm.ts'
-import styles from './body.module.css'
+import styles from './editor.module.css'
 
 interface RoutineEditorProps {
   value: RoutineBody
