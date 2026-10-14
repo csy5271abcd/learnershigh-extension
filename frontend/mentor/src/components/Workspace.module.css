@@ -1,0 +1,214 @@
+.workspace {
+  display: grid;
+  grid-template-columns: var(--lh-sidebar-width) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.workspace[data-collapsed='true'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.workspace[data-collapsed='true'] .sidebar {
+  display: none;
+}
+
+/* ---------- Secondary Sidebar ---------- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--lh-space-5) var(--lh-space-3);
+  border-right: 1px solid var(--lh-color-border);
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  margin-bottom: var(--lh-space-3);
+  padding-left: var(--lh-space-3);
+}
+
+.sidebarTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.section + .section {
+  margin-top: var(--lh-space-4);
+  padding-top: var(--lh-space-4);
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.sectionHeading {
+  margin-bottom: var(--lh-space-1);
+  padding: 0 var(--lh-space-3);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+  min-height: 40px;
+  padding: 0 var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  color: var(--lh-color-text-secondary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.item:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+/* Active: 연한 Neutral 배경 (왼쪽 Indicator 없음) */
+.itemActive,
+.itemActive:hover {
+  background: var(--lh-color-rail-active);
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+.itemLabel {
+  white-space: nowrap;
+}
+
+.count {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-tertiary);
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+/* ---------- Main ---------- */
+.content {
+  min-width: 0;
+  padding: var(--lh-space-5) var(--lh-page-gutter) var(--lh-space-12);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-3);
+  margin-bottom: var(--lh-space-8);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.search {
+  display: flex;
+  flex: 0 1 380px;
+  align-items: center;
+  gap: var(--lh-space-2);
+  min-width: 200px;
+  height: 44px;
+  padding: 0 var(--lh-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-search);
+  color: var(--lh-color-text-tertiary);
+}
+
+.search:focus-within {
+  border-color: var(--lh-color-accent);
+  background: var(--lh-color-surface-raised);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-body);
+  outline: none;
+}
+
+/* ---------- Mobile: Sidebar → 위쪽 가로 Navigation ---------- */
+@media (max-width: 767px) {
+  .workspace,
+  .workspace[data-collapsed='true'] {
+    display: block;
+    min-height: 0;
+  }
+
+  .workspace[data-collapsed='true'] .sidebar {
+    display: flex;
+  }
+
+  .sidebar {
+    position: static;
+    display: flex;
+    gap: var(--lh-space-1);
+    height: auto;
+    padding: var(--lh-space-3) var(--lh-page-gutter);
+    border-right: 0;
+    border-bottom: 1px solid var(--lh-color-border);
+    overflow-x: auto;
+  }
+
+  .sidebarHeader,
+  .sectionHeading,
+  .expand {
+    display: none;
+  }
+
+  .section + .section {
+    margin: 0;
+    padding: 0 0 0 var(--lh-space-1);
+    border-top: 0;
+    border-left: 1px solid var(--lh-color-border);
+  }
+
+  .items {
+    flex-direction: row;
+  }
+
+  .items li {
+    flex-shrink: 0;
+  }
+
+  .item {
+    min-height: 36px;
+    white-space: nowrap;
+  }
+
+  .search {
+    flex-basis: 100%;
+  }
+}

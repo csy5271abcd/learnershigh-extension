@@ -1,0 +1,218 @@
+/*
+ * Mentor Surface Design Token / Base Style.
+ * TDS 의미 기반 Token(docs/design/tds-web-guidelines.md §53)을 Mentor App 범위에서 정의한다.
+ * 값은 Student Surface Token(frontend/student/src/index.css)과 같다. frontend/shared/theme/ 승격 전까지의 임시 중복이다.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --lh-color-background: #ffffff;
+  --lh-color-surface: #f5f6f8;
+  --lh-color-surface-raised: #ffffff;
+  --lh-color-surface-hover: #eef0f3;
+  --lh-color-chip: #eceef1;
+  --lh-color-border: #e5e8eb;
+  --lh-color-border-strong: #c9ced6;
+  --lh-color-text-primary: #191f28;
+  --lh-color-text-secondary: #4e5968;
+  --lh-color-text-tertiary: #5f6b78;
+  --lh-color-accent: #3182f6;
+  --lh-color-accent-hover: #1b64da;
+  --lh-color-on-accent: #ffffff;
+  --lh-color-accent-subtle: #e8f3ff;
+  --lh-color-accent-text: #1b64da;
+  --lh-color-positive: #0b7a43;
+  --lh-color-positive-subtle: #e5f6ec;
+  --lh-color-negative: #d9263a;
+  --lh-color-negative-subtle: #ffeef0;
+  --lh-color-warning: #b45309;
+  --lh-color-warning-subtle: #fff4e5;
+  --lh-color-skeleton: #e9ecef;
+  /* Mentor Workspace Rail: 본문보다 아주 살짝 구분되는 Neutral Surface */
+  --lh-color-rail: #f7f8fa;
+  --lh-color-rail-active: #e9ebee;
+  --lh-color-search: #f2f4f6;
+
+  /* 원형 Tile 안 다색 Glyph (Content 유형 / 빠른 작업). 장식 색이며 상태 의미가 없다. */
+  --lh-glyph-tile: #f2f4f6;
+  --lh-glyph-paper: #ffffff;
+  --lh-glyph-plan: #3182f6;
+  --lh-glyph-plan-tint: #cfe2ff;
+  --lh-glyph-routine: #1fb57a;
+  --lh-glyph-routine-tint: #c9f0de;
+  --lh-glyph-story: #f5a524;
+  --lh-glyph-story-tint: #ffe3b0;
+  --lh-glyph-record: #7b61ff;
+  --lh-glyph-record-tint: #ddd6ff;
+  --lh-glyph-case: #f2665b;
+  --lh-glyph-case-tint: #ffd4cf;
+
+  --lh-space-1: 4px;
+  --lh-space-2: 8px;
+  --lh-space-3: 12px;
+  --lh-space-4: 16px;
+  --lh-space-5: 20px;
+  --lh-space-6: 24px;
+  --lh-space-8: 32px;
+  --lh-space-10: 40px;
+  --lh-space-12: 48px;
+
+  --lh-radius-sm: 6px;
+  --lh-radius-md: 12px;
+  --lh-radius-lg: 16px;
+  --lh-radius-pill: 999px;
+
+  --lh-font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    'Segoe UI', sans-serif;
+  --lh-font-caption: 0.75rem;
+  --lh-font-label: 0.8125rem;
+  --lh-font-body: 0.875rem;
+  --lh-font-title-sm: 1rem;
+  --lh-font-title-md: 1.25rem;
+  --lh-font-title-lg: 1.5rem;
+  --lh-font-page-title: 1.75rem;
+
+  /* Mentor Workspace 폭 / 여백 */
+  --lh-rail-width: 80px;
+  --lh-sidebar-width: 232px;
+  --lh-mobile-bar-height: 64px;
+  --lh-page-max-width: 1280px;
+  --lh-page-gutter: var(--lh-space-10);
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --lh-page-gutter: var(--lh-space-6);
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --lh-page-gutter: var(--lh-space-4);
+    --lh-font-page-title: 1.375rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lh-color-background: #17171c;
+    --lh-color-surface: #212128;
+    --lh-color-surface-raised: #2c2c35;
+    --lh-color-surface-hover: #33333d;
+    --lh-color-chip: #33333d;
+    --lh-color-border: #33333d;
+    --lh-color-border-strong: #4a4a55;
+    --lh-color-text-primary: #f2f4f6;
+    --lh-color-text-secondary: #c3c8d0;
+    --lh-color-text-tertiary: #a3abb5;
+    --lh-color-accent: #3182f6;
+    --lh-color-accent-hover: #4d94f8;
+    --lh-color-on-accent: #ffffff;
+    --lh-color-accent-subtle: #1d2a3d;
+    --lh-color-accent-text: #79b0ff;
+    --lh-color-positive: #5ed69a;
+    --lh-color-positive-subtle: #1b3327;
+    --lh-color-negative: #ff7d8a;
+    --lh-color-negative-subtle: #3a1e23;
+    --lh-color-warning: #ffb067;
+    --lh-color-warning-subtle: #3a2a17;
+    --lh-color-skeleton: #2c2c35;
+    --lh-color-rail: #1c1c22;
+    --lh-color-rail-active: #33333d;
+    --lh-color-search: #26262e;
+    --lh-glyph-tile: #2a2a32;
+    --lh-glyph-paper: #ffffff;
+    --lh-glyph-plan-tint: #284a7a;
+    --lh-glyph-routine-tint: #1f5a43;
+    --lh-glyph-story-tint: #6b4c17;
+    --lh-glyph-record-tint: #43397a;
+    --lh-glyph-case-tint: #74332e;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--lh-color-background);
+  color: var(--lh-color-text-primary);
+  font-family: var(--lh-font-family);
+  font-size: var(--lh-font-body);
+  line-height: 1.57;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+fieldset {
+  margin: 0;
+}
+
+fieldset {
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--lh-color-accent);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

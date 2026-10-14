@@ -1,0 +1,53 @@
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.skeletonRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.skeletonLine {
+  display: block;
+  height: 14px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-skeleton);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-10) var(--lh-space-6);
+  border: 1px dashed var(--lh-color-border-strong);
+  border-radius: var(--lh-radius-lg);
+}
+
+.error {
+  border-style: solid;
+  border-color: var(--lh-color-negative-subtle);
+  background: var(--lh-color-negative-subtle);
+}
+
+.title {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.description {
+  color: var(--lh-color-text-secondary);
+}

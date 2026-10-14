@@ -1,0 +1,34 @@
+.title {
+  margin-top: var(--lh-space-2);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+  max-width: 960px;
+}
+
+.viewToggle {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.toggle {
+  min-height: 36px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle[aria-pressed='true'] {
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
