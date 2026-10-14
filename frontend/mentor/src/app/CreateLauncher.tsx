@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router'
-import { CreateIcon, TypeIcon } from '../components/icons.tsx'
+import { CreateIcon, IconTile, TypeGlyph } from '../components/icons.tsx'
 import { contentTypes } from '../model/contentMeta.ts'
 import styles from './CreateLauncher.module.css'
 import { createWithTypePath } from './paths.ts'
@@ -50,7 +50,7 @@ export function CreateLauncher({ itemClassName, activeClassName }: { itemClassNa
         aria-current={pathname === '/create' ? 'page' : undefined}
         onClick={() => setOpen((value) => !value)}
       >
-        <CreateIcon />
+        <CreateIcon active={open || pathname === '/create'} />
         <span>작성</span>
       </button>
       {open && (
@@ -72,9 +72,9 @@ export function CreateLauncher({ itemClassName, activeClassName }: { itemClassNa
             {contentTypes.map((type) => (
               <li key={type.id}>
                 <Link to={createWithTypePath(type.id)} className={styles.option} onClick={() => setOpen(false)}>
-                  <span className={styles.optionIcon}>
-                    <TypeIcon type={type.id} />
-                  </span>
+                  <IconTile size={48}>
+                    <TypeGlyph type={type.id} size={32} />
+                  </IconTile>
                   <span className={styles.optionLabel}>{type.label}</span>
                 </Link>
               </li>

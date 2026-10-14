@@ -8,11 +8,12 @@ import { CreateLauncher } from './CreateLauncher.tsx'
 import styles from './MentorShell.module.css'
 import { contentListPath, discoverPath, homePath, profilePath, questionListPath } from './paths.ts'
 
+// Icon은 기본 Outline, 현재 화면에서만 Solid로 바뀐다.
 const railItems = [
-  { to: homePath, label: '홈', icon: <HomeIcon />, end: true },
-  { to: contentListPath, label: '내 콘텐츠', icon: <ContentIcon />, end: false },
-  { to: discoverPath, label: '둘러보기', icon: <DiscoverIcon />, end: false },
-  { to: questionListPath, label: 'Q&A', icon: <QuestionIcon />, end: false },
+  { to: homePath, label: '홈', Icon: HomeIcon, end: true },
+  { to: contentListPath, label: '내 콘텐츠', Icon: ContentIcon, end: false },
+  { to: discoverPath, label: '둘러보기', Icon: DiscoverIcon, end: false },
+  { to: questionListPath, label: 'Q&A', Icon: QuestionIcon, end: false },
 ]
 
 /**
@@ -44,8 +45,12 @@ export function MentorShell() {
                     end={item.end}
                     className={({ isActive }) => `${styles.item} ${isActive ? styles.active : ''}`}
                   >
-                    {item.icon}
-                    <span>{item.label}</span>
+                    {({ isActive }) => (
+                      <>
+                        <item.Icon active={isActive} />
+                        <span>{item.label}</span>
+                      </>
+                    )}
                   </NavLink>
                 </li>
               ))}

@@ -3,6 +3,7 @@ import { mentorApi } from '../../api/mentorApi.ts'
 import type { MentorProfile } from '../../api/types.ts'
 import { contentPath, createPath, profileEditPath } from '../../app/paths.ts'
 import { Avatar } from '../../components/Avatar.tsx'
+import { TypeIcon } from '../../components/icons.tsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import styles from '../../components/ProfileLayout.module.css'
@@ -119,7 +120,10 @@ function PublishedContent() {
               {state.data.items.map((content) => (
                 <li key={content.contentId} className={styles.row}>
                   <div className={styles.rowMain}>
-                    <p className={styles.type}>{contentTypeLabel(content.type)}</p>
+                    <p className={styles.type}>
+                      <TypeIcon type={content.type} />
+                      {contentTypeLabel(content.type)}
+                    </p>
                     <Link to={contentPath(content.contentId)} className={styles.rowLink}>
                       {content.title}
                     </Link>

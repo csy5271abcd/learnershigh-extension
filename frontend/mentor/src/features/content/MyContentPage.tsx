@@ -3,7 +3,7 @@ import { mentorApi } from '../../api/mentorApi.ts'
 import type { MentorContentListItem, MentorContentType, PageResult } from '../../api/types.ts'
 import { contentEditPath, contentPath, createPath } from '../../app/paths.ts'
 import { Badge } from '../../components/Badge.tsx'
-import { PlusIcon } from '../../components/icons.tsx'
+import { PlusIcon, TypeIcon } from '../../components/icons.tsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import ui from '../../components/ui.module.css'
@@ -219,7 +219,10 @@ function ContentRow({ item }: { item: MentorContentListItem }) {
   return (
     <article className={styles.row}>
       <div className={styles.rowMain}>
-        <p className={styles.type}>{contentTypeLabel(item.type)}</p>
+        <p className={styles.type}>
+          <TypeIcon type={item.type} />
+          {contentTypeLabel(item.type)}
+        </p>
         <h2 className={styles.rowTitle}>
           <Link to={contentPath(item.contentId)} className={styles.rowLink}>
             {item.title}

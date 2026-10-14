@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { discoverApi } from '../../api/discover/discoverApi.ts'
 import type { PublishedMentorContentDetail } from '../../api/discover/types.ts'
 import { discoverMentorPath, discoverPath } from '../../app/paths.ts'
+import { TypeIcon } from '../../components/icons.tsx'
 import { ErrorState, LoadingState, NotFoundState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import ui from '../../components/ui.module.css'
@@ -45,7 +46,10 @@ function PublishedContent({ content }: { content: PublishedMentorContentDetail }
     <div className={ui.split}>
       <article className={styles.article} aria-labelledby="published-title">
         <header className={styles.header}>
-          <p className={styles.type}>{contentTypeLabel(content.type)}</p>
+          <p className={styles.type}>
+            <TypeIcon type={content.type} />
+            {contentTypeLabel(content.type)}
+          </p>
           <div id="published-title">
             <PageTitle>{content.title}</PageTitle>
           </div>

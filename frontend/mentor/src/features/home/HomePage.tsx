@@ -14,9 +14,9 @@ import {
 } from '../../app/paths.ts'
 import { Avatar } from '../../components/Avatar.tsx'
 import { Badge } from '../../components/Badge.tsx'
+import { ActionGlyph, IconTile, TypeIcon } from '../../components/icons.tsx'
 import { ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
-import ui from '../../components/ui.module.css'
 import { formatDate, formatRelativeTime } from '../../lib/format.ts'
 import { useResource, type ResourceState } from '../../lib/useResource.ts'
 import { contentStatusView, contentTypeLabel, isInReview } from '../../model/contentMeta.ts'
@@ -45,19 +45,24 @@ export function HomePage() {
         {me && <Avatar name={me.name} imageUrl={me.profileImageUrl} size={56} decorative />}
         <PageTitle>{me ? `${me.name} 멘토님, 안녕하세요` : '안녕하세요'}</PageTitle>
         <p className={styles.lead}>오늘 무엇을 준비해 볼까요?</p>
+        {/* 빠른 작업: 원형 Tile + 다색 Glyph + 짧은 Label. 숫자는 할 일 개수만 Badge로 보인다. */}
         <nav className={styles.quick} aria-label="빠른 작업">
-          <Link to={createPath} className={`${ui.button} ${ui.primary}`}>
-            새 콘텐츠 작성
-          </Link>
-          <Link to={`${questionListPath}?status=pending`} className={`${ui.button} ${ui.neutral}`}>
-            답변 대기 질문{questions.state.status === 'success' && <span className={styles.quickCount}>{pendingCount}</span>}
-          </Link>
-          <Link to={`${contentListPath}?status=DRAFT`} className={`${ui.button} ${ui.neutral}`}>
-            내 초안{contents.state.status === 'success' && <span className={styles.quickCount}>{drafts.length}</span>}
-          </Link>
-          <Link to={discoverPath} className={`${ui.button} ${ui.neutral}`}>
-            다른 멘토 콘텐츠 둘러보기
-          </Link>
+          <ul className={styles.quickList}>
+            <QuickAction to={createPath} kind="write" label="새 콘텐츠 작성" />
+            <QuickAction
+              to={`${questionListPath}?status=pending`}
+              kind="questions"
+              label="답변 대기 질문"
+              count={questions.state.status === 'success' ? pendingCount : undefined}
+            />
+            <QuickAction
+              to={`${contentListPath}?status=DRAFT`}
+              kind="drafts"
+              label="내 초안"
+              count={contents.state.status === 'success' ? drafts.length : undefined}
+            />
+            <QuickAction to={discoverPath} kind="discover" label="동료 콘텐츠 둘러보기" />
+          </ul>
         </nav>
       </header>
 
@@ -68,7 +73,10 @@ export function HomePage() {
             return (
               <li key={item.contentId} className={styles.row}>
                 <div className={styles.rowMain}>
-                  <p className={styles.kind}>{contentTypeLabel(item.type)}</p>
+                  <p className={styles.kind}>
+                  <TypeIcon type={item.type} />
+                  {contentTypeLabel(item.type)}
+                </p>
                   <Link to={contentPath(item.contentId)} className={styles.rowLink}>
                     {item.title}
                   </Link>
@@ -125,7 +133,10 @@ export function HomePage() {
           peers.state.data.slice(0, 3).map((item) => (
             <li key={item.contentId} className={styles.row}>
               <div className={styles.rowMain}>
-                <p className={styles.kind}>{contentTypeLabel(item.type)}</p>
+                <p className={styles.kind}>
+                  <TypeIcon type={item.type} />
+                  {contentTypeLabel(item.type)}
+                </p>
                 <Link to={discoverContentPath(item.contentId)} className={styles.rowLink}>
                   {item.title}
                 </Link>
@@ -139,6 +150,29 @@ export function HomePage() {
           ))}
       </HomeSection>
     </div>
+  )
+}
+
+function QuickAction({
+  to,
+  kind,
+  label,
+  count,
+}: {
+  to: string
+  kind: 'write' | 'questions' | 'drafts' | 'discover'
+  label: string
+  count?: number
+}) {
+  return (
+    <li>
+      <Link to={to} className={styles.quickItem} aria-label={count !== undefined ? `${label} ${count}개` : label}>
+        <IconTile size={56} badge={count}>
+          <ActionGlyph kind={kind} size={36} />
+        </IconTile>
+        <span>{label}</span>
+      </Link>
+    </li>
   )
 }
 

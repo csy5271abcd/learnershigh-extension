@@ -4,7 +4,7 @@ import { mentorApi } from '../../api/mentorApi.ts'
 import type { MentorContentType } from '../../api/types.ts'
 import { contentPath, contentReviewPendingPath } from '../../app/paths.ts'
 import { ConfirmDialog } from '../../components/ConfirmDialog.tsx'
-import { TypeIcon } from '../../components/icons.tsx'
+import { IconTile, TypeGlyph } from '../../components/icons.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import { TagInput } from '../../components/TagInput.tsx'
 import { useToast } from '../../components/toastContext.ts'
@@ -178,9 +178,9 @@ export function CreatePostPage() {
                     checked={form.type === type.id}
                     onChange={() => update({ type: type.id as MentorContentType })}
                   />
-                  <span className={styles.typeIcon}>
-                    <TypeIcon type={type.id} />
-                  </span>
+                  <IconTile size={52}>
+                    <TypeGlyph type={type.id} size={34} />
+                  </IconTile>
                   <span className={styles.typeName}>{type.label}</span>
                   <span className={styles.typeDescription}>{type.description}</span>
                 </label>

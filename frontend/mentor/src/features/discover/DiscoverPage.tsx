@@ -3,6 +3,7 @@ import { discoverApi } from '../../api/discover/discoverApi.ts'
 import type { PublicMentorView, PublishedMentorContentView } from '../../api/discover/types.ts'
 import { discoverContentPath, discoverMentorPath } from '../../app/paths.ts'
 import { Avatar } from '../../components/Avatar.tsx'
+import { TypeIcon } from '../../components/icons.tsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState.tsx'
 import { PageTitle } from '../../components/PageTitle.tsx'
 import ui from '../../components/ui.module.css'
@@ -176,7 +177,10 @@ function ContentList({ state, reload, all, tag, needle, query, onTag, onClearSea
             <li key={item.contentId}>
               <article className={styles.row}>
                 <div className={styles.rowMain}>
-                  <p className={styles.type}>{contentTypeLabel(item.type)}</p>
+                  <p className={styles.type}>
+                    <TypeIcon type={item.type} />
+                    {contentTypeLabel(item.type)}
+                  </p>
                   <h3 className={styles.rowTitle}>
                     <Link to={discoverContentPath(item.contentId)} className={styles.rowLink}>
                       {item.title}

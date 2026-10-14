@@ -123,6 +123,9 @@
 }
 
 .type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--lh-color-text-tertiary);
   font-size: var(--lh-font-caption);
   font-weight: 600;

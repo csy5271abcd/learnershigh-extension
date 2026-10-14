@@ -873,7 +873,7 @@ IN_PROGRESS
   - Browser Flow 19개 PASS (Headless Chrome)
   - 실제 /api/mentor/** Backend / 인증(OD-10) / Record·Case Review State(OD-05) / Student Q&A 실제 반영 / Frontend 자동 Test: NOT_STARTED
 - Mentor Workspace Refinement + Mentor Discover (Home · Left Rail · Secondary Sidebar · Discover · 다른 Mentor Profile · 사진): IMPLEMENTED (Frontend-only Prototype, 2026-10-14, feat/mentor-surface)
-  - Browser Flow 29개 PASS (Headless Chrome)
+  - Browser Flow 30개 PASS (Headless Chrome)
   - Discover Backend API / Public Projection Contract / Profile Image Storage: NOT_STARTED (Open Decision)
 - 그 외 화면: NOT_STARTED
 ```
@@ -2168,6 +2168,7 @@ VERIFIED 아님: Discover Backend / Public Projection Contract / Profile Image U
 - Create: Rail "작성" Launcher Popover(유형) → Composer(작성 영역 + 작성 정보) → 미리보기 → Submit
 - Discover: 다른 Mentor 공개 Profile / Published Content (공개 Projection, 읽기 전용, 복제 · Metrics · Q&A · Draft 없음)
 - Profile: 사진(Student와 같은 한지수 사진), 사진 변경 · 삭제(Frontend Prototype, 즉시 미리보기), 이니셜 Fallback
+- Icon: Rail은 Outline / 현재 화면만 Solid, 작성 Launcher · 유형 선택 · Home 빠른 작업은 원형 Tile + 다색 Glyph(--lh-glyph-* Token), 목록 유형 Label에 작은 Icon
 - mentor-hub.md: Mentor Discover 공개 범위 최소 추가
 
 ### Open / Contract Gap
@@ -2182,9 +2183,9 @@ VERIFIED 아님: Discover Backend / Public Projection Contract / Profile Image U
 ```text
 mentor typecheck / lint / build: PASS
 scripts/verify-frontend.ps1: PASS (student / admin / mentor)
-Headless Chrome (CDP) Browser Flow 29개: PASS
+Headless Chrome (CDP) Browser Flow 30개: PASS
   기존 Flow 회귀 15개, Discover 4개(탐색 · 읽기 전용 · 다른 Mentor Profile · 공개 Projection Privacy),
-  UI 10개(세로선 없음 · Rail · Sidebar 접기 · 사진 Fallback · Launcher Keyboard · Home KPI 없음 · Semantics · Skip Link · 1440~320 Overflow · Dark)
+  UI 11개(Icon Style · 세로선 없음 · Rail · Sidebar 접기 · 사진 Fallback · Launcher Keyboard · Home KPI 없음 · Semantics · Skip Link · 1440~320 Overflow · Dark)
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

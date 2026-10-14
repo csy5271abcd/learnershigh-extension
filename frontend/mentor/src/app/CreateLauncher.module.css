@@ -7,7 +7,7 @@
   top: -8px;
   left: calc(100% + 12px);
   z-index: 40;
-  width: 360px;
+  width: 400px;
   padding: var(--lh-space-5);
   border: 1px solid var(--lh-color-border);
   border-radius: var(--lh-radius-lg);
@@ -42,17 +42,6 @@
 .option:hover,
 .option:focus-visible {
   background: var(--lh-color-surface-hover);
-  color: var(--lh-color-text-primary);
-}
-
-.optionIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--lh-radius-md);
-  background: var(--lh-color-surface);
   color: var(--lh-color-text-primary);
 }
 

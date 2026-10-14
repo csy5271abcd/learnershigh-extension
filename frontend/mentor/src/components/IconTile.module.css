@@ -1,0 +1,27 @@
+.tile {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--lh-glyph-tile);
+}
+
+/* 할 일 개수 (예: 답변 대기 3) */
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border: 2px solid var(--lh-color-background);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}

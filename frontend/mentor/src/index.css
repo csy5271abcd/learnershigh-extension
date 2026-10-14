@@ -34,6 +34,20 @@
   --lh-color-rail-active: #e9ebee;
   --lh-color-search: #f2f4f6;
 
+  /* 원형 Tile 안 다색 Glyph (Content 유형 / 빠른 작업). 장식 색이며 상태 의미가 없다. */
+  --lh-glyph-tile: #f2f4f6;
+  --lh-glyph-paper: #ffffff;
+  --lh-glyph-plan: #3182f6;
+  --lh-glyph-plan-tint: #cfe2ff;
+  --lh-glyph-routine: #1fb57a;
+  --lh-glyph-routine-tint: #c9f0de;
+  --lh-glyph-story: #f5a524;
+  --lh-glyph-story-tint: #ffe3b0;
+  --lh-glyph-record: #7b61ff;
+  --lh-glyph-record-tint: #ddd6ff;
+  --lh-glyph-case: #f2665b;
+  --lh-glyph-case-tint: #ffd4cf;
+
   --lh-space-1: 4px;
   --lh-space-2: 8px;
   --lh-space-3: 12px;
@@ -107,6 +121,13 @@
     --lh-color-rail: #1c1c22;
     --lh-color-rail-active: #33333d;
     --lh-color-search: #26262e;
+    --lh-glyph-tile: #2a2a32;
+    --lh-glyph-paper: #ffffff;
+    --lh-glyph-plan-tint: #284a7a;
+    --lh-glyph-routine-tint: #1f5a43;
+    --lh-glyph-story-tint: #6b4c17;
+    --lh-glyph-record-tint: #43397a;
+    --lh-glyph-case-tint: #74332e;
   }
 }
 
