@@ -1,0 +1,147 @@
+.skipLink {
+  position: absolute;
+  top: var(--lh-space-2);
+  left: var(--lh-space-2);
+  z-index: 100;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+
+.skipLink:focus {
+  transform: none;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--lh-color-header);
+  color: var(--lh-color-on-header);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-6);
+  max-width: var(--lh-page-max-width);
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 0 var(--lh-page-gutter);
+}
+
+.brand {
+  flex-shrink: 0;
+  color: inherit;
+  font-size: var(--lh-font-body);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.surface {
+  margin-left: var(--lh-space-1);
+  color: var(--lh-color-on-header-muted);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.nav {
+  flex: 1;
+  min-width: 0;
+}
+
+.navList {
+  display: flex;
+  gap: var(--lh-space-1);
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  border-radius: var(--lh-radius-sm);
+  color: var(--lh-color-on-header-muted);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: var(--lh-color-on-header);
+}
+
+.active {
+  background: rgb(255 255 255 / 0.12);
+  color: var(--lh-color-on-header);
+}
+
+.end {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--lh-space-4);
+}
+
+.create {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.create:hover {
+  background: var(--lh-color-accent-hover);
+}
+
+.createActive {
+  box-shadow: 0 0 0 2px var(--lh-color-header), 0 0 0 4px var(--lh-color-accent);
+}
+
+.user {
+  color: var(--lh-color-on-header-muted);
+  font-size: var(--lh-font-label);
+  white-space: nowrap;
+}
+
+.header :focus-visible {
+  outline-color: #79b0ff;
+}
+
+.main:focus {
+  outline: none;
+}
+
+/* Mobile: Brand · 새 글 쓰기 한 줄, 메뉴 한 줄 */
+@media (max-width: 639px) {
+  .inner {
+    flex-wrap: wrap;
+    row-gap: 0;
+    padding-top: var(--lh-space-2);
+  }
+
+  .end {
+    margin-left: auto;
+  }
+
+  .user {
+    display: none;
+  }
+
+  .nav {
+    order: 3;
+    flex-basis: 100%;
+    overflow-x: auto;
+    padding-bottom: var(--lh-space-1);
+  }
+}

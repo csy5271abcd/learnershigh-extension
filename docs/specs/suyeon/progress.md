@@ -869,6 +869,9 @@ IN_PROGRESS
   - Admin Connection Review / 실제 AI 후보 생성 / Connection API: NOT_STARTED
 - Interview Bridge (/school/interview, /school/interview/:questionId): IMPLEMENTED (Fixture UI, 2026-10-12, feat/student-school-interview, 미커밋)
   - 실제 Interview API(§19) / Admin Interview Management(AI Draft · 추가 · 편집 · 삭제 · Publish) / Frontend 자동 Test: NOT_STARTED
+- Mentor Surface (My Content · Content Detail / Edit · Create · Preview · Review Pending · Q&A Inbox / Detail / Answer · Profile / Edit): IMPLEMENTED (Fixture Adapter, 2026-10-14, feat/mentor-surface)
+  - Browser Flow 19개 PASS (Headless Chrome)
+  - 실제 /api/mentor/** Backend / 인증(OD-10) / Record·Case Review State(OD-05) / Student Q&A 실제 반영 / Frontend 자동 Test: NOT_STARTED
 - 그 외 화면: NOT_STARTED
 ```
 
@@ -2095,6 +2098,52 @@ VERIFIED 아님: Connection API 없음, Interview API(§19) 미연결, Enum 미�
 
 ```text
 아래 완료 보고 참고 (typecheck / lint / build / verify -Strict / Browser Flow A~O)
+Frontend automated component test: NOT_RUN (Framework not yet selected)
+```
+
+## 2026-10-14 — Mentor Surface (branch: feat/mentor-surface)
+
+### Status
+
+```text
+Mentor Surface: IMPLEMENTED (Fixture Adapter 기반 Frontend, frontend/mentor/**)
+VERIFIED 아님: Backend / 실제 /api/mentor/** 미연결, 인증(OD-10) 없음, Frontend 자동 Test Framework 미선택
+```
+
+### Done
+
+- Router: react-router 7.18.4를 Mentor App에도 추가 (Student App과 같은 버전, ScrollRestoration)
+- Data Boundary: `src/api/mentorApi.ts`(MentorApi Interface, /api/mentor/** Endpoint 1:1) + Fixture Adapter(상태 전이 / 내 Content만 / 409·400 검증)
+- My Content: Type / Status Filter, 제목·태그 검색(URL 유지), 조회 · 저장 · Apply(Plan / Routine만), 초안 / 공개됨 / 검수 대기 구분
+- Content Detail: Type별 View 분리(Plan 주차 표 / Routine Habit / Story 문단 / Record 기록 문장 / Case 단계), 공개 / 검수 요청 Dialog
+- Content Edit: Type별 Editor, 편집 ↔ 미리보기, 수정 Draft(sessionStorage) 보존, 검수 중 · 공개된 Record / Case 수정 차단(사유 표시)
+- Create Post: 유형 → 태그 → 본문 → 공개 범위 → 미리보기 → Submit, 단계 URL(?step=), Draft(sessionStorage) 보존, 유형별 본문 보관
+- Record / Case: Submit = 검수 요청(status DRAFT 유지 + UI-only `review.publishRequestSubmitted`), Review Pending 화면
+- Q&A Inbox / Question Detail / Answer: pending · overdue · answered Filter(URL 유지), 익명 Context(grade / interestField, 빈 값 방어), 관련 Content(Published만) 검색 · 연결, 답변 Draft 보존, 중복 제출 방지
+- Profile / Profile Edit: 한지수(fixture-mentor-01) 공개 Profile, Published Content 목록, 공개 Field(고교 Context / 대표 경험 / 태그)만 수정
+- Loading(Skeleton) / Empty(작성 없음 · Q&A 없음 · Filter · 검색) / Error → 다시 시도 / Not Found, `?fixture=loading|empty|error|submit-error` (개발 모드)
+
+### Open / Contract Gap
+
+- Record / Case Review State(OD-05 / API-OD-06): Persisted Enum 없이 UI-only 표시. 검수 중 / 공개 후 수정 정책 미정 → 수정 차단
+- Mentor Content 응답 Field(metrics / updatedAt / review / Type별 body)와 Mentor 전용 Error Code 미정의
+- 일반 Content Publish 즉시 공개 여부: mentor-hub.md §5 "Record / Case만 검수 후 공개" 해석으로 Plan / Routine / Story는 즉시 공개
+- Visibility: Contract 예시 `PUBLIC`만 사용, 다른 공개 범위 미정
+- My Content 검색: Contract에 Query 없음 → 받아 온 목록 안에서 검색
+- Profile 수정 가능 Field 목록 미정, Q&A Category 전체 Enum 미정, reassign(OD-02) 미구현
+- Student Q&A 반영: Fixture는 Surface별 Memory라 Mentor 답변이 Student 화면에 실제로 반영되는지는 Backend 연결 후 확인 필요
+- TEMPORARY FIXTURE DUPLICATION: Mentor / Published Content / Q&A 일부 값을 Student Fixture에서 옮겨 적음 (Shared Seed 전까지)
+
+### Verification
+
+```text
+mentor typecheck / lint / build: PASS
+scripts/verify-frontend.ps1: PASS (student / admin / mentor)
+Headless Chrome (CDP) Browser Flow 19개: PASS
+  Type / Status Filter, Detail 왕복 Filter · 검색 · Scroll 복원, Type별 Detail, Create Draft 보존(메뉴 이동 · Preview · 새로고침),
+  Story 공개, Record 검수 요청(즉시 공개 아님), Case 검수 요청, 공개 Record 수정 차단, Q&A Filter, 답변 + 관련 Content 연결,
+  Privacy(응답 Key / DOM), Profile 표시 · 수정, Empty 4종, Error → Retry 5곳 / Loading / Not Found / Submit 실패 유지,
+  main · h1 1개, Keyboard(Skip Link · Focus), 1440 / 1024 / 768 / 390 / 320 가로 Overflow 없음, Dark Theme
 Frontend automated component test: NOT_RUN (Framework not yet selected)
 ```
 

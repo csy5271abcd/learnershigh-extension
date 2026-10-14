@@ -1,0 +1,183 @@
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  margin-bottom: var(--lh-space-6);
+}
+
+.secondRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.segment {
+  min-height: 36px;
+  padding: 0 var(--lh-space-4);
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segment[aria-pressed='true'] {
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.search {
+  flex: 0 1 320px;
+  min-width: 200px;
+}
+
+.count {
+  margin-bottom: var(--lh-space-2);
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.list {
+  border-top: 1px solid var(--lh-color-border);
+}
+
+/* 한 줄: 제목 · 반응 · 수정일 · Action (Desktop) */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px 110px 72px;
+  align-items: center;
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-4) var(--lh-space-2);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.row:hover {
+  background: var(--lh-color-surface);
+}
+
+/* 초안: 왼쪽 점선 표시로 공개 Content와 구분한다. (글자 Badge와 함께) */
+.draftRow {
+  box-shadow: inset 3px 0 0 var(--lh-color-border-strong);
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-1);
+}
+
+.rowTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink:hover {
+  text-decoration: underline;
+}
+
+.metrics {
+  display: flex;
+  gap: var(--lh-space-4);
+}
+
+.metrics div {
+  display: flex;
+  flex-direction: column;
+}
+
+.metrics dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.metrics dd {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricsPending {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.date {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.rowActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Tablet: 반응 / 날짜를 제목 아래 한 줄로 */
+@media (max-width: 899px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'main actions'
+      'metrics date';
+    row-gap: var(--lh-space-3);
+  }
+
+  .rowMain {
+    grid-area: main;
+  }
+
+  .metrics,
+  .metricsPending {
+    grid-area: metrics;
+  }
+
+  .date {
+    grid-area: date;
+    text-align: right;
+  }
+
+  .rowActions {
+    grid-area: actions;
+    align-self: start;
+  }
+}
+
+@media (max-width: 479px) {
+  .search {
+    flex-basis: 100%;
+  }
+
+  .segmented {
+    width: 100%;
+  }
+
+  .segment {
+    flex: 1;
+    padding: 0 var(--lh-space-2);
+  }
+}

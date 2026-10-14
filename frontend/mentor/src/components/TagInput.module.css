@@ -1,0 +1,47 @@
+.inputRow {
+  display: flex;
+  gap: var(--lh-space-2);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-1);
+  padding-left: var(--lh-space-3);
+  border-radius: var(--lh-radius-pill);
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-text);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.remove:hover {
+  background: rgb(49 130 246 / 0.15);
+}
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  margin-top: var(--lh-space-2);
+}

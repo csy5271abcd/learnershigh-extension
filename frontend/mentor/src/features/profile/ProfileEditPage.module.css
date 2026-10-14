@@ -1,0 +1,7 @@
+.form {
+  max-width: 720px;
+}
+
+.note {
+  margin-top: var(--lh-space-3);
+}
