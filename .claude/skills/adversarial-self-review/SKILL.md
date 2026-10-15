@@ -1,38 +1,44 @@
 ---
 name: adversarial-self-review
-description: 변경분(Diff)을 작성 맥락 없는 Reviewer로 적대적 리뷰하고 점수표를 남긴다. PR 올리기 전, Feature 완료 보고 전, "리뷰해", "셀프 리뷰", "점수 몇 점" 요청에 사용.
+description: 변경분(Diff)을 작성 맥락 없는 Reviewer로 Section별 채점하고, Finding을 고친 뒤 새 Diff만 다시 리뷰하는 Loop를 목표 점수까지 반복한다. 결과는 세션에 보고하고 Repo에 파일로 남기지 않는다. "셀프 리뷰", "리뷰 돌려", "점수 몇 점", "95점까지 반복" 요청에 사용.
 ---
 
 # Adversarial Self Review
 
-기준은 `.claude/rules/code-review.md`다. 이 Skill은 그 절차를 실행하는 방법만 정한다. Severity, 배점, 판정 기준은 거기서 가져온다.
+채점 기준은 `.claude/rules/code-review.md`다. Severity, 배점, 판정, Finding 형식은 거기서 가져온다. 이 Skill은 Loop를 돌리는 방법만 정한다.
 
-## 1. 범위 고정
+## 0. 시작 값
 
-```bash
-git fetch origin main
-git diff --stat origin/main...HEAD      # 첫 리뷰
-git diff --stat <이전 리뷰 HEAD>..HEAD  # 재리뷰
+| 항목 | 기본 | 사용자가 바꿀 수 있음 |
+|---|---|---|
+| 목표 점수 | 95 | 예: "90점까지" |
+| 최대 Round | 5 | |
+| 고칠 Severity | P0, P1, P2 | 예: "마이너 제외" → P0, P1만 |
+| 첫 범위 | `origin/main...HEAD` | 예: 특정 커밋부터 |
+
+## 1. Loop
+
+```text
+Round N
+  1. 범위: 첫 Round는 첫 범위, 이후는 <이전 Round HEAD>..HEAD
+  2. 독립 Reviewer로 Finding 수집
+  3. 반박 → CONFIRMED만 남김
+  4. 채점 (변경 없는 Section은 이전 점수 유지)
+  5. 목표 점수 이상이고 P0 없음 → 종료
+  6. 고칠 Severity의 CONFIRMED Finding 수정
+  7. 관련 Test 실행 → 통과하면 커밋
+  8. Round N+1
 ```
 
-- 기본은 변경분만 본다. 전체 Feature 리뷰는 사용자가 요청할 때만 한다.
-- 400 LOC가 넘으면 Section 묶음별로 나눈다.
-- 이전 리뷰 HEAD는 `docs/reviews/*.md`의 마지막 Round에서 찾는다.
+종료 조건은 다음 중 하나다.
+
+- 목표 점수 이상이고 P0가 없음
+- 최대 Round에 도달함
+- 남은 Finding이 사용자 판단을 요구함: Open Decision, 다른 담당자 영역, Spec 충돌. 이때는 고치지 않고 멈춘다 (CLAUDE.md §15, §16).
 
 ## 2. 독립 Reviewer
 
-Agent를 Section 묶음별로 띄운다. 400 LOC 이하면 1명, 넘으면 최대 4명이다. 각 Reviewer에게는 다음만 준다.
-
-```text
-- Diff 범위 명령 (base..head)
-- 담당 Section과 확인 질문 (code-review.md §3 해당 행)
-- Finding 형식 (code-review.md §2)
-- 읽어야 할 Source of Truth: 관련 Feature Spec, domain.md, api-contract.md 구간
-```
-
-작성 의도, 대화 내용, "이렇게 고쳤다"는 설명은 주지 않는다. Reviewer는 코드와 문서만 보고 판단한다.
-
-묶음 예:
+Agent를 Section 묶음별로 띄운다. 400 LOC 이하면 1명, 넘으면 최대 4명이다.
 
 | Reviewer | Section |
 |---|---|
@@ -41,48 +47,49 @@ Agent를 Section 묶음별로 띄운다. 400 LOC 이하면 1명, 넘으면 최�
 | 테스트 | F Test |
 | 화면 / 유지보수 | G Frontend UX, H 유지보수성 |
 
+Reviewer에게는 Diff 범위 명령, 담당 Section의 확인 질문, Finding 형식, 읽을 Source of Truth만 준다. 작성 의도, 대화 내용, 이전 Round에서 무엇을 고쳤는지는 주지 않는다. 매 Round마다 새 Agent를 띄운다.
+
 ## 3. 반박
 
 Finding마다 다른 Agent가 반증을 시도한다.
 
 - 코드 경로를 따라가거나 관련 Test Class를 실제로 실행한다.
 - "Test가 있다"는 근거가 아니다. 그 Test가 해당 실패 시나리오를 검증하는지 확인한다.
-- 결과는 `CONFIRMED / PLAUSIBLE / REFUTED`다. 실행하지 않은 검증으로 REFUTED 처리하지 않는다.
+- `CONFIRMED`이면서 Confidence가 80 이상인 것만 감점한다. 나머지는 "확인 필요"로 둔다.
 
-`CONFIRMED`이면서 Confidence가 80 이상인 Finding만 감점한다. 나머지는 "확인 필요"로 남긴다.
+## 4. 수정
 
-## 4. 기록
+- Finding이 요구하는 최소 수정만 한다. 범위를 넓히지 않는다.
+- 수정마다 실패 시나리오를 재현하는 Test를 먼저 추가하거나 기존 Test로 재현을 확인한다.
+- 변경한 Module의 관련 Test만 돌린다. 전체 빌드는 종료 직전 한 번만 돌린다.
+- Test를 skip하거나 기대값을 약화해서 통과시키지 않는다.
+- 커밋 메시지에 Round 번호를 적는다: `fix(<scope>): <내용> (self-review R2)`
 
-`docs/reviews/<YYYY-MM-DD>-<feature>.md`에 Round를 추가한다. 재리뷰면 같은 파일에 이어 쓴다.
+## 5. 보고 (세션에만)
 
-```markdown
-# Round N (HEAD <sha>, 범위 <base>..<head>)
+결과는 대화에 보고한다. `docs/reviews/` 같은 Repo 파일은 사용자가 요청할 때만 만든다.
 
-| Section | 점수 | Finding |
-|---|---|---|
-| A. Spec 일치 | 15 | |
-| ... | | |
-| **합계** | **NN → PASS / CONDITIONAL / FAIL** | |
+Round마다 한 줄씩 남긴다.
 
-## Finding
-<code-review.md §2 형식, CONFIRMED만>
-
-## 확인 필요
-<PLAUSIBLE, Confidence < 80>
-
-## 범위 밖
-<변경과 무관한 기존 문제, 한 줄씩>
+```text
+R1  62 FAIL         P1 3 · P2 2   → 수정 4건 (a1b2c3d)
+R2  86 CONDITIONAL  P1 1          → 수정 1건 (d4e5f6a)
+R3  97 PASS
 ```
 
-변경이 없는 Section은 이전 Round 점수를 그대로 쓴다.
+종료할 때는 점수표 한 번, 남은 "확인 필요"와 사용자 판단이 필요한 Finding만 보여 준다. 고친 Finding을 하나씩 나열하지 않는다. 커밋이 기록이다.
 
-## 5. 보고
-
-사용자에게는 총점, 판정, P0 / P1 Finding만 짧게 알린다. 고칠지는 사용자가 정한다. 고친 뒤 재리뷰는 이전 리뷰 HEAD..현재 HEAD 범위로 한다.
+```text
+| Section | 배점 | R1 | R2 | R3 |
+|---|---|---|---|---|
+| A. Spec 일치 | 15 | ... | ... | ... |
+| 합계 | 100 | 62 | 86 | 97 |
+```
 
 ## 금지
 
 - 점수를 맞추려고 Severity를 낮추는 것
 - 증거(file:line, 실패 시나리오) 없는 Finding
-- Nit로 차단하는 것
+- Nit로 차단하거나 Nit를 고치려고 Round를 늘리는 것
 - Reviewer에게 작성 맥락을 넘기는 것
+- 실행하지 않은 검증으로 REFUTED 처리하거나 통과로 보고하는 것
