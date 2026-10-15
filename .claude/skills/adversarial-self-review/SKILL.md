@@ -36,22 +36,28 @@ Round N
 - 최대 Round에 도달함
 - 남은 Finding이 사용자 판단을 요구함: Open Decision, 다른 담당자 영역, Spec 충돌. 이때는 고치지 않고 멈춘다 (CLAUDE.md §15, §16).
 
-## 2. 독립 Reviewer
+## 2. 독립 Reviewer (Subagent, 병렬)
 
-Agent를 Section 묶음별로 띄운다. 400 LOC 이하면 1명, 넘으면 최대 4명이다.
+Agent 도구로 Subagent를 띄운다. 차례대로가 아니라 **한 메시지에서 동시에** 띄운다. 매 Round마다 새 Subagent를 쓴다.
 
-| Reviewer | Section |
+| Reviewer | 보는 것 |
 |---|---|
 | 상태 / 계약 | A Spec, B Domain / State, C API Contract |
 | 경계 / 보안 | D Boundary, E Security / Privacy |
 | 테스트 | F Test |
 | 화면 / 유지보수 | G Frontend UX, H 유지보수성 |
+| 종합 | Section 사이에 걸친 문제만 본다: Contract와 Backend, Frontend, Test가 서로 맞는지, 한 Surface의 변경이 다른 Surface나 다른 담당자 기능을 깨는지, 문서 / PR 설명과 코드가 맞는지, 이번 변경이 기존 동작에 준 회귀 |
 
-Reviewer에게는 Diff 범위 명령, 담당 Section의 확인 질문, Finding 형식, 읽을 Source of Truth만 준다. 작성 의도, 대화 내용, 이전 Round에서 무엇을 고쳤는지는 주지 않는다. 매 Round마다 새 Agent를 띄운다.
+- Diff가 작으면 Section Reviewer를 합쳐도 된다. 종합 Reviewer는 항상 띄운다.
+- Reviewer에게는 Diff 범위 명령, 담당 확인 질문(code-review.md §3), Finding 형식(§2), 읽을 Source of Truth만 준다.
+- 작성 의도, 대화 내용, 이전 Round에서 무엇을 고쳤는지는 주지 않는다.
+- 각 Reviewer는 Finding마다 Section을 하나 붙인다. 종합 Reviewer의 Finding은 가장 가까운 Section에 넣는다.
 
-## 3. 반박
+모든 Reviewer가 끝나면 메인 세션이 Finding을 합친다. 같은 원인의 Finding은 하나로 묶고 Severity가 높은 쪽을 남긴다. 한 원인을 두 Section에서 중복 감점하지 않는다.
 
-Finding마다 다른 Agent가 반증을 시도한다.
+## 3. 반박 (Subagent, 병렬)
+
+Finding마다 Reviewer가 아닌 새 Subagent가 반증을 시도한다. Finding끼리는 동시에 돌린다.
 
 - 코드 경로를 따라가거나 관련 Test Class를 실제로 실행한다.
 - "Test가 있다"는 근거가 아니다. 그 Test가 해당 실패 시나리오를 검증하는지 확인한다.
@@ -84,6 +90,8 @@ R3  97 PASS
 |---|---|---|---|---|
 | A. Spec 일치 | 15 | ... | ... | ... |
 | 합계 | 100 | 62 | 86 | 97 |
+
+종합: <종합 Reviewer가 본 Section 간 일관성 · 회귀 결론 한두 문장>
 ```
 
 ## 금지
