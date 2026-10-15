@@ -1,0 +1,344 @@
+/*
+ * Admin 시각 구성 요소 Style (Admin-local)
+ * Tone: 배경은 옅게, 글자 · Icon만 Tone 색. Risk만 강한 Red를 쓸 수 있다. (data-strong)
+ */
+
+/* ---- Tone 공통 변수 ---- */
+
+[data-tone='neutral'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-chip);
+}
+
+[data-tone='feedback'] {
+  --tone-fg: var(--lh-color-accent-hover);
+  --tone-bg: var(--lh-color-accent-subtle);
+}
+
+[data-tone='topic'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-chip);
+}
+
+[data-tone='revision'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-chip);
+}
+
+[data-tone='activity'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-chip);
+}
+
+[data-tone='risk'] {
+  --tone-fg: var(--lh-color-negative);
+  --tone-bg: var(--lh-color-negative-subtle);
+}
+
+[data-tone='complete'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-chip);
+}
+
+[data-tone='ai'] {
+  --tone-fg: var(--lh-color-text-secondary);
+  --tone-bg: var(--lh-color-surface);
+}
+
+/* ---- Tone Tag ---- */
+
+.toneTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px var(--lh-space-2);
+  border-radius: 999px;
+  background: var(--tone-bg);
+  color: var(--tone-fg);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.toneTag[data-strong] {
+  background: var(--tone-fg);
+  color: var(--lh-color-on-accent);
+}
+
+/* ---- Action 위계 ---- */
+
+.toneButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-md);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.toneButton[data-variant='primary'] {
+  background: var(--lh-color-accent);
+  color: var(--lh-color-on-accent);
+}
+
+.toneButton[data-variant='primary']:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+}
+
+.toneButton[data-variant='soft'] {
+  background: var(--tone-bg);
+  color: var(--tone-fg);
+}
+
+.toneButton[data-variant='soft']:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.toneButton[data-variant='text'] {
+  padding: 0 var(--lh-space-2);
+  background: none;
+  color: var(--tone-fg);
+}
+
+.toneButton[data-variant='text']:hover:not(:disabled) {
+  background: var(--tone-bg);
+}
+
+.toneButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Summary Hero (가장 중요한 지표) ---- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-5) var(--lh-space-6);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  min-width: 0;
+}
+
+.heroLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lh-color-accent-hover);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.heroValue {
+  display: flex;
+  align-items: baseline;
+  gap: var(--lh-space-1);
+  color: var(--lh-color-text-primary);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.heroUnit {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.heroNote {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.heroBreakdown ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2) var(--lh-space-4);
+  margin-top: var(--lh-space-2);
+  padding-top: var(--lh-space-3);
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.heroBreakdown li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.heroBreakdown li svg {
+  color: var(--tone-fg, var(--lh-color-text-tertiary));
+}
+
+.heroBreakdown strong {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+/* ---- Compact Metric (보조 지표) ---- */
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--lh-space-4) var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+  min-width: 0;
+}
+
+.metricLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.metricIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: var(--lh-color-surface-raised);
+  color: var(--tone-fg);
+}
+
+.metricValue {
+  font-size: var(--lh-font-title-lg);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.metric[data-tone='risk'] .metricValue,
+.metric[data-tone='revision'] .metricValue {
+  color: var(--tone-fg);
+}
+
+.metricNote {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.metricAction {
+  margin-top: var(--lh-space-1);
+}
+
+/* ---- Inline Stats ---- */
+
+.inlineStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--lh-space-1) var(--lh-space-3);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.inlineStats li + li::before {
+  content: '·';
+  margin-right: var(--lh-space-3);
+  color: var(--lh-color-text-tertiary);
+}
+
+.inlineStats strong {
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+.inlineStats li[data-tone] strong {
+  color: var(--tone-fg);
+}
+
+/* ---- Delta / Progress ---- */
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.delta[data-direction='down'] {
+  color: var(--lh-color-text-secondary);
+}
+
+.delta[data-direction='up'] {
+  color: var(--lh-color-text-secondary);
+}
+
+.delta[data-quiet] {
+  color: var(--lh-color-text-tertiary);
+}
+
+.progress {
+  display: block;
+  width: 72px;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--lh-color-chip);
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--lh-color-accent);
+}
+
+/* ---- Disclosure ---- */
+
+.disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  padding: 0 var(--lh-space-2);
+  border: 0;
+  border-radius: var(--lh-radius-sm);
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.disclosure:hover {
+  background: var(--lh-color-surface-hover);
+  color: var(--lh-color-text-primary);
+}
+
+.disclosure svg {
+  transition: transform 0.15s ease;
+}
+
+.disclosure[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclosure svg {
+    transition: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .toneButton {
+    min-height: 40px;
+  }
+}

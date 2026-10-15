@@ -1,0 +1,553 @@
+/*
+ * Admin Mentor 추천 화면 (Content Home · Mentor Profile · Content 상세)
+ * Card는 유형마다 정보 구조가 다르다. 그림자 없이 Surface + 옅은 Border로 구분한다.
+ */
+
+/* ---- Content Grid / Card ---- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--lh-space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+}
+
+.card:hover {
+  background: #fbfcfd;
+}
+
+.cardMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4) var(--lh-space-4) var(--lh-space-3);
+  border: 0;
+  border-radius: var(--lh-radius-lg) var(--lh-radius-lg) 0 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardFoot {
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-top: 1px solid #f0f2f4;
+}
+
+.typeEyebrow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.typeEyebrowSub {
+  font-weight: 500;
+}
+
+.cardTitle {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.cardSummary {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.cardMeta {
+  margin-top: auto;
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+/* Case: 과정 흐름 (글자) */
+.stageFlow {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.stageMore {
+  color: var(--lh-color-text-tertiary);
+  font-weight: 700;
+}
+
+/* Plan: 기간 + 과목 */
+.planFacts {
+  display: flex;
+  align-items: baseline;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.planFacts strong {
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-title-md);
+  font-weight: 800;
+}
+
+.subjectList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.subjectList span {
+  padding: 1px 8px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+/* Routine: 시간 블록 */
+.miniTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--lh-font-label);
+}
+
+.miniTimeline li {
+  display: flex;
+  gap: var(--lh-space-2);
+}
+
+.timeText {
+  min-width: 40px;
+  color: var(--lh-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* Story: 발췌 */
+.excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Record: 검수 상태 */
+.reviewedLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+/* ---- Mentor Cue ---- */
+
+.mentorCue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.mentorCueText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.mentorLink,
+.mentorName {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--lh-color-text-primary);
+  font: inherit;
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+  text-align: left;
+}
+
+.mentorLink {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--lh-color-border);
+  text-underline-offset: 3px;
+}
+
+.mentorLink:hover {
+  color: var(--lh-color-accent-hover);
+}
+
+.mentorMeta {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+/* ---- Profile Hero ---- */
+
+.profileHero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--lh-space-5);
+  padding: var(--lh-space-6);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.profileHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  min-width: 0;
+}
+
+.profileName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-page-title);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.profileName:focus {
+  outline: none;
+}
+
+.profileAffiliation {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 600;
+}
+
+.highlightBox {
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.detailSection .highlightBox {
+  background: var(--lh-color-surface);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tagList li {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 600;
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--lh-space-8);
+}
+
+.experienceList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.experienceList li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--lh-space-3);
+  border-left: 2px solid var(--lh-color-border);
+}
+
+.termRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.termRow li {
+  display: flex;
+  flex-direction: column;
+  min-width: 72px;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-caption);
+}
+
+.termRow strong {
+  font-size: var(--lh-font-title-sm);
+}
+
+/* ---- Content 상세 ---- */
+
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  align-items: start;
+  gap: var(--lh-space-8);
+}
+
+.detailMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-8);
+  min-width: 0;
+}
+
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+.factStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2) var(--lh-space-8);
+}
+
+.factStrip > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.factStrip dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.factStrip dd {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.weekTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.weekTable th,
+.weekTable td {
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-bottom: 1px solid #f0f2f4;
+  text-align: left;
+  vertical-align: top;
+  font-size: var(--lh-font-label);
+}
+
+.weekTable thead th {
+  color: var(--lh-color-text-tertiary);
+  font-weight: 500;
+}
+
+.weekTable tbody th {
+  white-space: nowrap;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: var(--lh-space-4);
+  padding: var(--lh-space-3) 0;
+  border-left: 2px solid var(--lh-color-chip);
+  padding-left: var(--lh-space-4);
+}
+
+.timeline .timeText {
+  min-width: 0;
+}
+
+.storyBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  max-width: 720px;
+  font-size: var(--lh-font-title-sm);
+  line-height: 1.75;
+}
+
+.storyBody h3 {
+  margin-top: var(--lh-space-2);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.storyBody blockquote {
+  margin: 0;
+  padding: var(--lh-space-3) var(--lh-space-4);
+  border-left: 3px solid var(--lh-color-border);
+  border-radius: 0 var(--lh-radius-md) var(--lh-radius-md) 0;
+  background: var(--lh-color-surface);
+}
+
+.photoMemo {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-label);
+}
+
+.recordText {
+  margin: 0;
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-title-sm);
+  line-height: 1.8;
+}
+
+.reviewedBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+}
+
+.aside {
+  position: sticky;
+  top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+}
+
+/* 추천 이력 (Compact List) */
+.historyList {
+  display: flex;
+  flex-direction: column;
+}
+
+.historyList li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--lh-space-3) 0;
+  border-top: 1px solid var(--lh-color-border);
+  font-size: var(--lh-font-label);
+}
+
+.historyHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.historyReason {
+  color: var(--lh-color-text-secondary);
+}
+
+.draftBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+@media (max-width: 1279px) {
+  .profileGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--lh-space-6);
+  }
+}
+
+@media (max-width: 1023px) {
+  .detailLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aside {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .profileHero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .timeline li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+
+/* ---- Mentor Profile 사진 (원형 · object-fit cover · 세로 사진은 위쪽 기준) ---- */
+
+.photo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.photo[data-size='profile'] {
+  width: 96px;
+  height: 96px;
+  font-size: var(--lh-font-title-lg);
+}
+
+/* 목록 사진: 1440 이상 40px · 1280 / 1024 36px · 768 32px (Row 밀도에 맞춘다) */
+@media (max-width: 1439px) {
+  .photo[data-size='list'] {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .photo[data-size='list'] {
+    width: 32px;
+    height: 32px;
+  }
+
+  .photo[data-size='profile'] {
+    width: 80px;
+    height: 80px;
+  }
+}

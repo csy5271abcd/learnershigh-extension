@@ -1,0 +1,558 @@
+/*
+ * Feedback Review (FeedbackDetail-01 / 02 · TDS §13)
+ * 1280px 이상: 3-column (제출물 | AI 사전 점검 | Staff Review)
+ * 1024~1279px: 2-column (제출물 | AI) + Staff Review 아래 전체 폭 (기능 순서 유지)
+ * 1023px 이하: 1-column (제출물 → AI → Staff Review)
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-5);
+  max-width: 1760px;
+  padding: var(--lh-space-5) var(--lh-space-8) var(--lh-space-10);
+}
+
+.topBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2) var(--lh-space-4);
+}
+
+.topActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  margin-left: auto;
+}
+
+.columns {
+  /*
+   * Staff 패널이 붙어 있을 공간: 패널 높이 = Viewport - Header - 위 간격 - Page 아래 여백.
+   * 다른 열이 짧아도 열 영역을 이 높이 이상으로 두어, Page를 끝까지 내려도 패널이 Header 아래로 들어가지 않는다.
+   */
+  --review-staff-max-height: calc(100vh - var(--lh-admin-header-height) - var(--lh-space-4) - var(--lh-space-10));
+  min-height: var(--review-staff-max-height);
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.5fr) minmax(320px, 0.95fr);
+  grid-template-areas: 'viewer ai staff';
+  align-items: start;
+  gap: var(--lh-space-6);
+}
+
+.viewer {
+  grid-area: viewer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  min-width: 0;
+}
+
+.ai {
+  grid-area: ai;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+/*
+ * Staff Review 패널: 1280px 이상에서는 Viewport 높이 안에서 따로 Scroll된다. (Admin Header 높이 Token 기준)
+ * 학생 자료 · AI 분석을 내려 읽는 동안에도 Comment · 전달 버튼이 화면에 남는다.
+ */
+.staff {
+  grid-area: staff;
+  position: sticky;
+  top: calc(var(--lh-admin-header-height) + var(--lh-space-4));
+  display: flex;
+  flex-direction: column;
+  max-height: var(--review-staff-max-height);
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.staff:focus-visible {
+  outline-offset: -2px;
+}
+
+.staff > :not(.staffTitle) {
+  padding: 0 var(--lh-space-5) var(--lh-space-5);
+}
+
+.staffTitle {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--lh-space-4) var(--lh-space-5) var(--lh-space-3);
+  background: var(--lh-color-surface);
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.staffForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+}
+
+/* 패널 안 구획: 진한 선 대신 흰 면 + 여백 */
+.staffBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.progressHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.reviewProgress {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--lh-color-chip);
+}
+
+.reviewProgress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--lh-color-accent);
+}
+
+/* 동의 · 수정 · 제외 · 미확인: 한 줄 요약 (같은 모양 Card 4개 대신) */
+.criteriaSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+}
+
+.criteriaSummary li:nth-child(even) {
+  border-left: 1px solid var(--lh-color-border);
+}
+
+.criteriaSummary li:nth-child(n + 3) {
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.criteriaSummary button {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--lh-space-2);
+  border: 0;
+  background: none;
+  color: var(--tone-fg);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.criteriaSummary button strong {
+  color: var(--lh-color-text-primary);
+  font-size: var(--lh-font-title-sm);
+}
+
+.criteriaSummary li[data-tone='revision']:not([data-empty]) strong {
+  color: var(--lh-color-text-primary);
+}
+
+.criteriaSummary button:hover:not(:disabled) {
+  background: var(--tone-bg);
+}
+
+.criteriaSummary button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.deliverPreview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding-top: var(--lh-space-2);
+}
+
+.previewSource {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: var(--lh-radius-sm);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.previewSource[data-source='ai'] {
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+}
+
+.previewSource[data-source='staff'] {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-hover);
+}
+
+/* 전달: 패널 Scroll 아래쪽에 붙는다 */
+.deliverBar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  margin: 0 calc(var(--lh-space-5) * -1);
+  padding: var(--lh-space-3) var(--lh-space-5);
+  background: var(--lh-color-surface);
+  box-shadow: 0 -1px 0 var(--lh-color-border);
+}
+
+.staffSecondary {
+  padding-top: var(--lh-space-3);
+}
+
+/* AI 분석 영역: 차가운 Surface로 Staff 내용과 구분 */
+.ai[data-surface='ai'] {
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface);
+}
+
+.aiCriterion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--lh-color-text-secondary);
+  font-weight: 700;
+}
+
+.eyebrow {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.title {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.title:focus {
+  outline: none;
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-2) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.facts dt {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.facts dd {
+  font-weight: 700;
+  text-align: right;
+}
+
+.facts dd[data-tone='negative'] {
+  color: var(--lh-color-negative);
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.blockTitle {
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.fileName {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.aiHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
+.pushRight {
+  margin-left: auto;
+}
+
+.aiItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-lg);
+  background: var(--lh-color-surface-raised);
+}
+
+/* 판단한 항목: 글자 Tag로 구분 (왼쪽 색 선 없음) */
+.aiItem[data-decision='EXCLUDE'] {
+  background: var(--lh-color-surface);
+}
+
+.aiItem:focus-visible {
+  outline: 2px solid var(--lh-color-accent);
+}
+
+.aiItemHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+}
+
+.struck {
+  color: var(--lh-color-text-tertiary);
+  text-decoration: line-through;
+}
+
+.decisionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--lh-space-2);
+}
+
+.counts > div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  padding: var(--lh-space-2);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+}
+
+.counts dd {
+  font-size: var(--lh-font-title-md);
+  font-weight: 700;
+}
+
+.counts dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.counts > div[data-tone='negative'] dd {
+  color: var(--lh-color-negative);
+}
+
+.previewList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-label);
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.fieldset legend {
+  margin-bottom: var(--lh-space-1);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-2);
+  min-height: 40px;
+  padding: 0 var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  cursor: pointer;
+}
+
+.option[data-checked] {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-hover);
+  font-weight: 700;
+}
+
+.option input {
+  accent-color: var(--lh-color-accent);
+}
+
+.secondaryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lh-space-2);
+}
+
+/* Activity 기록 · Topic 화면: 2-column (원본 | Staff) */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 1fr);
+  align-items: start;
+  gap: var(--lh-space-6);
+}
+
+.split > * {
+  grid-area: auto;
+}
+
+.recordSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.qa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qa dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.qa dd {
+  margin-bottom: var(--lh-space-2);
+}
+
+@media (max-width: 1279px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    grid-template-areas:
+      'viewer ai'
+      'staff staff';
+  }
+
+  /* 1279px 이하: 패널 내부 Scroll 없이 일반 흐름 */
+  .columns {
+    min-height: 0;
+  }
+
+  .staff {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .staffTitle,
+  .deliverBar {
+    position: static;
+  }
+}
+
+@media (max-width: 1023px) {
+  .page {
+    padding: var(--lh-space-4) var(--lh-space-5) var(--lh-space-8);
+  }
+
+  .columns,
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'viewer'
+      'ai'
+      'staff';
+  }
+}
+
+/* Review Header: 학생 · 과제 · 검토 대상 요약 (Queue 값과 같은 값) */
+.reviewHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding-bottom: var(--lh-space-4);
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.headerFacts {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, auto));
+  justify-content: start;
+  gap: var(--lh-space-2) var(--lh-space-6);
+}
+
+.headerFacts dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.headerFacts dd {
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.headerFacts dd[data-tone='negative'] {
+  color: var(--lh-color-negative);
+}
+
+@media (max-width: 1279px) {
+  .headerFacts {
+    grid-template-columns: repeat(3, minmax(0, auto));
+  }
+}
+
+@media (max-width: 767px) {
+  .headerFacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.optionOnWhite {
+  background: var(--lh-color-surface);
+}

@@ -1,0 +1,287 @@
+/* Task Inspector · Activity Inspector 공통 (읽기 전용 상세 보기) */
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.tab {
+  flex: 1 1 auto;
+  min-height: 36px;
+  padding: 0 var(--lh-space-3);
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab[aria-selected='true'] {
+  background: var(--lh-color-surface-raised);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  color: var(--lh-color-text-primary);
+  font-weight: 700;
+}
+
+.count {
+  color: var(--lh-color-text-tertiary);
+  font-weight: 600;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  min-width: 0;
+}
+
+.versionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lh-space-2);
+}
+
+.versionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 44px;
+  padding: var(--lh-space-1) var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* 선택: 테두리 + 배경 + 굵기 (색만으로 구분하지 않는다) */
+.versionButton[aria-pressed='true'] {
+  border: 2px solid var(--lh-color-accent);
+  background: var(--lh-color-accent-subtle);
+}
+
+.previousNotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-chip);
+  font-size: var(--lh-font-label);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--lh-color-border);
+}
+
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-2) 0;
+  border-bottom: 1px solid var(--lh-color-border);
+}
+
+.facts dt {
+  flex: none;
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+}
+
+.facts dd {
+  min-width: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.wrap {
+  overflow-wrap: anywhere;
+}
+
+.previewBox {
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--lh-space-2);
+}
+
+.sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.subHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+  font-size: var(--lh-font-body);
+  font-weight: 700;
+}
+
+.miniHead {
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-label);
+  font-weight: 700;
+}
+
+.compareHead {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--lh-space-2);
+}
+
+.compareSide {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-1);
+  padding: var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  overflow-wrap: anywhere;
+}
+
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.diffBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-left: 3px solid var(--lh-color-border);
+  font-size: var(--lh-font-label);
+}
+
+.diffBlock[data-kind='changed'] {
+  border-left-color: var(--lh-color-text-secondary);
+}
+
+.diffBlock[data-kind='removed'] {
+  border-left-color: var(--lh-color-negative);
+}
+
+.diffBlock[data-kind='added'] {
+  border-left-color: var(--lh-color-accent);
+}
+
+.diffKind {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}
+
+.before {
+  color: var(--lh-color-text-tertiary);
+  text-decoration: line-through;
+}
+
+.after {
+  color: var(--lh-color-text-primary);
+  font-weight: 600;
+}
+
+.historyItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-3);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+}
+
+.attempts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--lh-font-label);
+}
+
+.aiLine {
+  font-size: var(--lh-font-label);
+}
+
+.delivered {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+}
+
+.quote {
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-left: 3px solid var(--lh-color-border);
+  background: var(--lh-color-surface);
+}
+
+.qa {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qa dt {
+  color: var(--lh-color-text-tertiary);
+  font-size: var(--lh-font-caption);
+}
+
+.qa dd {
+  margin-bottom: var(--lh-space-2);
+}
+
+.empty {
+  color: var(--lh-color-text-tertiary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+@media (max-width: 767px) {
+  .compareHead {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 자료 역할 Chip (중립) */
+.roleChip {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+}

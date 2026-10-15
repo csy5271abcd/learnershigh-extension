@@ -1,0 +1,167 @@
+/* Admin 공통 파일 미리보기 */
+
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-4);
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--lh-space-2);
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-5);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  color: var(--lh-color-text-secondary);
+}
+
+.image {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 0 auto;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-sm);
+}
+
+.frame {
+  width: 100%;
+  height: 60vh;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-sm);
+}
+
+.text {
+  max-height: 60vh;
+  margin: 0;
+  padding: var(--lh-space-4);
+  overflow: auto;
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+  font-family: inherit;
+  white-space: pre-wrap;
+}
+
+.tableScroll {
+  max-height: 60vh;
+  overflow: auto;
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--lh-font-label);
+}
+
+.table th,
+.table td {
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-bottom: 1px solid var(--lh-color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th {
+  background: var(--lh-color-surface);
+  font-weight: 700;
+}
+
+.pages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-3);
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-4);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+}
+
+.bullets {
+  padding-left: var(--lh-space-5);
+  list-style: disc;
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.downloadBox {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.fileList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lh-space-1);
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--lh-space-3);
+  padding: var(--lh-space-2) var(--lh-space-3);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface);
+}
+
+.format {
+  flex: none;
+  min-width: 44px;
+  padding: 2px var(--lh-space-1);
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-surface-raised);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  text-align: center;
+}
+
+.fileText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* 자료 역할: 대부분 중립 Chip, 현재 검토 대상만 Accent (역할마다 다른 색을 쓰지 않는다) */
+.roleChip {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: var(--lh-radius-sm);
+  background: var(--lh-color-chip);
+  color: var(--lh-color-text-secondary);
+  font-size: var(--lh-font-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.roleChip[data-accent] {
+  background: var(--lh-color-accent-subtle);
+  color: var(--lh-color-accent-hover);
+}

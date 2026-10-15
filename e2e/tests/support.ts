@@ -34,8 +34,11 @@ export function row(page: Page, name: string) {
   return studentList(page).getByRole('button', { name: new RegExp(`^${name}`) })
 }
 
+// 학생 케어는 Admin Shell 안의 /student-care Route로 연결된다. (frontend/admin App.tsx, '/'는 Feedback Dashboard)
+export const STUDENT_CARE_PATH = '/student-care'
+
 export async function openPage(page: Page) {
-  await page.goto('/')
+  await page.goto(STUDENT_CARE_PATH)
   await expect(studentList(page).getByRole('button').first()).toBeVisible()
 }
 
