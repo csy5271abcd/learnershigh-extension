@@ -19,10 +19,12 @@ export function addDays(date: string, days: number): string {
 }
 
 /** 다음 점검일 선택지. 서버 허용 범위는 기준일+1 ~ +28 (65-4, 65-6). */
+// '선택 없음'은 서버가 계속 관리에 점검일을 요구하므로 허용 최대(28일 뒤)로 보낸다.
 export const RECHECK_CHOICES: readonly { days: number; label: string }[] = [
-  { days: 3, label: '3일' },
-  { days: 7, label: '1주' },
-  { days: 14, label: '2주' },
+  { days: 3, label: '3일 뒤' },
+  { days: 7, label: '7일 뒤' },
+  { days: 14, label: '14일 뒤' },
+  { days: 28, label: '선택 없음' },
 ]
 
 export function hoursMinutes(minutes: number): string {

@@ -3,7 +3,8 @@ import { monthDay, shortDate } from '../model/format.ts'
 import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { CounselForm } from './CounselForm.tsx'
 import { RecheckPanel } from './RecheckPanel.tsx'
-import { StudyChart } from './StudyChart.tsx'
+import { QuickClearButton } from './QuickClearButton.tsx'
+import { SignalOverview } from './SignalOverview.tsx'
 
 interface Props {
   branchId: string
@@ -11,10 +12,12 @@ interface Props {
   version: number
   onSaved: (message: string) => void
   onStale: () => void
+  excludeWeekend: boolean
+  onExcludeWeekendChange: (value: boolean) => void
 }
 
 /** 선택한 학생: 달라진 점 → 14일 그래프 → 상담 기록 / 점검 → 이력 (student-care.md §4). */
-export function StudentPanel({ branchId, studentId, version, onSaved, onStale }: Props) {
+export function StudentPanel({ branchId, studentId, version, onSaved, onStale, excludeWeekend, onExcludeWeekendChange }: Props) {
   const key = `${branchId}/${studentId}`
   const detail = useRemote(key, () => studentCareApi.detail(branchId, studentId), version)
   const history = useRemote(key, () => studentCareApi.history(branchId, studentId), version)
@@ -52,6 +55,15 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
           <span className="sc-badge">다음 점검 {monthDay(active.recheckDate)}</span>
         )}
         {active?.recheckDue && <span className="sc-badge sc-badge--due">점검일</span>}
+        {!active && data.signals.length > 0 && (
+          <QuickClearButton
+            branchId={branchId}
+            studentId={studentId}
+            studentName={name}
+            onSaved={(message) => onSaved(`${name} · ${message}`)}
+            onStale={onStale}
+          />
+        )}
       </header>
 
       <ul className="sc-changes">
@@ -67,7 +79,16 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
         )}
       </ul>
 
-      <StudyChart days={data.dailyStudy} usualDailyMinutes={data.usualDailyMinutes} />
+      <SignalOverview
+        studentId={studentId}
+        asOf={data.asOf}
+        signals={shownSignals}
+        deferred={shownSignals.length === 0 && data.deferred !== null}
+        dailyStudy={data.dailyStudy}
+        usualDailyMinutes={data.usualDailyMinutes}
+        excludeWeekend={excludeWeekend}
+        onExcludeWeekendChange={onExcludeWeekendChange}
+      />
 
       {active?.recheckDue ? (
         <RecheckPanel

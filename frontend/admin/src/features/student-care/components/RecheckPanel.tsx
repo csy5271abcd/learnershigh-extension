@@ -94,11 +94,7 @@ export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Pro
           legend="다음 점검일"
           options={RECHECK_CHOICES.map((choice) => ({
             value: String(choice.days),
-            label: (
-              <>
-                {choice.label} <span className="sc-choice__sub">{shortDate(addDays(asOf, choice.days))}</span>
-              </>
-            ),
+            label: choice.label,
           }))}
           value={days}
           onChange={setDays}

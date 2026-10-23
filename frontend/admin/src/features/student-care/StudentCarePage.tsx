@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react'
 import { studentCareApi } from './api/studentCareApi.ts'
+import { AllHistory } from './components/AllHistory.tsx'
+import { BranchOverview } from './components/BranchOverview.tsx'
 import { SettingsDialog } from './components/SettingsDialog.tsx'
 import { StudentList } from './components/StudentList.tsx'
 import { StudentPanel } from './components/StudentPanel.tsx'
@@ -16,6 +18,8 @@ export function StudentCarePage() {
   const [version, setVersion] = useState(0)
   const [status, setStatus] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [tab, setTab] = useState<'students' | 'branches' | 'history'>('students')
+  const [excludeWeekend, setExcludeWeekend] = useState(false)
 
   const branchId = selectedBranchId ?? branches.data?.[0]?.branchId ?? null
   const board = useRemote(branchId, () => studentCareApi.board(branchId ?? ''), version)
@@ -82,6 +86,18 @@ export function StudentCarePage() {
         </p>
       </header>
 
+      <div className="sc-tabs" role="tablist" aria-label="보기">
+        <button type="button" role="tab" aria-selected={tab === 'students'} className="sc-tab" onClick={() => setTab('students')}>
+          학생별
+        </button>
+        <button type="button" role="tab" aria-selected={tab === 'branches'} className="sc-tab" onClick={() => setTab('branches')}>
+          학습관별
+        </button>
+        <button type="button" role="tab" aria-selected={tab === 'history'} className="sc-tab" onClick={() => setTab('history')}>
+          전체 이력
+        </button>
+      </div>
+
       {branches.status === 'error' ? (
         <div className="sc-state" role="alert">
           <p>불러오지 못했습니다</p>
@@ -91,6 +107,29 @@ export function StudentCarePage() {
         </div>
       ) : branches.status === 'success' && branches.data.length === 0 ? (
         <p className="sc-state">지점 없음</p>
+      ) : tab === 'branches' ? (
+        branches.data && (
+          <BranchOverview
+            branches={branches.data}
+            version={version}
+            onOpenBranch={(id) => {
+              setSelectedBranchId(id)
+              setStudentId(null)
+              setTab('students')
+            }}
+          />
+        )
+      ) : tab === 'history' ? (
+        branchId && (
+          <AllHistory
+            branchId={branchId}
+            version={version}
+            onOpenStudent={(id) => {
+              setTab('students')
+              selectStudent(id)
+            }}
+          />
+        )
       ) : (
         <div className="sc-body">
           <StudentList board={board} selectedId={studentId} onSelect={selectStudent} />
@@ -103,6 +142,8 @@ export function StudentCarePage() {
                 version={version}
                 onSaved={saved}
                 onStale={refresh}
+                excludeWeekend={excludeWeekend}
+                onExcludeWeekendChange={setExcludeWeekend}
               />
             ) : (
               <p className="sc-state sc-state--center">학생을 선택하세요</p>
