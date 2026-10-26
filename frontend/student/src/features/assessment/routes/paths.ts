@@ -39,9 +39,31 @@ export const resourcesPath = '/assessment/resources'
 export const resourcesSection = { path: resourcesPath, label: '자료함' } as const
 export const resourceDetailPath = (resourceId: string) => `${resourcesPath}/${encodeURIComponent(resourceId)}`
 
+/**
+ * 성장 기록 (screen-map S22). 과목 필터는 `?subject=`. 새 기록은 관련 활동을 `?sourceType=&sourceId=`로 미리 채울 수 있다.
+ * 학생 개인 기록이며 학교생활기록부(세특) 문장이 아니다.
+ */
+export const growthPath = '/assessment/growth'
+export const growthSection = { path: growthPath, label: '성장 기록' } as const
+export const growthRecordDetailPath = (recordId: string) => `${growthPath}/${encodeURIComponent(recordId)}`
+export const growthRecordNewPath = (sourceType?: string, sourceId?: string) =>
+  sourceType && sourceId
+    ? `${growthPath}/new?sourceType=${encodeURIComponent(sourceType)}&sourceId=${encodeURIComponent(sourceId)}`
+    : `${growthPath}/new`
+
+/** 성장 기록의 관련 활동 상세 경로 (독립 활동이면 null) */
+export const relatedSourcePath = (record: { relatedSourceType: string | null; relatedSourceId: string | null }) =>
+  record.relatedSourceType === 'SCHOOL_ASSESSMENT' && record.relatedSourceId
+    ? schoolAssessmentDetailPath(record.relatedSourceId)
+    : record.relatedSourceType === 'ENRICHMENT_TASK' && record.relatedSourceId
+      ? enrichmentTaskDetailPath(record.relatedSourceId)
+      : null
+
+/** 보관함 (screen-map S23). 탭·검색·과목은 URL Query(`tab`, `q`, `subject`)에 둔다. 원본을 조회하는 Projection이다. */
+export const archivePath = '/assessment/archive'
+export const archiveSection = { path: archivePath, label: '보관함' } as const
+
 /** 이번 범위에서 아직 구현하지 않은 Assessment 메뉴 */
 export const pendingAssessmentSections = {
-  growth: { path: '/assessment/growth', label: '성장 기록' },
-  archive: { path: '/assessment/archive', label: '보관함' },
   tips: { path: '/assessment/tips', label: '수행평가 꿀팁' },
 } as const

@@ -5,28 +5,22 @@ import { assessmentToday } from '../../api/runtimeInfo.ts'
 import { formatRelativeDateTime } from '../../model/assessmentDetailView.ts'
 import { useApiQuery } from '../../model/useApiQuery.ts'
 import { schoolAssessmentsPath, subjectAssessmentsPath } from '../../routes/paths.ts'
-import {
-  BulbIcon,
-  ChatIcon,
-  ChevronLeftIcon,
-  DownloadIcon,
-  HistoryIcon,
-  MoreIcon,
-  SlidersIcon,
-  SproutIcon,
-  TrashIcon,
-} from '../AssessmentIcons.tsx'
+import { ChatIcon, ChevronLeftIcon, HistoryIcon, MoreIcon } from '../AssessmentIcons.tsx'
 import { RevisionPreviewModal } from '../notes/NoteModals.tsx'
 import { ErrorState } from '../StateViews.tsx'
 import styles from './detail.module.css'
 import { usePopover } from './usePopover.ts'
 
-export interface MoreMenuItem {
+export type MoreMenuItem = {
   label: string
   icon: ComponentType<{ size?: number }>
-  reason: string
   danger?: boolean
-}
+} & (
+  /** 실행할 수 없는 항목: 누르면 사유를 안내한다 */
+  | { reason: string; to?: never }
+  /** 다른 화면으로 이동하는 항목 */
+  | { to: string; reason?: never }
+)
 
 interface DetailTopBarProps {
   title: string | undefined
@@ -59,7 +53,7 @@ export function DetailTopBar({
   onRequestFeedback,
   onUnavailable,
   root = { label: '학교 수행평가', path: schoolAssessmentsPath, subjectPath: subjectAssessmentsPath, backLabel: '학교 수행평가로 돌아가기' },
-  menuItems = moreItems,
+  menuItems = [],
   saveStatus,
   currentRevisionId,
   hasUnsavedChanges = false,
@@ -206,15 +200,8 @@ function RevisionList({ noteId, currentRevisionId, hasUnsavedChanges, onOpen, on
   )
 }
 
-const moreItems: MoreMenuItem[] = [
-  { label: '평가 정보 수정', icon: SlidersIcon, reason: '평가 정보 수정은 수정 가능한 항목이 계약으로 정해진 뒤 제공돼요.' },
-  { label: '심화 탐구로 이어가기', icon: BulbIcon, reason: '심화 탐구 화면과 함께 제공될 예정이에요.' },
-  { label: '성장 기록에 남기기', icon: SproutIcon, reason: '성장 기록 화면과 함께 제공될 예정이에요.' },
-  { label: '노트 내보내기', icon: DownloadIcon, reason: '노트 내보내기는 아직 지원하지 않아요.' },
-  { label: '삭제', icon: TrashIcon, reason: '삭제·휴지통 정책이 확정되기 전이라 아직 삭제할 수 없어요.', danger: true },
-]
 
-// 더보기 메뉴 (Mockup SA-DETAIL-14). 항목은 모두 다음 단계·정책 확정 대상이라 실행 대신 사유를 안내한다.
+// 더보기 메뉴 (Mockup SA-DETAIL-14). 이동 항목은 Link, 나머지는 다음 단계·정책 확정 대상이라 실행 대신 사유를 안내한다.
 function MoreMenu({ items, onUnavailable }: { items: MoreMenuItem[]; onUnavailable: (message: string) => void }) {
   const { open, setOpen, close, rootRef, triggerRef } = usePopover()
   const menuId = useId()
@@ -234,7 +221,13 @@ function MoreMenu({ items, onUnavailable }: { items: MoreMenuItem[]; onUnavailab
       </button>
       {open && (
         <div id={menuId} role="menu" aria-label="더보기" className={`${styles.popover} ${styles.moreMenu}`}>
-          {items.map(({ label, icon: Icon, reason, danger }) => (
+          {items.map(({ label, icon: Icon, reason, to, danger }) =>
+            to ? (
+              <Link key={label} to={to} role="menuitem" className={styles.menuItem} onClick={() => close(false)}>
+                <Icon size={16} />
+                {label}
+              </Link>
+            ) : (
             <button
               key={label}
               type="button"
@@ -244,14 +237,15 @@ function MoreMenu({ items, onUnavailable }: { items: MoreMenuItem[]; onUnavailab
               data-danger={danger}
               onClick={() => {
                 close(true)
-                onUnavailable(reason)
+                onUnavailable(reason ?? '')
               }}
             >
               <Icon size={16} />
               {label}
               <span className={styles.menuItemNote}>준비 중</span>
             </button>
-          ))}
+            ),
+          )}
         </div>
       )}
     </div>

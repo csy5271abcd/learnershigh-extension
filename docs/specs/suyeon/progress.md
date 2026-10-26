@@ -740,6 +740,28 @@ Branch `feature/assessment-stage4-note-editor` (Stage 3 체크포인트 `c9895af
 - Scratchpad Playwright: 노트 편집기 51/51, 상세 45/45(노트 관련 5개 기대값을 Stage 4 사양으로 갱신), 피드백 32/32, 심화 65/65, 자료함 43/43, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
 - `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
 
+
+## 2026-10-27 — Student 성장 기록·보관함 S22·S23 (Frontend 로드맵 Stage 5, Mock, PARTIAL)
+
+Branch `feature/assessment-stage5-growth-archive` (Stage 4 체크포인트 `39fdff0`에서 분기, 미커밋).
+
+### Done
+
+- 성장 기록(§29): 목록(개인 기록 안내·과목 Chip·학기 묶음·카드), 작성(POST, 관련 활동·과목·시작일·서술 9항목·관련 활동 결과물 선택), 상세·수정(PATCH 바뀐 항목만), 저장 실패 입력 유지, 저장 안 된 이동 보호, Not Found/Error/Empty 구분. 학생 직접 작성만, AI 생성 없음, 세특 문장 아님.
+- 학교 수행평가·심화 탐구 상세 더보기 "성장 기록에 남기기" → 관련 활동을 채운 작성 화면(더보기 항목이 Link를 지원하도록 `MoreMenuItem` 확장).
+- 보관함(§30): 원본을 다시 계산하는 Projection(사본 없음), 탭 5개·검색·과목 폴더·행 → 원본 상세, 즐겨찾기는 학교 수행평가만(§30 PUT). 새 폴더·내보내기·휴지통 복구 비활성, 영구 삭제 없음.
+- Sidebar 성장 기록·보관함 메뉴를 준비 중 화면에서 실제 화면으로 연결.
+
+### Open / Blocked
+
+- §29 응답·필수 필드·학기 기준(MM-37), 결과물 버전 고정(MM-38), §30 항목 Shape·탭 규칙(MM-39), 즐겨찾기 유형(MM-40), 폴더·내보내기·삭제/복구 정책(MM-41, API-OD-A08, OD-A11) → P-19 제안(미승인).
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend/student): PASS (build의 chunk 크기 경고는 기존과 동일).
+- Scratchpad Playwright: 성장 기록·보관함 50/50, 회귀 상세 45/45·피드백 32/32·심화 65/65·자료함 43/43·노트 편집기 51/51·목록·학업 정보 51/52(기존과 같은 404 1건).
+- `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
+
 ---
 
 # 24. 핵심 요약

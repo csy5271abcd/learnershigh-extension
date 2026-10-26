@@ -36,6 +36,12 @@ export type MockScenario =
   | 'resourceUpdateError'
   | 'noteSaveError'
   | 'noteConflict'
+  | 'growthEmpty'
+  | 'growthListError'
+  | 'growthSaveError'
+  | 'archiveError'
+  | 'archiveTrashDemo'
+  | 'favoriteError'
 
 const consumedOnce = new Set<string>()
 

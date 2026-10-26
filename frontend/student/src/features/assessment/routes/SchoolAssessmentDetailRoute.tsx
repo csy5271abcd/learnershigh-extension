@@ -27,6 +27,7 @@ import {
 import { ArtifactSection, type ArtifactWithVersions } from '../components/detail/ArtifactSection.tsx'
 import { DetailPanel, type DetailPanelTab } from '../components/detail/DetailPanel.tsx'
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
+import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { TopicSuggestionModal } from '../components/detail/TopicSuggestionModal.tsx'
@@ -165,6 +166,7 @@ export function SchoolAssessmentDetailRoute() {
       onBack={goBack}
       onRequestFeedback={openFeedback}
       onUnavailable={(message) => showToast('info', message)}
+      menuItems={schoolAssessmentMenuItems(assessmentId)}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
       currentRevisionId={editorState?.baseRevisionId}
       hasUnsavedChanges={editorState?.unsaved}

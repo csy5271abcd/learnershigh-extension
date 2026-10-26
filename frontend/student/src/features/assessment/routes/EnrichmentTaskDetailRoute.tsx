@@ -31,7 +31,7 @@ import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { formatTaskDate } from '../model/enrichmentView.ts'
 import { statusLabels, subjectNameOf } from '../model/schoolAssessmentView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
-import { enrichmentPath, myEnrichmentTasksPath, pendingAssessmentSections, schoolAssessmentDetailPath } from './paths.ts'
+import { enrichmentPath, growthRecordNewPath, myEnrichmentTasksPath, pendingAssessmentSections, schoolAssessmentDetailPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
 const enrichmentRoot = {
@@ -41,9 +41,10 @@ const enrichmentRoot = {
   backLabel: '심화 탐구로 돌아가기',
 }
 
-// 더보기 (Mockup AE-DETAIL-05). 성장 기록·보관함 이동은 각 화면·보관 정책이 정해진 뒤 연결한다 (OD-A11, API-OD-A08).
-const enrichmentMenuItems: MoreMenuItem[] = [
-  { label: '성장 기록에 남기기', icon: SproutIcon, reason: '성장 기록 화면과 함께 제공될 예정이에요.' },
+// 더보기 (Mockup AE-DETAIL-05). 성장 기록은 이 탐구를 관련 활동으로 채운 작성 화면으로 이동한다.
+// 보관함은 원본을 조회하는 Projection이라 "이동"할 대상이 없고, 보관·휴지통 정책도 미정이다 (OD-A11, API-OD-A08).
+const enrichmentMenuItems = (taskId: string): MoreMenuItem[] => [
+  { label: '성장 기록에 남기기', icon: SproutIcon, to: growthRecordNewPath('ENRICHMENT_TASK', taskId) },
   { label: '보관함으로 이동', icon: ArchiveIcon, reason: '심화 탐구 보관·휴지통 정책이 확정되기 전이라 아직 옮길 수 없어요.' },
 ]
 
@@ -91,7 +92,7 @@ export function EnrichmentTaskDetailRoute() {
         onBack={goBack}
         onUnavailable={(message) => showToast('info', message)}
         root={enrichmentRoot}
-        menuItems={enrichmentMenuItems}
+        menuItems={enrichmentMenuItems(taskId)}
         saveStatus={<NoteSaveStatusLabel state={editorState} />}
         currentRevisionId={editorState?.baseRevisionId}
         hasUnsavedChanges={editorState?.unsaved}

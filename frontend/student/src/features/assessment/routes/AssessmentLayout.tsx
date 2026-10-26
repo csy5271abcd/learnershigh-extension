@@ -32,9 +32,11 @@ import '../styles/assessmentTheme.css'
 import styles from './AssessmentLayout.module.css'
 import {
   academicInfoPath,
+  archiveSection,
   assessmentPath,
   enrichmentSection,
   feedbackSection,
+  growthSection,
   pendingAssessmentSections,
   resourcesSection,
   schoolAssessmentsPath,
@@ -227,13 +229,13 @@ export function AssessmentLayout() {
   )
 }
 
-// 학교 수행평가 아래 메뉴 (심화 탐구·선생님 피드백·자료함 외에는 아직 준비 중 화면)
+// 학교 수행평가 아래 메뉴 (수행평가 꿀팁은 아직 준비 중 화면)
 const pendingMenu: { path: string; label: string; icon: ComponentType<{ className?: string; size?: number }> }[] = [
   { ...enrichmentSection, icon: BulbIcon },
   { ...feedbackSection, icon: ChatIcon },
   { ...resourcesSection, icon: BooksIcon },
-  { ...pendingAssessmentSections.growth, icon: SproutIcon },
-  { ...pendingAssessmentSections.archive, icon: ArchiveIcon },
+  { ...growthSection, icon: SproutIcon },
+  { ...archiveSection, icon: ArchiveIcon },
   { ...pendingAssessmentSections.tips, icon: BulbIcon },
 ]
 

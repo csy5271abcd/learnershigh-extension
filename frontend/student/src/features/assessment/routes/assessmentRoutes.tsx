@@ -1,10 +1,13 @@
 import type { RouteObject } from 'react-router'
 import { AcademicInfoRoute } from './AcademicInfoRoute.tsx'
+import { ArchiveRoute } from './ArchiveRoute.tsx'
 import { AssessmentLayout } from './AssessmentLayout.tsx'
 import { AssessmentPendingRoute } from './AssessmentPendingRoute.tsx'
 import { EnrichmentLibraryRoute } from './EnrichmentLibraryRoute.tsx'
 import { EnrichmentTaskDetailRoute } from './EnrichmentTaskDetailRoute.tsx'
 import { FeedbackListRoute } from './FeedbackListRoute.tsx'
+import { GrowthRecordDetailRoute, GrowthRecordNewRoute } from './GrowthRecordFormRoute.tsx'
+import { GrowthRecordsRoute } from './GrowthRecordsRoute.tsx'
 import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
 import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
 import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
@@ -33,6 +36,10 @@ export const assessmentRoute: RouteObject = {
     { path: 'enrichment/tasks/:taskId', element: <EnrichmentTaskDetailRoute /> },
     { path: 'resources', element: <ResourceLibraryRoute /> },
     { path: 'resources/:resourceId', element: <ResourceDetailRoute /> },
+    { path: 'growth', element: <GrowthRecordsRoute /> },
+    { path: 'growth/new', element: <GrowthRecordNewRoute /> },
+    { path: 'growth/:recordId', element: <GrowthRecordDetailRoute /> },
+    { path: 'archive', element: <ArchiveRoute /> },
     ...Object.values(pendingAssessmentSections).map((section) => ({
       path: section.path.replace('/assessment/', ''),
       element: <AssessmentPendingRoute title={section.label} />,

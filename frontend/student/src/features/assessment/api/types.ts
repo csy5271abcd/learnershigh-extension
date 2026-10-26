@@ -477,3 +477,69 @@ export interface RecommendedSource {
   description: string
   searchKeywords: string[]
 }
+
+// ---- §29 성장 기록 (ST-19) ----
+// 학생 개인 참고 기록이다. 공식 학교생활기록부·세특이 아니며 학교에 제출되지 않는다.
+
+/** §29 POST 요청 (계약 예시 그대로). 필수 여부는 검증 규칙 확정 전이라 화면은 제목만 필수로 본다 (MM-37). */
+export interface CreateGrowthRecordRequest {
+  title: string
+  subjectId: string | null
+  activityStartDate: string | null
+  role: string | null
+  motivation: string | null
+  process: string | null
+  contribution: string | null
+  difficulty: string | null
+  solution: string | null
+  outcome: string | null
+  reflection: string | null
+  followUp: string | null
+  /** 관련 활동. 독립 활동이면 둘 다 null */
+  relatedSourceType: AssessmentSourceType | null
+  relatedSourceId: string | null
+  /** §24 Artifact ID (특정 Version 고정 여부는 미정, MM-38) */
+  artifactIds: string[]
+}
+
+/** §29 GET 목록·상세. 응답 Shape이 없어 "요청 필드 + recordId + 생성·수정 시각"으로 본다 (MM-37). */
+export interface GrowthRecord extends CreateGrowthRecordRequest {
+  recordId: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** §29 PATCH. 요청 필드의 부분 집합으로 본다 (MM-37). */
+export type UpdateGrowthRecordRequest = Partial<CreateGrowthRecordRequest>
+
+// ---- §30 보관함 (ST-20) ----
+// 원본(수행평가·심화 탐구)을 조회하는 Projection이다. 보관함 전용 사본을 만들지 않는다.
+
+export type ArchiveTab = 'recent' | 'favorites' | 'completed' | 'previous-semesters' | 'trash'
+
+/**
+ * §30 GET 항목. 계약은 "조회용 Projection"이라는 설명뿐이라 원본 참조 + 표시 정보로 가정한다 (MM-39).
+ * `lastActivityAt`은 원본 생성·노트 저장·파일 업로드 중 가장 최근 시각(Mock 기준, 열람 시각 아님).
+ */
+export interface ArchiveItem {
+  sourceType: AssessmentSourceType
+  sourceId: string
+  title: string
+  subjectId: string | null
+  /** 원본의 학년도·학기 (심화 탐구는 학기 정보가 없어 null) */
+  academicYear: number | null
+  semester: number | null
+  status: string | null
+  lastActivityAt: string
+  noteBlockCount: number | null
+  favorite: boolean
+  /** 휴지통 항목만 (삭제 정책 미정) */
+  deletedAt: string | null
+}
+
+/** §30 PUT archive/favorites 요청 (계약 예시 그대로) */
+export interface ArchiveFavoriteRequest {
+  sourceType: AssessmentSourceType
+  sourceId: string
+  favorite: boolean
+}

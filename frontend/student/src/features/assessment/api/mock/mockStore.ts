@@ -17,10 +17,13 @@ import {
   fixtureUniversityResources,
 } from './enrichmentFixture.ts'
 import { fixtureResources } from './resourcesFixture.ts'
+import { fixtureFavorites, fixtureGrowthRecords } from './growthArchiveFixture.ts'
 import type {
   AcademicContext,
+  ArchiveFavoriteRequest,
   EnrichmentCatalogItem,
   EnrichmentTask,
+  GrowthRecord,
   MockExamMaterial,
   PersonalMockExamMaterial,
   StudentResource,
@@ -42,6 +45,8 @@ export const mockStore: {
   personalMockExamMaterials: PersonalMockExamMaterial[]
   universityResources: UniversityResource[]
   resources: StudentResource[]
+  growthRecords: GrowthRecord[]
+  favorites: ArchiveFavoriteRequest[]
 } = {
   academicContexts: structuredClone(fixtureAcademicContexts),
   schoolAssessments: structuredClone(fixtureSchoolAssessments),
@@ -55,4 +60,6 @@ export const mockStore: {
   personalMockExamMaterials: structuredClone(fixturePersonalMockExamMaterials),
   universityResources: structuredClone(fixtureUniversityResources),
   resources: structuredClone(fixtureResources),
+  growthRecords: structuredClone(fixtureGrowthRecords),
+  favorites: structuredClone(fixtureFavorites),
 }

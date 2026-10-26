@@ -388,3 +388,16 @@ React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor
 - §21 Revision 상세 응답 Shape(MM-25), 복원 = 새 Revision 생성 여부
 - 자료 넣기: §20 PUT(현재 Mock) 또는 §23 (MM-34)
 - 과제당 노트 수와 "새 노트로 시작"의 의미(MM-35)
+
+## P-19. 성장 기록·보관함 화면용 계약 보완 (2026-10-27, Stage 5 Frontend 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 가정 Shape(코드 주석·screen-map)으로 Mock만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-37 | §29 GET 목록·상세 응답 Shape 명시(요청 필드 + `recordId`·`createdAt`·`updatedAt`), 필수 필드(제목만?), PATCH 수정 가능 필드, 목록 학기 묶음 기준(`academicYear`·`semester`를 기록에 둘지, 과목 학기로 계산할지) | 성장 기록 = 학생 개인 기록. 학교생활기록부·세특 문장 아님, AI 생성 없음(inquiry §11) |
+| MM-37 | 카드의 "선생님 피드백 N건 / 탐구 노트 N개"가 필요하면 응답 요약 필드로 둘지, 표시하지 않을지 | Dashboard Counter처럼 Source Entity(§31·§19)에서 계산 |
+| MM-38 | `artifactIds`를 Artifact로 둘지 `artifactVersionIds`로 특정 버전을 고정할지 | 피드백 Snapshot(§31)의 버전 고정과 같은 원칙 적용 여부 |
+| MM-39 | §30 항목 Shape(원본 참조 + 표시 필드), 탭별 포함 규칙(심화 탐구의 학기, 최근 기록 기준 시각), 피드백 요청이 보관함 대상인지 | 보관함 = Projection. 사본 저장 금지 |
+| MM-40 | 즐겨찾기 `sourceType` 범위(`ENRICHMENT_TASK`, 공개 심화 콘텐츠 포함 여부) | 공개 콘텐츠(§16) 즐겨찾기는 심화 탐구 라이브러리 즐겨찾기(MM-26)와 같은 개념인지 |
+| MM-41 | 사용자 폴더·내보내기 필요 여부, §30 Query에 `subjectId` 추가, 삭제·복구·영구 삭제·보존 기간(API-OD-A08, OD-A11) | 원본 삭제 정책이 먼저 정해져야 휴지통이 의미 있음 |

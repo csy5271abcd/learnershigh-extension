@@ -31,8 +31,8 @@
 | S19 | 모의고사 지문 목록 / 상세 | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams`, `/mock-exams/:materialId` | **구현:** 시연용 자체 제작 카드(실제 지문 없음), 과목 필터·검색, 상세(원문 정보와 탐구 아이디어 분리, 원문 링크 없음 표시), 심화 Task 만들기(§18 sourceReference DRAFT), 내 지문 등록(§17 POST, 링크만·확인 안 함)·내 지문 목록, 수행평가 아이디어 연결은 Editor 전 비활성. MM-28 |
 | S20 | 대학 공개 자료 | `AE-University-Resources/AE-UNI-01` | inquiry §9 (ST-17) | §27 | `/assessment/enrichment/universities` (`?university=&year=&type=&q=`) | **구현:** 대학 Chip은 응답 값으로 생성(가상 기관명), 학년도(§27 Query)·자료 유형(화면 필터), 원본 열기는 확인된 URL만(시연 데이터 전부 없음), 미리보기 비활성, 탐구 아이디어 펼침 → 심화 탐구 시작(sourceReference DRAFT). MM-29 |
 | S21 | 자료함 / 과목별 추천 / 자료 추가 모달 | `Resource-Library/RL-LIST-01~02`, `RL-Add-Resource/RL-ADD-01` | inquiry §7 | §22·23 | `/assessment/resources` (`?q=&type=&subject=`), `/resources/:resourceId` | **구현(2026-10-27, Stage 1 Mock):** 과목별 추천 자료원(탐색 후보, 펼침 → 그 자료원으로 자료 추가), 유형 필터(Mockup 5종), 검색(§22 query, Mockup에 없지만 다른 목록과 같은 위치), 내 자료 목록·출처 정보 표시, 자료 추가 Modal(유형 7종·자료명 필수·URL/발행일 형식 검사·닫기 확인), 자료 상세(Mockup 없음, 최소 구성)·수정(§22 PATCH, 메모·태그 포함), Sidebar 건수. 노트에 추가·AI 요약 비활성, 삭제 없음(§22에 없음). MM-30~32 |
-| S22 | 성장 기록 | `Growth-Records/GR-LIST-01` | inquiry §11 | §29 | `/assessment/growth` | |
-| S23 | 보관함 5개 탭 | `Archive/AR-Tabs/AR-TAB-01~05` | inquiry §12 | §30 | `/assessment/archive?tab=` | 휴지통 동작은 OD-A11 |
+| S22 | 성장 기록 | `Growth-Records/GR-LIST-01` | inquiry §11 | §29 | `/assessment/growth` (`?subject=`), `/growth/new?sourceType=&sourceId=`, `/growth/:recordId` | **구현(2026-10-27, Stage 5 Mock):** 개인 기록 안내(세특과 별개·자동 생성 없음), 과목 Chip, 학기별 묶음(과목이 속한 학기로 계산, MM-37), 카드(출처 배지·과목·제목·내 역할/해결한 문제/배운 점/추가 탐구, 빈 항목 숨김), 관련 활동 링크. 작성(§29 POST, 제목 필수, 관련 활동·과목·시작일·9개 서술 항목·관련 활동의 결과물 선택)·상세·수정(§29 PATCH 바뀐 항목만)·실패 시 입력 유지·이동 보호. 학교 수행평가·심화 탐구 상세 더보기 "성장 기록에 남기기" → 관련 활동을 채운 작성 화면. 내보내기 비활성. 작성·상세 Mockup 없음. AI 생성 없음. MM-37·38 |
+| S23 | 보관함 5개 탭 | `Archive/AR-Tabs/AR-TAB-01~05` | inquiry §12 | §30 | `/assessment/archive?tab=` (`&q=&subject=`) | 휴지통 동작은 OD-A11. **구현(2026-10-27, Stage 5 Mock):** 원본(학교 수행평가·심화 탐구)을 다시 조회하는 Projection(사본 없음), 탭 5개(URL 유지)·검색(§30 query)·과목 폴더(받은 목록 안 화면 필터)·행 → 원본 상세, 행 메타(과목·유형·상태 / 이전 학기는 학년도·학기), 노트 N블록, 즐겨찾기 별표(SCHOOL_ASSESSMENT만, §30 PUT). 새 폴더·내보내기 비활성, 사용자 폴더 없음, 휴지통은 기본 Empty(시연 시나리오만 항목)·복구 비활성·영구 삭제 없음·30일 안내 없음. MM-39~41 |
 | S24 | Assessment 홈 / 스크롤 / 알림 Popover | `Assessment-Home/ST_Assessment-Home_01~03` | student §3 | 요약 API 없음 | `/assessment` | 01 이미지 확인: AI 입력창·빠른 실행·New 배지는 계약 없음 |
 
 ## 2. Admin
@@ -92,6 +92,11 @@
 | MM-34 | S8 | 노트에 자료 넣기 | §23 resource-links Endpoint 또는 §20 PUT 중 택1 (§23 본문) | 확인 | 편집기가 링크 블록을 만들어 §20 PUT으로 저장 (§23 미사용). 원문 복사 없이 resourceId·제목·출처·URL만 |
 | MM-35 | S8 | 템플릿 "현재 노트 맨 위에 추가", "새 노트로 시작 — 지금 내용은 수정 이력에 보관해 언제든 복원" | §19·Spec §6은 새 노트 / 뒤에 추가만, 복원 정책 미정 | 확인 | 맨 위 추가 제외. 새 노트로 시작 = 확인 후 본문 교체(이전 저장본은 이력에 남음, 복원 없음), 저장 안 된 변경이 있으면 비활성. 과제당 노트 수 정책은 MM-18 |
 | MM-36 | S8 | 블록 드래그(⋮⋮ 끌기), 블록 Hover "+" | 드래그는 Editor 라이브러리 기능 | 확인 | ⋮⋮는 메뉴(위로·아래로·유형·삭제), + 는 아래에 본문 추가. 드래그는 Editor 결정 뒤 |
+| MM-37 | S22 | 학기별 묶음("2026학년도 2학기"), 카드 오른쪽 "선생님 피드백 1건"/"탐구 노트 1개", 내보내기, (작성 버튼·상세 화면 없음) | §29는 요청 필드만 있고 응답 Shape·학기 필드·관련 건수·내보내기 없음, 필수 필드 미정 | 확인 | 응답 = 요청 필드 + `recordId·createdAt·updatedAt`, PATCH = 요청 필드 부분 집합, 필수 = 제목만으로 가정. 학기는 과목이 속한 §9-1 학기로 계산(과목 없으면 "학기 미지정"). 건수 대신 "관련 활동 보기" 링크. 내보내기 비활성. "성장 기록 쓰기" 버튼·작성/상세 화면은 Mockup 없이 추가 |
+| MM-38 | S22 | (결과물 연결) | §29 `artifactIds`가 Artifact인지 특정 ArtifactVersion인지 미정 | 확인 | 관련 활동의 Artifact 단위로만 연결, "어느 파일 버전인지는 아직 고정하지 않아요" 안내. 다른 활동의 Artifact는 Mock이 400 |
+| MM-39 | S23 | 행(아이콘·제목·"과목 · 학교 수행평가 · 상태"·노트 N블록), 최근 기록의 "피드백: …" 행 | §30은 tab·query만 있고 항목 Shape 없음, sourceType은 학교 수행평가·심화 탐구 예시뿐 | 확인 | 항목 = 원본 참조(`sourceType·sourceId`) + 제목·과목·학년도·학기·상태·`lastActivityAt`·`noteBlockCount`·`favorite`·`deletedAt`으로 가정. 최근 기록 = 이번 학기 수행평가 + 심화 탐구(학기 없음), 완료 = 모든 학기 완료, 이전 학기 = 학기가 다른 수행평가(심화 탐구 제외). 피드백 행은 넣지 않음. `lastActivityAt` = 생성·노트 저장·파일 업로드 중 최근(열람 기록 아님) |
+| MM-40 | S23 | 즐겨찾기 탭의 심화 탐구 라이브러리 콘텐츠(별표), 행 안 즐겨찾기 버튼 없음 | §30 PUT 예시는 `SCHOOL_ASSESSMENT`뿐 | 확인 | 학교 수행평가 행에만 별표 버튼(Mockup에 없는 진입점) 추가, 다른 유형은 Mock 400. 해제는 표시만 지우고 원본 유지 |
+| MM-41 | S23 | 사용자 폴더("발표 자료 모음")·새 폴더·내보내기, 휴지통 "30일 뒤 완전히 삭제"·"23일 남음"·복구·영구 삭제 | 폴더·내보내기 계약 없음, §30 Query에 과목 없음, 삭제·복구 정책 미정(API-OD-A08, OD-A11) | 확인 | 과목 폴더만(받은 목록 안 화면 필터), 새 폴더·내보내기 비활성. 휴지통은 기본 Empty, `archiveTrashDemo` 시연 항목만, 복구 aria-disabled+사유, 영구 삭제·남은 일수·30일 안내 없음 |
 
 ## 4. 갱신 규칙
 

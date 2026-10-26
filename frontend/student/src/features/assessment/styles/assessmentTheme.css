@@ -28,6 +28,7 @@
   --as-color-fill: #f3f4f7; /* 회색 Badge, Hover */
   --as-color-active: #eaebef; /* 선택된 Sidebar 메뉴 */
   --as-color-selected: #f4f7fe; /* 선택된 목록 행 (Mockup AE-LIST 실측) */
+  --as-color-star: #ffc700; /* 즐겨찾기·중요 별 (Mockup SA-LIST-01 실측, 다크 모드 공통) */
   --as-color-line: #eaebef; /* 모든 Border / Divider */
   --as-color-text: #1d1f23;
   --as-color-text-secondary: #72777f;
