@@ -1,0 +1,18 @@
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--as-text-meta);
+  line-height: 18px;
+  color: var(--as-color-text-tertiary);
+}
+
+.notice svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.meta {
+  white-space: nowrap;
+  color: var(--as-color-text-tertiary);
+}

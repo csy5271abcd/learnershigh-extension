@@ -1,6 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
 import { StudentGlobalNavigation } from '../components/student-navigation/StudentGlobalNavigation.tsx'
 import type { StudentNavigationItemId } from '../components/student-navigation/studentNavigationItems.ts'
+import { assessmentPath, schoolAssessmentsPath } from '../features/assessment/routes/paths.ts'
 import { mentorHubHomeFixture } from '../features/mentor-hub/fixtures/mentorHubHome.fixture.ts'
 import { mentorHubPath } from '../features/mentor-hub/routes/paths.ts'
 import { schoolPath, schoolTasksPath } from '../features/school-admissions/routes/paths.ts'
@@ -13,6 +14,7 @@ const isUnder = (pathname: string, base: string) => pathname === base || pathnam
 function activeNavigationItem(pathname: string): StudentNavigationItemId | undefined {
   if (isUnder(pathname, mentorHubPath)) return 'mentor'
   if (isUnder(pathname, schoolPath)) return 'schoolActivity'
+  if (isUnder(pathname, assessmentPath)) return 'assessment'
   return undefined
 }
 
@@ -31,6 +33,7 @@ export function StudentAppShell() {
           if (id === 'mentor') navigate(mentorHubPath)
           // 기존 수행평가 Entry는 School로 연결한다. (Extension App 내부 Route, 기존 LearnersHigh URL 아님)
           else if (id === 'schoolActivity' || id === 'performanceTask') navigate(schoolTasksPath)
+          else if (id === 'assessment') navigate(schoolAssessmentsPath)
         }}
       />
       <Outlet />

@@ -1,0 +1,97 @@
+.loading {
+  display: grid;
+}
+
+.skeletonRow {
+  display: grid;
+  gap: 8px;
+  padding: 16px 12px 16px 54px;
+}
+
+.skeletonTitle,
+.skeletonMeta {
+  display: block;
+  height: 14px;
+  border-radius: 6px;
+  background: var(--as-color-skeleton);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  width: min(360px, 70%);
+}
+
+.skeletonMeta {
+  width: min(180px, 40%);
+  height: 11px;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonTitle,
+  .skeletonMeta {
+    animation: none;
+  }
+}
+
+.empty,
+.error {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.emptyTitle,
+.errorTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--as-color-text);
+}
+
+.emptyDescription,
+.errorMessage {
+  font-size: 13px;
+  color: var(--as-color-text-secondary);
+}
+
+.errorIcon {
+  color: var(--as-color-danger);
+}
+
+.errorCode {
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.retryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: var(--as-color-fill);
+}

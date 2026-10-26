@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import {
+  AssessmentIcon,
   BlogIcon,
   DiagnosisIcon,
   DiaryIcon,
@@ -29,6 +30,7 @@ export type StudentNavigationItemId =
   | 'reward'
   | 'mentor'
   | 'schoolActivity'
+  | 'assessment'
 
 export interface StudentNavigationItem {
   id: StudentNavigationItemId
@@ -57,4 +59,6 @@ export const studentNavigationItems: StudentNavigationItem[] = [
   { id: 'reward', label: '리워드', icon: RewardIcon },
   { id: 'mentor', label: 'Mentor', icon: MentorIcon, extension: true },
   { id: 'schoolActivity', label: 'School Activity', icon: SchoolActivityIcon, extension: true },
+  // 신규 Assessment 진입점 (assessment-student.md §3). 구형 Mentor / School Activity는 정리 계획에 따라 별도로 제거한다.
+  { id: 'assessment', label: 'Assessment', icon: AssessmentIcon, extension: true },
 ]

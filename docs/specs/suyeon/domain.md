@@ -1,2754 +1,838 @@
 # LearnersHigh Extension — Suyeon Domain
 
 > 위치: `docs/specs/suyeon/domain.md`  
-> 목적: 최수연 담당 기능에서 사용하는 **Entity, 관계, 상태 전이, 핵심 불변조건, Cross-Surface 데이터 전파, Seed/Fixture 기준**을 정의한다.  
-> 이 문서는 화면 디자인 문서가 아니다. 화면별 동작은 각 Feature Spec을, Frontend ↔ Backend 전송 형식은 `docs/api/api-contract.md`를 따른다.
+> 목적: LearnersHigh Assessment에서 사용하는 **Entity, 관계, 상태 전이, 핵심 불변조건, Cross-Surface 전파, Seed/Fixture 기준**을 정의한다.  
+> 화면별 행동은 Assessment Feature Spec, HTTP Request/Response는 `docs/api/api-contract.md`를 따른다. 이 문서의 개념 이름을 실제 테이블·컬럼·Enum 이름으로 자동 확정하지 않는다.
 
 ---
 
 # 1. 문서 역할
 
-이 문서는 최수연 담당 영역의 Domain Model을 하나의 기준으로 묶는다.
-
-대상 Feature:
+현재 Suyeon의 신규 영역은 **Student Assessment + Admin Assessment 관리**다.
 
 ```text
-Mentor Hub
-Mentor Surface
-School & Admissions
-Admin Student Management
-Parent Progress
+School Assessment  ──┐
+                     ├─ Assessment Note / Resources / Artifact
+Enrichment Task   ───┘                    │
+                                         ├─ Feedback Request / Reply
+                                         └─ Growth Record / Archive
+
+School Evaluation Plan ──> Subject Evaluation Facts
+Admin Content Catalog ───> Enrichment / Passage / University Resources
 ```
 
-핵심 목적:
+원칙:
 
-```text
-1. 같은 Student / Task / Mentor를 화면마다 다른 Mock Entity로 만들지 않는다.
-2. Student / Admin / Mentor Surface가 동일한 Domain State를 공유한다.
-3. 화면 상태와 Business State를 분리한다.
-4. Derived KPI를 별도 수동 Counter로 관리하지 않는다.
-5. 기존 LearnersHigh 데이터와 Extension Domain의 책임을 구분한다.
-6. 상담 기능을 Suyeon Domain에 포함하지 않는다.
-```
+1. Student와 Admin 화면은 같은 Assessment Record와 Version Identity를 사용한다.
+2. 기존 LearnersHigh의 학습계획·공부시간·관리자 기본 기능을 중복 구현하지 않는다.
+3. 기존 Suyeon Mentor/Parent/Interview 기능을 새 Entity에 재편입하지 않는다.
+4. Wangyu Student Care / Counseling Entity와 개인정보 경계를 침범하지 않는다.
+5. 화면 UI 상태와 Domain 상태, AI 제안값과 사람이 확인한 값을 분리한다.
+6. 파일 내용·학생 노트·피드백 요청 당시 Snapshot을 임의로 덮어쓰지 않는다.
 
 ---
 
 # 2. 관련 Source of Truth
 
-구현 전에 다음 문서를 함께 확인한다.
-
 ```text
 docs/SOURCE_OF_TRUTH.md
 docs/OWNERSHIP.md
+docs/specs/suyeon/README.md
 docs/architecture/overview.md
 docs/architecture/integration-boundary.md
+docs/architecture/shared-conventions.md
 docs/api/api-contract.md
-
-docs/specs/suyeon/features/mentor-hub.md
-docs/specs/suyeon/features/school-admissions.md
-docs/specs/suyeon/features/student-management.md
-docs/specs/suyeon/features/parent-progress.md
 ```
 
-Domain 충돌 시:
+신규 Assessment Feature Spec 4종(`features/assessment-student.md`, `features/assessment-inquiry.md`, `features/assessment-feedback.md`, `features/assessment-admin.md`)은 **현재 저장소의 작성본**으로 존재한다. 상세 행동은 각 Feature Spec을 참고하되 Open Decision 및 `docs/api/api-contract.md`의 미확정 계약을 실제 구현 확정으로 해석하지 않는다.
 
 ```text
-Entity / Relationship / State Transition
-→ 이 문서(domain.md)
-
-기능 동작 / 사용자 Interaction
-→ Feature Spec
-
-HTTP Request / Response
-→ api-contract.md
-
-기존 LearnersHigh 연결
-→ integration-boundary.md
+Entity / Relationship / State  → domain.md
+Behavior / Acceptance        → 관련 Feature Spec
+HTTP / JSON / Error          → api-contract.md
+Legacy Integration           → integration-boundary.md
+Ownership / Permission 경계  → OWNERSHIP.md + 인증·인가 계약
 ```
-
-를 따른다.
 
 ---
 
 # 3. Ownership Boundary
 
-Suyeon Domain에 포함되는 주요 영역:
+| 구분 | 책임 |
+|---|---|
+| Suyeon | Assessment 수행평가 확장기록, 심화 탐구, 노트, 자료, 파일 버전, 선택형 피드백, 콘텐츠 관리 |
+| Wangyu | Student Care, 상담, 관련 케어 신호·상담 메모와 API·DB |
+| Existing LearnersHigh | 기존 Student / Admin 인증·공통 관리, 기존 학교 수행평가·학습 자료 등 실제 확인된 원본 |
+| Shared | API 계약, 공통 Identity / 인가, DB Migration, Shell/Router, 공용 파일 연동 등 다영역 영향 변경 |
 
-```text
-Mentor
-School
-Student Management
-Parent Progress
-```
+`Admin`과 `Teacher`를 별도 Assessment Actor로 만들지 않는다. 화면의 `선생님께 피드백 요청`은 사용자에게 보이는 문구이며 **업무 수신자는 기존 권한 체계의 관리자**다.
 
-Suyeon Domain에 포함하지 않는 영역:
-
-```text
-Counseling
-Parent Counseling
-Student Counseling
-Joint Counseling
-Counseling CRM
-Counseling Brief
-Counseling Follow-up
-Admissions Counseling
-Counseling Privacy
-Counseling-derived business logic
-```
-
-상담 관련 데이터가 향후 필요해져도
-Suyeon Domain 안에 상담 Entity / API / DB Model을 새로 만들지 않는다.
-
-필요 시:
-
-```text
-Wangyu-owned Counseling Domain
-        │
-        ▼
-Shared / Integration Contract
-        │
-        ▼
-Suyeon Consumer Feature
-```
-
-형태로 연결한다.
+Admin이 피드백 없이 학생 기록을 열람할 수 있는 범위는 역할명만으로 무제한 확장되지 않는다. 기관·담당 학생·운영 범위를 통과한 경우에만 조회한다.
 
 ---
 
 # 4. Domain Map
 
-현재 Suyeon Feature Spec에서 정의된 Core Entity:
+> 다음은 업무상의 개념 Entity/Value/Read Model 목록이다. DB 테이블 개수와 일대일 대응시키지 않는다.
 
-```text
-Organization
-Staff
-Student
-Task
-Version
-Feedback
-Evidence
-Activity
-ActivityFeedback
-TestResult
-SchoolRecordSnapshot
-TaskFinalArtifact
-MentorProfile
-MentorContent
-ParentReport
-InterviewQuestion
-Connection
-```
-
-주요 관계:
-
-```text
-Student
-├─ Task
-│  ├─ Version
-│  │  └─ Feedback
-│  ├─ Evidence
-│  └─ TaskFinalArtifact
-│
-├─ Activity
-│  ├─ Evidence
-│  └─ ActivityFeedback
-│
-├─ TestResult
-├─ SchoolRecordSnapshot
-└─ ParentReport
-
-MentorProfile
-└─ MentorContent
-   ├─ Plan
-   ├─ Routine
-   ├─ Story
-   ├─ Q&A-related content
-   ├─ Record
-   └─ Case
-
-Activity
-└─ Connection
-   └─ InterviewQuestion
-```
-
----
-
-# 5. Existing LearnersHigh와 Extension Entity 구분
-
-다음 데이터는 기존 LearnersHigh가 Source System일 가능성이 높다.
-
-```text
-Organization
-Branch / Institution Context
-Student 기본정보
-Staff / Admin Context
-Study Time / Study Session
-Existing Plan
-Library
-Learning History
-Existing Report
-Existing Performance Task 기본정보
-```
-
-Extension이 주로 소유하는 데이터:
-
-```text
-Task Extension Process
-Version
-Feedback
-Evidence
-Growth Activity
-ActivityFeedback
-MentorProfile / MentorContent
-TaskFinalArtifact share state
-ParentReport
-Connection
-InterviewQuestion
-Extension TestResult / SchoolRecordSnapshot
-```
-
-실제 Write Owner가 기존 시스템 확인 결과와 다르면
-`integration-boundary.md`와 ADR을 먼저 갱신한다.
-
----
-
-# 6. Canonical Identity 원칙
-
-같은 실체는 하나의 Canonical Identity를 사용한다.
-
-예:
-
-```text
-Student S001
-```
-
-은 다음 화면에서 같은 Student여야 한다.
-
-```text
-Student Task Detail
-Admin Feedback Dashboard
-Today Board
-Student 360
-Parent Progress
-Mentor recommendation context
-```
-
-같은 Mentor 역시:
-
-```text
-Mentor Profile
-Recommendation Card
-Plan
-Routine
-Story
-Case
-Q&A
-```
-
-에서 이름 / 대학 / 학과 / 전형 / 고교 Context / 대표 경험이 동일해야 한다.
-
----
-
-# 7. 화면별 복제 Entity 금지
-
-금지:
-
-```text
-StudentTaskPageTask
-AdminFeedbackTask
-Student360Task
-ParentReportTask
-```
-
-처럼 같은 Task를 화면별 별도 Entity로 만들기.
-
-권장:
-
-```text
-Task
-└─ 여러 View Model / Projection
-```
-
-예:
-
-```text
-Task
-├─ StudentTaskDetailView
-├─ AdminFeedbackQueueItemView
-├─ Student360TaskSummaryView
-└─ ParentReportTaskSummaryView
-```
-
-View Model은 달라도 Identity와 Business State는 동일해야 한다.
-
----
-
-# 8. UI State와 Domain State 구분
-
-UI State 예:
-
-```text
-selectedTab
-isModalOpen
-isDrawerOpen
-selectedVersionPair
-searchKeyword
-scrollPosition
-loading
-```
-
-Domain State 예:
-
-```text
-Task.currentStage
-Activity.state
-SchoolRecordSnapshot.status
-ParentReport.status
-TaskFinalArtifact.parentShareStatus
-```
-
-UI 편의를 위해 Domain State를 새로 만들지 않는다.
-
----
-
-# 9. Student
-
-`Student`는 Extension의 중심 Aggregate Reference다.
-
-주요 연결:
-
-```text
-Student
-├─ Task[]
-├─ Activity[]
-├─ TestResult[]
-├─ SchoolRecordSnapshot[]
-├─ ParentReport[]
-├─ Mentor application / saved context
-└─ Existing LearnersHigh study data
-```
-
-Student 기본정보의 Write Owner는 기존 LearnersHigh를 우선한다.
-
----
-
-## 9-1. Student Context
-
-Mentor 추천에 활용 가능한 Context:
-
-```text
-grade
-interestField
-desiredMajor
-admissionInterest
-currentTask
-currentActivity
-recentStudyContext
-savedContentTags
-viewedContentTags
-```
-
-이 값들 중 실제 저장 위치와 필드 타입이 아직 확정되지 않은 항목은
-DB Field로 먼저 고정하지 않는다.
-
-Feature 구현 전에:
-
-```text
-Domain source
-API source
-Existing LearnersHigh source
-```
-
-중 어디에서 가져오는지 확정한다.
-
----
-
-# 10. Organization
-
-`Organization`은 기관 Context를 나타낸다.
-
-주요 사용:
-
-```text
-Admin 접근 범위
-Student 소속 Context
-Today Board 대상 범위
-Parent Report 대상 범위
-Operations 집계
-```
-
-Extension에서 기존 Organization 관리 기능을 재구현하지 않는다.
-
----
-
-# 11. Staff
-
-`Staff`는 Admin 업무 수행 Actor를 표현한다.
-
-주요 사용:
-
-```text
-Feedback Review
-Activity Feedback
-Parent Report Review
-Interview Question Publish
-Record / Case Review
-```
-
-중요:
-
-```text
-Feedback은 Shared Queue를 사용한다.
-특정 Staff 자동 Routing을 기본 정책으로 두지 않는다.
-과목 기준 자동 Routing도 사용하지 않는다.
-```
-
----
-
-# 12. Task
-
-`Task`는 School & Admissions의 수행평가 Process 중심 Entity다.
-
-기존 LearnersHigh Performance Task가 존재하면
-Extension Task는 기존 Task 기본정보를 확장하는 방향을 우선한다.
-
-개념:
-
-```text
-Existing Performance Task
-        │ existingTaskId
-        ▼
-Extension Task Process
-```
-
----
-
-## 12-1. Task 핵심 관계
-
-```text
-Task
-├─ Version[]
-├─ Feedback[]
-├─ Evidence[]
-├─ TaskFinalArtifact?
-├─ relatedMentorCaseIds[]
-└─ Archive representation
-```
-
-`Feedback`이 Version에 연결되는 구조와
-Task 수준으로 조회되는 구조를 모두 지원할 수 있지만,
-정확한 FK / Aggregate Boundary는 DB 설계와 API Contract에서 확정한다.
-
----
-
-## 12-2. Task 8단계
-
-Feature Spec에서 확정된 수행평가 Process:
-
-| Stage | 의미 | 전이 기준 |
+| 개념 | 책임 | 주요 연결 |
 |---|---|---|
-| 1 | 안내문 등록 | Student 또는 Admin 등록 |
-| 2 | 주제 선정 | 제출 후 공용 검토 |
-| 3 | 자료 조사 | Evidence 1개 이상 |
-| 4 | 초안 V1 제출 | 제출 즉시 AI 분석 |
-| 5 | AI 사전 점검 | 성공 또는 실패/Retry |
-| 6 | 선생님 피드백 | Shared Feedback Queue |
-| 7 | Revision V2/V3 | 필요 시 반복 |
-| 8 | 최종 제출/발표 | Archive 자동 이관 |
+| `Student` / `SchoolContext` | 학업 소속·학년·학기·수강과목 Context | 학교 평가계획, 학생 수행평가 |
+| `SchoolEvaluationPlan` | 학교별 공식 PDF 원본·개정본 | 학교·학년도·학년·학기 |
+| `SubjectEvaluation` | 지필/수행 평가 비율·세부 기준 | 계획서, 과목, 원본 페이지 |
+| `SchoolAssessment` | 학생 개인의 실제 학교 수행평가 | Student, Subject, Note, Artifact |
+| `EnrichmentTask` | 자율 심화 탐구 | 학생 작성 또는 Admin 공통 Task, 선택적 출처(모의고사·대학 자료) 참조 |
+| `AssessmentNote` / `NoteRevision` | 학생 과정 기록·블록·수정 이력 | Assessment 또는 Enrichment Task |
+| `NoteTemplate` | 선택형 초기 문서 본문 | Note 생성 또는 본문 추가 |
+| `ResourceReference` / `Scrap` | URL·출처·메모·추천 관계 | Student, Admin, Note, Task |
+| `Artifact` / `ArtifactVersion` | 실제 결과물 종류와 파일별 버전 | Assessment/Task, Feedback |
+| `FeedbackRequest` / `FeedbackSnapshot` | 피드백 요청 및 당시 고정된 자료 | Note Revision, Artifact Version |
+| `FeedbackReply` / `FeedbackComment` | 관리자 답변·문서 내 위치별 의견 | Request, 대상 버전 |
+| `EnrichmentContent` | 관리자 제공 심화 Task / 모의고사 탐구 카드 | 과목, 출처, 공개 상태 |
+| `UniversityPublicResource` | 대학 공개자료 메타데이터·원문 링크 | 대학, 문서/학년도, Task |
+| `GrowthRecord` / `ArchiveView` | 활동·기여·성찰, 보관 목록 | 학생, 노트·파일·피드백 |
 
-권장 Domain 표현:
+같은 외부 Reference(학교, 학생, Staff 등)를 새로운 내부 기본정보 원본으로 복제하지 않는다.
 
-```text
-Task.currentStage
-```
-
-Stage 값의 실제 Enum Naming은
-`shared-conventions.md` 또는 API Contract와 함께 확정한다.
-
-문서 단계 숫자 `1~8`을 DB Enum 값으로 그대로 쓸지는 아직 확정하지 않는다.
-
----
-
-## 12-3. Task Stage와 운영 상태 분리
-
-Admin에서 사용하는 운영 상태:
-
-```text
-D-3 Deadline Risk
-Review 48h 초과
-Feedback 후 수정 미반영
-Deadline Passed
-Hold
-```
-
-이 값들은 Task의 8단계 Stage와 동일한 개념이 아니다.
-
-따라서:
-
-```text
-currentStage
-```
-
-와
-
-```text
-operational flags / derived status
-```
-
-를 분리한다.
-
-예:
-
-```text
-Task.currentStage = FEEDBACK
-Task deadlineRisk = true
-```
-
-처럼 동시에 존재할 수 있다.
-
-정확한 저장/계산 방식은 별도 확정한다.
-
----
-
-# 13. Topic
-
-Topic은 Task에 연결되는 수행평가 주제 정보다.
-
-확정된 Domain 정보:
-
-```text
-Task.topic
-topicApprovalStatus
-currentStage
-```
-
-Student Action:
-
-```text
-주제 제출
-```
-
-Admin Action:
-
-```text
-Approve
-방향 요청
-```
-
-`topicApprovalStatus`의 정확한 Enum 값은 현재 원문에 명시되어 있지 않다.
-
-따라서 다음과 같은 임의 Enum을 먼저 확정하지 않는다.
-
-```text
-APPROVED
-REJECTED
-NEEDS_REVISION
-...
-```
-
-Feature/API 작성 단계에서 확정한다.
-
----
-
-# 14. Version
-
-`Version`은 Task 제출물의 Revision 단위를 나타낸다.
-
-확정 Flow:
-
-```text
-Upload
-→ Version 생성
-→ AI Analysis Loading
-→ Success | Failed
-```
-
-Version 예:
-
-```text
-V1
-V2
-V3
-```
-
-Revision History에서는:
-
-```text
-Before / After
-Diff Highlight
-Feedback Link
-Version Preview
-```
-
-를 제공한다.
-
----
-
-## 14-1. Version 불변조건
-
-```text
-- 하나의 Version은 하나의 Task에 속한다.
-- Version 순서는 Task 내부에서 일관되어야 한다.
-- 이전 Version은 새로운 Version 생성으로 덮어쓰지 않는다.
-- Revision History에서 과거 Version을 다시 조회할 수 있어야 한다.
-```
-
----
-
-# 15. AI Analysis State
-
-현재 확인된 상태:
-
-```text
-Loading
-Success
-Failed
-```
-
-Failed:
-
-```text
-Failed State
-→ Retry
-```
-
-AI 성공 시:
-
-```text
-AI Feedback 생성
-Task Stage 갱신
-Shared Feedback Queue 진입
-```
-
-AI 상태를 Task Stage와 혼합하지 않는다.
-
-예:
-
-```text
-Task.currentStage
-Version.aiAnalysisStatus
-```
-
-는 서로 다른 책임이다.
-
----
-
-# 16. Feedback
-
-`Feedback`은 Task / Version 검토 결과를 표현한다.
-
-Student-facing:
-
-```text
-AI 사전 점검
-선생님 피드백
-```
-
-Admin-facing:
-
-```text
-AI Analysis
-Staff Review
-```
-
-Student에서는:
-
-```text
-Teacher/Staff Feedback = Primary
-AI Feedback = Secondary
-```
-
-원칙을 유지한다.
-
----
-
-## 16-1. Shared Feedback Queue
-
-Task Feedback과 Activity Feedback은
-공용 Queue 원칙을 사용한다.
-
-금지:
-
-```text
-특정 Staff 자동 Routing
-과목 기준 자동 Routing
-```
-
-Queue는 별도의 수동 Counter Source가 아니다.
-
-관련 KPI는 실제 Feedback / ActivityFeedback Entity 상태에서 계산한다.
-
----
-
-## 16-2. Admin Feedback Review
-
-Admin은 AI 항목별로:
-
-```text
-동의
-제외
-수정 후 전달
-```
-
-을 선택할 수 있다.
-
-그리고:
-
-```text
-Student Comment
-Next Action
-Parent Report 공개 후보
-전달
-최종 승인
-```
-
-등의 Admin Action이 존재한다.
-
-각 Action의 정확한 State Transition은
-`student-management.md`와 `api-contract.md`에서 확정한다.
-
-현재 Domain 문서에서는 없는 상태값을 임의로 추가하지 않는다.
-
----
-
-# 17. Evidence
-
-`Evidence`는 Task 또는 Activity 과정에서 사용되는 근거/파일을 나타낸다.
-
-관계:
-
-```text
-Task
-└─ Evidence[]
-
-Activity
-└─ Evidence[]
-```
-
-기능:
-
-```text
-파일 추가
-파일 삭제
-Stage Tag
-Preview
-```
-
----
-
-## 17-1. Task Stage Condition
-
-확정된 규칙:
-
-```text
-Evidence >= 1
-```
-
-이면 자료 조사 Stage 완료 조건을 만족할 수 있다.
-
-즉 Evidence 존재는 Stage 3 전이 조건 중 하나다.
-
----
-
-## 17-2. Evidence 파일명
-
-실제 제출물과 자연스러운 파일명을 사용한다.
-
-좋은 예:
-
-```text
-speech_outline.png
-AI_교육기사_3건_요약.pdf
-speech_v2_548words.docx
-제동거리_탐구보고서_최종.pdf
-하천_현장조사사진.zip
-```
-
-임시 문자열 중심 파일명은 Canonical Seed에서 사용하지 않는다.
-
----
-
-# 18. TaskFinalArtifact
-
-`TaskFinalArtifact`는 최종 수행평가 결과물 중
-Parent Report 등 외부 공유 대상이 될 수 있는 Artifact다.
-
-지원 가능한 형태:
-
-```text
-PDF
-Image
-Presentation
-Document
-Video
-Safe Link
-```
-
----
-
-## 18-1. Parent Share State
-
-확정된 상태 흐름:
-
-```text
-not_shared
-→ consented
-→ attached
-→ shared
-```
-
-Default:
-
-```text
-not_shared
-```
-
-중요 규칙:
-
-```text
-Student가 직접 공유를 허용한다.
-```
-
-Student가 발송 전 동의를 해제하면:
-
-```text
-Report 첨부에서 제거
-```
-
-한다.
-
----
-
-## 18-2. Artifact 불변조건
-
-```text
-- consent 없이 Parent Report에 첨부하지 않는다.
-- shared는 실제 발송이 일어난 후에만 사용한다.
-- Parent Report 내부에 연결되었다는 이유만으로 consented로 간주하지 않는다.
-```
-
----
-
-# 19. Activity
-
-`Activity`는 수행평가 밖의 학생 성장 경험을 나타낸다.
-
-Activity Type:
-
-```text
-교내대회
-교외대회
-봉사
-동아리
-학교 프로젝트/행사
-자율 탐구
-진로체험
-기타
-```
-
----
-
-## 19-1. Activity 정보
-
-현재 Feature Spec에서 정의된 정보:
-
-```text
-활동명
-Type
-주최/기관
-기간
-역할
-참여 이유
-주요 과정
-본인 기여
-결과
-Evidence
-Reflection
-후속 활동
-Tag
-공개범위
-```
-
-정확한 Field Naming / Nullability는 DB/API 설계 단계에서 확정한다.
-
----
-
-# 20. Activity State
-
-기본 Flow:
-
-```text
-Draft
-→ Submitted
-→ Reflected
-→ Archived
-```
-
-Feedback 요청 Flow:
-
-```text
-Draft
-→ Submitted
-→ Feedback Waiting
-→ Feedback Delivered
-→ Reflected
-→ Archived
-```
-
-중요:
-
-```text
-모든 Activity에 Feedback을 강제하지 않는다.
-```
-
-따라서 `Feedback Waiting`은 선택적 경로다.
-
----
-
-## 20-1. Activity Transition 원칙
-
-허용 개념:
-
-```text
-Draft
-  ↓
-Submitted
-  ├──────────────→ Reflected
-  │
-  └→ Feedback Waiting
-          ↓
-     Feedback Delivered
-          ↓
-       Reflected
-          ↓
-       Archived
-```
-
-Feature에서 명시하지 않은 역방향 Transition은 임의로 추가하지 않는다.
-
-예:
-
-```text
-Archived → Draft
-```
-
-는 현재 확정되지 않았다.
-
----
-
-# 21. Student Reflection
-
-Reflection은 Student 저작 영역이다.
-
-학생이 직접 작성:
-
-```text
-참여 이유
-역할
-실제로 한 일
-어려웠던 점
-배운 점
-다음에 바꾸고 싶은 점
-실제 후속 활동
-```
-
-AI는 대신 작성하지 않는다.
-
-허용되는 AI 지원:
-
-```text
-빈 항목 표시
-구체화 질문
-날짜 / 역할 / Evidence 누락 확인
-중복 / 긴 문장 안내
-```
-
----
-
-## 21-1. Authorship 불변조건
-
-금지:
-
-```text
-AI가 Student Reflection 완성
-Admin이 Student Reflection 대신 작성
-AI가 Student 원문을 최종본으로 자동 교체
-```
-
-허용:
-
-```text
-질문
-방향
-누락 확인
-Feedback
-Next Action
-```
-
----
-
-# 22. ActivityFeedback
-
-`ActivityFeedback`은 Activity에 대한 Admin Feedback이다.
-
-구조:
-
-```text
-1. 잘 드러난 점
-2. 조금 더 구체화할 점
-3. 생각해볼 질문
-4. 다음 활동 제안
-5. Parent Report 공개 후보(optional)
-```
-
-공용 Queue를 사용한다.
-
-특정 Subject Teacher 자동 배정은 하지 않는다.
-
----
-
-# 23. Archive
-
-Archive는 최종 Repository 역할을 한다.
-
-Source:
-
-```text
-source = task
-source = growth
-```
-
-Archive Card 정보:
-
-```text
-출처 Badge
-활동명
-시기
-과목 / Activity Type
-결과
-Reflection Summary
-Evidence Count
-```
-
-활용:
-
-```text
-Student 360
-Parent Report 후보
-Connection
-Interview
-```
-
----
-
-## 23-1. Archive Entity 여부
-
-현재 Feature Spec에서는 Archive를 기능/Repository로 명시하지만
-별도 `Archive` Core Entity를 Core Entity 목록에 두지는 않았다.
-
-따라서 구현 전 다음 중 어느 방식인지 확정해야 한다.
-
-```text
-A. Task / Activity의 Archived State를 Query하여 Archive View 생성
-B. 별도의 Archive projection / table 사용
-```
-
-`Archive` Entity를 임의로 추가하지 않는다.
-
----
-
-# 24. Connection
-
-`Connection`은 Activity 간 Cross-subject 연관을 표현한다.
-
-Flow:
-
-```text
-Archive Activity
-→ AI Connection Candidate
-→ Admin Confirm
-→ Interview Question Draft
-```
-
-AI는 후보를 제안한다.
-
-Admin:
-
-```text
-Confirm
-Reject
-```
-
-한다.
-
-Confirmed Connection은:
-
-```text
-Student 360
-Interview
-```
-
-에서 활용된다.
-
----
-
-## 24-1. Connection State
-
-현재 원문에서는:
-
-```text
-candidate
-confirmed / rejected 의미
-```
-
-가 동작으로 존재하지만 정확한 Enum Naming은 명시되지 않았다.
-
-따라서 `CANDIDATE / CONFIRMED / REJECTED` 같은 Enum은
-합리적인 후보일 뿐 현재 확정값으로 간주하지 않는다.
-
-API/Feature 문서에서 확정 후 반영한다.
-
----
-
-# 25. InterviewQuestion
-
-`InterviewQuestion`은 고3 대상 Interview Bridge에 사용한다.
-
-Flow:
-
-```text
-AI Draft
-→ Admin Add/Edit/Delete
-→ Activity 연결
-→ Publish
-→ Student Interview Bridge
-```
-
-Student에게는:
-
-```text
-Published Question만 보인다.
-```
-
-Student Action:
-
-```text
-Question 열기
-답변 작성
-연습 상태 변경
-```
-
----
-
-# 26. TestResult
-
-`TestResult`는 학생의 시험/평가 결과를 표현한다.
-
-확정 Type:
-
-```text
-school_exam
-mock_exam
-academy_test
-```
-
-표시 가능한 값:
-
-```text
-score
-grade
-percentile
-rank
-previousResult
-change
-```
-
----
-
-## 26-1. TestResult 불변조건
-
-```text
-서로 다른 시험 유형을 무리하게 하나의 평균으로 합치지 않는다.
-실제로 입력되지 않은 값을 생성하지 않는다.
-```
-
-즉:
-
-```text
-school_exam score
-mock_exam grade
-academy_test rank
-```
-
-처럼 시험 특성에 따라 존재하는 값이 다를 수 있다.
-
----
-
-# 27. SchoolRecordSnapshot
-
-학생의 학교 기록 상태를 Snapshot 형태로 표현한다.
-
-확정 Status:
-
-```text
-confirmed
-candidate
-```
-
-핵심 규칙:
-
-```text
-candidate를 confirmed처럼 표현하지 않는다.
-```
-
-같은 Entity를 참조:
-
-```text
-School
-Student 360
-Parent Report
-```
-
----
-
-## 27-1. SchoolRecord 불변조건
-
-```text
-- confirmed / candidate 의미를 화면마다 다르게 해석하지 않는다.
-- Parent Report에서 candidate를 실제 반영 기록처럼 표현하지 않는다.
-- candidate를 confirmed로 변환하는 기준은 별도 Feature/API 규칙 없이 추측하지 않는다.
-```
-
----
-
-# 28. MentorProfile
-
-`MentorProfile`은 Mentor Identity와 공개 Profile Context를 표현한다.
-
-일관되게 유지해야 하는 값:
-
-```text
-이름
-대학
-학과
-전형
-고교 Context
-대표 경험
-```
-
-관련 화면:
-
-```text
-Mentor Recommendation
-Mentor Profile
-Mentor Content
-Activity Case
-```
-
----
-
-# 29. MentorContent
-
-MentorContent의 주요 유형:
-
-```text
-Plan
-Routine
-Story
-Record
-Case
-```
-
-Student Q&A 답변에서 관련 Mentor Content를 연결할 수 있다.
-
-Mentor My Content 표시 상태:
-
-```text
-Draft
-Published
-```
-
----
-
-## 29-1. MentorContent Publish Rule
-
-일반 Content와 Record / Case는 공개 절차가 다를 수 있다.
-
-Record / Case:
-
-```text
-PII Detection
-→ Admin Review
-→ Published
-```
-
-중요:
-
-```text
-Record / Case를 작성 즉시 Published로 만들지 않는다.
-```
-
-정확한 Review State Enum은 아직 확정하지 않는다.
-
----
-
-# 30. Mentor Plan
-
-Mentor Plan은 Student 기존 Plan에 적용될 수 있다.
-
-Flow:
-
-```text
-적용 시작일
-→ 가져올 항목 선택
-→ 내 Library / 교재 Mapping
-→ 기존 일정 충돌 확인
-→ 수정
-→ 내 주간계획에 추가
-```
-
-적용 Item:
-
-```text
-source = mentorPlanId
-```
-
-개념을 가진다.
-
----
-
-## 30-1. Snapshot Rule
-
-Mentor Plan 적용 시점의 Snapshot을 유지한다.
-
-즉:
-
-```text
-Mentor 원본 Plan 수정
-≠
-이미 Student Plan에 적용된 Item 자동 변경
-```
-
-기존 적용 결과는 자동 동기화하지 않는다.
-
----
-
-# 31. Mentor Routine
-
-Student는:
-
-```text
-전체 적용
-특정 Habit만 적용
-```
-
-할 수 있다.
-
-적용 전:
-
-```text
-기존 일정과 충돌 검사
-```
-
-를 수행하고 Conflict State를 제공한다.
-
-Conflict의 정확한 Domain Enum / 해결 방식은
-Feature/API 작성 시 확정한다.
-
----
-
-# 32. Mentor Story
-
-Story 주제 예:
-
-```text
-성공
-실패
-회복
-성적 변화
-수시/정시 전환
-진로 고민
-공부법
-멘탈 관리
-```
-
-Story는 Content Type이며
-별도 Student 관리 Entity로 만들지 않는다.
-
----
-
-# 33. Mentor Record
-
-Record는 실제 학교생활기록 관련 참고 콘텐츠다.
-
-공개 가능한 유형:
-
-```text
-세부능력 및 특기사항
-자율활동
-동아리활동
-진로활동
-공식 프로젝트/탐구 연계 기록
-```
-
-제거 대상:
-
-```text
-학교명
-담당 교사
-학번
-반 / 번호
-주민번호
-수험번호
-제3자 실명
-```
-
-금지:
-
-```text
-원본 PDF 공개
-그대로 복사하는 CTA
-"내 기록으로 만들기"
-```
-
----
-
-# 34. Activity Case
-
-Mentor의 실제 활동 사례다.
-
-Detail 구성:
-
-```text
-1. 활동 기본정보
-2. 안내 / 목표
-3. 주제
-4. 조사 / 준비
-5. Evidence
-6. 결과물
-7. 중간 과정
-8. 최종 결과
-9. Reflection
-10. 후속 활동
-11. 관련 Mentor Content
-12. 내 Task / Activity 참고 연결
-```
-
-모든 Case에 동일한 Revision 패턴을 강제하지 않는다.
-
----
-
-# 35. Mentor Q&A
-
-Student Question Flow:
-
-```text
-질문 작성
-→ Category 선택
-→ Submit
-→ pending
-→ Mentor Answer
-→ answered
-```
-
-72시간 이상 미답변:
-
-```text
-pending
-→ overdue
-→ reassign
-```
-
-Reassign 시 Mentor가 변경된다.
-
----
-
-## 35-1. Q&A State 해석 주의
-
-확실히 상태로 확인되는 값:
-
-```text
-pending
-answered
-overdue
-```
-
-`reassign`은 원문에서 전이 흐름에 등장하지만
-**지속 상태인지 Action인지 명확히 구분되어 있지 않다.**
-
-따라서 Domain 구현 시:
-
-```text
-REASSIGNED 상태
-```
-
-를 임의로 만들지 않는다.
-
-Feature/API 설계에서 다음 중 하나를 확정한다.
-
-```text
-A. reassign = command/action
-B. reassign = durable status
-```
-
-현재 권장 해석은 Action 후보지만 확정값은 아니다.
-
----
-
-# 36. Mentor Q&A Privacy
-
-Mentor에게 질문자는 익명 Context로 표시한다.
-
-예:
-
-```text
-고2 · 화학공학 관심
-```
-
-Mentor에게 공개하지 않는 정보:
-
-```text
-Student 실명
-학교
-기관
-상세 학습관리 데이터
-```
-
----
-
-# 37. Mentor Case Recommendation
-
-Admin이 Student Task / Activity에 적합한 Mentor Case를 추천한다.
-
-추천 시:
-
-```text
-Task.relatedMentorCaseIds
-+
-Student Mentor Hub Recommendation
-```
-
-이 함께 갱신된다.
-
-즉 Admin Surface 변경이 Student Surface에 전파되는 Cross-Surface Flow다.
-
----
-
-# 38. ParentReport
-
-`ParentReport`는 실시간 Raw Data 화면이 아니라
-검토된 월간 Snapshot이다.
-
-사용 데이터:
-
-```text
-Study Time
-Plan Execution
-TestResult
-Task / Final Result
-TaskFinalArtifact
-SchoolRecordSnapshot
-Growth Activity
-Mentor Application
-```
-
----
-
-# 39. Parent Report 정보 우선순위
-
-```text
-1. 이번 달 전체 상태
-2. 공부시간 / Plan
-3. 학교시험 / 모의고사 / 학원 Test
-4. 수행평가 결과
-5. 잘한 점 / 관리할 점
-6. School Record / 활동
-7. Mentor 활용
-8. 다음 달 Plan
-9. Admin 종합 Comment
-```
-
-서비스 내부 사용량은 메인 KPI로 사용하지 않는다.
-
----
-
-# 40. ParentReport Status — 현재 충돌 존재
-
-Feature Spec 안에 ParentReport 상태 표현이 두 가지로 존재한다.
-
-Report List:
-
-```text
-Draft
-Reviewing
-Ready
-Sent
-```
-
-Generate 단계:
-
-```text
-ParentReport.status = generated
-```
-
-이 두 정의는 현재 그대로는 하나의 Enum으로 확정하기 어렵다.
-
-따라서 이 문서에서는 **임의로 통합하지 않는다.**
-
-구현 전에 다음을 확정해야 한다.
-
-```text
-Option A
-Draft → Reviewing → Ready → Generated → Sent
-
-Option B
-generated는 status가 아니라 export/generatedAt 같은 별도 상태
-
-Option C
-다른 명시적 모델
-```
-
-확정 전:
-
-```text
-GENERATED
-```
-
-를 최종 Domain Enum에 추가하지 않는다.
-
-이 항목은 Feature Spec / API Contract 작성 시 해결해야 하는 Open Decision이다.
-
----
-
-# 41. ParentReport Generation Flow
-
-확정 Flow:
-
-```text
-Monthly Aggregation
-→ AI Draft
-→ Admin Review
-→ Artifact Consent Check
-→ Validation
-→ Preview
-→ PDF / Image Generate
-→ Kakao Delivery
-→ Operations Update
-```
-
-Send 후 확인된 변화:
-
-```text
-status = sent
-sentAt 기록
-Artifact.parentShareStatus = shared
-Operations 미발송 Count 감소
-```
-
-Read Status는 신뢰 가능한 외부 정보가 있을 때만 반영한다.
-
----
-
-# 42. ParentReport AI Boundary
-
-AI 후보:
-
-```text
-Monthly Summary
-Strength
-Attention
-Meaningful Change
-Next Plan Candidate
-```
-
-AI는 Draft까지만 만든다.
-
-```text
-AI Draft
-→ Admin Review
-→ 공개
-```
-
-AI Raw와 내부 Feedback 원문은 Parent에게 공개하지 않는다.
-
----
-
-# 43. ParentReport Validation
-
-발송 전 검사:
-
-### 감소 지표
-
-학습 / 성적 지표가 하락했는데 대응 Plan이 없으면:
-
-```text
-Send Disabled
-```
-
-### School Record
-
-```text
-candidate를 confirmed처럼 표현
-→ 발송 불가
-```
-
-### Artifact
-
-```text
-Student 공유 동의 없음
-→ 첨부 불가
-```
-
----
-
-# 44. Parent 전용 Surface
-
-현재 Domain 범위에는 별도 Parent App / Web이 없다.
-
-Parent는 현재:
-
-```text
-Admin이 생성한 PDF / Image Report를 전달받는 수신자
-```
-
-로 취급한다.
-
-Parent Account / Parent Login / Parent Navigation Entity를 임의로 추가하지 않는다.
-
----
-
-# 45. Cross-Surface Flow — Task
-
-확정 Flow:
-
-```text
-Student Upload
-→ Version
-→ AI Analysis
-→ Shared Feedback Queue
-→ Admin Review
-→ Student Feedback
-→ Revision
-→ Re-review
-→ Final
-→ Archive
-```
-
-관련 Surface:
-
-```text
-Student
-Admin
-```
-
-주요 Domain:
-
-```text
-Task
-Version
-Feedback
-Evidence
-TaskFinalArtifact
-```
-
----
-
-# 46. Cross-Surface Flow — Mentor Case
-
-```text
-Admin Recommend
-→ Task Related Case
-→ Student Mentor Hub Recommendation
-```
-
-관련 Domain:
-
-```text
-Task
-MentorContent(Case)
-Student recommendation projection
-```
-
----
-
-# 47. Cross-Surface Flow — Mentor Plan
-
-```text
-Student Apply Mentor Plan
-→ Existing Student WeeklyPlan
-→ source = mentorPlanId
-→ Snapshot 유지
-→ Student360 Mentor에 반영
-```
-
-이 Flow는 기존 LearnersHigh Plan과의 Integration을 포함한다.
-
----
-
-# 48. Cross-Surface Flow — Q&A
-
-```text
-Student Question
-→ Mentor Inbox
-→ Mentor Answer
-→ Student Q&A
-```
-
-관련 Surface:
-
-```text
-Student
-Mentor
-```
-
----
-
-# 49. Cross-Surface Flow — Activity
-
-기본:
-
-```text
-Create
-→ Submitted
-→ Reflection
-→ Archive
-```
-
-Feedback 요청:
-
-```text
-Submitted
-→ Activity Feedback Queue
-→ Admin Feedback
-→ Student 보완
-→ Archive
-```
-
----
-
-# 50. Cross-Surface Flow — Connection / Interview
-
-```text
-Archive Activity
-→ AI Connection Candidate
-→ Admin Confirm
-→ Interview Question Draft
-→ Publish
-→ Student Interview Bridge
-```
-
-관련 Surface:
-
-```text
-Admin
-Student
-```
-
----
-
-# 51. Cross-Surface Flow — Parent Report
-
-```text
-Study
-+ Plan
-+ TestResult
-+ Task Result
-+ SchoolRecord
-+ Activity
-+ Mentor
-+ Artifact Consent
-→ ParentReport Draft
-→ Validation
-→ PDF / Image
-→ Kakao Delivery
-```
-
-ParentReport는 여러 Domain의 데이터를 소비하지만
-원본 Domain Entity를 수정하는 주체가 되지 않는다.
-
----
-
-# 52. Derived State 원칙
-
-다음 값은 별도 수동 Counter로 저장하지 않는 것을 기본으로 한다.
-
-예:
-
-```text
-Feedback Pending
-마감 임박
-수정 미반영
-이번 주 완료
-오늘 관리 필요
-Parent Report 미발송
-48h 초과 Queue
-```
-
-가능하면 실제 Entity에서 계산한다.
-
-예:
-
-```text
-Feedback Pending Count
-= Feedback / ActivityFeedback 현재 상태 기반
-
-Parent Report 미발송
-= 해당 기간 ParentReport 중 Sent가 아닌 대상 기반
-```
-
-정확한 계산식은 관련 Feature에서 정의한다.
-
----
-
-# 53. Today Board Domain View
-
-Today Board는 별도의 새로운 Student Source가 아니다.
-
-다음 데이터를 조합한 Read Model 성격이다.
-
-```text
-Student
-Existing Study
-Existing Plan
-Task
-TestResult
-Derived Management Point
-```
-
-Row 정보:
-
-```text
-Student
-Grade
-오늘 순공
-최근 7일 Plan
-Task 상태
-최근 시험 / 학습 변화
-관리 포인트
-Quick Action
-```
-
-Plan 집계 기간:
-
-```text
-최근 7일
-```
-
----
-
-# 54. Student 360 Domain View
-
-Student 360은 하나의 별도 Aggregate가 아니라
-Student 중심 통합 Read Model로 본다.
-
-Tab:
-
-```text
-Overview
-Study
-School
-Activities
-Mentor
-Reports
-```
-
-소스:
-
-```text
-Existing LearnersHigh Study / Plan
-Task
-Evidence
-SchoolRecordSnapshot
-Activity
-Mentor Content / Application
-ParentReport
-```
-
----
-
-# 55. Operations Domain View
-
-Operations Dashboard KPI는 Shared Entity에서 계산한다.
-
-예:
-
-```text
-등록 학생
-오늘 학습 기록 발생
-진행 중 Task
-Task Feedback Pending
-Activity Feedback Pending
-Deadline Risk
-Parent Report 미발송
-Queue 평균 첫 검토시간
-48h 초과 Queue
-```
-
-별도 Mock Counter를 Canonical Source로 두지 않는다.
-
----
-
-# 56. Seed / Fixture — Student
-
-Student Surface에는 로그인한 한 학생 데이터만 보인다.
-
-한 Route에서 다른 학생의:
-
-```text
-Task
-Activity
-Evidence
-Archive
-```
-
-를 섞지 않는다.
-
-여러 학생 비교는 Admin에서만 한다.
-
----
-
-# 57. Seed / Fixture — Mentor
-
-같은 Mentor는 모든 화면에서 동일 정보를 사용한다.
-
-```text
-이름
-대학
-학과
-전형
-고교 Context
-대표 경험
-```
-
-Mentor Profile / Recommendation / Case가 동일 Mentor Entity를 참조한다.
-
 ---
-
-# 58. Seed / Fixture — 시간
-
-화면 Snapshot 시점이 다르면:
 
-```text
-snapshotDate
-```
+# 5. Existing LearnersHigh와 Extension 구분
 
-를 구분한다.
+기존 LearnersHigh가 Source System일 수 있는 정보:
 
-예:
-
 ```text
-10/03 V2 검토 대기
-10/31 최종 결과 완료
+Student / Organization / Branch / Staff / Auth
+기존 Performance Task 기본정보
+Existing Library / Plan / Study Time / Learning History
+기존 관리자 학생·지점 관리
 ```
-
-서로 다른 시점의 상태를 같은 순간의 데이터처럼 혼합하지 않는다.
 
----
-
-# 59. 집계 기간
+신규 Assessment가 업무적으로 책임지는 확장 정보:
 
-확정된 기간 차이:
-
 ```text
-Today Board Plan
-= 최근 7일
-
-Parent Report Plan
-= 해당 월 전체
+학생의 Assessment별 개인 메모 / 공식 기준의 확인·수정 내역
+과정 노트·수정 이력, 결과물 파일별 버전
+선택형 Feedback Request Snapshot / Reply
+관리자 콘텐츠 카탈로그 및 Reference Scrap
+심화 Task와 성장·성찰 기록
 ```
 
-기간이 다른 수치를 같은 값처럼 사용하지 않는다.
+실제 기존 Performance Task와의 매핑, `existingTaskId` 유무, Write Owner, DB Schema는 **기존 API/DB 확인 전 미확정**이다. 기존 데이터의 존재를 추정하여 신규 Task를 무조건 생성하거나 자동 연결하지 않는다.
 
 ---
-
-# 60. Canonical Seed 원칙
 
-좋은 Seed:
+# 6. Canonical Identity와 View Model
 
 ```text
 Student S001
-├─ Task T001
-│  ├─ Version V1
-│  ├─ Version V2
-│  ├─ Feedback
-│  └─ Evidence
-│
-├─ Activity A001
-│  ├─ Evidence
-│  └─ Reflection
-│
-├─ TestResult
-├─ SchoolRecordSnapshot
-└─ ParentReport
+├─ SchoolAssessment A001
+│  ├─ AssessmentNote N001
+│  │  └─ NoteRevision NR001 / NR002
+│  ├─ Artifact R001 (보고서)
+│  │  └─ ArtifactVersion v1 / v2 / v3
+│  ├─ Artifact R002 (발표자료)
+│  │  └─ ArtifactVersion v1 / v2
+│  └─ FeedbackRequest F001
+│     ├─ Note Snapshot
+│     ├─ 선택된 ArtifactVersion Snapshot
+│     └─ FeedbackReply
+└─ EnrichmentTask E001
+   └─ AssessmentNote / Resource / Artifact / GrowthRecord
 ```
 
-같은 Student / Task / Mentor ID를 여러 Surface에서 재사용한다.
+위 ID는 **설명용 샘플**이다. Surface 별로 `StudentAssessmentTask`와 `AdminAssessmentTask`처럼 같은 실체를 분리된 Domain Entity로 만들지 않는다.
+
+```text
+SchoolAssessment / FeedbackRequest
+├─ Student View Model
+└─ Admin Read Model
+```
+
+Admin의 집계·Dashboard는 가능한 한 실제 Source Entity의 State에서 계산한다.
 
 ---
 
-# 61. Privacy — Student → Mentor
+# 7. UI State와 Domain State 구분
 
-Mentor에게 전달 금지:
+UI State:
 
 ```text
-실명
-학교
-기관
-상세 학습관리 데이터
-불필요한 PII
+selectedTab / currentPanel / isModalOpen / searchKeyword
+selectedArtifactVersionPair / previewPage / scrollPosition
+loading / uploadProgress / toastVisible
 ```
 
-익명 Context만 전달한다.
+Domain State:
+
+```text
+SchoolAssessment 진행 상태
+FeedbackRequest 답변 상태
+ArtifactVersion 보관 이력
+SchoolEvaluationPlan 분석·검토 상태
+EnrichmentContent 공개 상태
+```
+
+단순 탭 이동이나 모달 열기 때문에 DB Status를 새로 만들지 않는다.
 
 ---
 
-# 62. Privacy — Record / Case
+# 8. School / Academic Context (ST-01)
 
-Flow:
-
-```text
-PII Detection
-→ Admin Review
-→ Published
-```
-
-검수되지 않은 Record / Case는 공개하지 않는다.
-
----
-
-# 63. Privacy — Parent
-
-Parent Report에는:
-
-```text
-검토된 정보
-승인된 Snapshot
-Student 동의 Artifact
-```
-
-만 포함한다.
-
-금지:
-
-```text
-Raw AI Analysis
-Internal Feedback 원문
-미확정 School Record를 확정 정보처럼 표시
-Student 미동의 Artifact
-```
-
----
-
-# 64. AI Domain Guardrail
-
-AI의 역할:
-
-```text
-Analysis
-Suggestion
-Draft
-Candidate
-```
-
-AI는 Source of Truth가 아니다.
-
-최종 판단 / 공개는 필요한 Human Actor가 수행한다.
-
-예:
-
-```text
-AI Analysis
-→ Admin Review
-```
-
-```text
-AI Report Draft
-→ Admin Review
-```
-
----
-
-# 65. Domain Command 개념
-
-실제 Class / Method 명칭은 아직 확정하지 않지만
-Use Case는 다음과 같은 Command 성격으로 볼 수 있다.
-
-```text
-SubmitTaskTopic
-AddTaskEvidence
-SubmitTaskVersion
-RetryAiAnalysis
-ReviewFeedback
-SubmitActivity
-RequestActivityFeedback
-SubmitReflection
-ArchiveActivity
-RecommendMentorCase
-ApplyMentorPlan
-SubmitMentorQuestion
-AnswerMentorQuestion
-ConfirmConnection
-PublishInterviewQuestion
-GenerateParentReport
-SendParentReport
-ChangeArtifactConsent
-```
-
-이 목록은 API Endpoint 목록이 아니다.
-
-실제 Naming은 Service / API Contract 작성 시 확정한다.
-
----
-
-# 66. Domain Event 개념
-
-Cross-Surface 동기화를 위해 다음과 같은 사건이 존재할 수 있다.
-
-예:
-
-```text
-TaskVersionSubmitted
-AiAnalysisSucceeded
-AiAnalysisFailed
-FeedbackDelivered
-TaskFinalized
-ActivitySubmitted
-ActivityFeedbackDelivered
-ActivityArchived
-MentorCaseRecommended
-MentorPlanApplied
-MentorQuestionAnswered
-ConnectionConfirmed
-InterviewQuestionPublished
-ParentReportGenerated
-ParentReportSent
-ArtifactConsentChanged
-```
-
-현재 문서는 Event Bus 도입을 요구하지 않는다.
-
-이 목록은:
-
-```text
-"어떤 변화가 다른 Surface에 영향을 주는가"
-```
-
-를 표현하기 위한 Domain Event 개념이다.
-
-실제 구현은 동기 Service 호출 / Transaction / Event 방식 중
-Architecture에 맞게 결정한다.
-
----
-
-# 67. Transaction Boundary 원칙
-
-한 Use Case에서 반드시 함께 성공해야 하는 변경은
-Service에서 Transaction Boundary를 검토한다.
-
-예:
-
-```text
-Feedback 전달
-→ Feedback 상태 변경
-→ Student-visible 상태 갱신
-```
-
-또는:
-
-```text
-Parent Report Send
-→ Report sent
-→ sentAt
-→ Artifact shared
-→ Operations derived state 변화
-```
-
-Derived KPI는 별도 수동 업데이트보다 재계산을 우선 검토한다.
-
----
-
-# 68. DB 설계와 Domain 문서의 관계
-
-이 문서는 DB Schema 문서가 아니다.
-
-따라서:
-
-```text
-Entity
-≠ 반드시 Table 1개
-
-Value / State
-≠ 반드시 Column 1개
-```
-
-DB 설계 시 Domain 의미를 보존하되
-정규화 / Snapshot / Projection 구현 방식은 별도로 결정한다.
-
----
-
-# 69. API Contract와 Domain 문서의 관계
-
-Domain Entity를 그대로 API Response로 노출하지 않는다.
-
-예:
-
-```text
-Task Domain
-→ StudentTaskDetailResponse
-
-Task Domain
-→ AdminFeedbackQueueItemResponse
-```
-
-Surface에 필요한 DTO는 달라도
-같은 Domain State를 사용해야 한다.
-
----
-
-# 70. Integration Boundary
-
-기존 LearnersHigh와 연결되는 주요 데이터:
+학생 학교·학년·학기·수강과목이 평가계획서와 수행평가를 선택하는 Context다.
 
 ```text
 Student
-Organization / Branch
-Plan
-Library
-Study Time
-Learning History
-Existing Report
-Existing Performance Task
+└─ SchoolContext (학교 / 학년도 / 학년 / 학기 / Subject[])
+   └─ SchoolEvaluationPlan 참조 가능
 ```
 
-이 데이터는:
-
-```text
-docs/architecture/integration-boundary.md
-```
-
-를 따른다.
-
-Extension Domain에서 기존 DB 구조를 직접 추측하지 않는다.
+초기 과목 예시는 공통국어2, 통합과학2, 통합사회2, 과학탐구실험2지만 과목명·개수는 고정 Enum으로 가정하지 않는다. `SchoolContext`가 기존 LearnersHigh 또는 신규 Extension 중 어디에 저장되는지 통합 경계를 확인한다.
 
 ---
 
-# 71. 기존 Performance Task 연결
+# 9. School Evaluation Plan (ST-02, AD-03~05)
 
-현재 Architecture에서는:
-
-```text
-기존 Performance Task 기본정보
-+
-Extension Task Process
-```
-
-형태를 우선한다.
-
-따라서 Task에:
+공식 학교 평가계획서의 관리 단위:
 
 ```text
-existingTaskId
+학교
+└─ 학년도
+   └─ 학년
+      └─ 학기
+         └─ PDF Document Revision[]
+             └─ SubjectEvaluation[]
 ```
 
-같은 Mapping이 필요할 가능성이 있지만
-정확한 필드와 PK 타입은 기존 시스템 확인 전 확정하지 않는다.
+학교·학년도·학년·학기별 슬롯을 지원하며, 슬롯마다 **복수 원본 / 개정본**이 올 수 있다. 학교에서 한 PDF에 여러 과목을 넣는 경우와 과목별 PDF로 나누는 경우를 모두 고려한다.
+
+파일 원본과 AI 추출 결과는 서로 다른 데이터다. AI 값은 원문 페이지와 연결하고 사람이 비교·수정할 수 있어야 한다. 학생 개인 수정정보가 학교 전체 공식 평가정보를 자동 덮어쓰지 않는다.
+
+### 9-1. 지필·수행평가 데이터
+
+| 영역 | 필요한 정보 |
+|---|---|
+| 교수·학습 계획 | 단원, 성취기준, 교수·학습 방법, 평가 방법 |
+| 총괄 | 지필·수행 반영비율, 학기·학년·과목 |
+| 지필평가 | 차수(1·2차), 선택형/논술형, 배점·반영비율 |
+| 수행평가 | 영역/과제명, 유형·시기, 만점·반영비율 |
+| 세부 채점기준 | 평가요소, 수준별 기준, 배점 |
+| 성취수준 | 성취기준, 성취도 체계, 기준 성취율 |
+| 근거 | 원본 PDF 페이지 + 문서 인쇄 쪽 번호(가능한 경우) |
+
+숫자 합산의 검증이 가능하더라도 실제 학교 문서와 다른 비율을 자동 수정하지 않는다. 자료를 찾지 못했을 때는 `미확인`과 `0`을 구분한다.
+
+### 9-2. PDF 분석 상태
+
+```text
+분석 중 → 완료 / 확인 필요 / 실패
+```
+
+위는 사용자 표시 상태이며 실제 Enum/재처리 전략은 API 계약에서 확정한다. 실패를 빈 평가정보로 표시하지 않는다.
 
 ---
 
-# 72. Existing Plan 연결
+# 10. SchoolAssessment (ST-03~06)
 
-Mentor Plan Apply는
-Extension 내부의 별도 WeeklyPlan을 만드는 기능이 아니다.
+`SchoolAssessment`는 **학교에서 실제로 부여한 수행평가**를 학생이 관리하는 단위다.
+
+주요 의미:
 
 ```text
-Mentor Plan
-→ Integration Boundary
-→ Existing LearnersHigh Plan
+student / subject / title / school context
+과제 공지 / 평가기준 참조 / 시기·마감
+학생이 확인한 개인 정보 / 상태
+Note[] / Artifact[] / ResourceReference[] / FeedbackRequest[]
 ```
 
-을 따른다.
+등록 방법은 학교 평가계획서 활용(PDF 원본 확인 후 학생 검토·수정) 또는 직접 입력이다. AI 추천 제목은 실제 학교 과제 정보가 아니므로 자동 확정하지 않는다.
+
+### 10-1. 진행 상태
+
+| 표시 상태 | 의미 |
+|---|---|
+| 시작 전 | 학생이 아직 시작하지 않은 학교 평가 |
+| 진행 중 | 준비 또는 작성 중 |
+| 완료 | 학생이 완료로 기록한 학교 평가 |
+
+```text
+시작 전 → 진행 중 → 완료
+```
+
+화살표는 일반적인 동작 설명이고 역전이·삭제·복원 정책, 정확한 Enum은 Feature Spec과 Contract에서 정의한다. **기존 8단계, 단계별 필수 Evidence/AI 분석/관리자 승인 조건을 적용하지 않는다.**
+
+평가기준 AI 설명·수행평가 꿀팁·교과 기반 주제 추천은 `SchoolAssessment`의 공식 사실을 바꾸는 명령이 아니라 **보조 분석/제안**이다.
 
 ---
 
-# 73. 기존 Study Data 연결
+# 11. EnrichmentTask (ST-07, ST-16~18, AD-06, AD-09~10)
 
-Today Board / Student 360 / Parent Progress가 사용하는:
+자율 심화 탐구는 학교 수행평가와 별개다.
 
 ```text
-Study Time
-Plan Execution
+EnrichmentTask
+├─ source: 관리자 공통 콘텐츠(catalogTaskId) | 학생 직접 생성
+├─ sourceReference?: 모의고사 탐구 카드 / 학생 개인 모의고사 자료 / 대학 공개 자료 (선택적)
+├─ subject / theme / inquiryMethod / optionalDeadline
+├─ AssessmentNote / Artifact / Resource
+└─ relatedSchoolAssessment? (선택적)
 ```
 
-은 기존 LearnersHigh 데이터 연결을 우선한다.
+자율 Task는 학교 성적으로 자동 변환되지 않는다. 대학·진로와 억지로 연결하지 않고 교과 개념, 관심 주제, 모의고사 지문, 실제 자료에서 출발할 수 있다. **특정 모의고사 소재·대학 공개 자료에서 시작한 경우 그 출처 식별자와 유형을 Task에 추적 가능하게 연결**해야 한다. 현행 API §18 초안은 두 참조를 구분한다.
 
-새로운 Timer / Study Session Domain을 Suyeon 영역에서 만들지 않는다.
+- `catalogTaskId`: 관리자 **공통 심화 Task**에서 시작한 경우의 참조
+- `sourceReference { type, sourceId }`: 모의고사 탐구 카드·학생 개인 모의고사 자료·대학 공개 자료 등 **출발 자료**의 참조. `type` 후보는 API §18의 `MOCK_EXAM_MATERIAL` / `PERSONAL_MOCK_EXAM_MATERIAL` / `UNIVERSITY_RESOURCE`를 따르며 이 문서에서 새 값을 추가하지 않는다.
+- 학생 직접 생성 Task는 출처 없이(`sourceReference = null`) 만들 수 있다.
+
+서버는 출처 자료의 존재·공개 범위·학생 소유권을 검증한다. 출처 원본이 이후 수정·비공개·보관되어도 학생 `EnrichmentTask`와 그 노트·파일·피드백은 자동 변경되지 않으며, 원문 파일을 Task에 자동 복제하지 않는다. `catalogTaskId`와의 동시 사용 규칙, 출처 ID의 장기 보존 방식, 최종 DTO/DB Enum은 API-OD-A12에서 확정한다.
+
+기본 진행 상태: **시작 전 / 진행 중 / 완료**. 과제 등록·수정·공개 권한과 학생 개인 작성 권한은 분리한다.
+
+### 11-1. 모의고사 탐구 소재
+
+원문 출처(시험·연도·과목·지문 위치)와 자체 작성 탐구 카드(교과 개념·탐구 주제·방법·확장 질문)를 구분한다. 공개 여부와 저작권을 검토하고 지문 전문을 무단 복제하지 않는다.
+
+### 11-2. 대학 공개 자료
+
+대학·공식 게시처·문서 제목·학년도·원본 URL·분류·확인일 등을 기록할 수 있다. 예: 서울대·연세대·고려대·KAIST의 공개 PDF. 자료는 **탐구의 출처·소재**이지 별도의 면접 질문 생성·답변 채점 기능이 아니다.
 
 ---
 
-# 74. Open Decisions
+# 12. AssessmentNote (ST-08~09, AD-11)
 
-다음 항목은 현재 Feature Spec만으로 최종 확정할 수 없다.
+`AssessmentNote`는 학생이 작성하는 **탐구·수행평가 과정 기록**이다. 학교에 제출하는 원본 보고서·PPT와는 별개로 보존한다.
 
-구현 전에 해결하거나 API/Feature 문서에서 명확히 해야 한다.
-
-### OD-01 ParentReport Status
+지원 개념:
 
 ```text
-Draft / Reviewing / Ready / Sent
+Note
+├─ Body Blocks (제목 / 문단 / 표 / 목록 / 체크리스트 등)
+├─ Images / PDF / Resource Link Cards
+├─ Auto-save / 수정 이력
+└─ NoteRevision[]
 ```
 
-과
+학생의 문서 구조와 이모지 소제목은 **본문 내용**이므로 수정·삭제할 수 있다. 관리자 열람은 원본을 보존하는 읽기 전용이며, 관리자의 의견은 Feedback으로 저장한다.
+
+### 12-1. 템플릿 10종
+
+1. 자유 탐구·수행평가 통합 노트
+2. 실험 보고서
+3. 주제 탐구 보고서
+4. 발표·PPT 준비
+5. 독서·문학 비평
+6. 토론·논증
+7. 통계·데이터 분석
+8. 사회문제 해결 제안서
+9. 프로젝트·제작 활동
+10. 모둠·협업 활동
+
+템플릿은 Note의 **초기 본문**을 제공한다. 이미 내용이 있는 노트에 적용할 때는 기존 내용을 무단 덮어쓰지 않는다. 상세 이모지 제목·블록 구조는 기능 명세에서 정의한다.
+
+### 12-2. 노트 수정 이력
 
 ```text
-status = generated
+Note N001
+├─ Revision r1 (보존)
+├─ Revision r2 (보존)
+└─ Current Revision r3
 ```
 
-관계.
-
-### OD-02 Q&A reassign
-
-```text
-reassign
-```
-
-이 Durable State인지 Command인지.
-
-### OD-03 Topic Approval Status
-
-정확한 Enum 값.
-
-### OD-04 Connection Status
-
-Candidate / Confirm / Reject의 정확한 상태 모델.
-
-### OD-05 Mentor Record / Case Review State
-
-PII Detection → Admin Review → Published를
-한 Status로 관리할지 복수 상태로 관리할지.
-
-### OD-06 Archive Persistence
-
-별도 Archive Entity/Table인지
-Archived Task/Activity Projection인지.
-
-### OD-07 Existing Task Mapping
-
-기존 Performance Task와 Extension Task의 정확한 PK / Write Owner.
-
-### OD-08 Mentor Plan Source Metadata
-
-기존 Plan에 `source=mentorPlanId`를 어떤 방식으로 보존할지.
-
-### OD-09 File Storage
-
-Evidence / TaskFinalArtifact의 실제 Storage Provider와 `fileRef` Contract.
-
-### OD-10 Authentication
-
-Mentor 인증 방식 및 기존 Student/Admin 인증 재사용 방식.
-
-Open Decision은 추측으로 닫지 않는다.
+사용자가 계속 편집하더라도 피드백 요청 당시 `r2`가 존재했다면 해당 요청의 `r2` Snapshot은 고정한다. 자동저장 간격·충돌 해결 전략·수정 이력 보존 단위는 Open Decision이다.
 
 ---
 
-# 75. Domain Invariants 요약
+# 13. ResourceReference / Scrap (ST-10~11, AD-07~08)
 
-반드시 유지해야 하는 규칙:
+참고자료의 메타데이터와 실제 원문을 구분한다.
 
 ```text
-1. 같은 Student / Task / Mentor는 Surface마다 같은 Identity를 사용한다.
+ResourceReference
+├─ 원본 URL / 제목 / 게시처·채널 / 작성자·발행일(확인 가능 시)
+├─ 유형: 뉴스·영상·논문·통계·공공데이터·공식자료
+└─ 활용 관계: Note Block / Assessment / EnrichmentTask
 
-2. Task Stage와 운영 Risk Status를 혼합하지 않는다.
+Scrap
+└─ Student 또는 Admin의 개인 메모·보관 Context
+```
 
-3. Version은 과거 제출물을 덮어쓰지 않는다.
+추천 자료원 예시: 뉴닉, 크랩(KLAB), ScienceON, RISS, DBpia, KCI, KOSIS, 공공데이터포털, EBS, 국립국어원, 국사편찬위원회 등. **자료원 브랜드와 실제 기사/논문 목록은 별개의 데이터**다. 존재하지 않는 자료 제목·발행일을 생성하지 않는다.
 
-4. Evidence 1개 이상은 Task 자료 조사 Stage 완료 조건으로 사용할 수 있다.
+`노트에 추가`는 출처 정보가 있는 편집 가능한 링크 카드/블록을 만드는 기능이지 원본 저작물 전문을 복제하는 기능이 아니다.
 
-5. Feedback은 Shared Queue이며 특정 Staff/과목 자동 Routing을 하지 않는다.
+---
 
-6. Student Reflection은 Student가 작성한다.
+# 14. Artifact / ArtifactVersion (ST-12~13, AD-12~13)
 
-7. 모든 Activity에 Feedback을 강제하지 않는다.
+`Artifact`는 보고서·발표자료·조사 데이터 등 **실제 결과물 종류**를 나타내고, `ArtifactVersion`은 해당 결과물의 업로드 이력이다.
 
-8. candidate SchoolRecord를 confirmed처럼 표현하지 않는다.
+```text
+SchoolAssessment A001
+├─ Artifact R001 (실험 보고서)
+│  ├─ Version v1 (DOCX)
+│  ├─ Version v2 (DOCX)
+│  └─ Version v3 (PDF)
+└─ Artifact R002 (발표자료)
+   ├─ Version v1 (PPTX)
+   └─ Version v2 (PPTX)
+```
 
-9. Mentor에게 Student PII / 상세 관리정보를 노출하지 않는다.
+불변조건:
 
-10. Record / Case는 개인정보 검수 후 공개한다.
+- 새로운 Version이 이전 파일·메모·작성 시각을 덮어쓰지 않는다.
+- 보고서와 발표자료를 하나의 연속 버전으로 합치지 않는다.
+- 다운로드 원본·미리보기 가능한 변환 결과·파일 메타데이터를 구분한다.
+- 피드백이 연결된 Version을 새 Version으로 자동 교체하지 않는다.
+- 학생·관리자는 허용된 파일만 열람한다. 화면 미리보기 미지원은 데이터 부재나 권한 없음과 구별한다.
 
-11. Mentor Plan 적용 후 원본 수정이 기존 Student Snapshot을 자동 변경하지 않는다.
+기본 고려 형식: PDF, DOC/DOCX, HWP/HWPX, PPT/PPTX. 확장 후보: 이미지, XLSX, Google Docs 링크.
 
-12. Parent Artifact는 Student 동의 없이 공유하지 않는다.
+### 14-1. File Upload Status
 
-13. Parent Report는 Raw AI / 내부 Feedback을 그대로 공개하지 않는다.
+```text
+업로드 중 → 업로드 완료 / 실패
+```
 
-14. Dashboard KPI를 별도 Mock Counter로 Source of Truth화하지 않는다.
+이는 저장 작업 상태다. 영구적인 Artifact 업무 상태와 분리한다. 실제 File Storage Provider·제한 크기·변환 기능은 별도 계약이다.
 
-15. 서로 다른 집계 기간의 수치를 같은 값처럼 사용하지 않는다.
+### 14-2. Version Compare
 
-16. 상담 기능을 Suyeon Domain에 구현하지 않는다.
+**설계 목표는 학생과 관리자가 동일한 Artifact의 두 Version을 선택하여 비교하는 것**이다. 텍스트·페이지 차이 비교는 실제 변환기/뷰어가 지원하는 경우에만 제공한다. 지원하지 않는 형식에는 **두 개별 원본 열람과 파일 정보·메모 비교**를 제공하며 가짜 내용 비교를 표시하지 않는다.
 
-17. 기존 LearnersHigh Timer / Plan / Library를 중복 구현하지 않는다.
+현행 API 초안은 학생 비교(§25-1, ST-13)와 관리자 비교(§37, AD-13)를 각각 정의하며 같은 버전 무결성 원칙을 사용한다.
+
+- 학생은 **본인 소유 Artifact**만, 관리자는 권한 범위 내 학생의 Artifact만 비교한다.
+- **동일 Artifact에 속한 업로드 완료 Version 두 개**만 선택할 수 있다. 다른 Artifact의 Version, 미완성 업로드는 비교하지 않는다.
+- 비교는 읽기 동작이며 과거 `ArtifactVersion`과 이를 참조하는 `FeedbackSnapshot`을 변경하지 않는다.
+- 파일 내용 Diff의 실제 지원 형식과 응답 스키마 고정은 변환 Provider 검증 후 API-OD-A12에서 확정한다.
+
+계약 초안이 있다는 사실은 Viewer·Backend 구현 완료를 뜻하지 않는다.
+
+---
+
+# 15. FeedbackRequest / FeedbackSnapshot (ST-14, AD-14)
+
+학생은 질문 작성 없이 `선생님께 피드백 요청`을 누를 수 있다.
+
+```text
+Student Request
+→ Note Revision Snapshot
++ 선택한 ArtifactVersion[]
++ 관련 Reference / Assessment Context
+→ Immutable FeedbackSnapshot
+→ Admin Request Inbox
+```
+
+스냅샷의 목적은 **요청 당시 무엇을 검토하도록 보냈는가**를 보존하는 것이다. 요청 후 학생이 Note를 편집하거나 v3를 올려도 요청 당시 Note 및 v2 파일이 달라지지 않는다.
+
+- 모든 첨부 버전을 자동으로 최신본으로 교체하지 않는다.
+- 파일은 선택된 Version별 권한 확인·미리보기/다운로드를 따른다.
+- 원본 노트와 Snapshot 저장 방식(복사, Revision Reference, 파일 해시 등)은 기술 설계에서 확정한다.
+- 요청은 학교 수행평가뿐 아니라 명세된 심화 Task에도 연결될 수 있다.
+
+---
+
+# 16. FeedbackReply / FeedbackComment (ST-15, AD-15~16)
+
+관리자는 피드백 요청의 고정 Snapshot과 권한 내 학생 기록을 열람하고 자유 의견을 작성한다.
+
+```text
+FeedbackRequest
+└─ FeedbackReply (작성 관리자 / 작성 시각)
+   ├─ Document 전체 의견
+   ├─ Location-specific Comment[]
+   │  ├─ Note block / section
+   │  ├─ PDF page
+   │  ├─ PPT slide
+   │  └─ 지원 가능한 문서 section
+   └─ Recommendation[] (자료·후속 심화 Task)
+```
+
+Location Comment는 대상 Document ID와 **대상 Version**에 고정되어야 한다. 지원하지 않는 문서 형식은 전체 의견을 제공한다. Admin은 학생 Note/Artifact 원본을 직접 수정하지 않는다.
+
+### 16-1. Feedback Status
+
+| 구분 | 표시 상태 | API 초안의 표현·의미 | 전이 및 학생 노출 |
+|---|---|---|---|
+| `FeedbackRequest` | 답변 대기 | `PENDING`: 요청 접수·Snapshot 고정 | 요청 생성 시. 관리자의 답변 임시저장만으로 완료되지 않음 |
+| `FeedbackRequest` | 답변 완료 | `DELIVERED`: 관리자 답변이 학생에게 전달됨 | 전달 성공 시 `PENDING → DELIVERED` |
+| `FeedbackReply` | 작성 중/임시 저장 | `DRAFT_SAVED`: 관리자 답변 초안 보존 | 관리자 내부에서만 조회·편집 가능, 학생에게 미노출 |
+| `FeedbackReply` | 전달 완료 | `DELIVERED`: 답변 최종 전달 | 전송 성공 시에만 학생에게 공개·요청 상태 갱신 |
+| 취소 정책 후보 | 요청 취소 | 상태명·허용 조건 미확정 | 임의 Enum·삭제 API를 만들지 않음 |
+
+위 영문 표기는 현행 `api-contract.md` §31·32·45에서 **제안한 응답·초안 상태**를 설명하며, 실제 Java/DB Enum을 여기서 확정하지 않는다. 답변 초안 저장 실패·전달 실패 시 `FeedbackRequest`는 답변 대기를 유지하고, 요청 Snapshot과 학생 원본은 변경되지 않는다. 학생의 `읽음` 여부는 요청·Reply의 업무 상태와 별개다. 승인/반려/필수 재제출/학생 질문 필수 입력 상태를 추가하지 않는다. 취소·중복 요청·전달 후 답변 수정 가능 여부는 미결정이다.
+
+```text
+SchoolAssessment = 완료
+FeedbackRequest = 답변 대기
+```
+
+는 동시에 유효하다. 관리자 답변만으로 과제를 자동 완료시키지 않는다.
+
+---
+
+# 17. Admin Read Boundary (AD-01~02, AD-11~17)
+
+관리자 화면은 기존 LearnersHigh Admin Shell 내부의 `Assessment 관리`에 추가한다.
+
+```text
+Authorized Admin
+→ Organization / Student Access Check
+→ Student Assessment List / Detail
+   ├─ SchoolAssessment / EnrichmentTask
+   ├─ AssessmentNote (read-only)
+   ├─ ArtifactVersion / Preview
+   ├─ Resource / GrowthRecord
+   └─ FeedbackRequest / Reply
+```
+
+**피드백 요청 여부는 전체 학생 기록 조회의 선행조건이 아니다.** 그러나 권한 없는 다른 학생·지점 기록은 조회할 수 없다. 권한 검사를 Frontend 숨김만으로 대체하지 않는다.
+
+같은 학생 기록에 대한 수연 Admin Assessment의 열람과 완규 Student Care의 열람은 별도 목적/접근 정책이며, 상담 메모 등을 자동 합치지 않는다.
+
+---
+
+# 18. Admin Content Publishing (AD-06~10)
+
+관리자는 다음을 운영한다.
+
+```text
+EnrichmentTask Catalog
+Mock-exam Inquiry Card Catalog
+University Public Resource Catalog
+Admin Reference Library / Scrap
+SchoolEvaluationPlan Registry
+```
+
+콘텐츠의 `임시 저장 / 공개 / 비공개 / 보관`은 사용자 표시 상태다. 각 콘텐츠 종류의 공개·비공개 전이, 버전 정책, 담당자 권한은 별도 기능 명세가 정한다.
+
+학생이 관리자 공통 Task를 선택해 자기 탐구를 시작할 때 **학생의 기록은 관리자 원본 콘텐츠와 분리**한다. 이후 공통 원본의 편집이 이미 생성된 학생 기록을 의도치 않게 덮어쓰지 않는다. 학교 평가계획서, 심화 Task, 탐구 소재, 대학 자료, 관리자 참고자료의 **생성·수정·공개·보관 운영 권한(전체/기관/지점/담당자)**은 학생 기록 조회 권한과 별도 정책이다. 현행 OD-A08 범위에서 확정 전까지 전체 운영 권한을 임의 부여하지 않는다.
+
+---
+
+# 19. GrowthRecord / Archive (ST-19~20, AD-17)
+
+`GrowthRecord`는 학생의 실제 활동·역할·과정·문제 해결·결과·성찰을 기록한다. 활동 기록을 **공식 학교생활기록부·확정 세특으로 자동 표시하지 않는다.**
+
+```text
+Student
+├─ SchoolAssessment / EnrichmentTask
+├─ GrowthRecord (과정 / 역할 / 결과 / Reflection / Evidence Reference)
+└─ ArchiveView
+   ├─ 최근
+   ├─ 즐겨찾기
+   ├─ 완료
+   ├─ 지난 학기
+   └─ 휴지통
+```
+
+Archive는 **조회/보관 관점**이다. 별도 테이블인지 Source Record에서 생성하는 Projection인지는 확정되지 않았다. 휴지통·복원·영구 삭제는 기록·파일·피드백 무결성과 보존 정책을 함께 검토한다.
+
+### 19-1. 휴지통 적용 범위 및 계약 차이 (OD-A11)
+
+| 후보 대상 | 현재 `api-contract.md`의 관련 명령 | 문서 단계 판단 |
+|---|---|---|
+| `SchoolAssessment` | §12 `DELETE` 후보, §30 복원(유형 예시) | Soft Delete/복원 의미는 미확정. 연쇄 삭제 금지 |
+| `EnrichmentTask` / `AssessmentNote` | 등록·수정·조회 중심, 삭제/복원 없음 | 삭제·보관 API 보완 필요 |
+| `Artifact` / `ArtifactVersion` | 업로드·열람·버전 이력, 삭제/복원 없음 | 과거 버전·FeedbackSnapshot 보존 우선. 삭제 정책 미정 |
+| `ResourceReference` / 개인 모의고사 자료 | 저장·조회 중심, 삭제/복원 없음 | 자료 삭제·보관 범위 결정 필요 |
+| `GrowthRecord` | 생성·조회 중심, 삭제/복원 없음 | 삭제·복원 계약 보완 필요 |
+
+현행 §30은 **보관함 5개 탭 조회와 일부 복원 동작을 제안할 뿐**, 모든 대상의 삭제·복원 기능을 완성하지 않는다. 각 대상의 휴지통 진입 방식, 복원 권한·기간, 영구 삭제·개인정보 삭제 의무, 피드백 불변 참조 보존은 OD-A11 및 API-OD-A08에서 확정한다. 결정 전 모든 유형의 삭제/복구를 구현 가능하다고 표기하지 않는다.
+
+학생의 Reflection은 학생이 직접 작성한다. AI는 누락 확인·질문·초안 제안까지 지원할 수 있지만, 학생이 하지 않은 일을 만들어 기록하지 않는다.
+
+---
+
+# 20. AI Domain Boundary (ST-02, ST-04~07, ST-18, AD-04~05)
+
+AI의 역할은 다음으로 제한한다.
+
+```text
+Analysis / Explanation / Suggestion / Draft / Candidate
+```
+
+- 공식 평가계획서 원문·관리자 확인 정보·학생 개인 기록을 구분한다.
+- AI가 추출한 점수나 평가기준은 원본 페이지를 검토하기 전 확정 정보가 아니다.
+- AI 주제명 추천은 학생 선택 후보이며 실제 학교 수행평가나 학교 기록으로 자동 등록되지 않는다.
+- AI는 학생의 원문·성찰을 동의 없이 자동 교체하지 않는다.
+- 실패 시 Retry 가능 범위와 상태를 정의하되, AI 실패가 학생의 모든 수동 작성 기능을 막지 않게 한다.
+- 외부 제공자·호출 방식·비용·개인정보 전송 정책은 아직 확인되지 않았다.
+
+---
+
+# 21. Cross-Surface Flow — 평가계획서
+
+```text
+Admin 공식 PDF Upload
+→ SchoolEvaluationPlan Revision 생성
+→ AI Extract Candidate
+→ Admin 원본 대조·수정
+→ SubjectEvaluation 공개/활용
+→ 권한·학교 Context가 일치하는 Student에게 노출
+→ Student가 자신의 수행평가 정보로 확인·선택·보완
+```
+
+개인 정보 수정은 공유 학교 공식 원본을 조용히 변경하지 않는다.
+
+---
+
+# 22. Cross-Surface Flow — 피드백
+
+```text
+Student Note 작성 / Artifact Upload
+→ Student Request (질문 필수 없음)
+→ FeedbackSnapshot 고정
+→ Admin 목록 / Note·File Version 열람
+→ 문서 전체·위치별 Feedback 작성
+→ Reply 전달
+→ Student Feedback 확인
+→ 학생이 필요 시 자율 수정 / 새 Artifact Version 등록
+```
+
+`Request → Reply`는 학생 과제의 강제 승인·재제출 흐름이 아니다.
+
+---
+
+# 23. Cross-Surface Flow — 심화 콘텐츠
+
+```text
+Admin EnrichmentTask / Mock-exam Card / University Resource 등록
+→ 권한 및 출처 확인 / 공개
+→ Student 소재 탐색
+→ Student 개인 EnrichmentTask 시작
+→ Note / Resource / Artifact 작성
+→ 선택형 Feedback / GrowthRecord / Archive
+```
+
+Content 원본과 Student 작성 기록의 Identity를 분리한다.
+
+---
+
+# 24. Derived State / KPI
+
+예:
+
+```text
+Feedback Pending Count = 접근 가능한 미답변 FeedbackRequest 수
+Assessment Complete Count = 해당 Context의 완료 SchoolAssessment 수
+Enrichment Active Count = 해당 학생의 진행 중 EnrichmentTask 수
+Recent Upload = 실제 ArtifactVersion Upload Event 기준
+```
+
+Dashboard 표시값을 수동 Fixture Counter를 영구 Source로 삼아 유지하지 않는다. **자료가 없다는 상태와 API 오류 상태를 구분**한다.
+
+---
+
+# 25. Canonical Fixture / Seed
+
+목업 시연용 Fixture는 실제 데이터와 분리하고 다음 조건을 만족해야 한다.
+
+1. Student와 Admin이 동일 Student / Assessment / Note / ArtifactVersion ID를 참조한다.
+2. 요청 Snapshot은 요청 시점 Revision/Version에 고정된다.
+3. 학교 평가계획서 학교·학년·학기·과목이 학생 Context와 일치한다.
+4. 관리자 공통 콘텐츠와 학생 개인 Task를 구분한다.
+5. 현재 등록되지 않은 공식 PDF·논문·뉴스 항목을 실제 확인된 자료처럼 만들지 않는다.
+6. 완규 Student Care Fixture나 상담 데이터는 변경·재사용하지 않는다.
+7. 예전 Mentor/Parent/School Fixture가 신규 Assessment의 근거 데이터로 유입되지 않는다.
+
+Fixture의 위치·Mock Adapter·지속성·시나리오 제어는 `assessment-frontend-mock.md`(DRAFT)를 따른다. 공통 Fixture는 **같은 ID와 시나리오 정의**를 보장할 뿐, 별도 Origin인 Student/Admin 앱 사이의 런타임 상태를 동기화하지 않는다. 런타임 동기화는 Stage 2 Backend로 검증한다.
+
+---
+
+# 26. Privacy / Permissions
+
+| 작업 | Student | Authorized Admin |
+|---|---|---|
+| 본인 수행평가·노트·결과물 편집 | 가능 | 원본 편집 금지 |
+| 본인 피드백 요청·답변 확인 | 가능 | 요청 열람·의견 작성 |
+| 다른 학생 기록 열람 | 불가 | 담당·기관 권한에 한해 가능 |
+| 공통 PDF·심화 콘텐츠 등록 | 개인 자료/Task 생성 범위 | 운영 권한 범위 |
+| Wangyu Student Care / 상담 | Assessment 범위 아님 | 기존 Wangyu 기능·정책을 따름 |
+
+첨부 파일 원본의 저장 위치·서명 URL·다운로드 권한은 서버 측에서 확인한다. 학생 원문과 피드백 스냅샷의 보관·삭제 정책은 기존 개인정보 관리 체계와 충돌 없이 정의한다.
+
+---
+
+# 27. Domain Commands (개념)
+
+아래는 업무 유스케이스의 예시이며 **API Endpoint 또는 구현 Class 명칭이 아니다.**
+
+```text
+RegisterSchoolEvaluationPlan / ReviewExtractedEvaluation
+CreateSchoolAssessment / ChangeAssessmentStatus
+CreateEnrichmentTask / StartCatalogTask
+CreateNote / ApplyTemplate / SaveNoteRevision
+AttachResource / UploadArtifactVersion / CompareArtifactVersions
+RequestFeedback / CancelFeedbackRequest / DeliverFeedback
+PublishEnrichmentContent / ScrapReference
+WriteGrowthRecord / ArchivePersonalRecord
 ```
 
 ---
 
-# 76. Cross-Surface Propagation Matrix
+# 28. Transaction / Snapshot Boundary
 
-| 변경 | Student | Admin | Mentor | Parent Output |
-|---|---|---|---|---|
-| Task Version 제출 | Version/AI 상태 변경 | Feedback Queue 진입 가능 | - | 아직 미반영 |
-| Feedback 전달 | Student Feedback 갱신 | Queue/KPI 갱신 | - | 공개 후보에 따라 영향 가능 |
-| Activity 제출 | Activity 상태 갱신 | Feedback 요청 시 Queue 영향 | - | 월간 후보 데이터 |
-| Activity Archive | Archive 갱신 | Student360/Connection 후보 | - | Report 후보 |
-| Mentor Case 추천 | Mentor Hub 추천 갱신 | Recommendation 상태 | - | 기본적으로 직접 영향 없음 |
-| Mentor Plan 적용 | Student Plan 연결 | Student360 Mentor에 반영 | Content Apply 수에 영향 가능 | Mentor 활용 Summary 후보 |
-| Q&A 답변 | Student Q&A 갱신 | - | Inbox 상태 갱신 | - |
-| Connection Confirm | Interview 후보 기반 | Connection 상태 갱신 | - | 필요 시 Activity Summary |
-| Interview Publish | 고3 Student에게 노출 | 관리 상태 갱신 | - | - |
-| Artifact Consent 변경 | 공유 상태 표시 | Parent Report 첨부 가능 여부 | - | 첨부 여부 변경 |
-| Parent Report Send | - | Report/Operations 상태 갱신 | - | PDF/Image 전달 |
+원자성을 검토해야 할 변경:
 
-표에 없는 부수 효과를 임의로 추가하지 않는다.
+```text
+FeedbackRequest 생성
+→ 요청 메타데이터 + 선택한 파일 버전 + Note Snapshot 기준 확정
+
+FeedbackReply 전달
+→ 작성자·시각·대상 Version·학생 공개 상태 일관성 유지
+
+ArtifactVersion 추가
+→ 파일 저장 결과 + 해당 Artifact의 Version 이력 일관성 유지
+```
+
+파일 스토리지와 DB가 완전한 단일 Transaction을 보장하는지는 확인 전 가정하지 않는다. 실패·재시도·중복 제출·정리 작업 정책이 필요하다.
 
 ---
 
-# 77. Feature별 Domain 책임
-
-## Mentor Hub
-
-주요 Domain:
+# 29. DB 설계와 Domain 문서의 관계
 
 ```text
-MentorProfile
-MentorContent
-Student Context
-Q&A
-Mentor Plan Application
-Mentor Case Recommendation
+Entity ≠ 반드시 Table 1개
+Value / State ≠ 반드시 Column 1개
+Note Revision / Snapshot ≠ 반드시 Blob 복사 1개
 ```
 
-## School & Admissions
-
-주요 Domain:
-
-```text
-Task
-Version
-Feedback
-Evidence
-Activity
-ActivityFeedback
-TaskFinalArtifact
-Connection
-InterviewQuestion
-```
-
-## Admin Student Management
-
-주요 Domain / Read Model:
-
-```text
-Feedback Queue
-Today Board
-Student 360
-TestResult
-SchoolRecordSnapshot
-Operations
-```
-
-## Parent Progress
-
-주요 Domain:
-
-```text
-ParentReport
-TaskFinalArtifact Share State
-Monthly Snapshot
-Validation
-Delivery State
-```
+실제 Schema, FK, Unique Constraint, 낙관적 잠금, 이력 보존 방식은 Domain 의미를 보존하면서 설계한다. Flyway Migration은 기존 Shared Database와 충돌하지 않게 관리한다.
 
 ---
 
-# 78. 개발 순서
-
-Domain 관점의 권장 구현 순서:
+# 30. API Contract와 Domain 문서의 관계
 
 ```text
-Shared Entity / Identity
-→ Canonical Fixture / Seed
-→ State Transition
-→ API Contract
-→ Backend Domain / Application
-→ Frontend API / State
-→ Screen
-→ Cross-Surface Propagation
-→ Loading / Empty / Error
-→ Test
-→ Visual Polish
+SchoolAssessment Domain → Student Assessment DTO / Admin Assessment DTO
+FeedbackRequest Domain  → Student Request View / Admin Inbox Item
+ArtifactVersion Domain  → 권한별 File Metadata / Preview DTO
 ```
 
-화면부터 각각 독립 Mock으로 만드는 방식은 피한다.
+JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확정하지 않는다. 현재 `docs/api/api-contract.md`는 신규 Assessment 계약 **초안**을 담고 있으며, 기존 Mentor/Parent/School API는 활성 Assessment 계약으로 자동 승계하지 않는다. 학생 비교(§37), Task 출처(§18), 삭제·복원(§12·30), 상태 전이(§31·32·45)와의 차이는 수정 전까지 명시된 계약 공백으로 관리한다.
 
 ---
 
-# 79. Feature 구현 전 Domain Checklist
+# 31. Open Decisions
+
+| ID | 내용 | 확인 대상 |
+|---|---|---|
+| OD-A01 | 기존 수행평가 원본과 신규 SchoolAssessment 매핑 / Write Owner | Existing API/DB·ADR-0002 |
+| OD-A02 | 학교·학년도·학년·학기 PDF Revision·승인 정보의 저장 구조 | API/DB |
+| OD-A03 | PDF 추출 분석 Provider·원본 페이지 매핑·정정 정책 | AI/File Storage |
+| OD-A04 | 학생 학교/학년/과목 Context의 실제 소유 원본 | Existing Integration |
+| OD-A05 | Note Editor 포맷·자동 저장·수정 이력 전략 | Frontend/DB |
+| OD-A06 | 피드백 요청 Snapshot 생성·보존·취소 정책 | API/DB/Privacy |
+| OD-A07 | 파일 저장·미리보기·HWP/PPT 변환 및 포맷별 Version Compare | File Storage |
+| OD-A08 | 관리자 학생·기관 Scope 인가 및 **학교 PDF·심화 Task·모의고사·대학/참고자료 운영 권한(전체/기관/지점)** | Auth / Shared / 콘텐츠 공개 |
+| OD-A09 | **문서상 ADR-0009로 결정:** 기존 ADR-0003 대체, Assessment 공용 요청함·자동 Staff/과목 배정 없음(API-OD-A09에도 동일 반영). **남은 것: 실제 팀 승인 여부, 기존 Queue 코드/데이터의 물리적 재사용 여부** | ADR-0009 / Shared API / 팀 확인 |
+| OD-A10 | 구형 Mentor Surface Scaffold / ADR-0001, Parent ADR-0004 정리 | Shared Architecture |
+| OD-A11 | 아카이브·휴지통 삭제/복원/보존 정책 | Persistence/Privacy |
+| OD-A12 | 참조자료 검색·외부 출처 사용 정책과 공개 콘텐츠 검수 | External Providers / Copyright |
+
+**OD-A09는 더 이상 피드백 Queue 방식 자체가 미결정이라는 의미가 아니다.** 신규 Assessment 문서 기준은 ADR-0009이고(API-OD-A09 표기 정리 완료), 남은 것은 팀 승인 확인과 기존 Queue 코드/데이터의 물리적 재사용 여부다. 다른 OD는 확정되지 않은 세부 정책이며, `progress.md`는 이 ID 목록을 그대로 참조한다.
+
+Open Decision은 개발 편의로 임의 종결하지 않는다. 구형 기능의 미결정(`ParentReport`, Mentor Q&A 등)은 신규 Assessment 결정 목록에 섞지 않는다.
+
+---
+
+# 32. Domain Invariants 요약
 
 ```text
-[ ] 사용 Entity가 이 문서에 존재하는가?
-[ ] 새 Entity가 정말 필요한가?
-[ ] 기존 LearnersHigh Entity를 중복 생성하고 있지 않은가?
-[ ] Entity Identity가 다른 Surface와 동일한가?
-[ ] State Transition이 정의되어 있는가?
-[ ] UI State와 Domain State를 구분했는가?
-[ ] Cross-Surface 영향이 있는가?
-[ ] Derived KPI를 수동 저장하고 있지 않은가?
-[ ] API Contract 변경이 필요한가?
-[ ] DB Migration이 필요한가?
-[ ] 개인정보 공개 범위를 확인했는가?
-[ ] Counseling Domain을 침범하지 않는가?
-[ ] Open Decision을 임의로 확정하지 않았는가?
+1. Student/Admin은 동일 Assessment·Note·ArtifactVersion Identity를 사용한다.
+2. SchoolAssessment와 EnrichmentTask는 서로 다른 업무 객체다.
+3. 공식 평가계획서 원본, AI 추출 후보, 관리자 검토값, 학생 개인 수정정보를 구분한다.
+4. 수행평가 단계는 시작 전 / 진행 중 / 완료이고 필수 8단계가 아니다.
+5. NoteRevision과 ArtifactVersion은 과거 기록을 덮어쓰지 않는다.
+6. FeedbackRequest는 요청 당시 Note·파일 Version을 고정한다.
+7. Feedback은 승인/반려/재제출 없이 선택적으로 주고받는다.
+8. 학생 원문·성찰을 관리자/AI가 몰래 수정하거나 대신 작성하지 않는다.
+9. 미지원 Preview/Compare를 동작하는 것처럼 표시하지 않는다.
+10. 관리자는 권한 있는 학생 기록을 요청 여부와 무관하게 열람하되 타인 데이터는 볼 수 없다.
+11. Admin Shell·Wangyu Student Care/상담·기존 LearnersHigh 공통 기능은 보호한다.
+12. 확인되지 않은 외부 자료·평가정보를 사실처럼 만들지 않는다.
+13. Derived KPI는 실제 상태를 기준으로 계산한다.
+14. UI State와 Domain State를 혼합하지 않는다.
 ```
 
 ---
 
-# 80. Domain 변경 절차
+# 33. Cross-Surface Propagation Matrix
 
-Core Entity / State를 변경하려면:
-
-```text
-1. SOURCE_OF_TRUTH 확인
-2. OWNERSHIP 확인
-3. 관련 Feature Spec 확인
-4. domain.md 변경안 작성
-5. api-contract 영향 확인
-6. DB 영향 확인
-7. 다른 Surface 영향 확인
-8. 필요 시 ADR 작성
-9. 코드 수정
-10. Test
-```
-
-코드부터 수정하고 나중에 Domain 문서를 맞추는 방식은 피한다.
+| 변경 | Student | Admin | 다른 기능 영향 |
+|---|---|---|---|
+| 학교 평가계획서 검토·등록 | 관련 학교·과목 평가정보 조회 | PDF/분석 이력 변경 | 기존 공식 원본을 덮어쓰지 않음 |
+| 학생 수행평가 상태 변경 | 목록·상세 상태 반영 | 권한 내 활동 현황 갱신 | 피드백 상태 자동 변경 없음 |
+| 노트 수정 | 최신 노트 반영 | 최신 기록 열람 | 과거 피드백 Snapshot 유지 |
+| 결과 파일 v3 추가 | 새 Version 열람 | 전체 이력·비교 | v2 피드백 위치 불변 |
+| 피드백 요청 | 답변 대기 표시 | 요청 목록 진입 | Assessment 강제 상태 전이 없음 |
+| 관리자 답변 전달 | 의견·추천 표시 | 답변 완료 표시 | 학생 본문은 변경되지 않음 |
+| 심화 콘텐츠 공개 | 학생 탐구 소재에서 노출 | 콘텐츠 공개 상태 갱신 | 기존 학생 개인 기록 자동 변경 없음 |
+| 성장 기록 작성 | 본인 아카이브 갱신 | 권한 내 학생 기록 열람 | 공식 세특 자동 생성 없음 |
 
 ---
 
-# 81. Domain Conflict Template
+# 34. Feature별 Domain 책임
 
-```text
-[DOMAIN CONFLICT]
-
-현재 작업:
-<Feature>
-
-Entity:
-<Entity Name>
-
-Domain 문서:
-<현재 정의>
-
-Feature Spec:
-<관련 정의>
-
-충돌:
-<무엇이 다른지>
-
-Cross-Surface 영향:
-Student:
-Admin:
-Mentor:
-Parent:
-
-API 영향:
-YES | NO
-
-DB 영향:
-YES | NO
-
-제안:
-<최소 변경안>
-
-상태:
-WAITING FOR CONFIRMATION
-```
+| 기능 영역 | 주요 개념 |
+|---|---|
+| 학교·학업정보 | SchoolContext, SchoolEvaluationPlan, SubjectEvaluation |
+| 학교 수행평가 | SchoolAssessment, AI Explanation Candidate |
+| 심화 탐구 / 참고자료 | EnrichmentTask, EnrichmentContent, ResourceReference, Scrap, UniversityPublicResource |
+| 노트·결과물 | AssessmentNote, NoteRevision, Artifact, ArtifactVersion, NoteTemplate |
+| 피드백 | FeedbackRequest, FeedbackSnapshot, FeedbackReply, FeedbackComment |
+| 성장·보관 | GrowthRecord, ArchiveView |
+| 관리자 운영 | Authorized Student Read Model, Plan/Content Management, Derived Counts |
 
 ---
 
-# 82. 완료 기준
+# 35. 개발 순서
 
-Domain 구현이 완료되었다고 보기 위해서는:
+전체 순서의 기준은 `CLAUDE.md` §18(설계 게이트 + 구현 Stage)이다. 이 절은 **Domain 관점의 설계 게이트**만 정의한다.
 
 ```text
-Entity
-+ Identity
-+ Relationship
-+ State Transition
-+ Invariant
-+ API Contract
-+ Persistence
-+ Cross-Surface Propagation
-+ Privacy
-+ Test
+Feature Requirement / Ownership
+→ Existing Integration 확인
+→ Canonical Identity / Entity / State
+→ Snapshot & Version Invariant
+→ API Contract / Permission
 ```
 
-가 일관되어야 한다.
+이 게이트를 통과한 Entity·State만 Stage 1 Frontend Mock에 사용한다. Stage 1에서 Mock으로 재현한 Invariant(Snapshot 고정, Artifact별 Version 독립, Admin 읽기 전용 등)는 **화면 표현 검증**일 뿐이다. 실제 보장은 Stage 2 Backend / Persistence / Cross-Surface·Privacy Test로만 확인한다.
 
-UI가 보이는 것만으로 Domain 구현 완료로 판단하지 않는다.
+기존 Suyeon 기능의 삭제는 **다른 담당자와 공유 코드 참조를 먼저 확인**한 다음 실시한다 (`legacy-cleanup-plan.md`).
 
 ---
 
-# 83. 핵심 요약
+# 36. Domain 변경 및 완료 판단
 
 ```text
-Student가 중심 Identity다.
-
-Task
-→ Version
-→ AI Analysis
-→ Feedback
-→ Revision
-→ Final
-→ Archive
-
-Activity
-→ Submitted
-→ Optional Feedback
-→ Reflection
-→ Archive
-
-MentorContent
-→ Browse / Save / Apply / Q&A
-
-Mentor Q&A
-→ pending
-→ answered
-또는
-→ overdue
-→ reassign flow
-
-Archive Activity
-→ Connection Candidate
-→ Admin Confirm
-→ Interview Question
-→ Publish
-
-Shared Student Data
-→ ParentReport Snapshot
-→ Validation
-→ PDF / Image
-→ Delivery
+[ ] 관련 Feature Spec의 실제 존재·최신성 확인
+[ ] Existing LearnersHigh Identity / Write Owner 확인
+[ ] 상태 전이·불변조건 정의
+[ ] API / DB / Cross-Surface 영향 확인
+[ ] Wangyu Student Care·Counseling 영향 없음 확인
+[ ] Note/Artifact/Feedback Snapshot 무결성 테스트
+[ ] 파일 형식별 Preview·Error Fallback 테스트
+[ ] 권한·학생별 자료 분리 테스트
+[ ] 테스트 실행 결과를 progress.md에 기록
 ```
 
-가장 중요한 Domain 원칙:
+화면이 보인다는 사실만으로 Domain 구현 완료로 보지 않는다. 이 문서는 **설계 기준**이고 실제 구현은 Source Code 및 관련 Test로 검증한다.
+
+---
+
+# 37. 핵심 요약
 
 ```text
-같은 실체는 같은 Entity를 사용한다.
-화면마다 Business State를 복제하지 않는다.
-Derived 값은 Source Entity에서 계산한다.
-AI는 Draft / Candidate 역할을 넘지 않는다.
-Student 저작권과 개인정보 경계를 지킨다.
-상담 기능은 Wangyu Domain에 둔다.
-기존 LearnersHigh 기능은 재구현하지 않는다.
-불명확한 상태값은 추측하지 않는다.
+SchoolEvaluationPlan → SubjectEvaluation → SchoolAssessment
+SchoolAssessment / EnrichmentTask → Note + ArtifactVersion
+NoteRevision + 선택된 ArtifactVersion → FeedbackSnapshot
+FeedbackSnapshot → Admin FeedbackReply → Student 확인
+Resource / EnrichmentTask / GrowthRecord → Archive
+
+기존 LearnersHigh의 Source System을 존중한다.
+Wangyu Student Care / Counseling은 별도 Domain이다.
+학생 기록과 AI 후보를 구분하고, 과거 Version과 Snapshot을 보존한다.
+강제 8단계 / 승인·반려 / 필수 재제출은 신규 Assessment에 없다.
 ```

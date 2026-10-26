@@ -1,0 +1,308 @@
+/* 학교·학업 정보 (Mockup SAI-01·02 실측: 카드 605×248, 필드 상자 3열 39px, Chip 30px, 버튼 29px) */
+.page {
+  display: grid;
+  max-width: calc(605px + var(--as-content-inset) * 2);
+  padding: 24px var(--as-content-inset) 64px;
+}
+
+.header {
+  display: grid;
+  gap: 2px;
+}
+
+.title {
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: var(--as-text-body);
+  line-height: 20px;
+  color: var(--as-color-text-secondary);
+}
+
+.card {
+  display: grid;
+  margin-top: 22px;
+  padding: 22px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-size: var(--as-text-section);
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.source {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 13px;
+}
+
+.fields dt,
+.fieldLabel {
+  margin-bottom: 5px;
+  padding: 0;
+  font-size: var(--as-text-meta);
+  line-height: 16px;
+  color: var(--as-color-text-secondary);
+}
+
+.fields dd {
+  display: flex;
+  align-items: center;
+  height: 39px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  font-size: var(--as-text-body);
+}
+
+.subjects {
+  min-width: 0;
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.subjects .fieldLabel {
+  margin-bottom: 7px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip,
+.chipAdd,
+.chipToggle span {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-size: 12.5px;
+}
+
+.chipAdd {
+  border-style: dashed;
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.chipAdd:hover {
+  background: var(--as-color-fill);
+}
+
+.chipToggle {
+  position: relative;
+  display: inline-flex;
+}
+
+.chipToggle input {
+  position: absolute;
+  opacity: 0;
+}
+
+.chipToggle span {
+  cursor: pointer;
+}
+
+.chipToggle input:checked + span {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary-soft);
+  color: var(--as-color-primary);
+  font-weight: 600;
+}
+
+.chipToggle input:not(:checked) + span {
+  color: var(--as-color-text-tertiary);
+  text-decoration: line-through;
+}
+
+.chipToggle input:focus-visible + span {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.editNotes {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.muted {
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-secondary);
+}
+
+.warning {
+  font-size: var(--as-text-meta);
+  color: var(--as-color-warning-text);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-danger-soft);
+  color: var(--as-color-danger);
+  font-size: var(--as-text-body);
+}
+
+.error svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.softButton,
+.ghostButton,
+.primaryButton,
+.smallButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 29px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 정보 수정: 흰 바탕 + #eaebef 테두리 (실측) */
+.softButton,
+.smallButton {
+  border: 1px solid var(--as-color-line);
+  background: var(--as-color-surface);
+}
+
+.ghostButton[aria-disabled='true'] {
+  color: var(--as-color-text);
+}
+
+.softButton:hover,
+.smallButton:hover,
+.ghostButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.primaryButton {
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font-weight: 600;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--as-color-primary-hover);
+}
+
+.primaryButton:disabled {
+  background: var(--as-color-disabled-bg);
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.history {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.historyList {
+  display: grid;
+  gap: 2px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-radius: var(--as-radius-md);
+}
+
+.historyItem:hover {
+  background: var(--as-color-subtle);
+}
+
+.historyIcon {
+  flex: none;
+  color: var(--as-color-text-secondary);
+}
+
+.historyText {
+  flex: 1;
+  min-width: 0;
+}
+
+.historyTitle {
+  font-size: var(--as-text-body);
+  line-height: 19px;
+}
+
+.historyMeta {
+  flex: 1;
+  font-size: var(--as-text-caption);
+  line-height: 16px;
+  color: var(--as-color-text-tertiary);
+}
+
+.smallButton {
+  flex: none;
+  height: 27px;
+  padding: 0 10px;
+  font-size: var(--as-text-meta);
+}
+
+@media (max-width: 959px) {
+  .page {
+    padding: 18px 16px 48px;
+  }
+}
+
+@media (max-width: 559px) {
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

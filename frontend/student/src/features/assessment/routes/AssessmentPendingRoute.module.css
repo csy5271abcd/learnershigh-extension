@@ -1,0 +1,30 @@
+.page {
+  display: grid;
+  gap: 12px;
+  max-width: 880px;
+  padding: 30px 36px 64px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (max-width: 959px) {
+  .page {
+    padding: 18px 16px 48px;
+  }
+}

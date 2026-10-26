@@ -1,0 +1,116 @@
+/*
+ * 선생님 피드백 목록 (Mockup TF-LIST-01~03 실측, 1920 CSS px @ DPR 1.5).
+ * 본문 폭 658, 왼쪽 여백 36. 제목 21 / 설명 2줄 → 필터 Chip 29 (선택: 진한 채움) → 요청 묶음 사이 14.
+ */
+.page {
+  display: grid;
+  align-content: start;
+  max-width: calc(658px + var(--as-content-inset) * 2);
+  padding: 29px var(--as-content-inset) 64px;
+}
+
+.header {
+  display: grid;
+  gap: 4px;
+}
+
+.title {
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: var(--as-text-body);
+  line-height: 18px;
+  color: var(--as-color-text-secondary);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 29px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.filter:hover {
+  background: var(--as-color-fill);
+}
+
+.filterCount {
+  color: var(--as-color-text-secondary);
+}
+
+.filter[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-weight: 700;
+}
+
+.filter[aria-pressed='true'] .filterCount {
+  color: inherit;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.list {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.emptyLink {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.emptyLink:hover {
+  background: var(--as-color-fill);
+}
+
+.notices {
+  display: grid;
+  gap: 4px;
+  margin-top: 28px;
+}
+
+.mockHint {
+  padding-left: 20px;
+  font-size: var(--as-text-meta);
+  line-height: 18px;
+  color: var(--as-color-text-tertiary);
+}
+
+@media (max-width: 559px) {
+  .page {
+    padding: 20px 16px 48px;
+  }
+}

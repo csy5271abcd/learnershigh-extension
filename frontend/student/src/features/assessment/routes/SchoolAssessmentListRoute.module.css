@@ -1,0 +1,574 @@
+/*
+ * 학교 수행평가 목록 (Mockup SA-LIST-01·05~07, SA-SUB-01~04 실측, 1920 CSS px @ DPR 1.5).
+ * 상단 도구 막대는 본문 전체 폭, 목록 본문은 978px. 행 구분선 없이 67px 행 (Daglo 목록 패턴과 동일).
+ */
+.page {
+  padding-bottom: 64px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  /* 오른쪽 여백은 Mockup 알림 벨 자리(계약 없음, MM-11)를 포함한 실측값 */
+  padding: 11px 75px 0 29px;
+}
+
+.content {
+  max-width: calc(var(--as-content-width) + var(--as-content-inset) * 2);
+  padding: 0 var(--as-content-inset);
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: min(266px, 100%);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--as-color-text);
+  pointer-events: none;
+}
+
+.search input {
+  width: 100%;
+  height: 35px;
+  padding: 0 12px 0 41px;
+  border: 1px solid transparent;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+}
+
+.search input:hover {
+  border-color: var(--as-color-line);
+}
+
+.search input:focus {
+  border-color: var(--as-color-primary);
+  outline: none;
+  background: var(--as-color-surface);
+}
+
+.toolbarActions {
+  display: flex;
+  gap: 11px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--as-radius-sm);
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 0;
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+.primaryButton:hover {
+  background: var(--as-color-primary-hover);
+}
+
+.secondaryButton {
+  border: 1px solid var(--as-color-line);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+}
+
+.secondaryButton:hover {
+  background: var(--as-color-fill);
+}
+
+.header {
+  display: grid;
+  gap: 2px;
+  margin-top: 27px;
+}
+
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+}
+
+.titleMeta {
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--as-color-text-secondary);
+}
+
+.inlineNotice {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-body);
+}
+
+.textButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-primary);
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* 다가오는 일정 */
+.upcoming {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.sectionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--as-color-text-secondary);
+}
+
+.upcomingList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 11px;
+}
+
+.upcomingCard {
+  display: flex;
+  align-items: center;
+  width: 236px;
+  height: 57px;
+  padding-right: 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  color: inherit;
+  text-decoration: none;
+}
+
+.upcomingCard:hover {
+  background: var(--as-color-subtle);
+}
+
+.upcomingDday {
+  display: grid;
+  justify-items: center;
+  flex: none;
+  width: 75px;
+  border-right: 1px solid var(--as-color-line);
+  font-size: var(--as-text-caption);
+  line-height: 15px;
+  color: var(--as-color-text-tertiary);
+}
+
+.upcomingDday strong {
+  font-size: 13.5px;
+  line-height: 18px;
+  color: var(--as-color-primary);
+}
+
+.upcomingDday[data-urgent='true'] strong {
+  color: var(--as-color-danger);
+}
+
+.upcomingText {
+  display: grid;
+  min-width: 0;
+  padding-left: 13px;
+}
+
+.upcomingMeta {
+  font-size: var(--as-text-caption);
+  line-height: 16px;
+  color: var(--as-color-text-secondary);
+}
+
+.upcomingTitle {
+  overflow: hidden;
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  line-height: 19px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 상태 탭 + 정렬 */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 13px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--as-color-fill);
+}
+
+.tab[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-weight: 700;
+}
+
+.tabCount {
+  font-weight: 400;
+  color: var(--as-color-text-secondary);
+}
+
+.tab[aria-pressed='true'] .tabCount {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-tertiary);
+}
+
+.sortSelectWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.sortSelectWrap select {
+  appearance: none;
+  width: 75px;
+  height: 30px;
+  padding: 0 24px 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.sortChevron {
+  position: absolute;
+  right: 7px;
+  color: var(--as-color-text);
+  pointer-events: none;
+  stroke-width: 2.4;
+}
+
+/* 목록 */
+.table {
+  display: grid;
+}
+
+.tableHead,
+.row {
+  display: grid;
+  /* 실측 열 위치: 54(★ 자리) | 제목 | 124 마감 | 128 출처 | 115 상태 | 58(기록 자리) = 978 */
+  grid-template-columns: 54px minmax(0, 1fr) 124px 128px 115px 58px;
+  align-items: center;
+}
+
+.tableHead {
+  margin-top: 17px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: var(--as-text-meta);
+  line-height: 18px;
+  color: var(--as-color-text-tertiary);
+}
+
+.rows[data-refreshing='true'] {
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.row {
+  position: relative;
+  height: 67px;
+  border-radius: var(--as-radius-md);
+}
+
+.row:hover {
+  background: var(--as-color-subtle);
+}
+
+.row[data-highlighted='true'] {
+  background: var(--as-color-primary-soft);
+}
+
+.cellTitle {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding-right: 16px;
+}
+
+.rowLink {
+  overflow: hidden;
+  font-size: var(--as-text-row);
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--as-color-text);
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.row[data-status='COMPLETED'] .rowLink {
+  color: var(--as-color-text-secondary);
+}
+
+/* 행 전체를 상세 링크로 만든다. 상태 선택은 z-index로 위에 둔다. */
+.rowLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--as-radius-md);
+}
+
+.rowLink:focus-visible {
+  outline: none;
+}
+
+.rowLink:focus-visible::after {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: -2px;
+}
+
+.rowMeta {
+  font-size: var(--as-text-meta);
+  line-height: 16px;
+  color: var(--as-color-text-tertiary);
+}
+
+.cellDate {
+  display: grid;
+  gap: 1px;
+}
+
+.date {
+  font-size: var(--as-text-meta);
+  line-height: 17px;
+  color: var(--as-color-text);
+}
+
+.dateSub {
+  font-size: var(--as-text-caption);
+  line-height: 15px;
+  color: var(--as-color-text-secondary);
+}
+
+.dateUnknown {
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-tertiary);
+}
+
+.dday {
+  font-size: var(--as-text-caption);
+  font-weight: 700;
+  line-height: 15px;
+  color: var(--as-color-primary);
+}
+
+.dday[data-urgent='true'] {
+  color: var(--as-color-danger);
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sourceBadge[data-linked='true'] {
+  background: var(--as-color-success-soft);
+  color: var(--as-color-success-text);
+}
+
+.moreButton,
+.addRowButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  height: 36px;
+  margin-top: 2px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.moreButton {
+  justify-self: center;
+  margin-top: 8px;
+  border: 1px solid var(--as-color-line);
+}
+
+.moreButton:hover,
+.addRowButton:hover {
+  background: var(--as-color-fill);
+}
+
+/* Tablet 이하 */
+@media (max-width: 959px) {
+  .toolbar {
+    padding: 12px 20px 0;
+  }
+
+  .content {
+    padding: 0 20px;
+  }
+
+  .tableHead,
+  .row {
+    grid-template-columns: 0 minmax(0, 1fr) 112px 128px 108px 0;
+  }
+
+  .row {
+    padding-left: 12px;
+  }
+
+  .tableHead {
+    padding-left: 12px;
+  }
+}
+
+/* Mobile: 표를 카드형 행으로 바꾼다 (frontend-student.md §16). Mockup이 없어 Daglo 목록 밀도를 따른다. */
+@media (max-width: 719px) {
+  .toolbar {
+    flex-wrap: wrap;
+    padding: 12px 16px 0;
+  }
+
+  .content {
+    padding: 0 16px;
+  }
+
+  .search {
+    width: 100%;
+  }
+
+  .toolbarActions {
+    width: 100%;
+  }
+
+  .toolbarActions > button {
+    flex: 1;
+  }
+
+  .header {
+    margin-top: 20px;
+  }
+
+  .tableHead {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'title title'
+      'date status'
+      'source status';
+    row-gap: 8px;
+    height: auto;
+    padding: 14px 12px;
+  }
+
+  .cellLead,
+  .cellTrail {
+    display: none;
+  }
+
+  .cellTitle {
+    grid-area: title;
+  }
+
+  .cellDate {
+    grid-area: date;
+    display: flex;
+    gap: 8px;
+  }
+
+  .cellSource {
+    grid-area: source;
+  }
+
+  .cellStatus {
+    grid-area: status;
+    align-self: center;
+  }
+
+  .upcomingList {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+}

@@ -1,0 +1,202 @@
+/*
+ * 수행평가 상세 (Mockup SA-DETAIL-01~14 실측, 1920 CSS px @ DPR 1.5).
+ * 상단 바 43 / 가운데 본문(586 열, 독립 스크롤) / 오른쪽 패널 372(독립 스크롤, 왼쪽 선).
+ */
+.page {
+  --detail-top-bar: 43px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--lh-student-nav-height));
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 372px;
+}
+
+.main,
+.panelArea {
+  height: calc(100dvh - var(--lh-student-nav-height) - var(--detail-top-bar));
+  overflow-y: auto;
+}
+
+.panelArea {
+  border-left: 1px solid var(--as-color-line);
+}
+
+.column {
+  width: min(586px, 100%);
+  margin: 0 auto;
+  padding: 34px 0 72px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-secondary);
+}
+
+.title {
+  margin: 10px 0 0;
+  font-size: var(--as-text-detail-title);
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 10px;
+}
+
+.chipButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-size: var(--as-text-meta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.chipButton:hover {
+  background: var(--as-color-fill);
+}
+
+.chipIconBlue {
+  color: var(--as-color-primary);
+}
+
+.props {
+  display: grid;
+  margin-top: 22px;
+}
+
+.propRow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  min-height: 34px;
+}
+
+.propRow dt {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--as-text-body);
+  color: var(--as-color-text-secondary);
+}
+
+.propRow dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--as-text-body);
+  color: var(--as-color-text);
+}
+
+.statusValue {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.hint {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.dday {
+  font-size: var(--as-text-meta);
+  font-weight: 700;
+  color: var(--as-color-primary);
+}
+
+.dday[data-urgent='true'] {
+  color: var(--as-color-danger);
+}
+
+.unknown {
+  color: var(--as-color-text-tertiary);
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.sourceBadge[data-linked='true'] {
+  background: var(--as-color-success-soft);
+  color: var(--as-color-success-text);
+}
+
+.editInfoButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.editInfoButton:hover {
+  color: var(--as-color-text-secondary);
+}
+
+/* 오른쪽 패널을 둘 폭이 없으면 한 열로 쌓고, 페이지 전체가 스크롤된다. */
+@media (max-width: 1279px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .main,
+  .panelArea {
+    height: auto;
+    overflow: visible;
+  }
+
+  .panelArea {
+    border-top: 1px solid var(--as-color-line);
+    border-left: 0;
+  }
+
+  .column {
+    padding: 28px 20px 40px;
+  }
+}
+
+@media (max-width: 559px) {
+  .propRow {
+    grid-template-columns: 104px minmax(0, 1fr);
+  }
+
+  .title {
+    font-size: 22px;
+    line-height: 30px;
+  }
+}

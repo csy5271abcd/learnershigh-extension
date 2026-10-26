@@ -1,0 +1,188 @@
+/*
+ * Assessment Layout (Mockup 공통 Sidebar: SA-LIST-01, SAI-01·02 실측).
+ * Token: ../styles/assessmentTheme.css (`.lh-assessment`). TDS `--lh-color-*`를 쓰지 않는다.
+ */
+.root {
+  display: grid;
+  grid-template-columns: var(--as-sidebar-width) minmax(0, 1fr);
+  min-height: calc(100dvh - var(--lh-student-nav-height));
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--lh-student-nav-height);
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--lh-student-nav-height));
+  border-right: 1px solid var(--as-color-line);
+  background: var(--as-color-bg);
+  overflow-y: auto;
+}
+
+.termArea {
+  padding: 15px 11px 11px;
+}
+
+.nav {
+  flex: 1 0 auto;
+  padding: 0 11px 16px;
+}
+
+.menu {
+  display: grid;
+  gap: 2px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 37px;
+  padding: 0 10px 0 11px;
+  border-radius: var(--as-radius-sm);
+  color: var(--as-color-text);
+  font-size: var(--as-text-body);
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background: var(--as-color-fill);
+}
+
+.menuItemActive,
+.menuItemActive:hover {
+  background: var(--as-color-active);
+  font-weight: 600;
+}
+
+.menuIcon {
+  flex: none;
+  color: var(--as-color-text);
+}
+
+.menuLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.menuCount {
+  flex: none;
+  font-size: var(--as-text-meta);
+  font-weight: 400;
+  color: var(--as-color-text-tertiary);
+}
+
+.groupLabel {
+  margin: 21px 11px 7px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.groupEmpty {
+  padding: 6px 11px;
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-secondary);
+}
+
+.sidebarFooter {
+  position: sticky;
+  bottom: 0;
+  padding: 10px 11px 14px;
+  border-top: 1px solid var(--as-color-line);
+  background: var(--as-color-bg);
+}
+
+.main {
+  min-width: 0;
+}
+
+.mobileBar,
+.scrim {
+  display: none;
+}
+
+/* Tablet 이하: Sidebar를 Drawer로 바꾼다 (frontend-student.md §16). Mockup은 Desktop만 있어 Daglo Drawer 패턴을 따른다. */
+@media (max-width: 959px) {
+  .root {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: var(--lh-student-nav-height);
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: min(280px, 86vw);
+    height: auto;
+    box-shadow: var(--as-shadow-popover);
+    transform: translateX(-102%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0.2s;
+  }
+
+  .sidebarOpen {
+    transform: none;
+    visibility: visible;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: var(--lh-student-nav-height) 0 0;
+    z-index: 25;
+    display: block;
+    background: var(--as-color-backdrop);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .scrimVisible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+
+  .mobileMenuButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--as-color-line);
+    border-radius: var(--as-radius-sm);
+    background: var(--as-color-surface);
+    color: var(--as-color-text);
+    font-size: var(--as-text-body);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mobileTerm {
+    overflow: hidden;
+    font-size: var(--as-text-meta);
+    color: var(--as-color-text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .scrim {
+    transition: none;
+  }
+}

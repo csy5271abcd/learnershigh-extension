@@ -58,6 +58,7 @@ import {
   mentorStoryListRoutePattern,
   mentorStoryRoutePattern,
 } from '../features/mentor-hub/routes/paths.ts'
+import { assessmentRoute } from '../features/assessment/routes/assessmentRoutes.tsx'
 import { NotFoundPage } from './NotFoundPage.tsx'
 import { StudentAppShell } from './StudentAppShell.tsx'
 
@@ -102,6 +103,8 @@ export const studentRouter = createBrowserRouter([
       { path: schoolActivityRoutePattern, element: <SchoolActivityDetailRoute /> },
       { path: schoolInterviewRoutePattern, element: <SchoolInterviewRoute /> },
       { path: schoolInterviewQuestionRoutePattern, element: <SchoolInterviewQuestionRoute /> },
+      // 신규 Assessment (구형 Route는 legacy-cleanup-plan.md 순서에 따라 별도로 정리한다)
+      assessmentRoute,
       { path: '*', element: <NotFoundPage /> },
     ],
   },
