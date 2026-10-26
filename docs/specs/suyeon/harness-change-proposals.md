@@ -25,6 +25,7 @@
 | P-14 | `docs/SOURCE_OF_TRUTH.md` §4-4·§5 (+ 선택: `CLAUDE.md` §3·§12, `AGENTS.md` 표) | Assessment 시각 기준을 "Mockup = 직접 기준(색상·글꼴 포함), Daglo = 보완, TDS 혼합 금지"로 정정 | 문구만 (Wangyu UI 기준 변경 없음) | 필요 |
 | P-15 | `docs/api/api-contract.md` §12·14·20·22·24·31 + 신규 기준 조회 | 수행평가 상세 화면이 요구하는 최소 계약 보완 (MM-03·18~22) | 없음 (Assessment 전용) | 필요 |
 | P-16 | `docs/api/api-contract.md` §16·17·18·27·30 | 심화 탐구 화면의 응답 Shape·필터 보완 (MM-26~29) | 없음 (Assessment 전용) | 필요 |
+| P-17 | `docs/api/api-contract.md` §22·23 | 자료함 응답 Shape·유형 Enum·자료 연결 보완 (MM-21·30~32) | 없음 (Assessment 전용) | 필요 |
 
 ---
 
@@ -334,3 +335,16 @@ backend/bin/
 | MM-27 | 같은 `catalogTaskId`로 여러 Task 시작 허용 여부 (API-OD-A12) | 현재 화면은 "내 탐구 열기"만 제공 |
 | MM-28 | §17 공개 카드 응답: `materialId`, `subjectId`, `source{academicYear, examMonth, grade, questionNumber, sourceUrl}`, `idea{topicTitle, coreMaterial, relatedFields[], topicReason, goal, methods[{label,text}], extensionQuestions[]}`. 모의고사 과목 목록 제공 방식(코드 상수/조회 API) | 원문 출처와 탐구 아이디어 분리(§17 문장) 유지 |
 | MM-29 | §27 응답: `resourceId`, `university`, `title`, `academicYear`, `resourceType`, `officialUrl`, `checkedAt`, `relatedConcepts[]`, `inquiryIdeas[]`. Query에 `resourceType` | 대학명 Enum 금지 유지, 원문 미러링 금지(API-OD-A11) |
+
+## P-17. 자료함 화면용 계약 보완 (2026-10-27, Stage 3 Frontend 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 가정 Shape(코드 주석·screen-map)으로 Mock만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-30 | §22 GET 목록·상세 Shape 명시: 요청 필드 + `resourceId`·`createdAt`·`updatedAt`. PATCH 수정 가능 필드: `type`·`title`·`sourceName`·`sourceUrl`·`author`·`publishedDate`·`memo`·`tags` (`fileRef` 교체는 §48 결정 후) | 학생 자료 = 본인 비공개 ResourceReference. 관리자 Scrap(§43)·대학 자료(§27)와 다른 Entity |
+| MM-30 | 자료–수행평가/심화 Task 연결: 자료에 `relatedSources[{sourceType, sourceId}]`를 둘지, 노트 링크 블록(§23)으로만 연결할지 결정 | Domain §13 "활용 관계: Note Block / Assessment / EnrichmentTask" |
+| MM-21 | §22 recommendations 항목 Shape: P-15 제안(`sourceName`, `category`, `homepageUrl`, `description`, `searchKeywords[]`) 확정. `homepageUrl`은 관리자가 확인한 주소만 | 추천 = 탐색 후보 자료원이며 개별 자료 추천이 아님 |
+| MM-31 | `type` Enum 후보: `LINK`·`ARTICLE`·`PAPER`·`BOOK`·`VIDEO`·`PDF`·`IMAGE` (+`STATISTICS`?) | §22 본문의 통계·공공데이터 자료원과 정합 확인 |
+| MM-32 | 출처 표시: 입력 완결성(작성자·발행일)과 실제 확인 상태를 구분할지, 상태 필드(`sourceCheck`)를 둘지 | AI·관리자 검증과 학생 입력을 섞지 않는다 |
+| — | 자료 삭제/보관: §30 표의 `ResourceReference` 삭제·복원 범위 결정 (현재 화면은 삭제 없음) | API-OD-A08 |

@@ -30,7 +30,7 @@
 | S18 | 심화 탐구 상세 (자기 점검·AI·자료·이력·더보기) | `AE-Detail/AE-DETAIL-01~05` | inquiry §3·§5·§10 | §18·20·21·28 | `/assessment/enrichment/tasks/:taskId` (`mock-exams` 등 탭 경로와 겹치지 않게 변경) | **구현:** S7 상세 틀·노트·이력·더보기 재사용(피드백 버튼 없음), 상태 변경(§18 PATCH status, 되돌리기 막음), 수행평가 연결(§18 PATCH), 자기 점검 탭 = 출발 공개 콘텐츠의 수행 안내·출발 자료(원본 비공개 시 안내), AI·자료 탭 준비 중 |
 | S19 | 모의고사 지문 목록 / 상세 | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams`, `/mock-exams/:materialId` | **구현:** 시연용 자체 제작 카드(실제 지문 없음), 과목 필터·검색, 상세(원문 정보와 탐구 아이디어 분리, 원문 링크 없음 표시), 심화 Task 만들기(§18 sourceReference DRAFT), 내 지문 등록(§17 POST, 링크만·확인 안 함)·내 지문 목록, 수행평가 아이디어 연결은 Editor 전 비활성. MM-28 |
 | S20 | 대학 공개 자료 | `AE-University-Resources/AE-UNI-01` | inquiry §9 (ST-17) | §27 | `/assessment/enrichment/universities` (`?university=&year=&type=&q=`) | **구현:** 대학 Chip은 응답 값으로 생성(가상 기관명), 학년도(§27 Query)·자료 유형(화면 필터), 원본 열기는 확인된 URL만(시연 데이터 전부 없음), 미리보기 비활성, 탐구 아이디어 펼침 → 심화 탐구 시작(sourceReference DRAFT). MM-29 |
-| S21 | 자료함 / 과목별 추천 / 자료 추가 모달 | `Resource-Library/RL-LIST-01~02`, `RL-Add-Resource/RL-ADD-01` | inquiry §7 | §22·23 | `/assessment/resources` | |
+| S21 | 자료함 / 과목별 추천 / 자료 추가 모달 | `Resource-Library/RL-LIST-01~02`, `RL-Add-Resource/RL-ADD-01` | inquiry §7 | §22·23 | `/assessment/resources` (`?q=&type=&subject=`), `/resources/:resourceId` | **구현(2026-10-27, Stage 1 Mock):** 과목별 추천 자료원(탐색 후보, 펼침 → 그 자료원으로 자료 추가), 유형 필터(Mockup 5종), 검색(§22 query, Mockup에 없지만 다른 목록과 같은 위치), 내 자료 목록·출처 정보 표시, 자료 추가 Modal(유형 7종·자료명 필수·URL/발행일 형식 검사·닫기 확인), 자료 상세(Mockup 없음, 최소 구성)·수정(§22 PATCH, 메모·태그 포함), Sidebar 건수. 노트에 추가·AI 요약 비활성, 삭제 없음(§22에 없음). MM-30~32 |
 | S22 | 성장 기록 | `Growth-Records/GR-LIST-01` | inquiry §11 | §29 | `/assessment/growth` | |
 | S23 | 보관함 5개 탭 | `Archive/AR-Tabs/AR-TAB-01~05` | inquiry §12 | §30 | `/assessment/archive?tab=` | 휴지통 동작은 OD-A11 |
 | S24 | Assessment 홈 / 스크롤 / 알림 Popover | `Assessment-Home/ST_Assessment-Home_01~03` | student §3 | 요약 API 없음 | `/assessment` | 01 이미지 확인: AI 입력창·빠른 실행·New 배지는 계약 없음 |
@@ -85,6 +85,9 @@
 | MM-27 | S16~S18 | 개인 Task 목록·상세 응답, 수정 가능 필드, 같은 공개 콘텐츠로 여러 Task 시작 | §18 응답 Shape 미기재, PATCH Body 미기재, 중복 시작 정책 미정(API-OD-A12) | 확인 | 응답 = 요청 필드 + `taskId·createdAt·updatedAt`로 가정, PATCH는 `relatedAssessmentId`만 사용. 이미 시작한 콘텐츠는 "내 탐구 열기"만 보여줌(서버 강제 아님) |
 | MM-28 | S19 | 공개 지문 카드 응답, 과목 목록, 계열 필터, 영문 주제·해시태그·LearnersHigh 코멘트·관련 자율 심화 Task·즐겨찾기 | §17은 개인 등록 필드만 예시, 공개 카드 Shape·과목 목록 API 없음 | 확인 | 카드 = `materialId·subjectId·source{학년도·월·학년·문항·sourceUrl}·idea{주제·핵심 소재·분야·해설·목표·방법·확장 질문}`(Spec §4 표)로 가정, 과목 이름은 시연용 ID에만 붙임. sourceReference는 §18 DRAFT |
 | MM-29 | S20 | 대학 공식 자료 페이지 카드, 분야 필터, 자료 응답 | §27 응답 Shape·유형 Query 없음 | 확인 | 자료 = Spec §9 메타데이터(대학·제목·학년도·유형·공식 URL·확인일·관련 개념·탐구 연계)로 가정, 유형은 화면 필터. 실제 대학 문서처럼 보이지 않게 가상 기관명 사용 |
+| MM-30 | S21 | 자료 목록·상세 응답, PATCH 수정 필드, 행별 "연결된 수행평가", 파일 크기 | §22는 POST 예시만 있고 GET·PATCH Shape 없음, 자료–과제/노트 연결 필드 없음, 파일 메타(§48) 미연결 | 확인 | 응답 = 요청 필드 + `resourceId·createdAt·updatedAt`, PATCH = 요청 필드 부분 집합(파일 제외)으로 가정. 연결된 수행평가·파일 크기는 표시하지 않음 |
+| MM-31 | S21 | 자료 유형 7종(링크·기사·논문·도서·영상·PDF·이미지), 목록 필터 5종(기사·논문 Chip 없음) | §22 `type` Enum 미정(예시 `ARTICLE`뿐) | 확인 | Mock은 `LINK·ARTICLE·PAPER·BOOK·VIDEO·PDF·IMAGE`를 후보 값으로 사용, 필터는 Mockup 5종 그대로 |
+| MM-32 | S21 | "출처 확인됨" / "출처 확인 필요" Badge, 등록 화면 안내 "작성자와 발행일을 모두 채우면 출처 확인됨" | 시스템 검증 결과가 아니라 학생 입력 완결성 규칙. 계약·Spec에 확인 상태 필드 없음 | 확인 | 구현은 같은 규칙으로 "출처 정보 입력됨"/"출처 확인 필요"로 표시(검증된 것처럼 보이지 않게 문구 조정). 용어 결정 필요 |
 
 ## 4. 갱신 규칙
 

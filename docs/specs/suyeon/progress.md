@@ -692,6 +692,29 @@ Branch `feature/assessment-stage2-enrichment` (Stage 1 체크포인트 `9cdedbc`
 - Scratchpad Playwright: 심화 탐구 65/65 PASS, 피드백 목록 32/32(필터 클릭 직후 읽던 검증에 대기 추가 후), 상세 45/45, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
 - `scripts/verify*.ps1`: NOT RUN (실행 정책 차단). Backend·E2E: NOT RUN.
 
+
+## 2026-10-27 — Student 자료함 S21 (Frontend 로드맵 Stage 3, Mock)
+
+Branch `feature/assessment-stage3-resource-library` (Stage 2 체크포인트 `7268933`에서 분기, 미커밋).
+
+### Done
+
+- 자료함 목록: 과목별 추천 자료원(§22 recommendations, 탐색 후보 출처), 유형 필터·검색(URL 보존), 내 자료 목록, 출처 정보 표시(Mockup 규칙: 작성자+발행일).
+- 자료 추가 Modal(RL-ADD-01): 유형 7종, 자료명 필수, URL·발행일 형식 검사(실제 링크 확인 아님), 중복 제출 방지, 실패 시 입력 유지, 작성 중 닫기 확인. 추천 자료원에서 발행기관을 채워 열기.
+- 자료 상세·수정(§22 GET·PATCH): 메모·태그 포함 수정, 직접 입력한 링크 구분, 파일은 저장소 연결 전 안내. 노트에 추가·AI 요약 비활성, 삭제 없음.
+- Contract 기반 Mock: `api/resourcesApi.ts`, `api/mock/resourcesMock.ts`·`resourcesFixture.ts`. Sidebar 자료함 건수. 상세 패널 자료 탭에 "내 자료함 열기" 진입점.
+
+### Open / Blocked
+
+- 계약 공백 MM-21·30~32 → P-17 제안(미승인). 자료 유형 Enum, 응답 Shape, 자료–과제 연결, 출처 확인 의미.
+- 노트에 자료 넣기(§23 또는 §20)는 Editor 결정(OD-A05)과 함께 Stage 4. 파일 첨부는 File Storage(API-OD-A03). 기존 LearnersHigh Library와의 관계는 inquiry §15 Open Decision.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend 전체): PASS.
+- Scratchpad Playwright: 자료함 43/43, 심화 탐구 65/65, 피드백 목록 32/32, 상세 45/45, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
+- `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
+
 ---
 
 # 24. 핵심 요약

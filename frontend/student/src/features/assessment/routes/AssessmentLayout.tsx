@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useSearchParams } from 'react-router'
 import { getAcademicContext } from '../api/academicContextApi.ts'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
 import { listEnrichmentTasks } from '../api/enrichmentApi.ts'
+import { listResources } from '../api/resourcesApi.ts'
 import { listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
 import {
@@ -35,6 +36,7 @@ import {
   enrichmentSection,
   feedbackSection,
   pendingAssessmentSections,
+  resourcesSection,
   schoolAssessmentsPath,
   subjectAssessmentsPath,
 } from './paths.ts'
@@ -90,7 +92,12 @@ export function AssessmentLayout() {
   const activeEnrichment = useApiQuery(`enrichment-active:${dataVersion}`, () =>
     listEnrichmentTasks({ status: 'IN_PROGRESS', page: 0, size: 1 }).then((response) => response.page.totalElements),
   )
+  // 자료함 메뉴 건수 = 내 자료 수 (§22 목록 totalElements)
+  const myResources = useApiQuery(`resources-count:${dataVersion}`, () =>
+    listResources({ page: 0, size: 1 }).then((response) => response.page.totalElements),
+  )
   const menuCounts: Record<string, { count: number | undefined; label?: string }> = {
+    [resourcesSection.path]: { count: myResources.data },
     [enrichmentSection.path]: { count: activeEnrichment.data },
     [feedbackSection.path]: { count: pendingFeedback.data, label: '대기' },
   }
@@ -220,11 +227,11 @@ export function AssessmentLayout() {
   )
 }
 
-// 학교 수행평가 아래 메뉴 (심화 탐구·선생님 피드백 외에는 아직 준비 중 화면)
+// 학교 수행평가 아래 메뉴 (심화 탐구·선생님 피드백·자료함 외에는 아직 준비 중 화면)
 const pendingMenu: { path: string; label: string; icon: ComponentType<{ className?: string; size?: number }> }[] = [
   { ...enrichmentSection, icon: BulbIcon },
   { ...feedbackSection, icon: ChatIcon },
-  { ...pendingAssessmentSections.resources, icon: BooksIcon },
+  { ...resourcesSection, icon: BooksIcon },
   { ...pendingAssessmentSections.growth, icon: SproutIcon },
   { ...pendingAssessmentSections.archive, icon: ArchiveIcon },
   { ...pendingAssessmentSections.tips, icon: BulbIcon },

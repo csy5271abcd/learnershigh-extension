@@ -141,6 +141,24 @@ export function ChevronLeftIcon(props: IconProps) {
   )
 }
 
+export function ImageIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4" y="4" width="16" height="16" rx="2.5" />
+      <circle cx="9" cy="9.5" r="1.5" />
+      <path d="m20 15.5-4.5-4.5L6 20" />
+    </Svg>
+  )
+}
+
+export function PlayIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M8 5.5v13l10-6.5z" />
+    </Svg>
+  )
+}
+
 export function ChevronRightIcon(props: IconProps) {
   return (
     <Svg {...props}>

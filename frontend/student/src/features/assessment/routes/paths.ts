@@ -34,9 +34,13 @@ export const myEnrichmentTasksPath = `${enrichmentPath}/my`
 export const universityResourcesPath = `${enrichmentPath}/universities`
 export const enrichmentTaskDetailPath = (taskId: string) => `${enrichmentPath}/tasks/${encodeURIComponent(taskId)}`
 
+/** 자료함 (screen-map S21). 검색·유형·추천 과목은 URL Query(`q`, `type`, `subject`)에 둔다. */
+export const resourcesPath = '/assessment/resources'
+export const resourcesSection = { path: resourcesPath, label: '자료함' } as const
+export const resourceDetailPath = (resourceId: string) => `${resourcesPath}/${encodeURIComponent(resourceId)}`
+
 /** 이번 범위에서 아직 구현하지 않은 Assessment 메뉴 */
 export const pendingAssessmentSections = {
-  resources: { path: '/assessment/resources', label: '자료함' },
   growth: { path: '/assessment/growth', label: '성장 기록' },
   archive: { path: '/assessment/archive', label: '보관함' },
   tips: { path: '/assessment/tips', label: '수행평가 꿀팁' },

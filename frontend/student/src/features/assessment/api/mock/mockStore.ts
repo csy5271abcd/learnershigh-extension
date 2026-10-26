@@ -16,12 +16,14 @@ import {
   fixturePersonalMockExamMaterials,
   fixtureUniversityResources,
 } from './enrichmentFixture.ts'
+import { fixtureResources } from './resourcesFixture.ts'
 import type {
   AcademicContext,
   EnrichmentCatalogItem,
   EnrichmentTask,
   MockExamMaterial,
   PersonalMockExamMaterial,
+  StudentResource,
   UniversityResource,
 } from '../types.ts'
 
@@ -39,6 +41,7 @@ export const mockStore: {
   mockExamMaterials: MockExamMaterial[]
   personalMockExamMaterials: PersonalMockExamMaterial[]
   universityResources: UniversityResource[]
+  resources: StudentResource[]
 } = {
   academicContexts: structuredClone(fixtureAcademicContexts),
   schoolAssessments: structuredClone(fixtureSchoolAssessments),
@@ -51,4 +54,5 @@ export const mockStore: {
   mockExamMaterials: structuredClone(fixtureMockExamMaterials),
   personalMockExamMaterials: structuredClone(fixturePersonalMockExamMaterials),
   universityResources: structuredClone(fixtureUniversityResources),
+  resources: structuredClone(fixtureResources),
 }

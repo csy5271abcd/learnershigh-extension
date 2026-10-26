@@ -28,6 +28,12 @@ export type MockScenario =
   | 'taskCreateError'
   | 'materialError'
   | 'universityError'
+  | 'resourceEmpty'
+  | 'resourceListError'
+  | 'resourceDetailError'
+  | 'resourceRecommendationError'
+  | 'resourceCreateError'
+  | 'resourceUpdateError'
 
 const consumedOnce = new Set<string>()
 

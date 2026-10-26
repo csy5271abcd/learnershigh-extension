@@ -1244,3 +1244,16 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* 패널 안내 아래 이동 링크 (자료 탭 → 자료함) */
+.textAction {
+  margin-top: 4px;
+  color: var(--as-color-primary);
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.textAction:hover {
+  text-decoration: underline;
+}

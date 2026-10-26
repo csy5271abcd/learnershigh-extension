@@ -8,6 +8,8 @@ import { FeedbackListRoute } from './FeedbackListRoute.tsx'
 import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
 import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
 import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
+import { ResourceDetailRoute } from './ResourceDetailRoute.tsx'
+import { ResourceLibraryRoute } from './ResourceLibraryRoute.tsx'
 import { assessmentRoutePattern, pendingAssessmentSections } from './paths.ts'
 import { SchoolAssessmentDetailRoute } from './SchoolAssessmentDetailRoute.tsx'
 import { SchoolAssessmentListRoute } from './SchoolAssessmentListRoute.tsx'
@@ -29,6 +31,8 @@ export const assessmentRoute: RouteObject = {
     { path: 'enrichment/my', element: <MyEnrichmentTasksRoute /> },
     { path: 'enrichment/universities', element: <UniversityResourcesRoute /> },
     { path: 'enrichment/tasks/:taskId', element: <EnrichmentTaskDetailRoute /> },
+    { path: 'resources', element: <ResourceLibraryRoute /> },
+    { path: 'resources/:resourceId', element: <ResourceDetailRoute /> },
     ...Object.values(pendingAssessmentSections).map((section) => ({
       path: section.path.replace('/assessment/', ''),
       element: <AssessmentPendingRoute title={section.label} />,

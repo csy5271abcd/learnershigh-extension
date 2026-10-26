@@ -1,4 +1,6 @@
 import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
+import { Link } from 'react-router'
+import { resourcesPath } from '../../routes/paths.ts'
 import { ClipboardIcon, InfoIcon, NoteIcon, SendIcon, SparkleIcon } from '../AssessmentIcons.tsx'
 import styles from './detail.module.css'
 
@@ -181,6 +183,9 @@ export function ResourcesTab() {
         <p className={styles.panelEmptyText}>
           뉴스·영상·논문·통계 자료를 추천하고 노트에 추가하는 기능이 자료함과 함께 연결될 예정이에요. 지금은 찾은 자료의 출처를 노트에 적어 두세요.
         </p>
+        <Link to={resourcesPath} className={styles.textAction}>
+          내 자료함 열기
+        </Link>
       </div>
     </div>
   )

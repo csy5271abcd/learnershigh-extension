@@ -398,3 +398,47 @@ export interface UniversityResource {
   relatedConcepts: string[]
   inquiryIdeas: string[]
 }
+
+// ---- §22 참고자료 추천·자료함 (ST-10·11) ----
+// 학생 자료(ResourceReference)는 본인 비공개가 기본이다. 관리자 내부 스크랩·공개 탐구 콘텐츠·대학 공개 자료와 다른 Entity다.
+
+/**
+ * §22 자료 유형. 계약 예시는 `ARTICLE` 하나뿐이고 Enum이 확정되지 않았다 (MM-31).
+ * Mock은 Mockup RL-ADD-01의 7종을 후보 값으로 쓴다. 서버 확정 전까지 모르는 값도 문자열로 보존한다.
+ */
+export type ResourceType = string
+
+/** §22 POST 요청 (계약 예시 그대로) */
+export interface CreateResourceRequest {
+  type: ResourceType
+  title: string
+  sourceName: string | null
+  sourceUrl: string | null
+  author: string | null
+  publishedDate: string | null
+  memo: string | null
+  tags: string[]
+  fileRef: string | null
+}
+
+/** §22 GET 목록·상세. 응답 Shape이 없어 "요청 필드 + resourceId + 생성·수정 시각"으로 본다 (MM-30). */
+export interface StudentResource extends CreateResourceRequest {
+  resourceId: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** §22 PATCH. 수정 가능 필드가 계약에 없어 요청 필드의 부분 집합으로 본다 (MM-30). */
+export type UpdateResourceRequest = Partial<Omit<CreateResourceRequest, 'fileRef'>>
+
+/**
+ * §22 GET recommendations 항목. 응답 Shape이 없어 P-15(MM-21)의 제안 Shape을 가정한다.
+ * 추천은 "탐색 후보 자료원"이며 시스템이 해당 서비스 DB에 접근한다는 뜻이 아니다.
+ */
+export interface RecommendedSource {
+  sourceName: string
+  category: string
+  homepageUrl: string | null
+  description: string
+  searchKeywords: string[]
+}
