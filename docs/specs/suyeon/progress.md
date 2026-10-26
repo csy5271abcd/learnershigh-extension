@@ -715,6 +715,31 @@ Branch `feature/assessment-stage3-resource-library` (Stage 2 체크포인트 `72
 - Scratchpad Playwright: 자료함 43/43, 심화 탐구 65/65, 피드백 목록 32/32, 상세 45/45, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
 - `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
 
+
+## 2026-10-27 — Student 탐구 노트 편집기·Revision S8·S9 (Frontend 로드맵 Stage 4, Mock, PARTIAL)
+
+Branch `feature/assessment-stage4-note-editor` (Stage 3 체크포인트 `c9895af`에서 분기, 미커밋).
+
+### Done
+
+- 경량 블록 편집기(라이브러리 설치 없음): 소제목·본문·글머리/번호 목록·체크리스트·인용·표·자료 링크 카드, 블록 추가·삭제·이동·유형 전환, 빈 줄 "/", Alt+↑↓, 키보드 접근.
+- 저장: 첫 저장 §20 POST, 이후 §20 PUT(expectedRevisionId), Mock 자동 저장(1.5초, 정책 파일 분리), 상태 표시(저장 안 됨/저장 중/자동 저장됨 · vN/저장 실패/충돌), 실패 시 입력 보존·다시 저장, 409 충돌 비교 후 학생 선택(최신 위에 새 Revision / 최신 불러오기), 저장 안 된 변경 이동 보호.
+- 템플릿 10종 실제 적용(이모지 소제목이 편집 가능한 본문 블록), 끝에 추가 / 확인 후 새 노트로 시작.
+- 수정 이력: 과거 Revision 읽기 전용 보기, 복원 비활성+사유. 피드백 요청은 저장된 Revision만 가리키고(저장 안 된 변경 시 차단), 이후 편집해도 Snapshot 불변 확인.
+- 자료함 자료를 링크 카드로 삽입(§20 PUT 방식). 학교 수행평가·심화 탐구에서 같은 편집기, 저장 대상 분리.
+- 버그 수정(이번 작업 중 발견): 다른 화면에 다녀오면 편집기가 이전 조회 캐시로 시작해 저장된 최신 노트를 놓치던 문제, "/"로 유형을 바꾼 뒤 포커스를 잃어 입력이 사라지던 문제.
+
+### Open / Blocked
+
+- Editor 라이브러리(OD-A05)와 블록 Schema·자동 저장·충돌 정책(API-OD-A04) → P-18 제안(미승인, 설치 안 함). 목록 등 비계약 블록은 Mock 임시 형식(MM-33).
+- 복원 정책(§21), 자료 넣기 계약 선택(MM-34), 과제당 노트 수(MM-35), 드래그(MM-36), 이미지·PDF 블록(File Storage).
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend 전체): PASS.
+- Scratchpad Playwright: 노트 편집기 51/51, 상세 45/45(노트 관련 5개 기대값을 Stage 4 사양으로 갱신), 피드백 32/32, 심화 65/65, 자료함 43/43, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
+- `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
+
 ---
 
 # 24. 핵심 요약

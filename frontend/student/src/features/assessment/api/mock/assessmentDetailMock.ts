@@ -5,15 +5,18 @@ import type {
   AssessmentSourceType,
   CreateArtifactRequest,
   CreateFeedbackRequestBody,
+  CreateNoteRequest,
   FeedbackReplyResponse,
   FeedbackRequest,
   FeedbackRequestStatus,
   NoteRevisionDetail,
   NoteRevisionSummary,
   PageResponse,
+  SaveNoteResponse,
+  UpdateNoteRequest,
   UploadArtifactVersionRequest,
 } from '../types.ts'
-import type { ArtifactVersionRecord, FeedbackRequestRecord } from './assessmentDetailFixture.ts'
+import type { ArtifactVersionRecord, FeedbackRequestRecord, NoteRecord, NoteRevisionRecord } from './assessmentDetailFixture.ts'
 import { fail, mockNow, nextMockId, respond, scenarioActive } from './mockRuntime.ts'
 import { mockStore } from './mockStore.ts'
 
@@ -75,6 +78,80 @@ export function listNoteRevisionsMock(noteId: string): Promise<{ items: NoteRevi
         .reverse()
         .map(({ revisionId, revisionNumber, savedAt }) => ({ revisionId, revisionNumber, savedAt })),
     }
+  })
+}
+
+function validateNoteBody(title: string, blocks: CreateNoteRequest['blocks']) {
+  const ids = new Set<string>()
+  for (const block of blocks) {
+    if (!block.blockId || ids.has(block.blockId)) validationError('blocks', 'duplicateBlockId')
+    ids.add(block.blockId)
+  }
+  if (title.length > 200) validationError('title', 'tooLong')
+}
+
+function appendRevision(note: NoteRecord, title: string, blocks: CreateNoteRequest['blocks']): SaveNoteResponse {
+  const previous = note.revisions[note.revisions.length - 1]
+  const revision: NoteRevisionRecord = {
+    revisionId: nextMockId('rev'),
+    revisionNumber: (previous?.revisionNumber ?? 0) + 1,
+    savedAt: mockNow(),
+    title: title.trim() || '탐구 노트',
+    // 새 Revision은 요청 본문을 복사해 둔다. 이전 Revision 배열은 건드리지 않는다 (§21 immutable).
+    blocks: structuredClone(blocks),
+  }
+  note.revisions.push(revision)
+  return {
+    noteId: note.noteId,
+    revisionId: revision.revisionId,
+    revisionNumber: revision.revisionNumber,
+    savedAt: revision.savedAt,
+    updatedAt: revision.savedAt,
+  }
+}
+
+export function createNoteMock(request: CreateNoteRequest): Promise<SaveNoteResponse> {
+  return respond(() => {
+    if (scenarioActive('noteSaveError')) {
+      fail(500, { code: 'INTERNAL_ERROR', message: '일시적인 서버 오류로 노트를 저장하지 못했어요.', details: {} })
+    }
+    assertSourceExists(request.sourceType, request.sourceId)
+    validateNoteBody(request.title, request.blocks)
+    // 같은 과제에 이미 노트가 있으면 새로 만들지 않는다 (중복 생성 방지, 과제당 노트 수 정책은 미정 MM-18).
+    if (mockStore.notes.some((note) => note.sourceType === request.sourceType && note.sourceId === request.sourceId)) {
+      fail(409, { code: 'RESOURCE_VERSION_CONFLICT', message: '다른 변경사항이 먼저 저장되었습니다.', details: { reason: 'NOTE_EXISTS' } })
+    }
+    const note: NoteRecord = { noteId: nextMockId('note'), sourceType: request.sourceType, sourceId: request.sourceId, revisions: [] }
+    mockStore.notes.push(note)
+    return appendRevision(note, request.title, request.blocks)
+  })
+}
+
+export function updateNoteMock(noteId: string, request: UpdateNoteRequest): Promise<SaveNoteResponse> {
+  return respond(() => {
+    if (scenarioActive('noteSaveError')) {
+      fail(500, { code: 'INTERNAL_ERROR', message: '일시적인 서버 오류로 노트를 저장하지 못했어요.', details: {} })
+    }
+    const note = mockStore.notes.find((item) => item.noteId === noteId)
+    if (!note) fail(404, { code: 'NOTE_NOT_FOUND', message: '노트를 찾을 수 없어요.', details: {} })
+    // noteConflict: 다른 기기에서 먼저 저장한 상황을 재현한다 (그 저장을 실제 Revision으로 남긴다).
+    if (scenarioActive('noteConflict')) {
+      const latest = note.revisions[note.revisions.length - 1]
+      appendRevision(note, latest.title, [
+        ...latest.blocks,
+        { blockId: nextMockId('block'), type: 'PARAGRAPH', text: '(다른 기기에서 추가한 문단 · 시연)' },
+      ])
+    }
+    const latest = note.revisions[note.revisions.length - 1]
+    if (request.expectedRevisionId !== latest.revisionId) {
+      fail(409, {
+        code: 'RESOURCE_VERSION_CONFLICT',
+        message: '다른 변경사항이 먼저 저장되었습니다.',
+        details: { currentRevisionId: latest.revisionId, currentRevisionNumber: latest.revisionNumber },
+      })
+    }
+    validateNoteBody(request.title, request.blocks)
+    return appendRevision(note, request.title, request.blocks)
   })
 }
 

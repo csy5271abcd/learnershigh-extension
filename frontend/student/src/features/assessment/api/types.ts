@@ -131,6 +131,41 @@ export interface NoteBlock {
   blockId: string
   type: string
   text: string
+  /**
+   * **Mock 임시 필드 (계약 없음, MM-33).** 체크 여부·표 셀·링크 카드 출처처럼 HEADING/PARAGRAPH 밖의 블록 데이터를
+   * Stage 1 Mock에서만 보존한다. 블록 Schema는 Editor 선정(OD-A05)·API-OD-A04 결정 뒤 확정한다.
+   */
+  attrs?: NoteBlockAttrs
+}
+
+export interface NoteBlockAttrs {
+  checked?: boolean
+  rows?: string[][]
+  resource?: { resourceId: string; title: string; type: string; sourceName: string | null; sourceUrl: string | null }
+}
+
+/** §20 POST /notes 요청 */
+export interface CreateNoteRequest {
+  sourceType: AssessmentSourceType
+  sourceId: string
+  title: string
+  blocks: NoteBlock[]
+}
+
+/** §20 PUT /notes/{noteId} 요청. 전체 본문 + 편집을 시작한 Revision */
+export interface UpdateNoteRequest {
+  expectedRevisionId: string
+  title: string
+  blocks: NoteBlock[]
+}
+
+/** §20 저장 응답 (POST·PUT 공통) */
+export interface SaveNoteResponse {
+  noteId: string
+  revisionId: string
+  revisionNumber: number
+  savedAt: string
+  updatedAt: string
 }
 
 /**

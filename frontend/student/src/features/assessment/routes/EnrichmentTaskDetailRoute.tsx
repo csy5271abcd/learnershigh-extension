@@ -19,11 +19,10 @@ import {
   ArchiveIcon,
 } from '../components/AssessmentIcons.tsx'
 import { DetailTopBar, type MoreMenuItem } from '../components/detail/DetailTopBar.tsx'
-import { NoteSection } from '../components/detail/NoteSection.tsx'
-import { TemplateModal } from '../components/detail/TemplateModal.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { EnrichmentPanel, type EnrichmentPanelTab } from '../components/enrichment/EnrichmentPanel.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
+import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState } from '../components/notes/NoteEditor.tsx'
 import { Modal } from '../components/Modal.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
@@ -59,7 +58,9 @@ export function EnrichmentTaskDetailRoute() {
   const { terms, termAssessments, notifyDataChanged } = useAssessmentWorkspace()
   const [taskVersion, setTaskVersion] = useState(0)
   const task = useApiQuery(`ae-task|${taskId}|${taskVersion}`, () => getEnrichmentTask(taskId))
-  const notes = useApiQuery(`ae-notes|${taskId}`, () => listNotes('ENRICHMENT_TASK', taskId))
+  const [notesVersion, setNotesVersion] = useState(0)
+  const notes = useApiQuery(`ae-notes|${taskId}|${notesVersion}`, () => listNotes('ENRICHMENT_TASK', taskId))
+  const [editorState, setEditorState] = useState<NoteEditorState>()
   const item = task.data?.taskId === taskId ? task.data : undefined
   const related = useApiQuery(item?.relatedAssessmentId ? `ae-related|${item.relatedAssessmentId}` : 'ae-related|none', () =>
     item?.relatedAssessmentId ? getSchoolAssessment(item.relatedAssessmentId) : Promise.resolve(null),
@@ -68,7 +69,6 @@ export function EnrichmentTaskDetailRoute() {
   const [panelTab, setPanelTab] = useState<EnrichmentPanelTab>('selfCheck')
   const [pendingStatus, setPendingStatus] = useState(false)
   const [linking, setLinking] = useState(false)
-  const [templatesOpen, setTemplatesOpen] = useState(false)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const showToast = useCallback(
@@ -87,11 +87,14 @@ export function EnrichmentTaskDetailRoute() {
         title={item?.title}
         subjectId={item?.subjectId}
         subjectName={item ? subjectName(item.subjectId) : ''}
-        noteId={note?.noteId}
+        noteId={editorState?.noteId ?? note?.noteId}
         onBack={goBack}
         onUnavailable={(message) => showToast('info', message)}
         root={enrichmentRoot}
         menuItems={enrichmentMenuItems}
+        saveStatus={<NoteSaveStatusLabel state={editorState} />}
+        currentRevisionId={editorState?.baseRevisionId}
+        hasUnsavedChanges={editorState?.unsaved}
       />
       <div className={styles.body}>
         <div className={styles.main}>
@@ -214,13 +217,19 @@ export function EnrichmentTaskDetailRoute() {
             </div>
           </dl>
 
-          <NoteSection notes={notes} onOpenTemplates={() => setTemplatesOpen(true)} />
+          <NoteEditor
+            key={item.taskId}
+            sourceType="ENRICHMENT_TASK"
+            sourceId={item.taskId}
+            notes={notes}
+            onSaved={() => setNotesVersion((value) => value + 1)}
+            onStateChange={setEditorState}
+          />
           <MockDataNotice />
         </>,
         <EnrichmentPanel task={item} hasNote={note !== undefined} activeTab={panelTab} onTabChange={setPanelTab} />,
       )}
 
-      {templatesOpen && <TemplateModal hasNote={note !== undefined} onClose={() => setTemplatesOpen(false)} />}
       {linking && (
         <LinkAssessmentModal
           task={item}

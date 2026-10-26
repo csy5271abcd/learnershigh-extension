@@ -34,6 +34,8 @@ export type MockScenario =
   | 'resourceRecommendationError'
   | 'resourceCreateError'
   | 'resourceUpdateError'
+  | 'noteSaveError'
+  | 'noteConflict'
 
 const consumedOnce = new Set<string>()
 

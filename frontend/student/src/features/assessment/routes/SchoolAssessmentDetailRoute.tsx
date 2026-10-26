@@ -29,11 +29,10 @@ import { DetailPanel, type DetailPanelTab } from '../components/detail/DetailPan
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
-import { NoteSection } from '../components/detail/NoteSection.tsx'
-import { TemplateModal } from '../components/detail/TemplateModal.tsx'
 import { TopicSuggestionModal } from '../components/detail/TopicSuggestionModal.tsx'
 import { UploadArtifactModal } from '../components/detail/UploadArtifactModal.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
+import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState } from '../components/notes/NoteEditor.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -54,7 +53,6 @@ import styles from './SchoolAssessmentDetailRoute.module.css'
 
 type ModalState =
   | { kind: 'upload'; target?: { artifact: Artifact; latest: ArtifactVersion | undefined } }
-  | { kind: 'template' }
   | { kind: 'topic' }
   | { kind: 'sent'; request: FeedbackRequest }
 
@@ -117,6 +115,14 @@ export function SchoolAssessmentDetailRoute() {
     [],
   )
   const panelRef = useRef<HTMLDivElement>(null)
+  const [editorState, setEditorState] = useState<NoteEditorState>()
+  // 피드백 Snapshot은 서버에 저장된 Revision만 가리켜야 한다. 편집기에 저장 안 된 변경이 있거나
+  // 저장 직후 목록이 아직 최신 Revision을 받지 못했으면 요청을 막는다 (feedback §4, testing §9).
+  const noteBlockedReason = editorState?.unsaved
+    ? '노트에 저장되지 않은 변경이 있어요. 저장된 뒤 요청할 수 있어요.'
+    : editorState?.baseRevisionId && editorState.baseRevisionId !== note?.revisionId
+      ? '노트 저장 상태를 확인하는 중이에요.'
+      : undefined
 
   // 목록에서 들어왔으면 History로 돌아가 URL의 검색·필터와 Scroll을 그대로 복원한다.
   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate(schoolAssessmentsPath))
@@ -155,10 +161,13 @@ export function SchoolAssessmentDetailRoute() {
       title={item?.title}
       subjectId={item?.subjectId}
       subjectName={item ? subjectName(item.subjectId) : ''}
-      noteId={note?.noteId}
+      noteId={editorState?.noteId ?? note?.noteId}
       onBack={goBack}
       onRequestFeedback={openFeedback}
       onUnavailable={(message) => showToast('info', message)}
+      saveStatus={<NoteSaveStatusLabel state={editorState} />}
+      currentRevisionId={editorState?.baseRevisionId}
+      hasUnsavedChanges={editorState?.unsaved}
     />
   )
 
@@ -224,6 +233,7 @@ export function SchoolAssessmentDetailRoute() {
         <FeedbackTab
           assessmentId={item.assessmentId}
           note={note}
+          noteBlockedReason={noteBlockedReason}
           selections={selections}
           artifactsStatus={artifacts.status}
           versionsById={versionsById}
@@ -312,7 +322,14 @@ export function SchoolAssessmentDetailRoute() {
             onUnavailable={(message) => showToast('info', message)}
           />
 
-          <NoteSection notes={notes} onOpenTemplates={() => setModal({ kind: 'template' })} />
+          <NoteEditor
+            key={item.assessmentId}
+            sourceType="SCHOOL_ASSESSMENT"
+            sourceId={item.assessmentId}
+            notes={notes}
+            onSaved={refreshDetail}
+            onStateChange={setEditorState}
+          />
         </>,
         panel,
       )}
@@ -334,7 +351,6 @@ export function SchoolAssessmentDetailRoute() {
           }}
         />
       )}
-      {modal?.kind === 'template' && <TemplateModal hasNote={note !== undefined} onClose={() => setModal(undefined)} />}
       {modal?.kind === 'topic' && (
         <TopicSuggestionModal subjects={currentSubjects} initialSubjectId={item.subjectId} onClose={() => setModal(undefined)} />
       )}

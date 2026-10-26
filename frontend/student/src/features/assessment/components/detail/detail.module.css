@@ -1257,3 +1257,43 @@
 .textAction:hover {
   text-decoration: underline;
 }
+
+/* 수정 이력 항목 (누르면 그 버전 보기, 복원은 정책 미정이라 비활성) */
+.revisionList .revisionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px;
+}
+
+.revisionOpen {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--as-radius-xs);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.revisionOpen:hover,
+.revisionOpen:focus-visible {
+  background: var(--as-color-fill);
+}
+
+.revisionRestore {
+  flex: none;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-surface);
+  color: var(--as-color-text-tertiary);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  cursor: not-allowed;
+}

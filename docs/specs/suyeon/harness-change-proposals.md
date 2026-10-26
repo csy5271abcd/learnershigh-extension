@@ -26,6 +26,7 @@
 | P-15 | `docs/api/api-contract.md` §12·14·20·22·24·31 + 신규 기준 조회 | 수행평가 상세 화면이 요구하는 최소 계약 보완 (MM-03·18~22) | 없음 (Assessment 전용) | 필요 |
 | P-16 | `docs/api/api-contract.md` §16·17·18·27·30 | 심화 탐구 화면의 응답 Shape·필터 보완 (MM-26~29) | 없음 (Assessment 전용) | 필요 |
 | P-17 | `docs/api/api-contract.md` §22·23 | 자료함 응답 Shape·유형 Enum·자료 연결 보완 (MM-21·30~32) | 없음 (Assessment 전용) | 필요 |
+| P-18 | 신규 ADR 제안 + `api-contract.md` §19~21·23 | 탐구 노트 Editor 라이브러리·블록 Schema·자동 저장·충돌 정책 결정 (OD-A05, API-OD-A04, MM-18·25·33~36) | 없음 (Assessment 전용) | 필요 (라이브러리 설치 승인 포함) |
 
 ---
 
@@ -348,3 +349,42 @@ backend/bin/
 | MM-31 | `type` Enum 후보: `LINK`·`ARTICLE`·`PAPER`·`BOOK`·`VIDEO`·`PDF`·`IMAGE` (+`STATISTICS`?) | §22 본문의 통계·공공데이터 자료원과 정합 확인 |
 | MM-32 | 출처 표시: 입력 완결성(작성자·발행일)과 실제 확인 상태를 구분할지, 상태 필드(`sourceCheck`)를 둘지 | AI·관리자 검증과 학생 입력을 섞지 않는다 |
 | — | 자료 삭제/보관: §30 표의 `ResourceReference` 삭제·복원 범위 결정 (현재 화면은 삭제 없음) | API-OD-A08 |
+
+## P-18. 탐구 노트 Editor 기술·블록 Schema 결정 제안 (2026-10-27, Stage 4 Frontend 구현 중 작성)
+
+상태: **PROPOSED — 적용·설치하지 않음.** Stage 4는 라이브러리 없이 React 입력 요소로 만든 경량 블록 편집기로 구현했다. 편집 화면(`components/notes/NoteBlockEditor.tsx`)과 저장·Revision 흐름(`model/useNoteDraft.ts`, `model/noteEditorModel.ts`)을 분리해 두어, 라이브러리를 도입해도 저장·충돌·Revision 계층은 그대로 쓴다.
+
+### 1. 현재 환경
+
+React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor 관련 패키지는 없다(2026-10-27 `package.json`·lockfile 확인).
+
+### 2. 후보 비교 (설치·실행 검증 안 함 — "확인 필요"는 설치 전 반드시 확인)
+
+| 기준 | Tiptap | BlockNote | Lexical | 현재 경량 편집기 |
+|---|---|---|---|---|
+| 기반·라이선스 | ProseMirror 기반, 핵심 MIT (일부 Pro 확장은 유료) | Tiptap/ProseMirror 기반, 핵심 MPL-2.0, 일부 "XL" 패키지는 GPL-3.0 또는 상용 | Meta, MIT | 없음 (자체 코드) |
+| Notion형 블록 UX | 확장으로 구성해야 함 | 기본 제공 (블록 메뉴·드래그·"/" 메뉴) | 플러그인으로 구성 | 일부 (메뉴·"/"·이동 버튼, 드래그 없음) |
+| 안정적 blockId | 별도 확장 필요 (오픈소스 여부 확인 필요) | 블록마다 id 기본 제공 | node key는 실행 중 값이라 별도 id 필드 필요 | 있음 (생성 시 1회) |
+| 표·체크리스트 | 공식 확장 | 기본 블록 | 플러그인 | 있음 (단순) |
+| 링크 카드·자료 블록 | 커스텀 Node | 커스텀 블록 | 커스텀 Node | 있음 (자료함 resourceId) |
+| 직렬화 | ProseMirror JSON | 자체 Block JSON (블록 배열에 가까움) | Lexical JSON | §20 NoteBlock 배열 그대로 |
+| Mockup 디자인 맞춤 | 자유로움 (헤드리스) | 기본 UI 테마 재정의 필요 | 자유로움 | 완전 |
+| React 19·Vite 8 호환 | 확인 필요 | 확인 필요 | 확인 필요 | 확인됨 (빌드 통과) |
+| 의존성·유지보수 | 중간 | 큼 (UI 프레임워크 포함 여부 확인 필요) | 중간 | 직접 유지 |
+
+### 3. 제안
+
+1순위 **BlockNote**(블록 id·Notion형 UX가 Mockup과 가장 가깝고 §20 블록 배열과 직렬화가 비슷함), 대안 **Tiptap**(디자인 제어가 더 쉬움). 결정 전 확인:
+
+- 설치 후보 버전의 React 19·Vite 8 peer dependency 호환, 번들 크기
+- 라이선스: MPL-2.0 핵심만 쓰고 GPL/상용 패키지는 쓰지 않는지 팀 확인
+- 기본 UI 의존 여부와 `--as-*` Token으로 재정의 가능한지
+- 한국어 IME 입력·Backspace·"/" 메뉴 동작
+
+### 4. 계약에 함께 정할 것 (`api-contract.md` §19~21·23, API-OD-A04)
+
+- 블록 Schema: `type` Enum(MM-33 후보: HEADING·PARAGRAPH·BULLET·NUMBERED·CHECKLIST·QUOTE·TABLE·RESOURCE_LINK, 이미지·PDF 블록은 File Storage 결정 후), 유형별 추가 필드(`checked`, `rows`, `resource{resourceId,title,type,sourceName,sourceUrl}`)
+- 자동 저장 주기·Revision 단위, 충돌 처리(현재 Mock: 409 → 비교 → 학생 선택: 최신 위에 새 Revision 저장 / 최신 불러오기, 자동 병합 없음)
+- §21 Revision 상세 응답 Shape(MM-25), 복원 = 새 Revision 생성 여부
+- 자료 넣기: §20 PUT(현재 Mock) 또는 §23 (MM-34)
+- 과제당 노트 수와 "새 노트로 시작"의 의미(MM-35)

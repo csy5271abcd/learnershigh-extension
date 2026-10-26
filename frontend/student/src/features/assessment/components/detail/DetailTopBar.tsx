@@ -1,4 +1,4 @@
-import { useId, type ComponentType } from 'react'
+import { useId, useState, type ComponentType, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { listNoteRevisions } from '../../api/assessmentDetailApi.ts'
 import { assessmentToday } from '../../api/runtimeInfo.ts'
@@ -16,6 +16,7 @@ import {
   SproutIcon,
   TrashIcon,
 } from '../AssessmentIcons.tsx'
+import { RevisionPreviewModal } from '../notes/NoteModals.tsx'
 import { ErrorState } from '../StateViews.tsx'
 import styles from './detail.module.css'
 import { usePopover } from './usePopover.ts'
@@ -39,6 +40,12 @@ interface DetailTopBarProps {
   /** Breadcrumb 첫 단계 (기본: 학교 수행평가) */
   root?: { label: string; path: string; subjectPath: (subjectId: string) => string; backLabel: string }
   menuItems?: MoreMenuItem[]
+  /** 노트 저장 상태 (Mockup "자동 저장됨" 자리) */
+  saveStatus?: ReactNode
+  /** 지금 편집기의 기준 Revision. 바뀌면 수정 이력을 다시 불러온다. */
+  currentRevisionId?: string
+  /** 저장 안 된 변경이 있으면 이력에 안내한다 */
+  hasUnsavedChanges?: boolean
 }
 
 // 상세 상단 바 (Mockup SA-DETAIL-01·12·14): 뒤로·Breadcrumb / 수정 이력 / 선생님께 피드백 요청 / 더보기.
@@ -53,6 +60,9 @@ export function DetailTopBar({
   onUnavailable,
   root = { label: '학교 수행평가', path: schoolAssessmentsPath, subjectPath: subjectAssessmentsPath, backLabel: '학교 수행평가로 돌아가기' },
   menuItems = moreItems,
+  saveStatus,
+  currentRevisionId,
+  hasUnsavedChanges = false,
 }: DetailTopBarProps) {
   return (
     <div className={styles.topBar}>
@@ -75,7 +85,13 @@ export function DetailTopBar({
         </ol>
       </nav>
       <div className={styles.topActions}>
-        <RevisionHistory noteId={noteId} />
+        {saveStatus}
+        <RevisionHistory
+          noteId={noteId}
+          currentRevisionId={currentRevisionId}
+          hasUnsavedChanges={hasUnsavedChanges}
+          onUnavailable={onUnavailable}
+        />
         {onRequestFeedback && (
           <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
             <ChatIcon size={15} />
@@ -88,9 +104,19 @@ export function DetailTopBar({
   )
 }
 
-function RevisionHistory({ noteId }: { noteId: string | undefined }) {
-  const { open, setOpen, rootRef, triggerRef } = usePopover()
+interface RevisionHistoryProps {
+  noteId: string | undefined
+  currentRevisionId: string | undefined
+  hasUnsavedChanges: boolean
+  onUnavailable: (message: string) => void
+}
+
+const restoreReason = '이전 버전 복원은 정책이 정해지기 전이라 아직 할 수 없어요. 과거 버전은 바뀌지 않고 그대로 남아 있어요.'
+
+function RevisionHistory({ noteId, currentRevisionId, hasUnsavedChanges, onUnavailable }: RevisionHistoryProps) {
+  const { open, setOpen, close, rootRef, triggerRef } = usePopover()
   const panelId = useId()
+  const [previewId, setPreviewId] = useState<string>()
   return (
     <div ref={rootRef} className={styles.popoverRoot}>
       <button
@@ -106,16 +132,47 @@ function RevisionHistory({ noteId }: { noteId: string | undefined }) {
       </button>
       {open && (
         <div id={panelId} className={`${styles.popover} ${styles.revisionPopover}`} role="dialog" aria-label="노트 수정 이력">
-          {noteId ? <RevisionList noteId={noteId} /> : <p className={styles.popoverHint}>아직 저장된 노트가 없어요.</p>}
+          {noteId ? (
+            <RevisionList
+              noteId={noteId}
+              currentRevisionId={currentRevisionId}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onOpen={(revisionId) => {
+                close(false)
+                setPreviewId(revisionId)
+              }}
+              onRestore={() => onUnavailable(restoreReason)}
+            />
+          ) : (
+            <p className={styles.popoverHint}>아직 저장된 노트가 없어요.</p>
+          )}
         </div>
+      )}
+      {noteId && previewId && (
+        <RevisionPreviewModal
+          noteId={noteId}
+          revisionId={previewId}
+          currentRevisionId={currentRevisionId}
+          onClose={() => setPreviewId(undefined)}
+          onRestoreUnavailable={() => onUnavailable(restoreReason)}
+        />
       )}
     </div>
   )
 }
 
 // §21 Revision 목록. 과거 Revision은 바뀌지 않는다. 되돌리기(복원)는 계약 미확정이라 제공하지 않는다 (§21·§61).
-function RevisionList({ noteId }: { noteId: string }) {
-  const revisions = useApiQuery(`note-revisions|${noteId}`, () => listNoteRevisions(noteId))
+interface RevisionListProps {
+  noteId: string
+  currentRevisionId: string | undefined
+  hasUnsavedChanges: boolean
+  onOpen: (revisionId: string) => void
+  onRestore: () => void
+}
+
+function RevisionList({ noteId, currentRevisionId, hasUnsavedChanges, onOpen, onRestore }: RevisionListProps) {
+  // 저장할 때마다 기준 Revision이 바뀌므로 key에 넣어 새 이력을 불러온다.
+  const revisions = useApiQuery(`note-revisions|${noteId}|${currentRevisionId ?? ''}`, () => listNoteRevisions(noteId))
   if (revisions.status === 'error' && revisions.error) {
     return <ErrorState title="수정 이력을 불러오지 못했어요" error={revisions.error} onRetry={revisions.retry} />
   }
@@ -123,15 +180,25 @@ function RevisionList({ noteId }: { noteId: string }) {
   const today = assessmentToday()
   return (
     <>
-      <p className={styles.popoverHint}>저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요.</p>
+      <p className={styles.popoverHint}>
+        저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요. 눌러서 읽어 볼 수 있어요.
+        {hasUnsavedChanges ? ' 지금 편집 중인 내용은 아직 저장되지 않았어요.' : ''}
+      </p>
       <ol className={styles.revisionList}>
         {revisions.data.items.map((revision, index) => (
-          <li key={revision.revisionId}>
-            <span className={styles.revisionTime}>{formatRelativeDateTime(revision.savedAt, today)}</span>
-            <span className={styles.revisionMeta}>
-              v{revision.revisionNumber}
-              {index === 0 ? ' · 현재 버전' : ''}
-            </span>
+          <li key={revision.revisionId} className={styles.revisionItem}>
+            <button type="button" className={styles.revisionOpen} onClick={() => onOpen(revision.revisionId)}>
+              <span className={styles.revisionTime}>{formatRelativeDateTime(revision.savedAt, today)}</span>
+              <span className={styles.revisionMeta}>
+                v{revision.revisionNumber}
+                {index === 0 ? ' · 현재 버전' : ''}
+              </span>
+            </button>
+            {index > 0 && (
+              <button type="button" className={styles.revisionRestore} aria-disabled="true" onClick={onRestore}>
+                복원
+              </button>
+            )}
           </li>
         ))}
       </ol>

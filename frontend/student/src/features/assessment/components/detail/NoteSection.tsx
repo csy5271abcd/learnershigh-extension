@@ -1,7 +1,8 @@
 import type { AssessmentNote, NoteBlock } from '../../api/types.ts'
 import { formatDateTime } from '../../model/assessmentDetailView.ts'
 import type { QueryResult } from '../../model/useApiQuery.ts'
-import { InfoIcon, NoteIcon, TemplateIcon } from '../AssessmentIcons.tsx'
+import { InfoIcon, LinkIcon, NoteIcon, TemplateIcon } from '../AssessmentIcons.tsx'
+import noteStyles from '../notes/notes.module.css'
 import { ErrorState, LoadingRows } from '../StateViews.tsx'
 import styles from './detail.module.css'
 
@@ -54,9 +55,70 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
   )
 }
 
-/** 계약 예시의 HEADING·PARAGRAPH만 형식을 입힌다. 그 외 type은 내용을 잃지 않게 본문으로 보여준다. */
-export function NoteBlockView({ block }: { block: NoteBlock }) {
+/**
+ * 읽기 전용 블록 (과거 Revision·피드백 Snapshot·비교). 계약 예시의 HEADING·PARAGRAPH 외 유형은
+ * Stage 4 Mock 임시 형식(MM-33)으로 보여주고, 모르는 type은 내용을 잃지 않게 본문으로 보여준다.
+ */
+export function NoteBlockView({ block, number }: { block: NoteBlock; number?: number }) {
   if (block.type === 'HEADING') return <h3 className={styles.noteHeading}>{block.text}</h3>
+  if (block.type === 'BULLET' || block.type === 'NUMBERED' || block.type === 'CHECKLIST') {
+    const marker = block.type === 'BULLET' ? '•' : block.type === 'NUMBERED' ? `${number ?? 1}.` : block.attrs?.checked ? '☑' : '☐'
+    return (
+      <p className={noteStyles.readList}>
+        <span aria-hidden="true">{marker}</span>
+        <span>
+          {block.type === 'CHECKLIST' && <span className="lh-visually-hidden">{block.attrs?.checked ? '완료: ' : '미완료: '}</span>}
+          {block.text}
+        </span>
+      </p>
+    )
+  }
+  if (block.type === 'QUOTE') return <blockquote className={noteStyles.readQuote}>{block.text}</blockquote>
+  if (block.type === 'TABLE') {
+    return (
+      <table className={noteStyles.readTable}>
+        <tbody>
+          {(block.attrs?.rows ?? []).map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )
+  }
+  if (block.type === 'RESOURCE_LINK') {
+    const resource = block.attrs?.resource
+    return (
+      <div className={noteStyles.linkCard}>
+        <span className={noteStyles.linkIcon} aria-hidden="true">
+          <LinkIcon size={14} />
+        </span>
+        <span>
+          <span className={noteStyles.linkMeta}>{resource?.sourceName ?? '출처 미입력'}</span>
+          <span className={noteStyles.linkTitle}>{resource?.title ?? block.text}</span>
+          {resource?.sourceUrl && <span className={noteStyles.linkUrl}>{resource.sourceUrl}</span>}
+        </span>
+      </div>
+    )
+  }
   if (block.text === '') return <p className={styles.noteEmptyParagraph} aria-hidden="true" />
   return <p className={styles.noteParagraph}>{block.text}</p>
+}
+
+/** 블록 목록 (번호 목록은 연속된 NUMBERED끼리 1부터 센다) */
+export function NoteBlocksView({ blocks }: { blocks: NoteBlock[] }) {
+  const numbers = blocks.reduce<number[]>((acc, block, index) => {
+    acc.push(block.type === 'NUMBERED' ? (index > 0 ? acc[index - 1] : 0) + 1 : 0)
+    return acc
+  }, [])
+  return (
+    <>
+      {blocks.map((block, index) => (
+        <NoteBlockView key={block.blockId} block={block} number={numbers[index] || undefined} />
+      ))}
+    </>
+  )
 }

@@ -27,6 +27,8 @@ export interface SelectedArtifactVersion {
 interface FeedbackTabProps {
   assessmentId: string
   note: AssessmentNote | undefined
+  /** 노트 편집기 상태 때문에 지금 요청할 수 없는 이유 (저장 안 된 변경 등) */
+  noteBlockedReason?: string
   selections: SelectedArtifactVersion[]
   /** 결과 파일 목록 조회 상태. 확인되기 전에는 요청하지 않는다 (불러오는 중에 보내면 파일이 Snapshot에서 빠진다). */
   artifactsStatus: QueryStatus
@@ -39,7 +41,7 @@ interface FeedbackTabProps {
 // 선생님께 피드백 요청 (Mockup SA-DETAIL-10·13, assessment-feedback.md §4·§8, api-contract.md §31·32).
 // 질문 입력 없이 요청한다. 요청 시점의 노트 Revision과 선택한 파일 버전이 Snapshot으로 고정된다.
 // Mockup의 "받는 분 OOO 선생님"·학생 정보·첨부·참고자료 줄은 계약에 없어 표시하지 않는다 (MM-04·10).
-export function FeedbackTab({ assessmentId, note, selections, artifactsStatus, versionsById, history, onSent }: FeedbackTabProps) {
+export function FeedbackTab({ assessmentId, note, noteBlockedReason, selections, artifactsStatus, versionsById, history, onSent }: FeedbackTabProps) {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string>()
   const sendingRef = useRef(false)
@@ -53,7 +55,9 @@ export function FeedbackTab({ assessmentId, note, selections, artifactsStatus, v
 
   const disabledReason = !note
     ? '저장된 탐구 노트가 있어야 요청할 수 있어요.'
-    : artifactsStatus === 'loading'
+    : noteBlockedReason
+      ? noteBlockedReason
+      : artifactsStatus === 'loading'
       ? '결과 파일 목록을 불러오는 중이에요.'
       : artifactsStatus === 'error'
         ? '결과 파일 목록을 불러오지 못했어요. 결과물 영역에서 다시 시도한 뒤 요청할 수 있어요.'

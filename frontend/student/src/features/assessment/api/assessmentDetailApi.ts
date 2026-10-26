@@ -2,6 +2,7 @@ import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
 import {
   createArtifactMock,
+  createNoteMock,
   createFeedbackRequestMock,
   getFeedbackReplyMock,
   listArtifactsMock,
@@ -10,6 +11,7 @@ import {
   getNoteRevisionMock,
   listNoteRevisionsMock,
   listNotesMock,
+  updateNoteMock,
   uploadArtifactVersionMock,
 } from './mock/assessmentDetailMock.ts'
 import type {
@@ -19,17 +21,20 @@ import type {
   AssessmentSourceType,
   CreateArtifactRequest,
   CreateFeedbackRequestBody,
+  CreateNoteRequest,
   FeedbackReplyResponse,
   FeedbackRequest,
   FeedbackRequestStatus,
   NoteRevisionDetail,
   NoteRevisionSummary,
   PageResponse,
+  SaveNoteResponse,
+  UpdateNoteRequest,
   UploadArtifactVersionRequest,
 } from './types.ts'
 
 // 수행평가 상세가 호출하는 노트·결과물·피드백 API. Mock과 Stage 2 http는 같은 시그니처를 가진다.
-// 노트 저장(§20 PUT/POST)은 Editor 선정(OD-A05) 전이라 이번 단계에서 제공하지 않는다.
+// 노트 저장(§20 POST/PUT)은 Stage 4 경량 편집기가 쓴다. 블록 Schema는 OD-A05·API-OD-A04 결정 전 Mock 가정이다.
 
 function httpNotConnected(): Promise<never> {
   return Promise.reject(
@@ -40,6 +45,16 @@ function httpNotConnected(): Promise<never> {
 /** §20 GET /api/student/assessment/notes?sourceType=&sourceId= */
 export function listNotes(sourceType: AssessmentSourceType, sourceId: string): Promise<{ items: AssessmentNote[] }> {
   return isMockDataSource ? listNotesMock(sourceType, sourceId) : httpNotConnected()
+}
+
+/** §20 POST /api/student/assessment/notes — 노트 첫 저장 (Revision 1) */
+export function createNote(request: CreateNoteRequest): Promise<SaveNoteResponse> {
+  return isMockDataSource ? createNoteMock(request) : httpNotConnected()
+}
+
+/** §20 PUT /api/student/assessment/notes/{noteId} — 새 Revision 저장. 다른 저장이 먼저 있으면 409 RESOURCE_VERSION_CONFLICT */
+export function updateNote(noteId: string, request: UpdateNoteRequest): Promise<SaveNoteResponse> {
+  return isMockDataSource ? updateNoteMock(noteId, request) : httpNotConnected()
 }
 
 /** §21 GET /api/student/assessment/notes/{noteId}/revisions */

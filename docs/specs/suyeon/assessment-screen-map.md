@@ -17,8 +17,8 @@
 | S5 | PDF 가져오기 모달 | `SA-LIST-02` | student §5 (ST-02) | §10·11 | (모달) | 분석은 Stage 3 AI, Stage 1은 상태 표현만 |
 | S6 | 과목별 목록 | `SA-Subject-Lists/SA-SUB-01~04` | student §3·§6 | §12 (subjectId) | `/assessment/school-assessments?subject=` | 같은 목록에 필터를 적용한 것 |
 | S7 | 수행평가 상세 (기본·상태 변형·더보기) — **2026-10-26 Stage 1 구현** (계약 밖 속성 제외) | `SA-Detail/SA-DETAIL-01,03~06,14` | student §6 | §12·13 | `/assessment/school-assessments/:assessmentId` | 01 이미지 확인: 계약 밖 필드 있음 (§3 표) |
-| S8 | 탐구 노트 (상세 페이지 하단에 포함) + 템플릿 모달 | `SN-Detail/SN-DETAIL-01`, `SN-Templates/SN-TEMPLATE-01` | inquiry §5·§6 | §19~21 | S7 내부 | **별도 페이지가 아니라 상세 페이지 안에 포함** (이미지 확인). Editor Library 미정 **구현(2026-10-26): 최신 Revision 읽기 전용 + 템플릿 미리보기. 편집·적용은 Editor 결정 후** |
-| S9 | 수정 이력 모달 | `SA-DETAIL-12` | inquiry §5 | §21 | (모달) | **구현: Revision 목록(§21) Popover, 복원 없음** |
+| S8 | 탐구 노트 (상세 페이지 하단에 포함) + 템플릿 모달 | `SN-Detail/SN-DETAIL-01`, `SN-Templates/SN-TEMPLATE-01` | inquiry §5·§6 | §19~21 | S7 내부 | **별도 페이지가 아니라 상세 페이지 안에 포함** (이미지 확인). Editor Library 미정 **구현(2026-10-26): 최신 Revision 읽기 전용 + 템플릿 미리보기.** **Stage 4(2026-10-27, Mock): 경량 블록 편집기(라이브러리 없음, OD-A05 미정) — 소제목·본문·목록·번호·체크리스트·인용·표·자료 링크 카드, + / ⋮⋮ 메뉴(이동·유형 바꾸기·삭제), 빈 줄 "/", Alt+↑↓, 노트 생성(§20 POST)·자동 저장(§20 PUT, expectedRevisionId, Mock 1.5초)·저장 상태·실패 재시도·충돌 비교, 템플릿 적용(끝에 추가 / 확인 후 새 노트로 시작), 자료함 링크 카드(§20 PUT 방식), 저장 안 된 변경 이동 보호. 학교 수행평가·심화 탐구 공통 (`components/notes/`)** |
+| S9 | 수정 이력 모달 | `SA-DETAIL-12` | inquiry §5 | §21 | (모달) | **구현: Revision 목록(§21) Popover.** **Stage 4: 항목을 누르면 과거 Revision 읽기 전용 보기(§21 상세), 복원 버튼은 보이되 비활성+사유(정책 미정), 저장마다 목록 갱신** |
 | S10 | 결과 파일 업로드 / 버전 | `SA-DETAIL-07` | inquiry §8 | §24~26, §25-1 | (모달 / 섹션) | **구현: 새 결과물 v1 / 새 버전, 버전 목록·피드백 대상 선택 (Mock은 메타데이터만)** |
 | S11 | 우측 패널: 평가 기준 / AI 도우미 / 피드백 / 자료 | `SA-DETAIL-08`, `-09`, `-10`, `-11` | student §7, inquiry §10, feedback §4, inquiry §7 | §14, §28, §31, §22 | S7 패널 | AI는 고정 Suggestion Mock **구현: 4개 탭. 피드백 탭은 요청·Snapshot·기록·답변까지 동작, 평가 기준·자료는 Empty(MM-20·21), AI는 비활성(Stage 3)** |
 | S12 | 주제명 추천 모달 | `SA-DETAIL-02` | student §9 (ST-06) | §14 | (모달) | AI **구현: §14 필드 입력 UI, 추천 실행 비활성(Stage 3)** |
@@ -78,7 +78,7 @@
 | MM-20 | S11 평가 기준 탭 | 기준별 배점·원본 쪽·원문·AI 쉬운 설명·자기 점검 | 과제별 공식 기준 조회 Endpoint 없음(§11 분석 결과는 항목 키·rubric 구조 미정), §14는 AI 설명 POST만 | 확인 | 구현은 "평가 기준이 아직 연결되지 않았어요" Empty. 조회 계약 제안(P-15) |
 | MM-21 | S11 자료 탭 | 링크로 바로 추가, 추천 자료원·검색어·분류 탭·노트에 추가 | §22 추천 응답 항목 Shape 미기재, 노트 삽입은 Editor(OD-A05) 필요 | 확인 | 구현은 준비 중 Empty |
 | MM-22 | S12 | 희망 진로, 추천 유형 Chip | §14 요청에 필드 없음 (Spec ST-06에는 추천 유형 표) | 확인 | 구현은 §14 필드만, 추천 실행은 Stage 3 |
-| MM-23 | S7·S9·S11 | "자동 저장됨", 이력 "복원", 이력 항목 요약("블록 4개 수정"), 시연 버튼 | 노트 저장 미구현(OD-A05), 복원 §21 미확정, 요약 필드 없음, 시연 버튼은 시나리오 제어 | 확인 | 표시하지 않음. 시연 동작은 `?mockScenario=` |
+| MM-23 | S7·S9·S11 | "자동 저장됨", 이력 "복원", 이력 항목 요약("블록 4개 수정"), 시연 버튼 | 노트 저장 미구현(OD-A05), 복원 §21 미확정, 요약 필드 없음, 시연 버튼은 시나리오 제어 | 확인 | 표시하지 않음. 시연 동작은 `?mockScenario=`. **Stage 4: "자동 저장됨 · vN"은 Mock 저장 응답 뒤에만 표시, 복원은 비활성+사유, 요약은 계속 없음** |
 | MM-24 | S15 | 답변 작성자 이름("박서연 선생님"), 답변 항목 `잘한 점 / 보완하면 좋을 점 / 복습할 개념 / 다음 학습 활동`, 추천 활동 제목, 추천 버튼 `참고만 하기 / 노트에 메모 추가 / 심화 탐구로 시작`, 보낸 자료 `첨부 N · 참고자료 N`, 시연 버튼 | §32 Reply는 `overallComment`·`comments[]`·`recommendations[]{type, resourceId/catalogTaskId, note}`만. 추천 수락·확인 기록 계약 없음, 첨부는 MM-04 | 확인 | 구현은 "선생님 답변"(이름 없음, ADR-0009), 전체 의견 + 위치별 의견 행 + 추천 `note`. 추천 버튼은 aria-disabled + 이유 안내. 구조화 항목 채택 시 §32·§45 개정 필요 |
 | MM-25 | S15 Modal | 요청 당시 노트 본문 | §21 `GET .../revisions/{revisionId}` 응답 Shape 미기재 | 확인 | 구현은 Revision 목록 항목 + `noteId`·`title`·`blocks`로 가정 (`api/types.ts` `NoteRevisionDetail`). MM-18과 함께 명시 필요 |
 | MM-26 | S16·S18 | 탐구 분야 필터(자료 분석·비판적 사고·실험 설계…), 난이도, 키워드 태그, 복수 과목, 즐겨찾기 별, 문제 상황·참고할 만한 곳·예상 결과물·자기 점검 기준(체크박스) | §16 항목은 `catalogTaskId·title·subjectId·goal·methods·published`만. 즐겨찾기(§30)는 sourceType 예시가 SCHOOL_ASSESSMENT뿐, 자기 점검 체크 저장 계약 없음 | 확인 | 구현은 §16 필드만(목표·수행 안내). 필드 보완 제안(P-16) |
@@ -88,6 +88,10 @@
 | MM-30 | S21 | 자료 목록·상세 응답, PATCH 수정 필드, 행별 "연결된 수행평가", 파일 크기 | §22는 POST 예시만 있고 GET·PATCH Shape 없음, 자료–과제/노트 연결 필드 없음, 파일 메타(§48) 미연결 | 확인 | 응답 = 요청 필드 + `resourceId·createdAt·updatedAt`, PATCH = 요청 필드 부분 집합(파일 제외)으로 가정. 연결된 수행평가·파일 크기는 표시하지 않음 |
 | MM-31 | S21 | 자료 유형 7종(링크·기사·논문·도서·영상·PDF·이미지), 목록 필터 5종(기사·논문 Chip 없음) | §22 `type` Enum 미정(예시 `ARTICLE`뿐) | 확인 | Mock은 `LINK·ARTICLE·PAPER·BOOK·VIDEO·PDF·IMAGE`를 후보 값으로 사용, 필터는 Mockup 5종 그대로 |
 | MM-32 | S21 | "출처 확인됨" / "출처 확인 필요" Badge, 등록 화면 안내 "작성자와 발행일을 모두 채우면 출처 확인됨" | 시스템 검증 결과가 아니라 학생 입력 완결성 규칙. 계약·Spec에 확인 상태 필드 없음 | 확인 | 구현은 같은 규칙으로 "출처 정보 입력됨"/"출처 확인 필요"로 표시(검증된 것처럼 보이지 않게 문구 조정). 용어 결정 필요 |
+| MM-33 | S8 | 노트 블록 유형(목록·번호·체크리스트·인용·표·링크 카드)과 체크 상태·셀·출처 데이터 | §20 예시는 `HEADING`·`PARAGRAPH`와 `{blockId,type,text}`뿐, 블록 Schema는 Editor 선정 후(API-OD-A04) | 확인 | Mock은 `BULLET·NUMBERED·CHECKLIST·QUOTE·TABLE·RESOURCE_LINK` type과 임시 `attrs`(checked·rows·resource)로 저장, 화면에 "시연용(Mock) 형식" 안내. 확정 전 서버 계약 아님 |
+| MM-34 | S8 | 노트에 자료 넣기 | §23 resource-links Endpoint 또는 §20 PUT 중 택1 (§23 본문) | 확인 | 편집기가 링크 블록을 만들어 §20 PUT으로 저장 (§23 미사용). 원문 복사 없이 resourceId·제목·출처·URL만 |
+| MM-35 | S8 | 템플릿 "현재 노트 맨 위에 추가", "새 노트로 시작 — 지금 내용은 수정 이력에 보관해 언제든 복원" | §19·Spec §6은 새 노트 / 뒤에 추가만, 복원 정책 미정 | 확인 | 맨 위 추가 제외. 새 노트로 시작 = 확인 후 본문 교체(이전 저장본은 이력에 남음, 복원 없음), 저장 안 된 변경이 있으면 비활성. 과제당 노트 수 정책은 MM-18 |
+| MM-36 | S8 | 블록 드래그(⋮⋮ 끌기), 블록 Hover "+" | 드래그는 Editor 라이브러리 기능 | 확인 | ⋮⋮는 메뉴(위로·아래로·유형·삭제), + 는 아래에 본문 추가. 드래그는 Editor 결정 뒤 |
 
 ## 4. 갱신 규칙
 
