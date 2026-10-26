@@ -27,6 +27,7 @@
   --as-color-subtle: #f8f9fb; /* 검색창, 상세 상단 바 */
   --as-color-fill: #f3f4f7; /* 회색 Badge, Hover */
   --as-color-active: #eaebef; /* 선택된 Sidebar 메뉴 */
+  --as-color-selected: #f4f7fe; /* 선택된 목록 행 (Mockup AE-LIST 실측) */
   --as-color-line: #eaebef; /* 모든 Border / Divider */
   --as-color-text: #1d1f23;
   --as-color-text-secondary: #72777f;
@@ -82,6 +83,7 @@
     --as-color-subtle: #1f2024;
     --as-color-fill: #2a2c31;
     --as-color-active: #2f3136;
+    --as-color-selected: #1d2433;
     --as-color-line: #2f3136;
     --as-color-text: #eceef1;
     --as-color-text-secondary: #a4a9b0;

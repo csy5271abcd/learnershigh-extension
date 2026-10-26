@@ -25,11 +25,11 @@
 | S13 | 피드백 요청 완료 모달 | `SA-DETAIL-13` | feedback §4 (ST-14) | §31 | (모달) | "받는 분 OOO 선생님", 시연 버튼 포함 (이미지 확인) **구현: §31 응답 Snapshot 표시** |
 | S14 | 수행평가 꿀팁 6종 | `SA-Tips/SA-TIPS-01~06` | student §8 (ST-05) | §15 | `/assessment/tips/:tipId` | |
 | S15 | 선생님 피드백 목록 (전체 / 대기 / 완료) | `Teacher-Feedback/TF-List/TF-LIST-01~03` | feedback §8 (ST-15) | §31·32 | `/assessment/feedback` | **구현(2026-10-26, Stage 1 Mock):** `?status=` 필터·건수, 요청 카드(상태·요청 시각·보낸 자료 Snapshot), 답변(전체 의견·위치별 의견·후속 추천), 요청 당시 자료 Modal(§21 Revision 본문·파일 Metadata, 지금 최신 버전과 구분), 제목 → 상세 `?panel=feedback`, Sidebar `대기 N`. 과제 매칭은 MM-19 조합, 계약 밖 표현은 MM-24 |
-| S16 | 심화 탐구 목록 / 생성 모달 / 선택 Preview | `Advanced-Exploration/AE-List/AE-LIST-01~03` | inquiry §3 (ST-16) | §16·18 | `/assessment/enrichment` | |
-| S17 | 내 심화 탐구 | `AE-My-Explorations/AE-MY-01` | inquiry §3 | §18 | `/assessment/enrichment/mine` | |
-| S18 | 심화 탐구 상세 (자기 점검·AI·자료·이력·더보기) | `AE-Detail/AE-DETAIL-01~05` | inquiry §3·§5·§10 | §18·20·21·28 | `/assessment/enrichment/:taskId` | 노트 컴포넌트를 S8과 공유 |
-| S19 | 모의고사 지문 목록 / 상세 | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams` | |
-| S20 | 대학 공개 자료 | `AE-University-Resources/AE-UNI-01` | inquiry §9 (ST-17) | §27 | `/assessment/enrichment/universities` | |
+| S16 | 심화 탐구 목록 / 생성 모달 / 선택 Preview | `Advanced-Exploration/AE-List/AE-LIST-01~03` | inquiry §3 (ST-16) | §16·18 | `/assessment/enrichment` (`?subject=&q=&selected=`) | **구현(2026-10-26, Stage 1 Mock):** 과목·검색·카드 선택(URL 보존), 선택 ID와 같은 §16 상세만 Preview, 이 탐구 시작하기(§18 POST, 새 taskId·중복 클릭 방지·실패 재시도), 이미 시작한 콘텐츠는 진행 중 Badge·내 탐구 열기, 직접 만들기 Modal(제목·과목 필수, 목표·연결 수행평가 선택). 분야 필터·난이도·즐겨찾기·문제 상황 등은 MM-26 |
+| S17 | 내 심화 탐구 | `AE-My-Explorations/AE-MY-01` | inquiry §3 | §18 | `/assessment/enrichment/my` (제안 `/mine`에서 변경) | **구현:** 시작일·연결 수행평가(§12 상세로 제목 확인)·상태, 검색은 받은 목록 안 화면 필터(§18 Query 없음), Empty/Error |
+| S18 | 심화 탐구 상세 (자기 점검·AI·자료·이력·더보기) | `AE-Detail/AE-DETAIL-01~05` | inquiry §3·§5·§10 | §18·20·21·28 | `/assessment/enrichment/tasks/:taskId` (`mock-exams` 등 탭 경로와 겹치지 않게 변경) | **구현:** S7 상세 틀·노트·이력·더보기 재사용(피드백 버튼 없음), 상태 변경(§18 PATCH status, 되돌리기 막음), 수행평가 연결(§18 PATCH), 자기 점검 탭 = 출발 공개 콘텐츠의 수행 안내·출발 자료(원본 비공개 시 안내), AI·자료 탭 준비 중 |
+| S19 | 모의고사 지문 목록 / 상세 | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams`, `/mock-exams/:materialId` | **구현:** 시연용 자체 제작 카드(실제 지문 없음), 과목 필터·검색, 상세(원문 정보와 탐구 아이디어 분리, 원문 링크 없음 표시), 심화 Task 만들기(§18 sourceReference DRAFT), 내 지문 등록(§17 POST, 링크만·확인 안 함)·내 지문 목록, 수행평가 아이디어 연결은 Editor 전 비활성. MM-28 |
+| S20 | 대학 공개 자료 | `AE-University-Resources/AE-UNI-01` | inquiry §9 (ST-17) | §27 | `/assessment/enrichment/universities` (`?university=&year=&type=&q=`) | **구현:** 대학 Chip은 응답 값으로 생성(가상 기관명), 학년도(§27 Query)·자료 유형(화면 필터), 원본 열기는 확인된 URL만(시연 데이터 전부 없음), 미리보기 비활성, 탐구 아이디어 펼침 → 심화 탐구 시작(sourceReference DRAFT). MM-29 |
 | S21 | 자료함 / 과목별 추천 / 자료 추가 모달 | `Resource-Library/RL-LIST-01~02`, `RL-Add-Resource/RL-ADD-01` | inquiry §7 | §22·23 | `/assessment/resources` | |
 | S22 | 성장 기록 | `Growth-Records/GR-LIST-01` | inquiry §11 | §29 | `/assessment/growth` | |
 | S23 | 보관함 5개 탭 | `Archive/AR-Tabs/AR-TAB-01~05` | inquiry §12 | §30 | `/assessment/archive?tab=` | 휴지통 동작은 OD-A11 |
@@ -81,6 +81,10 @@
 | MM-23 | S7·S9·S11 | "자동 저장됨", 이력 "복원", 이력 항목 요약("블록 4개 수정"), 시연 버튼 | 노트 저장 미구현(OD-A05), 복원 §21 미확정, 요약 필드 없음, 시연 버튼은 시나리오 제어 | 확인 | 표시하지 않음. 시연 동작은 `?mockScenario=` |
 | MM-24 | S15 | 답변 작성자 이름("박서연 선생님"), 답변 항목 `잘한 점 / 보완하면 좋을 점 / 복습할 개념 / 다음 학습 활동`, 추천 활동 제목, 추천 버튼 `참고만 하기 / 노트에 메모 추가 / 심화 탐구로 시작`, 보낸 자료 `첨부 N · 참고자료 N`, 시연 버튼 | §32 Reply는 `overallComment`·`comments[]`·`recommendations[]{type, resourceId/catalogTaskId, note}`만. 추천 수락·확인 기록 계약 없음, 첨부는 MM-04 | 확인 | 구현은 "선생님 답변"(이름 없음, ADR-0009), 전체 의견 + 위치별 의견 행 + 추천 `note`. 추천 버튼은 aria-disabled + 이유 안내. 구조화 항목 채택 시 §32·§45 개정 필요 |
 | MM-25 | S15 Modal | 요청 당시 노트 본문 | §21 `GET .../revisions/{revisionId}` 응답 Shape 미기재 | 확인 | 구현은 Revision 목록 항목 + `noteId`·`title`·`blocks`로 가정 (`api/types.ts` `NoteRevisionDetail`). MM-18과 함께 명시 필요 |
+| MM-26 | S16·S18 | 탐구 분야 필터(자료 분석·비판적 사고·실험 설계…), 난이도, 키워드 태그, 복수 과목, 즐겨찾기 별, 문제 상황·참고할 만한 곳·예상 결과물·자기 점검 기준(체크박스) | §16 항목은 `catalogTaskId·title·subjectId·goal·methods·published`만. 즐겨찾기(§30)는 sourceType 예시가 SCHOOL_ASSESSMENT뿐, 자기 점검 체크 저장 계약 없음 | 확인 | 구현은 §16 필드만(목표·수행 안내). 필드 보완 제안(P-16) |
+| MM-27 | S16~S18 | 개인 Task 목록·상세 응답, 수정 가능 필드, 같은 공개 콘텐츠로 여러 Task 시작 | §18 응답 Shape 미기재, PATCH Body 미기재, 중복 시작 정책 미정(API-OD-A12) | 확인 | 응답 = 요청 필드 + `taskId·createdAt·updatedAt`로 가정, PATCH는 `relatedAssessmentId`만 사용. 이미 시작한 콘텐츠는 "내 탐구 열기"만 보여줌(서버 강제 아님) |
+| MM-28 | S19 | 공개 지문 카드 응답, 과목 목록, 계열 필터, 영문 주제·해시태그·LearnersHigh 코멘트·관련 자율 심화 Task·즐겨찾기 | §17은 개인 등록 필드만 예시, 공개 카드 Shape·과목 목록 API 없음 | 확인 | 카드 = `materialId·subjectId·source{학년도·월·학년·문항·sourceUrl}·idea{주제·핵심 소재·분야·해설·목표·방법·확장 질문}`(Spec §4 표)로 가정, 과목 이름은 시연용 ID에만 붙임. sourceReference는 §18 DRAFT |
+| MM-29 | S20 | 대학 공식 자료 페이지 카드, 분야 필터, 자료 응답 | §27 응답 Shape·유형 Query 없음 | 확인 | 자료 = Spec §9 메타데이터(대학·제목·학년도·유형·공식 URL·확인일·관련 개념·탐구 연계)로 가정, 유형은 화면 필터. 실제 대학 문서처럼 보이지 않게 가상 기관명 사용 |
 
 ## 4. 갱신 규칙
 

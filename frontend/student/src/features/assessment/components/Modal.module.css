@@ -25,6 +25,10 @@
   width: min(870px, 100%);
 }
 
+.dialogCompact {
+  width: min(534px, 100%);
+}
+
 .header {
   display: flex;
   align-items: center;

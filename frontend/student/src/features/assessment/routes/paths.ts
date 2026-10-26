@@ -21,9 +21,21 @@ export const schoolAssessmentFeedbackPath = (assessmentId: string) =>
 export const feedbackPath = '/assessment/feedback'
 export const feedbackSection = { path: feedbackPath, label: '선생님 피드백' } as const
 
+/**
+ * 심화 탐구 (screen-map S16~S20). 탭: 탐구 라이브러리 / 모의고사 지문 / 내 탐구 / 대학 공개 자료.
+ * 검색·필터·선택은 URL Query(`q`, `subject`, `selected`, `university`, `year`, `type`)에 둔다.
+ */
+export const enrichmentPath = '/assessment/enrichment'
+export const enrichmentSection = { path: enrichmentPath, label: '심화 탐구' } as const
+export const mockExamMaterialsPath = `${enrichmentPath}/mock-exams`
+export const mockExamMaterialDetailPath = (materialId: string) =>
+  `${mockExamMaterialsPath}/${encodeURIComponent(materialId)}`
+export const myEnrichmentTasksPath = `${enrichmentPath}/my`
+export const universityResourcesPath = `${enrichmentPath}/universities`
+export const enrichmentTaskDetailPath = (taskId: string) => `${enrichmentPath}/tasks/${encodeURIComponent(taskId)}`
+
 /** 이번 범위에서 아직 구현하지 않은 Assessment 메뉴 */
 export const pendingAssessmentSections = {
-  enrichment: { path: '/assessment/enrichment', label: '심화 탐구' },
   resources: { path: '/assessment/resources', label: '자료함' },
   growth: { path: '/assessment/growth', label: '성장 기록' },
   archive: { path: '/assessment/archive', label: '보관함' },

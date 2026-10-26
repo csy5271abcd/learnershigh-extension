@@ -24,6 +24,13 @@ const validationError = (field: string, reason: string) =>
   fail(400, { code: 'VALIDATION_ERROR', message: '입력값을 확인해주세요.', details: { fields: [{ field, reason }] } })
 
 function assertSourceExists(sourceType: AssessmentSourceType, sourceId: string) {
+  // 심화 탐구 노트·결과물은 같은 계약(§20·24)을 sourceType=ENRICHMENT_TASK로 쓴다.
+  if (sourceType === 'ENRICHMENT_TASK') {
+    if (!mockStore.enrichmentTasks.some((item) => item.taskId === sourceId)) {
+      fail(404, { code: 'ENRICHMENT_TASK_NOT_FOUND', message: '심화 탐구를 찾을 수 없어요.', details: {} })
+    }
+    return
+  }
   if (sourceType !== 'SCHOOL_ASSESSMENT') validationError('sourceType', 'unsupported')
   if (!mockStore.schoolAssessments.some((item) => item.assessmentId === sourceId)) {
     fail(404, { code: 'ASSESSMENT_NOT_FOUND', message: '수행평가를 찾을 수 없어요.', details: {} })

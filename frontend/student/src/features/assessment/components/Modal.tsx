@@ -8,6 +8,8 @@ interface ModalProps {
   description?: string
   /** 템플릿 선택처럼 두 영역을 나란히 보여주는 넓은 Modal (Mockup SN-TEMPLATE-01: 약 870px) */
   wide?: boolean
+  /** 심화 탐구 만들기처럼 입력이 적은 Modal (Mockup AE-LIST-02: 약 534px) */
+  compact?: boolean
   /** 닫기 요청 (Esc, 닫기 버튼, 배경 클릭). 미저장 확인은 호출 측이 결정한다. */
   onRequestClose: () => void
   children: ReactNode
@@ -19,7 +21,7 @@ const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 // Assessment Feature 전용 Modal. Focus를 Modal 안에 가두고, 닫히면 열기 전 위치로 돌려준다.
-export function Modal({ title, description, wide = false, onRequestClose, children, footer, initialFocusRef }: ModalProps) {
+export function Modal({ title, description, wide = false, compact = false, onRequestClose, children, footer, initialFocusRef }: ModalProps) {
   const titleId = useId()
   const descriptionId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -70,7 +72,7 @@ export function Modal({ title, description, wide = false, onRequestClose, childr
     >
       <div
         ref={dialogRef}
-        className={`${styles.dialog} ${wide ? styles.dialogWide : ''}`}
+        className={`${styles.dialog} ${wide ? styles.dialogWide : ''} ${compact ? styles.dialogCompact : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

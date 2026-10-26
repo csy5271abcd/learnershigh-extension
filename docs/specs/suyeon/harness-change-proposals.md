@@ -24,6 +24,7 @@
 | P-13 | `docs/api/api-contract.md` | Domain OD ↔ API OD 대응표, MM 결정 반영 | 없음 | 필요 |
 | P-14 | `docs/SOURCE_OF_TRUTH.md` §4-4·§5 (+ 선택: `CLAUDE.md` §3·§12, `AGENTS.md` 표) | Assessment 시각 기준을 "Mockup = 직접 기준(색상·글꼴 포함), Daglo = 보완, TDS 혼합 금지"로 정정 | 문구만 (Wangyu UI 기준 변경 없음) | 필요 |
 | P-15 | `docs/api/api-contract.md` §12·14·20·22·24·31 + 신규 기준 조회 | 수행평가 상세 화면이 요구하는 최소 계약 보완 (MM-03·18~22) | 없음 (Assessment 전용) | 필요 |
+| P-16 | `docs/api/api-contract.md` §16·17·18·27·30 | 심화 탐구 화면의 응답 Shape·필터 보완 (MM-26~29) | 없음 (Assessment 전용) | 필요 |
 
 ---
 
@@ -320,3 +321,16 @@ backend/bin/
 | MM-20 | `GET /api/student/assessment/school-assessments/{id}/criteria` → `items[{ criteriaId, title, maxScoreText, description, source{ pdfPageNumber, printedPageLabel } }]`. §14의 `criteriaSourceId`가 이 `criteriaId`를 가리킨다 | §11 분석 결과·관리자 확인값에서 파생. 학생 정정값과 구분 |
 | MM-21 | §22 추천 응답 항목 Shape (`sourceName`, `category`, `homepageUrl`, `description`, `searchKeywords[]`) | 학생 자료(§22 POST)와 다른 Resource |
 | MM-22 | §14 주제 추천 요청에 `careerInterest`(선택)·`recommendationType`(Spec ST-06 유형) | 없음 |
+
+## P-16. 심화 탐구 화면용 계약 보완 (2026-10-26, Stage 2 Frontend 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 아래 항목을 표시하지 않거나 가정 Shape(코드 주석·screen-map에 명시)으로 Mock만 둔다. sourceReference(§18)는 계속 DRAFT로 취급한다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-26 | §16 항목에 선택 필드 `category`(탐구 분야, 문자열), `difficulty`(Enum 후보: EASY/NORMAL/HARD), `relatedSubjectIds[]`, `problemContext`, `referenceHints[]`, `expectedOutputs`, `selfCheckItems[]`. Query에 `category` | 관리자 콘텐츠 관리(assessment-admin.md)와 같은 Entity. 자기 점검 체크 결과 저장 여부는 별도 결정 |
+| MM-26 | §30 즐겨찾기 `sourceType`에 `ENRICHMENT_CATALOG`·`MOCK_EXAM_MATERIAL`·`UNIVERSITY_RESOURCE` 포함 여부 | 학생 즐겨찾기는 원본 복제 없이 참조만 |
+| MM-27 | §18 GET 항목·상세 Shape 명시(요청 필드 + `taskId`·`createdAt`·`updatedAt`), PATCH 수정 가능 필드(`title`·`goal`·`relatedAssessmentId`·`deadlineDate`) | 상태는 PATCH /status만 |
+| MM-27 | 같은 `catalogTaskId`로 여러 Task 시작 허용 여부 (API-OD-A12) | 현재 화면은 "내 탐구 열기"만 제공 |
+| MM-28 | §17 공개 카드 응답: `materialId`, `subjectId`, `source{academicYear, examMonth, grade, questionNumber, sourceUrl}`, `idea{topicTitle, coreMaterial, relatedFields[], topicReason, goal, methods[{label,text}], extensionQuestions[]}`. 모의고사 과목 목록 제공 방식(코드 상수/조회 API) | 원문 출처와 탐구 아이디어 분리(§17 문장) 유지 |
+| MM-29 | §27 응답: `resourceId`, `university`, `title`, `academicYear`, `resourceType`, `officialUrl`, `checkedAt`, `relatedConcepts[]`, `inquiryIdeas[]`. Query에 `resourceType` | 대학명 Enum 금지 유지, 원문 미러링 금지(API-OD-A11) |

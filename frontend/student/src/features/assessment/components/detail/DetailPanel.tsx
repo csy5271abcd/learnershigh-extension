@@ -125,7 +125,7 @@ const suggestedQuestions = [
 ]
 
 // AI 도우미 (Mockup SA-DETAIL-09, api-contract.md §28). AI 호출은 Stage 3 범위라 질문을 보내지 않는다.
-function AiAssistantTab({ assessmentTitle, hasNote }: { assessmentTitle: string; hasNote: boolean }) {
+export function AiAssistantTab({ assessmentTitle, hasNote }: { assessmentTitle: string; hasNote: boolean }) {
   return (
     <div className={styles.aiTab}>
       <div className={styles.contextChips}>
@@ -172,7 +172,7 @@ function AiAssistantTab({ assessmentTitle, hasNote }: { assessmentTitle: string;
 }
 
 // 자료 (Mockup SA-DETAIL-11, api-contract.md §22). 추천 응답 항목 Shape이 계약에 없어(MM-21) 목록을 만들지 않는다.
-function ResourcesTab() {
+export function ResourcesTab() {
   return (
     <div className={styles.panelStack}>
       <div className={styles.panelEmpty}>

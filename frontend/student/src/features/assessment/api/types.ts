@@ -270,3 +270,131 @@ export interface FeedbackReplyResponse {
     recommendations: FeedbackRecommendation[]
   } | null
 }
+
+// ---- §16~18·§27 심화 탐구 (ST-07·16·17) ----
+// SchoolAssessment와 다른 Entity다. 공개 콘텐츠(catalogTaskId·materialId·resourceId)와 학생 개인 Task(taskId)는 Identity가 다르다.
+
+/** §18 "수행평가와 동일한 3개 상태를 사용하되 동일 Entity로 합치지 않는다" */
+export type EnrichmentTaskStatus = 'BEFORE_START' | 'IN_PROGRESS' | 'COMPLETED'
+
+/** §16 관리자 공개 심화 Task. 응답 예시의 필드만 쓴다 (난이도·분야·문제 상황·자기 점검 등은 계약 없음: screen-map MM-26). */
+export interface EnrichmentCatalogItem {
+  catalogTaskId: string
+  title: string
+  subjectId: string
+  goal: string
+  methods: string[]
+  published: boolean
+}
+
+/**
+ * §18 `sourceReference` — **제안 계약(DRAFT)**. DTO·Enum은 API-OD-A12에서 확정한다.
+ * Stage 1 Mock은 출처 추적을 시연하려고 이 형태를 쓰지만, 승인된 HTTP 필드로 취급하지 않는다.
+ */
+export type EnrichmentSourceType = 'MOCK_EXAM_MATERIAL' | 'PERSONAL_MOCK_EXAM_MATERIAL' | 'UNIVERSITY_RESOURCE'
+
+export interface EnrichmentSourceReference {
+  type: EnrichmentSourceType
+  sourceId: string
+}
+
+/** §18 POST 요청 */
+export interface CreateEnrichmentTaskRequest {
+  title: string
+  subjectId: string
+  goal: string | null
+  relatedAssessmentId: string | null
+  catalogTaskId: string | null
+  status: EnrichmentTaskStatus
+  deadlineDate: string | null
+  sourceReference: EnrichmentSourceReference | null
+}
+
+/**
+ * §18 GET 항목·상세. 계약에 응답 Shape이 없어 "요청 필드 + taskId + 생성·수정 시각"으로 본다 (MM-18과 같은 가정, MM-27).
+ * `deadlineDate`는 학생 자율 Task의 선택적 마감이며 학교 공식 마감이 아니다.
+ */
+export interface EnrichmentTask extends CreateEnrichmentTaskRequest {
+  taskId: string
+  createdAt: string
+  updatedAt: string
+}
+
+/** §18 PATCH /tasks/{taskId}. 수정 가능 필드가 계약에 없어 이 화면은 연결 수행평가만 바꾼다 (MM-27). */
+export interface UpdateEnrichmentTaskRequest {
+  relatedAssessmentId: string | null
+}
+
+/** §18 PATCH .../status 응답 (§13과 같은 형태로 본다) */
+export interface ChangeEnrichmentTaskStatusResponse {
+  taskId: string
+  status: EnrichmentTaskStatus
+  updatedAt: string
+}
+
+/**
+ * §17 모의고사 탐구 카드. 계약은 개인 등록 필드만 예시하고 공개 카드 응답 Shape은 없다.
+ * "출처와 탐구 아이디어를 별개 필드로 보존"(§17)과 Feature Spec inquiry §4 표의 항목으로 가정한다 (MM-28).
+ */
+export interface MockExamSource {
+  academicYear: number | null
+  examMonth: number | null
+  grade: number | null
+  questionNumber: string | null
+  /** 실제 확인된 원문 링크만. 확인되지 않으면 null (API-OD-A11) */
+  sourceUrl: string | null
+}
+
+export interface MockExamInquiryIdea {
+  topicTitle: string
+  /** 핵심 소재 (지문 원문이 아니라 LearnersHigh가 정리한 요약) */
+  coreMaterial: string
+  relatedFields: string[]
+  topicReason: string
+  goal: string
+  methods: { label: string; text: string }[]
+  extensionQuestions: string[]
+}
+
+export interface MockExamMaterial {
+  materialId: string
+  subjectId: string
+  source: MockExamSource
+  idea: MockExamInquiryIdea
+}
+
+/** §17 POST my-mock-exam-materials 요청 (계약 예시 그대로) */
+export interface CreatePersonalMockExamMaterialRequest {
+  academicYear: number | null
+  examMonth: number | null
+  grade: number | null
+  subjectId: string
+  questionNumber: string | null
+  sourceUrl: string | null
+  sourceFileRef: string | null
+  personalNote: string | null
+}
+
+/** §17 GET my-mock-exam-materials 항목. 요청 필드 + ID·등록 시각으로 본다 (MM-28). 관리자 공개 자료로 바뀌지 않는다. */
+export interface PersonalMockExamMaterial extends CreatePersonalMockExamMaterialRequest {
+  materialId: string
+  createdAt: string
+}
+
+/**
+ * §27 대학 공개 자료. 계약에 응답 Shape이 없어 Feature Spec inquiry §9의 메타데이터 목록으로 가정한다 (MM-29).
+ * 대학명은 고정 Enum이 아니다.
+ */
+export interface UniversityResource {
+  resourceId: string
+  university: string
+  title: string
+  academicYear: number
+  /** 자료 유형 (자유 문자열, Enum 미확정) */
+  resourceType: string
+  /** 확인된 공식 출처 URL만. 없으면 null */
+  officialUrl: string | null
+  checkedAt: string | null
+  relatedConcepts: string[]
+  inquiryIdeas: string[]
+}

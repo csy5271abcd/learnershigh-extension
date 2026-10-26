@@ -668,6 +668,30 @@ Stage 1 (Contract 기반 Mock). 서버 저장·권한·Backend는 없음 → `VE
 - Scratchpad Playwright: S15 32건 PASS, 상세 45건 PASS, 목록·학업 정보 52건 중 51 PASS(기존 favicon 404), 구형 `/mentor`·`/school/tasks` 영향 없음.
 - `scripts/verify*.ps1`: NOT RUN (실행 정책 차단 유지). Backend·E2E: NOT RUN. Admin 답변 → 학생 반영은 미검증(Mock은 앱별 메모리, 사전 준비 답변만).
 
+
+## 2026-10-26 — Student 심화 탐구 S16~S20 (Frontend 로드맵 Stage 2, Mock)
+
+Branch `feature/assessment-stage2-enrichment` (Stage 1 체크포인트 `9cdedbc` 위, 미커밋).
+
+### Done
+
+- 탐구 라이브러리(S16): 과목·검색·카드 선택(URL), 선택 ID 일치 Preview, 이 탐구 시작하기(§18 POST → 새 taskId, 공개 콘텐츠 불변), 직접 만들기 Modal.
+- 내 탐구(S17), 심화 탐구 상세(S18: 상태 변경·수행평가 연결·노트·수정 이력·더보기·자기 점검/AI/자료 패널), 모의고사 지문(S19: 카드·상세·내 지문 등록·출처 연결 Task), 대학 공개 자료(S20).
+- Contract 기반 Mock: `api/enrichmentApi.ts`, `api/mock/enrichmentMock.ts`·`enrichmentFixture.ts` (§16·17·18·27). 노트 Mock은 `ENRICHMENT_TASK` 출처도 허용.
+- Sidebar `심화 탐구 N` = 진행 중 Task 수(§18 totalElements).
+- 공용 컴포넌트 추가 확장(하위 호환): `DetailTopBar`(root·menuItems·피드백 버튼 선택), `Modal` compact, `DetailPanel`의 AI·자료 탭 export, Token `--as-color-selected`.
+
+### Open / Blocked
+
+- 계약 공백 MM-26~29 → P-16 제안(미승인). `sourceReference`는 §18 DRAFT(API-OD-A12)라 Mock 시연만.
+- 노트 편집·템플릿 적용·자료 삽입(OD-A05), AI 도우미(Stage 3), 즐겨찾기(§30 sourceType), 보관·성장 기록 이동은 비활성.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend 전체): PASS.
+- Scratchpad Playwright: 심화 탐구 65/65 PASS, 피드백 목록 32/32(필터 클릭 직후 읽던 검증에 대기 추가 후), 상세 45/45, 목록·학업 정보 51/52(기존 favicon 404), `/mentor`·`/school/tasks` 영향 없음.
+- `scripts/verify*.ps1`: NOT RUN (실행 정책 차단). Backend·E2E: NOT RUN.
+
 ---
 
 # 24. 핵심 요약

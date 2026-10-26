@@ -2,10 +2,16 @@ import type { RouteObject } from 'react-router'
 import { AcademicInfoRoute } from './AcademicInfoRoute.tsx'
 import { AssessmentLayout } from './AssessmentLayout.tsx'
 import { AssessmentPendingRoute } from './AssessmentPendingRoute.tsx'
+import { EnrichmentLibraryRoute } from './EnrichmentLibraryRoute.tsx'
+import { EnrichmentTaskDetailRoute } from './EnrichmentTaskDetailRoute.tsx'
 import { FeedbackListRoute } from './FeedbackListRoute.tsx'
+import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
+import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
+import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
 import { assessmentRoutePattern, pendingAssessmentSections } from './paths.ts'
 import { SchoolAssessmentDetailRoute } from './SchoolAssessmentDetailRoute.tsx'
 import { SchoolAssessmentListRoute } from './SchoolAssessmentListRoute.tsx'
+import { UniversityResourcesRoute } from './UniversityResourcesRoute.tsx'
 
 // Assessment Route Tree. 공용 Student Router에는 이 객체 하나만 추가한다 (Shell 변경 최소화).
 export const assessmentRoute: RouteObject = {
@@ -17,6 +23,12 @@ export const assessmentRoute: RouteObject = {
     { path: 'school-assessments/:assessmentId', element: <SchoolAssessmentDetailRoute /> },
     { path: 'academic-info', element: <AcademicInfoRoute /> },
     { path: 'feedback', element: <FeedbackListRoute /> },
+    { path: 'enrichment', element: <EnrichmentLibraryRoute /> },
+    { path: 'enrichment/mock-exams', element: <MockExamMaterialsRoute /> },
+    { path: 'enrichment/mock-exams/:materialId', element: <MockExamMaterialDetailRoute /> },
+    { path: 'enrichment/my', element: <MyEnrichmentTasksRoute /> },
+    { path: 'enrichment/universities', element: <UniversityResourcesRoute /> },
+    { path: 'enrichment/tasks/:taskId', element: <EnrichmentTaskDetailRoute /> },
     ...Object.values(pendingAssessmentSections).map((section) => ({
       path: section.path.replace('/assessment/', ''),
       element: <AssessmentPendingRoute title={section.label} />,

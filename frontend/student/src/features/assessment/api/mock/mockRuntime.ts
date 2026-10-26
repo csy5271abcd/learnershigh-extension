@@ -21,6 +21,13 @@ export type MockScenario =
   | 'feedbackListError'
   | 'feedbackEmpty'
   | 'feedbackError'
+  | 'enrichmentEmpty'
+  | 'catalogError'
+  | 'catalogDetailError'
+  | 'taskListError'
+  | 'taskCreateError'
+  | 'materialError'
+  | 'universityError'
 
 const consumedOnce = new Set<string>()
 

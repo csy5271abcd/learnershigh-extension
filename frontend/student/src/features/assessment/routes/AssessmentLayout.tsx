@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, type ComponentType, type ReactNode } fr
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router'
 import { getAcademicContext } from '../api/academicContextApi.ts'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
+import { listEnrichmentTasks } from '../api/enrichmentApi.ts'
 import { listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
 import {
@@ -31,6 +32,7 @@ import styles from './AssessmentLayout.module.css'
 import {
   academicInfoPath,
   assessmentPath,
+  enrichmentSection,
   feedbackSection,
   pendingAssessmentSections,
   schoolAssessmentsPath,
@@ -83,6 +85,15 @@ export function AssessmentLayout() {
   const pendingFeedback = useApiQuery(`feedback-pending:${dataVersion}`, () =>
     listFeedbackRequests({ status: 'PENDING', page: 0, size: 1 }).then((response) => response.page.totalElements),
   )
+
+  // 심화 탐구 메뉴 건수 = 진행 중인 학생 심화 Task 수 (domain.md "Enrichment Active Count"). §18 목록 totalElements에서 계산한다.
+  const activeEnrichment = useApiQuery(`enrichment-active:${dataVersion}`, () =>
+    listEnrichmentTasks({ status: 'IN_PROGRESS', page: 0, size: 1 }).then((response) => response.page.totalElements),
+  )
+  const menuCounts: Record<string, { count: number | undefined; label?: string }> = {
+    [enrichmentSection.path]: { count: activeEnrichment.data },
+    [feedbackSection.path]: { count: pendingFeedback.data, label: '대기' },
+  }
 
   const notifyDataChanged = useCallback(() => setDataVersion((value) => value + 1), [])
   const workspace = useMemo<AssessmentWorkspace>(
@@ -140,8 +151,8 @@ export function AssessmentLayout() {
                   to={item.path}
                   icon={item.icon}
                   active={pathname.startsWith(item.path)}
-                  count={item.path === feedbackSection.path ? pendingFeedback.data : undefined}
-                  countLabel={item.path === feedbackSection.path ? '대기' : undefined}
+                  count={menuCounts[item.path]?.count}
+                  countLabel={menuCounts[item.path]?.label}
                   onNavigate={closeNav}
                 >
                   {item.label}
@@ -209,9 +220,9 @@ export function AssessmentLayout() {
   )
 }
 
-// 학교 수행평가 아래 메뉴 (선생님 피드백 외에는 아직 준비 중 화면)
+// 학교 수행평가 아래 메뉴 (심화 탐구·선생님 피드백 외에는 아직 준비 중 화면)
 const pendingMenu: { path: string; label: string; icon: ComponentType<{ className?: string; size?: number }> }[] = [
-  { ...pendingAssessmentSections.enrichment, icon: BulbIcon },
+  { ...enrichmentSection, icon: BulbIcon },
   { ...feedbackSection, icon: ChatIcon },
   { ...pendingAssessmentSections.resources, icon: BooksIcon },
   { ...pendingAssessmentSections.growth, icon: SproutIcon },

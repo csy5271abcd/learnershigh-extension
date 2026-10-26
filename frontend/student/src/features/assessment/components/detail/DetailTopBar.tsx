@@ -20,14 +20,25 @@ import { ErrorState } from '../StateViews.tsx'
 import styles from './detail.module.css'
 import { usePopover } from './usePopover.ts'
 
+export interface MoreMenuItem {
+  label: string
+  icon: ComponentType<{ size?: number }>
+  reason: string
+  danger?: boolean
+}
+
 interface DetailTopBarProps {
   title: string | undefined
   subjectId: string | undefined
   subjectName: string
   noteId: string | undefined
   onBack: () => void
-  onRequestFeedback: () => void
+  /** 없으면 피드백 요청 버튼을 숨긴다 (심화 탐구 상세 Mockup AE-DETAIL에는 없음) */
+  onRequestFeedback?: () => void
   onUnavailable: (message: string) => void
+  /** Breadcrumb 첫 단계 (기본: 학교 수행평가) */
+  root?: { label: string; path: string; subjectPath: (subjectId: string) => string; backLabel: string }
+  menuItems?: MoreMenuItem[]
 }
 
 // 상세 상단 바 (Mockup SA-DETAIL-01·12·14): 뒤로·Breadcrumb / 수정 이력 / 선생님께 피드백 요청 / 더보기.
@@ -40,21 +51,23 @@ export function DetailTopBar({
   onBack,
   onRequestFeedback,
   onUnavailable,
+  root = { label: '학교 수행평가', path: schoolAssessmentsPath, subjectPath: subjectAssessmentsPath, backLabel: '학교 수행평가로 돌아가기' },
+  menuItems = moreItems,
 }: DetailTopBarProps) {
   return (
     <div className={styles.topBar}>
-      <button type="button" className={styles.iconButton} aria-label="학교 수행평가로 돌아가기" onClick={onBack}>
+      <button type="button" className={styles.iconButton} aria-label={root.backLabel} onClick={onBack}>
         <ChevronLeftIcon size={18} />
       </button>
       <nav aria-label="현재 위치" className={styles.breadcrumb}>
         <ol>
           <li>
-            <Link to={schoolAssessmentsPath}>학교 수행평가</Link>
+            <Link to={root.path}>{root.label}</Link>
           </li>
           {title && subjectId && (
             <>
               <li>
-                <Link to={subjectAssessmentsPath(subjectId)}>{subjectName}</Link>
+                <Link to={root.subjectPath(subjectId)}>{subjectName}</Link>
               </li>
               <li aria-current="page">{title}</li>
             </>
@@ -63,11 +76,13 @@ export function DetailTopBar({
       </nav>
       <div className={styles.topActions}>
         <RevisionHistory noteId={noteId} />
-        <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
-          <ChatIcon size={15} />
-          선생님께 피드백 요청
-        </button>
-        <MoreMenu onUnavailable={onUnavailable} />
+        {onRequestFeedback && (
+          <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
+            <ChatIcon size={15} />
+            선생님께 피드백 요청
+          </button>
+        )}
+        <MoreMenu items={menuItems} onUnavailable={onUnavailable} />
       </div>
     </div>
   )
@@ -124,7 +139,7 @@ function RevisionList({ noteId }: { noteId: string }) {
   )
 }
 
-const moreItems: { label: string; icon: ComponentType<{ size?: number }>; reason: string; danger?: boolean }[] = [
+const moreItems: MoreMenuItem[] = [
   { label: '평가 정보 수정', icon: SlidersIcon, reason: '평가 정보 수정은 수정 가능한 항목이 계약으로 정해진 뒤 제공돼요.' },
   { label: '심화 탐구로 이어가기', icon: BulbIcon, reason: '심화 탐구 화면과 함께 제공될 예정이에요.' },
   { label: '성장 기록에 남기기', icon: SproutIcon, reason: '성장 기록 화면과 함께 제공될 예정이에요.' },
@@ -133,7 +148,7 @@ const moreItems: { label: string; icon: ComponentType<{ size?: number }>; reason
 ]
 
 // 더보기 메뉴 (Mockup SA-DETAIL-14). 항목은 모두 다음 단계·정책 확정 대상이라 실행 대신 사유를 안내한다.
-function MoreMenu({ onUnavailable }: { onUnavailable: (message: string) => void }) {
+function MoreMenu({ items, onUnavailable }: { items: MoreMenuItem[]; onUnavailable: (message: string) => void }) {
   const { open, setOpen, close, rootRef, triggerRef } = usePopover()
   const menuId = useId()
   return (
@@ -152,7 +167,7 @@ function MoreMenu({ onUnavailable }: { onUnavailable: (message: string) => void 
       </button>
       {open && (
         <div id={menuId} role="menu" aria-label="더보기" className={`${styles.popover} ${styles.moreMenu}`}>
-          {moreItems.map(({ label, icon: Icon, reason, danger }) => (
+          {items.map(({ label, icon: Icon, reason, danger }) => (
             <button
               key={label}
               type="button"

@@ -9,7 +9,21 @@ import {
   type FeedbackRequestRecord,
   type NoteRecord,
 } from './assessmentDetailFixture.ts'
-import type { AcademicContext } from '../types.ts'
+import {
+  fixtureCatalog,
+  fixtureEnrichmentTasks,
+  fixtureMockExamMaterials,
+  fixturePersonalMockExamMaterials,
+  fixtureUniversityResources,
+} from './enrichmentFixture.ts'
+import type {
+  AcademicContext,
+  EnrichmentCatalogItem,
+  EnrichmentTask,
+  MockExamMaterial,
+  PersonalMockExamMaterial,
+  UniversityResource,
+} from '../types.ts'
 
 // 앱 Instance별 In-memory Store. 새로고침하면 Fixture 상태로 돌아간다 (assessment-frontend-mock.md §5).
 // 브라우저 저장소를 쓰지 않으며 Admin 앱과 런타임 동기화하지 않는다.
@@ -20,6 +34,11 @@ export const mockStore: {
   artifacts: ArtifactRecord[]
   artifactVersions: ArtifactVersionRecord[]
   feedbackRequests: FeedbackRequestRecord[]
+  enrichmentCatalog: EnrichmentCatalogItem[]
+  enrichmentTasks: EnrichmentTask[]
+  mockExamMaterials: MockExamMaterial[]
+  personalMockExamMaterials: PersonalMockExamMaterial[]
+  universityResources: UniversityResource[]
 } = {
   academicContexts: structuredClone(fixtureAcademicContexts),
   schoolAssessments: structuredClone(fixtureSchoolAssessments),
@@ -27,4 +46,9 @@ export const mockStore: {
   artifacts: structuredClone(fixtureArtifacts),
   artifactVersions: structuredClone(fixtureArtifactVersions),
   feedbackRequests: structuredClone(fixtureFeedbackRequests),
+  enrichmentCatalog: structuredClone(fixtureCatalog),
+  enrichmentTasks: structuredClone(fixtureEnrichmentTasks),
+  mockExamMaterials: structuredClone(fixtureMockExamMaterials),
+  personalMockExamMaterials: structuredClone(fixturePersonalMockExamMaterials),
+  universityResources: structuredClone(fixtureUniversityResources),
 }
