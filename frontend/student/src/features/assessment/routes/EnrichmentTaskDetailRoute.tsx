@@ -31,7 +31,7 @@ import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { formatTaskDate } from '../model/enrichmentView.ts'
 import { statusLabels, subjectNameOf } from '../model/schoolAssessmentView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
-import { enrichmentPath, growthRecordNewPath, myEnrichmentTasksPath, pendingAssessmentSections, schoolAssessmentDetailPath } from './paths.ts'
+import { enrichmentPath, growthRecordNewPath, myEnrichmentTasksPath, schoolAssessmentDetailPath, tipsSection } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
 const enrichmentRoot = {
@@ -148,7 +148,7 @@ export function EnrichmentTaskDetailRoute() {
           </p>
           <h1 className={styles.title}>{item.title}</h1>
           <div className={styles.chipRow}>
-            <Link to={pendingAssessmentSections.tips.path} className={styles.chipButton}>
+            <Link to={tipsSection.path} className={styles.chipButton}>
               <BulbIcon size={14} />
               수행평가 꿀팁
             </Link>

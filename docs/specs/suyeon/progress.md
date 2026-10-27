@@ -762,6 +762,27 @@ Branch `feature/assessment-stage5-growth-archive` (Stage 4 체크포인트 `39fd
 - Scratchpad Playwright: 성장 기록·보관함 50/50, 회귀 상세 45/45·피드백 32/32·심화 65/65·자료함 43/43·노트 편집기 51/51·목록·학업 정보 51/52(기존과 같은 404 1건).
 - `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN.
 
+
+## 2026-10-27 — Student Assessment 홈 S24·수행평가 꿀팁 S14 (Frontend 로드맵 Stage 6, Mock, PARTIAL)
+
+Branch `feature/assessment-stage6-home-tips` (Stage 5 체크포인트 `b328630`에서 분기, 미커밋).
+
+### Done
+
+- Assessment 홈(`/assessment`): 기존 계약만 조회해 화면에서 계산(새 Entity·홈 전용 Store·하드코딩 숫자 없음). 현황(진행 중·시작 전), 다가오는 일정, 답변 대기 카드, 최근 업데이트한 기록, 빠른 실행 7개, AI 입력창(비활성), 알림 Popover(마감 임박 계산, 읽음·발송 없음). 영역별 Loading/Error/다시 시도, 학기 변경 분리.
+- 수행평가 꿀팁 6종: 정적 콘텐츠 1곳(`model/tipsContent.ts`), 수행평가 상세 Modal(Mockup)과 메뉴 화면(`/assessment/tips?tip=`)이 같은 Component 사용. 관련 기능 이동(주제명 추천 Modal·노트·자료함·심화 탐구·모의고사 지문), 과제 문맥이 없으면 사유 안내.
+- 수행평가 상세 `?panel=ai` 진입 지원, 준비 중 Route 정리(`pendingAssessmentSections` 제거).
+
+### Open / Blocked
+
+- 홈 요약·학생 이름·과제별 여러 일정(MM-42), 알림·읽음·New 배지·AI 입력(MM-43), 꿀팁 서버 제공·relatedActions·추천 규칙(MM-44) → P-20 제안(미승인).
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace 전체): PASS (build chunk 크기 경고는 기존과 동일).
+- Scratchpad Playwright: 홈·꿀팁 57/57, 회귀 성장·보관함 50/50·노트 51/51·자료함 43/43·심화 65/65·피드백 32/32·상세 45/45·목록·학업 정보 51/52(실패 1건은 `favicon.ico` 404로 요청 경로 확인).
+- `scripts/verify*.ps1`: NOT RUN. Backend·AI·E2E: NOT RUN.
+
 ---
 
 # 24. 핵심 요약

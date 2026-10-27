@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import {
@@ -31,6 +31,7 @@ import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { TopicSuggestionModal } from '../components/detail/TopicSuggestionModal.tsx'
+import { TipsModal } from '../components/tips/TipsBrowser.tsx'
 import { UploadArtifactModal } from '../components/detail/UploadArtifactModal.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState } from '../components/notes/NoteEditor.tsx'
@@ -49,12 +50,13 @@ import {
   urgentDays,
 } from '../model/schoolAssessmentView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
-import { pendingAssessmentSections, schoolAssessmentsPath } from './paths.ts'
+import { enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
 type ModalState =
   | { kind: 'upload'; target?: { artifact: Artifact; latest: ArtifactVersion | undefined } }
   | { kind: 'topic' }
+  | { kind: 'tips' }
   | { kind: 'sent'; request: FeedbackRequest }
 
 async function loadArtifacts(assessmentId: string): Promise<ArtifactWithVersions[]> {
@@ -102,11 +104,12 @@ export function SchoolAssessmentDetailRoute() {
   )
 
   const [pending, setPending] = useState(false)
-  // 선생님 피드백 목록에서 과제로 돌아오면(`?panel=feedback`) 피드백 탭을 연다.
+  // 선생님 피드백 목록에서 돌아오면(`?panel=feedback`), 홈 빠른 실행 "AI 도우미"에서 오면(`?panel=ai`) 그 탭을 연다.
   const [searchParams] = useSearchParams()
-  const [panelTab, setPanelTab] = useState<DetailPanelTab>(() =>
-    searchParams.get('panel') === 'feedback' ? 'feedback' : 'criteria',
-  )
+  const [panelTab, setPanelTab] = useState<DetailPanelTab>(() => {
+    const panel = searchParams.get('panel')
+    return panel === 'feedback' || panel === 'ai' ? panel : 'criteria'
+  })
   const [selectedVersions, setSelectedVersions] = useState<Record<string, string>>({})
   const [modal, setModal] = useState<ModalState>()
   const [toast, setToast] = useState<ToastMessage | null>(null)
@@ -116,6 +119,11 @@ export function SchoolAssessmentDetailRoute() {
     [],
   )
   const panelRef = useRef<HTMLDivElement>(null)
+  // 꿀팁 "탐구 노트 열기": Modal이 닫히며 Focus를 버튼으로 돌려준 뒤에 노트로 스크롤한다.
+  const [noteScrollRequest, setNoteScrollRequest] = useState(0)
+  useEffect(() => {
+    if (noteScrollRequest > 0) document.getElementById('note-heading')?.scrollIntoView({ block: 'start' })
+  }, [noteScrollRequest])
   const [editorState, setEditorState] = useState<NoteEditorState>()
   // 피드백 Snapshot은 서버에 저장된 Revision만 가리켜야 한다. 편집기에 저장 안 된 변경이 있거나
   // 저장 직후 목록이 아직 최신 Revision을 받지 못했으면 요청을 막는다 (feedback §4, testing §9).
@@ -265,10 +273,10 @@ export function SchoolAssessmentDetailRoute() {
               <SparkleIcon size={14} className={styles.chipIconBlue} />
               주제명 추천받기
             </button>
-            <Link to={pendingAssessmentSections.tips.path} className={styles.chipButton}>
+            <button type="button" className={styles.chipButton} onClick={() => setModal({ kind: 'tips' })}>
               <BulbIcon size={14} />
               수행평가 꿀팁
-            </Link>
+            </button>
           </div>
           <MockDataNotice />
 
@@ -350,6 +358,30 @@ export function SchoolAssessmentDetailRoute() {
             setSelectedVersions((previous) => ({ ...previous, [artifact.artifactId]: version.versionId }))
             refreshDetail()
             showToast('success', `'${artifact.title}' v${version.versionNumber}을(를) 올렸어요.`)
+          }}
+        />
+      )}
+      {modal?.kind === 'tips' && (
+        <TipsModal
+          onClose={() => setModal(undefined)}
+          resolveAction={(action) => {
+            switch (action) {
+              case 'TOPIC_SUGGESTION':
+                return { run: () => setModal({ kind: 'topic' }) }
+              case 'NOTE':
+                return {
+                  run: () => {
+                    setModal(undefined)
+                    setNoteScrollRequest((value) => value + 1)
+                  },
+                }
+              case 'RESOURCES':
+                return { run: () => navigate(resourcesPath) }
+              case 'ENRICHMENT':
+                return { run: () => navigate(enrichmentPath) }
+              case 'MOCK_EXAM':
+                return { run: () => navigate(mockExamMaterialsPath) }
+            }
           }}
         />
       )}

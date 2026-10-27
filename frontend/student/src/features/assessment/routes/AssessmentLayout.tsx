@@ -37,7 +37,7 @@ import {
   enrichmentSection,
   feedbackSection,
   growthSection,
-  pendingAssessmentSections,
+  tipsSection,
   resourcesSection,
   schoolAssessmentsPath,
   subjectAssessmentsPath,
@@ -229,14 +229,14 @@ export function AssessmentLayout() {
   )
 }
 
-// 학교 수행평가 아래 메뉴 (수행평가 꿀팁은 아직 준비 중 화면)
+// 학교 수행평가 아래 메뉴
 const pendingMenu: { path: string; label: string; icon: ComponentType<{ className?: string; size?: number }> }[] = [
   { ...enrichmentSection, icon: BulbIcon },
   { ...feedbackSection, icon: ChatIcon },
   { ...resourcesSection, icon: BooksIcon },
   { ...growthSection, icon: SproutIcon },
   { ...archiveSection, icon: ArchiveIcon },
-  { ...pendingAssessmentSections.tips, icon: BulbIcon },
+  { ...tipsSection, icon: BulbIcon },
 ]
 
 interface MenuLinkProps {

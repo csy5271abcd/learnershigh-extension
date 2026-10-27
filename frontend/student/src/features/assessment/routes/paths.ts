@@ -63,7 +63,6 @@ export const relatedSourcePath = (record: { relatedSourceType: string | null; re
 export const archivePath = '/assessment/archive'
 export const archiveSection = { path: archivePath, label: '보관함' } as const
 
-/** 이번 범위에서 아직 구현하지 않은 Assessment 메뉴 */
-export const pendingAssessmentSections = {
-  tips: { path: '/assessment/tips', label: '수행평가 꿀팁' },
-} as const
+/** 수행평가 꿀팁 (screen-map S14). 선택한 팁은 `?tip=TIP01`. 수행평가 상세에서는 같은 내용을 Modal로 연다. */
+export const tipsPath = '/assessment/tips'
+export const tipsSection = { path: tipsPath, label: '수행평가 꿀팁' } as const

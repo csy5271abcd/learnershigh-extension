@@ -401,3 +401,15 @@ React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor
 | MM-39 | §30 항목 Shape(원본 참조 + 표시 필드), 탭별 포함 규칙(심화 탐구의 학기, 최근 기록 기준 시각), 피드백 요청이 보관함 대상인지 | 보관함 = Projection. 사본 저장 금지 |
 | MM-40 | 즐겨찾기 `sourceType` 범위(`ENRICHMENT_TASK`, 공개 심화 콘텐츠 포함 여부) | 공개 콘텐츠(§16) 즐겨찾기는 심화 탐구 라이브러리 즐겨찾기(MM-26)와 같은 개념인지 |
 | MM-41 | 사용자 폴더·내보내기 필요 여부, §30 Query에 `subjectId` 추가, 삭제·복구·영구 삭제·보존 기간(API-OD-A08, OD-A11) | 원본 삭제 정책이 먼저 정해져야 휴지통이 의미 있음 |
+
+## P-20. Assessment 홈·수행평가 꿀팁 화면용 계약 보완 (2026-10-27, Stage 6 Frontend 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 기존 계약 조회 + 화면 계산(코드 주석·screen-map)으로 Mock만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-42 | 홈 요약이 필요하면 별도 Endpoint를 둘지, 기존 목록(§12·§31·§30)의 `totalElements` 조합으로 충분한지 결정. 학생 표시 이름 제공 여부(§9-1 또는 기존 LearnersHigh 사용자 정보) | Dashboard 숫자는 Source Entity에서 계산(CLAUDE.md §10) |
+| MM-42 | 과제당 여러 일정(개요 제출·평가일·보고서 제출)이 필요하면 SchoolAssessment 일정 항목 계약(평가계획서 §10·§11 추출 결과와의 관계 포함) | 평가계획서 원본 근거와 학생 입력 구분 |
+| MM-43 | 알림: 알림 Entity·읽음 상태·발송 채널(푸시/인앱)·대상 이벤트(마감 임박, 피드백 답변 도착) 계약. New 배지 표시 규칙 | Wangyu Student Care 알림과 겹치는지 확인 |
+| MM-43 | 홈 AI 입력창: §28 AI 도우미 계약을 재사용할지, 대화 저장 여부·출처 표시 | AI는 Analysis/Suggestion/Draft만 (CLAUDE.md §14) |
+| MM-44 | §15를 서버 제공으로 바꿀 경우 `relatedActions` Enum(`NOTE·TOPIC_SUGGESTION·RESOURCES·ENRICHMENT·MOCK_EXAM` 후보), 예시 구조, 과제별 추천 규칙(근거·표시 문구) | 팁은 필수 단계·DB 상태 전이가 아님(§15) |

@@ -1,8 +1,9 @@
 import type { RouteObject } from 'react-router'
 import { AcademicInfoRoute } from './AcademicInfoRoute.tsx'
 import { ArchiveRoute } from './ArchiveRoute.tsx'
+import { AssessmentHomeRoute } from './AssessmentHomeRoute.tsx'
 import { AssessmentLayout } from './AssessmentLayout.tsx'
-import { AssessmentPendingRoute } from './AssessmentPendingRoute.tsx'
+import { AssessmentTipsRoute } from './AssessmentTipsRoute.tsx'
 import { EnrichmentLibraryRoute } from './EnrichmentLibraryRoute.tsx'
 import { EnrichmentTaskDetailRoute } from './EnrichmentTaskDetailRoute.tsx'
 import { FeedbackListRoute } from './FeedbackListRoute.tsx'
@@ -13,7 +14,7 @@ import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
 import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
 import { ResourceDetailRoute } from './ResourceDetailRoute.tsx'
 import { ResourceLibraryRoute } from './ResourceLibraryRoute.tsx'
-import { assessmentRoutePattern, pendingAssessmentSections } from './paths.ts'
+import { assessmentRoutePattern } from './paths.ts'
 import { SchoolAssessmentDetailRoute } from './SchoolAssessmentDetailRoute.tsx'
 import { SchoolAssessmentListRoute } from './SchoolAssessmentListRoute.tsx'
 import { UniversityResourcesRoute } from './UniversityResourcesRoute.tsx'
@@ -23,7 +24,7 @@ export const assessmentRoute: RouteObject = {
   path: assessmentRoutePattern,
   element: <AssessmentLayout />,
   children: [
-    { index: true, element: <AssessmentPendingRoute title="Assessment 홈" /> },
+    { index: true, element: <AssessmentHomeRoute /> },
     { path: 'school-assessments', element: <SchoolAssessmentListRoute /> },
     { path: 'school-assessments/:assessmentId', element: <SchoolAssessmentDetailRoute /> },
     { path: 'academic-info', element: <AcademicInfoRoute /> },
@@ -40,9 +41,6 @@ export const assessmentRoute: RouteObject = {
     { path: 'growth/new', element: <GrowthRecordNewRoute /> },
     { path: 'growth/:recordId', element: <GrowthRecordDetailRoute /> },
     { path: 'archive', element: <ArchiveRoute /> },
-    ...Object.values(pendingAssessmentSections).map((section) => ({
-      path: section.path.replace('/assessment/', ''),
-      element: <AssessmentPendingRoute title={section.label} />,
-    })),
+    { path: 'tips', element: <AssessmentTipsRoute /> },
   ],
 }
