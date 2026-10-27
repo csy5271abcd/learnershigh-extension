@@ -238,9 +238,11 @@
 
 .quickGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   row-gap: 22px;
-  margin-top: 40px;
+  /* Daglo 실측: 아이콘 중심 간격 약 155px × 7 */
+  width: min(1085px, 100%);
+  margin: 40px auto 0;
   padding: 0;
   list-style: none;
 }
@@ -248,7 +250,7 @@
 .quickAction {
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   padding: 6px 0;
   border: 0;
@@ -256,13 +258,14 @@
   background: transparent;
   color: var(--as-color-text);
   font: inherit;
-  font-size: var(--as-text-body);
+  font-size: 15px;
+  white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
 }
 
 .quickAction:hover .quickIcon {
-  background: var(--as-color-active);
+  --quick-icon-bg: var(--as-color-active);
 }
 
 .quickAction[aria-disabled='true'] {
@@ -274,10 +277,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: var(--as-color-fill);
+  width: 60px;
+  height: 60px;
+  /* Daglo처럼 원이 아닌 둥근 사각형 타일 (한 변 대비 약 30%) */
+  border-radius: 18px;
+  /* 배지 테두리(QuickActionIcons cutout)도 같은 색을 쓴다 */
+  --quick-icon-bg: var(--as-color-fill);
+  background: var(--quick-icon-bg);
   color: var(--as-color-text);
 }
 

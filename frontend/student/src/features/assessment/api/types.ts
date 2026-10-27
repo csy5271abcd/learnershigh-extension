@@ -543,3 +543,111 @@ export interface ArchiveFavoriteRequest {
   sourceId: string
   favorite: boolean
 }
+
+// ---- §10·§11 학교 평가계획서 (ST-02) ----
+// 계약은 예시 JSON뿐이라 아래 Shape 중 예시에 없는 필드는 가정이다 (MM-45~47). Backend 연결 전 api-contract.md에서 확정한다.
+
+/** §10-1 공통 평가계획서 (관리자 등록, 학생에게 공개된 것만) */
+export interface EvaluationPlan {
+  planId: string
+  documentRevisionId: string
+  schoolId: string
+  academicYear: number
+  grade: number
+  semester: number
+  fileName: string
+  sourceUrl: string | null
+  /** 예시는 `CONFIRMED`뿐. Enum 미정 (MM-45) */
+  reviewStatus: string
+  uploadedAt: string
+}
+
+/** §10-2 개인 업로드 요청 (multipart Part). 파일 자체는 화면이 File로 들고 있다. */
+export interface UploadEvaluationPlanRequest {
+  file: File
+  schoolId: string
+  academicYear: number
+  grade: number
+  semester: number
+}
+
+/** §10-2 `201` 응답 */
+export interface EvaluationPlanUpload {
+  uploadId: string
+  documentRevisionId: string
+  fileRef: string
+  visibility: 'PRIVATE'
+  analysisStatus: EvaluationAnalysisStatus
+}
+
+/**
+ * §11 분석 상태. 계약 예시: NOT_REQUESTED·PROCESSING·REVIEW_REQUIRED·FAILED.
+ * `COMPLETED`(확인 필요 없이 끝남)는 후보로 가정한다 (MM-45).
+ */
+export type EvaluationAnalysisStatus = 'NOT_REQUESTED' | 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED'
+
+export interface AnalysisSource {
+  /** 1-based PDF 페이지 */
+  pdfPageNumber: number
+  /** 문서에 인쇄된 쪽 번호. 없으면 null */
+  printedPageLabel: string | null
+  extractedText: string
+}
+
+export interface WrittenExam {
+  round: number
+  weightPercent: number | null
+  questionTypes: string[]
+}
+
+export interface PerformanceEvaluationItem {
+  /** 등록 시 `evaluationItemRef.itemKey`로 쓰는 항목 키. §11 예시에 없어 가정 (MM-46) */
+  itemKey: string
+  label: string | null
+  weightPercent: number | null
+  maxScore: number | null
+  timing: string | null
+  /** 채점기준 문장. §11은 빈 배열 예시뿐이라 문자열 목록으로 가정 (MM-46) */
+  rubric: string[]
+  /** 근거 PDF 페이지 (`sources`의 pdfPageNumber). 예시에 없어 가정, 없으면 근거 미확인 (MM-46) */
+  sourcePdfPageNumber: number | null
+}
+
+export interface AnalysisSubject {
+  subjectName: string
+  /** 이 과목만 추출에 실패한 경우 (부분 성공). 예시에 없어 가정 (MM-45) */
+  extractionFailed: boolean
+  writtenEvaluation: { weightPercent: number | null; exams: WrittenExam[] } | null
+  performanceEvaluation: { weightPercent: number | null; items: PerformanceEvaluationItem[] } | null
+  /** §11 예시는 빈 배열뿐이라 문장 목록으로 가정 */
+  achievement: { standards: string[]; levels: string[]; thresholds: string[] }
+  teachingPlan: string[]
+  sources: AnalysisSource[]
+}
+
+/** §11 POST·GET 응답. 완료 전에는 `subjects`가 없다. */
+export interface EvaluationPlanAnalysis {
+  analysisId: string
+  documentRevisionId: string
+  status: EvaluationAnalysisStatus
+  startedAt: string
+  subjects?: AnalysisSubject[]
+}
+
+export interface PersonalReviewCorrection {
+  fieldPath: string
+  value: string
+  sourcePdfPageNumber: number | null
+}
+
+/** §11 PUT personal-review 요청 */
+export interface PersonalReviewRequest {
+  analysisId: string
+  corrections: PersonalReviewCorrection[]
+}
+
+/** §11 PUT 응답. 계약에 없어 "요청 + 저장 시각"으로 가정 (MM-47) */
+export interface PersonalReview extends PersonalReviewRequest {
+  documentRevisionId: string
+  savedAt: string
+}

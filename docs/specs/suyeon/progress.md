@@ -783,6 +783,32 @@ Branch `feature/assessment-stage6-home-tips` (Stage 5 체크포인트 `b328630`�
 - Scratchpad Playwright: 홈·꿀팁 57/57, 회귀 성장·보관함 50/50·노트 51/51·자료함 43/43·심화 65/65·피드백 32/32·상세 45/45·목록·학업 정보 51/52(실패 1건은 `favicon.ico` 404로 요청 경로 확인).
 - `scripts/verify*.ps1`: NOT RUN. Backend·AI·E2E: NOT RUN.
 
+
+## 2026-10-27 — Student 평가계획서 PDF 가져오기 S5 (Frontend 로드맵 Stage 7, Mock, PARTIAL)
+
+Branch `feature/assessment-stage7-pdf-import` (Stage 6 체크포인트 `4ff757e`에서 분기, 미커밋).
+
+### Done
+
+- 가져오기 Modal(Mockup SA-LIST-02): 학교 수행평가 목록 "PDF로 가져오기"와 홈 빠른 실행이 같은 Modal 사용. 내 PDF 끌어 놓기/선택(브라우저 1차 검사·Blob 미리보기), 학교 공통 평가계획서(§10-1 시연 Fixture)·작년 문서(참고용), 학교·학기 불일치 경고.
+- 내 PDF: §10-2 업로드 Mock(메타데이터만, 서버 저장·분석 없음) → 분석 요청 503 → 직접 추가 안내. 임의 결과를 내 PDF 추출값처럼 보여주지 않음.
+- 분석 결과 검토(Mockup 미제공 보완 UI): 진행·완료·확인 필요·부분 실패·실패·결과 없음 구분, 과목별 지필(표시만)·수행·성취·교수학습·원본 근거(PDF 쪽/문서 표기 쪽 구분, 원본 확인 불가 표시), 내 과목 연결, 이름 정정(§11 PUT 개인 검토), 수행평가 선택·중복 확인, §12 POST 항목별 등록(부분 실패·실패한 것만 재시도) → 목록·상세·홈 반영.
+
+### Open / Blocked
+
+- 분석 상태·결과 Schema·항목 키·근거 연결(MM-45·46), 개인 정정 범위·조회(MM-47), 중복·개정본·파일 정책·분석 엔진·외부 전송(MM-48, API-OD-A02·A03·A05·A10) → P-21 제안(미승인). 실제 PDF 파싱·OCR·AI·File Storage는 미구현.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace 전체): PASS (build chunk 크기 경고는 기존과 동일).
+- Scratchpad Playwright: PDF 가져오기 66/66(시연 Fixture 흐름, 실제 PDF 분석 검증 아님), 회귀 홈·꿀팁 57/57(PDF 빠른 실행 기대값 갱신)·심화→홈 7/7·성장·보관함 50/50·노트 51/51·자료함 43/43·심화 65/65·피드백 32/32·상세 45/45·목록·학업 정보 51/52(`favicon.ico` 404).
+- `scripts/verify*.ps1`: NOT RUN. Backend·Storage·AI·실제 PDF 분석·E2E: NOT RUN / NOT IMPLEMENTED.
+
+### 추가 — 홈 빠른 실행 아이콘 개선 (같은 Branch, 2026-10-27)
+
+- 빠른 실행 7개를 Daglo 홈 빠른 실행을 참고한 플랫 컬러 SVG로 교체(`components/home/QuickActionIcons.tsx`, 직접 그림·외부 자산 없음), 데스크톱 7개 한 줄(중심 간격 155px, 820px 4+3, 390px 3+3+1), 둥근 사각형 타일 60px(radius 18px)·아이콘 27px. 버튼 이름·순서·동작 그대로.
+- 검증: 아이콘·배치 점검 31/31(1920·1280·1024·820·390px), 홈·꿀팁 57/57, PDF 가져오기 66/66, typecheck/lint/build PASS.
+
 ---
 
 # 24. 핵심 요약

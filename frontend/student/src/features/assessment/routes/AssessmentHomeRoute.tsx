@@ -4,6 +4,7 @@ import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
 import { listArchive } from '../api/growthArchiveApi.ts'
 import { assessmentToday, mockRuntimeInfo } from '../api/runtimeInfo.ts'
 import { AddSchoolAssessmentModal } from '../components/AddSchoolAssessmentModal.tsx'
+import { PdfImportModal } from '../components/pdf-import/PdfImportModal.tsx'
 import {
   AlertIcon,
   ArrowRightIcon,
@@ -11,19 +12,23 @@ import {
   BellIcon,
   BulbIcon,
   CalendarIcon,
-  ChatIcon,
   ChevronDownIcon,
   ClipboardIcon,
   ClockIcon,
-  FileIcon,
   HelpIcon,
-  PlusIcon,
-  SlidersIcon,
   SparkleIcon,
-  SproutIcon,
 } from '../components/AssessmentIcons.tsx'
 import { usePopover } from '../components/detail/usePopover.ts'
 import styles from '../components/home/home.module.css'
+import {
+  AddAssessmentArt,
+  AiHelperArt,
+  CriteriaArt,
+  EnrichmentArt,
+  FeedbackArt,
+  GrowthArt,
+  PdfImportArt,
+} from '../components/home/QuickActionIcons.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -65,6 +70,7 @@ export function AssessmentHomeRoute() {
   const [targetId, setTargetId] = useState<string>()
   const target = items.find((item) => item.assessmentId === targetId) ?? defaultTargetAssessment(items, today)
   const [addOpen, setAddOpen] = useState(false)
+  const [pdfOpen, setPdfOpen] = useState(false)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const notify = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
@@ -81,19 +87,21 @@ export function AssessmentHomeRoute() {
   const noAcademicInfo = terms.status !== 'loading' && !selectedContext && !(terms.status === 'error')
 
   const quickActions: QuickAction[] = [
-    { label: 'PDF 가져오기', icon: FileIcon, reason: '평가계획서 PDF 가져오기는 다음 단계(평가계획서 분석 화면)에서 제공돼요. 지금은 수행평가를 직접 추가해 주세요.' },
     selectedContext
-      ? { label: '수행평가 추가', icon: PlusIcon, onClick: () => setAddOpen(true) }
-      : { label: '수행평가 추가', icon: PlusIcon, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
+      ? { label: 'PDF 가져오기', icon: PdfImportArt, onClick: () => setPdfOpen(true) }
+      : { label: 'PDF 가져오기', icon: PdfImportArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
+    selectedContext
+      ? { label: '수행평가 추가', icon: AddAssessmentArt, onClick: () => setAddOpen(true) }
+      : { label: '수행평가 추가', icon: AddAssessmentArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
     target
-      ? { label: '평가 기준 보기', icon: SlidersIcon, to: schoolAssessmentDetailPath(target.assessmentId) }
-      : { label: '평가 기준 보기', icon: SlidersIcon, reason: '평가 기준을 볼 수행평가가 아직 없어요.' },
+      ? { label: '평가 기준 보기', icon: CriteriaArt, to: schoolAssessmentDetailPath(target.assessmentId) }
+      : { label: '평가 기준 보기', icon: CriteriaArt, reason: '평가 기준을 볼 수행평가가 아직 없어요.' },
     target
-      ? { label: 'AI 도우미', icon: SparkleIcon, to: `${schoolAssessmentDetailPath(target.assessmentId)}?panel=ai` }
-      : { label: 'AI 도우미', icon: SparkleIcon, reason: 'AI 도우미를 열 수행평가가 아직 없어요.' },
-    { label: '심화 탐구', icon: BulbIcon, to: enrichmentPath },
-    { label: '선생님 피드백', icon: ChatIcon, to: feedbackPath },
-    { label: '성장 기록', icon: SproutIcon, to: growthPath },
+      ? { label: 'AI 도우미', icon: AiHelperArt, to: `${schoolAssessmentDetailPath(target.assessmentId)}?panel=ai` }
+      : { label: 'AI 도우미', icon: AiHelperArt, reason: 'AI 도우미를 열 수행평가가 아직 없어요.' },
+    { label: '심화 탐구', icon: EnrichmentArt, to: enrichmentPath },
+    { label: '선생님 피드백', icon: FeedbackArt, to: feedbackPath },
+    { label: '성장 기록', icon: GrowthArt, to: growthPath },
   ]
 
   return (
@@ -177,15 +185,18 @@ export function AssessmentHomeRoute() {
           <SparkleIcon size={14} />
           선택한 수행평가의 평가 기준과 내 노트를 바탕으로 답할 예정이에요. 과제를 대신 써 주지는 않아요. (준비 중)
         </p>
+      </div>
 
-        <ul className={styles.quickGrid} aria-label="바로가기">
-          {quickActions.map((action) => (
-            <li key={action.label}>
-              <QuickActionButton action={action} onUnavailable={(reason) => notify('info', reason)} />
-            </li>
-          ))}
-        </ul>
+      {/* 빠른 실행만 본문 열(640px)보다 넓게 두어 데스크톱에서 7개를 한 줄로 놓는다 (Daglo 홈 배치) */}
+      <ul className={styles.quickGrid} aria-label="바로가기">
+        {quickActions.map((action) => (
+          <li key={action.label}>
+            <QuickActionButton action={action} onUnavailable={(reason) => notify('info', reason)} />
+          </li>
+        ))}
+      </ul>
 
+      <div className={styles.column}>
         <WaitingFeedback query={pendingFeedback} />
 
         <section className={styles.section} aria-labelledby="home-upcoming">
@@ -262,6 +273,7 @@ export function AssessmentHomeRoute() {
         </div>
       </div>
 
+      {pdfOpen && <PdfImportModal onClose={() => setPdfOpen(false)} onManualAdd={() => setAddOpen(true)} />}
       {addOpen && selectedContext && (
         <AddSchoolAssessmentModal
           context={selectedContext}
@@ -283,7 +295,7 @@ function QuickActionButton({ action, onUnavailable }: { action: QuickAction; onU
   const content: ReactNode = (
     <>
       <span className={styles.quickIcon} aria-hidden="true">
-        <action.icon size={20} />
+        <action.icon size={27} />
       </span>
       {action.label}
     </>

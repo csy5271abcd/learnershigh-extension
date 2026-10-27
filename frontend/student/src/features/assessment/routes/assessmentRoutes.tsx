@@ -12,6 +12,7 @@ import { GrowthRecordsRoute } from './GrowthRecordsRoute.tsx'
 import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
 import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
 import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
+import { PdfImportReviewRoute } from './PdfImportReviewRoute.tsx'
 import { ResourceDetailRoute } from './ResourceDetailRoute.tsx'
 import { ResourceLibraryRoute } from './ResourceLibraryRoute.tsx'
 import { assessmentRoutePattern } from './paths.ts'
@@ -27,6 +28,7 @@ export const assessmentRoute: RouteObject = {
     { index: true, element: <AssessmentHomeRoute /> },
     { path: 'school-assessments', element: <SchoolAssessmentListRoute /> },
     { path: 'school-assessments/:assessmentId', element: <SchoolAssessmentDetailRoute /> },
+    { path: 'school-assessments/pdf-import/:documentRevisionId', element: <PdfImportReviewRoute /> },
     { path: 'academic-info', element: <AcademicInfoRoute /> },
     { path: 'feedback', element: <FeedbackListRoute /> },
     { path: 'enrichment', element: <EnrichmentLibraryRoute /> },

@@ -413,3 +413,15 @@ React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor
 | MM-43 | 알림: 알림 Entity·읽음 상태·발송 채널(푸시/인앱)·대상 이벤트(마감 임박, 피드백 답변 도착) 계약. New 배지 표시 규칙 | Wangyu Student Care 알림과 겹치는지 확인 |
 | MM-43 | 홈 AI 입력창: §28 AI 도우미 계약을 재사용할지, 대화 저장 여부·출처 표시 | AI는 Analysis/Suggestion/Draft만 (CLAUDE.md §14) |
 | MM-44 | §15를 서버 제공으로 바꿀 경우 `relatedActions` Enum(`NOTE·TOPIC_SUGGESTION·RESOURCES·ENRICHMENT·MOCK_EXAM` 후보), 예시 구조, 과제별 추천 규칙(근거·표시 문구) | 팁은 필수 단계·DB 상태 전이가 아님(§15) |
+
+## P-21. 평가계획서 PDF 가져오기 화면용 계약 보완 (2026-10-27, Stage 7 Frontend 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 가정 Shape(코드 주석·screen-map)으로 Mock만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-45 | §11 분석 상태 Enum 확정(NOT_REQUESTED·PROCESSING·REVIEW_REQUIRED·COMPLETED?·FAILED), 과목별 부분 실패 표현, 폴링/알림 방식, §10-1 `reviewStatus` Enum | 업로드 상태와 분석 상태를 섞지 않음(student §5) |
+| MM-46 | §11 결과 Schema: 다과목 구조, 항목 키(`itemKey`), 평가 요소·채점기준 구조, 항목↔근거 페이지 연결, 성취·교수학습 구조, 신뢰도 표현 | API-OD-A02, 관리자 평가계획서(§38~39)와 같은 Schema 사용 여부 |
+| MM-47 | 개인 정정: 허용 fieldPath 목록, PUT 응답, 저장한 개인 검토 조회(GET), 문서 과목명↔내 subjectId 연결 저장 위치 | API-OD-A05, 관리자 확인값과 분리 |
+| MM-48 | 중복 가져오기 판정(같은 evaluationItemRef/같은 이름), 개정본(Revision)이 바뀐 뒤 다시 가져오기, 작년·다른 학기 문서 처리, 문서 없음 Error Code(`EVALUATION_PLAN_NOT_FOUND`?) | §12 "알림 우선, 자동 병합 없음" |
+| MM-48 | 파일: 크기·MIME·페이지 제한, 악성 파일 검사, File Storage, 개인 PDF 보관 기간, AI Provider 외부 전송 동의 | API-OD-A03·A10 |

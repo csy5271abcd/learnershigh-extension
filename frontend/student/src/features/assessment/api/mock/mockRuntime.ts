@@ -42,6 +42,16 @@ export type MockScenario =
   | 'archiveError'
   | 'archiveTrashDemo'
   | 'favoriteError'
+  | 'evaluationPlanListError'
+  | 'evaluationPlanEmpty'
+  | 'evaluationPlanOtherSchool'
+  | 'evaluationPlanUploadError'
+  | 'analysisRequestError'
+  | 'analysisLoadError'
+  | 'analysisSlow'
+  | 'analysisFailed'
+  | 'analysisNoResult'
+  | 'personalReviewError'
 
 const consumedOnce = new Set<string>()
 

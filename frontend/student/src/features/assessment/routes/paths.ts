@@ -13,6 +13,10 @@ export const academicInfoPath = '/assessment/academic-info'
 export const subjectAssessmentsPath = (subjectId: string) =>
   `${schoolAssessmentsPath}?subject=${encodeURIComponent(subjectId)}`
 
+/** 평가계획서 분석 결과 검토·가져오기 (screen-map S5). 가져오기 Modal에서 분석을 요청한 뒤 이동한다. */
+export const pdfImportReviewPath = (documentRevisionId: string) =>
+  `${schoolAssessmentsPath}/pdf-import/${encodeURIComponent(documentRevisionId)}`
+
 /** 상세를 피드백 탭이 열린 상태로 연다 (선생님 피드백 목록 → 과제 복귀) */
 export const schoolAssessmentFeedbackPath = (assessmentId: string) =>
   `${schoolAssessmentDetailPath(assessmentId)}?panel=feedback`

@@ -7,6 +7,7 @@ import type { SchoolAssessment, SchoolAssessmentStatus, SubjectRef } from '../ap
 import { AddSchoolAssessmentModal } from '../components/AddSchoolAssessmentModal.tsx'
 import { ChevronDownIcon, ClockIcon, FileIcon, LinkIcon, PencilIcon, PlusIcon, SearchIcon } from '../components/AssessmentIcons.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
+import { PdfImportModal } from '../components/pdf-import/PdfImportModal.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -58,6 +59,7 @@ export function SchoolAssessmentListRoute() {
   }
   const [pageSize, setPageSize] = useState(pageSizeStep)
   const [modalOpen, setModalOpen] = useState(false)
+  const [pdfOpen, setPdfOpen] = useState(false)
   const [pendingStatusId, setPendingStatusId] = useState<string>()
   const [createdId, setCreatedId] = useState<string>()
   const [toast, setToast] = useState<ToastMessage | null>(null)
@@ -166,21 +168,10 @@ export function SchoolAssessmentListRoute() {
           />
         </label>
         <div className={styles.toolbarActions}>
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            aria-disabled="true"
-            aria-describedby="pdf-import-reason"
-            onClick={() =>
-              showToast('info', 'PDF 가져오기는 평가계획서 분석(ST-02) 화면과 함께 제공될 예정이에요. 지금은 직접 추가해 주세요.')
-            }
-          >
+          <button type="button" className={styles.secondaryButton} onClick={() => setPdfOpen(true)}>
             <FileIcon size={16} />
             PDF로 가져오기
           </button>
-          <span id="pdf-import-reason" className="lh-visually-hidden">
-            준비 중인 기능이에요.
-          </span>
           <button type="button" className={styles.primaryButton} onClick={() => setModalOpen(true)}>
             <PlusIcon size={16} />
             수행평가 추가
@@ -321,6 +312,7 @@ export function SchoolAssessmentListRoute() {
       </section>
       </div>
 
+      {pdfOpen && <PdfImportModal onClose={() => setPdfOpen(false)} onManualAdd={() => setModalOpen(true)} />}
       {modalOpen && (
         <AddSchoolAssessmentModal
           context={selectedContext}

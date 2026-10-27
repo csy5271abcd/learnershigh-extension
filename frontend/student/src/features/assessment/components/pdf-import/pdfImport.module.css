@@ -1,0 +1,707 @@
+/* 평가계획 PDF 가져오기 (Mockup SA-LIST-02) + 분석 결과 검토 (Mockup 미제공, Stage 7 보완 UI) */
+
+/* ---- 가져오기 Modal ---- */
+
+.modalGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+}
+
+.modalMain {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dropzone {
+  display: grid;
+  min-height: 250px;
+  border: 1px dashed var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-subtle);
+}
+
+.dropzone[data-dragging='true'] {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary-soft);
+}
+
+.dropzone:focus-within {
+  border-color: var(--as-color-primary);
+}
+
+.dropLabel {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropTitle {
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.dropHint {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption);
+}
+
+.pdfIcon {
+  flex: none;
+  color: var(--as-color-success);
+}
+
+.fileCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  align-self: center;
+  margin: 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+}
+
+.fileActions {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.textButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-primary);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.textButton:disabled,
+.textButton[aria-disabled='true'] {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.listLabel {
+  margin-top: 8px;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.planList {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.planRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.planRow:hover:not(:disabled) {
+  background: var(--as-color-subtle);
+}
+
+.planRow[aria-pressed='true'] {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-selected);
+}
+
+.planText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.planName {
+  overflow-wrap: anywhere;
+  font-size: var(--as-text-body);
+  font-weight: 500;
+}
+
+.planMeta {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.planIssue {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-caption);
+}
+
+.planIssue[data-kind='otherSchool'] {
+  color: var(--as-color-danger);
+}
+
+.planCheck {
+  flex: none;
+  color: var(--as-color-primary);
+}
+
+.notice {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 19px;
+}
+
+.errorBox {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-danger-soft);
+  color: var(--as-color-text);
+  font-size: var(--as-text-meta);
+  line-height: 19px;
+}
+
+.errorBox svg {
+  vertical-align: -3px;
+  color: var(--as-color-danger);
+}
+
+.guide {
+  align-self: start;
+  padding: 18px 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.guideTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.guideTitle svg {
+  color: var(--as-color-primary);
+}
+
+.guideList {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 19px;
+  list-style: none;
+}
+
+.guideList li::before {
+  content: '· ';
+}
+
+/* ---- 분석 결과 검토 ---- */
+
+.reviewArea {
+  max-width: 900px;
+  padding-top: 20px;
+  padding-bottom: 96px;
+}
+
+.backButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.reviewTitle {
+  margin-top: 12px;
+  font-size: var(--as-text-detail-title);
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.docLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: var(--as-text-body);
+  overflow-wrap: anywhere;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chip[data-tone='demo'] {
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+}
+
+.chip[data-tone='warn'] {
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+}
+
+.chip[data-tone='done'] {
+  background: var(--as-color-success-soft);
+  color: var(--as-color-success-text);
+}
+
+.chip[data-tone='mine'] {
+  background: var(--as-color-primary-soft);
+  color: var(--as-color-primary);
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-body);
+  line-height: 20px;
+}
+
+.warning svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.candidateBanner {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 19px;
+}
+
+.candidateBanner svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--as-color-primary);
+}
+
+.subjectTab {
+  gap: 6px;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--as-text-row);
+  cursor: pointer;
+}
+
+.subjectTab[aria-selected='true'] {
+  border-bottom-color: var(--as-color-ink);
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.tabBadge {
+  padding: 1px 6px;
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-danger-soft);
+  color: var(--as-color-danger);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.subjectPanel {
+  display: grid;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.mappingRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.mappingLabel {
+  font-size: var(--as-text-body);
+  font-weight: 600;
+}
+
+.block {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.blockTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--as-text-section);
+  font-weight: 700;
+}
+
+.blockMeta {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+  font-weight: 500;
+}
+
+.blockHint {
+  margin-top: 4px;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+}
+
+.muted {
+  margin-top: 8px;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-body);
+}
+
+.table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  font-size: var(--as-text-body);
+}
+
+.table th,
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--as-color-line);
+  text-align: left;
+}
+
+.table th {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+  font-weight: 500;
+}
+
+.itemList {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.item[data-selected='true'] {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-selected);
+}
+
+.itemHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.itemCheck {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.itemBody {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+
+.itemTitleRow,
+.editRow,
+.evidenceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.editRow input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.itemTitle {
+  font-size: var(--as-text-row);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.itemMeta,
+.compare {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+}
+
+.rubric {
+  display: grid;
+  gap: 2px;
+  padding-left: 18px;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+}
+
+.sourceText {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 10px 12px;
+  border-left: 3px solid var(--as-color-line);
+  background: var(--as-color-subtle);
+  font-size: var(--as-text-meta);
+}
+
+.sourceNote {
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-caption);
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  font-size: var(--as-text-body);
+}
+
+.infoTitle {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+}
+
+.infoRow .muted {
+  margin-top: 0;
+}
+
+.infoItems {
+  display: grid;
+  gap: 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceList {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0;
+  font-size: var(--as-text-body);
+  list-style: none;
+}
+
+.sourceList li {
+  display: grid;
+  gap: 2px;
+}
+
+.sourcePage {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.actionBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+  box-shadow: var(--as-shadow-popover);
+}
+
+.actionText {
+  flex: 1;
+  min-width: 200px;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-body);
+}
+
+.stateBox {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 32px 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  text-align: center;
+}
+
+.stateTitle {
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.stateText {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-body);
+  line-height: 21px;
+}
+
+.stateActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.failIcon {
+  color: var(--as-color-danger);
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--as-color-line);
+  border-top-color: var(--as-color-primary);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.resultBox {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: var(--as-radius-md);
+  font-size: var(--as-text-body);
+}
+
+.resultBox[data-tone='ok'] {
+  background: var(--as-color-success-soft);
+}
+
+.resultBox[data-tone='fail'] {
+  background: var(--as-color-danger-soft);
+}
+
+.resultBox ul {
+  display: grid;
+  gap: 4px;
+  margin-top: 6px;
+  padding-left: 18px;
+}
+
+.resultTitle {
+  font-weight: 700;
+}
+
+.confirmList {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.confirmList li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.deadlineField {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: var(--as-text-meta);
+}
+
+.deadlineField input {
+  width: auto;
+}
+
+.ackRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--as-text-body);
+}
+
+@media (max-width: 820px) {
+  .modalGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .infoRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
