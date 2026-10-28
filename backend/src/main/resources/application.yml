@@ -33,6 +33,13 @@ spring:
         # Enum 자리에 숫자(0, 1 …)가 오면 순서로 바꿔 넣지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
         fail-on-numbers-for-enums: true
 
+server:
+  compression:
+    # 학습관 전원 지표 응답이 학생 1000명 기준 약 3MB다. JSON은 압축률이 높아(약 56KB) 응답 압축을 켠다.
+    enabled: true
+    mime-types: application/json
+    min-response-size: 2KB
+
 app:
   # 기준일 계산 Timezone (shared-conventions.md §13)
   zone: Asia/Seoul

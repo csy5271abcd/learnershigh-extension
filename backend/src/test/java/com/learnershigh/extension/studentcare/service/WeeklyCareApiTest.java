@@ -26,6 +26,8 @@ class WeeklyCareApiTest {
     @BeforeEach void setup() {
         students = mock(ExistingStudentClient.class);
         study = mock(ExistingStudyClient.class);
+        // 일괄 조회는 Interface 기본 구현(학생별 조회 반복)을 그대로 써서 아래 학생별 Stub이 적용되게 한다.
+        when(study.findDailyStudies(any(), any(), any())).thenCallRealMethod();
         var cases = mock(CareCaseRepository.class);
         var settings = mock(CareSettingsRepository.class);
         var events = mock(CareEventRepository.class);
@@ -111,5 +113,25 @@ class WeeklyCareApiTest {
                 .andExpect(status().isNotFound());
         mvc.perform(get("/api/admin/student-care/metrics"))
                 .andExpect(status().isBadRequest());
+    }
+
+    /** 원본 조회 횟수가 학생 수에 따라 늘지 않아야 한다 (docs/design/student-care-load-test-2026-10-29.md). */
+    @Test void branchWideReadsFetchSourceOnceRegardlessOfStudentCount() throws Exception {
+        for (int size : new int[] {10, 100}) {
+            clearInvocations(study);
+            var roster = java.util.stream.IntStream.range(0, size)
+                    .mapToObj(i -> new ExistingStudent("s" + i, "b", "학생" + i, "A")).toList();
+            when(students.findStudents("b")).thenReturn(roster);
+            doAnswer(inv -> {
+                Collection<String> ids = inv.getArgument(0);
+                Map<String, List<ExistingDailyStudy>> result = new LinkedHashMap<>();
+                ids.forEach(id -> result.put(id, List.of()));
+                return result;
+            }).when(study).findDailyStudies(any(), any(), any());
+            mvc.perform(get("/api/admin/student-care/board").param("branchId", "b")).andExpect(status().isOk());
+            mvc.perform(get("/api/admin/student-care/metrics").param("branchId", "b")).andExpect(status().isOk());
+            verify(study, times(2)).findDailyStudies(any(), any(), any());
+            verify(study, never()).findDailyStudy(any(), any(), any());
+        }
     }
 }

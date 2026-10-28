@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -92,6 +93,42 @@ class DemoStudyDataStoreTest {
         study.setDemoStudyDataStore(demo);
         study.setStudyDataAvailable(false);
         assertThatThrownBy(() -> study.findDailyStudy("demo_s001", AS_OF, AS_OF))
+                .isInstanceOf(ExistingIntegrationException.class);
+        verifyNoInteractions(demo);
+    }
+
+    @Test
+    void batchLookupKeepsEveryRequestedStudentAndUsesOneQueryPerChunk() throws Exception {
+        ResultSet row = row(true, true, "{\"수학\":30}", "{\"수학\":40}");
+        when(row.getString("student_id")).thenReturn("demo_s002");
+        List<String> sqls = new java.util.ArrayList<>();
+        doAnswer(invocation -> {
+            sqls.add(invocation.getArgument(0));
+            if (sqls.size() == 1) { // demo_s002 is in the first chunk
+                ((RowCallbackHandler) invocation.getArgument(1)).processRow(row);
+            }
+            return null;
+        }).when(jdbc).query(anyString(), ArgumentMatchers.any(RowCallbackHandler.class), ArgumentMatchers.any(Object[].class));
+
+        List<String> ids = java.util.stream.IntStream.rangeClosed(1, 501)
+                .mapToObj(i -> String.format("demo_s%03d", i)).toList();
+        Map<String, List<ExistingDailyStudy>> result = store.findDailyStudies(ids, AS_OF, AS_OF);
+
+        assertThat(result).hasSize(501);
+        assertThat(result.keySet()).containsExactlyElementsOf(ids);
+        assertThat(result.get("demo_s001")).isEmpty();
+        assertThat(result.get("demo_s002")).singleElement()
+                .satisfies(day -> assertThat(day.studyMinutes()).isEqualTo(30));
+        assertThat(sqls).hasSize(2);
+    }
+
+    @Test
+    void batchLookupHonoursTheAvailabilitySwitch() {
+        DemoStudyDataStore demo = mock(DemoStudyDataStore.class);
+        MockExistingStudyClient study = new MockExistingStudyClient(Clock.systemUTC(), AS_OF.toString());
+        study.setDemoStudyDataStore(demo);
+        study.setStudyDataAvailable(false);
+        assertThatThrownBy(() -> study.findDailyStudies(List.of("demo_s001"), AS_OF, AS_OF))
                 .isInstanceOf(ExistingIntegrationException.class);
         verifyNoInteractions(demo);
     }
