@@ -71,10 +71,12 @@ public class StudentCareQueryService {
     public CareBranchMetricsResponse metrics(String branchId) {
         ExistingBranch branch = reader.branch(branchId);
         LocalDate asOf = reader.observationDate();
-        var students = reader.students(branchId).stream()
+        List<ExistingStudent> roster = reader.students(branchId);
+        Map<String, List<ExistingDailyStudy>> histories = reader.histories(roster, asOf);
+        var students = roster.stream()
                 .sorted(Comparator.comparing(ExistingStudent::name, NAME_ORDER).thenComparing(ExistingStudent::studentId))
                 .map(student -> new CareBranchMetricsResponse.StudentMetrics(toRef(student),
-                        CareWeeklyReviews.build(reader.history(student.studentId(), asOf), asOf))).toList();
+                        CareWeeklyReviews.build(histories.get(student.studentId()), asOf))).toList();
         var averages = students.isEmpty() ? List.<CareBranchMetricsResponse.DailyAverage>of()
                 : asOf.minusDays(6).datesUntil(asOf.plusDays(1)).map(date -> {
                     var values = students.stream().flatMap(student -> student.review().days().stream())
@@ -142,14 +144,13 @@ public class StudentCareQueryService {
         Map<String, CareCase> active = caseRepository.findByBranchIdAndStatus(branchId, CareCaseStatus.IN_ADJUSTMENT)
                 .stream().collect(Collectors.toMap(CareCase::studentId, Function.identity()));
         Map<String, Set<CareSignalType>> cooldown = reader.cooldown(branchId, reader.today(), settings);
+        List<ExistingStudent> unmanaged = students.stream().filter(student -> !active.containsKey(student.studentId())).toList();
+        Map<String, List<ExistingDailyStudy>> histories = reader.histories(unmanaged, asOf);
 
         List<CareBoardResponse.NeedsCheckCard> needsCheck = new ArrayList<>();
         List<CareBoardResponse.DeferredStudent> deferred = new ArrayList<>();
-        for (ExistingStudent student : students) {
-            if (active.containsKey(student.studentId())) {
-                continue;
-            }
-            SignalEvaluation evaluation = reader.evaluate(reader.history(student.studentId(), asOf), asOf, settings,
+        for (ExistingStudent student : unmanaged) {
+            SignalEvaluation evaluation = reader.evaluate(histories.get(student.studentId()), asOf, settings,
                     cooldown.getOrDefault(student.studentId(), Set.of()));
             if (!evaluation.signals().isEmpty()) {
                 needsCheck.add(new CareBoardResponse.NeedsCheckCard(student.studentId(), student.name(),

@@ -84,6 +84,12 @@ class StudentCareReader {
         return studyClient.findDailyStudy(studentId, CareSignalCalculator.historyFrom(asOf), asOf);
     }
 
+    /** 지점 전원 조회용. 학생마다 원본을 따로 부르지 않도록 한 번에 가져온다. */
+    Map<String, List<ExistingDailyStudy>> histories(List<ExistingStudent> students, LocalDate asOf) {
+        return studyClient.findDailyStudies(students.stream().map(ExistingStudent::studentId).toList(),
+                CareSignalCalculator.historyFrom(asOf), asOf);
+    }
+
     /**
      * 최근 종결 건 때문에 다시 올리지 않을 신호 (domain.md §3 cooldownDays). 학생 ID → 신호 Type.
      * cooldownDays = 0 처리는 {@link CareCooldown} 한 곳에서 한다(그때 조회 범위는 비어 있다).

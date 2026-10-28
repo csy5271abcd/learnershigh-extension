@@ -192,6 +192,8 @@ phone, parents_phone          학생 목록 API에서는 항상 null이다.
 
 과목별 통계 API는 학생 단위다. 지점 전체 케어 보드를 그리면 학생 수만큼 호출한다 (N+1).
 
+Extension 쪽은 `ExistingStudyClient.findDailyStudies`(여러 학생 일괄 조회)로 호출 지점을 한 곳에 모았다 (2026-10-29). Real Adapter는 §3-2 기간별 일일 현황을 지점 단위 1회로 읽을 수 있지만, §3-3 과목별 통계는 원본이 학생 단위라 학생 수만큼 호출이 남는다. 지점 단위 과목 통계 API가 원본에 생기기 전까지는 병렬 호출 또는 캐시로 줄여야 한다 (Open). 측정: `docs/design/student-care-load-test-2026-10-29.md`.
+
 ## 5-4. Mock 시나리오와의 차이
 
 `MockExistingStudentClient` / `MockStudyScenarios`는 PR 7 시연용이다.

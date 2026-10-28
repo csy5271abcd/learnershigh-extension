@@ -3,7 +3,9 @@ package com.learnershigh.extension.common.integration.learnershigh;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,6 +47,16 @@ public class MockExistingStudyClient implements ExistingStudyClient, MockIntegra
             days.add(MockStudyScenarios.dayOf(studentId, date, anchor, visualExamples));
         }
         return days;
+    }
+
+    @Override
+    public Map<String, List<ExistingDailyStudy>> findDailyStudies(Collection<String> studentIds, LocalDate from,
+            LocalDate to) {
+        if (!available) {
+            throw new ExistingIntegrationException("mock study data disabled");
+        }
+        if (demoStore != null) return demoStore.findDailyStudies(studentIds, from, to);
+        return ExistingStudyClient.super.findDailyStudies(studentIds, from, to);
     }
 
     @Override
