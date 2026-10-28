@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 학생 케어 API Integration Test 공통: 기준일 2026-09-30.
+ * 학생 케어 API Integration Test 공통: 서버 오늘 2026-09-30, 관측 기준일/Mock anchor 2026-09-29.
  * 매 Test 전에 학생 케어 Table을 비우고 기준일 / Mock 연동을 처음 상태로 되돌린다(앞 Test가 바꾼 상태가 새지 않게).
  */
 final class StudentCareApiTestSupport {
@@ -28,6 +28,12 @@ final class StudentCareApiTestSupport {
         jdbc.update("delete from care_case");
         jdbc.update("delete from care_settings");
         jdbc.update("delete from care_student_lock");
+        // 기존 상태전이 시나리오는 명시적으로 저장된 이전 지점 기준을 사용한다. 신규 기본값 테스트는 이 행을 지운다.
+        jdbc.update("""
+                insert into care_settings (branch_id, absence_days, plan_missing_days, study_drop_percent,
+                    execution_rate_percent, subject_share_gap_points, start_shift_minutes, min_valid_days,
+                    cooldown_days, updated_at) values (?, 3, 3, 40, 60, 15, 90, 3, 7, current_timestamp)
+                """, BRANCH);
         clock.setDate(ANCHOR);
         integration.setStudyDataAvailable(true);
     }

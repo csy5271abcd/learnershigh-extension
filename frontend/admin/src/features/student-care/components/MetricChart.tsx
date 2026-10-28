@@ -21,7 +21,7 @@ export function MetricChart({ view, flag }: { view: MetricView; flag: boolean })
     case 'planActual':
       return <PlanActualChart view={view} />
     case 'share':
-      return <ShareChart view={view} />
+      return <ShareChart view={view} flag={flag} />
     case 'strip':
       return <DayStrip view={view} />
     case 'dateList':
@@ -64,7 +64,7 @@ function WeeklyChart({ view, flag }: { view: Extract<MetricView, { kind: 'weekly
 
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
-/** 공부 시간: 접어 둔 일별 (화면 기간 전체, 최근부터) */
+/** 학습 시간: 접어 둔 일별 (화면 기간 전체, 최근부터) */
 function DailyFold({ days }: { days: { date: string; minutes: number; came: boolean }[] }) {
   const [open, setOpen] = useState(false)
   const max = Math.max(...days.map((day) => day.minutes), 60)
@@ -105,7 +105,7 @@ function DateList({ view }: { view: Extract<MetricView, { kind: 'dateList' }> })
       {view.days.map((day) => (
         <li key={day.date} className={`sc-datelist__item sc-datelist__item--${day.state}`}>
           <span className="sc-datelist__date">{shortDate(day.date)}</span>
-          <span>{day.state === 'ok' ? '제출' : '미제출'}</span>
+          <span>{day.state === 'skip' ? '제외' : day.state === 'ok' ? '제출' : '미제출'}</span>
         </li>
       ))}
     </ul>
@@ -156,7 +156,7 @@ function PlanActualChart({ view }: { view: Extract<MetricView, { kind: 'planActu
         <span className="sc-legend sc-legend--actual" /> 실제
         <span className="sc-legend sc-legend--low" /> 절반 이하
       </div>
-      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="계획 대비 실제 공부 시간">
+      <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label="계획 대비 실제 학습 시간">
         {view.days.map((day, index) => {
           const x = index * slot + (slot - bar) / 2
           if (day.off) return null
@@ -172,7 +172,7 @@ function PlanActualChart({ view }: { view: Extract<MetricView, { kind: 'planActu
                 height={height(done)}
                 rx={2}
               >
-                <title>{`${shortDate(day.date)} 계획 ${hoursMinutes(day.planned)} · 실제 ${hoursMinutes(day.actual)}`}</title>
+                <title>{`${shortDate(day.date)} 계획 ${hoursMinutes(Math.round(day.planned))} · 실제 ${hoursMinutes(Math.round(day.actual))}`}</title>
               </rect>
             </g>
           )
@@ -188,8 +188,8 @@ function PlanActualChart({ view }: { view: Extract<MetricView, { kind: 'planActu
   )
 }
 
-/** 과목 계획: 최근 7일 과목별 계획 비중(회색) vs 실제 비중. 차이가 가장 큰 과목 강조. */
-function ShareChart({ view }: { view: Extract<MetricView, { kind: 'share' }> }) {
+/** 과목별 학습 비율: 최근 7일 과목별 계획 비중(회색) vs 실제 비중. 차이가 가장 큰 과목 강조. */
+function ShareChart({ view, flag }: { view: Extract<MetricView, { kind: 'share' }>; flag: boolean }) {
   const max = Math.max(...view.subjects.flatMap((subject) => [subject.plan, subject.actual]), 10)
   return (
     <figure className="sc-chart sc-share">
@@ -199,7 +199,7 @@ function ShareChart({ view }: { view: Extract<MetricView, { kind: 'share' }> }) 
       </div>
       {view.subjects.map((subject) => {
         const gap = subject.actual - subject.plan
-        const worst = subject.name === view.worst && Math.abs(gap) >= 8
+        const worst = flag && subject.name === view.worst && Math.abs(gap) >= 0.1
         return (
           <div key={subject.name} className={worst ? 'sc-share__row sc-share__row--worst' : 'sc-share__row'}>
             <span className="sc-share__label">{subject.name}</span>

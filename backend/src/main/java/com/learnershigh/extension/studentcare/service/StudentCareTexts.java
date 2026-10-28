@@ -18,7 +18,7 @@ public final class StudentCareTexts {
                     + CareTextFormat.hoursMinutes(now);
             case EXECUTION_GAP -> "달성률 " + before + "% → " + now + "%";
             case SUBJECT_SHARE -> subject + " 비중 " + before + "% → " + now + "%";
-            case START_TIME_SHIFT -> "등원 " + CareTextFormat.clock(before) + " → " + CareTextFormat.clock(now);
+            case START_TIME_SHIFT -> "평소 대비 입실 " + before + "분 → " + now + "분";
         };
     }
 }

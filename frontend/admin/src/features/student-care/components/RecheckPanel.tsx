@@ -1,11 +1,12 @@
 import { useId, useState } from 'react'
 import { studentCareApi } from '../api/studentCareApi.ts'
-import { addDays, metric, RECHECK_CHOICES, shortDate, TREND_LABEL } from '../model/format.ts'
+import { addDays, comparisonMetric, RECHECK_CHOICES, shortDate, TREND_LABEL } from '../model/format.ts'
 import type { CareCase } from '../model/types.ts'
 import { useCommand } from '../model/useCommand.ts'
 import { Choice } from './Choice.tsx'
 
 interface Props {
+  api?: typeof studentCareApi
   branchId: string
   asOf: string
   careCase: CareCase
@@ -13,8 +14,8 @@ interface Props {
   onStale: () => void
 }
 
-/** 점검: 지난번 → 지금 수치, 관리 종료 / 계속 관리 (student-care.md §4-3). */
-export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Props) {
+/** 점검: 이전 → 지금 수치, 관리 종료 / 계속 관리 (student-care.md §4-3). */
+export function RecheckPanel({ api = studentCareApi, branchId, asOf, careCase, onSaved, onStale }: Props) {
   const id = useId()
   const [continuing, setContinuing] = useState(false)
   const [days, setDays] = useState('7')
@@ -23,33 +24,33 @@ export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Pro
 
   const close = () =>
     void command.run(
-      () => studentCareApi.decide(branchId, careCase.caseId, { decision: 'CLOSE' }),
+      () => api.decide(branchId, careCase.caseId, { decision: 'CLOSE' }),
       () => onSaved('관리 종료'),
     )
 
   const keep = () =>
     void command.run(
       () =>
-        studentCareApi.decide(branchId, careCase.caseId, {
+        api.decide(branchId, careCase.caseId, {
           decision: 'CONTINUE',
           recheckDate: addDays(asOf, Number(days)),
         }),
-      (saved) => onSaved(`계속 관리 · 다음 점검 ${shortDate(saved.recheckDate ?? '')}`),
+      (saved) => onSaved(`계속 관리 · 다음 확인 ${shortDate(saved.recheckDate ?? '')}`),
     )
 
   return (
     <section className="sc-form" aria-labelledby={`${id}-title`}>
       <h3 id={`${id}-title`} className="sc-section-title">
-        점검
+        학습 변화 확인
         {comparison && <span className={`sc-result sc-result--${comparison.result}`}>{comparison.resultLabel}</span>}
       </h3>
       {comparison && (
         <table className="sc-compare">
           <thead>
             <tr>
-              <th scope="col">특이사항</th>
-              <th scope="col">지난번</th>
-              <th scope="col">지금</th>
+              <th scope="col">확인 항목</th>
+              <th scope="col">이전</th>
+              <th scope="col">현재</th>
               <th scope="col">
                 <span className="sc-visually-hidden">변화</span>
               </th>
@@ -59,8 +60,8 @@ export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Pro
             {comparison.rows.map((row) => (
               <tr key={row.type}>
                 <th scope="row">{row.label}</th>
-                <td>{metric(row.before, row.unit)}</td>
-                <td>{row.now === null ? '기록 없음' : metric(row.now, row.unit)}</td>
+                <td>{comparisonMetric(row.before, row.unit,row.type)}</td>
+                <td>{row.now === null ? '기록 없음' : comparisonMetric(row.now, row.unit,row.type)}</td>
                 <td className={`sc-trend sc-trend--${row.trend}`}>{row.now === null ? '' : TREND_LABEL[row.trend]}</td>
               </tr>
             ))}
@@ -91,7 +92,7 @@ export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Pro
       <div id={`${id}-continue`} className="sc-continue" hidden={!continuing}>
         <Choice
           name={`${id}-days`}
-          legend="다음 점검일"
+          legend="다음 확인일"
           options={RECHECK_CHOICES.map((choice) => ({
             value: String(choice.days),
             label: choice.label,
@@ -100,7 +101,7 @@ export function RecheckPanel({ branchId, asOf, careCase, onSaved, onStale }: Pro
           onChange={setDays}
         />
         <button type="button" className="sc-button sc-button--primary" aria-disabled={command.pending || undefined} onClick={keep}>
-          {command.pending ? '저장 중' : '계속 관리 저장'}
+          {command.pending ? '저장 중' : '저장'}
         </button>
       </div>
 

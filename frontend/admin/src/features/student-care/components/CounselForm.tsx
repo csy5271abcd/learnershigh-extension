@@ -8,6 +8,7 @@ import { Choice } from './Choice.tsx'
 const MEMO_MAX = 1000
 
 interface Props {
+  api?: typeof studentCareApi
   branchId: string
   studentId: string
   asOf: string
@@ -17,7 +18,7 @@ interface Props {
   onStale: () => void
 }
 
-export function CounselForm({ branchId, studentId, asOf, caseId, onSaved, onStale }: Props) {
+export function CounselForm({ api = studentCareApi, branchId, studentId, asOf, caseId, onSaved, onStale }: Props) {
   const id = useId()
   const [channel, setChannel] = useState<NoteChannel | null>(null)
   const [memo, setMemo] = useState('')
@@ -43,7 +44,7 @@ export function CounselForm({ branchId, studentId, asOf, caseId, onSaved, onStal
     if (next.size > 0 || !channel) return
     if (caseId !== null) {
       void command.run(
-        () => studentCareApi.addNote(branchId, caseId, channel, memo.trim()),
+        () => api.addNote(branchId, caseId, channel, memo.trim()),
         () => {
           setMemo('')
           setChannel(null)
@@ -55,10 +56,10 @@ export function CounselForm({ branchId, studentId, asOf, caseId, onSaved, onStal
     const chosen = reason as CareReason
     const recheckDate = chosen === 'ADJUSTMENT_NEEDED' ? addDays(asOf, Number(days)) : undefined
     void command.run(
-      () => studentCareApi.openCase({ branchId, studentId, channel, memo: memo.trim(), reason: chosen, recheckDate }),
+      () => api.openCase({ branchId, studentId, channel, memo: memo.trim(), reason: chosen, recheckDate }),
       (saved) => {
         const label = REASONS.find((item) => item.value === chosen)?.label ?? ''
-        onSaved(saved.status === 'CLOSED' ? `${label} · 관리 종료` : `계속 관리 · 다음 점검 ${shortDate(saved.recheckDate ?? '')}`)
+        onSaved(saved.status === 'CLOSED' ? `${label} · 관리 종료` : `계속 관리 · 다음 확인 ${shortDate(saved.recheckDate ?? '')}`)
       },
     )
   }
@@ -72,15 +73,15 @@ export function CounselForm({ branchId, studentId, asOf, caseId, onSaved, onStal
       </h3>
       <Choice
         name={`${id}-channel`}
-        legend="방식"
+        legend="상담 방법"
         options={CHANNELS}
         value={channel}
         onChange={(value) => setChannel(value)}
-        error={flag('channel') && '방식을 고르세요'}
+        error={flag('channel') && '상담 방법을 선택해 주세요'}
       />
       <div className="sc-field">
         <label className="sc-field__label" htmlFor={`${id}-memo`}>
-          내용
+          상담 내용
         </label>
         <textarea
           id={`${id}-memo`}
@@ -94,24 +95,24 @@ export function CounselForm({ branchId, studentId, asOf, caseId, onSaved, onStal
         />
         {flag('memo') && (
           <p id={`${id}-memo-error`} className="sc-field__error">
-            내용을 입력하세요
+            상담 상담 내용을 입력해 주세요
           </p>
         )}
       </div>
       {withResult && (
         <Choice
           name={`${id}-reason`}
-          legend="결과"
+          legend="상담 결과"
           options={REASONS}
           value={reason}
           onChange={(value) => setReason(value)}
-          error={flag('reason') && '결과를 고르세요'}
+          error={flag('reason') && '상담 결과를 선택해 주세요'}
         />
       )}
       {withResult && reason === 'ADJUSTMENT_NEEDED' && (
         <Choice
           name={`${id}-days`}
-          legend="다음 점검일"
+          legend="다음 확인일"
           options={RECHECK_CHOICES.map((choice) => ({
             value: String(choice.days),
             label: choice.label,

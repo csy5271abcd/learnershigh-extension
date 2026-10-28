@@ -19,7 +19,31 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class CareSignalCalculatorTest {
 
-    private static final CareSettings.Values DEFAULTS = CareSettings.Values.DEFAULTS;
+    @Test
+    void regularOffDaysAreNotMissingPlans() {
+        var days = StudyDays.build((o, d) -> AS_OF.plusDays(o).getDayOfWeek().getValue() >= 6
+                ? d.absent().schedule(false) : d);
+        assertThat(CareSignalCalculator.measure(CareSignalType.PLAN_MISSING, null, days, AS_OF)).hasValue(0);
+    }
+
+    @Test
+    void unchangedWeekdayClocksAreNotLateWhenAttendanceCompositionChanges() {
+        var days = StudyDays.build((o, d) -> {
+            boolean weekend = AS_OF.plusDays(o).getDayOfWeek().getValue() >= 6;
+            if (o >= -6 && weekend) return d.absent().schedule(false);
+            return d.start(weekend ? LocalTime.of(10, 0) : LocalTime.of(19, 0));
+        });
+        assertThat(flagged(days, CareSignalType.START_TIME_SHIFT)).isFalse();
+        assertThat(CareSignalCalculator.measure(CareSignalType.START_TIME_SHIFT, null, days, AS_OF)).hasValue(0);
+    }
+
+    @Test
+    void startMeasurementIsPersonalWeekdayDeviationInMinutes() {
+        var days = StudyDays.build((o, d) -> d.start(o >= -6 ? LocalTime.of(20, 30) : LocalTime.of(19, 0)));
+        assertThat(CareSignalCalculator.measure(CareSignalType.START_TIME_SHIFT, null, days, AS_OF)).hasValue(90);
+    }
+
+    private static final CareSettings.Values DEFAULTS = new CareSettings.Values(3, 3, 40, 60, 15, 90, 3, 7);
 
     private static SignalEvaluation evaluate(List<ExistingDailyStudy> days) {
         return CareSignalCalculator.evaluate(days, AS_OF, DEFAULTS);
@@ -61,22 +85,13 @@ class CareSignalCalculatorTest {
                     .isFalse();
         }
 
-        /** 연속 미입실은 7일 창이 아니라 조회한 28일 전체에서 센다: absenceDays 최대 14까지 정확히 판정한다. */
-        @ParameterizedTest(name = "absenceDays {0}")
+        @ParameterizedTest
         @CsvSource({"10", "14"})
-        void consecutiveAbsenceBeyondSevenDays(int absenceDays) {
-            CareSettings.Values settings = settingsWith("absenceDays", absenceDays);
-            List<ExistingDailyStudy> exactly = StudyDays.build((o, d) -> o > -absenceDays ? d.absent() : d);
-            List<ExistingDailyStudy> oneShort = StudyDays.build((o, d) -> o > -(absenceDays - 1) ? d.absent() : d);
-
-            SignalEvaluation flagged = CareSignalCalculator.evaluate(exactly, AS_OF, settings);
-            assertThat(types(flagged)).contains(CareSignalType.CONSECUTIVE_ABSENCE);
-            assertThat(flagged.signals().stream().filter(s -> s.type() == CareSignalType.CONSECUTIVE_ABSENCE)
-                    .findFirst().orElseThrow().summary()).isEqualTo(absenceDays + "일째 결석");
-            assertThat(types(CareSignalCalculator.evaluate(oneShort, AS_OF, settings)))
+        void legacyThresholdBeyondSevenCannotBeReached(int absenceDays) {
+            List<ExistingDailyStudy> days = StudyDays.build((o, d) -> d.absent());
+            assertThat(types(CareSignalCalculator.evaluate(days, AS_OF, settingsWith("absenceDays", absenceDays))))
                     .doesNotContain(CareSignalType.CONSECUTIVE_ABSENCE);
-            assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, exactly, AS_OF))
-                    .hasValue(absenceDays);
+            assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, days, AS_OF)).hasValue(7);
         }
 
         @Test
@@ -94,7 +109,7 @@ class CareSignalCalculatorTest {
 
         @Test
         void studyDropExactlyFortyPercentVersusJustBelow() {
-            // 평소 = prev21 5040분 ÷ 3 = 1680분. 1008분이면 정확히 40% 감소, 1009분이면 39.94%.
+            // 평소 = baseline28 6720분 ÷ 4 = 1680분. 1008분이면 정확히 40% 감소, 1009분이면 39.94%.
             List<ExistingDailyStudy> forty = StudyDays.build((o, d) -> o >= -6 ? d.study(144) : d);
             List<ExistingDailyStudy> justBelow = StudyDays.build((o, d) -> o >= -6 ? d.study(o == 0 ? 145 : 144) : d);
 
@@ -104,9 +119,9 @@ class CareSignalCalculatorTest {
 
         @Test
         void executionRateSixtyPercentIsNotAGapButJustBelowIs() {
-            // 계획 3360분 중 2016분 = 정확히 60% → 미만이 아니다. 2015분 = 59.97% → 신호.
-            List<ExistingDailyStudy> sixty = StudyDays.build((o, d) -> o >= -13 ? d.study(144) : d);
-            List<ExistingDailyStudy> justBelow = StudyDays.build((o, d) -> o >= -13 ? d.study(o == 0 ? 143 : 144) : d);
+            // 계획 1680분 중 1008분 = 정확히 60% → 미만이 아니다. 1007분 = 59.94% → 신호.
+            List<ExistingDailyStudy> sixty = StudyDays.build((o, d) -> o >= -6 ? d.study(144) : d);
+            List<ExistingDailyStudy> justBelow = StudyDays.build((o, d) -> o >= -6 ? d.study(o == 0 ? 143 : 144) : d);
 
             assertThat(flagged(sixty, CareSignalType.EXECUTION_GAP)).isFalse();
             assertThat(flagged(justBelow, CareSignalType.EXECUTION_GAP)).isTrue();
@@ -114,19 +129,19 @@ class CareSignalCalculatorTest {
 
         @Test
         void executionRateFiftyNinePointSixIsFlaggedEvenThoughItRoundsToSixty() {
-            // 계획 3500분 중 2086분 = 59.6% (domain.md §3 예). 표시 값만 60으로 반올림한다.
-            DetectedSignal gap = signal(StudyDays.build((o, d) -> o >= -13 ? d.planned(250).study(149) : d),
+            // 계획 1750분 중 1043분 = 59.6% (domain.md §3 예). 표시 값만 60으로 반올림한다.
+            DetectedSignal gap = signal(StudyDays.build((o, d) -> o >= -6 ? d.planned(250).study(149) : d),
                     CareSignalType.EXECUTION_GAP);
 
             assertThat(gap.value()).isEqualTo(60);
-            assertThat(gap.summary()).isEqualTo("최근 2주 계획 달성률 60%");
+            assertThat(gap.summary()).isEqualTo("최근 7일 계획 달성률 60%");
         }
 
         @Test
         void executedMinutesCountOnlyDaysWithSubmittedPlan() {
             // 계획을 낸 날: 계획 240 / 실행 120 (50%). 계획을 안 낸 날의 600분은 실행에 넣지 않는다.
             DetectedSignal gap = signal(StudyDays.build((o, d) -> {
-                if (o < -13) {
+                if (o < -6) {
                     return d;
                 }
                 return o % 2 == 0 ? d.noPlan().study(600) : d.study(120);
@@ -165,7 +180,7 @@ class CareSignalCalculatorTest {
             List<ExistingDailyStudy> justBelow = StudyDays.build(
                     (o, d) -> o >= -6 ? d.start(o == 0 ? LocalTime.of(19, 27) : LocalTime.of(19, 30)) : d);
 
-            assertThat(signal(ninety, CareSignalType.START_TIME_SHIFT).value()).isEqualTo(19 * 60 + 30);
+            assertThat(signal(ninety, CareSignalType.START_TIME_SHIFT).value()).isEqualTo(90);
             assertThat(flagged(justBelow, CareSignalType.START_TIME_SHIFT)).isFalse();
             assertThat(flagged(StudyDays.build((o, d) -> o >= -6 ? d.start(LocalTime.of(19, 29)) : d),
                     CareSignalType.START_TIME_SHIFT)).isFalse();
@@ -214,7 +229,7 @@ class CareSignalCalculatorTest {
         BiFunction<Integer, StudyDays.Day, StudyDays.Day> twoAbsent = (o, d) -> o >= -1 ? d.absent() : d;
         BiFunction<Integer, StudyDays.Day, StudyDays.Day> twoNoPlan = (o, d) -> o >= -1 ? d.noPlan() : d;
         BiFunction<Integer, StudyDays.Day, StudyDays.Day> dropThirty = (o, d) -> o >= -6 ? d.study(168) : d;
-        BiFunction<Integer, StudyDays.Day, StudyDays.Day> rateSixtyFive = (o, d) -> o >= -13 ? d.study(156) : d;
+        BiFunction<Integer, StudyDays.Day, StudyDays.Day> rateSixtyFive = (o, d) -> o >= -6 ? d.study(156) : d;
         BiFunction<Integer, StudyDays.Day, StudyDays.Day> gapTen =
                 (o, d) -> o >= -6 ? d.studyBySubject(70, 36, 70, 64) : d;
         BiFunction<Integer, StudyDays.Day, StudyDays.Day> shiftSixty =
@@ -270,8 +285,8 @@ class CareSignalCalculatorTest {
 
             assertThat(types(evaluation)).containsExactly(CareSignalType.CONSECUTIVE_ABSENCE, CareSignalType.PLAN_MISSING);
             DetectedSignal absence = evaluation.signals().getFirst();
-            assertThat(absence.summary()).isEqualTo("4일째 결석");
-            assertThat(absence.evidence()).containsExactly("4일째 결석", "마지막 등원 9월 26일");
+            assertThat(absence.summary()).isEqualTo("최근 7일 중 4일 미입실");
+            assertThat(absence.evidence()).containsExactly("최근 7일 중 4일 미입실", "마지막 등원 9월 26일");
             assertThat(absence.value()).isEqualTo(4);
             assertThat(evaluation.deferred()).isFalse();
         }
@@ -284,11 +299,12 @@ class CareSignalCalculatorTest {
         }
 
         @Test
-        void streakMustEndAtAsOf() {
+        void absenceNeedNotEndAtAsOf() {
             SignalEvaluation evaluation = evaluate(
                     StudyDays.build((offset, day) -> offset >= -6 && offset <= -2 ? day.absent() : day));
 
-            assertThat(types(evaluation)).doesNotContain(CareSignalType.CONSECUTIVE_ABSENCE);
+            assertThat(types(evaluation)).contains(CareSignalType.CONSECUTIVE_ABSENCE);
+            assertThat(evaluation.signals().getFirst().value()).isEqualTo(5);
         }
     }
 
@@ -330,15 +346,15 @@ class CareSignalCalculatorTest {
     }
 
     @Test
-    void executionGapUsesPlannedDaysOfLastFourteenDays() {
+    void executionGapUsesPlannedDaysOfLastSevenDays() {
         SignalEvaluation evaluation = evaluate(StudyDays.build(
-                (offset, day) -> offset >= -13 ? day.planned(450) : day));
+                (offset, day) -> offset >= -6 ? day.planned(450) : day));
 
         assertThat(types(evaluation)).containsExactly(CareSignalType.EXECUTION_GAP);
         DetectedSignal gap = evaluation.signals().getFirst();
         assertThat(gap.value()).isEqualTo(53);
-        assertThat(gap.summary()).isEqualTo("최근 2주 계획 달성률 53%");
-        assertThat(gap.evidence()).containsExactly("계획 105시간 중 56시간 달성");
+        assertThat(gap.summary()).isEqualTo("최근 7일 계획 달성률 53%");
+        assertThat(gap.evidence()).containsExactly("계획 52시간 30분 중 28시간 달성");
         assertThat(gap.target()).isEqualTo(60);
     }
 
@@ -363,9 +379,9 @@ class CareSignalCalculatorTest {
 
         assertThat(types(evaluation)).containsExactly(CareSignalType.START_TIME_SHIFT);
         DetectedSignal shift = evaluation.signals().getFirst();
-        assertThat(shift.summary()).isEqualTo("평소 19:00 등원 → 최근 20:30");
-        assertThat(shift.value()).isEqualTo(20 * 60 + 30);
-        assertThat(shift.target()).isEqualTo(19 * 60);
+        assertThat(shift.summary()).isEqualTo("평소보다 90분 늦게 입실");
+        assertThat(shift.value()).isEqualTo(90);
+        assertThat(shift.target()).isEqualTo(0);
     }
 
     @Nested
@@ -410,7 +426,7 @@ class CareSignalCalculatorTest {
         }));
 
         assertThat(types(evaluation)).containsExactly(
-                CareSignalType.PLAN_MISSING, CareSignalType.STUDY_DROP, CareSignalType.START_TIME_SHIFT);
+                CareSignalType.PLAN_MISSING, CareSignalType.STUDY_DROP, CareSignalType.EXECUTION_GAP, CareSignalType.START_TIME_SHIFT);
     }
 
     @Test
@@ -421,4 +437,81 @@ class CareSignalCalculatorTest {
         assertThat(CareSignalCalculator.last14(days, AS_OF)).hasSize(14)
                 .first().extracting(ExistingDailyStudy::date).isEqualTo(AS_OF.minusDays(13));
     }
+    @Test
+    void historyIncludesOldestBaselineWeek() {
+        assertThat(CareSignalCalculator.historyFrom(AS_OF)).isEqualTo(AS_OF.minusDays(34));
+        assertThat(signal(StudyDays.build((o, d) -> o <= -28 ? d.study(960) : d), CareSignalType.STUDY_DROP).target())
+                .isEqualTo(2940);
+    }
+
+    @Test
+    void incompleteBaselineCannotInventZeroDaysOrStudyDrop() {
+        List<ExistingDailyStudy> days = StudyDays.build((o, d) -> o >= -6 ? d.study(40) : d);
+        assertThat(flagged(days.stream().filter(d -> !d.date().equals(AS_OF.minusDays(34))).toList(),
+                CareSignalType.STUDY_DROP)).isFalse();
+        assertThat(flagged(StudyDays.build((o, d) -> o == -34 ? d.unavailable() : o >= -6 ? d.study(40) : d),
+                CareSignalType.STUDY_DROP)).isFalse();
+    }
+
+    @Test
+    void missingRecordsAreNeitherPlansNorValidDaysNorAbsences() {
+        SignalEvaluation result = evaluate(StudyDays.build((o, d) -> o >= -6 ? d.absent().study(240).unavailable() : d));
+        assertThat(result.validDays()).isZero();
+        assertThat(result.signals()).isEmpty();
+        assertThat(result.deferred()).isTrue();
+    }
+
+    @Test
+    void scheduledAbsenceExcludesUnknownUnscheduledAndUnavailableDates() {
+        List<ExistingDailyStudy> days = StudyDays.build((o, d) -> switch (o) {
+            case -6 -> d.absent().schedule(null);
+            case -5 -> d.absent().schedule(false);
+            case -4 -> d.absent().schedule(null);
+            case -3 -> d.absent().unavailable();
+            case -2 -> d.absent();
+            default -> d;
+        });
+        assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, days, AS_OF)).isEmpty();
+        assertThat(CareSignalCalculator.evaluate(days, AS_OF, CareSettings.Values.DEFAULTS).signals())
+                .extracting(DetectedSignal::type).contains(CareSignalType.CONSECUTIVE_ABSENCE);
+        assertThat(CareSignalCalculator.evaluate(days, AS_OF, CareSettings.Values.DEFAULTS).signals().stream()
+                .filter(signal -> signal.type() == CareSignalType.CONSECUTIVE_ABSENCE).findFirst().orElseThrow().value())
+                .isEqualTo(1);
+        assertThat(CareSignalType.CONSECUTIVE_ABSENCE.label()).isEqualTo("미입실");
+    }
+
+    @Test
+    void executionUsesOnlyCurrentComparableDaysAndCanExceedOneHundred() {
+        List<ExistingDailyStudy> days = StudyDays.build((o, d) -> {
+            if (o < -6) return d.study(0).planned(10000);
+            if (o == -6) return d.absent().planned(10000).schedule(false);
+            if (o == -5) return d.planned(10000).unavailable();
+            if (o == -4) return d.planned(0).study(10000);
+            return d.planned(100).study(150);
+        });
+        assertThat(CareSignalCalculator.measure(CareSignalType.EXECUTION_GAP, null, days, AS_OF)).hasValue(150);
+        assertThat(flagged(days, CareSignalType.EXECUTION_GAP)).isFalse();
+    }
+
+    @Test
+    void missingCurrentDateSuppressesStudyDropAndTotalRecheck() {
+        List<ExistingDailyStudy> days = StudyDays.build((o, d) -> o >= -6 ? d.study(40) : d)
+                .stream().filter(d -> !d.date().equals(AS_OF)).toList();
+        assertThat(flagged(days, CareSignalType.STUDY_DROP)).isFalse();
+        assertThat(CareSignalCalculator.measure(CareSignalType.STUDY_DROP, null, days, AS_OF)).isEmpty();
+    }
+
+    @Test
+    void unrecordedCountMetricsAreNotMeasuredAsZero() {
+        List<ExistingDailyStudy> days = StudyDays.build((o, d) -> d.unavailable());
+        assertThat(CareSignalCalculator.measure(CareSignalType.PLAN_MISSING, null, days, AS_OF)).isEmpty();
+        assertThat(CareSignalCalculator.measure(CareSignalType.CONSECUTIVE_ABSENCE, null, days, AS_OF)).isEmpty();
+    }
+
+    @Test
+    void unavailableCheckInTimesDoNotBecomeStartSamples() {
+        assertThat(flagged(StudyDays.build((o, d) -> o >= -6 ? d.start(LocalTime.of(23, 0)).unavailable() : d),
+                CareSignalType.START_TIME_SHIFT)).isFalse();
+    }
+
 }

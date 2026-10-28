@@ -114,6 +114,17 @@ class StudentCareReviewFixesMigrationTest {
     }
 
     @Test
+    void existingCaseSnapshotsKeepTheLegacyFormulaVersion() {
+        assertThat(jdbc.queryForList("select metric_formula_version from care_case", Integer.class))
+                .hasSize(3).containsOnly(1);
+        assertThat(jdbc.queryForObject("select metric_value from care_case_baseline where case_id = 'care_1'"
+                + " and signal_type = 'STUDY_DROP'", Integer.class)).isEqualTo(5);
+        assertThat(jdbc.queryForObject("select column_default from information_schema.columns"
+                + " where table_schema = database() and table_name = 'care_case'"
+                + " and column_name = 'metric_formula_version'", String.class)).isEqualTo("1");
+    }
+
+    @Test
     void existingEventsAreNumberedInRecordedOrderNotPrimaryKeyOrder() {
         assertThat(jdbc.queryForList("select id from care_event where student_id = 'stu_001' order by record_no",
                 String.class))

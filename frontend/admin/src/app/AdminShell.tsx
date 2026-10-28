@@ -4,7 +4,7 @@ import styles from './AdminShell.module.css'
 /** 기존 LearnersHigh Admin Sidebar의 상위 메뉴 (references/existing-runners-high/screens/admin, FeedbackDashboard-00). 기존 기능이라 여기서 이동하지 않는다. */
 const existingMenus = ['학원관리', '문자관리', '학생관리', '학습관리', '학습조정', '학원비결제', '리워드', '솔루션결제'] as const
 
-export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations'
+export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'student-care-2' | 'student-care-3' | 'student-care-5' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations'
 
 interface AdminExtensionEntry {
   id: AdminExtensionEntryId
@@ -17,7 +17,10 @@ interface AdminExtensionEntry {
 // (둘 다 관리가 필요한 학생을 찾는 화면. 메뉴 이름은 지점 선택이 화면 안에 있으므로 "학생 케어")
 const extensionEntries: AdminExtensionEntry[] = [
   { id: 'today-board', label: 'Today Board' },
-  { id: 'student-care', label: '학생 케어' },
+  { id: 'student-care', label: '학생 케어 1 (원본)' },
+  { id: 'student-care-2', label: '학생 케어 2' },
+  { id: 'student-care-3', label: '학생 케어 3' },
+  { id: 'student-care-5', label: '학생 케어 5' },
   { id: 'feedback-dashboard', label: 'Feedback Dashboard' },
   { id: 'mentor-cases', label: 'Mentor 추천' },
   { id: 'connections', label: 'Connection 검토' },
@@ -38,7 +41,7 @@ interface AdminShellProps {
 // 기존 Admin 메뉴 · 계정 · Theme · 문자잔고는 기존 LearnersHigh 소관이라 다시 만들지 않는다.
 export function AdminShell({ current, pageLabel, onEntrySelect, children }: AdminShellProps) {
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-care-theme={current.startsWith('student-care') ? true : undefined}>
       <a className={styles.skip} href="#admin-main">
         본문으로 건너뛰기
       </a>

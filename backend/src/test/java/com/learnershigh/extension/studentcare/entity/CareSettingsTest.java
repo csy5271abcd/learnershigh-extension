@@ -29,7 +29,7 @@ class CareSettingsTest {
 
     @ParameterizedTest
     @CsvSource({
-            "absenceDays, 2, 14",
+            "absenceDays, 1, 14",
             "planMissingDays, 1, 7",
             "studyDropPercent, 10, 90",
             "executionRatePercent, 10, 100",
@@ -67,4 +67,11 @@ class CareSettingsTest {
 
         assertThat(settings.values()).isEqualTo(CareSettings.Values.DEFAULTS);
     }
+    @Test
+    void weeklyDefaultsPreserveStoredValues() {
+        assertThat(CareSettings.defaults("new").values()).isEqualTo(new CareSettings.Values(1, 2, 30, 60, 20, 60, 3, 7));
+        CareSettings.Values old = new CareSettings.Values(14, 3, 40, 60, 15, 90, 3, 7);
+        assertThat(CareSettings.create("old", old, NOW).values()).isEqualTo(old);
+    }
+
 }

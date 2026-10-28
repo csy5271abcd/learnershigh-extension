@@ -57,7 +57,7 @@ class E2eTestSupportControllerTest {
         mvc.perform(put("/api/test/clock").contentType(MediaType.APPLICATION_JSON).content("{\"date\":\"2026-10-07\"}"))
                 .andExpect(status().isOk());
         mvc.perform(get("/api/admin/student-care/board").param("branchId", "br_gangnam"))
-                .andExpect(jsonPath("$.asOf").value("2026-10-07"));
+                .andExpect(jsonPath("$.asOf").value("2026-10-06"));
 
         mvc.perform(put("/api/test/integration").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"studyDataAvailable\":false}"))
@@ -68,6 +68,6 @@ class E2eTestSupportControllerTest {
         mvc.perform(post("/api/test/reset")).andExpect(status().isNoContent());
         mvc.perform(get("/api/admin/student-care/board").param("branchId", "br_gangnam"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.asOf").value("2026-09-30"));
+                .andExpect(jsonPath("$.asOf").value("2026-09-29"));
     }
 }

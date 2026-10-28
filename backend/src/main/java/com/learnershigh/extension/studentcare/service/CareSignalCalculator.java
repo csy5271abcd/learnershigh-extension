@@ -18,21 +18,21 @@ import java.util.TreeMap;
 /**
  * 학생 케어 신호 계산 (docs/specs/wangyu/domain.md §2, §3). Spring / DB에 의존하지 않는 순수 계산이다.
  *
- * <p>입력 기록은 asOf-27 ~ asOf 범위를 기대한다. last7 = asOf-6~asOf, last14 = asOf-13~asOf, prev21 = asOf-27~asOf-7.
+ * <p>입력 기록은 asOf-34 ~ asOf 범위를 기대한다. last7 = asOf-6~asOf, last14 = asOf-13~asOf, baseline28 = asOf-34~asOf-7.
  *
  * <p>Threshold 판정은 반올림하지 않은 값으로 한다 (domain.md §3). 비율 / 평균은 나눗셈 없이 정수 교차곱으로 비교해
  * 부동소수 오차도 없다. 화면 문구 / Baseline 값만 정수로 반올림한다.
  */
 public final class CareSignalCalculator {
 
-    /** 조회해야 하는 기록 일수 (prev21 + last7). */
-    public static final int HISTORY_DAYS = 28;
+    /** 조회해야 하는 기록 일수 (baseline28 + last7). */
+    public static final int HISTORY_DAYS = 35;
     /** 유효 학습일 기준 (그날 학습 분 이상). */
     static final int VALID_STUDY_MINUTES = 30;
     /** 시작 시각 평균에 필요한 기간별 입실일 수. */
     static final int MIN_START_SAMPLES = 3;
-    /** prev21은 3주라 평소 7일 학습량 = prev21 합 ÷ 3. */
-    private static final int USUAL_WEEKS = 3;
+    /** baseline28은 4주라 평소 7일 학습량 = baseline28 합 ÷ 4. */
+    private static final int USUAL_WEEKS = 4;
 
     private CareSignalCalculator() {
     }
@@ -45,7 +45,7 @@ public final class CareSignalCalculator {
         Window window = new Window(days, asOf);
         List<DetectedSignal> signals = new ArrayList<>();
 
-        int absence = window.absenceStreak();
+        int absence = window.scheduledAbsenceDays();
         boolean absent = absence >= settings.absenceDays();
         if (absent) {
             signals.add(absenceSignal(window, absence));
@@ -78,12 +78,17 @@ public final class CareSignalCalculator {
      */
     public static OptionalInt measure(CareSignalType type, String subject, List<ExistingDailyStudy> days, LocalDate asOf) {
         Window window = new Window(days, asOf);
+        if (window.last7.stream().noneMatch(ExistingDailyStudy::recordAvailable)) {
+            return OptionalInt.empty();
+        }
         return switch (type) {
-            case CONSECUTIVE_ABSENCE -> OptionalInt.of(window.absenceStreak());
-            case PLAN_MISSING -> OptionalInt.of(window.planMissingDays());
-            case STUDY_DROP -> OptionalInt.of(window.recentStudyMinutes());
-            case EXECUTION_GAP -> window.plannedLast14() > 0
-                    ? OptionalInt.of(roundedPercent(window.executedLast14(), window.plannedLast14()))
+            case CONSECUTIVE_ABSENCE -> window.completeAbsenceEvidence()
+                    ? OptionalInt.of(window.scheduledAbsenceDays()) : OptionalInt.empty();
+            case PLAN_MISSING -> window.completeRecent()
+                    ? OptionalInt.of(window.planMissingDays()) : OptionalInt.empty();
+            case STUDY_DROP -> window.completeRecent() ? OptionalInt.of(window.recentStudyMinutes()) : OptionalInt.empty();
+            case EXECUTION_GAP -> window.plannedLast7() > 0
+                    ? OptionalInt.of(roundedPercent(window.executedLast7(), window.plannedLast7()))
                     : OptionalInt.empty();
             case SUBJECT_SHARE -> {
                 Map<String, Integer> actual = window.subjectMinutes(false);
@@ -92,7 +97,7 @@ public final class CareSignalCalculator {
                         ? OptionalInt.empty()
                         : OptionalInt.of(roundedPercent(actual.getOrDefault(subject, 0), total));
             }
-            case START_TIME_SHIFT -> window.recentStarts().average();
+            case START_TIME_SHIFT -> window.startDeviation().average();
         };
     }
 
@@ -102,27 +107,30 @@ public final class CareSignalCalculator {
                 .sorted(Comparator.comparing(ExistingDailyStudy::date)).toList();
     }
 
-    /** 평소 하루 평균 학습량 (prev21 기준, 분). */
+    /** 기록이 있는 baseline28 날짜의 하루 평균 학습량 (호환 표시용, 분). */
     public static int usualDailyMinutes(List<ExistingDailyStudy> days, LocalDate asOf) {
-        return (int) Math.round(new Window(days, asOf).usualSumMinutes() / 21.0);
+        Window window = new Window(days, asOf);
+        long recorded = window.baseline28.stream().filter(ExistingDailyStudy::recordAvailable).count();
+        return recorded == 0 ? 0 : (int) Math.round(window.usualSumMinutes() / (double) recorded);
     }
 
     private static DetectedSignal absenceSignal(Window window, int absence) {
         List<String> evidence = new ArrayList<>();
-        evidence.add(absence + "일째 결석");
+        String summary = "최근 7일 중 " + absence + "일 미입실";
+        evidence.add(summary);
         window.lastCheckIn().ifPresent(date -> evidence.add("마지막 등원 " + CareTextFormat.monthDay(date)));
-        return new DetectedSignal(CareSignalType.CONSECUTIVE_ABSENCE, absence + "일째 결석",
+        return new DetectedSignal(CareSignalType.CONSECUTIVE_ABSENCE, summary,
                 List.copyOf(evidence), absence, null, null);
     }
 
-    /** 평소(prev21 합 ÷ 3) &gt; 0 이고 (평소 − last7) ÷ 평소 ≥ studyDropPercent%. */
+    /** 평소(baseline28 합 ÷ 4) &gt; 0 이고 (평소 − last7) ÷ 평소 ≥ studyDropPercent%. */
     private static Optional<DetectedSignal> studyDrop(Window window, CareSettings.Values settings) {
         long usualSum = window.usualSumMinutes();
         long recent = window.recentStudyMinutes();
-        if (usualSum <= 0) {
+        if (!window.completeBaseline() || !window.completeRecent() || usualSum <= 0) {
             return Optional.empty();
         }
-        // (usualSum/3 − recent) / (usualSum/3) ≥ p/100  ⇔  (usualSum − 3·recent)·100 ≥ p·usualSum
+        // (usualSum/4 − recent) / (usualSum/4) ≥ p/100  ⇔  (usualSum − 4·recent)·100 ≥ p·usualSum
         if ((usualSum - USUAL_WEEKS * recent) * 100 < (long) settings.studyDropPercent() * usualSum) {
             return Optional.empty();
         }
@@ -137,15 +145,15 @@ public final class CareSignalCalculator {
                 null));
     }
 
-    /** last14 중 계획을 제출한 날의 계획 분 합 &gt; 0 이고, 그날들의 실행 분 합 ÷ 계획 분 합 &lt; executionRatePercent%. */
+    /** last7 중 입실·양수계획·실제기록이 있는 날의 계획 분 합 &gt; 0 이고, 그날들의 실행 분 합 ÷ 계획 분 합 &lt; executionRatePercent%. */
     private static Optional<DetectedSignal> executionGap(Window window, CareSettings.Values settings) {
-        long planned = window.plannedLast14();
-        long executed = window.executedLast14();
+        long planned = window.plannedLast7();
+        long executed = window.executedLast7();
         if (planned <= 0 || executed * 100 >= (long) settings.executionRatePercent() * planned) {
             return Optional.empty();
         }
         int rate = roundedPercent(executed, planned);
-        String summary = "최근 2주 계획 달성률 " + rate + "%";
+        String summary = "최근 7일 계획 달성률 " + rate + "%";
         String evidence = "계획 " + CareTextFormat.hoursMinutes(roundTo10((int) planned))
                 + " 중 " + CareTextFormat.hoursMinutes(roundTo10((int) executed)) + " 달성";
         return Optional.of(new DetectedSignal(CareSignalType.EXECUTION_GAP, summary, List.of(evidence), rate,
@@ -182,29 +190,22 @@ public final class CareSignalCalculator {
         int plannedShare = roundedPercent(planned.get(worstSubject), plannedTotal);
         int actualShare = roundedPercent(actual.getOrDefault(worstSubject, 0), actualTotal);
         String summary = worstSubject + " 계획 " + plannedShare + "% → 실제 " + actualShare + "%";
-        String evidence = dropFlagged ? summary : summary + " · 전체 공부 시간은 평소 수준";
+        boolean volumeComparable = window.completeBaseline() && window.completeRecent() && window.usualSumMinutes() > 0;
+        String evidence = !dropFlagged && volumeComparable ? summary + " · 전체 공부 시간은 평소 수준" : summary;
         return Optional.of(new DetectedSignal(CareSignalType.SUBJECT_SHARE, summary, List.of(evidence),
                 actualShare, plannedShare, worstSubject));
     }
 
-    /** last7 평균 첫 입실 시각 − prev21 평균 ≥ startShiftMinutes분 (각 기간 입실 3일 이상). */
+    /** 최근 입실마다 본인의 이전 같은요일 시각을 뺀 편차 평균. 시각 구성 변화와 실제 지연을 구분한다. */
     private static Optional<DetectedSignal> startShift(Window window, CareSettings.Values settings) {
-        Starts recent = window.recentStarts();
-        Starts usual = window.usualStarts();
-        if (!recent.enough() || !usual.enough()) {
+        StartDeviation shift = window.startDeviation();
+        if (!shift.enough() || shift.scaledSum() < (long) settings.startShiftMinutes() * 12 * shift.count())
             return Optional.empty();
-        }
-        // R/nR − U/nU ≥ s  ⇔  R·nU − U·nR ≥ s·nR·nU
-        if (recent.sum() * usual.count() - usual.sum() * recent.count()
-                < (long) settings.startShiftMinutes() * recent.count() * usual.count()) {
-            return Optional.empty();
-        }
-        int recentAverage = recent.average().getAsInt();
-        int usualAverage = usual.average().getAsInt();
-        String summary = "평소 " + CareTextFormat.clock(usualAverage) + " 등원 → 최근 " + CareTextFormat.clock(recentAverage);
-        String evidence = summary + " · 최근 7일 " + recent.count() + "일 평균";
+        int minutes = shift.average().getAsInt();
+        String summary = "평소보다 " + minutes + "분 늦게 입실";
+        String evidence = summary + " · 최근 7일 " + shift.count() + "일 비교";
         return Optional.of(new DetectedSignal(CareSignalType.START_TIME_SHIFT, summary, List.of(evidence),
-                recentAverage, usualAverage, null));
+                minutes, 0, null));
     }
 
     private static int roundTo10(int minutes) {
@@ -224,7 +225,8 @@ public final class CareSignalCalculator {
     private record Starts(long sum, int count) {
 
         static Starts of(List<ExistingDailyStudy> days) {
-            List<LocalTime> starts = days.stream().map(ExistingDailyStudy::firstCheckInTime)
+            List<LocalTime> starts = days.stream().filter(ExistingDailyStudy::recordAvailable).filter(ExistingDailyStudy::checkedIn)
+                    .map(ExistingDailyStudy::firstCheckInTime)
                     .filter(Objects::nonNull).toList();
             return new Starts(starts.stream().mapToLong(time -> time.getHour() * 60L + time.getMinute()).sum(),
                     starts.size());
@@ -239,12 +241,19 @@ public final class CareSignalCalculator {
         }
     }
 
+    /** 같은요일은 이전28일에 최대4개. 공통 배수12로 편차를 정확히 보존하여 문턱 비교는 반올림하지 않는다. */
+    private record StartDeviation(long scaledSum, int count) {
+        boolean enough() { return count >= MIN_START_SAMPLES; }
+        OptionalInt average() {
+            return enough() ? OptionalInt.of((int) Math.round(scaledSum / (12.0 * count))) : OptionalInt.empty();
+        }
+    }
+
     /** asOf 기준 기간 구분. */
     private static final class Window {
 
         private final List<ExistingDailyStudy> last7;
-        private final List<ExistingDailyStudy> last14;
-        private final List<ExistingDailyStudy> prev21;
+        private final List<ExistingDailyStudy> baseline28;
         private final List<ExistingDailyStudy> all;
 
         Window(List<ExistingDailyStudy> days, LocalDate asOf) {
@@ -254,21 +263,32 @@ public final class CareSignalCalculator {
                     .toList();
             this.all = inRange;
             this.last7 = inRange.stream().filter(day -> !day.date().isBefore(asOf.minusDays(6))).toList();
-            this.last14 = inRange.stream().filter(day -> !day.date().isBefore(asOf.minusDays(13))).toList();
-            this.prev21 = inRange.stream().filter(day -> day.date().isBefore(asOf.minusDays(6))).toList();
+            this.baseline28 = inRange.stream().filter(day -> day.date().isBefore(asOf.minusDays(6))).toList();
         }
 
-        int absenceStreak() {
-            int streak = 0;
-            for (int i = all.size() - 1; i >= 0 && !all.get(i).checkedIn(); i--) {
-                streak++;
-            }
-            return streak;
+        boolean completeBaseline() {
+            return baseline28.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .map(ExistingDailyStudy::date).distinct().count() == 28;
+        }
+
+        boolean completeRecent() {
+            return last7.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .map(ExistingDailyStudy::date).distinct().count() == 7;
+        }
+
+        boolean completeAbsenceEvidence() {
+            return completeRecent() && last7.stream()
+                    .noneMatch(day -> !day.checkedIn() && day.scheduled() == null);
+        }
+
+        int scheduledAbsenceDays() {
+            return (int) last7.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .filter(day -> Boolean.TRUE.equals(day.scheduled()) && !day.checkedIn()).count();
         }
 
         Optional<LocalDate> lastCheckIn() {
             for (int i = all.size() - 1; i >= 0; i--) {
-                if (all.get(i).checkedIn()) {
+                if (all.get(i).recordAvailable() && all.get(i).checkedIn()) {
                     return Optional.of(all.get(i).date());
                 }
             }
@@ -276,31 +296,41 @@ public final class CareSignalCalculator {
         }
 
         int planMissingDays() {
-            return (int) last7.stream().filter(day -> !day.planSubmitted()).count();
+            return (int) last7.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .filter(day -> !Boolean.FALSE.equals(day.scheduled()))
+                    .filter(day -> !day.planSubmitted()).count();
         }
 
         int validDays() {
-            return (int) last7.stream().filter(day -> day.studyMinutes() >= VALID_STUDY_MINUTES).count();
+            return (int) last7.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .filter(day -> day.studyMinutes() >= VALID_STUDY_MINUTES).count();
         }
 
         int recentStudyMinutes() {
-            return last7.stream().mapToInt(ExistingDailyStudy::studyMinutes).sum();
+            return last7.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .mapToInt(ExistingDailyStudy::studyMinutes).sum();
         }
 
-        /** prev21 학습 분 합 (평소 7일 학습량의 3배). */
+        /** baseline28 기록된 학습 분 합. 완전한 28일일 때만 4주 비교에 쓴다. */
         long usualSumMinutes() {
-            return prev21.stream().mapToLong(ExistingDailyStudy::studyMinutes).sum();
+            return baseline28.stream().filter(ExistingDailyStudy::recordAvailable)
+                    .mapToLong(ExistingDailyStudy::studyMinutes).sum();
         }
 
-        /** 계획을 낸 날의 계획 분 합. */
-        long plannedLast14() {
-            return last14.stream().filter(ExistingDailyStudy::planSubmitted)
+        private List<ExistingDailyStudy> comparablePlanDays() {
+            return last7.stream().filter(ExistingDailyStudy::recordAvailable).filter(ExistingDailyStudy::checkedIn)
+                    .filter(ExistingDailyStudy::planSubmitted).filter(day -> day.plannedMinutes() > 0).toList();
+        }
+
+        /** 입실·양수계획·실제기록이 있는 날의 계획 분 합. */
+        long plannedLast7() {
+            return comparablePlanDays().stream()
                     .mapToLong(ExistingDailyStudy::plannedMinutes).sum();
         }
 
         /** 계획을 낸 날의 실행 분 합 (계획을 내지 않은 날의 학습은 넣지 않는다). */
-        long executedLast14() {
-            return last14.stream().filter(ExistingDailyStudy::planSubmitted)
+        long executedLast7() {
+            return comparablePlanDays().stream()
                     .mapToLong(ExistingDailyStudy::studyMinutes).sum();
         }
 
@@ -308,6 +338,9 @@ public final class CareSignalCalculator {
         Map<String, Integer> subjectMinutes(boolean planned) {
             Map<String, Integer> sums = new TreeMap<>();
             for (ExistingDailyStudy day : last7) {
+                if (!day.recordAvailable() || !day.checkedIn() || !day.planSubmitted() || day.plannedMinutes() <= 0) {
+                    continue;
+                }
                 Map<String, Integer> bySubject = planned ? day.plannedMinutesBySubject() : day.studyMinutesBySubject();
                 bySubject.forEach((subject, minutes) -> sums.merge(subject, minutes, Integer::sum));
             }
@@ -319,7 +352,23 @@ public final class CareSignalCalculator {
         }
 
         Starts usualStarts() {
-            return Starts.of(prev21);
+            return Starts.of(baseline28);
+        }
+
+        StartDeviation startDeviation() {
+            long sum = 0;
+            int count = 0;
+            for (var day : last7) {
+                if (!day.recordAvailable() || !day.checkedIn() || day.firstCheckInTime() == null) continue;
+                Starts baseline = Starts.of(baseline28.stream()
+                        .filter(old -> old.date().getDayOfWeek() == day.date().getDayOfWeek()).toList());
+                if (baseline.count() == 0) continue;
+                if (baseline.count() > 4) throw new IllegalArgumentException("duplicate weekday baseline records");
+                long actual = day.firstCheckInTime().getHour() * 60L + day.firstCheckInTime().getMinute();
+                sum += actual * 12 - baseline.sum() * (12 / baseline.count());
+                count++;
+            }
+            return new StartDeviation(sum, count);
         }
     }
 }

@@ -45,6 +45,10 @@ class StudentCareReader {
         return LocalDate.now(clock);
     }
 
+    LocalDate observationDate() {
+        return today().minusDays(1);
+    }
+
     Instant now() {
         return clock.instant();
     }

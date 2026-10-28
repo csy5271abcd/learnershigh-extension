@@ -35,6 +35,7 @@ public record CareComparison(List<Row> rows, Result result) {
 
     /** 이력에 남기는 한 줄. 예: "점검 · 좋아짐 — 수학 비중 12% → 24%" */
     public String text() {
+        if (rows.stream().noneMatch(row -> row.now() != null)) return "점검 · 비교 기록 없음";
         String rowsText = rows.stream()
                 .filter(row -> row.now() != null)
                 .map(row -> StudentCareTexts.comparisonRow(row.type(), row.subject(), row.before(), row.now()))

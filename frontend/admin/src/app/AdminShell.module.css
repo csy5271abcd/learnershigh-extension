@@ -205,3 +205,30 @@
     white-space: nowrap;
   }
 }
+
+/* 두 학생 케어 화면은 본문과 Shell이 같은 시스템 테마를 따른다. 다른 메뉴의 테마는 유지한다. */
+.shell[data-care-theme] {
+  color-scheme: light dark;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  --lh-color-background: var(--color-background);
+  --lh-color-surface: var(--color-surface-muted);
+  --lh-color-surface-raised: var(--color-surface);
+  --lh-color-surface-hover: var(--color-surface-muted);
+  --lh-color-border: var(--color-border);
+  --lh-color-text-primary: var(--color-text-primary);
+  --lh-color-text-secondary: var(--color-text-secondary);
+  --lh-color-text-tertiary: var(--color-text-tertiary);
+  --lh-color-accent: var(--color-accent);
+  --lh-color-on-accent: var(--color-on-accent);
+}
+
+/* 스크롤바와 화면 바깥 여백도 학생 케어의 시스템 테마와 맞춘다. */
+:global(html:has([data-care-theme])) { color-scheme: light dark; }
+:global(body:has([data-care-theme])) { background: var(--color-background); color: var(--color-text-primary); }
+
+.shell[data-care-theme] { --lh-color-accent-hover: var(--color-accent-hover); }
+.shell[data-care-theme] .entry[aria-current='page']:hover:not(:disabled) {
+  background: var(--lh-color-accent-hover);
+  color: var(--lh-color-on-accent);
+}

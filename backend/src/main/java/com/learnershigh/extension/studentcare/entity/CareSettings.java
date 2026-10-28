@@ -106,7 +106,7 @@ public class CareSettings {
 
     private static Map<String, Range> ranges() {
         Map<String, Range> ranges = new LinkedHashMap<>();
-        ranges.put("absenceDays", new Range(2, 14));
+        ranges.put("absenceDays", new Range(1, 14));
         ranges.put("planMissingDays", new Range(1, 7));
         ranges.put("studyDropPercent", new Range(10, 90));
         ranges.put("executionRatePercent", new Range(10, 100));
@@ -137,7 +137,7 @@ public class CareSettings {
             int minValidDays,
             int cooldownDays) {
 
-        public static final Values DEFAULTS = new Values(3, 3, 40, 60, 15, 90, 3, 7);
+        public static final Values DEFAULTS = new Values(1, 2, 30, 60, 20, 60, 3, 7);
 
         /** Key(api-contract.md §65-9 필드명) → 값. {@link CareSettings#RANGES}와 같은 Key다. */
         public Map<String, Integer> asMap() {

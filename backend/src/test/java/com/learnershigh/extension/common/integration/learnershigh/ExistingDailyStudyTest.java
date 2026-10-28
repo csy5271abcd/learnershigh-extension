@@ -10,6 +10,24 @@ import org.junit.jupiter.api.Test;
 class ExistingDailyStudyTest {
 
     @Test
+    void legacyConstructorPreservesRecordsWithoutInventingSchedule() {
+        ExistingDailyStudy day = new ExistingDailyStudy(LocalDate.of(2026, 9, 30), false, null,
+                Map.of(), false, Map.of());
+
+        assertThat(day.scheduled()).isNull();
+        assertThat(day.recordAvailable()).isTrue();
+    }
+
+    @Test
+    void explicitBoundaryDistinguishesUnavailableRecordsAndKnownSchedule() {
+        ExistingDailyStudy day = new ExistingDailyStudy(LocalDate.of(2026, 9, 30), false, null,
+                Map.of(), false, Map.of(), true, false);
+
+        assertThat(day.scheduled()).isTrue();
+        assertThat(day.recordAvailable()).isFalse();
+    }
+
+    @Test
     void longSubjectNamesAreCappedAndMergedByCodePoint() {
         String prefix = "수".repeat(ExistingDailyStudy.SUBJECT_KEY_MAX - 1);
         String a = prefix + "학(미적분)";

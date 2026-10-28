@@ -2,6 +2,7 @@ package com.learnershigh.extension.studentcare.controller;
 
 import com.learnershigh.extension.studentcare.dto.BranchListResponse;
 import com.learnershigh.extension.studentcare.dto.CareBoardResponse;
+import com.learnershigh.extension.studentcare.dto.CareBranchMetricsResponse;
 import com.learnershigh.extension.studentcare.dto.CareCaseResponse;
 import com.learnershigh.extension.studentcare.dto.CareDecisionRequest;
 import com.learnershigh.extension.studentcare.dto.CareEventResponse;
@@ -51,6 +52,11 @@ public class StudentCareController {
     @GetMapping("/board")
     public CareBoardResponse board(@RequestParam @NotBlank String branchId) {
         return queryService.board(branchId);
+    }
+
+    @GetMapping("/metrics")
+    public CareBranchMetricsResponse metrics(@RequestParam @NotBlank String branchId) {
+        return queryService.metrics(branchId);
     }
 
     @GetMapping("/students/{studentId}")

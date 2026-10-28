@@ -12,7 +12,9 @@ public record StudentCareDetailResponse(
         Deferred deferred,
         List<DailyStudy> dailyStudy,
         int usualDailyMinutes,
-        CareCaseResponse activeCase) {
+        CareCaseResponse activeCase,
+        CareWeeklyReview review,
+        LocalDate today) {
 
     public record Signal(CareSignalType type, String label, String summary, List<String> evidence) {
     }

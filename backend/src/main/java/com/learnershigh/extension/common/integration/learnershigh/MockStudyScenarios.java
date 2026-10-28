@@ -33,6 +33,12 @@ final class MockStudyScenarios {
     }
 
     static ExistingDailyStudy dayOf(String studentId, LocalDate date, LocalDate anchor) {
+        return dayOf(studentId, date, anchor, false);
+    }
+
+    /** Optional visual examples preserve the original domain/regression fixture. */
+    static ExistingDailyStudy dayOf(String studentId, LocalDate date, LocalDate anchor, boolean visualExamples) {
+        if (visualExamples) return MockVisualStudyScenarios.dayOf(studentId, date, anchor);
         long d = ChronoUnit.DAYS.between(anchor, date);
         Day day = Day.usual(studentId, date, usualMinutes(studentId), usualStart(studentId));
         adjust(studentId, d, day);
@@ -184,7 +190,9 @@ final class MockStudyScenarios {
                     checkedIn ? start : null,
                     split(study, actualShare),
                     planSubmitted,
-                    planSubmitted ? split(planned, plannedShare) : Map.of());
+                    planSubmitted ? split(planned, plannedShare) : Map.of(),
+                    true, // 시연용 합성 시나리오의 명시적 등원 일정
+                    true);
         }
 
         private static Map<String, Integer> split(int total, Map<String, Integer> shares) {

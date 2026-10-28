@@ -9,7 +9,7 @@ interface Props {
   onStale: () => void
 }
 
-/** 상담 없이 데이터만 보고 별일 아니었을 때: 기존 "문제없음" 결과(바로 관리 종료)로 저장한다. */
+/** 상담 없이 데이터만 보고 별일 아니었을 때: 기존 "이상 없음" 결과(바로 관리 종료)로 저장한다. */
 export function QuickClearButton({ branchId, studentId, studentName, onSaved, onStale }: Props) {
   const command = useCommand(onStale)
 

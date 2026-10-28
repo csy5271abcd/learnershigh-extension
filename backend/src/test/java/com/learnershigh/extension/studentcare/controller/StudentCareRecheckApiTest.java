@@ -33,7 +33,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 /** 점검 비교 / 관리 종료 · 계속 관리 (api-contract.md §65-5, 65-6). */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -108,12 +108,37 @@ class StudentCareRecheckApiTest {
     }
 
     @Test
+    void legacySnapshotIsPreservedAndCannotBeComparedUsingTheNewFormula() throws Exception {
+        String caseId = startAdjustment("stu_005", "2026-10-07");
+        assertThat(jdbc.queryForObject("select metric_formula_version from care_case where id = ?",
+                Integer.class, caseId)).isEqualTo(3);
+        jdbc.update("update care_case set metric_formula_version = 1 where id = ?", caseId);
+        clock.setDate(ANCHOR.plusDays(7));
+
+        mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activeCase.baseline[0].value").value(12))
+                .andExpect(jsonPath("$.activeCase.baseline[0].target").value(30))
+                .andExpect(jsonPath("$.activeCase.comparison.rows[0].before").value(12))
+                .andExpect(jsonPath("$.activeCase.comparison.rows[0].now").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.activeCase.comparison.rows[0].trend").value("SAME"));
+        decide(caseId, "{\"decision\":\"CLOSE\"}")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CLOSED"))
+                .andExpect(jsonPath("$.baseline[0].value").value(12))
+                .andExpect(jsonPath("$.comparison").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.events[2].content").value("점검 · 비교 기록 없음"));
+        assertThat(jdbc.queryForObject("select metric_formula_version from care_case where id = ?",
+                Integer.class, caseId)).isEqualTo(1);
+    }
+
+    @Test
     void recheckComparesSameCriteriaThenTeacherCloses() throws Exception {
         String caseId = startAdjustment("stu_005", "2026-10-07");
         clock.setDate(ANCHOR.plusDays(7));
 
         mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.asOf").value("2026-10-07"))
+                .andExpect(jsonPath("$.asOf").value("2026-10-06"))
                 .andExpect(jsonPath("$.inAdjustment[0].recheckDue").value(true));
 
         mvc.perform(get("/api/admin/student-care/students/stu_005").param("branchId", BRANCH))

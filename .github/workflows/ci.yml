@@ -191,6 +191,12 @@ jobs:
         run: |
           .\scripts\verify-frontend.ps1 -Strict
 
+      - name: Student care model and seed tests
+        run: |
+          $tests = @(Get-ChildItem frontend/admin/src/features/student-care/model/*.test.mjs, frontend/admin/src/features/student-care/api/*.test.mjs, scripts/demo/generate-care-seed.test.mjs | ForEach-Object FullName)
+          node --test $tests
+          if ($LASTEXITCODE -ne 0) { throw "Student care Node tests failed." }
+
       - name: Frontend not scaffolded yet
         if: steps.frontend-meta.outputs.has_frontend != 'true'
         run: |
@@ -284,7 +290,10 @@ jobs:
           --health-retries=20
 
     env:
-      SPRING_PROFILES_ACTIVE: e2e
+      SPRING_PROFILES_ACTIVE: care-demo,e2e
+      APP_FIXED_DATE: "2026-10-28"
+      LEARNERSHIGH_MOCK_ANCHOR_DATE: "2026-10-27"
+      LEARNERSHIGH_MOCK_DATABASE_EXAMPLES: "true"
       # /api/test/**는 e2e Profile만으로 열리지 않는다. E2E Job에서만 명시적으로 켠다 (ADR-0007).
       LEARNERSHIGH_TEST_ENDPOINTS_ENABLED: "true"
       DB_URL: jdbc:mysql://127.0.0.1:3306/learnershigh_extension
@@ -314,19 +323,32 @@ jobs:
         working-directory: backend
         run: ./gradlew bootJar --no-daemon
 
-      - name: Start backend (e2e profile)
+      - name: Start backend (care-demo and e2e profiles)
         run: |
           jar=$(ls backend/build/libs/*.jar | grep -v plain | head -n 1)
           nohup java -jar "$jar" > backend-e2e.log 2>&1 &
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:8080/api/admin/student-care/branches > /dev/null; then
-              echo "backend ready"
+            # HTTP starts only after Flyway initialized the empty schema.
+            # Branch API needs demo tables, which are seeded in the next step.
+            if curl -s -o /dev/null http://localhost:8080/; then
+              echo "backend HTTP ready; migrations initialized"
               exit 0
             fi
             sleep 2
           done
           cat backend-e2e.log
           exit 1
+
+      - name: Seed isolated synthetic source (100 students, 35 days)
+        run: |
+          node scripts/demo/generate-care-seed.mjs
+          docker exec -i ${{ job.services.mysql.id }} mysql -ulearnershigh -plearnershigh learnershigh_extension < scripts/demo/care-demo.generated.sql
+          curl --fail-with-body http://localhost:8080/api/admin/student-care/branches
+
+      - name: Seed one persisted counseling example
+        env:
+          CARE_DEMO_API_ORIGIN: http://localhost:8080
+        run: node scripts/demo/seed-care-history.mjs
 
       - name: Build and preview admin
         working-directory: frontend

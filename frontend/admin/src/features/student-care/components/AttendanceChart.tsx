@@ -104,7 +104,7 @@ export function AttendanceChart({ view, flag }: { view: View; flag: boolean }) {
                         type="button"
                         className={`sc-cal__day sc-cal__day--${state}${date === selected ? ' sc-cal__day--on' : ''}`}
                         aria-pressed={date === selected}
-                        aria-label={`${shortDate(date)} ${day.skip ? '주말 제외' : day.came ? '등원' : '결석'}`}
+                        aria-label={`${shortDate(date)} ${day.skip ? '주말 제외' : day.came ? '등원' : '미입실'}`}
                         onClick={() => setSelected(date)}
                       >
                         {Number(date.slice(8))}
@@ -122,7 +122,7 @@ export function AttendanceChart({ view, flag }: { view: View; flag: boolean }) {
       <div className="sc-cal__legend" aria-hidden="true">
         <span className="sc-cal__key sc-cal__key--came" /> 등원
         <span className="sc-cal__key sc-cal__key--off" /> 결석
-        <span className="sc-cal__key sc-cal__key--gap" /> 평소보다 긴 결석
+        <span className="sc-cal__key sc-cal__key--gap" /> 연속 미입실
         {days.some((day) => day.skip) && (
           <>
             <span className="sc-cal__key sc-cal__key--skip" /> 주말 제외
@@ -136,7 +136,7 @@ export function AttendanceChart({ view, flag }: { view: View; flag: boolean }) {
             {shortDate(detail.date)} ({WEEKDAYS[(weekdayOf(detail.date) + 6) % 7]})
           </strong>
           {detail.skip ? (
-            <span className="sc-dayinfo__absent">주말 제외로 판단하지 않음</span>
+            <span className="sc-dayinfo__absent">주말 제외</span>
           ) : detail.came ? (
             <dl className="sc-dayinfo__list">
               <div>
@@ -161,7 +161,7 @@ export function AttendanceChart({ view, flag }: { view: View; flag: boolean }) {
             </dl>
           ) : (
             <span className={detail.longGap ? 'sc-dayinfo__absent sc-dayinfo__absent--gap' : 'sc-dayinfo__absent'}>
-              {detail.longGap ? '결석 · 평소보다 긴 공백' : '결석'}
+              {detail.longGap ? '연속 미입실' : '미입실'}
             </span>
           )}
         </div>

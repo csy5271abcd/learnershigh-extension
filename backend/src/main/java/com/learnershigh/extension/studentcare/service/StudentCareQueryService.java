@@ -6,6 +6,7 @@ import com.learnershigh.extension.common.integration.learnershigh.ExistingStuden
 import com.learnershigh.extension.studentcare.dto.BranchListResponse;
 import com.learnershigh.extension.studentcare.dto.BranchRef;
 import com.learnershigh.extension.studentcare.dto.CareBoardResponse;
+import com.learnershigh.extension.studentcare.dto.CareBranchMetricsResponse;
 import com.learnershigh.extension.studentcare.dto.CareCaseResponse;
 import com.learnershigh.extension.studentcare.dto.CareEventResponse;
 import com.learnershigh.extension.studentcare.dto.CareSettingsResponse;
@@ -64,21 +65,39 @@ public class StudentCareQueryService {
         ExistingBranch branch = reader.branch(branchId);
         Board board = buildBoard(branchId);
         return new CareBoardResponse(board.asOf(), new BranchRef(branch.branchId(), branch.name()),
-                board.needsCheck(), board.inAdjustment(), board.deferred());
+                board.students(), board.needsCheck(), board.inAdjustment(), board.deferred());
+    }
+
+    public CareBranchMetricsResponse metrics(String branchId) {
+        ExistingBranch branch = reader.branch(branchId);
+        LocalDate asOf = reader.observationDate();
+        var students = reader.students(branchId).stream()
+                .sorted(Comparator.comparing(ExistingStudent::name, NAME_ORDER).thenComparing(ExistingStudent::studentId))
+                .map(student -> new CareBranchMetricsResponse.StudentMetrics(toRef(student),
+                        CareWeeklyReviews.build(reader.history(student.studentId(), asOf), asOf))).toList();
+        var averages = students.isEmpty() ? List.<CareBranchMetricsResponse.DailyAverage>of()
+                : asOf.minusDays(6).datesUntil(asOf.plusDays(1)).map(date -> {
+                    var values = students.stream().flatMap(student -> student.review().days().stream())
+                            .filter(day -> day.date().equals(date) && day.minutes() != null).toList();
+                    return new CareBranchMetricsResponse.DailyAverage(date,
+                            values.isEmpty() ? null : values.stream().mapToInt(day -> day.minutes()).average().orElseThrow(),
+                            values.size());
+                }).toList();
+        return new CareBranchMetricsResponse(asOf, new BranchRef(branch.branchId(), branch.name()), students, averages);
     }
 
     public StudentCareDetailResponse detail(String branchId, String studentId) {
         ExistingStudent student = reader.student(branchId, studentId);
-        LocalDate asOf = reader.today();
+        LocalDate asOf = reader.observationDate();
         CareSettings.Values settings = reader.settings(branchId);
         List<ExistingDailyStudy> history = reader.history(studentId, asOf);
         Optional<CareCase> active = caseRepository.findWithEventsByBranchIdAndStudentIdAndStatus(
                 branchId, studentId, CareCaseStatus.IN_ADJUSTMENT);
 
-        Set<CareSignalType> suppressed = reader.cooldown(branchId, asOf, settings).getOrDefault(studentId, Set.of());
+        Set<CareSignalType> suppressed = reader.cooldown(branchId, reader.today(), settings).getOrDefault(studentId, Set.of());
         SignalEvaluation evaluation = reader.evaluate(history, asOf, settings, suppressed);
-        CareComparison comparison = active.filter(careCase -> careCase.isRecheckDue(asOf))
-                .map(careCase -> CareComparator.compare(careCase.baseline(), history, asOf))
+        CareComparison comparison = active.filter(careCase -> careCase.isRecheckDue(reader.today()))
+                .map(careCase -> CareComparator.compare(careCase.baseline(), history, asOf, careCase.metricFormulaVersion()))
                 .orElse(null);
 
         List<StudentCareDetailResponse.Signal> signals = evaluation.signals().stream()
@@ -96,7 +115,8 @@ public class StudentCareQueryService {
                 evaluation.deferred() ? new StudentCareDetailResponse.Deferred(evaluation.validDays()) : null,
                 daily,
                 CareSignalCalculator.usualDailyMinutes(history, asOf),
-                active.map(careCase -> CareCaseMapper.toResponse(careCase, asOf, reader.zone(), comparison)).orElse(null));
+                active.map(careCase -> CareCaseMapper.toResponse(careCase, reader.today(), reader.zone(), comparison)).orElse(null),
+                CareWeeklyReviews.build(history, asOf), reader.today());
     }
 
     /** 그 지점에서 연 이 학생의 모든 건 이벤트, 최신순 (api-contract.md §65-8). */
@@ -114,14 +134,14 @@ public class StudentCareQueryService {
     }
 
     private Board buildBoard(String branchId) {
-        LocalDate asOf = reader.today();
+        LocalDate asOf = reader.observationDate();
         CareSettings.Values settings = reader.settings(branchId);
         List<ExistingStudent> students = reader.students(branchId);
         Map<String, ExistingStudent> byId = students.stream()
                 .collect(Collectors.toMap(ExistingStudent::studentId, Function.identity()));
         Map<String, CareCase> active = caseRepository.findByBranchIdAndStatus(branchId, CareCaseStatus.IN_ADJUSTMENT)
                 .stream().collect(Collectors.toMap(CareCase::studentId, Function.identity()));
-        Map<String, Set<CareSignalType>> cooldown = reader.cooldown(branchId, asOf, settings);
+        Map<String, Set<CareSignalType>> cooldown = reader.cooldown(branchId, reader.today(), settings);
 
         List<CareBoardResponse.NeedsCheckCard> needsCheck = new ArrayList<>();
         List<CareBoardResponse.DeferredStudent> deferred = new ArrayList<>();
@@ -151,7 +171,7 @@ public class StudentCareQueryService {
                     ExistingStudent student = byId.get(careCase.studentId());
                     return new CareBoardResponse.InAdjustmentCard(careCase.id(), student.studentId(), student.name(),
                             student.className(), CareCaseMapper.signals(careCase),
-                            careCase.recheckDate(), careCase.isRecheckDue(asOf));
+                            careCase.recheckDate(), careCase.isRecheckDue(reader.today()));
                 })
                 // 점검일이 된 건 먼저 → 다음 점검일 빠른 순 (student-care.md §3) → 이름 → 건 ID
                 .sorted(Comparator.comparing((CareBoardResponse.InAdjustmentCard card) -> !card.recheckDue())
@@ -160,7 +180,9 @@ public class StudentCareQueryService {
                         .thenComparing(CareBoardResponse.InAdjustmentCard::caseId))
                 .toList();
 
-        return new Board(asOf, List.copyOf(needsCheck), inAdjustment, List.copyOf(deferred));
+        var roster = students.stream().sorted(Comparator.comparing(ExistingStudent::name, NAME_ORDER)
+                .thenComparing(ExistingStudent::studentId)).map(StudentCareQueryService::toRef).toList();
+        return new Board(asOf, roster, List.copyOf(needsCheck), inAdjustment, List.copyOf(deferred));
     }
 
     private static StudentRef toRef(ExistingStudent student) {
@@ -169,6 +191,7 @@ public class StudentCareQueryService {
 
     private record Board(
             LocalDate asOf,
+            List<StudentRef> students,
             List<CareBoardResponse.NeedsCheckCard> needsCheck,
             List<CareBoardResponse.InAdjustmentCard> inAdjustment,
             List<CareBoardResponse.DeferredStudent> deferred) {

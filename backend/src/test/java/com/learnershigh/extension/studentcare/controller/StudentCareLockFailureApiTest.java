@@ -48,7 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * 409 CONCURRENT_MODIFICATION이 섞인다.
  */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import({MySqlContainerConfig.class, StudentCareLockFailureApiTest.GateConfig.class})

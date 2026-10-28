@@ -33,6 +33,34 @@ class PhapiStudyMapperTest {
     private final JsonMapper json = JsonMapper.builder().build();
 
     @Test
+    void missingReportAndStatisticsRemainUnavailableWithUnknownSchedule() {
+        ExistingDailyStudy day = PhapiStudyMapper.toDailyStudy(FROM, FROM, List.of(), List.of()).getFirst();
+
+        assertThat(day.recordAvailable()).isFalse();
+        assertThat(day.scheduled()).isNull();
+    }
+
+    @Test
+    void reportWithoutStudyStillProvidesAnAvailableZeroRecord() {
+        ExistingDailyStudy day = PhapiStudyMapper.toDailyStudy(FROM, FROM,
+                List.of(report(FROM.toString(), null, "제출전")), List.of()).getFirst();
+
+        assertThat(day.recordAvailable()).isTrue();
+        assertThat(day.studyMinutes()).isZero();
+        assertThat(day.scheduled()).isNull();
+    }
+
+    @Test
+    void zeroStatisticsWithoutReportStillProvideAnAvailableRecord() {
+        ExistingDailyStudy day = PhapiStudyMapper.toDailyStudy(FROM, FROM, List.of(),
+                List.of(stat("수학", "00:00:00", "00:00:00", FROM.toString()))).getFirst();
+
+        assertThat(day.recordAvailable()).isTrue();
+        assertThat(day.studyMinutes()).isZero();
+        assertThat(day.scheduled()).isNull();
+    }
+
+    @Test
     void mapsOnlyActiveStudentsWithGroupAsClassName() {
         List<ExistingStudent> students = PhapiStudyMapper.toStudents("501", students());
 

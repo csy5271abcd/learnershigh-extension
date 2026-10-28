@@ -1,0 +1,46 @@
+import {test,expect} from '@playwright/test'
+
+test.beforeEach(async({page})=>{await page.route('https://**',r=>r.abort())})
+
+test('branch surfaces actual counseling reasons and opens the named student without statistical warning labels',async({page})=>{
+ await page.goto('/student-care/5',{waitUntil:'domcontentloaded'})
+ await page.getByRole('tab',{name:'학습관별',exact:true}).click()
+ const queue=page.getByRole('region',{name:'상담 필요',exact:true})
+ await expect(queue).toContainText('김서준')
+ await expect(queue).toContainText('결석')
+ await expect(queue).toContainText('한유진')
+ await expect(queue).toContainText('학습 시간 감소')
+ await expect(queue).not.toContainText('박민지')
+ await expect(page.locator('.cm-outlier-dot')).toHaveCount(0)
+ await expect(page.locator('.cm-branch')).not.toContainText('이상치')
+ const graph=page.locator('.cm-branch-chart').first()
+ await expect(graph.locator('.cm-care-line')).toHaveCount(1)
+ await expect(graph.getByRole('button',{name:'김서준 상담 상세',exact:true})).toBeVisible()
+ await graph.getByRole('button',{name:'박민지 비교',exact:true}).click()
+ await expect(graph.locator('.cm-care-line')).toHaveCount(0)
+ await expect(graph.locator('.cm-selected-line')).toHaveCount(1)
+ await graph.locator('.cm-day-target').nth(1).focus()
+ await expect(graph.getByRole('tooltip')).toContainText('박민지')
+ await expect(graph.getByRole('tooltip')).not.toContainText('이상치')
+ await queue.getByRole('button',{name:'한유진 상담 상세',exact:true}).click()
+ await expect(page.getByRole('tab',{name:'학생별',exact:true})).toHaveAttribute('aria-selected','true')
+ await expect(page.getByRole('region',{name:'한유진 상세 지표',exact:true})).toBeVisible()
+})
+
+test('scheduled follow-up stays separate from new counseling and opens its own student',async({page})=>{
+ await page.route('**/api/admin/student-care/board?**',async route=>{
+  const response=await route.fetch();const board=await response.json()
+  const item=board.inAdjustment.find((s:{studentId:string})=>s.studentId==='stu_002')
+  if(!item)throw Error('Expected existing managed case')
+  item.recheckDue=true;item.recheckDate='2026-10-25'
+  await route.fulfill({json:board})
+ })
+ await page.goto('/student-care/5',{waitUntil:'domcontentloaded'})
+ await page.getByRole('tab',{name:'학습관별',exact:true}).click()
+ const queue=page.getByRole('region',{name:'상담 후 확인',exact:true})
+ await expect(queue).toContainText('최학생')
+ await expect(queue).toContainText('10/25')
+ await expect(queue).toContainText('상담 당시 사유')
+ await queue.getByRole('button',{name:'최학생 상담 상세',exact:true}).click()
+ await expect(page.getByRole('region',{name:'최학생 상세 지표',exact:true})).toBeVisible()
+})

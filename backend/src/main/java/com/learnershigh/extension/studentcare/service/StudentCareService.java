@@ -85,7 +85,7 @@ public class StudentCareService {
         }
         reader.student(branchId, studentId);
         // 기존 기록은 DB 상태와 관계없으므로 잠금 전에 읽는다. 실패(503)하면 잠금 행도 만들지 않는다.
-        List<ExistingDailyStudy> history = reader.history(studentId, today);
+        List<ExistingDailyStudy> history = reader.history(studentId, today.minusDays(1));
 
         studentLocks.ensureRow(branchId, studentId);
         LocalDate validRecheckDate = recheckDate;
@@ -104,7 +104,7 @@ public class StudentCareService {
 
         CareSettings.Values settings = reader.settings(branchId);
         Set<CareSignalType> suppressed = reader.cooldown(branchId, today, settings).getOrDefault(studentId, Set.of());
-        List<CareBaselineSignal> baseline = reader.evaluate(history, today, settings, suppressed).signals().stream()
+        List<CareBaselineSignal> baseline = reader.evaluate(history, today.minusDays(1), settings, suppressed).signals().stream()
                 .map(DetectedSignal::toBaseline)
                 .toList();
 
@@ -135,8 +135,9 @@ public class StudentCareService {
             CareCase.requireValidRecheckDate(request.recheckDate(), today, "recheckDate");
         }
 
-        List<ExistingDailyStudy> history = reader.history(careCase.studentId(), today);
-        CareComparison comparison = CareComparator.compare(careCase.baseline(), history, today);
+        List<ExistingDailyStudy> history = reader.history(careCase.studentId(), today.minusDays(1));
+        CareComparison comparison = CareComparator.compare(careCase.baseline(), history, today.minusDays(1),
+                careCase.metricFormulaVersion());
         String comparisonText = comparison.text();
         switch (request.decision()) {
             case CLOSE -> careCase.closeAfterRecheck(comparisonText, today, now);

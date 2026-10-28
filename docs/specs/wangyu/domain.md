@@ -1,5 +1,30 @@
 # Wangyu Domain — Student Care
 
+## 2026-10-28 개인 패턴 비교 정합성
+
+사용자가 지정한 개인별 같은 요일 비교와 일정 없음 구분을 상담 판정에도 적용한다. 아래의 기간 전체 시각 평균/일정 없는 날 미제출 포함 설명보다 우선한다.
+
+- START_TIME_SHIFT는 최근 입실일 각각에서 이전28일 같은 요일 입실 평균을 뺀 분 차이의 평균이다. 현재 입실 시각과 해당 요일 기준이 모두 있는 최근3일 이상이 필요하다. 없는 요일 기준은 다른 요일로 대체하지 않는다. 새 snapshot value는 분 편차, target=0, unit=MINUTES이며 시계 시각이 아니다. 재확인도 같은 편차를 비교한다.
+- PLAN_MISSING은 확인된 미제출 중 scheduled=false인 날을 제외한다. 실제 제출 기록은 일정과 독립적으로 보존한다.
+- 과목 계획/실제 비중은 입실·계획 제출·양수 계획이 함께 확인된 동일 날짜들의 기록으로 비교한다. 비중 감소만으로 절대 학습 시간 감소를 단정하지 않는다.
+- 신규 case의 metric_formula_version=3. 기존1/2 snapshot/이력/상태는 수정하지 않고, 버전이 다른 재확인은 now=null로 반환한다. 기존 절대 시각 snapshot은 CLOCK_MINUTES 단위를 유지한다. 스키마 변경이나 저장된 지점 설정 덮어쓰기는 없다.
+- API weekdayBaseline.startSamples를 FE에 보존한다. 표본수가 존재한다는 사실과 정밀한 개인 정상 범위의 통계적 보장은 다르다.
+
+## 2026-10-25 주간 기준 개정
+
+이 절은 아래의 이전 기간·기본값·결석 설명을 대체한다. 최신 계약은 api-contract.md §65의 주간 지표 확장이다.
+
+- 지표 기준일은 서버 Clock(Asia/Seoul)의 전날. 최근7일과 그7일을 제외한 직전28일을 비교한다. 상담 발생일·재확인 가능일·종결 후 숨김 기간은 실제 오늘을 사용한다.
+- STUDY_DROP은 직전28일 합/4와 최근7일 합을 비교한다. 두 기간의 자료가 완전하지 않으면 감소를 확정하지 않는다. START_TIME_SHIFT는 직전28일과 최근7일의 입실 표본 평균이다.
+- EXECUTION_GAP은 최근7일의 입실·계획제출·양수계획·실제기록이 함께 있는 날만 actual/planned로 계산한다.100%에서 자르지 않는다.
+- CONSECUTIVE_ABSENCE 코드는 저장된 식별자 호환용이다. 새 판정은 최근7일 중 등원예정=true, 기록확인=true, 미입실인 날의 횟수다. 라벨은 ‘미입실’이며 연속 일수를 뜻하지 않는다.
+- 기존 원본에 일정이 없으면 scheduled=null를 유지한다. 일정 미확인을 결석으로 처리하지 않는다. report/stat가 모두 없는 날짜는 recordAvailable=false이며 학습0/계획미제출로 확정하지 않는다.
+- 상세 review는7일 모든 날짜,28일 요약과 완전성,동일요일 평균 표본수,최근7일 과목수치를 제공한다. 화면의 차트 종류와 무관하다.
+- 초기 설정은1/2/30/60/20/60/3/7(absence/planMissing/studyDrop/execution/subject/startShift/minValid/cooldown). absence 범위1~14. 저장된 지점 설정은 자동 덮어쓰지 않는다. 수치는 운영 검증 전 제안값이다。
+- 상담 상태·이벤트·잠금·지점 범위·권한 Open Decision은 유지한다. 기존 snapshot은 원본 수정으로 덮어쓰지 않는다.
+- `care_case.metric_formula_version`은 NOT NULL 정수다. 마이그레이션 기존 행/DB 기본값은1, 신규 도메인 생성은2다. 버전1은 이전 공식의 snapshot이므로 새 공식으로 재해석하지 않고 점검 now=null/trend=SAME을 반환한다. baseline·target·이벤트는 보존하며 상담 상태전이는 허용한다.
+- 미입실/계획미제출 재점검은 최근7일 원본이 모두 확인되어야 한다. 미입실은 미입실인 날짜의 일정도 확인되어야 한다. 불완전하면 now=null이며, 확인된 날짜만으로 새 경고 신호를 올리는 것과 구분한다.
+
 > 위치: `docs/specs/wangyu/domain.md`  
 > 학생 케어(Student Care)의 Entity / State / 신호 계산 기준이다. 기능 흐름은 `features/student-care.md`, API는 `docs/api/api-contract.md` §65.
 
