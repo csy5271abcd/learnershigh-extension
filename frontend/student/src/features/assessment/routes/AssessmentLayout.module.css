@@ -1,0 +1,338 @@
+/*
+ * Assessment Layout (Mockup 공통 Sidebar: SA-LIST-01, SAI-01·02 실측).
+ * Token: ../styles/assessmentTheme.css (`.lh-assessment`). TDS `--lh-color-*`를 쓰지 않는다.
+ */
+.root {
+  display: grid;
+  grid-template-columns: var(--as-sidebar-width) minmax(0, 1fr);
+  min-height: calc(100dvh - var(--lh-student-nav-height));
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--lh-student-nav-height);
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--lh-student-nav-height));
+  border-right: 1px solid var(--as-color-line);
+  background: var(--as-color-bg);
+  /* 3영역 구조 (2026-10-28): 상단 학기 선택·하단 학교·학업 정보는 고정, 가운데 메뉴(.nav)만 스크롤한다. Sidebar 자체는 스크롤하지 않는다. */
+  overflow: hidden;
+}
+
+.termArea {
+  flex-shrink: 0;
+  padding: 15px 11px 11px;
+}
+
+.nav {
+  /* 가운데 메뉴 영역 = Sidebar의 유일한 스크롤 영역. 과목 목록에 따로 스크롤을 두지 않는다. */
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 11px 16px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.menu {
+  display: grid;
+  /* 긴 과목명(학생이 직접 추가, 2026-10-28)이 열을 늘리지 않고 .menuLabel 말줄임이 동작하게 */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 37px;
+  padding: 0 10px 0 11px;
+  border-radius: var(--as-radius-sm);
+  color: var(--as-color-text);
+  font-size: var(--as-text-body);
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background: var(--as-color-fill);
+}
+
+.menuItemActive,
+.menuItemActive:hover {
+  background: var(--as-color-active);
+  font-weight: 600;
+}
+
+.menuIcon {
+  flex: none;
+  color: var(--as-color-text);
+}
+
+.menuLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.menuCount {
+  flex: none;
+  font-size: var(--as-text-meta);
+  font-weight: 400;
+  color: var(--as-color-text-tertiary);
+}
+
+.groupLabel {
+  margin: 21px 11px 7px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+/* 과목 제목 + 추가 버튼 (2026-10-28). 제목 위치는 바꾸지 않고 버튼만 오른쪽에 둔다 */
+.groupLabelRow {
+  position: relative;
+}
+
+.groupLabelRow .groupAdd {
+  position: absolute;
+  right: 4px;
+  bottom: 0;
+}
+
+.groupAdd {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.groupAdd:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.groupAdd:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.groupEmpty {
+  padding: 6px 11px;
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text-secondary);
+}
+
+/* 과목 10개 이상: 제목 줄(건수·접기) + 과목 검색 (2026-10-28) */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 15px 4px 4px 11px;
+}
+
+.groupHeaderLabel {
+  flex: 1;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.groupTotal {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.groupToggle {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.groupToggle:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.groupToggle:focus-visible,
+.subjectSearch:focus-within {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.groupChevron {
+  transition: transform 0.15s;
+}
+
+.groupToggle[aria-expanded='false'] .groupChevron {
+  transform: rotate(-90deg);
+}
+
+.subjectSearch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  margin: 2px 0 6px;
+  padding: 0 6px 0 10px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-tertiary);
+}
+
+.subjectSearchIcon {
+  flex: none;
+}
+
+.subjectSearch input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  outline: none;
+}
+
+/* Focus 표시는 바깥 검색 상자(:focus-within) 하나만 둔다. 공통 .lh-assessment :focus-visible보다 강하게 지정 */
+.subjectSearch input:focus-visible {
+  outline: none;
+}
+
+.subjectSearch input::placeholder {
+  color: var(--as-color-placeholder);
+}
+
+.subjectSearchClear {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--as-color-text-tertiary);
+  cursor: pointer;
+}
+
+.subjectSearchClear:hover {
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+}
+
+.sidebarFooter {
+  flex-shrink: 0;
+  padding: 10px 11px 14px;
+  border-top: 1px solid var(--as-color-line);
+  background: var(--as-color-bg);
+}
+
+.main {
+  min-width: 0;
+}
+
+.mobileBar,
+.scrim {
+  display: none;
+}
+
+/* Tablet 이하: Sidebar를 Drawer로 바꾼다 (frontend-student.md §16). Mockup은 Desktop만 있어 Daglo Drawer 패턴을 따른다. */
+@media (max-width: 959px) {
+  .root {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: var(--lh-student-nav-height);
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: min(280px, 86vw);
+    height: auto;
+    box-shadow: var(--as-shadow-popover);
+    transform: translateX(-102%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0.2s;
+  }
+
+  .sidebarOpen {
+    transform: none;
+    visibility: visible;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: var(--lh-student-nav-height) 0 0;
+    z-index: 25;
+    display: block;
+    background: var(--as-color-backdrop);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .scrimVisible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+
+  .mobileMenuButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--as-color-line);
+    border-radius: var(--as-radius-sm);
+    background: var(--as-color-surface);
+    color: var(--as-color-text);
+    font-size: var(--as-text-body);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .mobileTerm {
+    overflow: hidden;
+    font-size: var(--as-text-meta);
+    color: var(--as-color-text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .scrim,
+  .groupChevron {
+    transition: none;
+  }
+}

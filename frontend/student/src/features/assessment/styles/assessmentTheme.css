@@ -1,0 +1,119 @@
+/*
+ * LearnersHigh Assessment Design Tokens (Student).
+ *
+ * 기준: references/claude-design-mockup/LearnersHighAssessment/ (1920 CSS px @ DPR 1.5 실측, 2026-10-26)
+ *       + references/design/daglo/ (Mockup의 기반 디자인 언어: 회색 채움 검색창, 구분선 없는 목록, 둥근 Hover 배경)
+ * 값은 Mockup PNG의 픽셀 색상·치수를 측정해 정했다. 기존 Student `index.css`의 TDS 의미 기반 Token(`--lh-color-*`)은
+ * 신규 Assessment 화면에서 쓰지 않는다 (docs/specs/suyeon/assessment-design-principles.md).
+ *
+ * 적용 범위: `.lh-assessment` 하위만. 전역 body/button/input 스타일과 기존 Student 상단 Navigation은 바꾸지 않는다.
+ */
+.lh-assessment {
+  /* Typography — Mockup 글꼴(Pretendard)과 실측 크기 */
+  --as-font: 'Pretendard', 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+  --as-text-page-title: 21px; /* 학교 수행평가 / 학교·학업 정보 */
+  --as-text-detail-title: 28px; /* 상세 과제명 */
+  --as-text-modal-title: 19px;
+  --as-text-section: 15px; /* 카드 제목 */
+  --as-text-row: 14px; /* 목록 제목, 입력값 */
+  --as-text-body: 13px; /* 메뉴, 버튼, 보조 본문 */
+  --as-text-meta: 12px; /* 행 메타, 표 Header, 안내 */
+  --as-text-caption: 11px; /* Badge, 학기 라벨, 날짜 보조 */
+
+  /* Color — Mockup 픽셀 실측 */
+  --as-color-bg: #ffffff;
+  --as-color-surface: #ffffff;
+  --as-color-subtle: #f8f9fb; /* 검색창, 상세 상단 바 */
+  --as-color-fill: #f3f4f7; /* 회색 Badge, Hover */
+  --as-color-active: #eaebef; /* 선택된 Sidebar 메뉴 */
+  --as-color-selected: #f4f7fe; /* 선택된 목록 행 (Mockup AE-LIST 실측) */
+  --as-color-star: #ffc700; /* 즐겨찾기·중요 별 (Mockup SA-LIST-01 실측, 다크 모드 공통) */
+  --as-color-line: #eaebef; /* 모든 Border / Divider */
+  --as-color-text: #1d1f23;
+  --as-color-text-secondary: #72777f;
+  --as-color-text-tertiary: #999da3;
+  --as-color-placeholder: #c1c3c9;
+  --as-color-ink: #1d1f23; /* 선택된 상태 탭 */
+  --as-color-on-ink: #ffffff;
+  --as-color-primary: #216cf8;
+  --as-color-primary-hover: #1a5ce0;
+  --as-color-primary-soft: #eaf1fe;
+  --as-color-on-primary: #ffffff;
+  --as-color-danger: #f44136; /* 임박 D-day, 오류 */
+  --as-color-danger-soft: #feeceb;
+  --as-color-success: #14b8a6; /* 완료 점 */
+  --as-color-success-soft: #e5f5f2;
+  --as-color-success-text: #0b6e63;
+  --as-color-warning-soft: #fff3d1;
+  --as-color-warning-text: #935500;
+  --as-color-idle: #b8bbc2; /* 시작 전 점 */
+  --as-color-disabled-bg: #eaebef;
+  --as-color-disabled-text: #c1c3c9;
+  --as-color-backdrop: rgb(0 0 0 / 0.5);
+  --as-color-skeleton: #f0f1f4;
+
+  /* Shape */
+  --as-radius-xs: 5px; /* Badge */
+  --as-radius-sm: 7px; /* 메뉴 항목, 입력, 버튼 */
+  --as-radius-md: 10px; /* 카드, 학기 선택 */
+  --as-radius-lg: 14px; /* 큰 카드 */
+  --as-radius-xl: 16px; /* Modal */
+  --as-radius-pill: 999px;
+  --as-shadow-popover: 0 8px 24px rgb(29 31 35 / 0.12);
+  --as-shadow-modal: 0 16px 48px rgb(29 31 35 / 0.18);
+
+  /* Layout — Mockup 실측 (CSS px) */
+  --as-sidebar-width: 213px;
+  --as-content-width: 978px;
+  --as-content-inset: 36px;
+
+  font-family: var(--as-font);
+  font-size: var(--as-text-body);
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: var(--as-color-text);
+  background: var(--as-color-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Mockup은 Light만 있다. Dark는 같은 위계를 유지하는 보정값이다. */
+  .lh-assessment {
+    --as-color-bg: #17181b;
+    --as-color-surface: #1f2024;
+    --as-color-subtle: #1f2024;
+    --as-color-fill: #2a2c31;
+    --as-color-active: #2f3136;
+    --as-color-selected: #1d2433;
+    --as-color-line: #2f3136;
+    --as-color-text: #eceef1;
+    --as-color-text-secondary: #a4a9b0;
+    --as-color-text-tertiary: #80858c;
+    --as-color-placeholder: #63676e;
+    --as-color-ink: #eceef1;
+    --as-color-on-ink: #17181b;
+    --as-color-primary: #4b88fa;
+    --as-color-primary-hover: #6b9dfb;
+    --as-color-primary-soft: #1c2a44;
+    --as-color-danger: #ff6b61;
+    --as-color-danger-soft: #3a1f1d;
+    --as-color-success-soft: #173431;
+    --as-color-success-text: #5fd3c5;
+    --as-color-warning-soft: #3a2f14;
+    --as-color-warning-text: #f2c460;
+    --as-color-idle: #6b6f76;
+    --as-color-disabled-bg: #2a2c31;
+    --as-color-disabled-text: #63676e;
+    --as-color-skeleton: #2a2c31;
+  }
+}
+
+/* 전역 TDS Accent Focus 링 대신 Assessment Primary를 쓴다 (범위 한정). */
+.lh-assessment :focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.lh-assessment ::placeholder {
+  color: var(--as-color-placeholder);
+}

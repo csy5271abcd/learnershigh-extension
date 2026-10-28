@@ -1,18 +1,16 @@
 import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router'
 import { StudentGlobalNavigation } from '../components/student-navigation/StudentGlobalNavigation.tsx'
 import type { StudentNavigationItemId } from '../components/student-navigation/studentNavigationItems.ts'
-import { mentorHubHomeFixture } from '../features/mentor-hub/fixtures/mentorHubHome.fixture.ts'
-import { mentorHubPath } from '../features/mentor-hub/routes/paths.ts'
-import { schoolPath, schoolTasksPath } from '../features/school-admissions/routes/paths.ts'
+import { assessmentPath } from '../features/assessment/routes/paths.ts'
 
-// 인증 / 사용자 Model이 없어 Navigation 표시용 이름은 Fixture 값을 재사용한다.
-const studentDisplayName = mentorHubHomeFixture.studentContext.displayName
+// 인증 / 사용자 Model이 없어 Navigation 표시용 이름은 개발용 고정값이다.
+// (예전에는 구형 Mentor Hub Fixture에서 읽었다. 2026-10-28 Mentor·School Activity 제거 후 같은 값을 여기 둔다)
+const studentDisplayName = '최하은'
 
 const isUnder = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`)
 
 function activeNavigationItem(pathname: string): StudentNavigationItemId | undefined {
-  if (isUnder(pathname, mentorHubPath)) return 'mentor'
-  if (isUnder(pathname, schoolPath)) return 'schoolActivity'
+  if (isUnder(pathname, assessmentPath)) return 'assessment'
   return undefined
 }
 
@@ -27,10 +25,9 @@ export function StudentAppShell() {
         activeItem={activeNavigationItem(location.pathname)}
         userDisplayName={studentDisplayName}
         onItemSelect={(id) => {
-          // 실제 화면이 있는 메뉴만 연결한다. 기존 LearnersHigh 메뉴 Route는 확인 전이라 연결하지 않는다.
-          if (id === 'mentor') navigate(mentorHubPath)
-          // 기존 수행평가 Entry는 School로 연결한다. (Extension App 내부 Route, 기존 LearnersHigh URL 아님)
-          else if (id === 'schoolActivity' || id === 'performanceTask') navigate(schoolTasksPath)
+          // 실제 화면이 있는 메뉴만 연결한다. 기존 LearnersHigh 메뉴(수행평가 포함) Route는 확인 전이라 연결하지 않는다.
+          // Assessment는 어느 화면에서 눌러도 Assessment 홈으로 간다 (상세 URL 직접 접근은 그대로).
+          if (id === 'assessment') navigate(assessmentPath)
         }}
       />
       <Outlet />

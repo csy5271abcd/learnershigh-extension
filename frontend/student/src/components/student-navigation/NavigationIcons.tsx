@@ -100,6 +100,16 @@ export function PerformanceTaskIcon(props: IconProps) {
   )
 }
 
+// 신규 Assessment 진입점 (문서 + 체크, Assessment Mockup 상단 메뉴 참고)
+export function AssessmentIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6.5 3.5h7.5l4 4v13h-11.5z" />
+      <path d="M14 3.5v4h4M9 14l2.2 2.2L15.5 12" />
+    </Svg>
+  )
+}
+
 export function DiagnosisIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -134,25 +144,6 @@ export function RewardIcon(props: IconProps) {
     <Svg {...props}>
       <path d="M6 13h12l-1.5 7h-9z" />
       <path d="M12 13V8M12 9.5C12 6.5 9.5 5 7 5c0 2.8 2 4.5 5 4.5ZM12 9c0-2.6 2-4 4.5-4 0 2.5-1.8 4-4.5 4Z" />
-    </Svg>
-  )
-}
-
-export function MentorIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="9" cy="8" r="3.5" />
-      <path d="M3 20c.6-3.5 3-5.5 6-5.5s5.4 2 6 5.5" />
-      <path d="M16 4.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" />
-    </Svg>
-  )
-}
-
-export function SchoolActivityIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M3 10.5 12 5l9 5.5" />
-      <path d="M5 9.5V20h14V9.5M10 20v-4.5h4V20M3 20h18" />
     </Svg>
   )
 }

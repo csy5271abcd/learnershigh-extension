@@ -1,0 +1,356 @@
+/*
+ * 자료함 (Mockup RL-LIST-01·02, RL-ADD-01 실측, 1920 CSS px @ DPR 1.5).
+ * 본문 폭 817 (추천 자료원 카드·목록), 행 60, 유형 아이콘 상자 32, 출처 Badge 21, AI 요약 버튼 25.
+ * 도구 막대·제목·Chip은 심화 탐구와 같은 스타일(enrichment.module.css)을 쓴다.
+ */
+.area {
+  /* 본문 817 + 좌우 여백 36 */
+  width: min(calc(817px + var(--as-content-inset) * 2), 100%);
+}
+
+.recoCard {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px 15px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+}
+
+.recoHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.recoLabel {
+  font-size: var(--as-text-body);
+  font-weight: 600;
+}
+
+.recoSelect {
+  width: 112px;
+}
+
+.recoSelect select {
+  height: 30px;
+  padding: 0 30px 0 10px;
+  font-size: var(--as-text-meta);
+}
+
+.recoHint {
+  font-size: var(--as-text-caption);
+  line-height: 16px;
+  color: var(--as-color-text-tertiary);
+}
+
+.sourceChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.sourceChip:hover {
+  background: var(--as-color-fill);
+}
+
+.sourceChip[aria-expanded='true'] {
+  border-color: var(--as-color-ink);
+}
+
+.sourceCategory {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.sourceDetail {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-subtle);
+  font-size: var(--as-text-meta);
+  line-height: 18px;
+}
+
+.sourceDetail strong {
+  font-weight: 600;
+}
+
+.typeFilters {
+  margin-top: 16px;
+}
+
+.list {
+  display: grid;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 8px 11px;
+  border-radius: var(--as-radius-md);
+}
+
+.row:hover {
+  background: var(--as-color-subtle);
+}
+
+.typeIcon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text);
+}
+
+.rowText {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowTitle {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: var(--as-text-row);
+  line-height: 21px;
+  text-decoration: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowTitle:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rowMeta {
+  overflow: hidden;
+  font-size: var(--as-text-meta);
+  line-height: 16px;
+  color: var(--as-color-text-tertiary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowActions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 21px;
+  padding: 0 7px;
+  border-radius: var(--as-radius-xs);
+  font-size: var(--as-text-caption);
+  white-space: nowrap;
+}
+
+.sourceBadge[data-state='filled'] {
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+}
+
+.sourceBadge[data-state='missing'] {
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-weight: 600;
+}
+
+.aiButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 25px;
+  padding: 0 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.aiButton[aria-disabled='true'] {
+  color: var(--as-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.typeChips span {
+  height: 30px;
+}
+
+.modalHint {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+/* ---- 자료 상세 ---- */
+
+.backButton {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.inlineType {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.detail {
+  display: grid;
+  width: min(640px, 100%);
+  padding-top: 20px;
+}
+
+.detailTitle {
+  margin-top: 14px;
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+  line-height: 28px;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.detailBadges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.props {
+  display: grid;
+  margin-top: 22px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.propRow {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: var(--as-text-body);
+  line-height: 20px;
+}
+
+.propRow dt {
+  color: var(--as-color-text-secondary);
+}
+
+.propRow dd {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.muted {
+  color: var(--as-color-text-tertiary);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-fill);
+  font-size: var(--as-text-meta);
+}
+
+.editForm {
+  margin-top: 18px;
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 759px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .rowActions {
+    width: 100%;
+    padding-left: 46px;
+  }
+
+  .propRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .rowTitle {
+    min-height: 24px;
+    line-height: 24px;
+  }
+
+  .backButton {
+    min-height: 24px;
+  }
+}

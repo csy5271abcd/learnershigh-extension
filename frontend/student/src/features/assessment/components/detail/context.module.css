@@ -1,0 +1,466 @@
+/*
+ * 상세 패널 평가 기준 후보·자료 탭, 노트 위 과제 정보 (2026-10-27 학생 통합 보강).
+ * Assessment --as-* Token만 쓴다. 패널 폭(약 320px)과 본문 열(586px)에 맞춘 밀도.
+ */
+
+/* ---------- 평가 기준 후보 (AUD-015) ---------- */
+.candidateHead {
+  display: grid;
+  gap: 6px;
+}
+
+.reviewBadge {
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.reviewBadge[data-status='COMPLETED'] {
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+}
+
+.candidateTitle {
+  font-size: var(--as-text-row);
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.factGrid > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-subtle);
+}
+
+.factGrid dt {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.factGrid dd {
+  margin: 0;
+  font-size: var(--as-text-meta);
+  font-weight: 600;
+}
+
+.subTitle {
+  margin-bottom: 6px;
+  font-size: var(--as-text-meta);
+  font-weight: 700;
+  color: var(--as-color-text-secondary);
+}
+
+.rubricList {
+  display: grid;
+  gap: 4px;
+  padding-left: 18px;
+  font-size: var(--as-text-body);
+  line-height: 1.55;
+}
+
+.sourceQuote {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.sourceQuote figcaption {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.sourceQuote blockquote {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--as-color-line);
+  background: var(--as-color-subtle);
+  font-size: var(--as-text-meta);
+  line-height: 1.55;
+  color: var(--as-color-text-secondary);
+}
+
+.selfCheck {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 24px;
+  font-size: var(--as-text-body);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.checkRow input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  accent-color: var(--as-color-primary);
+}
+
+.inlineAction {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-primary);
+  font: inherit;
+  font-size: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inlineAction:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 자료 탭 (AUD-016) ---------- */
+.panelSection {
+  display: grid;
+  gap: 10px;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sectionHead .subTitle {
+  margin: 0;
+}
+
+.kindBadge,
+.categoryBadge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption);
+  white-space: nowrap;
+}
+
+.filterChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.filterChip {
+  min-height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 999px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  cursor: pointer;
+}
+
+.filterChip[aria-pressed='true'] {
+  border-color: var(--as-color-text);
+  background: var(--as-color-text);
+  color: var(--as-color-surface);
+}
+
+.sourceList,
+.myList {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceCard {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.sourceTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.sourceName {
+  font-size: var(--as-text-body);
+  font-weight: 700;
+}
+
+.reasonLabel {
+  margin-right: 2px;
+  font-weight: 600;
+  color: var(--as-color-text-tertiary);
+}
+
+.keywords {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-secondary);
+}
+
+.sourceActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.smallButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.smallButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.smallButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.smallLink {
+  color: var(--as-color-primary);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.muted {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  color: var(--as-color-text-tertiary);
+}
+
+.searchField:focus-within {
+  border-color: var(--as-color-primary);
+}
+
+.searchField input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  outline: none;
+}
+
+.myRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.myText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.myTitle {
+  overflow: hidden;
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- 노트 위 과제 정보 (D) ---------- */
+.contextPanel {
+  display: grid;
+  gap: 8px;
+  margin-top: 28px;
+  padding: 12px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-subtle);
+}
+
+.contextHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.contextToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0 4px 0 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.contextChevron {
+  transition: transform 0.12s;
+  transform: rotate(-90deg);
+}
+
+.contextToggle[aria-expanded='true'] .contextChevron {
+  transform: none;
+}
+
+.readOnlyBadge {
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.contextTitle {
+  margin-bottom: 6px;
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.contextGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 16px;
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 8px;
+  font-size: var(--as-text-meta);
+  line-height: 1.5;
+}
+
+.fact dt {
+  color: var(--as-color-text-tertiary);
+}
+
+.fact dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.missing {
+  color: var(--as-color-text-tertiary);
+}
+
+.candidateTag {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-caption);
+  white-space: nowrap;
+}
+
+.linkList {
+  display: grid;
+  gap: 2px;
+}
+
+.inlineLink {
+  color: var(--as-color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+.inlineLinkIcon {
+  margin-right: 4px;
+  vertical-align: -2px;
+}
+
+.contextNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.contextNote svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+@media (max-width: 719px) {
+  .contextGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .factGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* AUD-042: 모바일 누름 영역 24px 이상 */
+@media (max-width: 820px) {
+  .inlineLink {
+    display: inline-block;
+    min-height: 24px;
+  }
+}

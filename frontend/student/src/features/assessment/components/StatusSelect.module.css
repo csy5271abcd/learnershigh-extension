@@ -1,0 +1,57 @@
+/* 진행 상태 Select (Mockup SA-LIST-01 행: 점 7px + 72×29 Select, 굵은 검정 Chevron) */
+.wrap {
+  --status-color: var(--as-color-idle);
+
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.wrap[data-status='IN_PROGRESS'] {
+  --status-color: var(--as-color-primary);
+}
+
+.wrap[data-status='COMPLETED'] {
+  --status-color: var(--as-color-success);
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-color);
+}
+
+.select {
+  appearance: none;
+  width: 72px;
+  height: 29px;
+  padding: 0 22px 0 9px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--as-color-placeholder);
+}
+
+.select:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.chevron {
+  position: absolute;
+  right: 6px;
+  color: var(--as-color-text);
+  pointer-events: none;
+  stroke-width: 2.4;
+}

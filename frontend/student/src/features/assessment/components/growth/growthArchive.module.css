@@ -1,0 +1,439 @@
+/* 성장 기록(Mockup GR-LIST-01)·보관함(AR-TAB-01~05). 공통 틀(toolbar·content·tabs·chips)은 enrichment.module.css를 쓴다. */
+
+.growthArea {
+  max-width: 802px;
+}
+
+.toolbarEnd {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.privacyBox {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 19px;
+}
+
+.privacyBox svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.termGroup {
+  margin-top: 26px;
+}
+
+.termHeading {
+  margin-bottom: 10px;
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.cardList {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  padding: 18px 20px 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: var(--as-radius-xs);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.subjectText {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.relatedLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+  text-decoration: none;
+}
+
+.relatedLink:hover {
+  color: var(--as-color-text);
+  text-decoration: underline;
+}
+
+.cardTitle {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--as-color-text);
+  font-size: var(--as-text-section);
+  font-weight: 700;
+  line-height: 24px;
+  text-decoration: none;
+}
+
+.cardTitle:hover {
+  text-decoration: underline;
+}
+
+.fieldList {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 8px;
+  font-size: var(--as-text-body);
+  line-height: 21px;
+}
+
+.fieldRow dt {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+}
+
+.fieldRow dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.emptyField {
+  color: var(--as-color-text-tertiary);
+}
+
+/* ---- 상세·작성 ---- */
+
+.backButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--as-text-body);
+  cursor: pointer;
+}
+
+.detailArea {
+  max-width: 802px;
+  padding-top: 20px;
+}
+
+.detailTitle {
+  margin-top: 12px;
+  font-size: var(--as-text-detail-title);
+  font-weight: 700;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+
+.detailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-meta);
+}
+
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.detailSection {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.sectionTitle {
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.artifactList {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+  font-size: var(--as-text-body);
+}
+
+.artifactItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fieldHint {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+  line-height: 17px;
+}
+
+.relatedBox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  font-size: var(--as-text-body);
+}
+
+.checkList {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--as-text-body);
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---- 보관함 ---- */
+
+.archiveArea {
+  max-width: 892px;
+}
+
+.folderChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.folderChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 31px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.folderChip:hover {
+  background: var(--as-color-fill);
+}
+
+.folderChip[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-selected);
+  font-weight: 700;
+}
+
+.folderCount {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.trashNote {
+  margin-top: 14px;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+}
+
+.rows {
+  display: grid;
+  margin-top: 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 57px;
+  padding: 8px 10px 8px 12px;
+  border-radius: var(--as-radius-sm);
+}
+
+.row:hover {
+  background: var(--as-color-subtle);
+}
+
+.rowIcon {
+  flex: none;
+  color: var(--as-color-text-secondary);
+}
+
+.rowText {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+
+.rowTitle {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: var(--as-text-row);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowTitle:hover {
+  text-decoration: underline;
+}
+
+.rowMeta {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.rowEnd {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.starButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-tertiary);
+  cursor: pointer;
+}
+
+.starButton:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.starButton[aria-pressed='true'],
+.starButton[aria-pressed='true']:hover {
+  color: var(--as-color-star);
+}
+
+.starButton:disabled {
+  cursor: progress;
+}
+
+.smallButton {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  cursor: pointer;
+}
+
+.smallButton[aria-disabled='true'] {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .formRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fieldRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+}
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .rowTitle {
+    min-height: 24px;
+    line-height: 24px;
+  }
+
+  .relatedLink,
+  .backButton {
+    min-height: 24px;
+  }
+}
+
+/* 보관함의 심화 탐구·라이브러리 즐겨찾기 표시 (조작은 각 목록에서, 2026-10-28) */
+.favoriteMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--as-color-star);
+}

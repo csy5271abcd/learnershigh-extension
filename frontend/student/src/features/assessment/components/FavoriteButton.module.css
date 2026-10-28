@@ -1,0 +1,43 @@
+.button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-tertiary);
+  cursor: pointer;
+}
+
+.button[data-size='medium'] {
+  width: 34px;
+  height: 34px;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.button[aria-pressed='true'],
+.button[aria-pressed='true']:hover:not(:disabled) {
+  color: var(--as-color-star);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.button[aria-busy='true'] {
+  cursor: progress;
+}
