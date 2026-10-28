@@ -1,7 +1,5 @@
 import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
-import { Link } from 'react-router'
-import { resourcesPath } from '../../routes/paths.ts'
-import { ClipboardIcon, InfoIcon, NoteIcon, SendIcon, SparkleIcon } from '../AssessmentIcons.tsx'
+import { ClipboardIcon, InfoIcon, NoteIcon, SendIcon } from '../AssessmentIcons.tsx'
 import styles from './detail.module.css'
 
 export type DetailPanelTab = 'criteria' | 'ai' | 'feedback' | 'resources'
@@ -18,12 +16,15 @@ interface DetailPanelProps {
   onTabChange: (tab: DetailPanelTab) => void
   assessmentTitle: string
   hasNote: boolean
+  /** 평가 기준 후보 (CriteriaTab, AUD-015) */
+  criteriaContent: ReactNode
   feedbackContent: ReactNode
-  onUnavailable: (message: string) => void
+  /** 과목 추천 자료원·내 자료 (ResourcesTab, AUD-016) */
+  resourcesContent: ReactNode
 }
 
 // 오른쪽 상세 패널 (Mockup SA-DETAIL-01·08~11): 평가 기준 / AI 도우미 / 피드백 / 자료 탭.
-export function DetailPanel({ activeTab, onTabChange, assessmentTitle, hasNote, feedbackContent, onUnavailable }: DetailPanelProps) {
+export function DetailPanel({ activeTab, onTabChange, assessmentTitle, hasNote, criteriaContent, feedbackContent, resourcesContent }: DetailPanelProps) {
   const baseId = useId()
   const tabRefs = useRef<Record<DetailPanelTab, HTMLButtonElement | null>>({
     criteria: null,
@@ -80,42 +81,12 @@ export function DetailPanel({ activeTab, onTabChange, assessmentTitle, hasNote, 
         aria-labelledby={`${baseId}-${activeTab}-tab`}
         tabIndex={0}
       >
-        {activeTab === 'criteria' && <CriteriaTab onUnavailable={onUnavailable} />}
+        {activeTab === 'criteria' && criteriaContent}
         {activeTab === 'ai' && <AiAssistantTab assessmentTitle={assessmentTitle} hasNote={hasNote} />}
         {activeTab === 'feedback' && feedbackContent}
-        {activeTab === 'resources' && <ResourcesTab />}
+        {activeTab === 'resources' && resourcesContent}
       </div>
     </aside>
-  )
-}
-
-// 평가 기준 (Mockup SA-DETAIL-01·08). 학교 원본 기준을 과제별로 조회하는 계약이 없어(§11 분석 결과의 항목 키·채점기준
-// 구조 미정, screen-map MM-20) 공식 기준을 표시하지 않는다. AI 쉬운 설명(§14)은 Stage 3에서 연결한다.
-function CriteriaTab({ onUnavailable }: { onUnavailable: (message: string) => void }) {
-  return (
-    <div className={styles.panelStack}>
-      <p className={styles.infoBox}>
-        <InfoIcon size={14} />
-        AI 설명은 이해를 돕기 위한 참고용이에요. 공식 채점 기준을 대신하지 않고, 점수를 보장하지 않아요.
-      </p>
-      <div className={styles.panelEmpty}>
-        <ClipboardIcon size={22} />
-        <p className={styles.panelEmptyTitle}>평가 기준이 아직 연결되지 않았어요</p>
-        <p className={styles.panelEmptyText}>
-          학교 평가계획서의 기준을 과제별로 불러오는 기능은 준비 중이에요. 선생님이 안내한 기준은 탐구 노트에 적어 두세요.
-        </p>
-      </div>
-      <button
-        type="button"
-        className={styles.aiButton}
-        aria-disabled="true"
-        onClick={() => onUnavailable('AI 쉬운 설명은 공식 평가 기준이 연결되고 AI 기능이 준비된 뒤 제공돼요.')}
-      >
-        <SparkleIcon size={14} />
-        AI 쉬운 설명
-        <span className={styles.menuItemNote}>준비 중</span>
-      </button>
-    </div>
   )
 }
 
@@ -169,24 +140,6 @@ export function AiAssistantTab({ assessmentTitle, hasNote }: { assessmentTitle: 
         </button>
       </div>
       <p className={styles.aiFootnote}>AI 답변은 참고용이에요. 과제는 직접 작성해 주세요.</p>
-    </div>
-  )
-}
-
-// 자료 (Mockup SA-DETAIL-11, api-contract.md §22). 추천 응답 항목 Shape이 계약에 없어(MM-21) 목록을 만들지 않는다.
-export function ResourcesTab() {
-  return (
-    <div className={styles.panelStack}>
-      <div className={styles.panelEmpty}>
-        <NoteIcon size={22} />
-        <p className={styles.panelEmptyTitle}>과목별 자료 추천은 준비 중이에요</p>
-        <p className={styles.panelEmptyText}>
-          뉴스·영상·논문·통계 자료를 추천하고 노트에 추가하는 기능이 자료함과 함께 연결될 예정이에요. 지금은 찾은 자료의 출처를 노트에 적어 두세요.
-        </p>
-        <Link to={resourcesPath} className={styles.textAction}>
-          내 자료함 열기
-        </Link>
-      </div>
     </div>
   )
 }

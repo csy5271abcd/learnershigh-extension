@@ -4,7 +4,7 @@ import { SearchIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
 import formStyles from '../AddSchoolAssessmentModal.module.css'
 import styles from './detail.module.css'
-import { NoteBlockView } from './NoteSection.tsx'
+import { NoteBlocksView } from './NoteSection.tsx'
 
 export type TemplateApplyMode = 'APPEND' | 'NEW_NOTE'
 
@@ -138,11 +138,8 @@ export function TemplateModal({ hasContent, hasUnsavedChanges, onClose, onApply 
           <p className={styles.previewLabel}>미리보기 · 적용하면 이 내용이 노트 본문에 들어가요</p>
           <div className={styles.templatePreview} tabIndex={0} aria-label={`${selected.name} 미리보기`}>
             <h3 className={styles.previewTitle}>{selected.name}</h3>
-            {selected.blocks
-              .filter((block) => block.type === 'HEADING')
-              .map((block) => (
-                <NoteBlockView key={block.blockId} block={block} />
-              ))}
+            {/* 안내 문구(흐린 글씨)는 빈 칸 자리 표시라 학생 내용으로 저장되지 않아요. */}
+            <NoteBlocksView blocks={selected.blocks} showPlaceholders />
           </div>
           {hasContent && (
             <fieldset className={styles.applyModes}>

@@ -1,7 +1,9 @@
 import type { AssessmentNote, NoteBlock } from '../../api/types.ts'
 import { formatDateTime } from '../../model/assessmentDetailView.ts'
 import type { QueryResult } from '../../model/useApiQuery.ts'
-import { InfoIcon, LinkIcon, NoteIcon, TemplateIcon } from '../AssessmentIcons.tsx'
+import { codeLanguages, headingLevel, listNumbers } from '../../model/noteEditorModel.ts'
+import { InfoIcon, NoteIcon, TemplateIcon } from '../AssessmentIcons.tsx'
+import { ChartPreview, FileMeta, MapCard, MathView, ResourceCard, VideoView, WebLinkCard } from '../notes/NoteBlockParts.tsx'
 import noteStyles from '../notes/notes.module.css'
 import { ErrorState, LoadingRows } from '../StateViews.tsx'
 import styles from './detail.module.css'
@@ -56,68 +58,114 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
 }
 
 /**
- * 읽기 전용 블록 (과거 Revision·피드백 Snapshot·비교). 계약 예시의 HEADING·PARAGRAPH 외 유형은
- * Stage 4 Mock 임시 형식(MM-33)으로 보여주고, 모르는 type은 내용을 잃지 않게 본문으로 보여준다.
+ * 읽기 전용 블록 (과거 Revision·피드백 Snapshot·비교·템플릿 미리보기). 계약 예시의 HEADING·PARAGRAPH 외 유형은
+ * Mock 임시 형식(MM-33, P-22)으로 보여주고, 모르는 type은 내용을 잃지 않게 본문으로 보여준다.
+ * 동영상은 읽기 화면에서 삽입하지 않고 링크 카드로, 파일은 이름·크기만 보여준다 (파일 본문은 저장되지 않음).
+ * `showPlaceholders`: 템플릿 미리보기에서 빈 칸의 안내 문구를 흐리게 보여준다 (학생 내용이 아님).
  */
-export function NoteBlockView({ block, number }: { block: NoteBlock; number?: number }) {
-  if (block.type === 'HEADING') return <h3 className={styles.noteHeading}>{block.text}</h3>
-  if (block.type === 'BULLET' || block.type === 'NUMBERED' || block.type === 'CHECKLIST') {
-    const marker = block.type === 'BULLET' ? '•' : block.type === 'NUMBERED' ? `${number ?? 1}.` : block.attrs?.checked ? '☑' : '☐'
-    return (
-      <p className={noteStyles.readList}>
-        <span aria-hidden="true">{marker}</span>
-        <span>
-          {block.type === 'CHECKLIST' && <span className="lh-visually-hidden">{block.attrs?.checked ? '완료: ' : '미완료: '}</span>}
-          {block.text}
-        </span>
-      </p>
-    )
+export function NoteBlockView({ block, number, showPlaceholders = false }: { block: NoteBlock; number?: number; showPlaceholders?: boolean }) {
+  const attrs = block.attrs
+  const indent = attrs?.indent ? { paddingLeft: attrs.indent * 24 } : undefined
+  const placeholder = showPlaceholders && block.text === '' && attrs?.placeholder ? <span className={noteStyles.readPlaceholder}>{attrs.placeholder}</span> : null
+  switch (block.type) {
+    case 'HEADING': {
+      const level = headingLevel(block)
+      return (
+        <h3 className={styles.noteHeading} data-level={level}>
+          {block.text || placeholder}
+        </h3>
+      )
+    }
+    case 'BULLET':
+    case 'NUMBERED':
+    case 'CHECKLIST': {
+      const marker = block.type === 'BULLET' ? '•' : block.type === 'NUMBERED' ? `${number ?? 1}.` : attrs?.checked ? '☑' : '☐'
+      return (
+        <p className={noteStyles.readList} style={indent}>
+          <span aria-hidden="true">{marker}</span>
+          <span>
+            {block.type === 'CHECKLIST' && <span className="lh-visually-hidden">{attrs?.checked ? '완료: ' : '미완료: '}</span>}
+            {block.text || placeholder}
+          </span>
+        </p>
+      )
+    }
+    case 'QUOTE':
+      return <blockquote className={noteStyles.readQuote}>{block.text || placeholder}</blockquote>
+    case 'CALLOUT':
+      return (
+        <div className={noteStyles.callout}>
+          <span aria-hidden="true">{attrs?.emoji ?? '💡'}</span>
+          <p className={styles.noteParagraph}>{block.text || placeholder}</p>
+        </div>
+      )
+    case 'TOGGLE':
+      return (
+        <details className={noteStyles.readToggle} open>
+          <summary>{block.text || placeholder || '토글'}</summary>
+          {attrs?.body && <p className={styles.noteParagraph}>{attrs.body}</p>}
+        </details>
+      )
+    case 'CODE':
+      return (
+        <div className={noteStyles.codeBlock}>
+          <span className={noteStyles.mediaCaption}>{codeLanguages.find((item) => item.value === attrs?.language)?.label ?? '코드'}</span>
+          <pre className={noteStyles.mathSource}>{block.text}</pre>
+        </div>
+      )
+    case 'MATH':
+      return <MathView source={block.text} />
+    case 'DIVIDER':
+      return <hr className={noteStyles.readDivider} />
+    case 'TABLE':
+      return (
+        <table className={noteStyles.readTable}>
+          <tbody>
+            {(attrs?.rows ?? []).map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )
+    case 'CHART':
+      return (
+        <div className={noteStyles.chartBlock}>
+          {block.text && <p className={styles.noteParagraph}>{block.text}</p>}
+          <ChartPreview rows={attrs?.rows} title={block.text} />
+        </div>
+      )
+    case 'RESOURCE_LINK':
+      return <ResourceCard resource={attrs?.resource} fallbackTitle={block.text || '참고자료 (아직 고르지 않음)'} withDetailLink={false} />
+    case 'LINK':
+      return attrs?.url ? <WebLinkCard url={attrs.url} title={block.text} /> : <p className={noteStyles.mediaCaption}>링크 주소 없음</p>
+    case 'VIDEO':
+      return attrs?.url ? <VideoView url={attrs.url} title={block.text} embed={false} /> : <p className={noteStyles.mediaCaption}>동영상 주소 없음</p>
+    case 'MAP':
+      return <MapCard place={attrs?.place ?? ''} url={attrs?.url} />
+    case 'IMAGE':
+    case 'FILE':
+      return attrs?.file?.name ? (
+        <FileMeta file={attrs.file} previewUrl={undefined} isImage={block.type === 'IMAGE'} />
+      ) : (
+        <p className={noteStyles.mediaCaption}>{block.type === 'IMAGE' ? '이미지' : '파일'}을 아직 고르지 않았어요.</p>
+      )
+    default:
+      if (block.text === '') return placeholder ? <p className={styles.noteParagraph}>{placeholder}</p> : <p className={styles.noteEmptyParagraph} aria-hidden="true" />
+      return <p className={styles.noteParagraph}>{block.text}</p>
   }
-  if (block.type === 'QUOTE') return <blockquote className={noteStyles.readQuote}>{block.text}</blockquote>
-  if (block.type === 'TABLE') {
-    return (
-      <table className={noteStyles.readTable}>
-        <tbody>
-          {(block.attrs?.rows ?? []).map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    )
-  }
-  if (block.type === 'RESOURCE_LINK') {
-    const resource = block.attrs?.resource
-    return (
-      <div className={noteStyles.linkCard}>
-        <span className={noteStyles.linkIcon} aria-hidden="true">
-          <LinkIcon size={14} />
-        </span>
-        <span>
-          <span className={noteStyles.linkMeta}>{resource?.sourceName ?? '출처 미입력'}</span>
-          <span className={noteStyles.linkTitle}>{resource?.title ?? block.text}</span>
-          {resource?.sourceUrl && <span className={noteStyles.linkUrl}>{resource.sourceUrl}</span>}
-        </span>
-      </div>
-    )
-  }
-  if (block.text === '') return <p className={styles.noteEmptyParagraph} aria-hidden="true" />
-  return <p className={styles.noteParagraph}>{block.text}</p>
 }
 
-/** 블록 목록 (번호 목록은 연속된 NUMBERED끼리 1부터 센다) */
-export function NoteBlocksView({ blocks }: { blocks: NoteBlock[] }) {
-  const numbers = blocks.reduce<number[]>((acc, block, index) => {
-    acc.push(block.type === 'NUMBERED' ? (index > 0 ? acc[index - 1] : 0) + 1 : 0)
-    return acc
-  }, [])
+/** 블록 목록 (번호 목록은 같은 들여쓰기의 연속된 NUMBERED끼리 1부터 센다) */
+export function NoteBlocksView({ blocks, showPlaceholders = false }: { blocks: NoteBlock[]; showPlaceholders?: boolean }) {
+  const numbers = listNumbers(blocks)
   return (
     <>
       {blocks.map((block, index) => (
-        <NoteBlockView key={block.blockId} block={block} number={numbers[index] || undefined} />
+        <NoteBlockView key={block.blockId} block={block} number={numbers[index] || undefined} showPlaceholders={showPlaceholders} />
       ))}
     </>
   )

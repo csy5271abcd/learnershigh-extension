@@ -8,9 +8,11 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "lint": "oxlint --deny-warnings",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "exam-manifest": "node tools/university-exam-manifest.mjs"
   },
   "dependencies": {
+    "pdfjs-dist": "5.4.296",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-router": "7.18.4"

@@ -3,9 +3,10 @@ import { Link, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { listArchive, setArchiveFavorite } from '../api/growthArchiveApi.ts'
 import type { ArchiveItem, ArchiveTab } from '../api/types.ts'
-import { BulbIcon, ClipboardIcon, DownloadIcon, FolderIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
+import { BookIcon, BulbIcon, ClipboardIcon, DownloadIcon, FolderIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import styles from '../components/growth/growthArchive.module.css'
+import { FavoriteButton } from '../components/FavoriteButton.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -13,25 +14,25 @@ import { formatDateTime } from '../model/assessmentDetailView.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { archiveMetaLine, archiveTabs, countArchiveSubjects, parseArchiveTab, subjectNameIn } from '../model/growthArchiveView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
-import { archivePath, enrichmentTaskDetailPath, schoolAssessmentDetailPath } from './paths.ts'
+import { archivePath, archiveSourcePath } from './paths.ts'
 
 const pageSize = 100
 const searchDebounceMs = 250
 
 const emptyTexts: Record<ArchiveTab, { title: string; description: string }> = {
   recent: { title: '아직 기록이 없어요', description: '학교 수행평가나 심화 탐구를 시작하면 여기에서 다시 찾을 수 있어요.' },
-  favorites: { title: '즐겨찾기한 기록이 없어요', description: '자주 보는 학교 수행평가에 별표를 눌러 두면 여기에 모여요.' },
+  favorites: { title: '즐겨찾기한 기록이 없어요', description: '자주 보는 수행평가·심화 탐구·탐구 라이브러리에 별표를 눌러 두면 여기에 모여요.' },
   completed: { title: '완료한 기록이 없어요', description: '완료로 바꾼 학교 수행평가와 심화 탐구가 여기에 모여요.' },
   'previous-semesters': { title: '이전 학기 기록이 없어요', description: '지난 학기의 학교 수행평가가 여기에 모여요.' },
   trash: { title: '휴지통이 비어 있어요', description: '삭제 기능은 정책이 정해진 뒤 제공돼요.' },
 }
 
-const itemPath = (item: ArchiveItem) =>
-  item.sourceType === 'SCHOOL_ASSESSMENT' ? schoolAssessmentDetailPath(item.sourceId) : enrichmentTaskDetailPath(item.sourceId)
+const itemPath = (item: ArchiveItem) => archiveSourcePath(item.sourceType, item.sourceId)
 
 // 보관함 (screen-map S23, Mockup AR-TAB-01~05, api-contract.md §30).
 // 원본(학교 수행평가·심화 탐구)을 다시 조회하는 Projection이다. 보관함 사본을 만들지 않고, 행은 원본 상세로 이동한다.
-// 즐겨찾기는 §30 예시가 있는 SCHOOL_ASSESSMENT만 바꿀 수 있다 (MM-40). 새 폴더·내보내기·사용자 폴더는 계약이 없어 비활성 (MM-41).
+// 즐겨찾기 표시는 모든 유형을 보여주지만, 여기서 바꿀 수 있는 것은 §30 예시 유형(SCHOOL_ASSESSMENT)뿐이다 (MM-40).
+// 심화 탐구·라이브러리(Mock 전용 P-22)는 내 탐구·탐구 라이브러리 목록에서 바꾼다. 새 폴더·내보내기·사용자 폴더는 계약이 없어 비활성 (MM-41).
 // 휴지통 복구·영구 삭제는 정책 미정(API-OD-A08, OD-A11)이라 실행하지 않는다. "30일 뒤 삭제" 안내는 정책이 아니라 표시하지 않는다.
 // Mockup 최근 기록의 피드백 행은 §30 sourceType에 없어 넣지 않는다 (MM-39).
 export function ArchiveRoute() {
@@ -208,7 +209,7 @@ export function ArchiveRoute() {
               <ul className={styles.rows}>
                 {items.map((item) => {
                   const key = `${item.sourceType}:${item.sourceId}`
-                  const Icon = item.sourceType === 'SCHOOL_ASSESSMENT' ? ClipboardIcon : BulbIcon
+                  const Icon = item.sourceType === 'SCHOOL_ASSESSMENT' ? ClipboardIcon : item.sourceType === 'ENRICHMENT_TASK' ? BulbIcon : BookIcon
                   return (
                     <li key={key} className={styles.row}>
                       <Icon size={18} className={styles.rowIcon} />
@@ -222,8 +223,8 @@ export function ArchiveRoute() {
                         )}
                         <span className={styles.rowMeta}>
                           {tab === 'trash' && item.deletedAt
-                            ? `${archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab)} · ${formatDateTime(item.deletedAt)} 삭제`
-                            : archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab)}
+                            ? `${archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab, terms.data?.currentTerm)} · ${formatDateTime(item.deletedAt)} 삭제`
+                            : archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab, terms.data?.currentTerm)}
                         </span>
                       </span>
                       <span className={styles.rowEnd}>
@@ -239,17 +240,22 @@ export function ArchiveRoute() {
                         ) : (
                           <>
                             {item.noteBlockCount !== null && <span>노트 {item.noteBlockCount}블록</span>}
-                            {item.sourceType === 'SCHOOL_ASSESSMENT' && (
-                              <button
-                                type="button"
-                                className={styles.starButton}
-                                aria-pressed={item.favorite}
-                                aria-label={`${item.title} 즐겨찾기`}
-                                disabled={pendingFavorite === key}
-                                onClick={() => void toggleFavorite(item)}
-                              >
-                                <StarIcon size={16} filled={item.favorite} />
-                              </button>
+                            {/* 보관함은 원본 상태를 보여주고 원본으로 이동한다. Stage 5부터 있던 학교 수행평가 행 별표만 유지하고,
+                                심화 탐구·라이브러리 즐겨찾기는 각 목록에서 바꾼다 (2026-10-28 사용자 요청). */}
+                            {item.sourceType === 'SCHOOL_ASSESSMENT' ? (
+                              <FavoriteButton
+                                favorite={item.favorite}
+                                pending={pendingFavorite === key}
+                                title={item.title}
+                                onToggle={() => void toggleFavorite(item)}
+                              />
+                            ) : (
+                              item.favorite && (
+                                <span className={styles.favoriteMark} title="즐겨찾기 (목록에서 바꿀 수 있어요)">
+                                  <StarIcon size={16} filled />
+                                  <span className="lh-visually-hidden">즐겨찾기</span>
+                                </span>
+                              )
                             )}
                           </>
                         )}

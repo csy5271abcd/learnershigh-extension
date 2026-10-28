@@ -9,6 +9,7 @@ import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
 import {
   ArchiveIcon,
   BooksIcon,
+  OpenBookIcon,
   BulbIcon,
   CapIcon,
   ChatIcon,
@@ -18,7 +19,10 @@ import {
   MenuIcon,
   SproutIcon,
 } from '../components/AssessmentIcons.tsx'
+import { AddSubjectModal } from '../components/AddSubjectModal.tsx'
+import { SidebarSubjects } from '../components/SidebarSubjects.tsx'
 import { TermSelector } from '../components/TermSelector.tsx'
+import { Toast, type ToastMessage } from '../components/Toast.tsx'
 import { isSameTerm, termCandidates, termKey, termLabel } from '../model/academicTerm.ts'
 import {
   AssessmentWorkspaceContext,
@@ -27,6 +31,7 @@ import {
   type TermAssessments,
 } from '../model/assessmentWorkspace.ts'
 import { countBySubject } from '../model/schoolAssessmentView.ts'
+import { subjectCandidates } from '../model/subjectName.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
 import '../styles/assessmentTheme.css'
 import styles from './AssessmentLayout.module.css'
@@ -39,6 +44,7 @@ import {
   growthSection,
   tipsSection,
   resourcesSection,
+  referenceLinksSection,
   schoolAssessmentsPath,
   subjectAssessmentsPath,
 } from './paths.ts'
@@ -105,6 +111,10 @@ export function AssessmentLayout() {
   }
 
   const notifyDataChanged = useCallback(() => setDataVersion((value) => value + 1), [])
+  // 과목 추가 Modal (2026-10-28): 진입점이 여러 곳이어도 Modal·등록 로직은 여기 하나다. Sidebar overflow에 잘리지 않게 Sidebar 밖에서 그린다.
+  const [addSubjectFor, setAddSubjectFor] = useState<AcademicContext>()
+  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const dismissToast = useCallback(() => setToast(null), [])
   const workspace = useMemo<AssessmentWorkspace>(
     () => ({
       terms,
@@ -114,6 +124,7 @@ export function AssessmentLayout() {
       termAssessments,
       dataVersion,
       notifyDataChanged,
+      requestAddSubject: setAddSubjectFor,
     }),
     [terms, selectedTerm, selectedContext, termAssessments, dataVersion, notifyDataChanged],
   )
@@ -169,12 +180,13 @@ export function AssessmentLayout() {
               ))}
             </ul>
 
-            <p className={styles.groupLabel} id="assessment-subject-group">
-              과목
-            </p>
-            {selectedContext && selectedContext.subjects.length > 0 ? (
-              <ul className={styles.menu} aria-labelledby="assessment-subject-group">
-                {selectedContext.subjects.map((subject) => (
+            {selectedContext ? (
+              // 과목 9개 이하는 기존 목록 그대로, 10개 이상이면 검색·접기 (2026-10-28). 과목 식별은 subjectId로 한다.
+              // 학기를 바꿔도 검색어·접힘은 유지하고 새 학기 과목에 다시 적용한다 (없는 과목으로 이동하지 않음).
+              <SidebarSubjects
+                subjects={selectedContext.subjects}
+                onAddSubject={() => setAddSubjectFor(selectedContext)}
+                renderSubject={(subject) => (
                   <MenuLink
                     key={subject.subjectId}
                     to={subjectAssessmentsPath(subject.subjectId)}
@@ -185,12 +197,13 @@ export function AssessmentLayout() {
                   >
                     {subject.name}
                   </MenuLink>
-                ))}
-              </ul>
+                )}
+              />
             ) : (
-              <p className={styles.groupEmpty}>
-                {terms.status === 'loading' ? '불러오는 중…' : selectedContext ? '등록된 과목이 없어요' : '학업 정보 없음'}
-              </p>
+              <>
+                <p className={styles.groupLabel}>과목</p>
+                <p className={styles.groupEmpty}>{terms.status === 'loading' ? '불러오는 중…' : '학업 정보 없음'}</p>
+              </>
             )}
           </nav>
 
@@ -224,6 +237,26 @@ export function AssessmentLayout() {
           </div>
           <Outlet />
         </div>
+        {addSubjectFor && (
+          <AddSubjectModal
+            context={addSubjectFor}
+            candidates={subjectCandidates(terms.data?.contexts ?? [], addSubjectFor)}
+            onClose={() => setAddSubjectFor(undefined)}
+            onAdded={(subject, origin) => {
+              setAddSubjectFor(undefined)
+              notifyDataChanged()
+              setToast((previous) => ({
+                id: (previous?.id ?? 0) + 1,
+                tone: 'success',
+                text:
+                  origin === 'CREATED'
+                    ? `'${subject.name}' 과목을 추가했어요. 시연용이라 이 브라우저에만 저장돼요.`
+                    : `다른 학기에서 쓰던 '${subject.name}' 과목을 이 학기에 추가했어요.`,
+              }))
+            }}
+          />
+        )}
+        <Toast message={toast} onDismiss={dismissToast} />
       </div>
     </AssessmentWorkspaceContext.Provider>
   )
@@ -234,6 +267,7 @@ const pendingMenu: { path: string; label: string; icon: ComponentType<{ classNam
   { ...enrichmentSection, icon: BulbIcon },
   { ...feedbackSection, icon: ChatIcon },
   { ...resourcesSection, icon: BooksIcon },
+  { ...referenceLinksSection, icon: OpenBookIcon },
   { ...growthSection, icon: SproutIcon },
   { ...archiveSection, icon: ArchiveIcon },
   { ...tipsSection, icon: BulbIcon },

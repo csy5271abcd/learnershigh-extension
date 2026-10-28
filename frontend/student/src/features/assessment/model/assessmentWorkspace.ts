@@ -28,6 +28,8 @@ export interface AssessmentWorkspace {
   /** 생성·상태 변경 등 Mutation 뒤 관련 조회를 다시 하도록 올리는 값 */
   dataVersion: number
   notifyDataChanged: () => void
+  /** 과목 추가 Modal 열기 (학교·학업 정보와 Sidebar "+"가 같은 Modal·등록 로직을 쓴다). context = 과목을 넣을 학기 */
+  requestAddSubject: (context: AcademicContext) => void
 }
 
 export const AssessmentWorkspaceContext = createContext<AssessmentWorkspace | null>(null)

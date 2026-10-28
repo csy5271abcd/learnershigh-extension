@@ -1,48 +1,67 @@
-import { useCallback, useState } from 'react'
-import { useSearchParams } from 'react-router'
-import { listUniversityResources } from '../api/enrichmentApi.ts'
-import { ChevronDownIcon, FileIcon, InfoIcon, LinkIcon } from '../components/AssessmentIcons.tsx'
+import { useState } from 'react'
+import { useLocation, useSearchParams } from 'react-router'
+import type { UniversityExamCategory, UniversityExamDocument } from '../api/types.ts'
+import { getUniversityExamFileStates, listUniversityExamDocuments } from '../api/universityExamApi.ts'
+import { ChevronDownIcon, CloseIcon, InfoIcon, SlidersIcon } from '../components/AssessmentIcons.tsx'
 import type { CreateEnrichmentPrefill } from '../components/enrichment/CreateEnrichmentModal.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
-import styles from '../components/enrichment/enrichment.module.css'
+import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
-import { Toast, type ToastMessage } from '../components/Toast.tsx'
+import { examTaskPrefill } from '../components/university/examTaskPrefill.ts'
+import { UniversityExamRow } from '../components/university/UniversityExamRow.tsx'
+import styles from '../components/university/university.module.css'
+import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
+import { examCategoryLabels, examCategoryOrder, matchesExamSearch } from '../model/universityExamView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
 
-const pageSize = 100
+/** 대학 선택 (학교 공식 로고 없이 이름). 문서 수는 받은 목록에서 센다. */
+const universityTabs = [
+  { key: 'snu', name: '서울대학교', match: '서울대학교' },
+  { key: 'kaist', name: 'KAIST', match: 'KAIST' },
+] as const
 
-// 대학 공개 자료 (screen-map S20, Mockup AE-UNI-01, inquiry §9 ST-17, api-contract.md §27).
-// 대학명은 고정 Enum이 아니라 응답에 있는 값으로 Chip을 만든다. 외부 사이트를 실시간 검색하지 않는다.
-// 원본 링크는 확인된 공식 URL이 있을 때만 연다. 미리보기(원문 표시)는 이용 조건·저장소 결정 전이라 제공하지 않는다 (API-OD-A11).
-// Mockup의 대학 공식 자료 페이지 카드·분야 필터는 §27 응답에 없어 표시하지 않는다 (MM-29).
+type UniversityKey = (typeof universityTabs)[number]['key']
+
+const parseUniversity = (value: string | null): UniversityKey | undefined => universityTabs.find((tab) => tab.key === value)?.key
+
+const sortOptions = [
+  { value: 'recent', label: '학년도 최신순' },
+  { value: 'oldest', label: '학년도 오래된순' },
+  { value: 'title', label: '자료명순' },
+] as const
+
+type SortKey = (typeof sortOptions)[number]['value']
+
+/** 같은 학년도 안에서는 받은 순서(대학·자료 순)를 유지한다 */
+function sortDocuments(documents: UniversityExamDocument[], sort: SortKey): UniversityExamDocument[] {
+  const sorted = [...documents]
+  if (sort === 'title') sorted.sort((a, b) => a.title.localeCompare(b.title, 'ko'))
+  else sorted.sort((a, b) => (sort === 'recent' ? b.academicYear - a.academicYear : a.academicYear - b.academicYear))
+  return sorted
+}
+
+// 대학별 자료 (screen-map S20, 2026-10-28 목록형으로 간소화, P-25 PROPOSED). SNU·KAIST 실제 기출·예시 PDF를 한 줄씩 보여주고
+// 원문은 앱 안 PDF 화면에서 연다. 검색은 위 검색창(문서 목록 검색, PDF 본문 검색 아님), 대학은 칩, 학년도·과목·유형은 "필터"에서 고른다.
+// 조건은 URL Query(university, year, subject, type, sort, q)에 둔다.
 export function UniversityResourcesRoute() {
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { selectedContext } = useAssessmentWorkspace()
   const query = searchParams.get('q') ?? ''
+  const university = parseUniversity(searchParams.get('university'))
   const yearParam = Number(searchParams.get('year')) || undefined
-  const typeParam = searchParams.get('type') ?? ''
-  const [openIdeas, setOpenIdeas] = useState<string>()
+  const subjectParam = searchParams.get('subject') ?? ''
+  const typeParam = (examCategoryOrder as string[]).includes(searchParams.get('type') ?? '') ? (searchParams.get('type') as UniversityExamCategory) : undefined
+  const sort: SortKey = sortOptions.find((option) => option.value === searchParams.get('sort'))?.value ?? 'recent'
   const [createRequest, setCreateRequest] = useState<CreateEnrichmentPrefill | null>(null)
-  const [toast, setToast] = useState<ToastMessage | null>(null)
-  const dismissToast = useCallback(() => setToast(null), [])
-  const notify = (text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone: 'info', text }))
+  const activeFilterCount = [yearParam, subjectParam, typeParam].filter(Boolean).length
+  // 조건이 걸린 채로 들어오면(뒤로 가기 등) 필터를 펼쳐 둔다.
+  const [filterOpen, setFilterOpen] = useState(activeFilterCount > 0)
 
-  // 대학·학년도 선택지는 조건 없이 받은 목록에서 만든다 (숫자·이름을 화면에 고정하지 않는다).
-  const all = useApiQuery('ae-uni-all', () => listUniversityResources({ page: 0, size: pageSize }))
-  const universities = [...new Set(all.data?.items.map((item) => item.university) ?? [])]
-  const universityParam = searchParams.get('university')
-  const university = universityParam && universities.includes(universityParam) ? universityParam : universities[0]
-  const years = [...new Set(all.data?.items.map((item) => item.academicYear) ?? [])].sort((a, b) => b - a)
-
-  const resources = useApiQuery(`ae-uni|${university ?? ''}|${yearParam ?? ''}|${query}`, () =>
-    university
-      ? listUniversityResources({ university, academicYear: yearParam, query: query || undefined, page: 0, size: pageSize })
-      : new Promise<never>(() => {}),
-  )
-  const items = resources.data?.items ?? []
-  const types = [...new Set(items.map((item) => item.resourceType))]
-  // 자료 유형은 §27 Query에 없어 받은 목록 안에서만 거른다 (화면 필터). 검색어는 §27 query로 보낸다.
-  const visible = items.filter((item) => !typeParam || item.resourceType === typeParam)
+  const documents = useApiQuery('ae-uni-exams', () => listUniversityExamDocuments())
+  const fileStates = useApiQuery('ae-uni-exam-files', () => getUniversityExamFileStates())
+  const all = documents.data?.items ?? []
 
   const updateParams = (changes: Record<string, string | undefined>) =>
     setSearchParams(
@@ -57,189 +76,236 @@ export function UniversityResourcesRoute() {
       { replace: true, preventScrollReset: true },
     )
 
-  const loading = !all.data || (university !== undefined && !resources.data)
-  const error = all.status === 'error' ? all.error : resources.status === 'error' ? resources.error : undefined
-  const retry = all.status === 'error' ? all.retry : resources.retry
+  const matchesUniversity = (document: UniversityExamDocument) =>
+    !university || document.university === universityTabs.find((tab) => tab.key === university)?.match
+  const inUniversity = all.filter(matchesUniversity)
+  const years = [...new Set(inUniversity.map((document) => document.academicYear))].sort((a, b) => b - a)
+  const subjects = [...new Set(inUniversity.flatMap((document) => document.subjectAreas))]
+  const visible = sortDocuments(
+    inUniversity.filter(
+      (document) =>
+        (!yearParam || document.academicYear === yearParam) &&
+        (!subjectParam || document.subjectAreas.includes(subjectParam)) &&
+        (!typeParam || document.category === typeParam) &&
+        matchesExamSearch(document, query),
+    ),
+    sort,
+  )
+  const resetFilters = () => updateParams({ year: undefined, subject: undefined, type: undefined })
+  const resetAll = () => updateParams({ year: undefined, subject: undefined, type: undefined, q: undefined })
+  // 대학을 바꾸면 그 대학에 없는 학년도·과목 조건은 의미가 없어 지운다 (유형·검색어·정렬은 그대로).
+  const selectUniversity = (key: UniversityKey | undefined) => updateParams({ university: key, year: undefined, subject: undefined })
+
+  const appliedFilters = [
+    yearParam ? { key: 'year', label: `${yearParam}학년도` } : null,
+    subjectParam ? { key: 'subject', label: subjectParam } : null,
+    typeParam ? { key: 'type', label: examCategoryLabels[typeParam] } : null,
+  ].filter((item): item is { key: string; label: string } => item !== null)
 
   return (
-    <EnrichmentFrame createRequest={createRequest} onCreateRequestHandled={() => setCreateRequest(null)}>
-      <div className={styles.uniArea}>
-        <div className={styles.infoBanner}>
-          <InfoIcon size={15} />
-          <p>
-            대학이 공식 공개한 자료를 자율 심화 탐구의 참고자료로 살펴봐요. 면접 연습 기능은 없어요. 원문은 각 대학 공식 사이트에서 열리고,
-            문서명·학년도·분류는 원본에서 꼭 확인해 주세요.
-          </p>
-        </div>
+    <EnrichmentFrame
+      createRequest={createRequest}
+      onCreateRequestHandled={() => setCreateRequest(null)}
+      searchPlaceholder="자료 제목, 과목, 핵심 개념으로 찾기"
+    >
+      <div className={styles.listArea}>
+        <header className={styles.intro}>
+          <h2 className={styles.introTitle}>대학별 자료</h2>
+          <p className={styles.introBody}>대학별 기출·예시 문항을 살펴보고, 관심 있는 주제로 심화 탐구를 시작하세요.</p>
+        </header>
 
-        {error ? (
-          <div className={styles.stateArea}>
-            <ErrorState title="대학 공개 자료를 불러오지 못했어요" error={error} onRetry={retry} />
+        {documents.status === 'error' && documents.error ? (
+          <div className={enrichmentStyles.stateArea}>
+            <ErrorState title="대학별 자료를 불러오지 못했어요" error={documents.error} onRetry={documents.retry} />
           </div>
-        ) : loading ? (
-          <div className={styles.stateArea}>
-            <LoadingRows rows={3} label="대학 공개 자료를 불러오는 중" />
+        ) : !documents.data ? (
+          <div className={enrichmentStyles.stateArea}>
+            <LoadingRows rows={4} label="대학별 자료를 불러오는 중" />
           </div>
-        ) : universities.length === 0 ? (
-          <div className={styles.stateArea}>
-            <EmptyState title="아직 공개된 대학 자료가 없어요" description="관리자가 확인한 공식 자료가 등록되면 여기에 보여요." />
+        ) : all.length === 0 ? (
+          <div className={enrichmentStyles.stateArea}>
+            <EmptyState title="아직 등록된 대학 자료가 없어요" description="확인된 대학 기출·예시 자료가 등록되면 여기에 보여요." />
           </div>
         ) : (
           <>
-            <div className={styles.chips} role="group" aria-label="대학">
-              {universities.map((name) => (
-                <button
-                  key={name}
-                  type="button"
-                  className={styles.chip}
-                  aria-pressed={name === university}
-                  onClick={() => updateParams({ university: name, type: undefined })}
-                >
-                  {name}
+            <div className={styles.listToolbar}>
+              <div className={styles.chips} role="group" aria-label="대학">
+                <button type="button" className={styles.chip} aria-pressed={!university} onClick={() => selectUniversity(undefined)}>
+                  전체 <span>{all.length}</span>
                 </button>
-              ))}
-            </div>
-
-            <div className={styles.filterRow}>
-              <span className={styles.selectWrap}>
-                <label className="lh-visually-hidden" htmlFor="uni-year">
-                  학년도
-                </label>
-                <select
-                  id="uni-year"
-                  className={styles.select}
-                  value={yearParam ?? ''}
-                  onChange={(event) => updateParams({ year: event.target.value || undefined })}
-                >
-                  <option value="">전체 학년도</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}학년도
-                    </option>
-                  ))}
-                </select>
-                <ChevronDownIcon size={14} className={styles.selectChevron} />
-              </span>
-              <div className={styles.textFilters} role="group" aria-label="자료 유형">
-                <button type="button" className={styles.textFilter} aria-pressed={!typeParam} onClick={() => updateParams({ type: undefined })}>
-                  전체
-                </button>
-                {types.map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    className={styles.textFilter}
-                    aria-pressed={typeParam === type}
-                    onClick={() => updateParams({ type })}
-                  >
-                    {type}
+                {universityTabs.map((tab) => (
+                  <button key={tab.key} type="button" className={styles.chip} aria-pressed={university === tab.key} onClick={() => selectUniversity(tab.key)}>
+                    {tab.name} <span>{all.filter((document) => document.university === tab.match).length}</span>
                   </button>
                 ))}
               </div>
+              <div className={styles.toolbarRight}>
+                <button
+                  type="button"
+                  className={styles.quietButton}
+                  aria-expanded={filterOpen}
+                  aria-controls="uni-filter-panel"
+                  onClick={() => setFilterOpen(!filterOpen)}
+                >
+                  <SlidersIcon size={14} />
+                  필터{activeFilterCount > 0 ? ` ${activeFilterCount}` : ''}
+                </button>
+                <FilterSelect
+                  id="uni-sort"
+                  label="정렬"
+                  value={sort}
+                  options={sortOptions.map((option) => ({ value: option.value, label: option.label }))}
+                  onChange={(value) => updateParams({ sort: value === 'recent' ? undefined : value })}
+                />
+              </div>
             </div>
 
-            {visible.length === 0 ? (
-              <div className={styles.stateArea}>
-                <EmptyState title="조건에 맞는 자료가 없어요" description="학년도나 자료 유형을 바꿔 보세요." />
+            <div id="uni-filter-panel" className={styles.filterPanel} hidden={!filterOpen}>
+              {filterOpen && (
+                <>
+                  <FilterSelect
+                    id="uni-year"
+                    label="학년도"
+                    value={yearParam ? String(yearParam) : ''}
+                    allLabel="전체 학년도"
+                    options={years.map((year) => ({ value: String(year), label: `${year}학년도` }))}
+                    onChange={(value) => updateParams({ year: value })}
+                  />
+                  <FilterSelect
+                    id="uni-subject"
+                    label="과목·영역"
+                    value={subjectParam}
+                    allLabel="전체 과목·영역"
+                    options={subjects.map((subject) => ({ value: subject, label: subject }))}
+                    onChange={(value) => updateParams({ subject: value })}
+                  />
+                  <FilterSelect
+                    id="uni-type"
+                    label="자료 유형"
+                    value={typeParam ?? ''}
+                    allLabel="전체 유형"
+                    options={examCategoryOrder.map((category) => ({
+                      value: category,
+                      label: `${examCategoryLabels[category]} (${inUniversity.filter((document) => document.category === category).length})`,
+                    }))}
+                    onChange={(value) => updateParams({ type: value })}
+                  />
+                </>
+              )}
+            </div>
+
+            {appliedFilters.length > 0 && (
+              <div className={styles.appliedFilters} role="group" aria-label="적용된 조건">
+                <span className={styles.rowMeta}>적용된 조건</span>
+                {appliedFilters.map((filter) => (
+                  <button
+                    key={filter.key}
+                    type="button"
+                    className={styles.appliedChip}
+                    aria-label={`${filter.label} 조건 지우기`}
+                    onClick={() => updateParams({ [filter.key]: undefined })}
+                  >
+                    {filter.label}
+                    <CloseIcon size={11} />
+                  </button>
+                ))}
+                <button type="button" className={styles.linkButton} onClick={resetFilters}>
+                  필터 초기화
+                </button>
+              </div>
+            )}
+
+            <p className={styles.resultLine}>
+              <span>
+                자료 <strong>{visible.length}</strong>개{query ? ` · '${query}' 검색` : ''}
+              </span>
+              <span className={styles.scopeNote}>
+                <InfoIcon size={12} />
+                검색은 문서 제목·대학·과목·원문 핵심 개념·문항 이름에서 찾아요 (PDF 본문 전체 검색은 아직 없어요)
+              </span>
+            </p>
+
+            {inUniversity.length === 0 ? (
+              <div className={enrichmentStyles.stateArea}>
+                <EmptyState title="이 대학의 자료가 아직 없어요" description="다른 대학을 선택하거나 전체 자료를 둘러보세요." />
+              </div>
+            ) : visible.length === 0 ? (
+              <div className={enrichmentStyles.stateArea}>
+                <EmptyState
+                  title="조건에 맞는 자료가 없어요"
+                  description="검색어나 학년도·과목·유형을 바꿔 보세요."
+                  action={
+                    <button type="button" className={styles.quietButton} onClick={resetAll}>
+                      검색·필터 초기화
+                    </button>
+                  }
+                />
               </div>
             ) : (
-              <ul className={styles.resourceList} aria-label={`${university} 공개 자료`}>
-                {visible.map((item) => {
-                  const ideasOpen = openIdeas === item.resourceId
-                  return (
-                    <li key={item.resourceId} className={styles.resourceRow}>
-                      <div className={styles.resourceMain}>
-                        <span className={styles.fileIcon} aria-hidden="true">
-                          <FileIcon size={15} />
-                        </span>
-                        <span className={styles.rowText}>
-                          <span className={styles.rowTitle}>{item.title}</span>
-                          <span className={styles.resourceMeta}>
-                            <span className={styles.badge} data-tone="blue">
-                              {item.resourceType}
-                            </span>
-                            {item.university} · {item.academicYear}학년도 ·{' '}
-                            {item.officialUrl ? '공식 사이트에서 확인' : '확인된 원본 링크 없음 (시연 데이터)'}
-                          </span>
-                        </span>
-                        <span className={styles.resourceActions}>
-                          <button
-                            type="button"
-                            className={styles.outlineButton}
-                            aria-disabled="true"
-                            onClick={() => notify('미리보기는 자료 이용 조건과 파일 보관 방식이 정해진 뒤 제공돼요. 원문은 공식 사이트에서 확인해 주세요.')}
-                          >
-                            미리보기
-                          </button>
-                          {item.officialUrl ? (
-                            <a className={styles.outlineButton} href={item.officialUrl} target="_blank" rel="noreferrer">
-                              원본 열기
-                              <LinkIcon size={12} />
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              className={styles.outlineButton}
-                              aria-disabled="true"
-                              onClick={() => notify('확인된 공식 원본 링크가 없는 시연 자료예요.')}
-                            >
-                              원본 열기
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className={styles.outlineButton}
-                            aria-expanded={ideasOpen}
-                            aria-controls={`ideas-${item.resourceId}`}
-                            onClick={() => setOpenIdeas(ideasOpen ? undefined : item.resourceId)}
-                          >
-                            탐구 아이디어
-                            <ChevronDownIcon size={13} />
-                          </button>
-                        </span>
-                      </div>
-                      {ideasOpen && (
-                        <div id={`ideas-${item.resourceId}`} className={styles.ideaBox}>
-                          {item.relatedConcepts.length > 0 && (
-                            <p>
-                              <span className={styles.previewLabel}>관련 교과 개념 </span>
-                              {item.relatedConcepts.join(', ')}
-                            </p>
-                          )}
-                          <ul className={styles.bulletList}>
-                            {item.inquiryIdeas.map((idea) => (
-                              <li key={idea}>{idea}</li>
-                            ))}
-                          </ul>
-                          <button
-                            type="button"
-                            className={styles.textLink}
-                            onClick={() =>
-                              setCreateRequest({
-                                title: '',
-                                goal: item.inquiryIdeas[0] ?? '',
-                                sourceReference: { type: 'UNIVERSITY_RESOURCE', sourceId: item.resourceId },
-                                sourceTitle: `${item.university} · ${item.title}`,
-                              })
-                            }
-                          >
-                            이 자료로 심화 탐구 시작
-                          </button>
-                        </div>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
+              <div className={styles.examTable}>
+                <div className={styles.examHead} aria-hidden="true">
+                  <span>자료명</span>
+                  <span>대학·학년도</span>
+                  <span>과목·영역</span>
+                  <span>분량</span>
+                  <span>작업</span>
+                </div>
+                <ul className={styles.examList} aria-label="대학별 PDF 자료">
+                  {visible.map((document) => (
+                    <UniversityExamRow
+                      key={document.documentId}
+                      document={document}
+                      fileState={fileStates.data?.[document.documentId] ?? 'UNKNOWN'}
+                      listSearch={location.search}
+                      onStartTask={(target) => setCreateRequest(examTaskPrefill(target, null, null, selectedContext?.subjects ?? []))}
+                    />
+                  ))}
+                </ul>
+              </div>
             )}
           </>
         )}
 
-        <div className={styles.notices}>
+        <p className={styles.notice}>
+          <InfoIcon size={13} />
+          <span>
+            원문 PDF는 저장소에 있는 파일을 개발 환경에서만 열어요. 공개 배포 전에는 각 대학의 이용 허락을 확인해야 해요. 서울대학교 자료에는
+            상업적 이용과 문서의 변형·발췌를 금지하는 안내가 있어요. 앱의 탐구 방향 예시는 LearnersHigh가 쓴 학습용 제안이며 대학 공식 자료가 아니에요.
+          </span>
+        </p>
+        <div className={enrichmentStyles.notices}>
           <MockDataNotice />
         </div>
       </div>
-      <Toast message={toast} onDismiss={dismissToast} />
     </EnrichmentFrame>
+  )
+}
+
+interface FilterSelectProps {
+  id: string
+  label: string
+  value: string
+  /** 있으면 "전체" 선택지 (값 '') */
+  allLabel?: string
+  options: { value: string; label: string }[]
+  onChange: (value: string | undefined) => void
+}
+
+function FilterSelect({ id, label, value, allLabel, options, onChange }: FilterSelectProps) {
+  return (
+    <span className={styles.selectWrap}>
+      <label className="lh-visually-hidden" htmlFor={id}>
+        {label}
+      </label>
+      <select id={id} className={styles.select} value={value} onChange={(event) => onChange(event.target.value || undefined)}>
+        {allLabel && <option value="">{allLabel}</option>}
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDownIcon size={14} className={styles.selectChevron} />
+    </span>
   )
 }

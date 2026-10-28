@@ -35,7 +35,7 @@ export function mockExamSourceLabel(source: MockExamSource, subjectName: string)
 export const sourceTypeLabels: Record<EnrichmentSourceType, string> = {
   MOCK_EXAM_MATERIAL: '모의고사 탐구 소재',
   PERSONAL_MOCK_EXAM_MATERIAL: '내가 등록한 지문',
-  UNIVERSITY_RESOURCE: '대학 공개 자료',
+  UNIVERSITY_RESOURCE: '대학별 기출 자료',
 }
 
 const weekdays = ['일', '월', '화', '수', '목', '금', '토']

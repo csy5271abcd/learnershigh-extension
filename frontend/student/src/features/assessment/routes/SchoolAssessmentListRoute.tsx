@@ -5,9 +5,10 @@ import { assessmentToday } from '../api/runtimeInfo.ts'
 import { changeSchoolAssessmentStatus, listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { SchoolAssessment, SchoolAssessmentStatus, SubjectRef } from '../api/types.ts'
 import { AddSchoolAssessmentModal } from '../components/AddSchoolAssessmentModal.tsx'
-import { ChevronDownIcon, ClockIcon, FileIcon, LinkIcon, PencilIcon, PlusIcon, SearchIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, ChatIcon, ChevronDownIcon, ClockIcon, FileIcon, LinkIcon, NoteIcon, PencilIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { PdfImportModal } from '../components/pdf-import/PdfImportModal.tsx'
+import { FavoriteButton } from '../components/FavoriteButton.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -20,6 +21,7 @@ import {
   formatDateWithWeekday,
   formatDday,
   formatShortDate,
+  orderForDisplay,
   parseSort,
   parseStatus,
   schoolAssessmentStatuses,
@@ -30,8 +32,10 @@ import {
   upcomingDeadlines,
   urgentDays,
 } from '../model/schoolAssessmentView.ts'
-import { useApiQuery } from '../model/useApiQuery.ts'
-import { schoolAssessmentDetailPath } from './paths.ts'
+import { loadAssessmentRecords, type AssessmentRecordSummary } from '../model/assessmentRecords.ts'
+import { useApiQuery, type QueryResult } from '../model/useApiQuery.ts'
+import { favoriteKey, useFavorites } from '../model/useFavorites.ts'
+import { schoolAssessmentDetailPath, schoolAssessmentFeedbackPath, schoolAssessmentHistoryPath } from './paths.ts'
 import styles from './SchoolAssessmentListRoute.module.css'
 
 const pageSizeStep = 20
@@ -39,16 +43,22 @@ const countPageSize = 100
 const searchDebounceMs = 250
 
 // 학교 수행평가 목록 + 과목별 목록 (screen-map S3·S6, assessment-student.md §6, api-contract.md §12·13).
-// 과목·상태·검색·정렬은 URL Query에 두어 상세에서 돌아올 때 그대로 복원한다 (§3 Back Context).
+// 과목·상태·검색·정렬·중요는 URL Query에 두어 상세에서 돌아올 때 그대로 복원한다 (§3 Back Context).
+// ★ 즐겨찾기 조작은 목록에서만 한다 (2026-10-28 사용자 요청, 상세에는 별표 없음). "중요" 필터는 §12 Query가 없어(MM-07)
+// 같은 범위를 한 번에 받아(최대 100건) 즐겨찾기(§30)와 화면에서 맞춘다. "기록" 열은 assessmentRecords에서 계산한다 (MM-55).
 export function SchoolAssessmentListRoute() {
   const workspace = useAssessmentWorkspace()
   const { terms, selectedTerm, selectedContext, termAssessments, dataVersion, notifyDataChanged } = workspace
   const [searchParams, setSearchParams] = useSearchParams()
 
   const subjectId = searchParams.get('subject') ?? undefined
-  const status = parseStatus(searchParams.get('status'))
+  // 진행 상태 4개(전체·시작 전·진행 중·완료)와 ★ 중요는 한 번에 하나만 고르는 필터다 (2026-10-28 사용자 요청).
+  // 예전 URL에 둘 다 있으면 중요를 우선하고 상태는 무시한다.
+  const importantParam = searchParams.get('important') === '1'
+  const status = importantParam ? undefined : parseStatus(searchParams.get('status'))
   const query = searchParams.get('q') ?? ''
   const sort = parseSort(searchParams.get('sort'))
+  const important = importantParam
 
   const [searchInput, setSearchInput] = useState(query)
   const [syncedQuery, setSyncedQuery] = useState(query)
@@ -65,6 +75,12 @@ export function SchoolAssessmentListRoute() {
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const showToast = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
+  const favorites = useFavorites()
+  const toggleFavorite = (assessmentId: string) =>
+    favorites.toggle('SCHOOL_ASSESSMENT', assessmentId).then(
+      (text) => text && showToast('success', text),
+      (error: Error) => showToast('error', `즐겨찾기를 바꾸지 못했어요. ${error.message}`),
+    )
 
   const updateParams = useCallback(
     (changes: Record<string, string | undefined>) => {
@@ -94,10 +110,14 @@ export function SchoolAssessmentListRoute() {
     ? `${termKey(selectedTerm)}|${subjectId ?? ''}|${query}|${dataVersion}`
     : 'pending'
 
-  const rows = useApiQuery(`sa-rows|${scopeKey}|${status ?? ''}|${sort}|${pageSize}`, () =>
+  const rows = useApiQuery(`sa-rows|${scopeKey}|${status ?? ''}|${sort}|${important ? countPageSize : pageSize}`, () =>
     selectedTerm
-      ? listSchoolAssessments({ ...selectedTerm, subjectId, status, query: query || undefined, sort, page: 0, size: pageSize })
+      ? listSchoolAssessments({ ...selectedTerm, subjectId, status, query: query || undefined, sort, page: 0, size: important ? countPageSize : pageSize })
       : new Promise<never>(() => {}),
+  )
+  const visibleIds = rows.data?.items.map((item) => item.assessmentId) ?? []
+  const records = useApiQuery(rows.data ? `sa-records|${visibleIds.join(',')}|${dataVersion}` : 'sa-records|pending', () =>
+    rows.data ? loadAssessmentRecords(visibleIds) : new Promise<never>(() => {}),
   )
   // 상태 탭 건수: 같은 범위(과목·검색)에서 상태 필터 없이 조회한 결과로 계산한다. 화면에 숫자를 고정하지 않는다.
   const scope = useApiQuery(`sa-scope|${scopeKey}`, () =>
@@ -132,7 +152,12 @@ export function SchoolAssessmentListRoute() {
   const counts = scope.data ? countByStatus(scope.data.items) : undefined
   const scopeTotal = scope.data?.page.totalElements
   const upcoming = termAssessments.data ? upcomingDeadlines(termAssessments.data.items, assessmentToday()) : []
-  const hasFilter = Boolean(status || query)
+  const hasFilter = Boolean(status || query || important)
+  // 중요: 즐겨찾기 상태를 받기 전에는 거르지 않고 기다린다 (빈 목록으로 오해하지 않게).
+  const isImportant = (assessmentId: string) => favorites.isFavorite('SCHOOL_ASSESSMENT', assessmentId) === true
+  const listed = rows.data ? (important ? rows.data.items.filter((item) => isImportant(item.assessmentId)) : rows.data.items) : undefined
+  const listReady = rows.status === 'success' && listed !== undefined && (!important || favorites.ready)
+  const importantCount = scope.data && favorites.ready ? scope.data.items.filter((item) => isImportant(item.assessmentId)).length : undefined
 
   const onStatusChange = async (item: SchoolAssessment, next: SchoolAssessmentStatus) => {
     if (next === item.status || pendingStatusId) return
@@ -151,7 +176,7 @@ export function SchoolAssessmentListRoute() {
 
   const resetFilters = () => {
     setSearchInput('')
-    updateParams({ status: undefined, q: undefined })
+    updateParams({ status: undefined, q: undefined, important: undefined })
   }
 
   return (
@@ -227,17 +252,29 @@ export function SchoolAssessmentListRoute() {
       )}
 
       <div className={styles.filterBar}>
-        <div className={styles.tabs} role="group" aria-label="진행 상태 필터">
-          <FilterTab label="전체" count={scopeTotal} active={!status} onClick={() => updateParams({ status: undefined })} />
+        <div className={styles.tabs} role="group" aria-label="목록 필터 (하나만 선택)">
+          <FilterTab label="전체" count={scopeTotal} active={!status && !important} onClick={() => updateParams({ status: undefined, important: undefined })} />
           {schoolAssessmentStatuses.map((value) => (
             <FilterTab
               key={value}
               label={statusLabels[value]}
               count={counts?.[value]}
               active={status === value}
-              onClick={() => updateParams({ status: value })}
+              onClick={() => updateParams({ status: value, important: undefined })}
             />
           ))}
+          <button
+            type="button"
+            className={styles.tab}
+            data-kind="important"
+            aria-pressed={important}
+            title="즐겨찾기한 수행평가 (진행 상태와 관계없이)"
+            onClick={() => updateParams({ important: '1', status: undefined })}
+          >
+            <StarIcon size={14} filled className={styles.tabStar} />
+            중요
+            <span className={styles.tabCount}>{importantCount ?? '–'}</span>
+          </button>
         </div>
         <label className={styles.sort}>
           <span>정렬</span>
@@ -261,18 +298,20 @@ export function SchoolAssessmentListRoute() {
         <div className={styles.tableHead} aria-hidden="true">
           <span />
           <span>수행평가</span>
-          <span>마감</span>
+          <span>평가일 · 마감</span>
           <span>정보 출처</span>
           <span>진행 상태</span>
+          <span>기록</span>
         </div>
 
-        {rows.status === 'loading' && <LoadingRows label="수행평가 목록을 불러오는 중" />}
+        {(rows.status === 'loading' || (rows.status === 'success' && !listReady)) && <LoadingRows label="수행평가 목록을 불러오는 중" />}
         {rows.status === 'error' && rows.error && (
           <ErrorState title="수행평가 목록을 불러오지 못했어요" error={rows.error} onRetry={rows.retry} />
         )}
-        {rows.status === 'success' && rows.data && rows.data.items.length === 0 && (
+        {listReady && listed.length === 0 && (
           <ListEmpty
             hasFilter={hasFilter}
+            important={important}
             query={query}
             status={status}
             subject={subject}
@@ -280,9 +319,9 @@ export function SchoolAssessmentListRoute() {
             onAdd={() => setModalOpen(true)}
           />
         )}
-        {rows.status === 'success' && rows.data && rows.data.items.length > 0 && (
+        {listReady && listed.length > 0 && (
           <ul className={styles.rows} data-refreshing={rows.isRefreshing}>
-            {rows.data.items.map((item) => (
+            {orderForDisplay(listed, sort).map((item) => (
               <AssessmentRow
                 key={item.assessmentId}
                 item={item}
@@ -290,11 +329,15 @@ export function SchoolAssessmentListRoute() {
                 highlighted={item.assessmentId === createdId}
                 pending={pendingStatusId === item.assessmentId}
                 onStatusChange={(next) => onStatusChange(item, next)}
+                favorite={favorites.isFavorite('SCHOOL_ASSESSMENT', item.assessmentId)}
+                favoritePending={favorites.pendingKey === favoriteKey('SCHOOL_ASSESSMENT', item.assessmentId)}
+                onToggleFavorite={() => toggleFavorite(item.assessmentId)}
+                records={records}
               />
             ))}
           </ul>
         )}
-        {rows.data && rows.data.page.totalElements > rows.data.items.length && (
+        {rows.data && !important && rows.data.page.totalElements > rows.data.items.length && (
           <button
             type="button"
             className={styles.moreButton}
@@ -353,14 +396,20 @@ interface AssessmentRowProps {
   highlighted: boolean
   pending: boolean
   onStatusChange: (next: SchoolAssessmentStatus) => void
+  favorite: boolean | undefined
+  favoritePending: boolean
+  onToggleFavorite: () => void
+  records: QueryResult<Record<string, AssessmentRecordSummary>>
 }
 
-function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange }: AssessmentRowProps) {
+function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange, favorite, favoritePending, onToggleFavorite, records }: AssessmentRowProps) {
   const days = item.deadlineDate ? daysUntil(item.deadlineDate, assessmentToday()) : undefined
   return (
     <li className={styles.row} data-highlighted={highlighted} data-status={item.status}>
-      {/* Mockup의 ★중요 열 자리. 목록 중요 필터 계약이 정해지기 전까지 비워 둔다 (MM-07). */}
-      <span className={styles.cellLead} aria-hidden="true" />
+      {/* Mockup의 ★ 열. §30 즐겨찾기와 같은 값이다 (목록 중요 필터는 §12 Query가 없어 두지 않음, MM-07). */}
+      <span className={styles.cellLead}>
+        <FavoriteButton favorite={favorite} pending={favoritePending} title={item.title} onToggle={onToggleFavorite} />
+      </span>
       <div className={styles.cellTitle}>
         <Link to={schoolAssessmentDetailPath(item.assessmentId)} className={styles.rowLink}>
           {item.title}
@@ -394,14 +443,59 @@ function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange }:
       <div className={styles.cellStatus}>
         <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} />
       </div>
-      {/* Mockup의 기록 열 자리 (노트 수·피드백 표시는 §12 목록 응답에 없음, MM-11). */}
-      <span className={styles.cellTrail} aria-hidden="true" />
+      <div className={styles.cellTrail}>
+        <RecordCell assessment={item} records={records} />
+      </div>
     </li>
+  )
+}
+
+/**
+ * 기록 열 (Mockup SA-LIST-01): 노트 수정 이력 수 + 선생님 피드백 말풍선(답변 도착은 파란색).
+ * 아이콘을 누르면 상세의 수정 이력 / 피드백 탭으로 간다. 조회 실패는 "없음"으로 보이지 않게 따로 표시한다.
+ */
+const feedbackSummaryText = (summary: AssessmentRecordSummary) =>
+  [summary.deliveredCount > 0 && `답변 도착 ${summary.deliveredCount}건`, summary.pendingCount > 0 && `답변 대기 ${summary.pendingCount}건`].filter(Boolean).join(', ')
+
+function RecordCell({ assessment, records }: { assessment: SchoolAssessment; records: QueryResult<Record<string, AssessmentRecordSummary>> }) {
+  if (records.status === 'error') {
+    return (
+      <button type="button" className={styles.recordButton} data-tone="error" aria-label={`${assessment.title} 기록을 불러오지 못했어요. 다시 시도`} title="기록을 불러오지 못했어요. 눌러서 다시 시도" onClick={records.retry}>
+        <AlertIcon size={14} />
+      </button>
+    )
+  }
+  const summary = records.data?.[assessment.assessmentId]
+  if (!summary) return <span className={styles.recordLoading} aria-label="기록을 불러오는 중" role="status" />
+  return (
+    <>
+      <Link
+        to={schoolAssessmentHistoryPath(assessment.assessmentId)}
+        className={styles.recordButton}
+        aria-label={`${assessment.title} 노트 수정 이력 ${summary.revisionCount}개 보기`}
+        title={`노트 수정 이력 ${summary.revisionCount}개`}
+      >
+        <NoteIcon size={14} />
+        <span>{summary.revisionCount}</span>
+      </Link>
+      {(summary.deliveredCount > 0 || summary.pendingCount > 0) && (
+        <Link
+          to={schoolAssessmentFeedbackPath(assessment.assessmentId)}
+          className={styles.recordButton}
+          data-tone={summary.deliveredCount > 0 ? 'delivered' : 'pending'}
+          aria-label={`${assessment.title} 선생님 피드백 보기 (${feedbackSummaryText(summary)})`}
+          title={`선생님 피드백 · ${feedbackSummaryText(summary)}`}
+        >
+          <ChatIcon size={15} />
+        </Link>
+      )}
+    </>
   )
 }
 
 interface ListEmptyProps {
   hasFilter: boolean
+  important: boolean
   query: string
   status: SchoolAssessmentStatus | undefined
   subject: SubjectRef | undefined
@@ -410,7 +504,20 @@ interface ListEmptyProps {
 }
 
 // 데이터 없음 / 검색 결과 없음 / 필터 결과 없음을 구분한다 (frontend-admin.md §16과 같은 원칙, testing.md §10).
-function ListEmpty({ hasFilter, query, status, subject, onReset, onAdd }: ListEmptyProps) {
+function ListEmpty({ hasFilter, important, query, status, subject, onReset, onAdd }: ListEmptyProps) {
+  if (important && !query) {
+    return (
+      <EmptyState
+        title="중요 표시한 수행평가가 없어요"
+        description="목록 왼쪽 별표를 누르면 중요 수행평가로 모아 볼 수 있어요."
+        action={
+          <button type="button" className={styles.secondaryButton} onClick={onReset}>
+            전체 보기
+          </button>
+        }
+      />
+    )
+  }
   if (query) {
     return (
       <EmptyState

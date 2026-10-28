@@ -1,3 +1,4 @@
+import { useCallback, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { getSchoolAssessment } from '../api/schoolAssessmentApi.ts'
 import { listEnrichmentTasks } from '../api/enrichmentApi.ts'
@@ -5,12 +6,15 @@ import type { EnrichmentTask, SchoolAssessment } from '../api/types.ts'
 import { LinkIcon } from '../components/AssessmentIcons.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
 import styles from '../components/enrichment/enrichment.module.css'
+import { FavoriteButton } from '../components/FavoriteButton.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
+import { Toast, type ToastMessage } from '../components/Toast.tsx'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { formatTaskDate, matchesText } from '../model/enrichmentView.ts'
 import { statusLabels, subjectNameOf } from '../model/schoolAssessmentView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
+import { favoriteKey, useFavorites } from '../model/useFavorites.ts'
 import { enrichmentPath, enrichmentTaskDetailPath } from './paths.ts'
 
 const taskPageSize = 100
@@ -41,6 +45,10 @@ export function MyEnrichmentTasksRoute() {
   const query = searchParams.get('q') ?? ''
   const data = useApiQuery(`ae-my|${dataVersion}`, loadMyTasks)
   const subjects = terms.data?.contexts.flatMap((context) => context.subjects) ?? []
+  const favorites = useFavorites()
+  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const dismissToast = useCallback(() => setToast(null), [])
+  const showToast = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
 
   const visible = data.data?.tasks.filter((task) => matchesText(query, task.title, task.goal)) ?? []
 
@@ -76,7 +84,7 @@ export function MyEnrichmentTasksRoute() {
             {visible.map((task) => {
               const related = task.relatedAssessmentId ? data.data?.related[task.relatedAssessmentId] : undefined
               return (
-                <li key={task.taskId}>
+                <li key={task.taskId} className={styles.starRow}>
                   <Link to={enrichmentTaskDetailPath(task.taskId)} className={styles.taskRow}>
                     <span className={styles.rowText}>
                       <span className={styles.rowTitle}>{task.title}</span>
@@ -95,6 +103,18 @@ export function MyEnrichmentTasksRoute() {
                       {statusLabels[task.status]}
                     </span>
                   </Link>
+                  {/* 심화 탐구 즐겨찾기는 Mock 전용 제안(P-22)이다. */}
+                  <FavoriteButton
+                    favorite={favorites.isFavorite('ENRICHMENT_TASK', task.taskId)}
+                    pending={favorites.pendingKey === favoriteKey('ENRICHMENT_TASK', task.taskId)}
+                    title={task.title}
+                    onToggle={() =>
+                      favorites.toggle('ENRICHMENT_TASK', task.taskId).then(
+                  (text) => text && showToast('success', text),
+                  (error: Error) => showToast('error', `즐겨찾기를 바꾸지 못했어요. ${error.message}`),
+                )
+                    }
+                  />
                 </li>
               )
             })}
@@ -105,6 +125,7 @@ export function MyEnrichmentTasksRoute() {
       <div className={styles.notices}>
         <MockDataNotice />
       </div>
+      <Toast message={toast} onDismiss={dismissToast} />
     </EnrichmentFrame>
   )
 }

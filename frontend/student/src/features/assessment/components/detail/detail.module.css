@@ -521,6 +521,16 @@
   margin-top: 0;
 }
 
+.noteHeading[data-level='1'] {
+  font-size: 23px;
+  line-height: 32px;
+}
+
+.noteHeading[data-level='3'] {
+  font-size: 16px;
+  line-height: 24px;
+}
+
 .noteParagraph {
   font-size: 14px;
   line-height: 1.75;
@@ -1296,4 +1306,13 @@
   font: inherit;
   font-size: var(--as-text-caption);
   cursor: not-allowed;
+}
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+  }
 }

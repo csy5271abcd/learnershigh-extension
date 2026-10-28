@@ -5,7 +5,8 @@ import type {
   StudentResource,
   UpdateResourceRequest,
 } from '../types.ts'
-import { fixtureRecommendedSources } from './resourcesFixture.ts'
+import { referenceAreaForSubject, sourcesForArea } from '../../model/referenceAreas.ts'
+import { fixtureReferenceAreas, fixtureReferenceSources, referenceSourcesBasis } from './referenceSourcesFixture.ts'
 import { fail, mockNow, nextMockId, respond, scenarioActive } from './mockRuntime.ts'
 import { mockStore } from './mockStore.ts'
 
@@ -45,7 +46,20 @@ export function listRecommendedSourcesMock(query: { subjectId: string; query?: s
   return respond(() => {
     if (scenarioActive('resourceRecommendationError')) serverError('추천 자료원을 불러오지 못했어요.')
     const needle = query.query?.trim().toLocaleLowerCase('ko')
-    const items = (fixtureRecommendedSources[query.subjectId] ?? []).filter(
+    // 과목 → 참고자료 영역 → 자료원 카탈로그(원본 문서 기준 24곳) 한 곳에서 만든다. 화면마다 따로 하드코딩하지 않는다.
+    const subjectName = mockStore.academicContexts.flatMap((context) => context.subjects).find((subject) => subject.subjectId === query.subjectId)?.name
+    const areaKey = referenceAreaForSubject(subjectName)
+    const recommended: RecommendedSource[] = areaKey
+      ? sourcesForArea({ sources: fixtureReferenceSources, areas: fixtureReferenceAreas, basis: referenceSourcesBasis }, areaKey).map(({ source, usage }) => ({
+          sourceName: source.name,
+          category: source.category,
+          homepageUrl: source.url,
+          description: usage,
+          // 원본 문서에 검색어가 없어 만들지 않는다.
+          searchKeywords: [],
+        }))
+      : []
+    const items = recommended.filter(
       (source) => !needle || [source.sourceName, source.category, ...source.searchKeywords].some((text) => text.toLocaleLowerCase('ko').includes(needle)),
     )
     return { items }

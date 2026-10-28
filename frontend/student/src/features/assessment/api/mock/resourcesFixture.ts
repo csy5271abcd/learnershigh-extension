@@ -1,4 +1,4 @@
-import type { RecommendedSource, StudentResource } from '../types.ts'
+import type { StudentResource } from '../types.ts'
 
 // 자료함 Canonical Fixture (Stage 1, 시연 데이터). Shape은 api-contract.md §22 + types.ts 주석(MM-30·31)의 가정을 따른다.
 // 학생 자료는 시연용이다. 원문 링크(sourceUrl)는 확인된 실제 주소가 없으므로 비워 둔다.
@@ -76,26 +76,3 @@ export const fixtureResources: StudentResource[] = [
     updatedAt: '2026-10-15T22:30:00+09:00',
   },
 ]
-
-/**
- * §22 과목별 추천 자료원 (시연용). 계약 본문이 예로 든 "탐색 후보 출처"만 쓴다.
- * 시스템이 해당 서비스에 접속하거나 링크 유효성을 확인한 것이 아니므로 homepageUrl은 비워 둔다.
- */
-export const fixtureRecommendedSources: Record<string, RecommendedSource[]> = {
-  subj_01: [
-    { sourceName: '뉴닉', category: '뉴스·시사', homepageUrl: null, description: '시사 이슈를 쉽게 풀어 쓴 뉴스레터', searchKeywords: ['매체 비평', '여론'] },
-    { sourceName: '크랩', category: '유튜브·영상', homepageUrl: null, description: '사회 이슈를 다루는 영상 채널', searchKeywords: ['미디어 리터러시'] },
-    { sourceName: '국립국어원', category: '도서·역사·문학', homepageUrl: null, description: '표준어·어문 규범 자료', searchKeywords: ['어문 규범'] },
-    { sourceName: 'DBpia', category: '논문·학술', homepageUrl: null, description: '국내 학술 논문 검색 (일부 유료·로그인 필요)', searchKeywords: ['매체 언어'] },
-    { sourceName: 'RISS', category: '논문·학술', homepageUrl: null, description: '학위논문·학술지 검색', searchKeywords: ['논설문 쓰기'] },
-  ],
-  subj_02: [
-    { sourceName: 'ScienceON', category: '논문·학술', homepageUrl: null, description: '과학기술 논문·보고서 검색', searchKeywords: ['중화 반응', '토양 산성화'] },
-    { sourceName: 'KCI', category: '논문·학술', homepageUrl: null, description: '국내 학술지 인용 색인', searchKeywords: ['산성비'] },
-    { sourceName: 'KOSIS', category: '통계·공공데이터', homepageUrl: null, description: '국가 통계 포털', searchKeywords: ['대기 오염'] },
-  ],
-  subj_03: [
-    { sourceName: 'KOSIS', category: '통계·공공데이터', homepageUrl: null, description: '국가 통계 포털', searchKeywords: ['지역 인구'] },
-    { sourceName: '뉴닉', category: '뉴스·시사', homepageUrl: null, description: '시사 이슈를 쉽게 풀어 쓴 뉴스레터', searchKeywords: ['지역 불평등'] },
-  ],
-}

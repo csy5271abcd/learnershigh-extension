@@ -8,6 +8,7 @@ import type {
   UpdateGrowthRecordRequest,
 } from '../types.ts'
 import { fixtureCurrentTerm } from './assessmentFixture.ts'
+import { fixtureFavoriteBaseTime } from './growthArchiveFixture.ts'
 import { fail, mockNow, nextMockId, respond, scenarioActive } from './mockRuntime.ts'
 import { mockStore } from './mockStore.ts'
 
@@ -183,11 +184,27 @@ function projection(): ArchiveItem[] {
       status: task.status,
       lastActivityAt: lastActivity('ENRICHMENT_TASK', task.taskId, task.updatedAt),
       noteBlockCount: note ? note.revisions[note.revisions.length - 1].blocks.length : null,
-      favorite: false,
+      favorite: isFavorite('ENRICHMENT_TASK', task.taskId),
       deletedAt: null,
     }
   })
-  return [...schoolItems, ...taskItems]
+  // 탐구 라이브러리 공개 콘텐츠는 학생 기록이 아니라서 즐겨찾기한 것만 즐겨찾기 탭에 보인다 (Mockup AR-TAB-02, P-22 Mock 전용).
+  const catalogItems: ArchiveItem[] = mockStore.enrichmentCatalog
+    .filter((item) => item.published && isFavorite('ENRICHMENT_CATALOG', item.catalogTaskId))
+    .map((item) => ({
+      sourceType: 'ENRICHMENT_CATALOG',
+      sourceId: item.catalogTaskId,
+      title: item.title,
+      subjectId: item.subjectId,
+      academicYear: null,
+      semester: null,
+      status: null,
+      lastActivityAt: mockStore.favoriteMarkedAt[`ENRICHMENT_CATALOG:${item.catalogTaskId}`] ?? fixtureFavoriteBaseTime,
+      noteBlockCount: null,
+      favorite: true,
+      deletedAt: null,
+    }))
+  return [...schoolItems, ...taskItems, ...catalogItems]
 }
 
 const isCurrentTerm = (item: ArchiveItem) =>
@@ -212,7 +229,7 @@ export function listArchiveMock(query: { tab: ArchiveTab; academicYear?: number;
             ? all.filter((item) => item.status === 'COMPLETED')
             : query.tab === 'previous-semesters'
               ? all.filter((item) => item.academicYear !== null && !isCurrentTerm(item))
-              : all.filter((item) => item.sourceType === 'ENRICHMENT_TASK' || isCurrentTerm(item))
+              : all.filter((item) => item.sourceType === 'ENRICHMENT_TASK' || (item.sourceType === 'SCHOOL_ASSESSMENT' && isCurrentTerm(item)))
     }
     const filtered = items
       .filter((item) => !query.academicYear || item.academicYear === query.academicYear)
@@ -225,11 +242,19 @@ export function listArchiveMock(query: { tab: ArchiveTab; academicYear?: number;
 export function setArchiveFavoriteMock(request: ArchiveFavoriteRequest): Promise<ArchiveFavoriteRequest> {
   return respond(() => {
     if (scenarioActive('favoriteError')) serverError('즐겨찾기를 바꾸지 못했어요.')
-    // §30 예시는 SCHOOL_ASSESSMENT뿐이다. 다른 유형은 계약 보완 전까지 받지 않는다 (MM-40).
-    if (request.sourceType !== 'SCHOOL_ASSESSMENT') validationError([{ field: 'sourceType', reason: 'unsupported' }])
-    if (!mockStore.schoolAssessments.some((a) => a.assessmentId === request.sourceId)) {
-      fail(404, { code: 'ASSESSMENT_NOT_FOUND', message: '수행평가를 찾을 수 없어요.', details: {} })
+    // §30 예시는 SCHOOL_ASSESSMENT뿐이다. 심화 탐구·라이브러리 콘텐츠는 Mock 전용 제안(P-22)으로만 받는다 (MM-40).
+    const exists =
+      request.sourceType === 'SCHOOL_ASSESSMENT'
+        ? mockStore.schoolAssessments.some((a) => a.assessmentId === request.sourceId)
+        : request.sourceType === 'ENRICHMENT_TASK'
+          ? mockStore.enrichmentTasks.some((task) => task.taskId === request.sourceId)
+          : request.sourceType === 'ENRICHMENT_CATALOG'
+            ? mockStore.enrichmentCatalog.some((item) => item.catalogTaskId === request.sourceId && item.published)
+            : validationError([{ field: 'sourceType', reason: 'unsupported' }])
+    if (!exists) {
+      fail(404, { code: 'ARCHIVE_SOURCE_NOT_FOUND', message: '원본 기록을 찾을 수 없어요.', details: {} })
     }
+    if (request.favorite) mockStore.favoriteMarkedAt[`${request.sourceType}:${request.sourceId}`] = mockNow()
     // 즐겨찾기는 원본을 가리키는 표시일 뿐이다. 해제해도 원본은 그대로다.
     mockStore.favorites = [
       ...mockStore.favorites.filter((item) => !(item.sourceType === request.sourceType && item.sourceId === request.sourceId)),

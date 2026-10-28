@@ -86,6 +86,27 @@ export function upcomingDeadlines(items: SchoolAssessment[], today: string, limi
     .slice(0, limit)
 }
 
+/**
+ * 목록 화면 표시 순서 (AUD-009, 2026-10-27 사용자 승인). `일정순`일 때만 적용한다:
+ * 진행 중·시작 전 → 마감일 가까운 순 → 마감일 없음 → 완료(맨 뒤). 같은 조건은 받은 순서를 유지한다.
+ * 화면 표시 규칙이며 §12 Sort 값·서버 정렬 계약(MM-12)을 정한 것이 아니다.
+ */
+export function orderForDisplay(items: SchoolAssessment[], sort: SchoolAssessmentSort): SchoolAssessment[] {
+  if (sort !== 'deadlineDate,asc') return items
+  const rank = (item: SchoolAssessment) => (item.status === 'COMPLETED' ? 2 : item.deadlineDate === null ? 1 : 0)
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const byRank = rank(a.item) - rank(b.item)
+      if (byRank !== 0) return byRank
+      if (rank(a.item) === 0 && a.item.deadlineDate !== b.item.deadlineDate) {
+        return (a.item.deadlineDate as string).localeCompare(b.item.deadlineDate as string)
+      }
+      return a.index - b.index
+    })
+    .map(({ item }) => item)
+}
+
 export function countByStatus(items: SchoolAssessment[]): Record<SchoolAssessmentStatus, number> {
   const counts: Record<SchoolAssessmentStatus, number> = { BEFORE_START: 0, IN_PROGRESS: 0, COMPLETED: 0 }
   for (const item of items) counts[item.status] += 1

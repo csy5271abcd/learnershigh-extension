@@ -1,14 +1,15 @@
-import { useId, useRef, type KeyboardEvent } from 'react'
+import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { getCatalogItem } from '../../api/enrichmentApi.ts'
 import type { EnrichmentTask } from '../../api/types.ts'
 import { sourceTypeLabels } from '../../model/enrichmentView.ts'
 import { useApiQuery } from '../../model/useApiQuery.ts'
-import { mockExamMaterialDetailPath, universityResourcesPath } from '../../routes/paths.ts'
+import { mockExamMaterialDetailPath } from '../../routes/paths.ts'
 import { InfoIcon } from '../AssessmentIcons.tsx'
 import detailStyles from '../detail/detail.module.css'
-import { AiAssistantTab, ResourcesTab } from '../detail/DetailPanel.tsx'
+import { AiAssistantTab } from '../detail/DetailPanel.tsx'
 import { LoadingRows } from '../StateViews.tsx'
+import { TaskExamSource } from '../university/TaskExamSource.tsx'
 import styles from './enrichment.module.css'
 
 export type EnrichmentPanelTab = 'selfCheck' | 'ai' | 'resources'
@@ -24,11 +25,13 @@ interface EnrichmentPanelProps {
   hasNote: boolean
   activeTab: EnrichmentPanelTab
   onTabChange: (tab: EnrichmentPanelTab) => void
+  /** 과목 추천 자료원·내 자료 (ResourcesTab, AUD-016) */
+  resourcesContent: ReactNode
 }
 
 // 심화 탐구 상세 오른쪽 패널 (Mockup AE-DETAIL-01~03): 자기 점검 / AI 도우미 / 자료.
-// AI 도우미·자료 탭은 학교 수행평가 상세와 같은 준비 중 화면을 쓴다 (Stage 3 / MM-21).
-export function EnrichmentPanel({ task, hasNote, activeTab, onTabChange }: EnrichmentPanelProps) {
+// AI 도우미(Stage 3 준비 중)·자료 탭은 학교 수행평가 상세와 같은 화면을 쓴다.
+export function EnrichmentPanel({ task, hasNote, activeTab, onTabChange, resourcesContent }: EnrichmentPanelProps) {
   const baseId = useId()
   const tabRefs = useRef<Record<EnrichmentPanelTab, HTMLButtonElement | null>>({ selfCheck: null, ai: null, resources: null })
 
@@ -81,7 +84,7 @@ export function EnrichmentPanel({ task, hasNote, activeTab, onTabChange }: Enric
       >
         {activeTab === 'selfCheck' && <SelfCheckTab task={task} />}
         {activeTab === 'ai' && <AiAssistantTab assessmentTitle={task.title} hasNote={hasNote} />}
-        {activeTab === 'resources' && <ResourcesTab />}
+        {activeTab === 'resources' && resourcesContent}
       </div>
     </aside>
   )
@@ -114,13 +117,8 @@ function SelfCheckTab({ task }: { task: EnrichmentTask }) {
                 <Link to={mockExamMaterialDetailPath(source.sourceId)}>소재 다시 보기</Link>
               </>
             )}
-            {source.type === 'UNIVERSITY_RESOURCE' && (
-              <>
-                {' · '}
-                <Link to={universityResourcesPath}>대학 공개 자료 보기</Link>
-              </>
-            )}
           </p>
+          {source.type === 'UNIVERSITY_RESOURCE' && <TaskExamSource taskId={task.taskId} source={source} />}
           <p className={styles.previewHint}>출처만 연결돼 있고 원문은 복사하지 않았어요. (출처 연결 계약 확정 전 시연)</p>
         </section>
       )}

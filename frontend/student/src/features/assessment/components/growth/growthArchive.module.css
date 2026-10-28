@@ -414,3 +414,26 @@
     flex-wrap: wrap;
   }
 }
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .rowTitle {
+    min-height: 24px;
+    line-height: 24px;
+  }
+
+  .relatedLink,
+  .backButton {
+    min-height: 24px;
+  }
+}
+
+/* 보관함의 심화 탐구·라이브러리 즐겨찾기 표시 (조작은 각 목록에서, 2026-10-28) */
+.favoriteMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--as-color-star);
+}

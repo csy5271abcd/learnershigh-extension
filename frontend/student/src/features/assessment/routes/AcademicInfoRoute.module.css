@@ -306,3 +306,11 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* 학생이 직접 입력해 추가한 과목 표시 (2026-10-28, 학교 개설 과목과 구분) */
+.addedTag {
+  margin-left: 6px;
+  font-size: var(--as-text-caption);
+  font-weight: 400;
+  color: var(--as-color-text-tertiary);
+}

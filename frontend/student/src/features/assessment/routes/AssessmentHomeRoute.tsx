@@ -47,8 +47,8 @@ import {
 import { useApiQuery, type QueryResult } from '../model/useApiQuery.ts'
 import {
   academicInfoPath,
+  archiveSourcePath,
   enrichmentPath,
-  enrichmentTaskDetailPath,
   feedbackPath,
   growthPath,
   schoolAssessmentDetailPath,
@@ -246,8 +246,7 @@ export function AssessmentHomeRoute() {
             <ul className={styles.recentGrid}>
               {recent.data.items.map((item) => {
                 const Icon = item.sourceType === 'SCHOOL_ASSESSMENT' ? ClipboardIcon : BulbIcon
-                const path =
-                  item.sourceType === 'SCHOOL_ASSESSMENT' ? schoolAssessmentDetailPath(item.sourceId) : enrichmentTaskDetailPath(item.sourceId)
+                const path = archiveSourcePath(item.sourceType, item.sourceId)
                 const status = item.status && item.status in statusLabels ? statusLabels[item.status as keyof typeof statusLabels] : null
                 return (
                   <li key={`${item.sourceType}:${item.sourceId}`}>

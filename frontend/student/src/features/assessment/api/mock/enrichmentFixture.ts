@@ -3,7 +3,6 @@ import type {
   EnrichmentTask,
   MockExamMaterial,
   PersonalMockExamMaterial,
-  UniversityResource,
 } from '../types.ts'
 
 // 심화 탐구 Canonical Fixture (Stage 1, 시연 데이터). assessmentFixture.ts와 같은 과목·수행평가 ID를 쓴다.
@@ -125,10 +124,13 @@ export const fixtureEnrichmentTasks: EnrichmentTask[] = [
   },
 ]
 
-/** §17 공개 모의고사 탐구 카드. 실제 시험 원문을 옮기지 않은 LearnersHigh 자체 제작 시연용 주제만 둔다. */
+/**
+ * Stage 2까지 쓰던 §17 공개 시연 카드 5개. 2026-10-28 모의고사 60선(mockExamResearchFixture)으로 추천 목록을 바꾸며
+ * 목록에서는 내렸다. 이 소재를 출발 자료로 시작한 탐구가 있을 수 있어 상세 조회(ID)는 계속 된다 (참조 보존).
+ */
 const noExamSource = { academicYear: null, examMonth: null, grade: null, questionNumber: null, sourceUrl: null }
 
-export const fixtureMockExamMaterials: MockExamMaterial[] = [
+export const retiredMockExamMaterials: MockExamMaterial[] = [
   {
     materialId: 'material_001',
     subjectId: 'mock_eng',
@@ -216,65 +218,3 @@ export const fixtureMockExamMaterials: MockExamMaterial[] = [
 ]
 
 export const fixturePersonalMockExamMaterials: PersonalMockExamMaterial[] = []
-
-/**
- * §27 대학 공개 자료. 실제 대학·실제 문서처럼 보이지 않도록 가상의 기관명과 제목을 쓰고,
- * 원문 링크(officialUrl)는 확인된 실제 URL이 없으므로 모두 null이다 (API-OD-A11).
- */
-export const fixtureUniversityResources: UniversityResource[] = [
-  {
-    resourceId: 'unires_001',
-    university: '예시대학교',
-    title: '2026학년도 면접 예시 문항 (인문·사회, 시연)',
-    academicYear: 2026,
-    resourceType: '대학 공식 예시 문항',
-    officialUrl: null,
-    checkedAt: null,
-    relatedConcepts: ['공동체와 개인', '자료 해석'],
-    inquiryIdeas: ['제시문 속 사회 문제를 우리 지역 통계로 다시 확인해 보기'],
-  },
-  {
-    resourceId: 'unires_002',
-    university: '예시대학교',
-    title: '2026학년도 구술고사 자료 (자연, 시연)',
-    academicYear: 2026,
-    resourceType: '기출 자료',
-    officialUrl: null,
-    checkedAt: null,
-    relatedConcepts: ['화학 반응의 양적 관계', '그래프 해석'],
-    inquiryIdeas: ['중화 반응 실험 자료를 그래프로 다시 해석해 보기'],
-  },
-  {
-    resourceId: 'unires_003',
-    university: '예시대학교',
-    title: '2025학년도 선행학습 영향평가 보고서 (시연)',
-    academicYear: 2025,
-    resourceType: '선행학습 영향평가 보고서',
-    officialUrl: null,
-    checkedAt: null,
-    relatedConcepts: ['교육과정 범위'],
-    inquiryIdeas: ['보고서의 문항 분류 방식으로 내 탐구 질문을 점검해 보기'],
-  },
-  {
-    resourceId: 'unires_004',
-    university: '샘플대학교',
-    title: '2026학년도 면접 예시 문항 (자연, 시연)',
-    academicYear: 2026,
-    resourceType: '대학 공식 예시 문항',
-    officialUrl: null,
-    checkedAt: null,
-    relatedConcepts: ['에너지 전환'],
-    inquiryIdeas: ['학교 건물의 에너지 사용을 측정해 보기'],
-  },
-  {
-    resourceId: 'unires_005',
-    university: '데모과학기술원',
-    title: '2026학년도 면접 안내 자료 (시연)',
-    academicYear: 2026,
-    resourceType: '대학 공식 예시 문항',
-    officialUrl: null,
-    checkedAt: null,
-    relatedConcepts: ['문제 해결 과정'],
-    inquiryIdeas: ['내가 해결한 문제의 과정을 단계별로 기록해 보기'],
-  },
-]

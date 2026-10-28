@@ -19,7 +19,7 @@ const tabs = [
   { to: enrichmentPath, label: '탐구 라이브러리', end: true },
   { to: mockExamMaterialsPath, label: '모의고사 지문', end: false },
   { to: myEnrichmentTasksPath, label: '내 탐구', end: false },
-  { to: universityResourcesPath, label: '대학 공개 자료', end: false },
+  { to: universityResourcesPath, label: '대학별 자료', end: false },
 ]
 
 interface EnrichmentFrameProps {
@@ -31,11 +31,13 @@ interface EnrichmentFrameProps {
   /** 화면이 띄우는 만들기 Modal (출발 자료가 있는 경우) */
   createRequest?: CreateEnrichmentPrefill | null
   onCreateRequestHandled?: () => void
+  /** 탭마다 검색 대상이 다를 때 안내 문구 (기본: 탐구 검색) */
+  searchPlaceholder?: string
 }
 
 // 심화 탐구 공통 틀 (Mockup AE-LIST·AE-MY·AE-MOCK·AE-UNI): 검색 / 직접 만들기 / 제목 / 4개 탭.
 // 검색어는 URL `q`에 두어 상세에 다녀와도 유지된다. 각 탭은 자기 계약(§16·17·18·27)의 query로 쓴다.
-export function EnrichmentFrame({ children, panel, searchTarget, createRequest, onCreateRequestHandled }: EnrichmentFrameProps) {
+export function EnrichmentFrame({ children, panel, searchTarget, createRequest, onCreateRequestHandled, searchPlaceholder }: EnrichmentFrameProps) {
   const { selectedContext, termAssessments, notifyDataChanged } = useAssessmentWorkspace()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -97,7 +99,7 @@ export function EnrichmentFrame({ children, panel, searchTarget, createRequest, 
             <input
               type="search"
               value={searchInput}
-              placeholder="주제, 키워드로 탐구 찾기"
+              placeholder={searchPlaceholder ?? '주제, 키워드로 탐구 찾기'}
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </label>

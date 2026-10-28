@@ -13,11 +13,13 @@ import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
 import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
 import { MyEnrichmentTasksRoute } from './MyEnrichmentTasksRoute.tsx'
 import { PdfImportReviewRoute } from './PdfImportReviewRoute.tsx'
+import { ReferenceLinksRoute } from './ReferenceLinksRoute.tsx'
 import { ResourceDetailRoute } from './ResourceDetailRoute.tsx'
 import { ResourceLibraryRoute } from './ResourceLibraryRoute.tsx'
 import { assessmentRoutePattern } from './paths.ts'
 import { SchoolAssessmentDetailRoute } from './SchoolAssessmentDetailRoute.tsx'
 import { SchoolAssessmentListRoute } from './SchoolAssessmentListRoute.tsx'
+import { UniversityExamDocumentRoute } from './UniversityExamDocumentRoute.tsx'
 import { UniversityResourcesRoute } from './UniversityResourcesRoute.tsx'
 
 // Assessment Route Tree. 공용 Student Router에는 이 객체 하나만 추가한다 (Shell 변경 최소화).
@@ -36,9 +38,11 @@ export const assessmentRoute: RouteObject = {
     { path: 'enrichment/mock-exams/:materialId', element: <MockExamMaterialDetailRoute /> },
     { path: 'enrichment/my', element: <MyEnrichmentTasksRoute /> },
     { path: 'enrichment/universities', element: <UniversityResourcesRoute /> },
+    { path: 'enrichment/universities/:documentId', element: <UniversityExamDocumentRoute /> },
     { path: 'enrichment/tasks/:taskId', element: <EnrichmentTaskDetailRoute /> },
     { path: 'resources', element: <ResourceLibraryRoute /> },
     { path: 'resources/:resourceId', element: <ResourceDetailRoute /> },
+    { path: 'reference-links', element: <ReferenceLinksRoute /> },
     { path: 'growth', element: <GrowthRecordsRoute /> },
     { path: 'growth/new', element: <GrowthRecordNewRoute /> },
     { path: 'growth/:recordId', element: <GrowthRecordDetailRoute /> },

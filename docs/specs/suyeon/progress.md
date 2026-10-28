@@ -809,6 +809,208 @@ Branch `feature/assessment-stage7-pdf-import` (Stage 6 체크포인트 `4ff757e`
 - 빠른 실행 7개를 Daglo 홈 빠른 실행을 참고한 플랫 컬러 SVG로 교체(`components/home/QuickActionIcons.tsx`, 직접 그림·외부 자산 없음), 데스크톱 7개 한 줄(중심 간격 155px, 820px 4+3, 390px 3+3+1), 둥근 사각형 타일 60px(radius 18px)·아이콘 27px. 버튼 이름·순서·동작 그대로.
 - 검증: 아이콘·배치 점검 31/31(1920·1280·1024·820·390px), 홈·꿀팁 57/57, PDF 가져오기 66/66, typecheck/lint/build PASS.
 
+## 2026-10-27 — Student 통합 보강 (자료 추천·모의고사 스크린샷·즐겨찾기·과제 정보·Notion형 편집기·템플릿, Mock, PARTIAL)
+
+Branch `feature/assessment-student-integration-enhancement` (Stage 7 체크포인트 `90720de`에서 분기, **미커밋**). 승인 AUD: 004·009·013·015·016·034·042 (AUD-005 등 그 밖의 AUD는 수정하지 않음).
+
+### Done
+
+- **A 자료 탭 (AUD-016)**: 수행평가·심화 탐구 상세 오른쪽 "자료" 탭 — 현재 과목·주제, §22 과목 추천 자료원(분류 필터, "탐색 후보 · 검색 결과 아님", 주소 미확인 자료원은 링크 없이 검색어만), 내 자료함 검색, "URL로 등록"·"찾은 자료 등록"(기존 자료 추가 Modal 재사용), "노트에 추가" → 노트에 출처 카드(RESOURCE_LINK, 원문 복사 없음). 편집기에서 "/참고자료"로도 연결.
+- **B 모의고사**: 내 지문 등록에 스크린샷·PDF(선택) — 이 화면에서만 미리보기(서버·브라우저 저장소 저장 없음, OCR 없음, 출처 링크 필수 유지). 이미지 위 드래그로 영역(정규화 좌표) 만들기, 영역별 핵심 개념·탐구 질문·메모, 키보드용 "영역 추가"·위치(%) 입력, "이 영역으로 탐구 시작"(§18 sourceReference = 내 지문, 영역 좌표는 전달하지 않음). PDF는 미리보기만(렌더러 미설치). 최근 시험 독서 지문 주제 카드 5개 — 2026-10-27 기사로 확인한 주제만, 확인 못 한 문항 번호는 "미확인", 지문 원문 없음, 평가원 공식 사이트 링크.
+- **C 즐겨찾기**: 공용 별표 버튼(채움/선, 28·34px, `aria-pressed`, Space/Enter) — 수행평가 목록 ★ 열·상세, 탐구 라이브러리 목록·미리보기, 내 탐구·심화 탐구 상세, 보관함. 상태는 §30 즐겨찾기 Projection 하나에서 읽어 화면 간 동기화. 수행평가는 §30 그대로, 심화 탐구(ENRICHMENT_TASK)·라이브러리(ENRICHMENT_CATALOG)는 Mock 전용 제안(P-22).
+- **D 노트 위 과제 정보**: 원본의 최신 정보를 읽기 전용으로(노트에 복사하지 않음, 접기 가능). 수행평가 — 과목·평가 유형(미등록)·상태·평가일·반영 비율(평가계획서 분석 "후보 · 확인 필요")·제출 마감·학교 담당 선생님("미등록 · 확인 필요", 학원 정보로 대체하지 않음)·정보 출처·평가 기준(탭 이동)·첨부(미등록)·연결된 심화 탐구(AUD-013). 심화 탐구 — 목표·연결 수행평가(독립 탐구 표시)·출처 자료·시작일·내 목표일.
+- **AUD-015 평가 기준 탭**: evaluationItemRef → §11 분석 결과에서 항목 후보(이름·반영 비율·배점·시기·채점 기준 후보·원본 근거 PDF/문서 쪽·원문)와 "확인 필요" 표시, 학생 "내 점검" 체크(저장 안 함). 직접 등록·분석 실패·과목/항목 없음·조회 오류를 각각 구분. AI가 기준을 만들지 않음, AI 쉬운 설명은 준비 중 유지.
+- **E Notion형 편집기 (새 Editor 패키지 없음)**: 하단 "블록 추가"·빈 노트 시작 화면 제거 → 빈 노트는 바로 입력할 수 있는 본문 1줄(+ 템플릿 안내). Enter 나누기(한글 조합 중 무시)·Shift+Enter 줄바꿈·맨 앞 Backspace 합치기/유형 해제·Delete 끌어오기·↑↓←→ 블록 이동·목록 Tab/Shift+Tab 들여쓰기·빈 목록 Enter 빠져나오기·Alt+↑↓·블록 왼쪽 +("/" 메뉴)·복제·유형 바꾸기·본문 아래 빈 곳 클릭. "/" 메뉴 22개(검색·화살표·Enter·Esc·아이콘·설명, listbox + aria-activedescendant): 텍스트·제목 1~3·글머리·번호·체크리스트·토글·인용·이모지 강조·구분선·코드(언어 표시·고정폭·Tab)·수식(LaTeX 원문 + 괄호 검사, 렌더러 없음)·표(행·열 추가·삭제)·차트(표 값 → SVG 막대)·참고자료·링크 카드·이미지/파일/PDF(메타데이터만 저장, 이 화면 미리보기)·동영상(YouTube만 youtube-nocookie 삽입, 그 밖은 링크 카드)·지도·장소(장소 카드, 지도 API 없음). blockId·Revision·피드백 Snapshot·자동 저장·충돌·과거 블록 그대로. 읽기 화면(Revision·Snapshot·비교·템플릿 미리보기)도 새 블록을 표시(동영상은 읽기 화면에서 삽입하지 않음). 모르는 type은 보존.
+- **F 템플릿 10종 보강**: ID·이름·이모지 소제목 7개 유지, 소제목마다 💡 안내·질문·흐린 예시(placeholder, 저장되는 글 아님)·표·체크리스트·참고자료 자리. 학생 결과·세특 문장을 대신 쓰지 않음(세특 칸은 "선생님이 작성, 실제 활동만 메모" 안내).
+- **AUD-009** 마감순 화면 표시에서 완료 과제를 아래로(서버 Sort 규칙은 MM-12 미결), **AUD-034** 보관함 모든 탭에서 지난 학기 항목에 학기 표시, **AUD-004** Modal 선택 Chip 잉크 스타일, **AUD-042** 모바일 누름 영역 24px 이상(19개 화면 390px 실측 0건).
+
+### Open / Blocked
+
+- 과제 정보 항목(평가 유형·담당 선생님·첨부)·과제별 평가 기준 조회·학생 점검 저장(MM-49·50), 즐겨찾기 유형 확장(MM-51), 블록 Schema 확장·파일 저장(MM-52, OD-A05·API-OD-A03), 지문 스크린샷·영역 저장·sourceReference 영역(MM-53), 추천 자료원 주소(MM-54) → **P-22 제안(PROPOSED, 미승인)**. Editor 패키지(BlockNote·Tiptap·Lexical) 도입은 P-18·P-22 비교만, 설치하지 않음.
+- 검증된 시험 주제 카드는 정적 참고 콘텐츠이며 정기 갱신·관리자 콘텐츠 이전 여부 미정.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace 전체): PASS (build chunk 크기 경고는 기존과 동일).
+- Scratchpad Playwright: 통합 보강 신규 124/124(`enh-check`), 회귀 노트 51/51·상세 45/45·피드백 32/32·성장·보관함 50/50·자료함 43/43·심화 65/65·심화→홈 7/7·홈·꿀팁 57/57·PDF 66/66·아이콘 31/31·목록·학업 정보 51/52(`favicon.ico` 404, 기존과 동일). 반응형·접근성 일괄 점검 19개 화면×4폭: 가로 스크롤·이름 없는 버튼·콘솔 오류 0, 390px 24px 미만 대상 0.
+- 사용자 요청으로 동작이 바뀐 기존 테스트 기대값: 노트(빈 노트 시작 화면·"블록 추가" → "/" 메뉴·+ 버튼, 템플릿 블록 수 → 소제목 7개 기준), 상세(소제목 입력 이름 "제목 2", 평가 기준 Empty → 분석 후보, 빈 노트 시작 화면), 성장·보관함("심화 탐구 행 별표 없음" → 별표 있음), 심화·심화→홈(라이브러리 행 선택자에서 별표 제외, 과제 정보 패널과 같은 링크는 속성 목록으로 한정), 자료함("내 자료함 열기" → "자료함 열기"). 요구사항을 약화한 변경은 없음.
+- `scripts/verify*.ps1`: NOT RUN. Backend·Storage·AI·OCR·E2E: NOT RUN / NOT IMPLEMENTED. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 학교 수행평가 목록·상세 Mockup 복원 (SA-LIST-01·SA-DETAIL-01, Mock, PARTIAL)
+
+같은 Branch `feature/assessment-student-integration-enhancement`(HEAD `90720de`, **미커밋**). 직전 통합 보강 Working Tree 위에서 수정.
+
+### Done
+
+- **목록 (SA-LIST-01)**: 헤더 `★ | 수행평가 | 평가일 · 마감 | 정보 출처 | 진행 상태 | 기록`. ★ 열은 행 링크 위에 올려 마우스·키보드로 누를 수 있게 함(행 이동 없음, 기존에는 행 링크가 별표를 덮어 마우스 클릭이 안 되던 문제 수정). `★ 중요` 필터(URL `important=1`) — §12에 Query가 없어 같은 범위를 한 번에 받아 §30 즐겨찾기와 화면에서 맞춤, 상태·과목·검색과 조합, 추가·해제 즉시 반영, 완료 후순위 유지.
+- **기록 열**: 노트 수정 이력 = 이 과제 노트의 NoteRevision 수(§21), 피드백 말풍선 = 이 노트 Revision을 가리키는 FeedbackRequest(§31)의 답변 도착·대기(답변이 있으면 파란 강조). 결과물 ArtifactVersion 수는 합치지 않음. 수정 이력 → 상세 `?history=1`(수정 이력 열림), 말풍선 → `?panel=feedback`. 조회 실패는 "0·피드백 없음"이 아닌 오류 아이콘 + 다시 시도.
+- **즐겨찾기 조작 위치**: 학교 수행평가 목록, 탐구 라이브러리 목록 행, 내 탐구 목록에서만. 수행평가 상세·심화 탐구 상세·라이브러리 미리보기의 별표 제거. 보관함은 즐겨찾기 표시·원본 이동 유지(학교 수행평가 행 별표는 Stage 5부터 있던 것 유지, 심화 탐구·라이브러리 행은 표시만).
+- **상세 (SA-DETAIL-01)**: 노트 위 회색 "과제 정보" 패널을 학교 수행평가에서 제거하고, 제목 아래 속성 목록으로 이동 — 진행 상태·과목·평가 유형(미등록)·평가일·제출 마감·반영비율(평가계획서 분석 값은 "평가계획서 후보 · 확인 필요")·정보 출처(배지 + "PDF 분석 후보 · 확인 필요" + `PDF p.N` → 평가 기준 탭)·담당 선생님("미등록 · 확인 필요", 예시 이름·학원 정보 사용 안 함)·연결된 심화 탐구·평가 정보 수정. 그 아래 **안내문·첨부**(사진·PDF 추가, 썸네일·파일명, 이 화면에서만 미리보기 — 서버·브라우저 저장소 저장 없음), 결과물, 탐구 노트 순. 오른쪽 4개 탭·Editor·Revision·Snapshot은 그대로. `NoteContextPanel`은 심화 탐구 상세에서 계속 사용.
+
+### Open / Blocked
+
+- 목록 "중요" 서버 Query·기록 집계 기준(MM-07·MM-55), 평가 유형·평가일 텍스트·담당 선생님·AI 제한 배지·정보 출처 확인 상태(MM-49·MM-11), 안내문 첨부 저장(MM-56, API-OD-A03) → **P-23 제안(PROPOSED, 미승인)**. 행 메타(유형·비율·AI 제한)·정보 출처 "학생 확인·수정" 문구는 계약이 없어 Mockup과 다름.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace): PASS.
+- Scratchpad Playwright (메모리 확인 후 한 묶음씩 순차 실행): 이번 작업 `mk-check` 50/50, 통합 보강 `enh-check` 123/123, 회귀 노트 51/51·상세 45/45·피드백 32/32·성장·보관함 50/50·자료함 43/43·심화 65/65·심화→홈 7/7·홈·꿀팁 57/57·PDF 66/66·아이콘 31/31·목록·학업 정보 51/52(`favicon.ico` 404 Known Issue). 반응형·접근성 일괄 점검 76건: 가로 스크롤·이름 없는 버튼·콘솔 오류 0, 390px 24px 미만 0.
+- 이번 요청으로 바뀐 기존 테스트 기대값: enh-check(과제 정보 → 속성 목록, 상세·미리보기 별표 없음, 즐겨찾기 실패는 목록에서), 성장·보관함(심화 탐구 행 별표 없음 — Stage 5 기대값으로 복귀), capture(행 안 링크가 2개라 제목 링크로 한정).
+- Mockup 비교 캡처(1920×972, DPR 1.5): Scratchpad `measure\mockup2\` (side-list-final, side-detail-final, side-zoom-props-final, side-zoom-records-final).
+- `scripts/verify*.ps1`: NOT RUN. Backend·Storage·E2E: NOT RUN. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 모의고사 60선·과목별 참고자료 허브·수행평가 필터/색 (Mock, PARTIAL)
+
+같은 Branch(HEAD `90720de`, **미커밋**). 직전 작업(목록·상세 Mockup 복원) Working Tree 위에서 수정.
+
+### Done
+
+- **목록 필터**: 전체·시작 전·진행 중·완료·★ 중요는 한 번에 하나만(같은 Chip 그룹). ★ 중요 = 진행 상태와 관계없이 즐겨찾기 전체(건수 표시), 상태 Chip = 별표와 관계없이 그 상태 전체. 예전 URL에 둘 다 있으면 중요 우선. 검색·과목·학기·정렬은 그대로 조합.
+- **상세 보조 문구 색**: 속성 옆 "평가계획서 후보 · 확인 필요"·"PDF 분석 후보 · 확인 필요"를 회색(보조 글자색)으로. 오른쪽 평가 기준 배지·링크·D-day·오류 색은 그대로.
+- **모의고사 60선**: `references/mock-exam/LearnersHigh_Mock_Exam_60_Research_Materials.md`(읽기 전용)를 Scratchpad 변환 스크립트로 `api/mock/mockExamResearchFixture.ts`(자동 생성, 원본 SHA-256 기록)로 옮김 — 60개(영어 30·국어 30), 목차 표·본문 제목·출처·ID·원문 중복·방법 3개·Q1~Q3 검증. 원문 지문은 글자 그대로. 공개 추천 소재를 60선으로 교체하고 예전 시연 카드 5개는 목록에서 내리되 ID 상세 조회는 유지(그 소재에서 시작한 탐구 출처 보존). 직전 작업의 "최근 시험 주제 카드 5개"(`verifiedExamTopics.ts`)는 이전 추천 콘텐츠라 제거. 개인 지문 등록·스크린샷 영역은 그대로.
+- **모의고사 화면**: 카드형 라이브러리(과목 탭 전체 60/영어 30/국어 30, 검색, 학년·시행 시기·추천 계열 필터, 필터 초기화, 12개씩 더 보기, 데스크톱 3열·태블릿 2열·모바일 1열). 카드: 과목 배지·시험·문항·소재·추천 주제·계열·지문 상세 보기·심화 탐구 시작. 상세: 원문 지문(스크롤 + 전체 펼치기)·시험·문항·원본 PDF·학습용 제안 안내·추천 주제·해설·방법 1~3·Q1~Q3·"이 주제로 심화 탐구 시작"(기존 만들기 Modal, 제목·목표 수정 가능, §18 sourceReference = 소재 ID, 학교 수행평가로 등록하지 않음). 목록 복귀 시 탐색 조건 유지.
+- **참고자료 카탈로그**: `references/reference-link/learnershigh-assessment-subject-reference-links.md` 기준 자료원 24곳(원본 22 + 추가 2)·8개 영역·영역별 활용 문장을 `api/mock/referenceSourcesFixture.ts` 한 곳에 둠(중복 없음, 과목 매핑으로 연결). 과목 이름 → 영역 규칙은 `model/referenceAreas.ts`(화학·생명을 과학보다 먼저 등). §22 추천 Mock도 이 카탈로그에서 만들어 자료함·수행평가·심화 탐구 자료 탭이 같은 Source를 씀.
+- **자료 탭**: 공식 사이트 열기(실제 주소, 새 탭), 추천 이유, 자료원 종류 필터, "전체 참고자료 보기"(과목 영역 미리 선택), 찾은 자료 등록(주소는 학생이 입력), 내 자료 검색·노트에 추가 유지.
+- **참고자료 메뉴·화면(신설)**: Sidebar 자료함 아래 "참고자료"(펼친 책 아이콘), `/assessment/reference-links`. Daglo 콘텐츠 안내 화면 구조를 참고 — 소개(연한 파란 그래픽 + 제목 + 파란 버튼), "참고자료는 이렇게 활용해요" STEP 1~3 카드, "이런 자료원을 추천해요" 3묶음, 둘러보기(과목 영역 9 Chip·검색·자료 유형 필터·자료원 카드 24·과목별 활용 펼치기·공식 사이트 열기·찾은 자료 등록·내 자료함 열기). 그래픽은 CSS·아이콘으로 직접 그림(Daglo 로고·이미지·문구 미사용).
+
+### Open / Blocked
+
+- 모의고사 원문 공개 배포 권한, 60선 관리자 제공·갱신 방식, §17 학년·시기·계열 Query(MM-57), 참고자료 카탈로그 서버 응답·과목 분류/추천 규칙·외부 검색 API·링크 재검증 주기(MM-58), 학교 과목이 어느 영역에도 연결되지 않는 경우의 추천(MM-59) → **P-24 제안(PROPOSED, 미승인)**. P-22·P-23·MM-49~56 상태는 바꾸지 않음.
+- Student build 번들이 약 1.26MB → 1.54MB로 커짐(60선 원문 Fixture 약 280KB). 서버 연결 시 API 응답으로 바뀌며, 그 전에 필요하면 지연 로딩을 검토.
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace): PASS (chunk 크기 경고는 기존과 같은 종류, 크기는 위와 같이 증가).
+- Scratchpad Playwright(메모리 확인 후 한 묶음씩 순차): 이번 작업 `rx-check` 77/77(원본 Markdown 직접 대조 포함), 회귀 목록·상세 `mk-check` 50/50·통합 보강 `enh-check` 122/122·자료함 43/43·심화 65/65·심화→홈 7/7·노트 51/51·상세 45/45·피드백 32/32·성장·보관함 50/50·홈·꿀팁 57/57·PDF 66/66·아이콘 31/31·목록·학업 정보 51/52(`favicon.ico` 404 Known Issue). 반응형·접근성 일괄 점검 84건(신규 2화면 포함): 가로 스크롤·이름 없는 버튼·콘솔 오류 0, 390px 24px 미만 0.
+- 이번 요청으로 바뀐 기존 테스트 기대값: mk-check(중요+상태 조합 → 한 번에 하나), enh-check(추천 자료원 수·실제 링크, 검증 주제 카드 → 60선), rl-check(추천 자료원 6곳, 과학탐구실험2도 과학·물리로 연결되어 "추천 없음"은 Fixture 과목으로 재현 안 됨), ae-check(모의고사 5개 카드 → 60선 카드·상세 원문·버튼 이름).
+- 캡처: Scratchpad `measure\ref60\`(01~10 final, side-daglo-01·02).
+- `scripts/verify*.ps1`: NOT RUN. Backend·외부 링크 실제 열림·E2E: NOT RUN. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 상세 화면 이중 스크롤·하단 빈 공간 수정 (CSS, Mock 화면)
+
+같은 Branch(HEAD `90720de`, **미커밋**).
+
+- **원인**: 상세의 가운데(`.main`)·오른쪽(`.panelArea`) 스크롤 영역에 위치 기준(position)이 없어, 안의 `position:absolute` 요소(노트 제목의 `lh-visually-hidden` 라벨)가 body를 기준으로 놓였다. 이 요소는 스크롤 영역의 overflow로 잘리지 않고 문서를 136px 늘려(1920×972에서 document 1108 / viewport 972) 바깥 스크롤이 생기고, 바깥을 스크롤하면 전체가 밀려 상단 바가 가려지고 아래에 빈 공간이 보였다. 높이 계산(상단 50 + 상단 바 43 + 본문 879) 자체는 맞았다.
+- **수정**: `routes/SchoolAssessmentDetailRoute.module.css`의 `.main, .panelArea`에 `position: relative`(누수 차단)와 `overscroll-behavior-y: contain`(끝에서 바깥으로 넘김 방지) 추가. 심화 탐구 상세도 같은 CSS를 써서 함께 해결. 1279px 이하(한 열)는 기존대로 문서 스크롤 하나.
+- **검증**: Scratchpad `scroll-check` 25/25(1920·1440: document = viewport·가운데/오른쪽/Sidebar 독립 스크롤·노트 끝·Enter 25번 따라 스크롤·"/" 메뉴·팝오버·모달, 1024·820·390: 문서 스크롤 하나·끝까지 접근), 회귀 노트 51·상세 45·목록/상세 50·60선/참고자료 77·피드백 32·통합 122·심화 65·자료함 43·성장/보관함 50·심화→홈 7·홈/꿀팁 57·PDF 66·아이콘 31·목록 51/52(favicon 404), 일괄 점검 84건 이상 없음, typecheck/lint/build PASS. `scripts/verify*.ps1` NOT RUN.
+
+## 2026-10-28 — Sidebar 과목 검색·접기 + 3영역 스크롤 (Mock 화면)
+
+같은 Branch(HEAD `90720de`, **미커밋**).
+
+- **과목 9개 이하**: 기존 Sidebar 그대로(제목 "과목" + 목록, 검색·접기 없음). 과목 0개 문구만 "등록된 과목이 없습니다."로 맞춤.
+- **과목 10개 이상**(`components/SidebarSubjects.tsx`, 기준 10은 컴포넌트 안 상수): 제목 줄에 "과목 N개" + 접기/펼치기 버튼(`aria-expanded`·`aria-controls`, Enter/Space, 기본 펼침, 접힌 과목은 그리지 않아 Tab 대상 아님). "과목 검색" 입력(앞뒤 공백 무시·대소문자 무시·부분 일치, 한글 입력 중 Escape 무시, 지우기 버튼·Escape로 비움), 결과 없음 "일치하는 과목이 없습니다.". 검색어·접힘은 화면 상태일 뿐 저장하지 않고 수행평가 목록 검색·필터·URL을 바꾸지 않는다. 과목 클릭은 기존 이동·Active 표시 그대로. 학기를 바꾸면 그 학기 과목으로 다시 그리며 없는 과목으로 자동 이동하지 않음.
+- **3영역 스크롤**(`routes/AssessmentLayout.module.css`): 위 학기 선택 고정, 아래 "학교·학업 정보" 고정, 가운데 메뉴(`nav`)만 스크롤(스크롤바 1개, 과목 목록 자체 `max-height` 스크롤 없음). Sidebar 전체 스크롤(`overflow-y: auto`)·하단 sticky를 없앰. `body` overflow는 건드리지 않음. 모바일 Drawer(959px 이하)도 같은 구조.
+- **Mock 시나리오**(화면 확인 전용, 기본 Fixture 그대로): `subjects0`·`subjects4`·`subjects9`·`subjects10`·`subjects15`·`subjects20`·`subjects30` — 현재 학기 과목만 Fixture 4개 + 시연용 과목 이름으로 N개를 만든다(실제 학교 과목 아님, 수행평가 없음).
+- 과목 제목 id(`assessment-subject-group`)는 기존과 같게 유지.
+
+### Verification
+
+- Scratchpad `sb-check` 52/52: 0·4·9·10·15·20·30개, 기본 4개 기존 치수(제목 여백 21px·행 37px·간격 2px), 검색("과학" 2개·공백·결과 없음·지우기), 접기/펼치기(키보드 Enter·Space, 검색어 유지, 접힌 과목 Tab 제외), 검색 결과 클릭 이동·Active, 학기 변경, 1920×972@1.5·1440×900·1440×640에서 가운데만 스크롤·마지막(30번째) 과목 접근·위아래 고정·문서 높이 증가 없음, 상세 화면 이중 스크롤 재발 없음, 1024·820·390(Drawer 검색·접기·스크롤·선택 후 닫힘, 가로 넘침 없음).
+- 측정(과목 30개, 1920×972): 변경 전(CSS 재현) Sidebar 922 중 내용 1704 → Sidebar 전체가 782px 스크롤되며 학기 선택이 화면 밖(-732)으로 나감. 변경 후 위 73 · 가운데 787(내용 1620, 여기만 스크롤) · 아래 62 = 922, document 972 = viewport.
+- 회귀(순차): `scroll-check` 25/25(Sidebar 측정 대상을 aside → 가운데 nav로 갱신), 노트 51·상세 45·목록/상세 50·60선/참고자료 77·통합 122·성장/보관함 50·피드백 32·심화 65·자료함 43·심화→홈 7·홈/꿀팁 57·PDF 66·아이콘 31·목록/학업 정보 51/52(`favicon.ico` 404 Known Issue), 일괄 점검 84건(이전과 같음). typecheck/lint/build PASS. `scripts/verify*.ps1` NOT RUN. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 대학별 기출 PDF 열람·심화 탐구 연계 (Mock 화면 + 개발 서버 원문)
+
+같은 Branch(HEAD `90720de`, **미커밋**).
+
+- **실제 PDF 조사**: `references/previous-exam-questions` — SNU 9개(수시 면접·구술고사 2023~2026, 적성·인성면접 2023~2026, 2028 면접 예시 문항), KAIST 18개(2024~2026 물리학·생명과학·수학·영어·화학, 학업외역량/적합성 공통문제). 쪽 수는 pypdf·poppler·pdf.js 세 방법이 모두 같음(SNU 2028은 AES 암호화로 poppler·pdf.js로 확인). 원본은 읽기만 함.
+- **카탈로그**: `api/mock/universityExamManifest.json`(문서 27, 문항 블록 123) — 대학·학년도·유형(실제 기출/예시 문항)·과목·쪽 수·크기·SHA-256·문항 목차. 문항·구획 쪽은 원문에서 머리·제목이 확인된 쪽만(검증 스크립트로 27개 문서 123개 블록 범위 확인). 서울대 2028은 "예시 문항"으로 따로 표시. `npm run exam-manifest`(`frontend/student/tools/university-exam-manifest.mjs`)로 폴더와 대조(누락·중복·변경 0), `--write`면 새 PDF를 "문항 목차 없음"으로 추가.
+- **원문 제공**: Vite 개발 서버 전용 `/__dev/university-exams/files/{documentId}.pdf`(`vite.config.ts`, apply: serve) — Manifest 허용 목록만, 경로 탐색·모르는 ID 404, 크기·해시 불일치 409, GET/HEAD만. Build에는 원문·경로가 없고 화면은 "이 환경에서는 원문 PDF를 제공하지 않아요".
+- **PDF 뷰어**: `pdfjs-dist` 5.4.296 도입(Apache-2.0, 원문 화면에서만 동적 로딩, 한글 CMap·표준 글꼴·wasm은 정적 자산). 이유: iframe 내장 뷰어는 현재 쪽·로딩 실패·손상 파일을 알 수 없고 Android Chrome은 iframe PDF를 표시하지 않음. 이전·다음·쪽 이동·확대·축소·폭 맞춤·키보드·새 탭(브라우저 기본 뷰어). 파일 없음·변경·손상·불러오기 실패·배포 미제공 구분. **승인 기록 필요(P-25)**.
+- **화면**: 대학별 자료(S20 확장, 탭 이름 "대학별 자료") — 대학 카드·칩·학년도·과목·유형 필터·검색(문서 목록 검색, PDF 본문 검색 아님)·문서 카드 27. 원문 보기(S26 신설) — PDF + 자료 정보·지금 보는 쪽·문항 목차(해설·채점 기준·예시 답안·총평은 접힘)·탐구 방향 예시 4개(요청 원문, 공식 추천 아님 표시).
+- **심화 탐구 연계**: "이 문항으로 심화 탐구 시작" → 기존 만들기 Modal 재사용(제목 "이 기출문제로 심화 탐구하기", 출처·원문 개념·예시, 주제·질문은 학생이 작성) → §18 `sourceReference`(UNIVERSITY_RESOURCE) + Mock 전용 `locator {questionId, page}`. 탐구 상세 자기 점검 탭에 출처 카드(해당 쪽으로 이동). 원문 화면 "현재 쪽을 노트에 추가" → 그 탐구 노트에 출처 카드 + 자동 저장. 노트 "/참고자료"·"/대학 기출 PDF" → 문서·문항·쪽 범위 선택 → `EXAM_SOURCE` 카드(원본 보기). 새 노트 편집기를 만들지 않음.
+- 가상 대학 시연 자료 5건(`fixtureUniversityResources`) 제거 — §27 목록 Mock은 같은 Manifest에서 만든다(같은 자료 = 같은 ID).
+
+### Open / Blocked
+
+- 대학 PDF 공개 배포·이용 허락(서울대 "상업적 이용·변형·발췌 금지" 안내), 원문 제공 서버 계약·권한, 문항 인덱스 작성·검수 주체, `locator`·`EXAM_SOURCE` Schema, `pdfjs-dist` 도입 승인 → **P-25 PROPOSED(미승인)**. P-22~P-24 상태는 바꾸지 않음.
+- PDF 본문 전체 검색 없음(목록 검색만). OCR 불필요(27개 모두 글자 추출 가능).
+
+### Verification
+
+- `npm run typecheck` / `lint` / `build` (frontend workspace): PASS. Build 결과에 시험 PDF·개발 서버 경로 없음 확인. pdf.js는 별도 chunk(약 394KB + worker 1MB)로 원문 화면에서만 받음.
+- `npm run exam-manifest`: PDF 27 (snu 9, kaist 18) · Manifest 27 · 문항 123 · 누락·중복·변경 없음.
+- 개발 서버 경로 curl: 27개 AVAILABLE, `../`·인코딩된 경로·모르는 ID·대문자 ID 404, POST 405.
+- Scratchpad Playwright `univ-check`(실제 Chrome·실제 PDF): 직전 실행에서 등록 PDF 27개 전부 열림·쪽 수 일치·마지막 쪽 그려짐·해당 파일만 요청 27/27, 대표 8개(SNU 2026·2028, KAIST 수학·물리·화학·생명·영어·적합성) 표시·글자 픽셀·확대·축소·마지막 쪽·문서 전환 PASS, 목록 개수(27·9·18)·예시 문항 배지·문항 목차 이동·해설 접힘·채점 기준 이동·탐구 Modal 출처 표시 PASS. 필터 4건 FAIL은 테스트가 클릭 직후 다음 필터를 바꾼 경합(대기 추가로 수정)이었고, 과목 선택 단계에서 테스트 셀렉터 시간 초과.
+  - 이 과정에서 실제 결함 1건 수정: 대학 선택 시 목록으로 스크롤하면 칩 줄이 고정 상단 메뉴 아래로 가려짐 → 카드 "자료 둘러보기"에서만 스크롤 + `scroll-margin-top`.
+  - **수정 후 전체 재실행은 시스템 메모리 부족으로 Claude Code가 중지함 → 탐구 생성 이후(노트 카드·자동 저장·오류 상태·반응형 5폭) 브라우저 검증과 기존 회귀는 NOT RUN.**
+- `scripts/verify*.ps1`: NOT RUN. Backend·E2E: NOT RUN. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 대학별 자료 목록·PDF 상세 UI 간소화 (Mock 화면)
+
+같은 Branch(HEAD `90720de`, **미커밋**). 기능·데이터 변경 없음(Manifest·원본 PDF·계약 그대로).
+
+- **목록**: 카드 그리드 → Daglo 전체 보드형 목록(`components/university/UniversityExamRow.tsx`, 카드 컴포넌트 삭제). 열: 자료명(+원문 개념 회색 줄) | 대학·학년도·유형 | 과목·영역 | 분량 | 작업. 자료명 클릭 = PDF 보기. PDF 보기·탐구 시작은 같은 크기의 보조 버튼(파란 배경 없음). 서울대 2028은 "예시 문항". 목록 폭은 이 화면만 최대 1240px.
+- **상단**: 대학 소개 카드 2개 제거 → 대학 칩만. 학년도·과목·유형은 "필터" 버튼으로 펼치고, 적용된 조건(개별 지우기·필터 초기화)·필터 개수 표시. 정렬(학년도 최신/오래된·자료명) 추가. 검색은 위 공통 검색창.
+- **원문 상세 오른쪽**: 파란 왼쪽 강조선·파란 테두리 상자·중첩 회색 상자·파란 큰 버튼 제거. 문서형 순서: 자료 이름 → 문항 안내(지금 보는 쪽·문항·원문 개념·원문 구획 쪽·해설 묶음 접힘·탐구 방향 예시·보조 버튼) → 문항 목차(한 줄, 현재 문항 = 연한 배경 + 굵기 + "보는 중" + aria-current). 목차에서 문항을 고르면 그 문항 시작 쪽으로 이동하고 안내가 바뀐다.
+- **회귀 수정**: 이전 작업의 "/대학 기출 PDF" 명령이 "/pdf" 검색에서 기존 PDF 블록보다 앞에 와서 Enter가 다른 블록을 골랐음 → 명령 순서를 기존 PDF 뒤로.
+
+### Verification
+
+- typecheck / lint / build PASS, `npm run exam-manifest` 27·123 변경 없음.
+- Scratchpad `univ-check-a` 13/13(파일 27 AVAILABLE, PDF 27개 전부 열람·쪽 수·마지막 쪽, 대표 8개 확대·축소·문서 전환), `univ-check-b` 목록 22/22·원문 패널 14/14·탐구/노트 9/9·오류 7/7·반응형(1440·1024·820·390) 11/11.
+- 회귀(순차, 메모리 확인): 노트 51·상세 45·Sidebar 52·상세 스크롤 25·통합 122(메뉴 23개로 기대값 갱신)·심화 62(대학 구간을 실제 PDF 목록 기준으로 교체)·목록/상세 50·60선 77(필터 연속 변경 경합에 대기 추가, 기대값 동일)·피드백 32·성장 50·자료함 43·심화→홈 7·홈/꿀팁 57·PDF 가져오기 66·아이콘 31·목록 51/52(`favicon.ico` 404)·일괄 점검 84건 이전과 같음.
+- `scripts/verify*.ps1`·Backend·E2E: NOT RUN. Stage 1 ≠ VERIFIED.
+
+## 2026-10-28 — 대학별 PDF 원문 오른쪽 패널 디자인 복원 (Mock 화면)
+
+같은 Branch(HEAD `90720de`, **미커밋**). 직전 간소화에서 요청 범위를 넘어 바뀐 오른쪽 패널을 되돌림. 목록형 대학별 자료·PDF 뷰어·데이터는 그대로.
+
+- **복원**: 간소화 직전 Scratchpad 백업에서 `components/university/ExamQuestionNavigator.tsx`(문항별 상세 카드)와 `routes/UniversityExamDocumentRoute.tsx`(자료 정보·지금 보는 쪽 회색 카드·개념 Chip·세로 버튼)를 되살림. CSS는 목록·뷰어 구간은 그대로 두고 원문 보기·버튼·배지·Modal 출처 구간만 백업 값으로 복원(간소화 때 함께 바뀐 탐구 만들기 Modal 출처 상자·노트 출처 카드 버튼 모양도 원래대로).
+- **요청한 변경만 적용**: 지금 보는 문항 카드의 파란 테두리·왼쪽 강조선(inset box-shadow) 제거 → 연한 회색 배경(`--as-color-subtle`)으로만 구분, 일반 카드 테두리·둥근 모서리 유지. "이 문항으로 심화 탐구 시작"은 위치·세로 배치는 복원하고 파란 배경 대신 보조 버튼 모양(사용자 허용).
+- 패널 안내 문구는 예전 상자 모양(`noticeBox`), 목록 안내(`notice`)는 목록형 그대로.
+
+### Verification
+
+- typecheck / lint / build PASS, `npm run exam-manifest` 변경 없음.
+- Scratchpad `panel-check` 50/50: SNU 2026(1쪽·5쪽)·SNU 2028·KAIST 물리·생명에서 회색 카드·개념 Chip 수 = 원문·버튼 세로 2개·파란 배경 없음, 문항 카드 수 = 인덱스(15·12·2·2)·모든 카드에 문제 보기·탐구 시작, 선택 카드 파란 테두리·inset·outline 없음 + 배경 구분, 목차 이동·해설 접힘·채점 기준 이동·탐구 생성→출처→노트 카드→자동 저장→원본 보기, 오류 상태, 반응형 1920·1440·1024·820·390.
+- 목록 유지 `univ-check-b list` 22/22, 회귀 심화 62·통합 122·노트 51·상세 45·상세 스크롤 25·Sidebar 52.
+- 같은 문서·같은 쪽(SNU 2026 5쪽)으로 간소화 전 캡처와 비교: 구조·Chip·카드 일치, 차이는 파란 버튼 배경과 선택 카드 강조선뿐.
+- `scripts/verify*.ps1`·Backend·E2E: NOT RUN.
+
+## 2026-10-28 — Assessment 기본 진입(홈) + 구형 Mentor Hub·School Activity 제거 (legacy-cleanup-plan 2단계)
+
+같은 Branch(HEAD `90720de`, **미커밋**).
+
+- **진입**: 상단 Assessment → `/assessment`(기존 `AssessmentHomeRoute`, 새 화면 없음). 앱 첫 주소 `/`도 Assessment로 이동(예전 Mentor Hub). `/assessment` index는 원래 홈이었고, 바뀐 것은 Shell의 메뉴 이동 대상뿐. 상세 URL 직접 접근·뒤로 가기는 그대로.
+- **제거(삭제)**: `frontend/student/src/features/mentor-hub/`(135), `features/school-admissions/`(96), `frontend/student/assets/activity-case/`(학생 Mentor Hub Fixture 전용). 모두 미커밋 변경 없던 추적 파일이며 Git History에 남는다.
+- **부분 수정(Shared 영향, OWNERSHIP §10-1)**: `app/router.tsx`(Mentor 18·School 9 Route 제거, index → Assessment), `app/StudentAppShell.tsx`(Mentor Fixture 의존 제거 — 표시 이름은 같은 고정값, Assessment → 홈), `app/NotFoundPage.tsx` + 신규 `NotFoundPage.module.css`(Mentor Hub CSS 의존 제거, "Assessment 홈으로 이동"), `components/student-navigation/studentNavigationItems.ts`·`NavigationIcons.tsx`(mentor·schoolActivity 항목·아이콘 제거). 기존 LearnersHigh 메뉴 11개와 Assessment는 그대로. 기존 "수행평가"(performanceTask) 아이콘은 School로 가던 연결이 사라져 다른 기존 메뉴처럼 Route 미연결.
+- **유지(삭제하지 않음)**: `frontend/student/assets/mentor-man`·`mentor-woman` — Admin 구형 `fixtures/adminMentorPhotos.fixture.ts`가 직접 import(삭제 시 Admin Build 실패를 실제로 확인 후 백업에서 되돌림). Admin 구형 코드 정리는 4단계(Wangyu 리뷰). `frontend/mentor/` workspace — 5단계(OD-A10 팀 합의, `package.json`·lockfile·scripts Shared 승인). Backend에는 mentor/school 패키지가 없음(`common`, `studentcare`만).
+- 남은 문자열: 변경 이력 주석, 전역 `index.css`·Navigation CSS의 Token 설명 주석(전역 CSS 승인 대상이라 그대로), Assessment `school-assessments`(보존 대상).
+
+### Verification
+
+- typecheck / lint / build PASS (student·admin·mentor 3개 workspace).
+- Scratchpad `nav-check` 36/36: `/`·직접 접근·새로고침 → 홈 + Sidebar 홈 활성, 학교 수행평가 목록·상세·심화 탐구 상세·PDF Viewer에서 상단 Assessment → 홈·뒤로 가기, Sidebar 학교 수행평가 → 목록, 1920·1440·1024·820·390 상단 메뉴 12개(Mentor·School Activity 없음·가로 넘침 없음), 삭제 주소 9개(`/mentor/**`, `/school/**`) → 일반 Not Found(런타임 오류 0).
+- 회귀(순차): capture 51/52(favicon 404, 상단 메뉴 기대값 14→12·Assessment→홈으로 갱신), 심화→홈 7·홈/꿀팁 57·60선 77·목록/상세 50·노트 51·상세 45·피드백 32·심화 62·자료함 43·성장 50·통합 122·Sidebar 52·상세 스크롤 25·PDF 가져오기 66·아이콘 31·대학별 PDF 패널 50·목록 22·PDF 27개 13, 일괄 점검 84건 이전과 같음.
+- `scripts/verify*.ps1`·Backend·E2E: NOT RUN.
+
+## 2026-10-28 — 학생 과목 추가 + Assessment 연동 (Mock 화면)
+
+같은 Branch(HEAD `90720de`, **미커밋**). Mentor·School Activity 제거 상태 유지.
+
+- **진입점 2곳, Modal 1개**: 학교·학업 정보 "+ 과목 추가"(기존 비활성 칩을 실제 동작으로)와 Sidebar 과목 제목 옆 "+"(`aria-label="과목 추가"`)가 Layout의 `AddSubjectModal` 하나를 연다. Modal은 Assessment 테마 범위 안·Sidebar 밖에 그려 잘리지 않음.
+- **두 방식**: 이름 직접 입력 → `createStudentSubject`(P-26 PROPOSED, Mock 전용, "직접 추가" 표시) / 다른 학기에서 쓰던 과목 고르기 → §9-2 PUT subjectIds(같은 subjectId 재사용). 학교 개설 과목 카탈로그가 없어 추천 과목을 만들지 않음. 입력한 이름이 다른 학기 과목과 같으면 그 과목을 재사용.
+- **검증** (`model/subjectName.ts`, 화면·Mock 공통): 빈 값·공백 → "과목명을 입력해 주세요.", 같은 학교·학년도·학년·학기 안 중복(NFKC·공백 제거·대소문자 무시) → "이미 등록된 과목입니다.", 40자 초과(Mock UI 규칙). 공통국어1/2, 물리학Ⅰ/Ⅱ는 다른 과목. 연속 클릭은 한 번만 처리.
+- **저장**: Mock Store `academicContexts`에 추가 + 학생 추가 과목만 이 브라우저 저장소(학기 키)에 보관 → 새로고침해도 같은 ID로 유지. 저장 실패 시 오류 안내·입력 유지·Sidebar 미반영. 학기 간 복제 없음.
+- **연동**: 모든 과목 선택 UI가 학업 정보 응답을 쓰므로 Sidebar(건수 0)·과목별 목록(기존 빈 상태)·수행평가 추가·심화 탐구 만들기·탐구 라이브러리 필터·성장 기록·자료함에 바로 반영. 참고자료 영역 매핑이 없는 과목도 정상 동작.
+- **함께 고친 것**: Sidebar 메뉴 목록 grid에 `minmax(0, 1fr)` — 긴 과목명이 Sidebar를 넘던 문제(기존 말줄임이 grid 때문에 동작 안 함). 학업 정보 수강 과목 fieldset이 "정보 수정" 전에는 비활성이라 "+ 과목 추가"도 눌리지 않던 문제(저장 중에만 비활성).
+- 범위 밖: 과목 이름 변경·삭제(정보 수정의 선택 해제만 기존대로), 서버 생성 계약 → P-26.
+
+### Verification
+
+- typecheck / lint / build PASS (3 workspace).
+- Scratchpad `subject-check` 57/57: 학업 정보 등록·Modal 디자인·Focus·새로고침 후 같은 ID, 검증 9종(빈·공백·중복·중간 공백·41자·HTML 문자열·5회 연속 클릭·물리학Ⅰ/Ⅱ), Sidebar 등록 → 0 → 과목별 빈 목록 → 수행평가 등록 → 1 → 상세 과목명 → 전체 목록 → 심화 탐구 생성 → 라이브러리 필터 → 성장 기록 → 자료함, 다른 학기 과목 재사용(subj_11)·1학기 추가 과목이 2학기에 섞이지 않음·같은 이름 다른 학기 추가·"직접 추가" 유지, 9→10개 검색·접기 등장·+와 접기 버튼 겹침 없음·31개 단일 스크롤, 저장 실패·잠금·저장소 차단, 1440·1024·820·390 Modal·IME 입력·가로 넘침 없음, 긴 과목명 말줄임.
+- 회귀(순차): Sidebar 52(제목 옆 + 때문에 목록 간격 측정 대상만 갱신, 값 동일)·상세 스크롤 25·진입/제거 36·노트 51·상세 45·목록/학업 정보 51/52(favicon 404)·심화→홈 7·홈/꿀팁 57·60선 77·목록/상세 50·피드백 32·심화 62·자료함 43·성장 50·통합 122·PDF 가져오기 66·아이콘 31·대학별 PDF 패널 50·목록 22, 일괄 점검 84건 이전과 같음.
+- `scripts/verify*.ps1`·Backend·E2E: NOT RUN.
+
+## 2026-10-29 — PR 준비: 원문 데이터 분리
+
+- 원격 저장소가 공개 저장소라, 배포 권한이 확인되지 않은 **모의고사 60선 원문 지문**을 Fixture에서 분리했다. `mockExamResearchFixture.ts`의 `research.passage`는 빈 문자열이고, 원문은 로컬 전용 `api/mock/mockExamPassages.local.json`(Git 제외)에 두며 `mockExamPassages.ts`가 있을 때만 붙인다. 없으면 상세 화면에 "원문 미포함" 안내.
+- 대학별 기출 PDF 27개와 `references/` 원본(모의고사 Markdown·참고자료 링크 Markdown·Daglo·Mockup 이미지)은 Commit하지 않는다. Manifest에는 파일명·쪽·개념어 같은 색인 정보만 있다.
+- 탐구 주제·방법·질문(LearnersHigh 제안)과 시험·문항·쪽 출처는 Fixture에 그대로 둔다.
+
 ---
 
 # 24. 핵심 요약

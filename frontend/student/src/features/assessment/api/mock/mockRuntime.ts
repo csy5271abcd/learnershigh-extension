@@ -52,6 +52,19 @@ export type MockScenario =
   | 'analysisFailed'
   | 'analysisNoResult'
   | 'personalReviewError'
+  | 'referenceCatalogError'
+  /** Sidebar 과목 수 검증용 (현재 학기 과목 수를 0·4·9·10·15·20·30개로 바꿔 보여준다, Fixture는 바꾸지 않음) */
+  | 'subjects0'
+  | 'subjects4'
+  | 'subjects9'
+  | 'subjects10'
+  | 'subjects15'
+  | 'subjects20'
+  | 'subjects30'
+  /** 대학별 기출 PDF 상세 조회 실패 (P-25 Mock) */
+  | 'universityExamDetailError'
+  /** 학생 과목 추가 저장 실패 (P-26 Mock) */
+  | 'subjectCreateError'
 
 const consumedOnce = new Set<string>()
 

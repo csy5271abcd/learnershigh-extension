@@ -13,6 +13,8 @@ import type {
 } from '../types.ts'
 import { fail, mockNow, nextMockId, respond, scenarioActive } from './mockRuntime.ts'
 import { mockStore } from './mockStore.ts'
+import { retiredMockExamMaterials } from './enrichmentFixture.ts'
+import { isValidExamLocator } from './universityExamMock.ts'
 
 // §16 공개 심화 Task, §17 모의고사 소재·개인 자료, §18 개인 심화 Task, §27 대학 공개 자료 Mock.
 // 공개 콘텐츠와 학생 Task는 서로 다른 Store 배열·ID를 쓴다. 시작해도 공개 콘텐츠 Record는 바뀌지 않는다.
@@ -123,11 +125,15 @@ export function createEnrichmentTaskMock(request: CreateEnrichmentTaskRequest): 
     if (source) {
       const exists =
         source.type === 'MOCK_EXAM_MATERIAL'
-          ? mockStore.mockExamMaterials.some((m) => m.materialId === source.sourceId)
+          ? mockStore.mockExamMaterials.some((m) => m.materialId === source.sourceId) || retiredMockExamMaterials.some((m) => m.materialId === source.sourceId)
           : source.type === 'PERSONAL_MOCK_EXAM_MATERIAL'
             ? mockStore.personalMockExamMaterials.some((m) => m.materialId === source.sourceId)
             : mockStore.universityResources.some((r) => r.resourceId === source.sourceId)
       if (!exists) fields.push({ field: 'sourceReference', reason: 'unknown' })
+      // locator(P-25)는 대학 기출 PDF에만 쓰고, 그 문서의 실제 쪽·문항이어야 한다.
+      else if (source.locator && (source.type !== 'UNIVERSITY_RESOURCE' || !isValidExamLocator(source))) {
+        fields.push({ field: 'sourceReference.locator', reason: 'unknown' })
+      }
     }
     if (fields.length > 0) validationError(fields)
 
@@ -198,7 +204,7 @@ export function listMockExamMaterialsMock(query: {
       : mockStore.mockExamMaterials.filter(
           (item) =>
             (!query.subjectId || item.subjectId === query.subjectId) &&
-            matchesQuery(query.query, item.idea.topicTitle, item.idea.coreMaterial, ...item.idea.relatedFields),
+            matchesQuery(query.query, item.idea.topicTitle, item.idea.coreMaterial, item.research?.examTitle ?? '', ...item.idea.relatedFields),
         )
     return paginate(items, query.page, query.size)
   })
@@ -207,7 +213,10 @@ export function listMockExamMaterialsMock(query: {
 export function getMockExamMaterialMock(materialId: string): Promise<MockExamMaterial> {
   return respond(() => {
     if (scenarioActive('materialError')) serverError()
-    const item = mockStore.mockExamMaterials.find((entry) => entry.materialId === materialId)
+    // 추천 목록에서 내린 예전 시연 소재도 ID로는 열린다 (그 소재에서 시작한 탐구의 출처 보존).
+    const item =
+      mockStore.mockExamMaterials.find((entry) => entry.materialId === materialId) ??
+      retiredMockExamMaterials.find((entry) => entry.materialId === materialId)
     if (!item) fail(404, { code: 'MOCK_EXAM_MATERIAL_NOT_FOUND', message: '탐구 소재를 찾을 수 없어요.', details: {} })
     return item
   })

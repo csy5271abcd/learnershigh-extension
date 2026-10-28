@@ -40,6 +40,8 @@ interface DetailTopBarProps {
   currentRevisionId?: string
   /** 저장 안 된 변경이 있으면 이력에 안내한다 */
   hasUnsavedChanges?: boolean
+  /** 처음부터 수정 이력을 연다 (목록 "기록" 열에서 들어온 경우, `?history=1`) */
+  initialHistoryOpen?: boolean
 }
 
 // 상세 상단 바 (Mockup SA-DETAIL-01·12·14): 뒤로·Breadcrumb / 수정 이력 / 선생님께 피드백 요청 / 더보기.
@@ -57,6 +59,7 @@ export function DetailTopBar({
   saveStatus,
   currentRevisionId,
   hasUnsavedChanges = false,
+  initialHistoryOpen = false,
 }: DetailTopBarProps) {
   return (
     <div className={styles.topBar}>
@@ -85,6 +88,7 @@ export function DetailTopBar({
           currentRevisionId={currentRevisionId}
           hasUnsavedChanges={hasUnsavedChanges}
           onUnavailable={onUnavailable}
+          initialOpen={initialHistoryOpen}
         />
         {onRequestFeedback && (
           <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
@@ -103,12 +107,13 @@ interface RevisionHistoryProps {
   currentRevisionId: string | undefined
   hasUnsavedChanges: boolean
   onUnavailable: (message: string) => void
+  initialOpen: boolean
 }
 
 const restoreReason = '이전 버전 복원은 정책이 정해지기 전이라 아직 할 수 없어요. 과거 버전은 바뀌지 않고 그대로 남아 있어요.'
 
-function RevisionHistory({ noteId, currentRevisionId, hasUnsavedChanges, onUnavailable }: RevisionHistoryProps) {
-  const { open, setOpen, close, rootRef, triggerRef } = usePopover()
+function RevisionHistory({ noteId, currentRevisionId, hasUnsavedChanges, onUnavailable, initialOpen }: RevisionHistoryProps) {
+  const { open, setOpen, close, rootRef, triggerRef } = usePopover(initialOpen)
   const panelId = useId()
   const [previewId, setPreviewId] = useState<string>()
   return (

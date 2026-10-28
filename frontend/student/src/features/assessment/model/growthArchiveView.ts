@@ -1,11 +1,13 @@
-import type { AcademicContext, ArchiveItem, ArchiveTab, AssessmentSourceType, GrowthRecord } from '../api/types.ts'
+import type { AcademicContext, ArchiveItem, ArchiveSourceType, ArchiveTab, GrowthRecord } from '../api/types.ts'
 import { statusLabels } from './schoolAssessmentView.ts'
 
 // 성장 기록(§29)·보관함(§30) 화면 표시 규칙. 데이터는 API 응답만 쓰고 여기서는 이름·묶음만 만든다.
 
-export const relatedSourceLabels: Record<AssessmentSourceType, string> = {
+export const relatedSourceLabels: Record<ArchiveSourceType, string> = {
   SCHOOL_ASSESSMENT: '학교 수행평가',
   ENRICHMENT_TASK: '심화 탐구',
+  // 탐구 라이브러리 공개 콘텐츠 즐겨찾기 (Mock 전용 제안 P-22)
+  ENRICHMENT_CATALOG: '심화 탐구 라이브러리',
 }
 
 /** §29 요청 필드의 화면 이름. 목록 카드는 Mockup GR-LIST-01의 네 항목만, 상세는 입력한 항목 전부를 보여준다. */
@@ -75,12 +77,21 @@ export function parseArchiveTab(value: string | null): ArchiveTab {
 }
 
 /** 보관함 행 메타 (Mockup AR-TAB: "과목 · 학교 수행평가 · 완료", 이전 학기는 "과목 · 2026학년도 1학기 · 완료") */
-export function archiveMetaLine(item: ArchiveItem, subjectName: string | null, tab: ArchiveTab): string {
+export function archiveMetaLine(
+  item: ArchiveItem,
+  subjectName: string | null,
+  tab: ArchiveTab,
+  currentTerm?: { academicYear: number; semester: number },
+): string {
   const status = item.status && item.status in statusLabels ? statusLabels[item.status as keyof typeof statusLabels] : null
-  const middle =
-    tab === 'previous-semesters' && item.academicYear && item.semester
-      ? `${item.academicYear}학년도 ${item.semester}학기`
-      : relatedSourceLabels[item.sourceType]
+  // 지난 학기 항목은 어느 탭이든 그 학기를 보여준다 (AUD-034). 학기는 원본의 학년도·학기만 쓰고 수정일로 추측하지 않는다.
+  const isPreviousTerm =
+    item.academicYear !== null &&
+    item.semester !== null &&
+    (tab === 'previous-semesters' || (currentTerm !== undefined && (item.academicYear !== currentTerm.academicYear || item.semester !== currentTerm.semester)))
+  const middle = isPreviousTerm
+    ? `${item.academicYear}학년도 ${item.semester}학기`
+    : relatedSourceLabels[item.sourceType]
   return [subjectName, middle, status].filter(Boolean).join(' · ')
 }
 

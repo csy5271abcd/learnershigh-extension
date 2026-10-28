@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** 버튼으로 여는 Popover: 바깥 클릭·Esc로 닫고, Esc로 닫으면 버튼으로 Focus를 돌려준다. */
-export function usePopover<T extends HTMLElement = HTMLDivElement>() {
-  const [open, setOpen] = useState(false)
+export function usePopover<T extends HTMLElement = HTMLDivElement>(initialOpen = false) {
+  const [open, setOpen] = useState(initialOpen)
   const rootRef = useRef<T>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
 

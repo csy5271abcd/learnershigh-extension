@@ -343,6 +343,15 @@
   border-radius: var(--as-radius-md);
 }
 
+/* ★ 열: 학교 수행평가 즐겨찾기 (§30). 목록 "중요" 필터는 §12 Query가 없어 두지 않는다 (MM-07). */
+.cellLead {
+  /* 행 전체 링크(.rowLink::after) 위에 별표를 둬야 마우스로 누를 수 있다 */
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+
 .row:hover {
   background: var(--as-color-subtle);
 }
@@ -488,16 +497,65 @@
 
   .tableHead,
   .row {
-    grid-template-columns: 0 minmax(0, 1fr) 112px 128px 108px 0;
+    grid-template-columns: 40px minmax(0, 1fr) 112px 128px 108px 58px;
   }
+}
 
-  .row {
-    padding-left: 12px;
-  }
+/* ★ 중요 필터 (Mockup SA-LIST-01) */
+.tabStar {
+  color: var(--as-color-star);
+}
 
-  .tableHead {
-    padding-left: 12px;
-  }
+/* 기록 열: 수정 이력 수 + 피드백 말풍선 (Mockup SA-LIST-01) */
+.cellTrail {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.recordButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: var(--as-radius-xs);
+  background: transparent;
+  color: var(--as-color-text-tertiary);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.recordButton:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.recordButton:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.recordButton[data-tone='delivered'] {
+  color: var(--as-color-primary);
+}
+
+.recordButton[data-tone='error'] {
+  color: var(--as-color-danger);
+}
+
+.recordLoading {
+  width: 28px;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--as-color-fill);
 }
 
 /* Mobile: 표를 카드형 행으로 바꾼다 (frontend-student.md §16). Mockup이 없어 Daglo 목록 밀도를 따른다. */
@@ -534,17 +592,22 @@
   .row {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      'title title'
+      'title lead'
       'date status'
-      'source status';
+      'source records';
     row-gap: 8px;
     height: auto;
     padding: 14px 12px;
   }
 
-  .cellLead,
   .cellTrail {
-    display: none;
+    grid-area: records;
+    justify-self: end;
+  }
+
+  .cellLead {
+    grid-area: lead;
+    justify-self: end;
   }
 
   .cellTitle {
@@ -570,5 +633,14 @@
     flex-wrap: nowrap;
     overflow-x: auto;
     padding-bottom: 4px;
+  }
+}
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .rowLink {
+    display: inline-block;
+    min-height: 24px;
+    line-height: 24px;
   }
 }

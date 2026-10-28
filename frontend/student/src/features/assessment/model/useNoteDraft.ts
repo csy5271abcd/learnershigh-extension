@@ -3,7 +3,7 @@ import { toApiError } from '../api/apiError.ts'
 import { createNote, getNoteRevision, listNotes, updateNote } from '../api/assessmentDetailApi.ts'
 import type { AssessmentNote, AssessmentSourceType, SaveNoteResponse } from '../api/types.ts'
 import { mockAutosaveDelayMs } from './noteAutosavePolicy.ts'
-import { fromNoteBlocks, isBlankNote, sameContent, toNoteBlocks, type EditorBlock } from './noteEditorModel.ts'
+import { blankNoteBlocks, fromNoteBlocks, isBlankNote, sameContent, toNoteBlocks, type EditorBlock } from './noteEditorModel.ts'
 
 // 노트 초안·저장 상태 (Editor 화면과 분리된 저장 흐름). §20 POST(첫 저장)·PUT(이후 저장, expectedRevisionId).
 // 상태: 변경 없음 → 저장 안 됨 → 저장 중 → 저장됨 / 저장 실패 / 충돌. "저장됨"은 서버(Mock) 응답을 받은 뒤에만 표시한다.
@@ -30,10 +30,11 @@ interface UseNoteDraftOptions {
 }
 
 export function useNoteDraft({ sourceType, sourceId, initialNote, onSaved }: UseNoteDraftOptions) {
-  const initial: Content = {
+  // 빈 노트는 바로 입력할 수 있는 빈 본문 하나로 시작한다. 이 시작 블록은 변경으로 치지 않는다 (저장 기준과 같게 둔다).
+  const [initial] = useState<Content>(() => ({
     title: initialNote?.title ?? '탐구 노트',
-    blocks: initialNote ? fromNoteBlocks(initialNote.blocks) : [],
-  }
+    blocks: initialNote && initialNote.blocks.length > 0 ? fromNoteBlocks(initialNote.blocks) : blankNoteBlocks(),
+  }))
   const [content, setContent] = useState<Content>(initial)
   const [saved, setSaved] = useState<Content>(initial)
   const [noteId, setNoteId] = useState(initialNote?.noteId)
@@ -124,7 +125,7 @@ export function useNoteDraft({ sourceType, sourceId, initialNote, onSaved }: Use
     if (!conflict) return
     try {
       const latest = await getNoteRevision(conflict.noteId, conflict.revisionId)
-      const next = { title: latest.title, blocks: fromNoteBlocks(latest.blocks) }
+      const next = { title: latest.title, blocks: latest.blocks.length > 0 ? fromNoteBlocks(latest.blocks) : blankNoteBlocks() }
       setContent(next)
       setSaved(next)
       setBase({ revisionId: latest.revisionId, revisionNumber: latest.revisionNumber, savedAt: latest.savedAt })

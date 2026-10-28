@@ -7,6 +7,7 @@ import formStyles from '../AddSchoolAssessmentModal.module.css'
 import { AlertIcon, ChevronDownIcon, InfoIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
 import styles from './enrichment.module.css'
+import universityStyles from '../university/university.module.css'
 
 export interface CreateEnrichmentPrefill {
   title?: string
@@ -16,6 +17,15 @@ export interface CreateEnrichmentPrefill {
   sourceReference?: EnrichmentSourceReference
   /** 출발 자료 이름 (안내 표시용, 저장하지 않는다) */
   sourceTitle?: string
+  /**
+   * 출처 상세 (대학 기출 PDF, P-25). 원문 데이터(문서·문항·쪽·개념 칸)에서 온 값만 넣는다. 저장하지 않는다.
+   * examples는 LearnersHigh가 쓴 학생용 탐구 방향 예시이며 대학 공식 추천이 아니다.
+   */
+  sourceDetails?: { lines: string[]; concepts: string[]; examples?: string[] }
+  /** Modal 제목·목표 칸 이름을 출발 자료에 맞게 바꿀 때 (저장 필드는 같은 §18 title·goal) */
+  modalTitle?: string
+  goalLabel?: string
+  goalPlaceholder?: string
 }
 
 interface CreateEnrichmentModalProps {
@@ -115,7 +125,7 @@ export function CreateEnrichmentModal({ subjects, assessments, prefill, onClose,
 
   return (
     <Modal
-      title="나만의 심화 탐구 만들기"
+      title={prefill?.modalTitle ?? '나만의 심화 탐구 만들기'}
       description="학교 수행평가와 별개로 스스로 정한 주제를 탐구해요."
       compact
       onRequestClose={requestClose}
@@ -156,7 +166,37 @@ export function CreateEnrichmentModal({ subjects, assessments, prefill, onClose,
             {errors.form}
           </p>
         )}
-        {prefill?.sourceReference && (
+        {prefill?.sourceReference && prefill.sourceDetails && (
+          <section className={universityStyles.currentBox} aria-label="출처">
+            <p className={universityStyles.infoLabel}>출처</p>
+            {prefill.sourceDetails.lines.map((line) => (
+              <p key={line} className={universityStyles.currentLine}>
+                {line}
+              </p>
+            ))}
+            {prefill.sourceDetails.concepts.length > 0 && (
+              <>
+                <p className={universityStyles.infoLabel}>핵심 개념 (원문 표기)</p>
+                <ul className={universityStyles.conceptChips}>
+                  {prefill.sourceDetails.concepts.map((concept) => (
+                    <li key={concept}>{concept}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {prefill.sourceDetails.examples && prefill.sourceDetails.examples.length > 0 && (
+              <div className={universityStyles.exampleBox}>
+                <span className={universityStyles.exampleLabel}>탐구 방향 예시</span>
+                {prefill.sourceDetails.examples.map((example) => (
+                  <p key={example}>{example}</p>
+                ))}
+                <span className={universityStyles.exampleHint}>LearnersHigh가 쓴 학습용 예시예요. 대학이 추천한 주제가 아니에요. 주제와 질문은 직접 정해 주세요.</span>
+              </div>
+            )}
+            <p className={universityStyles.mutedText}>원문은 복사하지 않고 문서·쪽만 출처로 연결해요.</p>
+          </section>
+        )}
+        {prefill?.sourceReference && !prefill.sourceDetails && (
           <p className={styles.sourceNote}>
             <InfoIcon size={14} />
             출발 자료: {sourceTypeLabels[prefill.sourceReference.type]}
@@ -228,14 +268,14 @@ export function CreateEnrichmentModal({ subjects, assessments, prefill, onClose,
 
         <div className={formStyles.field}>
           <label htmlFor={ids.goal} className={formStyles.label}>
-            탐구 목표
+            {prefill?.goalLabel ?? '탐구 목표'}
           </label>
           <textarea
             id={ids.goal}
             className={formStyles.textarea}
             value={goal}
             rows={3}
-            placeholder="무엇을 알아보고 싶은지 한두 문장으로 적어 보세요. 나중에 바꿔도 돼요."
+            placeholder={prefill?.goalPlaceholder ?? '무엇을 알아보고 싶은지 한두 문장으로 적어 보세요. 나중에 바꿔도 돼요.'}
             disabled={submitting}
             onChange={(event) => setGoal(event.target.value)}
           />

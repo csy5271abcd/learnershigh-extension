@@ -22,7 +22,7 @@ const sourceLabels: Record<string, string> = {
 // 학교·학업 정보 (ST-01, screen-map S2, api-contract.md §9).
 // 학교·학년도·학년은 기존 LearnersHigh가 원천일 수 있어(OD-A04) 읽기 전용으로 두고, 수강 과목 선택만 §9-2로 저장한다.
 export function AcademicInfoRoute() {
-  const { terms, selectTerm, dataVersion, notifyDataChanged } = useAssessmentWorkspace()
+  const { terms, selectTerm, dataVersion, notifyDataChanged, requestAddSubject } = useAssessmentWorkspace()
   const navigate = useNavigate()
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
@@ -77,6 +77,7 @@ export function AcademicInfoRoute() {
             showToast('success', '수강 과목을 저장했어요.')
           }}
           onUnavailable={(text) => showToast('info', text)}
+          onAddSubject={() => requestAddSubject(current)}
         />
       )}
 
@@ -154,9 +155,11 @@ interface CurrentTermCardProps {
   subjectCounts: Map<string, number> | undefined
   onSaved: () => void
   onUnavailable: (text: string) => void
+  /** 과목 추가 Modal (Layout이 그린다, Sidebar "+"와 같은 Modal) */
+  onAddSubject: () => void
 }
 
-function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable }: CurrentTermCardProps) {
+function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable, onAddSubject }: CurrentTermCardProps) {
   const [editing, setEditing] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => context.subjects.map((subject) => subject.subjectId))
   const [saving, setSaving] = useState(false)
@@ -222,7 +225,7 @@ function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable }: Cur
         </div>
       </dl>
 
-      <fieldset className={styles.subjects} disabled={!editing || saving}>
+      <fieldset className={styles.subjects} disabled={saving}>
         <legend className={styles.fieldLabel}>수강 과목</legend>
         {context.subjects.length === 0 && <p className={styles.muted}>등록된 과목이 없어요.</p>}
         <div className={styles.chips}>
@@ -238,21 +241,21 @@ function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable }: Cur
                     )
                   }
                 />
-                <span>{subject.name}</span>
+                <span>
+                  {subject.name}
+                  {subject.addedByStudent && <small className={styles.addedTag}> · 직접 추가</small>}
+                </span>
               </label>
             ) : (
               <span key={subject.subjectId} className={styles.chip}>
                 {subject.name}
+                {/* 학생이 이름을 직접 입력한 과목은 학교 개설 과목과 구분한다 (P-26) */}
+                {subject.addedByStudent && <small className={styles.addedTag}>직접 추가</small>}
               </span>
             ),
           )}
           {!editing && (
-            <button
-              type="button"
-              className={styles.chipAdd}
-              aria-disabled="true"
-              onClick={() => onUnavailable('과목 추가는 과목 목록 연동이 확정된 뒤 제공돼요.')}
-            >
+            <button type="button" className={styles.chipAdd} onClick={onAddSubject}>
               + 과목 추가
             </button>
           )}

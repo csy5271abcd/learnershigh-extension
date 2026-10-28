@@ -1,0 +1,147 @@
+/* 안내문·첨부 (Mockup SA-DETAIL-01 실측: 카드 약 160×128, 간격 12, 제목 14px 굵게) */
+.section {
+  margin-top: 28px;
+}
+
+.title {
+  margin-bottom: 10px;
+  font-size: var(--as-text-body);
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 160px);
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  width: 160px;
+  overflow: hidden;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+}
+
+.thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 96px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-tertiary);
+}
+
+.thumb:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: -2px;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 96px;
+  object-fit: contain;
+}
+
+.kind {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 1px 5px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 4px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
+  font-size: 11px;
+}
+
+.name {
+  overflow: hidden;
+  padding: 6px 8px 0;
+  font-size: var(--as-text-meta);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  padding: 0 8px 7px;
+  font-size: 11px;
+  color: var(--as-color-text-tertiary);
+}
+
+.remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.remove:hover,
+.remove:focus-visible {
+  color: var(--as-color-text);
+}
+
+.add {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  width: 160px;
+  height: 128px;
+  border: 1px dashed var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: var(--as-text-caption);
+  cursor: pointer;
+}
+
+.add:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.add:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-danger);
+}
+
+.note {
+  margin-top: 6px;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+@media (max-width: 559px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card,
+  .add {
+    width: auto;
+  }
+}

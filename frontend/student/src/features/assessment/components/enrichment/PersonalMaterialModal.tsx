@@ -3,6 +3,8 @@ import { toApiError } from '../../api/apiError.ts'
 import { createPersonalMockExamMaterial } from '../../api/enrichmentApi.ts'
 import type { PersonalMockExamMaterial } from '../../api/types.ts'
 import { mockExamSubjects } from '../../model/enrichmentView.ts'
+import { attachScreenshot, screenshotAccept, screenshotFileProblem } from '../../model/mockExamScreenshotStore.ts'
+import { formatFileSize } from '../../model/noteEditorModel.ts'
 import formStyles from '../AddSchoolAssessmentModal.module.css'
 import { AlertIcon, ChevronDownIcon, InfoIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
@@ -10,20 +12,24 @@ import styles from './enrichment.module.css'
 
 interface PersonalMaterialModalProps {
   onClose: () => void
-  onCreated: (material: PersonalMockExamMaterial) => void
+  /** `screenshot`: 이 화면에서만 붙인 스크린샷 종류 (없으면 undefined) */
+  onCreated: (material: PersonalMockExamMaterial, screenshot: 'image' | 'pdf' | undefined) => void
 }
 
-type FieldErrors = Partial<Record<'subjectId' | 'sourceUrl' | 'form', string>>
+type FieldErrors = Partial<Record<'subjectId' | 'sourceUrl' | 'file' | 'form', string>>
 
 const toNumberOrNull = (value: string) => (value.trim() === '' ? null : Number(value))
 
 // 내 지문 등록 (Mockup AE-MOCK-01 "내 지문 등록" 버튼, inquiry §4, api-contract.md §17 POST my-mock-exam-materials).
 // 화면 Mockup이 없어 기존 Assessment Modal 형식을 쓴다. 입력 필드는 §17 예시 그대로다.
-// 파일 업로드(sourceFileRef)는 저장소가 정해지지 않아 링크만 받는다. 입력한 링크가 실제로 열리는지는 확인하지 않는다.
+// 파일 업로드(sourceFileRef)는 저장소가 정해지지 않아 서버에 보내지 않는다. 스크린샷·PDF는 이 화면에서만 미리보고 영역을 표시하며,
+// 출처 확인을 위해 원문 링크는 그대로 필수다 (2026-10-27 사용자 요청 B). 입력한 링크가 실제로 열리는지는 확인하지 않는다.
 // 등록한 자료는 본인만 보는 개인 자료이며 공개 탐구 카드로 바뀌지 않는다.
 export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialModalProps) {
-  const ids = { year: useId(), month: useId(), grade: useId(), subject: useId(), question: useId(), url: useId(), note: useId() }
+  const ids = { year: useId(), month: useId(), grade: useId(), subject: useId(), question: useId(), url: useId(), note: useId(), file: useId() }
   const urlRef = useRef<HTMLInputElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [screenshot, setScreenshot] = useState<File>()
   const submittingRef = useRef(false)
   const [academicYear, setAcademicYear] = useState('')
   const [examMonth, setExamMonth] = useState('')
@@ -64,7 +70,8 @@ export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialMo
         sourceFileRef: null,
         personalNote: personalNote.trim() || null,
       })
-      onCreated(material)
+      if (screenshot) attachScreenshot(material.materialId, screenshot)
+      onCreated(material, screenshot ? (screenshot.type === 'application/pdf' ? 'pdf' : 'image') : undefined)
     } catch (error) {
       const apiError = toApiError(error)
       setErrors({ form: `${apiError.message} 입력한 내용은 그대로 있어요. (${apiError.code})` })
@@ -99,7 +106,7 @@ export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialMo
       <form id="personal-material-form" className={formStyles.form} noValidate onSubmit={onSubmit}>
         <p className={styles.sourceNote}>
           <InfoIcon size={14} />
-          지문 원문은 올리지 말고 출처 링크만 남겨 주세요. 등록한 자료는 나만 보며 다른 학생에게 공개되지 않아요. 파일 올리기는 준비 중이에요.
+          출처 링크는 꼭 남겨 주세요. 등록한 자료는 나만 보며 다른 학생에게 공개되지 않아요. 스크린샷·PDF는 서버에 저장되지 않고 이 화면에서만 미리보기·영역 표시에 써요.
         </p>
         {errors.form && (
           <p className={formStyles.formError} role="alert">
@@ -185,6 +192,40 @@ export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialMo
           />
           <p id={`${ids.url}-hint`} className={errors.sourceUrl ? formStyles.fieldError : formStyles.hint}>
             {errors.sourceUrl ?? '시험 기관의 공식 게시처 링크를 권장해요. 링크가 열리는지는 확인하지 않아요.'}
+          </p>
+        </div>
+        <div className={formStyles.field}>
+          <span id={ids.file} className={formStyles.label}>
+            스크린샷·PDF (선택)
+          </span>
+          <input
+            ref={fileRef}
+            type="file"
+            accept={screenshotAccept}
+            className="lh-visually-hidden"
+            aria-labelledby={ids.file}
+            disabled={submitting}
+            onChange={(event) => {
+              const file = event.target.files?.[0]
+              event.target.value = ''
+              if (!file) return
+              const problem = screenshotFileProblem(file)
+              setErrors((previous) => ({ ...previous, file: problem ?? undefined }))
+              if (!problem) setScreenshot(file)
+            }}
+          />
+          <span className={styles.connectRow}>
+            <button type="button" className={formStyles.ghostButton} disabled={submitting} aria-describedby={`${ids.file}-hint`} onClick={() => fileRef.current?.click()}>
+              {screenshot ? '다른 파일 고르기' : '파일 고르기'}
+            </button>
+            {screenshot && (
+              <button type="button" className={formStyles.ghostButton} disabled={submitting} onClick={() => setScreenshot(undefined)}>
+                빼기
+              </button>
+            )}
+          </span>
+          <p id={`${ids.file}-hint`} className={errors.file ? formStyles.fieldError : formStyles.hint}>
+            {errors.file ?? (screenshot ? `${screenshot.name} · ${formatFileSize(screenshot.size)} · 등록 뒤 영역을 표시할 수 있어요 · 글자 인식(OCR)은 하지 않아요` : 'PNG·JPG·WEBP·PDF, 20MB 이하 · 글자 인식(OCR)은 하지 않아요')}
           </p>
         </div>
         <div className={formStyles.field}>

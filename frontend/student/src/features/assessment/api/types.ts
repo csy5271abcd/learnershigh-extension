@@ -29,6 +29,11 @@ export interface SubjectRef {
   subjectId: string
   /** 과목명은 고정 Enum이 아니다 (§9-1). */
   name: string
+  /**
+   * 학생이 이름을 직접 입력해 만든 과목 (P-26 PROPOSED, Mock 전용 표시). 학교가 개설한 과목처럼 보이지 않게 구분한다.
+   * §9-1 응답에는 없다. 다른 학기에서 가져온 기존 과목은 표시하지 않는다(원래 학교 과목).
+   */
+  addedByStudent?: boolean
 }
 
 /** §9-1 GET /api/student/assessment/academic-context 응답 */
@@ -55,6 +60,18 @@ export interface UpdateAcademicContextRequest {
   grade: number
   semester: number
   subjectIds: string[]
+}
+
+/**
+ * 학생이 과목명을 직접 입력해 이 학기에 추가 (P-26 PROPOSED — 계약에 Endpoint 없음, Mock 전용).
+ * 범위는 §9 학업 Context(학교·학년도·학년·학기)이고, 응답은 새 과목(SubjectRef)이다.
+ */
+export interface CreateStudentSubjectRequest {
+  schoolId: string
+  academicYear: number
+  grade: number
+  semester: number
+  name: string
 }
 
 // ---- §12·13 학교 수행평가 (ST-03) ----
@@ -142,6 +159,30 @@ export interface NoteBlockAttrs {
   checked?: boolean
   rows?: string[][]
   resource?: { resourceId: string; title: string; type: string; sourceName: string | null; sourceUrl: string | null }
+  // ---- 아래도 Mock 임시 필드 (MM-33 확장, P-22 PROPOSED). Editor 선정(OD-A05) 뒤 Schema를 다시 정한다. ----
+  /** HEADING 단계 (1~3). 없으면 기존 소제목(2단계)으로 본다 */
+  level?: 1 | 2 | 3
+  /** 목록 들여쓰기 단계 (0~4) */
+  indent?: number
+  /** 템플릿 안내 문구. 본문이 아니라 빈 칸의 자리 표시로만 보인다 */
+  placeholder?: string
+  /** CALLOUT 아이콘 */
+  emoji?: string
+  /** CODE 언어 표시 (실행·하이라이트 없음) */
+  language?: string
+  /** TOGGLE 펼친 내용 */
+  body?: string
+  /** LINK·VIDEO·MAP 주소 (형식만 확인, 열리는지 확인 안 함) */
+  url?: string
+  /** IMAGE·FILE 메타데이터. 파일 본문은 저장하지 않는다 (저장소 미정, API-OD-A03) */
+  file?: { name: string; size: number; mimeType: string }
+  /** MAP 장소 이름 */
+  place?: string
+  /**
+   * EXAM_SOURCE: 대학 기출 PDF 출처 카드 (P-25 PROPOSED). 원문은 복사하지 않고 문서·쪽 범위만 가리킨다.
+   * label은 넣을 때의 표시 이름 사본(문서가 목록에서 빠져도 무엇이었는지 알 수 있게).
+   */
+  examSource?: { documentId: string; questionId: string | null; pageStart: number; pageEnd: number | null; label: string }
 }
 
 /** §20 POST /notes 요청 */
@@ -331,6 +372,11 @@ export type EnrichmentSourceType = 'MOCK_EXAM_MATERIAL' | 'PERSONAL_MOCK_EXAM_MA
 export interface EnrichmentSourceReference {
   type: EnrichmentSourceType
   sourceId: string
+  /**
+   * 대학 기출 PDF 안의 위치 (P-25 PROPOSED, Mock 전용). §18 초안에는 없다. 원문을 복제하지 않고 쪽·문항만 가리킨다.
+   * questionId는 확인된 문항 인덱스가 있을 때만, page는 PDF 물리 쪽(1부터).
+   */
+  locator?: { questionId: string | null; page: number } | null
 }
 
 /** §18 POST 요청 */
@@ -396,6 +442,27 @@ export interface MockExamMaterial {
   subjectId: string
   source: MockExamSource
   idea: MockExamInquiryIdea
+  /**
+   * **Mock 전용 (계약 없음, P-24 PROPOSED).** 모의고사 60선의 시험 출처·원문 지문.
+   * 원문 재배포 권한이 확인되지 않아(API-OD-A11) 서버 응답으로 확정하지 않는다. 없으면 원문을 보여주지 않는다.
+   */
+  research?: MockExamResearchInfo
+}
+
+export interface MockExamResearchInfo {
+  /** 원본 표기 (예: 2026년-10월-고3-모의고사) */
+  examLabel: string
+  /** 화면 표기 (예: 2026년 10월 고3 모의고사, 2027학년도 6월 모의평가) */
+  examTitle: string
+  /** 학력평가(교육청) / 평가원 모의평가 */
+  examKind: 'ACADEMIC_ACHIEVEMENT' | 'CSAT_MOCK'
+  /** 문항 번호·문항군 (예: 22번, 10~13번 지문) */
+  questionLabel: string
+  /** 원본 PDF 쪽 (예: PDF 3쪽) */
+  pdfPage: string
+  originalFileName: string
+  /** 원문 지문 (원본 그대로) */
+  passage: string
 }
 
 /** §17 POST my-mock-exam-materials 요청 (계약 예시 그대로) */
@@ -433,6 +500,65 @@ export interface UniversityResource {
   relatedConcepts: string[]
   inquiryIdeas: string[]
 }
+
+// ---- 대학별 기출 PDF (2026-10-28, P-25 PROPOSED) ----
+// §27은 목록 Query만 있고 응답 Shape·원문 파일·문항 위치가 없다. 아래는 로컬 Mock 시연용 확장 제안이며 승인된 HTTP 필드가 아니다.
+// 원본은 references/previous-exam-questions의 PDF이고, 쪽 번호는 모두 PDF 물리 쪽(1부터)이다. 인쇄된 쪽 번호와 다를 수 있다.
+
+/** 자료 유형. 실제 기출(PAST_EXAM)과 대학이 미리 공개한 예시 문항(SAMPLE_QUESTION)을 섞지 않는다. 모르는 값은 OTHER */
+export type UniversityExamCategory = 'PAST_EXAM' | 'SAMPLE_QUESTION' | 'OTHER'
+
+/** 문항 안의 원문 구획. PDF에서 제목·표 머리가 확인된 쪽만 기록한다 */
+export type UniversityExamSectionKind = 'INTENT' | 'BASIS' | 'EXPLANATION' | 'RUBRIC' | 'SAMPLE_ANSWER' | 'REVIEW'
+
+export interface UniversityExamSection {
+  kind: UniversityExamSectionKind
+  /** 그 구획 제목이 처음 나오는 PDF 쪽 */
+  page: number
+}
+
+export interface UniversityExamQuestion {
+  questionId: string
+  /** 원문 표기 그대로 (예: "문제 1", "수학 A", "오전", 단과대학명) */
+  label: string
+  /** 분야·과목 (원문 표기) */
+  field: string | null
+  /** 원문 제목이 있는 경우만 (예: 영어 지문 제목) */
+  topic: string | null
+  /** 원문의 "핵심개념 및 용어"·"[개념]" 칸 그대로. 칸이 없으면 빈 배열 */
+  concepts: string[]
+  pageStart: number
+  /** 문제·제시문이 끝나는 쪽. 확인하지 못했으면 null */
+  pageEnd: number | null
+  sections: UniversityExamSection[]
+  /** 학생용 탐구 방향 예시 (LearnersHigh 작성, 대학 공식 추천 아님). 없으면 표시하지 않는다 */
+  studyExamples?: string[]
+}
+
+export interface UniversityExamDocument {
+  documentId: string
+  /** 표시 이름 (서울대학교, KAIST). 고정 Enum 아님 */
+  university: string
+  universityName: string
+  academicYear: number
+  category: UniversityExamCategory
+  /** 원문 표기 (면접 및 구술고사, 적성·인성면접, 면접, 공통문제, 면접 예시 문항) */
+  examType: string
+  title: string
+  subjectAreas: string[]
+  /** 저장소 기준 상대 경로 (references/previous-exam-questions 아래). 화면에 파일 경로를 노출하지 않는다 */
+  relativePath: string
+  fileName: string
+  sizeBytes: number
+  sha256: string
+  pageCount: number
+  /** 문항 인덱스를 만든 문서인지. NONE이면 원문 열람만 된다 */
+  indexStatus: 'INDEXED' | 'NONE'
+  questions: UniversityExamQuestion[]
+}
+
+/** 원문 파일 상태 (개발 서버가 Manifest와 실제 파일을 비교한 결과) */
+export type UniversityExamFileState = 'AVAILABLE' | 'MISSING' | 'CHANGED' | 'NOT_PROVIDED' | 'UNKNOWN'
 
 // ---- §22 참고자료 추천·자료함 (ST-10·11) ----
 // 학생 자료(ResourceReference)는 본인 비공개가 기본이다. 관리자 내부 스크랩·공개 탐구 콘텐츠·대학 공개 자료와 다른 Entity다.
@@ -518,11 +644,18 @@ export type UpdateGrowthRecordRequest = Partial<CreateGrowthRecordRequest>
 export type ArchiveTab = 'recent' | 'favorites' | 'completed' | 'previous-semesters' | 'trash'
 
 /**
+ * 보관함·즐겨찾기 대상 유형. §30 예시는 `SCHOOL_ASSESSMENT`뿐이다.
+ * `ENRICHMENT_TASK`(내 탐구)·`ENRICHMENT_CATALOG`(탐구 라이브러리 공개 콘텐츠, Mockup AR-TAB-02) 즐겨찾기는
+ * **Mock 전용 제안(P-22, PROPOSED)**이며 승인된 계약 값이 아니다 (MM-40).
+ */
+export type ArchiveSourceType = AssessmentSourceType | 'ENRICHMENT_CATALOG'
+
+/**
  * §30 GET 항목. 계약은 "조회용 Projection"이라는 설명뿐이라 원본 참조 + 표시 정보로 가정한다 (MM-39).
  * `lastActivityAt`은 원본 생성·노트 저장·파일 업로드 중 가장 최근 시각(Mock 기준, 열람 시각 아님).
  */
 export interface ArchiveItem {
-  sourceType: AssessmentSourceType
+  sourceType: ArchiveSourceType
   sourceId: string
   title: string
   subjectId: string | null
@@ -539,7 +672,7 @@ export interface ArchiveItem {
 
 /** §30 PUT archive/favorites 요청 (계약 예시 그대로) */
 export interface ArchiveFavoriteRequest {
-  sourceType: AssessmentSourceType
+  sourceType: ArchiveSourceType
   sourceId: string
   favorite: boolean
 }
@@ -650,4 +783,43 @@ export interface PersonalReviewRequest {
 export interface PersonalReview extends PersonalReviewRequest {
   documentRevisionId: string
   savedAt: string
+}
+
+// ---- 과목별 참고자료 자료원 카탈로그 (2026-10-28, Mock 전용 — 계약 없음, P-24 PROPOSED) ----
+// 공식 사이트·채널 "자료원"이다. 개별 기사·논문(자료함 §22의 StudentResource)과 다르다.
+
+/** 화면 탐색용 자료원 분류 (원본 "자료 성격"을 묶은 LearnersHigh 분류, 확정 Enum 아님) */
+export type ReferenceSourceCategory = '공식 기관' | '논문·학술' | '뉴스·시사' | '통계·데이터' | '영상·다큐' | '교육 도구·포털'
+
+export interface ReferenceSource {
+  sourceId: string
+  name: string
+  /** 대표 홈페이지·채널 주소 (원본 문서 기준, 열리는지 이 앱에서 확인하지 않음) */
+  url: string
+  /** 원본 "주요 활용" */
+  primaryUsage: string
+  /** 원본 "자료 성격" */
+  nature: string
+  category: ReferenceSourceCategory
+  accessNotes: string | null
+  /** original = 원본 이미지 22곳, additional = 포괄 표현을 구체화한 추가 2곳 */
+  sourceGroup: 'original' | 'additional'
+}
+
+/** 과목 영역 키 (8개) */
+export type ReferenceAreaKey = 'korean' | 'math' | 'social' | 'science' | 'chemistry' | 'biology' | 'software' | 'history'
+
+export interface ReferenceArea {
+  areaKey: ReferenceAreaKey
+  label: string
+  /** 영역별 추천 자료원과 그 영역에서의 활용 방법 (원본 순서) */
+  sources: { sourceId: string; usage: string }[]
+  tips: string[]
+}
+
+export interface ReferenceCatalog {
+  sources: ReferenceSource[]
+  areas: ReferenceArea[]
+  /** 원본 문서·확인일 */
+  basis: { document: string; checkedOn: string }
 }

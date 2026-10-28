@@ -425,3 +425,69 @@ React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor
 | MM-47 | 개인 정정: 허용 fieldPath 목록, PUT 응답, 저장한 개인 검토 조회(GET), 문서 과목명↔내 subjectId 연결 저장 위치 | API-OD-A05, 관리자 확인값과 분리 |
 | MM-48 | 중복 가져오기 판정(같은 evaluationItemRef/같은 이름), 개정본(Revision)이 바뀐 뒤 다시 가져오기, 작년·다른 학기 문서 처리, 문서 없음 Error Code(`EVALUATION_PLAN_NOT_FOUND`?) | §12 "알림 우선, 자동 병합 없음" |
 | MM-48 | 파일: 크기·MIME·페이지 제한, 악성 파일 검사, File Storage, 개인 PDF 보관 기간, AI Provider 외부 전송 동의 | API-OD-A03·A10 |
+
+## P-22. 학생 통합 보강 화면용 계약 보완 (2026-10-27, 통합 보강 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** 결정 전까지 Frontend는 Mock 전용 동작(코드 주석·screen-map MM-49~54)으로만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-49 | §12 상세(또는 별도 과제 정보)에 평가 유형·평가일·반영비율·학교 담당 선생님(이름 표기 범위)·안내문 첨부를 둘지, 평가계획서 분석 값과 학생 입력값을 어떻게 구분해 돌려줄지 | MM-03, 학교 담당 선생님 ≠ 학원 관리자 (Privacy) |
+| MM-50 | 과제별 평가 기준 조회: `GET /school-assessments/{id}/criteria`(가칭) 또는 §11 결과의 항목 단건 조회. 확인 상태(학생 확인·관리자 확인·확인 필요) 표현, 학생 점검 체크 저장 여부 | §14 AI 쉬운 설명, API-OD-A02·A05 |
+| MM-51 | §30 favorites `sourceType`에 `ENRICHMENT_TASK`·`ENRICHMENT_CATALOG`(공개 콘텐츠) 허용 여부, §12 목록 "중요" Query(MM-07)와 같은 값인지 | MM-26 라이브러리 즐겨찾기와 같은 개념인지 |
+| MM-52 | §20 블록 Schema: type 목록(제목 단계·토글·강조·코드·수식·구분선·차트·링크·동영상·지도·이미지·파일), attrs 구조, 파일 블록과 ArtifactVersion·File Storage의 관계, 외부 삽입 허용 Provider(YouTube 등) | P-18(Editor 선정), OD-A05, API-OD-A03 |
+| MM-52 | Editor 도입 비교(설치 안 함): **BlockNote** — Notion형 블록·"/" 메뉴 기본 제공, 빠른 도입, 블록 JSON이 지금 모델과 가까움, Mantine 등 UI 의존·커스터마이즈 범위 확인 필요. **Tiptap** — ProseMirror 기반 확장성·협업(Yjs) 생태계, 블록 UI(슬래시·드래그)는 직접 구성, 일부 확장 유료. **Lexical** — 가벼운 코어·접근성·성능, 블록 UI·직렬화 직접 구현 범위 큼. 공통: 지금 `noteEditorModel`·`noteBlockOps`·`useNoteDraft`는 Editor와 분리돼 있어 화면 계층만 교체 가능 | P-18 |
+| MM-53 | §17 `sourceFileRef` 업로드 흐름(Storage·크기·형식·보관 기간), 스크린샷 영역(정규화 좌표·메모·개념·질문) 저장 위치, §18 `sourceReference`에 영역 식별자를 둘지(API-OD-A12) | 저작권(지문 원문 공유 금지), OCR·AI 외부 전송 동의(API-OD-A10) |
+| MM-53 | 최근 시험 주제 카드를 관리자 공개 소재(§17·Admin 콘텐츠 관리)로 옮길지, 출처 기사·확인일·문항 번호 확인 규칙 | 관리자 심화 콘텐츠 관리 범위 |
+| MM-54 | §22 추천 응답의 `homepageUrl`·자료원 신뢰 정보 제공 여부, 자료원 별표(개인 즐겨찾기) 필요 여부 | P-15 |
+
+## P-23. 학교 수행평가 목록·상세 Mockup 복원용 계약 보완 (2026-10-28, 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** P-22·MM-49~54도 승인 처리하지 않는다. 결정 전까지 Frontend는 화면 계산·이 화면 전용 미리보기로만 둔다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-55 | §12 목록 항목에 `favorite`·기록 요약(`noteRevisionCount`, `feedback: {delivered, pending}` 등)을 둘지, 또는 `favorite=true` Query와 별도 요약 Endpoint. "기록" 수에 결과물 버전·성장 기록을 포함할지 정의 | MM-07·MM-11·MM-19, Dashboard 숫자는 Source Entity에서 계산(CLAUDE.md §10) |
+| MM-55 | 피드백 "새 답변" 표시가 필요하면 학생 확인(읽음) 상태 계약 | MM-43 |
+| MM-49 | 상세 속성: 평가 유형, 평가일(텍스트·날짜), 학교 담당 선생님 표기 범위, 정보 출처 확인 상태(학교 원본·학생 확인·수정·분석 후보·확인 필요·직접 등록), AI 글쓰기 제한 배지 | MM-03·MM-10·MM-11, P-22 |
+| MM-56 | 안내문·첨부: 업로드 Endpoint, 허용 형식·크기, 보관 기간, 학교 원본과 학생 업로드 구분 | AUD-014, API-OD-A03 |
+
+## P-24. 모의고사 60선·과목별 참고자료 계약 보완 (2026-10-28, 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** P-22·P-23·MM-49~56 상태는 바꾸지 않는다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-57 | 모의고사 추천 콘텐츠의 관리자 제공·갱신 방식(Admin 심화 콘텐츠 관리), §17 응답에 시험 출처·문항·PDF 쪽·원본 파일 필드, 학년·시행 시기·계열 Query | API-OD-A11, Admin 콘텐츠 관리 |
+| MM-57 | **원문 재배포 권한**: 시험 지문 원문을 앱·웹에 공개할 수 있는지(출제기관 이용 허락), 불가하면 원문 대신 출처·요약만 제공 | 저작권 (원본 문서 "원문 이용 안내") |
+| MM-58 | 참고자료 카탈로그 Endpoint(`GET /api/student/assessment/reference-sources` 가칭)와 Shape, 분류 Enum, 링크 재검증 주기·주소 변경 처리 | §22 recommendations(P-15)와 통합 여부 |
+| MM-58 | 자료원 사이트 안 검색(API·크롤링) 여부와 권한 — 현재는 대표 주소 안내만 | 원본 §4 주의사항 |
+| MM-59 | 학교 과목 → 영역 분류 규칙을 서버(과목 메타데이터)에서 줄지, 화면 규칙으로 둘지 | §9 학업 정보 과목 |
+| MM-58 | 출처 링크 저장 정책: 자료원 홈페이지는 저장하지 않고 학생이 찾은 개별 자료 URL만 §22로 저장 (현행 Mock 동작) | §22·§23 |
+
+## P-25. 대학별 기출 PDF 열람·심화 탐구 연계 계약 보완 (2026-10-28, 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** P-22·P-23·P-24·MM-49~59 상태는 바꾸지 않는다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-60 | §27 응답에 문서 메타데이터(유형 실제 기출/예시 문항, 과목·영역, 쪽 수, 크기, checksum)와 문서 상세 `GET /university-resources/{id}`의 문항 인덱스 | §27, Admin 대학 자료 관리(§41~42) |
+| MM-60 | 원문 파일 제공: 서버 Stream 또는 짧은 수명 주소, 학생 권한 확인, Range 요청 지원 여부 | §48 File Contract, API-OD-A03 |
+| MM-60 | **이용 허락**: 서울대 PDF의 "상업적 이용·변형·발췌 금지" 안내, KAIST 자료의 공개 범위 — 서비스 공개 전 대학 확인 필요. 확인 전에는 Build·공개 정적 자산에 원문을 넣지 않는다 (현행) | API-OD-A11 |
+| MM-61 | 문항 인덱스를 누가 만들고 검수하는지(관리자 검토·출처 쪽 근거), 원문 변경 시 인덱스 무효화 | Admin 평가계획서 분석 검토 흐름과 유사 |
+| MM-62 | §18 `sourceReference.locator {questionId, page}` 또는 별도 출처 위치 Entity | API-OD-A12 |
+| MM-63 | 노트 블록 `EXAM_SOURCE` Schema (P-18 Editor 결정과 함께) | OD-A05, P-18·P-22 |
+| 의존성 | `pdfjs-dist` 5.4.296 (Apache-2.0, Student workspace, 원문 화면에서만 동적 로딩) 도입 승인 — CLAUDE.md §8은 UI Library 임의 설치를 막는다. 사용자 요청(2026-10-28, iframe으로 쪽 제어 불가 시 PDF.js 검토)에 따라 넣었고 승인 기록이 필요하다 | CLAUDE.md §8, ADR 필요 여부 |
+| 도구 | `frontend/student/tools/university-exam-manifest.mjs` (`npm run exam-manifest`) — 폴더·Manifest 대조, 새 PDF는 "문항 정보 미확인"으로 추가 | scripts/ 공통 검증과 별개 |
+
+## P-26. 학생 과목 추가 계약 보완 (2026-10-28, 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** P-22~P-25·MM-49~63 상태는 바꾸지 않는다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| MM-64 | 학생 자유 입력 과목 생성 Endpoint (가칭 `POST /api/student/assessment/academic-context/subjects` `{schoolId, academicYear, grade, semester, name}` → SubjectRef) 또는 §9-2 PUT에 새 과목 이름 허용. 같은 학업 Context 안 중복 판정(정규화 규칙)·길이 제한·오류 Code | §9 Write Owner(기존 LearnersHigh 학적과 충돌 여부, OD-A04) |
+| MM-64 | 기존 과목 카탈로그 제공 여부 — 학교 개설 과목 목록이 없으면 현재처럼 "다른 학기에서 쓰던 과목"만 후보 | 기존 LearnersHigh 과목 데이터 (integration-boundary) |
+| MM-65 | SubjectRef 출처 필드(학교 개설 / 학생 추가) | 평가계획서 PDF 분석 과목 매칭(§11)과 같은 과목 ID 공간인지 |
+| MM-66 | 과목 이름 변경·삭제 정책 — 연결된 수행평가·심화 탐구·노트·성장 기록이 있는 과목의 처리(보관·병합·숨김) | domain.md OD (학업 정보 변경 시 기록 보존) |
+| 운영 | 학생 추가 과목이 관리자 화면(Assessment 현황·피드백)에 어떻게 보이는지 | Admin Assessment (assessment-admin.md) |

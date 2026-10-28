@@ -342,3 +342,15 @@
     gap: 2px;
   }
 }
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .rowTitle {
+    min-height: 24px;
+    line-height: 24px;
+  }
+
+  .backButton {
+    min-height: 24px;
+  }
+}

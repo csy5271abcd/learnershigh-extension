@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { listNotes } from '../api/assessmentDetailApi.ts'
@@ -19,10 +19,13 @@ import {
   ArchiveIcon,
 } from '../components/AssessmentIcons.tsx'
 import { DetailTopBar, type MoreMenuItem } from '../components/detail/DetailTopBar.tsx'
+import { ResourcesTab } from '../components/detail/ResourcesTab.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { EnrichmentPanel, type EnrichmentPanelTab } from '../components/enrichment/EnrichmentPanel.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
-import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState } from '../components/notes/NoteEditor.tsx'
+import { NoteContextPanel } from '../components/notes/NoteContextPanel.tsx'
+import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState, type NoteInsertRequest } from '../components/notes/NoteEditor.tsx'
+import type { ExamSourceInsertState } from '../components/university/ExamSourcePickerModal.tsx'
 import { Modal } from '../components/Modal.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
@@ -62,6 +65,7 @@ export function EnrichmentTaskDetailRoute() {
   const [notesVersion, setNotesVersion] = useState(0)
   const notes = useApiQuery(`ae-notes|${taskId}|${notesVersion}`, () => listNotes('ENRICHMENT_TASK', taskId))
   const [editorState, setEditorState] = useState<NoteEditorState>()
+  const [insertRequest, setInsertRequest] = useState<NoteInsertRequest>()
   const item = task.data?.taskId === taskId ? task.data : undefined
   const related = useApiQuery(item?.relatedAssessmentId ? `ae-related|${item.relatedAssessmentId}` : 'ae-related|none', () =>
     item?.relatedAssessmentId ? getSchoolAssessment(item.relatedAssessmentId) : Promise.resolve(null),
@@ -76,6 +80,19 @@ export function EnrichmentTaskDetailRoute() {
     (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text })),
     [],
   )
+
+  // 대학 기출 PDF 화면의 "현재 쪽을 노트에 추가": 편집기가 열린 뒤 한 번 넣고(자동 저장), 이동 State는 지운다 (새로고침·뒤로가기로 다시 넣지 않게).
+  const pendingExamSource = (location.state as Partial<ExamSourceInsertState> | null)?.examSourceInsert
+  const [consumedInsertKey, setConsumedInsertKey] = useState<string>()
+  if (pendingExamSource && editorState !== undefined && consumedInsertKey !== location.key) {
+    setConsumedInsertKey(location.key)
+    setInsertRequest((previous) => ({ nonce: (previous?.nonce ?? 0) + 1, examSource: pendingExamSource }))
+    showToast('success', `노트에 '${pendingExamSource.label}' 출처 카드를 넣었어요.`)
+  }
+  const insertConsumed = pendingExamSource !== undefined && consumedInsertKey === location.key
+  useEffect(() => {
+    if (insertConsumed) navigate(`${location.pathname}${location.search}`, { replace: true, state: null })
+  }, [insertConsumed, navigate, location.pathname, location.search])
 
   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate(myEnrichmentTasksPath))
   const subjects = terms.data?.contexts.flatMap((context) => context.subjects) ?? []
@@ -146,6 +163,7 @@ export function EnrichmentTaskDetailRoute() {
             <BulbIcon size={14} />
             자율 심화 탐구
           </p>
+          {/* 즐겨찾기 별표는 내 탐구·탐구 라이브러리 목록에서만 조작한다 (2026-10-28 사용자 요청). */}
           <h1 className={styles.title}>{item.title}</h1>
           <div className={styles.chipRow}>
             <Link to={tipsSection.path} className={styles.chipButton}>
@@ -218,6 +236,20 @@ export function EnrichmentTaskDetailRoute() {
             </div>
           </dl>
 
+          <NoteContextPanel
+            kind="enrichment"
+            task={item}
+            subjectName={subjectName(item.subjectId)}
+            related={
+              !item.relatedAssessmentId
+                ? { status: 'none' }
+                : related.data
+                  ? { status: 'ok', assessment: related.data }
+                  : related.status === 'error'
+                    ? { status: 'error' }
+                    : { status: 'loading' }
+            }
+          />
           <NoteEditor
             key={item.taskId}
             sourceType="ENRICHMENT_TASK"
@@ -225,10 +257,29 @@ export function EnrichmentTaskDetailRoute() {
             notes={notes}
             onSaved={() => setNotesVersion((value) => value + 1)}
             onStateChange={setEditorState}
+            insertRequest={insertRequest}
           />
           <MockDataNotice />
         </>,
-        <EnrichmentPanel task={item} hasNote={note !== undefined} activeTab={panelTab} onTabChange={setPanelTab} />,
+        <EnrichmentPanel
+          task={item}
+          hasNote={note !== undefined}
+          activeTab={panelTab}
+          onTabChange={setPanelTab}
+          resourcesContent={
+            <ResourcesTab
+              subjectId={item.subjectId}
+              subjectName={subjectName(item.subjectId)}
+              topic={item.title}
+              canInsert={editorState !== undefined}
+              onInsert={(resource) => {
+                setInsertRequest((previous) => ({ nonce: (previous?.nonce ?? 0) + 1, resource }))
+                showToast('success', `'${resource.title}'을(를) 노트에 출처 카드로 넣었어요.`)
+              }}
+              onNotify={showToast}
+            />
+          }
+        />,
       )}
 
       {linking && (

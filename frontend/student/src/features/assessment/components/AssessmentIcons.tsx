@@ -447,3 +447,53 @@ export function HelpIcon(props: IconProps) {
     </Svg>
   )
 }
+
+/** 평가 유형 (2×2 칸) */
+export function GridIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="4.5" y="4.5" width="6" height="6" rx="1" />
+      <rect x="13.5" y="4.5" width="6" height="6" rx="1" />
+      <rect x="4.5" y="13.5" width="6" height="6" rx="1" />
+      <rect x="13.5" y="13.5" width="6" height="6" rx="1" />
+    </Svg>
+  )
+}
+
+/** 반영 비율 (%) */
+export function PercentIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M18 6 6 18" />
+      <circle cx="7.5" cy="7.5" r="2" />
+      <circle cx="16.5" cy="16.5" r="2" />
+    </Svg>
+  )
+}
+
+/** 참고자료 (펼친 책) */
+export function OpenBookIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 6.5C10.2 5.2 7.6 4.7 4 5v13c3.6-.3 6.2.2 8 1.5M12 6.5c1.8-1.3 4.4-1.8 8-1.5v13c-3.6-.3-6.2.2-8 1.5M12 6.5v13" />
+    </Svg>
+  )
+}
+
+/** 통계·데이터 (막대 그래프) */
+export function BarChartIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 20h16M7 20v-6M12 20V8M17 20v-9" />
+    </Svg>
+  )
+}
+
+/** 공식 기관 (기둥 건물) */
+export function InstitutionIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3.5 9 12 4.5 20.5 9M5 9.5v8M9.5 9.5v8M14.5 9.5v8M19 9.5v8M3.5 20h17" />
+    </Svg>
+  )
+}

@@ -6,12 +6,15 @@ import type { EnrichmentCatalogItem, EnrichmentTask } from '../api/types.ts'
 import { AlertIcon } from '../components/AssessmentIcons.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
 import styles from '../components/enrichment/enrichment.module.css'
+import { FavoriteButton } from '../components/FavoriteButton.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
+import { Toast, type ToastMessage } from '../components/Toast.tsx'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { taskStartedFrom } from '../model/enrichmentView.ts'
 import { subjectNameOf } from '../model/schoolAssessmentView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
+import { favoriteKey, useFavorites } from '../model/useFavorites.ts'
 import { enrichmentTaskDetailPath } from './paths.ts'
 
 const catalogPageSize = 50
@@ -19,7 +22,8 @@ const taskPageSize = 100
 
 // 탐구 라이브러리 (screen-map S16, Mockup AE-LIST-01·03, inquiry §3, api-contract.md §16·18).
 // 과목·검색·선택 카드는 URL(`subject`, `q`, `selected`)에 둔다. Preview는 선택한 catalogTaskId의 상세 응답만 보여준다.
-// Mockup의 탐구 분야 필터·난이도·즐겨찾기·문제 상황·참고할 만한 곳·예상 결과물·자기 점검은 §16 응답에 없어 표시하지 않는다 (MM-26).
+// 즐겨찾기 별표는 Mock 전용 제안(P-22, ENRICHMENT_CATALOG)이며 보관함 즐겨찾기 탭과 같은 값이다.
+// Mockup의 탐구 분야 필터·난이도·문제 상황·참고할 만한 곳·예상 결과물·자기 점검은 §16 응답에 없어 표시하지 않는다 (MM-26).
 export function EnrichmentLibraryRoute() {
   const { selectedContext, terms, dataVersion } = useAssessmentWorkspace()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -62,6 +66,15 @@ export function EnrichmentLibraryRoute() {
   const subjects = selectedContext?.subjects ?? []
   const allSubjects = terms.data?.contexts.flatMap((context) => context.subjects) ?? subjects
   const subjectName = (id: string) => subjectNameOf(allSubjects, id)
+  const favorites = useFavorites()
+  const [toast, setToast] = useState<ToastMessage | null>(null)
+  const dismissToast = useCallback(() => setToast(null), [])
+  const showToast = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
+  const toggleFavorite = (catalogTaskId: string) =>
+    favorites.toggle('ENRICHMENT_CATALOG', catalogTaskId).then(
+                  (text) => text && showToast('success', text),
+                  (error: Error) => showToast('error', `즐겨찾기를 바꾸지 못했어요. ${error.message}`),
+                )
 
   return (
     <EnrichmentFrame
@@ -119,7 +132,7 @@ export function EnrichmentLibraryRoute() {
             {items.map((item) => {
               const started = myTasks.data ? taskStartedFrom(myTasks.data.items, item.catalogTaskId) : undefined
               return (
-                <li key={item.catalogTaskId}>
+                <li key={item.catalogTaskId} className={styles.starRow}>
                   <button
                     type="button"
                     className={styles.catalogRow}
@@ -141,6 +154,12 @@ export function EnrichmentLibraryRoute() {
                       </span>
                     )}
                   </button>
+                  <FavoriteButton
+                    favorite={favorites.isFavorite('ENRICHMENT_CATALOG', item.catalogTaskId)}
+                    pending={favorites.pendingKey === favoriteKey('ENRICHMENT_CATALOG', item.catalogTaskId)}
+                    title={item.title}
+                    onToggle={() => toggleFavorite(item.catalogTaskId)}
+                  />
                 </li>
               )
             })}
@@ -151,6 +170,7 @@ export function EnrichmentLibraryRoute() {
       <div className={styles.notices}>
         <MockDataNotice />
       </div>
+      <Toast message={toast} onDismiss={dismissToast} />
     </EnrichmentFrame>
   )
 }
@@ -218,6 +238,7 @@ function CatalogPreview({ catalogTaskId, subjectName, startedTask, myTasksReady 
   return (
     <article className={styles.preview} aria-label={`${item.title} 미리보기`}>
       <div className={styles.previewHead}>
+        {/* 즐겨찾기 별표는 왼쪽 목록 행에서만 조작한다 (2026-10-28 사용자 요청). */}
         <h2 className={styles.previewTitle}>{item.title}</h2>
         <p className={styles.previewMeta}>{subjectName(item.subjectId)} · 자율 심화 탐구 (학교 수행평가 아님)</p>
         <div className={styles.previewActions}>

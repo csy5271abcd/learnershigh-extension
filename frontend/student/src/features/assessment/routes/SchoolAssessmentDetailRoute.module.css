@@ -18,8 +18,15 @@
 
 .main,
 .panelArea {
+  /*
+   * position: relative — 안의 position:absolute 요소(예: 노트 제목의 lh-visually-hidden 라벨)가 이 스크롤 영역을
+   * 기준으로 놓이게 한다. 기준이 body가 되면 overflow로 잘리지 않고 문서를 늘려 바깥 스크롤·하단 빈 공간이 생긴다 (2026-10-28 수정).
+   * overscroll-behavior — 한쪽 끝에 닿아도 바깥 문서로 스크롤이 넘어가지 않게 한다.
+   */
+  position: relative;
   height: calc(100dvh - var(--lh-student-nav-height) - var(--detail-top-bar));
   overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 .panelArea {
@@ -168,6 +175,30 @@
   color: var(--as-color-text-secondary);
 }
 
+/* 평가계획서 분석 값 표시 (확인 전 후보) */
+.candidateTag {
+  /* Mockup의 보조 안내처럼 작은 회색 글로 둔다 (2026-10-28 사용자 요청: 갈색 강조 제거). 오류·링크 색은 따로 유지 */
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-secondary);
+  white-space: nowrap;
+}
+
+.sourcePage {
+  min-height: 24px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: var(--as-color-text-tertiary);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.sourcePage:hover {
+  color: var(--as-color-text);
+  text-decoration: underline;
+}
+
 /* 오른쪽 패널을 둘 폭이 없으면 한 열로 쌓고, 페이지 전체가 스크롤된다. */
 @media (max-width: 1279px) {
   .body {
@@ -198,5 +229,12 @@
   .title {
     font-size: 22px;
     line-height: 30px;
+  }
+}
+
+/* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
+@media (max-width: 820px) {
+  .editInfoButton {
+    min-height: 24px;
   }
 }

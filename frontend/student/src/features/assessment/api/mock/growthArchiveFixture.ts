@@ -66,8 +66,14 @@ export const fixtureGrowthRecords: GrowthRecord[] = [
   },
 ]
 
-/** §30 즐겨찾기 상태. 계약 예시가 SCHOOL_ASSESSMENT만 있어 그 유형만 둔다 (MM-40). */
+/**
+ * §30 즐겨찾기 상태. 계약 예시 유형(SCHOOL_ASSESSMENT)만 Fixture로 둔다 (MM-40).
+ * 심화 탐구·라이브러리 즐겨찾기(P-22 Mock 전용)는 학생이 별표를 누를 때만 생긴다.
+ */
 export const fixtureFavorites: ArchiveFavoriteRequest[] = [
   { sourceType: 'SCHOOL_ASSESSMENT', sourceId: 'assessment_001', favorite: true },
   { sourceType: 'SCHOOL_ASSESSMENT', sourceId: 'assessment_002', favorite: true },
 ]
+
+/** 즐겨찾기한 라이브러리 콘텐츠의 정렬 기준 시각이 없을 때 쓰는 고정 값 (Mock 전용) */
+export const fixtureFavoriteBaseTime = '2026-10-01T09:00:00+09:00'
