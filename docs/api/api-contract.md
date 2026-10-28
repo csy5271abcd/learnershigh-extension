@@ -3140,6 +3140,22 @@ Do not finalize unresolved states by guessing.
 
 # 65. Admin — Student Care (Wangyu)
 
+### 2026-10-25 주간 지표 확장 (이 절의 이전 기간/기본값 설명보다 우선)
+
+- `asOf`는 서버 Asia/Seoul의 완료된 전날이다. 최근7일은 asOf-6~asOf, 비교28일은 asOf-34~asOf-7로 서로 겹치지 않는다. 기존 `dailyStudy` last14 필드는 호환 유지한다.
+- board 응답에 `students: StudentRef[]`를 추가한다. 지점 전체 재원 학생이며 정상·기록부족·관리중도 포함한다. 기존 분류 배열은 유지한다.
+- detail 응답에 아래 `review: CareWeeklyReview`를 추가한다.
+- `GET /api/admin/student-care/metrics?branchId=...` → `{asOf, branch:{branchId,name}, students:[{student:StudentRef,review:CareWeeklyReview}], dailyAverages:[{date,minutes:number|null,samples:number}]}`. 학생 명단은 전체이며 이름/ID 순으로 안정 정렬한다. 평균은 해당 날짜 기록이 있는 학생의 분 합/표본수(실제0 포함, 미기록 제외)다. 학습관 모든 학생이 없으면 students/dailyAverages는 빈 배열이다. branchId 필수, 오류는 board와 동일한400/404/503, ADMIN 전용이다. 학생별 기존 원본 조회의 실패는 응답 전체503이며 빈 기록으로 대체하지 않는다.
+- `CareWeeklyReview` = `{from,to,baselineFrom,baselineTo,days:CareDay[7],current:CarePeriodSummary,baseline:CarePeriodSummary,weekdayBaseline:[{date,minutes:number|null,startMinutes:number|null,samples:number,startSamples:number}],subjects:[{name,plannedMinutes,actualMinutes,plannedShare:number|null,actualShare:number|null}]}`. baseline 요약의 학습총량/입실일수는28일 전체 값이며 주평균은 각각 /4다. subjects는 최근7일만 집계한다.
+- `CareDay` = `{date,attendance:'PRESENT'|'ABSENT'|'UNSCHEDULED'|'UNKNOWN',submission:'SUBMITTED'|'MISSING'|'UNKNOWN',scheduled:boolean|null,minutes:number|null,startMinutes:number|null,plannedMinutes:number|null,actualMinutes:number|null}`. 예정일 미확인+미입실은UNKNOWN이며 결석으로 단정하지 않는다. 학습/제출 기록은 일정과 독립이다. 입실/학습 원본 자체가 없으면 수치는null(0으로 보완하지 않음).
+- `CarePeriodSummary` = `{calendarDays,recordedDays,attendanceDays,scheduledAbsenceDays,submissionDays,submissionRecordedDays,studyMinutes:number|null,minutesPerAttendance:number|null,averageStartMinutes:number|null,startSamples,plannedMinutes:number|null,actualMinutes:number|null,executionRate:number|null,comparablePlanDays}`. studyMinutes는 기록된 부분 합이며 recordedDays/calendarDays로 완전성을 구분한다. 과거 주평균 비교는 recordedDays=28인 경우만 유효하다. 달성률은 입실·양수계획·실제가 함께 있는 날짜의 actual/planned*100(상한없음)이다. 비입실 날짜의 제출도 제출률에는 독립 포함한다.
+- `CONSECUTIVE_ABSENCE` 코드는 기존 데이터 호환을 위해 유지하되 최근7일의 등원예정·미입실 횟수를 뜻한다. 라벨은 ‘미입실’. 예정일을 확인할 수 없으면 이 신호는 만들지 않는다. 임의 일정 추정 금지.
+- 기본값은 absenceDays=1,planMissingDays=2,studyDropPercent=30,executionRatePercent=60,subjectShareGapPoints=20,startShiftMinutes=60,minValidDays=3,cooldownDays=7. absenceDays 범위1~14. 기존 저장된 지점 설정은 자동 변경하지 않는다. 운영 검증 전 제안값이다.
+- 케어 건은 내부 `metric_formula_version`으로 판정 공식을 구분한다. 기존 행은1, 새 건은2다. 버전1 baseline/이벤트는 그대로 보존하며 새 주간 공식과 자동 비교하지 않는다. 버전1 점검 comparison은 기존 before/target을 유지하고 now=null, trend=SAME으로 반환한다. 상태전이/상담 기록은 계속 가능하다.
+- 미입실/계획미제출 재점검의 `now`는 최근7일 원본이 모두 확인되어야 계산한다. 미입실은 미입실인 날짜의 일정도 확인되어야 한다. 불완전하면 `now=null`이며 개선으로 판정하지 않는다. 확인된 일부 날짜만으로 발생하는 새 경고 신호와는 구분한다.
+- 실행률 신호/재확인도 최근7일, 학습시간/입실시각 비교 기준은 직전28일로 통일한다. 반올림 전 판정·종결신호 숨김·상담 상태전이는 유지한다.
+- 원본 일정이 제공되지 않으면 scheduled=null을 유지한다. 무계획모드와 권한/원본 API의 기존 Open Decision을 임의로 확정하지 않는다.
+
 > Spec: `docs/specs/wangyu/features/student-care.md`, Domain: `docs/specs/wangyu/domain.md`  
 > Actor: `ADMIN`. 인증 방식은 미확정(§7)이며, 확정 전까지 이 Endpoint는 Admin Surface에서만 호출한다.
 
@@ -3233,6 +3249,8 @@ GET /api/admin/student-care/board?branchId=br_gangnam
 Error: `400 VALIDATION_ERROR`(branchId 없음), `404 BRANCH_NOT_FOUND`, `503 EXISTING_STUDY_DATA_UNAVAILABLE`.
 
 ## 65-3. Student Care Detail
+
+`today`는 서버 업무일(Asia/Seoul)이며 다음 확인일의 상대 날짜 계산 기준이다. `asOf`는 완료된 관찰일이므로 업무일과 혼용하지 않는다. 기존 필드에 `today: YYYY-MM-DD`를 추가한다.
 
 ```http
 GET /api/admin/student-care/students/{studentId}?branchId=br_gangnam
@@ -3422,6 +3440,7 @@ Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `422 INVALID_CARE_SETTING
 ```text
 GET    /api/admin/student-care/branches
 GET    /api/admin/student-care/board
+GET    /api/admin/student-care/metrics
 GET    /api/admin/student-care/students/{studentId}
 GET    /api/admin/student-care/students/{studentId}/history
 POST   /api/admin/student-care/cases
@@ -3444,3 +3463,7 @@ PUT    /api/test/integration    { "studyDataAvailable": false }   Existing 학�
 등록 조건: `e2e` Profile **그리고** 실행 환경 변수 `LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true`(설정 파일에는 없음, E2E 실행 명령 / CI e2e Job에서만 지정). 둘 중 하나라도 없으면 Bean이 없다.
 
 - 65-8 history, 65-9 settings도 지점 조회가 Existing 연동이므로 실패하면 `503 EXISTING_STUDY_DATA_UNAVAILABLE`이다.
+
+### 2026-10-28 공식 버전3 호환 규칙
+
+Endpoint/JSON shape는 유지한다. 신규 관리 건의 START_TIME_SHIFT baseline/점검 row는 개인 같은요일 평소 대비 분 차이이며 unit=MINUTES, target=0이다. 구버전1/2 건의 baseline/이력/단위는 보존하고 now=null로 반환하여 새 공식과 잘못 비교하지 않는다. 새 신호의 요약은 ‘평소보다 N분 늦게 입실’이다. 계획 미제출은 scheduled=false 제외, 과목 계획·실제는 동일 입실/계획 제출/양수 계획 날짜만 비교한다. review.subjects의 planned/actual도 동일 날짜를 쓴다. weekdayBaseline.startSamples는 FE에서도 그대로 보존한다. 저장된 상담·지점 기준값은 재작성하지 않는다.

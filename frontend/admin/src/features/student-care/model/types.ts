@@ -64,6 +64,8 @@ export interface DeferredStudent {
 export interface CareBoard {
   asOf: string
   branch: { branchId: string; name: string }
+  /** V2 FE 미리보기 명부. 실제 board API 계약에는 아직 없는 화면용 데이터. */
+  students: StudentRef[]
   needsCheck: NeedsCheckCard[]
   inAdjustment: InAdjustmentCard[]
   deferred: DeferredStudent[]
@@ -124,6 +126,11 @@ export interface CareCase {
 }
 
 export interface StudentCareDetail {
+  /** 서버 업무일. 관찰일 asOf와 별개로 상대 확인일 계산에 사용한다. */
+  today?: string
+  serverReview?: import('./serverWeeklyReview.ts').ServerWeeklyReview
+  /** FE 자료 공급자 간 명시적 일별 기록. 실제 HTTP 응답은 review를 사용한다. */
+  careDays?: import('./weeklyReviewTypes.ts').WeekDay[]
   asOf: string
   student: StudentRef
   signals: SignalDetail[]

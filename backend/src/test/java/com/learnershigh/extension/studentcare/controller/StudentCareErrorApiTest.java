@@ -29,7 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 /** 공통 Error (api-contract.md §5-1): 415 / 406 / 형식 오류의 JSON 경로 / 길이 / 소수. */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -94,6 +94,7 @@ class StudentCareErrorApiTest {
 
     @Test
     void floatInIntegerFieldIs400WithFieldAndNotSaved() throws Exception {
+        jdbc.update("delete from care_settings");
         mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content(SETTINGS.formatted("2.5")))
                 .andExpect(status().isBadRequest())
@@ -113,6 +114,7 @@ class StudentCareErrorApiTest {
 
     @Test
     void numberAsStringIs400WithFieldAndNotSaved() throws Exception {
+        jdbc.update("delete from care_settings");
         mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content(SETTINGS.formatted("\"3\"")))
                 .andExpect(status().isBadRequest())
@@ -157,6 +159,7 @@ class StudentCareErrorApiTest {
 
     @Test
     void integerOverflowIs400OnTheFieldNotBody() throws Exception {
+        jdbc.update("delete from care_settings");
         for (String tooBig : new String[] {"2147483648", "99999999999999999999", "-2147483649"}) {
             mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
                             .contentType(MediaType.APPLICATION_JSON).content(SETTINGS.formatted(tooBig)))

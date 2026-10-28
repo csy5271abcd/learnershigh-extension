@@ -3,7 +3,8 @@ import { monthDay, shortDate } from '../model/format.ts'
 import { loadFailure, useRemote } from '../model/useRemote.ts'
 import { CounselForm } from './CounselForm.tsx'
 import { RecheckPanel } from './RecheckPanel.tsx'
-import { StudyChart } from './StudyChart.tsx'
+import { QuickClearButton } from './QuickClearButton.tsx'
+import { SignalOverview } from './SignalOverview.tsx'
 
 interface Props {
   branchId: string
@@ -11,10 +12,13 @@ interface Props {
   version: number
   onSaved: (message: string) => void
   onStale: () => void
+  excludeWeekend: boolean
+  onExcludeWeekendChange: (value: boolean) => void
 }
 
 /** 선택한 학생: 달라진 점 → 14일 그래프 → 상담 기록 / 점검 → 이력 (student-care.md §4). */
-export function StudentPanel({ branchId, studentId, version, onSaved, onStale }: Props) {
+export function StudentPanel({ branchId, studentId, version, onSaved, onStale, excludeWeekend, onExcludeWeekendChange }: Props) {
+  const More = 'details'
   const key = `${branchId}/${studentId}`
   const detail = useRemote(key, () => studentCareApi.detail(branchId, studentId), version)
   const history = useRemote(key, () => studentCareApi.history(branchId, studentId), version)
@@ -49,9 +53,19 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
         </h2>
         {data.student.className && <span className="sc-detail__class">{data.student.className}</span>}
         {active && !active.recheckDue && active.recheckDate && (
-          <span className="sc-badge">다음 점검 {monthDay(active.recheckDate)}</span>
+          <span className="sc-badge">다음 확인 {monthDay(active.recheckDate)}</span>
         )}
-        {active?.recheckDue && <span className="sc-badge sc-badge--due">점검일</span>}
+        {active?.recheckDue && <><span className="sc-badge sc-badge--due">경과 확인</span></>}
+        {!active && data.signals.length > 0 && <><span className="sc-badge sc-badge--due">상담 필요</span></>}
+        {!active && data.signals.length > 0 && (
+          <QuickClearButton
+            branchId={branchId}
+            studentId={studentId}
+            studentName={name}
+            onSaved={(message) => onSaved(`${name} · ${message}`)}
+            onStale={onStale}
+          />
+        )}
       </header>
 
       <ul className="sc-changes">
@@ -62,13 +76,27 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
         ))}
         {shownSignals.length === 0 && (
           <li className="sc-changes__none">
-            {data.deferred ? `기록 부족 · 최근 7일 공부한 날 ${data.deferred.validDays}일` : '특이사항 없음'}
+            {data.deferred ? `학습 기록 부족 · 최근 7일 학습일 ${data.deferred.validDays}일` : '확인할 항목 없음'}
           </li>
         )}
       </ul>
 
-      <StudyChart days={data.dailyStudy} usualDailyMinutes={data.usualDailyMinutes} />
+      <SignalOverview
+        studentId={studentId}
+        studentName={name}
+        asOf={data.asOf}
+        serverReview={data.serverReview}
+        careDays={data.careDays}
+        signals={shownSignals}
+        deferred={data.deferred !== null}
+        dailyStudy={data.dailyStudy}
+        usualDailyMinutes={data.usualDailyMinutes}
+        excludeWeekend={excludeWeekend}
+        onExcludeWeekendChange={onExcludeWeekendChange}
+      />
 
+      <More className="sc-detail-more">
+      <summary>상담·관리 이력</summary>
       {active?.recheckDue ? (
         <RecheckPanel
           key={active.caseId + active.recheckDate}
@@ -92,7 +120,7 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
 
       <section className="sc-history" aria-labelledby="sc-history-title">
         <h3 id="sc-history-title" className="sc-section-title">
-          이력
+          관리 이력
         </h3>
         {loadFailure(history) ? (
           <div className="sc-state" role="alert">
@@ -116,6 +144,7 @@ export function StudentPanel({ branchId, studentId, version, onSaved, onStale }:
           </ol>
         )}
       </section>
+      </More>
     </article>
   )
 }

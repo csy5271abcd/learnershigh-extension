@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,16 @@ public class MockExistingStudyClient implements ExistingStudyClient, MockIntegra
     private final LocalDate anchor;
     private volatile boolean available = true;
 
+    private DemoStudyDataStore demoStore;
+
+    @Autowired(required = false)
+    void setDemoStudyDataStore(DemoStudyDataStore demoStore) {
+        this.demoStore = demoStore;
+    }
+
+    @Value("${learnershigh.mock.visual-examples:false}")
+    private boolean visualExamples;
+
     public MockExistingStudyClient(Clock clock, @Value("${learnershigh.mock.anchor-date:}") String anchorDate) {
         this.anchor = anchorDate == null || anchorDate.isBlank() ? LocalDate.now(clock) : LocalDate.parse(anchorDate);
     }
@@ -28,9 +39,10 @@ public class MockExistingStudyClient implements ExistingStudyClient, MockIntegra
         if (!available) {
             throw new ExistingIntegrationException("mock study data disabled");
         }
+        if (demoStore != null) return demoStore.findDailyStudy(studentId, from, to);
         List<ExistingDailyStudy> days = new ArrayList<>();
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
-            days.add(MockStudyScenarios.dayOf(studentId, date, anchor));
+            days.add(MockStudyScenarios.dayOf(studentId, date, anchor, visualExamples));
         }
         return days;
     }

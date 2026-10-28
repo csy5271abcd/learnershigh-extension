@@ -17,6 +17,17 @@ public final class CareComparator {
     }
 
     public static CareComparison compare(List<CareBaselineSignal> baseline, List<ExistingDailyStudy> days, LocalDate asOf) {
+        return compare(baseline, days, asOf, 3);
+    }
+
+    /** 이전 공식의 snapshot을 새 주간 수치와 비교하지 않는다. 원본 baseline은 수정하지 않는다. */
+    public static CareComparison compare(List<CareBaselineSignal> baseline, List<ExistingDailyStudy> days,
+            LocalDate asOf, int metricFormulaVersion) {
+        if (metricFormulaVersion != 3) {
+            List<Row> rows = baseline.stream().map(signal -> new Row(signal.type(), signal.subject(),
+                    signal.value(), null, signal.target(), Trend.SAME)).toList();
+            return new CareComparison(rows, resultOf(rows));
+        }
         List<Row> rows = baseline.stream().map(signal -> row(signal, days, asOf)).toList();
         return new CareComparison(rows, resultOf(rows));
     }

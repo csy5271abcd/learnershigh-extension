@@ -154,7 +154,7 @@ activity_item_code_subject   1국어 2수학 3영어 5사회 6과학 13공무원
 | `planSubmitted` | `plan_status ∈ {제출완료, 컨펌완료}` |
 | `studyMinutesBySubject` | PDFBYDAY 행을 날짜 × 과목 코드명으로 초 단위 합산 → 분 (내림), 0분 과목 제외 |
 | `plannedMinutesBySubject` | 같은 방식. 계획 미제출일이면 비어 있다 |
-| 기간 안 report 없는 날 | 미입실 / 미제출 / 빈 기록 |
+| 기간 안 report/stat 모두 없는 날 | recordAvailable=false. 지표에서는 미기록(null)이며 실제0/미제출과 구분 |
 | 학생 범위 | `role_id = 5` 그리고 `status = ACTIVE`만. INACTIVE / DELETED / 비학생 계정은 제외 |
 | 형식 오류 | `ExistingIntegrationException` → 503. 필수 값 누락(과목 이름, student_list, user / id, 재원 학생 real_name), 해석할 수 없는 날짜 / 시각, 음수 · 부호 붙은 시간 문자열, 분 · 초 60 이상 포함. 미입실로 바꾸지 않는다 |
 | 과목별 통계의 삭제된 할 일 | 응답에 할 일 status가 없어 걸러낼 수 없다 (원본 API 확인 필요) |
@@ -225,3 +225,7 @@ Extension이 **만드는** API는 `docs/api/api-contract.md`에 둔다. Frontend
 # 7. 확인 출처
 
 비공개 원본 저장소의 DB Schema 문서, 학생 목록 / 기간별 일일 현황 / 과목별 통계 API 구현, 시간 Format Util, 관리자 콘솔의 무계획모드 판정 Script (2026-10-13 확인). 정확한 경로는 팀 비공개 채널에 둔다.
+
+### 학생 케어 주간 입력 경계 (2026-10-25)
+
+scheduled/승인휴무 원본은 확인되지 않았다. 실제 PhapiStudyMapper는 scheduled=null, excused=false를 유지하며 입실 로그 부재를 결석으로 단정하지 않는다. report 또는 통계행이 있으면 recordAvailable=true다. Mock의 일정=true는 시나리오에서만 선언한 자료다.

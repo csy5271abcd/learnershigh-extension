@@ -10,7 +10,7 @@ const HEIGHT = 110
 const TOP = 8
 const BOTTOM = 2
 
-/** 최근 14일 하루 공부 시간. 점선은 평소 하루 평균, 최근 7일은 진한 막대. 화면 읽기용 표를 함께 둔다. */
+/** 최근 14일 하루 학습 시간. 점선은 평소 하루 평균, 최근 7일은 진한 막대. 화면 읽기용 표를 함께 둔다. */
 export function StudyChart({ days, usualDailyMinutes }: Props) {
   const max = Math.max(usualDailyMinutes, ...days.map((day) => day.minutes), 60) * 1.15
   const plot = HEIGHT - TOP - BOTTOM
@@ -23,7 +23,7 @@ export function StudyChart({ days, usualDailyMinutes }: Props) {
   return (
     <figure className="sc-chart">
       <figcaption className="sc-chart__caption">
-        <span>14일 공부 시간</span>
+        <span>14일 학습 시간</span>
         <span className="sc-chart__legend">
           <span className="sc-chart__swatch" aria-hidden="true" /> 최근 7일
           <span className="sc-chart__dash" aria-hidden="true" /> 평소 {usualDailyMinutes}분
@@ -57,7 +57,7 @@ export function StudyChart({ days, usualDailyMinutes }: Props) {
         </div>
       )}
       <table className="sc-visually-hidden">
-        <caption>14일 공부 시간</caption>
+        <caption>14일 학습 시간</caption>
         <tbody>
           {days.map((day) => (
             <tr key={day.date}>

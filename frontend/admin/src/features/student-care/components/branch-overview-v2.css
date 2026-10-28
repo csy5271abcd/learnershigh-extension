@@ -1,0 +1,93 @@
+.sc-v2 .sc-branch-metrics { padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); }
+.sc-v2 .sc-branch-metrics__intro { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+.sc-v2 .sc-branch-metrics__intro h2 { margin: 0; font-size: var(--font-size-xl); }
+.sc-v2 .sc-branch-metrics__intro p,
+.sc-v2 .sc-branch-metrics__description p { margin: var(--space-2) 0 0; color: var(--color-text-secondary); }
+.sc-v2 .sc-branch-metrics__selectors { display: flex; flex-wrap: wrap; gap: var(--space-2); padding: var(--space-5) 0; }
+.sc-v2 .sc-branch-metrics__selectors button { min-height: var(--control-height); padding: var(--space-2) var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); cursor: pointer; font-weight: 600; }
+.sc-v2 .sc-branch-metrics__selectors button[aria-pressed='true'] { background: var(--color-accent-soft); border-color: var(--color-accent); color: var(--color-accent-text); }
+.sc-v2 .sc-branch-metrics__selectors button:hover { border-color: var(--color-accent); }
+.sc-v2 .sc-branch-metrics__description { padding: var(--space-4) 0; border-top: 1px solid var(--color-border); }
+.sc-v2 .sc-branch-metrics__description h3 { margin: 0; font-size: var(--font-size-lg); }
+.sc-v2 .sc-branch-metrics__legend { display: flex; gap: var(--space-4); margin-top: var(--space-3); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+.sc-v2 .sc-branch-metrics__legend span { display: flex; align-items: center; gap: var(--space-2); }
+.sc-v2 .sc-branch-metrics__legend i { width: 18px; height: 8px; background: var(--color-chart-bar); border-radius: 3px; }
+.sc-v2 .sc-branch-metrics__legend span:last-child i { background: var(--color-accent); }
+.sc-v2 .sc-branch-metrics__scroll { overflow-x: auto; border-top: 1px solid var(--color-border); }
+.sc-v2 .sc-branch-metrics__table { width: 100%; min-width: 800px; table-layout: fixed; border-collapse: collapse; text-align: left; font-variant-numeric: tabular-nums; }
+.sc-v2 .sc-branch-metrics__table th,
+.sc-v2 .sc-branch-metrics__table td { padding: var(--space-4) var(--space-3); border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+.sc-v2 .sc-branch-metrics__table thead th { color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: 500; }
+.sc-v2 .sc-branch-metrics__table th:first-child { width: 15%; padding-left: 0; }
+.sc-v2 .sc-branch-metrics__table th:nth-child(2) { width: 31%; }
+.sc-v2 .sc-branch-metrics__table th:nth-child(3),
+.sc-v2 .sc-branch-metrics__table th:nth-child(4),
+.sc-v2 .sc-branch-metrics__table th:nth-child(5) { width: 18%; }
+.sc-v2 .sc-branch-metrics__table strong { font-size: var(--font-size-md); font-weight: 600; }
+.sc-v2 .sc-branch-metrics__table small { display: block; margin-top: var(--space-1); color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: 400; }
+.sc-v2 .sc-branch-metrics__student { display: block; width: 100%; min-height: var(--control-height); padding: 0; background: none; border: 0; text-align: left; cursor: pointer; font-weight: 600; }
+.sc-v2 .sc-branch-metrics__student > span { color: var(--color-accent-text); }
+.sc-v2 .sc-branch-metrics__student:hover > span { text-decoration: underline; }
+.sc-v2 .sc-branch-metrics__axis { display: flex; justify-content: space-between; gap: var(--space-2); }
+.sc-v2 .sc-branch-metrics__bars { display: grid; align-content: center; gap: 7px; min-height: 45px; border-left: 1px solid var(--color-input-border); border-right: 1px solid var(--color-border); background: linear-gradient(to right, transparent calc(50% - .5px), var(--color-border) calc(50% - .5px), var(--color-border) calc(50% + .5px), transparent calc(50% + .5px)); }
+.sc-v2 .sc-branch-metrics__bars > div { height: 10px; }
+.sc-v2 .sc-branch-metrics__bars > div > span { display: block; height: 100%; border-radius: 0 3px 3px 0; background: var(--color-chart-bar); }
+.sc-v2 .sc-branch-metrics__bars > div:last-child > span { background: var(--color-accent); }
+.sc-v2 .sc-branch-metrics__no-data { justify-self: center; padding: 0 var(--space-2); color: var(--color-text-secondary); background: var(--color-surface); font-size: var(--font-size-sm); }
+.sc-v2 .sc-branch-metrics__table small.sc-branch-metrics__attention { color: var(--color-flag); font-weight: 600; }
+.sc-v2 .sc-branch-metrics__footnote { margin: var(--space-4) 0 0; color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+@media (max-width: 720px) {
+  .sc-v2 .sc-branch-metrics { padding: var(--space-4); }
+  .sc-v2 .sc-branch-metrics__intro { flex-direction: column; }
+}
+
+.sc-v2 .sc-branch-compact-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px}
+.sc-v2 .sc-branch-compact-head h2{font-size:18px;margin:0}
+.sc-v2 .sc-branch-compact-head span{font-size:13px;color:var(--color-text-secondary);font-weight:400}
+.sc-v2 .sc-branch-compact-head h2 span{margin-left:8px}
+.sc-v2 .sc-branch-all-table{width:100%;min-width:1020px;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.sc-v2 .sc-branch-all-table thead th{padding:14px 12px;background:var(--color-surface-muted);text-align:right;font-size:13px;font-weight:500;white-space:nowrap}
+.sc-v2 .sc-branch-all-table th:first-child{text-align:left;position:sticky;left:0;background:var(--color-surface);z-index:1;min-width:110px;border-right:1px solid var(--color-border)}
+.sc-v2 .sc-branch-all-table thead th:first-child{background:var(--color-surface-muted);z-index:2}
+.sc-v2 .sc-branch-all-table tbody th,.sc-v2 .sc-branch-all-table td{padding:14px 12px;border-bottom:1px solid var(--color-border);vertical-align:middle;text-align:right}
+.sc-v2 .sc-branch-all-table td strong{display:block;font-size:16px;font-weight:650;white-space:nowrap}
+.sc-v2 .sc-branch-all-table small{display:block;font-size:12px;color:var(--color-text-secondary);font-weight:400;margin-top:4px;white-space:nowrap}
+.sc-v2 .sc-branch-all-table .sc-branch-cell-alert strong,.sc-v2 .sc-branch-all-table .sc-branch-cell-flag{color:var(--color-flag)}
+.sc-v2 .sc-branch-mini-bars{display:grid;gap:3px;margin:6px 0 2px;min-width:100px}
+.sc-v2 .sc-branch-mini-bars i{height:4px;background:var(--color-chart-bar)}
+.sc-v2 .sc-branch-mini-bars i:last-child{background:var(--color-accent)}
+.sc-v2 .sc-branch-comparison-key{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px;font-size:12px;color:var(--color-text-secondary)}
+.sc-v2 .sc-branch-comparison-key span{display:flex;align-items:center;gap:6px}
+.sc-v2 .sc-branch-comparison-key i{width:16px;height:4px;background:var(--color-chart-bar)}
+.sc-v2 .sc-branch-comparison-key span:nth-child(2) i{background:var(--color-accent)}
+@media(max-width:600px){.sc-v2 .sc-branch-compact-head{align-items:start;flex-direction:column}}
+
+.sc-v2 .sc-branch-chart-select{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.sc-v2 .sc-branch-chart-select button{min-height:34px;font-size:13px;padding:5px 12px}
+.sc-v2 .sc-branch-chart-select [aria-pressed=true]{background:var(--color-accent-soft);color:var(--color-accent-text);border-color:var(--color-accent)}
+.sc-v2 .sc-branch-chart{margin-top:12px}
+.sc-v2 .sc-branch-chart-axis{display:flex;justify-content:space-between;margin:0 230px 8px 100px;font-size:12px;color:var(--color-text-secondary)}
+.sc-v2 .sc-branch-chart-row{display:grid;grid-template-columns:90px minmax(100px,1fr) 110px 120px;gap:10px;align-items:center;min-height:42px;border-bottom:1px solid var(--color-border)}
+.sc-v2 .sc-branch-chart-name{display:flex;gap:6px;align-items:center;background:none;border:0;padding:8px 0;text-align:left;font-size:14px;font-weight:600;cursor:pointer}
+.sc-v2 .sc-branch-chart-name small{font-size:10px;color:var(--color-flag);font-weight:400}
+.sc-v2 .sc-branch-chart-track{display:grid;gap:4px;position:relative;background:repeating-linear-gradient(90deg,transparent,transparent calc(25% - 1px),var(--color-border) 25%);min-height:20px;align-content:center}
+.sc-v2 .sc-branch-chart-track i{display:block;height:6px;background:var(--color-chart-bar);border-radius:0 2px 2px 0}
+.sc-v2 .sc-branch-chart-track .is-current{background:var(--color-accent)}
+.sc-v2 .sc-branch-chart-track.is-clock{display:block;height:24px;background:linear-gradient(var(--color-border),var(--color-border)) center/100% 1px no-repeat}
+.sc-v2 .sc-branch-chart-track.is-clock i{position:absolute;width:9px;height:9px;top:8px;transform:translateX(-50%);border-radius:50%}
+.sc-v2 .sc-branch-chart-row>strong{text-align:right;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-v2 .sc-branch-chart-delta{font-size:12px;color:var(--color-text-secondary);text-align:right}
+.sc-v2 .sc-branch-chart-delta>span{display:block;font-size:11px}
+.sc-v2 .sc-branch-chart-row.is-attention>strong{color:var(--color-flag)}
+@media(max-width:899px){.sc-v2 .sc-branch-metrics{padding:14px}.sc-v2 .sc-branch-chart-row{grid-template-columns:80px minmax(80px,1fr) 100px 110px;min-height:38px}.sc-v2 .sc-branch-chart-axis{margin-left:90px;margin-right:230px}.sc-v2 .sc-branch-chart-row>strong{font-size:14px}}
+@media(max-width:530px){.sc-v2 .sc-branch-chart-row{grid-template-columns:60px minmax(60px,1fr) 80px;gap:8px;padding:6px 0}.sc-v2 .sc-branch-chart-delta{grid-column:2/-1;font-size:11px}.sc-v2 .sc-branch-chart-name{font-size:12px;display:block;grid-row:span 2}.sc-v2 .sc-branch-chart-name small{display:block}.sc-v2 .sc-branch-chart-axis{margin-left:68px;margin-right:88px}.sc-v2 .sc-branch-chart-row>strong{font-size:12px}}
+
+.sc-v2 .sc-branch-chart-track{display:block;height:24px;min-height:24px}
+.sc-v2 .sc-branch-chart-track .is-current{position:absolute;top:8px;height:8px}
+.sc-v2 .sc-branch-chart-track .is-before{position:absolute;top:3px;width:2px;height:18px;background:var(--color-text-secondary);z-index:1;border-radius:0;transform:translateX(-50%)}
+.sc-v2 .sc-branch-chart-track.is-clock .is-before{top:8px;width:9px;height:9px;border-radius:50%;background:var(--color-chart-bar)}
+.sc-v2 .sc-branch-before-value{display:block;font-size:11px;font-weight:400;color:var(--color-text-secondary);line-height:1.5}
+.sc-v2 .sc-branch-chart-name{display:block;line-height:1.4}
+.sc-v2 .sc-branch-chart-name small{display:block}
+.sc-v2 .sc-branch-chart-row{min-height:46px}
+.sc-v2 .sc-branch-comparison-key span:first-child i{height:14px;width:2px;background:var(--color-text-secondary)}

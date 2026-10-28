@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
  * 학생 단위 / 건 단위 잠금이 없으면 건이 둘 생기거나 sequence 충돌로 500이 난다.
  */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)

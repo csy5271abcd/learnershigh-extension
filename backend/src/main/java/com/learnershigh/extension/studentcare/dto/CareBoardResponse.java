@@ -7,6 +7,7 @@ import java.util.List;
 public record CareBoardResponse(
         LocalDate asOf,
         BranchRef branch,
+        List<StudentRef> students,
         List<NeedsCheckCard> needsCheck,
         List<InAdjustmentCard> inAdjustment,
         List<DeferredStudent> deferred) {

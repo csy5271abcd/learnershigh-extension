@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 /** 상담 기록 / 계속 관리 / 관리 중 상담 기록 / 이력 (api-contract.md §65-4, 65-7, 65-8). */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)

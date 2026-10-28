@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** 기준값 / 지점 요약 (api-contract.md §65-9, 65-10). */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -55,17 +55,23 @@ class StudentCareSettingsApiTest {
 
     @Test
     void defaultsWhenNothingSaved() throws Exception {
+        jdbc.update("delete from care_settings");
         mvc.perform(get("/api/admin/student-care/settings").param("branchId", BRANCH))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.absenceDays").value(3))
-                .andExpect(jsonPath("$.studyDropPercent").value(40))
+                .andExpect(jsonPath("$.absenceDays").value(1))
+                .andExpect(jsonPath("$.planMissingDays").value(2))
+                .andExpect(jsonPath("$.studyDropPercent").value(30))
+                .andExpect(jsonPath("$.executionRatePercent").value(60))
+                .andExpect(jsonPath("$.subjectShareGapPoints").value(20))
+                .andExpect(jsonPath("$.startShiftMinutes").value(60))
+                .andExpect(jsonPath("$.minValidDays").value(3))
                 .andExpect(jsonPath("$.cooldownDays").value(7));
     }
 
     @Test
     void responsesCarryTheAllowedRangeOfEveryKey() throws Exception {
         String[][] expected = {
-                {"absenceDays", "2", "14"}, {"planMissingDays", "1", "7"}, {"studyDropPercent", "10", "90"},
+                {"absenceDays", "1", "14"}, {"planMissingDays", "1", "7"}, {"studyDropPercent", "10", "90"},
                 {"executionRatePercent", "10", "100"}, {"subjectShareGapPoints", "5", "60"},
                 {"startShiftMinutes", "30", "300"}, {"minValidDays", "1", "7"}, {"cooldownDays", "0", "30"}};
         for (var request : java.util.List.of(
@@ -109,20 +115,21 @@ class StudentCareSettingsApiTest {
 
         // 다른 지점에는 영향이 없다.
         mvc.perform(get("/api/admin/student-care/settings").param("branchId", "br_bundang"))
-                .andExpect(jsonPath("$.absenceDays").value(3));
+                .andExpect(jsonPath("$.absenceDays").value(1));
     }
 
     @Test
     void outOfRangeValuesAre422WithFields() throws Exception {
+        jdbc.update("delete from care_settings");
         mvc.perform(put("/api/admin/student-care/settings").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(SETTINGS.formatted(1).replace("\"cooldownDays\":7", "\"cooldownDays\":99")))
+                        .content(SETTINGS.formatted(0).replace("\"cooldownDays\":7", "\"cooldownDays\":99")))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.code").value("INVALID_CARE_SETTINGS"))
                 .andExpect(jsonPath("$.details.fields[*].field", containsInAnyOrder("absenceDays", "cooldownDays")));
 
         mvc.perform(get("/api/admin/student-care/settings").param("branchId", BRANCH))
-                .andExpect(jsonPath("$.absenceDays").value(3));
+                .andExpect(jsonPath("$.absenceDays").value(1));
     }
 
     @Test

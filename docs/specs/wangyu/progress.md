@@ -1,4 +1,20 @@
+## 2026-10-28 최신 상태
+
+학생 케어5: 전체 명부100명/60·30·10명 학습관, 개인 평소 대비 분포·다중 비교·카드 내7일 상세, 날짜별 결석/계획 제출, 관리 이력 학생별 필터와 당시 원문 펼침을 API에 연결했다. 공식3은 개인 요일별 입실 편차·정기휴일 제외·과목 동일 날짜 비교를 적용하고 이전 snapshot은 보존한다.
+
+관리 이력 합성 시딩12건/49이벤트를 추가했으며 기존 예시와 합쳐13건/51이벤트(관리 중10, 종료3)다. 과거 날짜의 API로 생성했으며 원문·출결 원본을 덮어쓰지 않았다. 재실행 추가0건. 로컬 검증은 verify.ps1 -Strict PASS, BE단위270 및 학생케어 MySQL75, FE모델/API80+seed6, 최종 브라우저26+실제 저장 이력1 PASS. PR CI는 현재27개 acceptance suite로 명시한다. 운영 연결·인증·배포와 효과 측정은 별도다.
+
+이전 기록은 당시 상태이며 최신 검수는 docs/design/student-care-validation-2026-10-28.md 및 전체 피드백 게이트를 따른다.
+
 # Wangyu Progress
+
+## 2026-10-25 주간 지표 확장
+
+- BE: board 전원 명부,detail.review,metrics API와 이전28일/최근7일 집계 구현. 공식버전 마이그레이션 V202610251000 추가. 단위254/실제MySQL 통합104개 통과(전체 build integrationTest).
+- FE:1~4보존,전체명부기본5/6/7시안과hover/focus정확값구현. 검토용예시자료이며새BE와실데이터연결은분리한다.
+- FE build/lint,모델/API34개,Playwright1~7의흐름/테마/반응형12개통과. 사용자디자인승인또는운영효과검증을뜻하지않는다.
+- 실제일정/승인휴무원본은미확정으로일정없는미입실은자동결석판정하지않는다. 기존인증·과목표준화·무계획모드Open Decision 유지.
+- 근거: docs/design/student-care-backend-validation-2026-10-25.md, student-care-567.md.
 
 > 위치: `docs/specs/wangyu/progress.md`  
 > Progress는 Requirement Source가 아니다. 실제 구현 상태에 맞춰 갱신한다.

@@ -87,6 +87,10 @@ public class CareCase {
     @OrderColumn(name = "position")
     private List<CareBaselineSignal> baseline = new ArrayList<>();
 
+    /** Snapshot 공식 버전. 기존1/2는 보존하며 개인 요일 편차·동일 날짜 비교로 만든 신규 건은3이다. */
+    @Column(name = "metric_formula_version", nullable = false)
+    private int metricFormulaVersion;
+
     @OneToMany(mappedBy = "careCase", cascade = CascadeType.ALL)
     @OrderBy("sequence ASC")
     private List<CareEvent> events = new ArrayList<>();
@@ -111,6 +115,7 @@ public class CareCase {
         this.studentId = studentId;
         this.reason = reason;
         this.baseline = new ArrayList<>(baseline);
+        this.metricFormulaVersion = 3;
         this.openedOn = today;
         this.createdAt = now;
         this.updatedAt = now;
@@ -149,6 +154,10 @@ public class CareCase {
     /** 다음 점검일이 되었는지. 결정은 점검일 이후에만 할 수 있다. */
     public boolean isRecheckDue(LocalDate today) {
         return status == CareCaseStatus.IN_ADJUSTMENT && recheckDate != null && !today.isBefore(recheckDate);
+    }
+
+    public int metricFormulaVersion() {
+        return metricFormulaVersion;
     }
 
     /** 점검 후 관리 종료. */

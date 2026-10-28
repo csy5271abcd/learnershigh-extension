@@ -86,6 +86,8 @@ secrets/
 # 5. Logs / runtime files
 # ------------------------------------------------------------
 
+.local-runtime/
+
 *.log
 logs/
 **/logs/
@@ -199,6 +201,7 @@ database/backups/
 
 playwright-report/
 test-results/
+e2e/test-results-*/
 blob-report/
 screenshots/
 videos/

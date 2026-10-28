@@ -2,7 +2,7 @@ package com.learnershigh.extension.studentcare.entity;
 
 /** 특이사항 (docs/specs/wangyu/domain.md §3). 선언 순서가 우선순위다. */
 public enum CareSignalType {
-    CONSECUTIVE_ABSENCE("연속 결석", MetricUnit.DAYS, false, false),
+    CONSECUTIVE_ABSENCE("미입실", MetricUnit.DAYS, false, false),
     PLAN_MISSING("계획 미제출", MetricUnit.DAYS, false, false),
     STUDY_DROP("공부 시간 감소", MetricUnit.MINUTES, true, true),
     EXECUTION_GAP("계획 미달성", MetricUnit.PERCENT, true, true),
@@ -41,7 +41,7 @@ public enum CareSignalType {
         return higherIsBetter;
     }
 
-    /** 기록 부족 / 연속 결석이면 계산하지 않는 학습량 계열 신호인지. */
+    /** 기록 부족 / 예정 미입실이면 계산하지 않는 학습량 계열 신호인지. */
     public boolean volumeBased() {
         return volumeBased;
     }

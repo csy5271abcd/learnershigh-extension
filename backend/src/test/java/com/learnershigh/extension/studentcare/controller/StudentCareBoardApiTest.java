@@ -31,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** 케어 보드 / 학생 상세 / 지점 (api-contract.md §65-1~3). 실제 MySQL + Mock Existing 시나리오. */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "learnershigh.mock.anchor-date=2026-09-29")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -55,6 +55,48 @@ class StudentCareBoardApiTest {
     }
 
     @Test
+    void weeklyMetricsAndDetailIncludeEveryStudentAndCompletedPeriods() throws Exception {
+        mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.students", hasSize(10)))
+                .andExpect(jsonPath("$.students[*].studentId", org.hamcrest.Matchers.hasItems("stu_008", "stu_009")));
+        mvc.perform(get("/api/admin/student-care/metrics").param("branchId", BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.asOf").value("2026-09-29"))
+                .andExpect(jsonPath("$.branch.branchId").value(BRANCH))
+                .andExpect(jsonPath("$.students", hasSize(10)))
+                .andExpect(jsonPath("$.students[*].student.studentId", org.hamcrest.Matchers.hasItems("stu_008", "stu_009")))
+                .andExpect(jsonPath("$.students[0].review.days", hasSize(7)))
+                .andExpect(jsonPath("$.dailyAverages", hasSize(7)))
+                .andExpect(jsonPath("$.dailyAverages[0].date").value("2026-09-23"))
+                .andExpect(jsonPath("$.dailyAverages[0].samples").value(10))
+                .andExpect(jsonPath("$.dailyAverages[0].minutes").isNumber());
+        mvc.perform(get("/api/admin/student-care/students/stu_009").param("branchId", BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.from").value("2026-09-23"))
+                .andExpect(jsonPath("$.review.to").value("2026-09-29"))
+                .andExpect(jsonPath("$.review.baselineFrom").value("2026-08-26"))
+                .andExpect(jsonPath("$.review.baselineTo").value("2026-09-22"))
+                .andExpect(jsonPath("$.review.days", hasSize(7)))
+                .andExpect(jsonPath("$.review.baseline.calendarDays").value(28))
+                .andExpect(jsonPath("$.review.weekdayBaseline", hasSize(7)));
+    }
+
+    @Test
+    void weeklyMetricsRejectInvalidScopeAndIntegrationFailure() throws Exception {
+        mvc.perform(get("/api/admin/student-care/metrics"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/admin/student-care/metrics").param("branchId", "br_none"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("BRANCH_NOT_FOUND"));
+        String before = StudentCareApiTestSupport.snapshot(jdbc);
+        integration.setStudyDataAvailable(false);
+        mvc.perform(get("/api/admin/student-care/metrics").param("branchId", BRANCH))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.code").value("EXISTING_STUDY_DATA_UNAVAILABLE"));
+        assertThat(StudentCareApiTestSupport.snapshot(jdbc)).isEqualTo(before);
+    }
+    @Test
     void branchesListStudentCounts() throws Exception {
         mvc.perform(get("/api/admin/student-care/branches"))
                 .andExpect(status().isOk())
@@ -67,12 +109,12 @@ class StudentCareBoardApiTest {
     void boardGroupsFlaggedAndDeferredStudents() throws Exception {
         mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.asOf").value("2026-09-30"))
+                .andExpect(jsonPath("$.asOf").value("2026-09-29"))
                 .andExpect(jsonPath("$.branch.name").value("러너스하이 강남점"))
                 .andExpect(jsonPath("$.needsCheck", hasSize(7)))
                 .andExpect(jsonPath("$.needsCheck[0].studentName").value("김서준"))
-                .andExpect(jsonPath("$.needsCheck[0].signals[*].label", contains("연속 결석", "계획 미제출")))
-                .andExpect(jsonPath("$.needsCheck[0].signals[0].summary").value("4일째 결석"))
+                .andExpect(jsonPath("$.needsCheck[0].signals[*].label", contains("미입실", "계획 미제출")))
+                .andExpect(jsonPath("$.needsCheck[0].signals[0].summary").value("최근 7일 중 4일 미입실"))
                 .andExpect(jsonPath("$.needsCheck[*].studentName", containsInAnyOrder(
                         "김서준", "최학생", "한유진", "정예준", "윤서연", "이학생", "오시윤")))
                 .andExpect(jsonPath("$.inAdjustment", hasSize(0)))
@@ -84,9 +126,9 @@ class StudentCareBoardApiTest {
     void needsCheckIsOrderedBySignalCountThenName() throws Exception {
         mvc.perform(get("/api/admin/student-care/board").param("branchId", BRANCH))
                 .andExpect(jsonPath("$.needsCheck[*].studentName", contains(
-                        "김서준", "오시윤", "윤서연", "이학생", "정예준", "최학생", "한유진")))
+                        "김서준", "오시윤", "한유진", "윤서연", "이학생", "정예준", "최학생")))
                 .andExpect(jsonPath("$.needsCheck[0].signals", hasSize(2)))
-                .andExpect(jsonPath("$.needsCheck[1].signals", hasSize(1)));
+                .andExpect(jsonPath("$.needsCheck[1].signals", hasSize(2)));
     }
 
     @Test
@@ -153,7 +195,7 @@ class StudentCareBoardApiTest {
                 .andExpect(jsonPath("$.signals[0].evidence[0]").value("수학 계획 30% → 실제 12% · 전체 공부 시간은 평소 수준"))
                 .andExpect(jsonPath("$.signals[0].question").doesNotExist())
                 .andExpect(jsonPath("$.dailyStudy", hasSize(14)))
-                .andExpect(jsonPath("$.dailyStudy[0].date").value("2026-09-17"))
+                .andExpect(jsonPath("$.dailyStudy[0].date").value("2026-09-16"))
                 .andExpect(jsonPath("$.usualDailyMinutes").isNumber())
                 .andExpect(jsonPath("$.planSuggestion").doesNotExist())
                 .andExpect(jsonPath("$.deferred").value(nullValue()))

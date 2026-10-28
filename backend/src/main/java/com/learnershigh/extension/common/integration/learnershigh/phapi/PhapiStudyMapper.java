@@ -142,7 +142,9 @@ public final class PhapiStudyMapper {
                 loginFirst == null ? null : loginFirst.toLocalTime(),
                 study,
                 planSubmitted,
-                planSubmitted ? planned : Map.of());
+                planSubmitted ? planned : Map.of(),
+                null,
+                report != null || !stats.isEmpty());
     }
 
     /** 같은 과목 코드명의 item을 초 단위로 합친 뒤 분으로 내린다. 1분 미만(0분) 과목은 뺀다. */

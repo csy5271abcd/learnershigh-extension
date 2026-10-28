@@ -1,5 +1,9 @@
 # student-care
 
+## 2026-10-25 업데이트
+
+아래 이전 화면/기간/설정 설명보다 최신 사용자 확정과 api-contract.md §65 주간 확장이 우선한다. 전체 학생을 보여주고 확인필요(신규/재확인)를 위쪽 테두리로 구별한다. 최근7일과 그7일 이전28일을 비교하며 날짜7개를 모두 표시한다. 학생 상세와 학습관 통합 지표는 공통 review 데이터를 사용한다. 결석은 일정 확인 없이는 확정하지 않으며 미기록과 실제0을 구분한다. 상담·관리 흐름은 유지한다. 최신 화면 구조는 feedback-contract.md와student-care-current.md를 따른다.1원본/2기존3/3기존4/5최종이며최종은간략명부에서학생선택후케어3확장지표를펼친다.
+
 > 위치: `docs/specs/wangyu/features/student-care.md`  
 > Entity / State는 `docs/specs/wangyu/domain.md`, API는 `docs/api/api-contract.md` §65, 화면 문구와 구조는 `docs/design/student-care-ux.md`를 따른다.
 

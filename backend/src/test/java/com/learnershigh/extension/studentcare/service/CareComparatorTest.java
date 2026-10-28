@@ -14,6 +14,24 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 class CareComparatorTest {
 
+    @Test
+    void versionTwoSnapshotsArePreservedWithoutComparingNewFormulaValues() {
+        var baseline = new CareBaselineSignal(CareSignalType.START_TIME_SHIFT, "기존 입실", 1200, 1100, null);
+        var result = CareComparator.compare(List.of(baseline), StudyDays.usual(), AS_OF, 2);
+        assertThat(result.rows().getFirst().before()).isEqualTo(1200);
+        assertThat(result.rows().getFirst().target()).isEqualTo(1100);
+        assertThat(result.rows().getFirst().now()).isNull();
+    }
+
+    @Test
+    void recheckComparesPersonalDeviationsRatherThanClockComposition() {
+        var baseline = new CareBaselineSignal(CareSignalType.START_TIME_SHIFT, "평소보다90분", 90, 0, null);
+        var result = CareComparator.compare(List.of(baseline), StudyDays.usual(), AS_OF);
+        assertThat(result.rows().getFirst().now()).isEqualTo(0);
+        assertThat(result.rows().getFirst().trend()).isEqualTo(Trend.IMPROVED);
+        assertThat(result.text()).contains("평소 대비 입실 90분 → 0분");
+    }
+
     @ParameterizedTest
     @CsvSource({
             "CONSECUTIVE_ABSENCE, 4, 0, IMPROVED",
@@ -142,6 +160,15 @@ class CareComparatorTest {
         assertThat(comparison.rows().getFirst().now()).isNull();
         assertThat(comparison.rows().getFirst().trend()).isEqualTo(Trend.SAME);
         assertThat(comparison.result()).isEqualTo(Result.NO_CHANGE);
-        assertThat(comparison.text()).isEqualTo("점검 · 그대로 — 기록 없음");
+        assertThat(comparison.text()).isEqualTo("점검 · 비교 기록 없음");
     }
+    @Test
+    void executionRecheckUsesSevenComparableDaysWithoutCap() {
+        CareBaselineSignal signal = new CareBaselineSignal(CareSignalType.EXECUTION_GAP, "s", 53, 60, null);
+        CareComparison comparison = CareComparator.compare(List.of(signal),
+                StudyDays.build((o, d) -> o >= -6 ? d.study(300).planned(200) : d.study(0).planned(10000)), AS_OF);
+        assertThat(comparison.rows().getFirst().now()).isEqualTo(150);
+        assertThat(comparison.result()).isEqualTo(Result.IMPROVED);
+    }
+
 }

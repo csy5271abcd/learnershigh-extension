@@ -1,0 +1,89 @@
+.bc-comparisons { container-type: inline-size; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.bc-chart-grid { display: grid; grid-template-columns: 1.15fr 1fr 1.15fr 1.3fr; align-items: start; gap: 12px; }
+.bc-chart { min-width: 0; border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-surface); overflow: hidden; }
+.bc-chart header { min-height: 140px; box-sizing: border-box; padding: 16px 12px 10px; background: var(--color-surface-muted); }
+.bc-metric-heading { min-width: 0; }
+.bc-metric-heading button { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 0; border: 0; color: var(--color-text-secondary); background: none; text-align: left; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.bc-metric-heading button span:last-child { color: var(--color-accent-text); }
+.bc-metric-heading button:disabled { cursor: default; }
+.bc-metric-heading strong { display: block; margin-top: 8px; font-size: 17px; font-weight: 700; line-height: 1.4; }
+.bc-comparison-summary { display: grid; gap: 4px; margin-top: 8px; color: var(--color-text-tertiary); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.bc-events-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.bc-events-heading .bc-metric-heading strong { font-size: 15px; }
+.bc-chart-key { display: grid; grid-template-columns: 52px 1fr; align-items: center; min-height: 36px; padding: 0 14px 0 10px; color: var(--color-text-tertiary); font-size: 11px; border-bottom: 1px solid var(--color-border); }
+.bc-event-key { grid-template-columns: 52px 1fr 1fr; text-align: center; }
+.bc-event-key > span:first-child { text-align: left; }
+.bc-axis { display: flex; justify-content: space-between; align-items: center; gap: 4px; width: 100%; color: var(--color-text-tertiary); font-size: 11px; white-space: nowrap; }
+.bc-days { padding: 0 6px; }
+.bc-day { width: 100%; height: 70px; display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 0; padding: 8px 8px 8px 4px; border: 0; border-bottom: 1px solid var(--color-border); color: inherit; background: transparent; text-align: left; font: inherit; cursor: pointer; }
+.bc-day:last-child { border-bottom: 0; }
+.bc-day:hover, .bc-subject-row:hover { background: var(--color-accent-soft); }
+.bc-comparisons button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; border-radius: 4px; }
+.bc-day-excluded { background: var(--color-surface-muted); }
+.bc-date { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; }
+.bc-date small { color: var(--color-text-tertiary); font-size: 11px; font-weight: 400; }
+.bc-day-visual { display: block; min-width: 0; }
+.bc-event-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.bc-event { display: flex; flex-direction: column; gap: 4px; align-items: center; color: var(--color-text-tertiary); }
+.bc-event i { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid currentColor; border-radius: 50%; font-style: normal; font-size: 16px; line-height: 1; }
+.bc-event small { font-size: 11px; white-space: nowrap; }
+.bc-event-present, .bc-event-submitted { color: var(--color-accent-text); }
+.bc-event-absent, .bc-event-missing { color: var(--color-flag); }
+.bc-event-submitted i { border-radius: 5px; }
+.bc-event-unknown i { border-style: dashed; }
+.bc-event-excluded i { border-color: var(--color-border); }
+.bc-plot { position: relative; display: block; height: 23px; margin: 0 5px; border-bottom: 1px solid var(--color-input-border); background: linear-gradient(to right, transparent calc(50% - .5px), var(--color-border) 50%, transparent calc(50% + .5px)); }
+.bc-plot::before, .bc-plot::after { content: ''; position: absolute; top: 0; bottom: -1px; width: 1px; background: var(--color-border); }
+.bc-plot::before { left: 0; }
+.bc-plot::after { right: 0; }
+.bc-study-dot { position: absolute; width: 10px; height: 10px; top: 7px; transform: translateX(-50%); background: var(--color-accent); border-radius: 50%; }
+.bc-value { display: block; margin-top: 5px; color: var(--color-text-secondary); font-size: 12px; line-height: 1.3; }
+.bc-value small { font-size: 11px; }
+.bc-clock-plot { background: linear-gradient(to right, transparent calc(50% - .5px), var(--color-input-border) 50%, transparent calc(50% + .5px)); }
+.bc-no-baseline { background: linear-gradient(to right, transparent calc(50% - .5px), var(--color-border) 50%, transparent calc(50% + .5px)); }
+.bc-clock-dot, .bc-plan-dot, .bc-actual-dot { position: absolute; top: 6px; z-index: 1; width: 11px; height: 11px; box-sizing: border-box; border-radius: 50%; transform: translateX(-50%); background: var(--color-accent); }
+.bc-plan-dot { width: 14px; height: 14px; background: var(--color-surface); border: 2px solid var(--color-text-secondary); top: 5px; }
+.bc-actual-dot { width: 8px; height: 8px; background: var(--color-accent); top: 8px; }
+.bc-connector { position: absolute; height: 2px; top: 11px; background: var(--color-input-border); }
+.bc-paired-values { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; white-space: nowrap; }
+.bc-legend { min-height: 46px; box-sizing: border-box; padding: 10px 12px; color: var(--color-text-tertiary); font-size: 11px; line-height: 1.6; border-top: 1px solid var(--color-border); }
+.bc-legend-plan, .bc-legend-actual { display: inline-block; vertical-align: middle; width: 9px; height: 9px; box-sizing: border-box; border-radius: 50%; margin-right: 3px; }
+.bc-legend-plan { border: 2px solid var(--color-text-secondary); }
+.bc-legend-actual { margin-left: 8px; background: var(--color-accent); }
+.bc-subject-chart { margin-top: 16px; }
+.bc-subject-chart header { min-height: 0; }
+.bc-subject-chart .bc-metric-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.bc-subject-chart .bc-metric-heading button { width: auto; gap: 16px; }
+.bc-subject-chart .bc-metric-heading strong { margin: 0; font-size: 13px; color: var(--color-text-secondary); }
+.bc-subject-key, .bc-subject-row { display: grid; grid-template-columns: 190px minmax(0, 1fr) 110px; align-items: center; gap: 18px; }
+.bc-subject-key { padding: 14px 18px 8px; color: var(--color-text-tertiary); font-size: 12px; }
+.bc-subject-key > span:last-child { text-align: right; }
+.bc-subject-row { width: 100%; min-height: 66px; padding: 10px 18px; border: 0; border-top: 1px solid var(--color-border); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.bc-subject-name { display: flex; flex-direction: column; gap: 5px; }
+.bc-subject-name strong { font-size: 14px; }
+.bc-subject-name small { color: var(--color-text-secondary); font-size: 12px; }
+.bc-diverging { height: 28px; background: linear-gradient(to right, transparent calc(50% - .5px), var(--color-input-border) 50%, transparent calc(50% + .5px)); border-bottom: 0; }
+.bc-gap-bar { position: absolute; top: 6px; height: 15px; background: var(--color-accent); border-radius: 2px; }
+.bc-gap-negative { background: var(--color-flag); }
+.bc-gap-value { text-align: right; font-size: 14px; }
+.bc-no-data { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 90px; color: var(--color-text-tertiary); font-size: 13px; }
+.bc-no-data > span { font-size: 30px; }
+@container (max-width: 900px) {
+  .bc-chart-grid { grid-template-columns: 1fr 1fr; }
+  .bc-chart header { min-height: 140px; }
+}
+@container (max-width: 600px) {
+  .bc-chart-grid { grid-template-columns: 1fr; gap: 16px; }
+  .bc-chart header { min-height: 0; padding: 14px; }
+  .bc-chart-key { grid-template-columns: 60px 1fr; padding-left: 14px; padding-right: 20px; }
+  .bc-event-key { grid-template-columns: 60px 1fr 1fr; }
+  .bc-day { grid-template-columns: 60px minmax(0, 1fr); height: 72px; padding-left: 8px; padding-right: 14px; }
+  .bc-date { font-size: 14px; }
+  .bc-value, .bc-paired-values { font-size: 12px; }
+  .bc-subject-key, .bc-subject-row { grid-template-columns: minmax(95px, 1fr) minmax(90px, 1.2fr) 58px; gap: 10px; padding-left: 12px; padding-right: 12px; }
+  .bc-subject-key { font-size: 10px; }
+  .bc-subject-key .bc-axis { font-size: 10px; }
+  .bc-subject-name small { font-size: 11px; line-height: 1.5; }
+  .bc-gap-value { font-size: 12px; }
+  .bc-subject-chart .bc-metric-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
+}

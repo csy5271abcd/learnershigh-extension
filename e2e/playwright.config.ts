@@ -6,6 +6,10 @@ const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH
 
 export default defineConfig({
   testDir: './tests',
+  // Current acceptance suite: requires the explicit 100-student care-demo DB.
+  // Historical prototype specs remain as evidence, not current acceptance tests.
+  testMatch: ['student-care-branch-overview.spec.ts','student-care-branch-patterns.spec.ts',
+    'student-care-final.spec.ts','student-care-history-details.spec.ts','student-care-metric-extremes.spec.ts'],
   // 학생 케어 상태와 기준일은 Backend 하나를 공유하므로 순서대로 실행한다.
   fullyParallel: false,
   workers: 1,

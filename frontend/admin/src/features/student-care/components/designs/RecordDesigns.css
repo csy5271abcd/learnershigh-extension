@@ -1,0 +1,60 @@
+.sc-v2 .sc-design-records{min-width:0}
+.sc-v2 .sc-record-stats dt small{display:inline;margin-left:6px;font-size:11px}
+.sc-v2 .sc-record-alert{color:var(--color-flag)}
+.sc-v2 .sc-record-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0 0 24px}
+.sc-v2 .sc-record-stats>div{padding:16px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface)}
+.sc-v2 .sc-record-stats dt{font-size:14px;color:var(--color-text-secondary)}
+.sc-v2 .sc-record-stats dd{margin:8px 0;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.35}
+.sc-v2 .sc-record-stats dd span{font-size:14px;font-weight:500;margin-left:4px}
+.sc-v2 .sc-record-stats small{font-size:12px;color:var(--color-text-secondary);line-height:1.6;display:block}
+.sc-v2 .sc-record-heading{margin:20px 0 12px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline}
+.sc-v2 .sc-record-heading h4,.sc-v2 .sc-record-metrics h4{margin:0;font-size:16px;font-weight:700}
+.sc-v2 .sc-record-heading p,.sc-v2 .sc-record-note{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.sc-v2 .sc-date-matrix__week{overflow-x:auto;margin:0 0 16px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface)}
+.sc-v2 .sc-date-matrix table{width:100%;min-width:590px;table-layout:fixed;border-collapse:collapse;font-size:14px}
+.sc-v2 .sc-date-matrix caption{text-align:left;padding:10px 12px;font-weight:600;background:var(--color-surface-muted);border-bottom:1px solid var(--color-border);font-size:13px}
+.sc-v2 .sc-date-matrix th,.sc-v2 .sc-date-matrix td{text-align:center;padding:10px 3px;border-bottom:1px solid var(--color-border);line-height:1.6}
+.sc-v2 .sc-date-matrix th:first-child{width:48px;color:var(--color-text-secondary);font-size:13px;font-weight:500}
+.sc-v2 .sc-date-matrix thead th{font-size:13px;font-weight:600}
+.sc-v2 .sc-date-matrix small{display:block;font-size:12px;color:var(--color-text-secondary)}
+.sc-v2 .sc-date-matrix tr:last-child td,.sc-v2 .sc-date-matrix tr:last-child th{border:0}
+.sc-v2 .sc-record-state--present,.sc-v2 .sc-record-state--submitted{color:var(--color-text-secondary)}
+.sc-v2 .sc-record-state--absent{background:var(--color-surface-muted);font-weight:650;color:var(--color-text-primary)}
+.sc-v2 .sc-record-state--missing{background:var(--color-flag-soft);color:var(--color-flag);font-weight:700}
+.sc-v2 .sc-record-state--excluded,.sc-v2 .sc-record-state--unknown{color:var(--color-text-tertiary)}
+.sc-v2 .sc-date-matrix__minutes{font-size:12px;font-variant-numeric:tabular-nums}
+.sc-v2 .sc-record-metrics{margin-top:24px}
+.sc-v2 .sc-record-scroll{overflow-x:auto;margin-top:12px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface)}
+.sc-v2 .sc-record-metrics table{width:100%;min-width:530px;border-collapse:collapse;table-layout:fixed;font-size:14px}
+.sc-v2 .sc-record-metrics th,.sc-v2 .sc-record-metrics td{padding:12px;text-align:right;border-bottom:1px solid var(--color-border);font-variant-numeric:tabular-nums;vertical-align:middle}
+.sc-v2 .sc-record-metrics th:first-child{width:25%;text-align:left}
+.sc-v2 .sc-record-metrics thead th{font-size:13px;font-weight:500;color:var(--color-text-secondary);background:var(--color-surface-muted)}
+.sc-v2 .sc-record-metrics small{display:block;font-size:12px;font-weight:400;color:var(--color-text-secondary);margin-top:4px}
+.sc-v2 .sc-record-metrics .sc-record-attention{color:var(--color-flag)}
+.sc-v2 .sc-record-metrics tr:last-child>*{border:0}
+.sc-v2 .sc-record-eyebrow{font-size:13px;color:var(--color-text-secondary)}
+.sc-v2 .sc-evidence-top{display:flex;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--color-border)}
+.sc-v2 .sc-evidence-top h4{font-size:21px;margin:8px 0;font-weight:700}
+.sc-v2 .sc-evidence-top p{font-size:14px;color:var(--color-text-secondary)}
+.sc-v2 .sc-evidence-top>strong{font-size:24px;text-align:right;white-space:nowrap;align-self:center}
+.sc-v2 .sc-evidence-top>strong small{display:block;font-size:12px;color:var(--color-text-secondary);font-weight:400}
+.sc-v2 .sc-evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.sc-v2 .sc-evidence-grid section{padding:16px;background:var(--color-surface-muted);border-radius:8px}
+.sc-v2 .sc-evidence-grid h5{margin:0 0 10px;font-size:16px}
+.sc-v2 .sc-evidence-dates{font-size:17px;font-weight:650;line-height:1.7;margin:0 0 8px;color:var(--color-text-primary)}
+.sc-v2 .sc-evidence-grid small{font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+@media(max-width:650px){.sc-v2 .sc-record-stats{gap:8px}.sc-v2 .sc-record-stats>div{padding:12px}.sc-v2 .sc-record-stats dd{font-size:19px}.sc-v2 .sc-evidence-top{flex-direction:column}.sc-v2 .sc-evidence-top>strong{align-self:start;text-align:left}.sc-v2 .sc-evidence-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.sc-v2 .sc-record-stats{grid-template-columns:1fr}.sc-v2 .sc-record-stats>div{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:4px 12px}.sc-v2 .sc-record-stats dd{margin:0;text-align:right}.sc-v2 .sc-record-stats small{grid-column:1/-1}}
+.sc-v2 .sc-evidence-support{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.sc-v2 .sc-evidence-support>div{border-top:1px solid var(--color-border);padding-top:16px}
+.sc-v2 .sc-evidence-support dt{font-size:14px;color:var(--color-text-secondary)}
+.sc-v2 .sc-evidence-support dd{font-size:20px;font-weight:650;margin:8px 0}
+.sc-v2 .sc-evidence-support small{font-size:12px;color:var(--color-text-secondary)}
+@media(max-width:520px){.sc-v2 .sc-evidence-support{grid-template-columns:1fr}}
+
+.sc-v2 .sc-record-stats{gap:12px;margin-bottom:16px}
+.sc-v2 .sc-record-stats>div{padding:12px;border:0;border-bottom:1px solid var(--color-border);border-radius:0}
+.sc-v2 .sc-record-stats dd{margin:8px 0 0;font-size:24px}
+.sc-v2 .sc-date-matrix caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0;border:0}
+.sc-v2 .sc-date-matrix th,.sc-v2 .sc-date-matrix td{padding:8px 3px}
+.sc-v2 .sc-record-metrics{margin-top:20px}

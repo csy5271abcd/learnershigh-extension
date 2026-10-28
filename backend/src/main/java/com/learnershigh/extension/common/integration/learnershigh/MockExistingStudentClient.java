@@ -2,6 +2,7 @@ package com.learnershigh.extension.common.integration.learnershigh;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnProperty(name = "learnershigh.integration.mode", havingValue = "mock")
 public class MockExistingStudentClient implements ExistingStudentClient {
+
+    private DemoStudyDataStore demoStore;
+
+    @Autowired(required = false)
+    void setDemoStudyDataStore(DemoStudyDataStore demoStore) {
+        this.demoStore = demoStore;
+    }
 
     private static final List<ExistingBranch> BRANCHES = List.of(
             new ExistingBranch("br_gangnam", "러너스하이 강남점"),
@@ -34,21 +42,25 @@ public class MockExistingStudentClient implements ExistingStudentClient {
 
     @Override
     public List<ExistingBranch> findBranches() {
+        if (demoStore != null) return demoStore.findBranches();
         return BRANCHES;
     }
 
     @Override
     public Optional<ExistingBranch> findBranch(String branchId) {
+        if (demoStore != null) return demoStore.findBranch(branchId);
         return BRANCHES.stream().filter(branch -> branch.branchId().equals(branchId)).findFirst();
     }
 
     @Override
     public List<ExistingStudent> findStudents(String branchId) {
+        if (demoStore != null) return demoStore.findStudents(branchId);
         return STUDENTS.stream().filter(student -> student.branchId().equals(branchId)).toList();
     }
 
     @Override
     public Optional<ExistingStudent> findStudent(String branchId, String studentId) {
+        if (demoStore != null) return demoStore.findStudent(branchId, studentId);
         return STUDENTS.stream()
                 .filter(student -> student.branchId().equals(branchId) && student.studentId().equals(studentId))
                 .findFirst();
