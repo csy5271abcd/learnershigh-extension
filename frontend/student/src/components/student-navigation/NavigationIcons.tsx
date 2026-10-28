@@ -148,25 +148,6 @@ export function RewardIcon(props: IconProps) {
   )
 }
 
-export function MentorIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="9" cy="8" r="3.5" />
-      <path d="M3 20c.6-3.5 3-5.5 6-5.5s5.4 2 6 5.5" />
-      <path d="M16 4.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" />
-    </Svg>
-  )
-}
-
-export function SchoolActivityIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M3 10.5 12 5l9 5.5" />
-      <path d="M5 9.5V20h14V9.5M10 20v-4.5h4V20M3 20h18" />
-    </Svg>
-  )
-}
-
 export function MessageIcon(props: IconProps) {
   return (
     <Svg {...props}>

@@ -5,13 +5,11 @@ import {
   DiagnosisIcon,
   DiaryIcon,
   LibraryIcon,
-  MentorIcon,
   PerformanceTaskIcon,
   PlanIcon,
   ReportIcon,
   RewardIcon,
   RewardPenaltyIcon,
-  SchoolActivityIcon,
   StatisticsIcon,
   TimerIcon,
 } from './NavigationIcons.tsx'
@@ -28,8 +26,6 @@ export type StudentNavigationItemId =
   | 'diagnosis'
   | 'blog'
   | 'reward'
-  | 'mentor'
-  | 'schoolActivity'
   | 'assessment'
 
 export interface StudentNavigationItem {
@@ -57,8 +53,6 @@ export const studentNavigationItems: StudentNavigationItem[] = [
   { id: 'diagnosis', label: '진단', icon: DiagnosisIcon },
   { id: 'blog', label: 'blog', icon: BlogIcon },
   { id: 'reward', label: '리워드', icon: RewardIcon },
-  { id: 'mentor', label: 'Mentor', icon: MentorIcon, extension: true },
-  { id: 'schoolActivity', label: 'School Activity', icon: SchoolActivityIcon, extension: true },
-  // 신규 Assessment 진입점 (assessment-student.md §3). 구형 Mentor / School Activity는 정리 계획에 따라 별도로 제거한다.
+  // 신규 Assessment 진입점 (assessment-student.md §3). 구형 Mentor / School Activity 항목은 2026-10-28 제거했다.
   { id: 'assessment', label: 'Assessment', icon: AssessmentIcon, extension: true },
 ]
