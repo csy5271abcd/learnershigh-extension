@@ -14,10 +14,13 @@ public record CareEventResponse(
         LocalDate occurredOn,
         OffsetDateTime createdAt,
         String content,
-        NoteChannel noteChannel) {
+        NoteChannel noteChannel, String actorName) {
+    public CareEventResponse(String eventId, String caseId, CareEventType type, LocalDate occurredOn, OffsetDateTime createdAt, String content, NoteChannel noteChannel) {
+        this(eventId, caseId, type, occurredOn, createdAt, content, noteChannel, null);
+    }
 
     public static CareEventResponse from(CareEvent event, ZoneId zone) {
         return new CareEventResponse(event.id(), event.caseId(), event.type(), event.occurredOn(),
-                event.createdAt().atZone(zone).toOffsetDateTime(), event.content(), event.noteChannel());
+                event.createdAt().atZone(zone).toOffsetDateTime(), event.content(), event.noteChannel(), event.actorName());
     }
 }

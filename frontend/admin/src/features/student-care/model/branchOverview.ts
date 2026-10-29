@@ -1,3 +1,4 @@
+import {inferredAttendance} from './inferredAttendance.ts'
 import type { CareRosterRow } from '../api/loadCareRoster.ts'
 
 export type BranchMetricKind = 'study' | 'arrival' | 'absence' | 'submission'
@@ -20,6 +21,7 @@ export interface BranchMetricDay {
   baseline: number | null
   samples: number
   missing: number
+  unexpected?: number
 }
 
 export interface BranchOverviewMetric {
@@ -66,14 +68,14 @@ const titles: Record<BranchMetricKind, string> = {
  * unknown; explicit submission exclusions are inapplicable. No history is inferred.
  */
 function summarize(rows: CareRosterRow[], kind: BranchMetricKind, lateThreshold: number, date?: string) {
-  let samples = 0, missing = 0, current = 0, baseline = 0, lateCount = 0
+  let samples = 0, missing = 0, current = 0, baseline = 0, lateCount = 0, unexpected = 0
   const students: StudentObservations[] = []
   for (const row of rows) {
     const ownBaselines = new Map(row.review.weekdayBaseline.map(day => [day.date, day]))
     const student: StudentObservations = { studentId: row.student.studentId, studentName: row.student.studentName, current: 0, baseline: 0, samples: 0 }
     for (const day of row.review.days) {
       if (date !== undefined && day.date !== date) continue
-      if (day.scheduled === false || day.attendance === 'excluded') continue
+      if (kind !== 'absence' && (day.scheduled === false || day.attendance === 'excluded')) continue
       const expected = ownBaselines.get(day.date)
       let actual: number, usual = 0
       if (kind === 'study') {
@@ -87,8 +89,9 @@ function summarize(rows: CareRosterRow[], kind: BranchMetricKind, lateThreshold:
         usual = expected.start
         if (actual - usual >= lateThreshold) lateCount++
       } else if (kind === 'absence') {
-        if (day.scheduled !== true || (day.attendance !== 'present' && day.attendance !== 'absent')) { missing++; continue }
-        actual = day.attendance === 'absent' ? 1 : 0
+        const pattern = inferredAttendance(row.review, day)
+        actual = pattern === 'present' ? 0 : 1
+        if (pattern === 'unexpected') unexpected++
       } else {
         if (day.submission === 'excluded') continue
         if (day.submission !== 'submitted' && day.submission !== 'missing') { missing++; continue }
@@ -121,7 +124,7 @@ function summarize(rows: CareRosterRow[], kind: BranchMetricKind, lateThreshold:
       samples: student.samples,
     }
   }).sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact) || (a.studentId < b.studentId ? -1 : a.studentId > b.studentId ? 1 : 0))
-  return { value, baseline: comparableBaseline, change, samples, missing, lateCount, contributors }
+  return { value, baseline: comparableBaseline, change, samples, missing, lateCount, unexpected, contributors }
 }
 
 /** Date-specific contributions use that date's own paired denominator. */
@@ -138,7 +141,7 @@ export function buildBranchOverview(rows: CareRosterRow[], excludedIds: readonly
     kind, title: titles[kind], ...summarize(included, kind, lateThreshold),
     daily: dates.map(date => {
       const summary = summarize(included, kind, lateThreshold, date)
-      return { date, value: summary.value, baseline: summary.baseline, samples: summary.samples, missing: summary.missing }
+      return { date, value: summary.value, baseline: summary.baseline, samples: summary.samples, missing: summary.missing, unexpected: summary.unexpected }
     }),
   })
   return { dates, totalCount: rows.length, includedCount: included.length, excludedCount: rows.length - included.length,

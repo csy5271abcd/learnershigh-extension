@@ -38,7 +38,7 @@ export function RosterStudies({api,branchId,version,selectedId,onSaved}:{api:Car
  const remote=useRemote(branchId,()=>loadCareRoster(api,branchId),version+refresh)
  if(loadFailure(remote))return <p role="alert">학생 기록을 불러오지 못했습니다. <button onClick={remote.reload}>다시 시도</button></p>
  if(!remote.data)return <p role="status">학생 기록 불러오는 중</p>
- const rows=[...remote.data.rows].sort((a,b)=>a.priority-b.priority||a.student.studentName.localeCompare(b.student.studentName,'ko'))
+ const rows=[...remote.data.rows].sort((a,b)=>Number(b.student.studentId===selectedId)-Number(a.student.studentId===selectedId)||a.priority-b.priority||a.student.studentName.localeCompare(b.student.studentName,'ko'))
  const shown=rows.filter(r=>`${r.student.studentName} ${r.student.className??''}`.includes(query))
  const first=rows[0]?.review
  const close=(id:string)=>{setExpanded(null);requestAnimationFrame(()=>document.getElementById(`rs-open-${id}`)?.focus({preventScroll:true}))}

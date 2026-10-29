@@ -5,7 +5,7 @@ import java.util.List;
 
 /** 차트 종류와 무관한 학생의 최근7일 / 직전28일 지표. */
 public record CareWeeklyReview(LocalDate from, LocalDate to, LocalDate baselineFrom, LocalDate baselineTo,
-        List<Day> days, Summary current, Summary baseline, List<WeekdayBaseline> weekdayBaseline,
+        List<Day> days, List<Day> baselineDays, Summary current, Summary baseline, List<WeekdayBaseline> weekdayBaseline,
         List<Subject> subjects) {
     public enum Attendance { PRESENT, ABSENT, UNSCHEDULED, UNKNOWN }
     public enum Submission { SUBMITTED, MISSING, UNKNOWN }

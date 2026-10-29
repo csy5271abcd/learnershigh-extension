@@ -18,12 +18,12 @@ test('live population contains mixed attendance, submissions and genuine missing
  const dailyCounts=Array.from({length:7},(_,i)=>rows.filter(r=>r.review.days[i].attendance==='PRESENT').length)
  expect(new Set(dailyCounts).size).toBeGreaterThan(2)
  writeFileSync(`${evidence}/population.json`,JSON.stringify(payload,null,2))
- await page.goto('/student-care/5');await page.getByRole('tab',{name:'학습관별',exact:true}).click()
+ await page.goto('/student-care');await page.getByRole('tab',{name:'학습관별',exact:true}).click()
  for(let i=0;i<7;i++)await expect(page.locator('.cm-attendance-bars').nth(i)).toHaveAttribute('aria-label',new RegExp(`입실 ${dailyCounts[i]}명`))
 })
 
 test('whole student row opens metrics without redundant viewing labels, records or collapsed counseling',async({page})=>{
- await page.goto('/student-care/5')
+ await page.goto('/student-care')
  await expect(page.locator('.rs-summary')).toHaveCount(10)
  await expect(page.locator('.rs-open').first()).not.toContainText('보기')
  await page.locator('.rs-open').first().click()
@@ -33,7 +33,7 @@ test('whole student row opens metrics without redundant viewing labels, records 
 })
 
 test('hovered attendance bars remain clickable and tooltip escape works',async({page})=>{
- await page.goto('/student-care/5');await page.getByRole('tab',{name:'학습관별',exact:true}).click()
+ await page.goto('/student-care');await page.getByRole('tab',{name:'학습관별',exact:true}).click()
  const bar=page.locator('.cm-attendance-bars').nth(3)
  await bar.scrollIntoViewIfNeeded();const rect=await bar.boundingBox();await page.mouse.move(rect!.x+rect!.width/2,rect!.y+35)
  await expect(page.locator('.cm-attendance [role=tooltip]')).toBeVisible()
@@ -43,7 +43,7 @@ test('hovered attendance bars remain clickable and tooltip escape works',async({
 })
 
 test('extreme subject shares and morning student use real mock API fields',async({page})=>{
- await page.goto('/student-care/5');await page.locator('#rs-open-stu_005').click()
+ await page.goto('/student-care');await page.locator('#rs-open-stu_005').click()
  const math=page.locator('.cm-subject').filter({has:page.getByText('수학',{exact:true})})
  await expect(math).toBeVisible()
  const values=await math.locator('i').evaluateAll(bars=>bars.map(b=>Number(b.getAttribute('data-value'))))
@@ -60,7 +60,7 @@ for(const theme of ['light','dark'] as const)test(`readability measurements and 
  test.setTimeout(120000);await page.emulateMedia({colorScheme:theme})
  const measurements=[]
  for(const width of [1600,850,390]){
-  await page.setViewportSize({width,height:1000});await page.goto('/student-care/5');await expect(page.locator('.rs-summary')).toHaveCount(10)
+  await page.setViewportSize({width,height:1000});await page.goto('/student-care');await expect(page.locator('.rs-summary')).toHaveCount(10)
   const alignment=await page.locator('.rs-summary').first().evaluate(row=>{const selectors=['.rs-open b','.rs-status','.cm-list-cell>b'];return selectors.map(s=>{const r=row.querySelector(s)!.getBoundingClientRect();return r.y+r.height/2})})
   expect(Math.max(...alignment)-Math.min(...alignment)).toBeLessThan(4)
   await page.screenshot({path:`${evidence}/${theme}-${width}-roster.png`,fullPage:true})
@@ -94,7 +94,7 @@ test('touch date labels open nearby exact values and support multiple selected s
  const context=await browser.newContext({hasTouch:true,isMobile:true,viewport:{width:390,height:844}})
  const page=await context.newPage()
  try{
-  await page.goto('http://127.0.0.1:5174/student-care/5');await page.locator('#rs-open-stu_001').tap()
+  await page.goto('http://127.0.0.1:5174/student-care');await page.locator('#rs-open-stu_001').tap()
   const chart=page.locator('.cm-timeline').first()
   await chart.locator('.cm-day-target').nth(3).locator('text').first().tap();await expect(chart.getByRole('tooltip')).toContainText('0분 · 결석')
   await chart.locator('.cm-day-target').nth(4).locator('text').first().tap();await expect(chart.getByRole('tooltip')).toContainText('10/22')
@@ -105,7 +105,7 @@ test('touch date labels open nearby exact values and support multiple selected s
 })
 
 test('branch comparisons support multiple students and combine daily attendance with submissions',async({page})=>{
- await page.goto('/student-care/5')
+ await page.goto('/student-care')
  await page.getByRole('tab',{name:'학습관별',exact:true}).click()
  const chart=page.locator('.cm-branch-chart').first()
  await chart.getByRole('button',{name:'김서준 비교',exact:true}).click()

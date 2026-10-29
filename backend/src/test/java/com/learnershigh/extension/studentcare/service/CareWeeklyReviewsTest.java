@@ -15,6 +15,8 @@ class CareWeeklyReviewsTest {
         var unavailable = new ExistingDailyStudy(AS_OF.minusDays(2), false, null, Map.of(), false, Map.of(), true, false);
         var review = CareWeeklyReviews.build(List.of(zero, unknown, unavailable), AS_OF);
         assertThat(review.days()).hasSize(7);
+        assertThat(review.baselineDays()).hasSize(28);
+        assertThat(review.baselineDays().getLast().date()).isEqualTo(review.from().minusDays(1));
         assertThat(review.days().get(4).minutes()).isNull();
         assertThat(review.days().get(4).attendance()).isEqualTo(Attendance.UNKNOWN);
         assertThat(review.days().get(5).attendance()).isEqualTo(Attendance.UNKNOWN);

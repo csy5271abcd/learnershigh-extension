@@ -17,5 +17,8 @@ public record OpenCareCaseRequest(
         @NotNull NoteChannel channel,
         @Size(max = 1000) String memo,
         @NotNull CareReason reason,
-        LocalDate recheckDate) {
+        LocalDate recheckDate, @Size(max = 100) String actorName) {
+    public OpenCareCaseRequest(String branchId, String studentId, NoteChannel channel, String memo, CareReason reason, LocalDate recheckDate) {
+        this(branchId, studentId, channel, memo, reason, recheckDate, null);
+    }
 }

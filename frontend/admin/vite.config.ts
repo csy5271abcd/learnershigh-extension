@@ -1,15 +1,17 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import { fileURLToPath } from 'node:url'
+import { parentReportPreview } from './parentReportPreview.ts'
 
 // Backend API (Spring Boot). E2E / 로컬 모두 /api 를 Backend로 넘긴다.
 // https://vite.dev/config/
 export default defineConfig(({mode}) => {
- const env=loadEnv(mode,fileURLToPath(new URL('.',import.meta.url)),'VITE_')
+ const env=loadEnv(mode,fileURLToPath(new URL('.',import.meta.url)),'')
  const apiTarget = process.env.VITE_API_TARGET ?? env.VITE_API_TARGET ?? 'http://localhost:8080'
  const careApiTarget = process.env.VITE_CARE_API_TARGET ?? env.VITE_CARE_API_TARGET ?? apiTarget
  return {
   plugins: [
+    parentReportPreview(process.env.PARENT_REPORT_PREVIEW_URL ?? env.PARENT_REPORT_PREVIEW_URL),
     {
       name: 'student-care-original-preview-data',
       enforce: 'pre',

@@ -3146,7 +3146,7 @@ Do not finalize unresolved states by guessing.
 - board 응답에 `students: StudentRef[]`를 추가한다. 지점 전체 재원 학생이며 정상·기록부족·관리중도 포함한다. 기존 분류 배열은 유지한다.
 - detail 응답에 아래 `review: CareWeeklyReview`를 추가한다.
 - `GET /api/admin/student-care/metrics?branchId=...` → `{asOf, branch:{branchId,name}, students:[{student:StudentRef,review:CareWeeklyReview}], dailyAverages:[{date,minutes:number|null,samples:number}]}`. 학생 명단은 전체이며 이름/ID 순으로 안정 정렬한다. 평균은 해당 날짜 기록이 있는 학생의 분 합/표본수(실제0 포함, 미기록 제외)다. 학습관 모든 학생이 없으면 students/dailyAverages는 빈 배열이다. branchId 필수, 오류는 board와 동일한400/404/503, ADMIN 전용이다. 학생별 기존 원본 조회의 실패는 응답 전체503이며 빈 기록으로 대체하지 않는다.
-- `CareWeeklyReview` = `{from,to,baselineFrom,baselineTo,days:CareDay[7],current:CarePeriodSummary,baseline:CarePeriodSummary,weekdayBaseline:[{date,minutes:number|null,startMinutes:number|null,samples:number,startSamples:number}],subjects:[{name,plannedMinutes,actualMinutes,plannedShare:number|null,actualShare:number|null}]}`. baseline 요약의 학습총량/입실일수는28일 전체 값이며 주평균은 각각 /4다. subjects는 최근7일만 집계한다.
+- `CareWeeklyReview` = `{from,to,baselineFrom,baselineTo,days:CareDay[7],baselineDays:CareDay[28],current:CarePeriodSummary,baseline:CarePeriodSummary,weekdayBaseline:[{date,minutes:number|null,startMinutes:number|null,samples:number,startSamples:number}],subjects:[{name,plannedMinutes,actualMinutes,plannedShare:number|null,actualShare:number|null}]}`. baseline 요약의 학습총량/입실일수는28일 전체 값이며 주평균은 각각 /4다. subjects는 최근7일만 집계한다.
 - `CareDay` = `{date,attendance:'PRESENT'|'ABSENT'|'UNSCHEDULED'|'UNKNOWN',submission:'SUBMITTED'|'MISSING'|'UNKNOWN',scheduled:boolean|null,minutes:number|null,startMinutes:number|null,plannedMinutes:number|null,actualMinutes:number|null}`. 예정일 미확인+미입실은UNKNOWN이며 결석으로 단정하지 않는다. 학습/제출 기록은 일정과 독립이다. 입실/학습 원본 자체가 없으면 수치는null(0으로 보완하지 않음).
 - `CarePeriodSummary` = `{calendarDays,recordedDays,attendanceDays,scheduledAbsenceDays,submissionDays,submissionRecordedDays,studyMinutes:number|null,minutesPerAttendance:number|null,averageStartMinutes:number|null,startSamples,plannedMinutes:number|null,actualMinutes:number|null,executionRate:number|null,comparablePlanDays}`. studyMinutes는 기록된 부분 합이며 recordedDays/calendarDays로 완전성을 구분한다. 과거 주평균 비교는 recordedDays=28인 경우만 유효하다. 달성률은 입실·양수계획·실제가 함께 있는 날짜의 actual/planned*100(상한없음)이다. 비입실 날짜의 제출도 제출률에는 독립 포함한다.
 - `CONSECUTIVE_ABSENCE` 코드는 기존 데이터 호환을 위해 유지하되 최근7일의 등원예정·미입실 횟수를 뜻한다. 라벨은 ‘미입실’. 예정일을 확인할 수 없으면 이 신호는 만들지 않는다. 임의 일정 추정 금지.
@@ -3467,3 +3467,8 @@ PUT    /api/test/integration    { "studyDataAvailable": false }   Existing 학�
 ### 2026-10-28 공식 버전3 호환 규칙
 
 Endpoint/JSON shape는 유지한다. 신규 관리 건의 START_TIME_SHIFT baseline/점검 row는 개인 같은요일 평소 대비 분 차이이며 unit=MINUTES, target=0이다. 구버전1/2 건의 baseline/이력/단위는 보존하고 now=null로 반환하여 새 공식과 잘못 비교하지 않는다. 새 신호의 요약은 ‘평소보다 N분 늦게 입실’이다. 계획 미제출은 scheduled=false 제외, 과목 계획·실제는 동일 입실/계획 제출/양수 계획 날짜만 비교한다. review.subjects의 planned/actual도 동일 날짜를 쓴다. weekdayBaseline.startSamples는 FE에서도 그대로 보존한다. 저장된 상담·지점 기준값은 재작성하지 않는다.
+
+
+2026-10-29: CareWeeklyReview.baselineDays는 최근7일을 제외한 이전28일 원본 일별 상태다. 결석 화면은 관측된 미입실 전체를 표시하며, 같은요일 이전4회 모두 관측·미입실일 때만 정기 패턴으로 추정한다. 누락 기록은 미입실/정기패턴으로 만들지 않는다. 추정은 승인된 휴무나 무단 여부를 뜻하지 않는다. 기존 상담 판정/임계치 저장값은 재작성하지 않는다.
+
+2026-10-29 관리 이력: StudentHistoryResponse에 cases:CareCaseResponse[] 추가(종결 포함, 당시 baseline 보존). CareEventResponse에 actorName:string|null 추가. open/notes/decisions 요청에 actorName(선택,100자 이하) 추가; 로컬 작성자가 입력하는 이름이며 인증된 운영 사용자 ID를 대체하지 않는다. 과거 null 담당자는 추정해서 채우지 않는다.

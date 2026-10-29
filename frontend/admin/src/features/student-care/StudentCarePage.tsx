@@ -15,13 +15,13 @@ import { useRemote } from './model/useRemote.ts'
 import './student-care.css'
 
 /** 학습관리 › 학생 케어 (docs/specs/wangyu/features/student-care.md, docs/design/student-care-ux.md). */
-export function StudentCarePage({ design = 2, displayVersion = design }: { design?: CareDesignNumber; displayVersion?: number }) {
+export function StudentCarePage({ design = 2 }: { design?: CareDesignNumber }) {
   const preview = new URLSearchParams(window.location.search).get('preview') === '1'
   const live = design >= 5 && !preview
   const api = live ? httpStudentCareApi : design >= 5 ? diverseStudentCareApi : studentCareApi
   const branches = useRemote(live ? 'branches/live' : design >= 5 ? 'branches/diverse' : 'branches/preview', api.branches)
-  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
-  const [studentId, setStudentId] = useState<string | null>(null)
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('branchId'))
+  const [studentId, setStudentId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('studentId'))
   // 저장 / 기준 변경이 있으면 올라간다. 목록 · 상세 · 이력이 이 값으로 다시 불러온다.
   const [version, setVersion] = useState(0)
   const [status, setStatus] = useState('')
@@ -66,8 +66,7 @@ export function StudentCarePage({ design = 2, displayVersion = design }: { desig
   return (
     <div className="sc-page">
       <header className="sc-top">
-        <h1 className="sc-top__title">학생 케어 {displayVersion}</h1>
-        <span className="sc-preview-tag" title={live ? '서버 API에서 조회하며 상담과 설정은 DB에 저장됩니다. 현재 로컬 서버의 학습 원본은 예시 데이터입니다.' : '미리보기용 예시 데이터입니다. 변경 사항은 새로고침하면 초기화됩니다.'}>{live ? branchId?.startsWith('demo_') ? 'API 연결 · 로컬 DB 예시' : 'API 연결 · 로컬 예시 원본' : '예시 데이터'}</span>
+        <h1 className="sc-top__title">학생 케어</h1>
         <div className="sc-top__controls">
           <label className="sc-visually-hidden" htmlFor="sc-branch">
             학습관
@@ -112,6 +111,7 @@ export function StudentCarePage({ design = 2, displayVersion = design }: { desig
         </p>
       </header>
 
+      <div className="sc-tabbar">
       <div className="sc-tabs" role="tablist" aria-label="보기">
         <button type="button" role="tab" aria-selected={tab === 'students'} className="sc-tab" onClick={() => setTab('students')}>
           학생별
@@ -122,6 +122,12 @@ export function StudentCarePage({ design = 2, displayVersion = design }: { desig
         <button type="button" role="tab" aria-selected={tab === 'history'} className="sc-tab" onClick={() => setTab('history')}>
           관리 이력
         </button>
+      </div>
+      {design >= 5 && import.meta.env.DEV && import.meta.env.VITE_PARENT_REPORT_PREVIEW_ENABLED === 'true' && (
+        <a className="sc-report-preview" href="/__preview/parent-report" target="_blank" rel="noopener noreferrer" title="고정 예시 데이터 · 새 탭에서 열기">
+          학부모 리포트 미리보기 <span aria-hidden="true">↗</span>
+        </a>
+      )}
       </div>
 
       {branches.status === 'error' ? (

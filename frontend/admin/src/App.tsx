@@ -33,7 +33,7 @@ import {
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
 import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCareOnePath, studentCareTwoPath, matchStudentCareVersion } from './app/studentCarePaths.ts'
+import { studentCarePath, isStudentCarePath } from './app/studentCarePaths.ts'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
@@ -42,10 +42,7 @@ import { configureCommandScenario } from './store/adminCommands.ts'
 // 학생 케어 화면 제목 · 지점 선택은 StudentCarePage가 직접 그린다. (origin/main의 개발용 App은 StudentCarePage만 렌더링)
 const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
-  'student-care': studentCareOnePath,
-  'student-care-2': studentCareTwoPath,
-  'student-care-3': '/student-care/3',
-  'student-care-5': '/student-care/5',
+  'student-care': studentCarePath,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -57,7 +54,6 @@ function App() {
   const location = useAdminLocation()
   configureCommandScenario(location.search)
   const { pathname } = location
-  const careVersion = matchStudentCareVersion(pathname)
   const reviewId = matchFeedbackReviewPath(pathname)
   const studentId = matchStudent360Path(pathname)
   const taskId = matchTaskInspectorPath(pathname)
@@ -115,10 +111,10 @@ function App() {
     current = 'interview'
     pageLabel = 'Interview 관리'
     page = <InterviewRoute location={location} />
-  } else if (careVersion !== null) {
-    current = careVersion === 1 ? 'student-care' : `student-care-${careVersion}`
-    pageLabel = careVersion === 1 ? '학생 케어 1 (원본)' : `학생 케어 ${careVersion}`
-    page = <StudentCareRoute version={careVersion} />
+  } else if (isStudentCarePath(pathname)) {
+    current = 'student-care'
+    pageLabel = '학생 케어'
+    page = <StudentCareRoute />
   } else if (pathname === operationsPath) {
     current = 'operations'
     pageLabel = 'Operations'

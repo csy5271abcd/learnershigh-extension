@@ -1,0 +1,1 @@
+ALTER TABLE care_event ADD COLUMN actor_name VARCHAR(100) NULL;

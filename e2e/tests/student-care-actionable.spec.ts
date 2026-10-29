@@ -3,7 +3,7 @@ import {test,expect} from '@playwright/test'
 test.beforeEach(async({page})=>{await page.route('https://**',r=>r.abort())})
 
 test('branch surfaces actual counseling reasons and opens the named student without statistical warning labels',async({page})=>{
- await page.goto('/student-care/5',{waitUntil:'domcontentloaded'})
+ await page.goto('/student-care',{waitUntil:'domcontentloaded'})
  await page.getByRole('tab',{name:'학습관별',exact:true}).click()
  const queue=page.getByRole('region',{name:'상담 필요',exact:true})
  await expect(queue).toContainText('김서준')
@@ -35,7 +35,7 @@ test('scheduled follow-up stays separate from new counseling and opens its own s
   item.recheckDue=true;item.recheckDate='2026-10-25'
   await route.fulfill({json:board})
  })
- await page.goto('/student-care/5',{waitUntil:'domcontentloaded'})
+ await page.goto('/student-care',{waitUntil:'domcontentloaded'})
  await page.getByRole('tab',{name:'학습관별',exact:true}).click()
  const queue=page.getByRole('region',{name:'상담 후 확인',exact:true})
  await expect(queue).toContainText('최학생')

@@ -10,9 +10,14 @@ test('repeated study drops remain visible even if one long day offsets the weekl
  assert.equal(p.affected,true)
  assert.equal(p.summary,'4일 감소')
 })
-test('unknown and off days never turn into absence or submission failures',()=>{
- const r=row([{attendance:'unknown',submission:'unknown',minutes:null,start:null},{scheduled:false,attendance:'absent',submission:'missing',minutes:0,start:null}])
- for(const kind of ['study','arrival','absence','submission'])assert.equal(studentPattern(r,kind,settings).count,0)
+test('unknown days count only as absences; off days are not plan failures and absences are judged from 28-day history',()=>{
+ const unknown=row([{attendance:'unknown',submission:'unknown',minutes:null,start:null}])
+ for(const kind of ['study','arrival','submission'])assert.equal(studentPattern(unknown,kind,settings).count,0)
+ assert.equal(studentPattern(unknown,'absence',settings).count,1)
+ // A recorded non-entry without four matching baseline weekdays is an absence even if the source marks it unscheduled.
+ const off=row([{scheduled:false,attendance:'absent',submission:'missing',minutes:0,start:null}])
+ for(const kind of ['study','arrival','submission'])assert.equal(studentPattern(off,kind,settings).count,0)
+ assert.equal(studentPattern(off,'absence',settings).count,1)
 })
 test('morning and evening students are evaluated against their own clocks',()=>{
  const morning=row([{start:700},{start:700}]),evening=row([{start:1180},{start:1180}])

@@ -11,7 +11,7 @@ test.beforeEach(async({page})=>{
 })
 
 test('history filters all roster students and expands the stored original in the same row',async({page})=>{
- await page.goto('/student-care/5')
+ await page.goto('/student-care')
  await page.getByRole('tab',{name:'관리 이력',exact:true}).click()
  const student=page.getByRole('combobox',{name:'이력 학생 선택',exact:true})
  await expect(student.locator('option')).toHaveCount(61)
@@ -36,7 +36,7 @@ for(const theme of ['light','dark'] as const)test(`history detail remains readab
  await page.emulateMedia({colorScheme:theme})
  for(const width of [1600,850,390]){
   await page.setViewportSize({width,height:1000})
-  await page.goto('/student-care/5')
+  await page.goto('/student-care')
   await page.getByRole('tab',{name:'관리 이력',exact:true}).click()
   await page.getByRole('button',{name:/기록 내용 펼치기/}).first().click()
   await expect(page.getByRole('region',{name:'기록 원문',exact:true})).toBeVisible()
@@ -57,7 +57,7 @@ test('history clears a removed student filter when the same branch roster refres
   const settings=await(await page.request.get('/api/admin/student-care/settings?branchId=demo_large')).json()
   changed=true;await route.fulfill({json:settings})
  })
- await page.goto('/student-care/5')
+ await page.goto('/student-care')
  await page.getByRole('tab',{name:'관리 이력',exact:true}).click()
  const picker=page.getByRole('combobox',{name:'이력 학생 선택',exact:true})
  await picker.selectOption('demo_s002')

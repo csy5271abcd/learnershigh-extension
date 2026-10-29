@@ -14,6 +14,7 @@ export interface ServerPeriodSummary {
 export interface ServerWeeklyReview {
  from:string; to:string; baselineFrom:string; baselineTo:string
  days:{date:string;attendance:'PRESENT'|'ABSENT'|'UNSCHEDULED'|'UNKNOWN';submission:'SUBMITTED'|'MISSING'|'UNKNOWN';scheduled:boolean|null;minutes:number|null;startMinutes:number|null;plannedMinutes:number|null;actualMinutes:number|null}[]
+ baselineDays?:ServerWeeklyReview['days']
  current:ServerPeriodSummary; baseline:ServerPeriodSummary
  weekdayBaseline:{date:string;minutes:number|null;startMinutes:number|null;samples:number;startSamples:number}[]
  subjects:{name:string;plannedMinutes:number;actualMinutes:number;plannedShare:number|null;actualShare:number|null}[]
@@ -24,7 +25,8 @@ export interface CareBranchMetricsResponse {
 }
 
 export function fromServerReview(review:ServerWeeklyReview,asOf=review.to,signals:{type:SignalType}[]=[],deferred=false):WeeklyReview {
- const days:WeekDay[]=review.days.map(day=>({date:day.date,attendance:({PRESENT:'present',ABSENT:'absent',UNSCHEDULED:'excluded',UNKNOWN:'unknown'} as const)[day.attendance],submission:({SUBMITTED:'submitted',MISSING:'missing',UNKNOWN:'unknown'} as const)[day.submission],scheduled:day.scheduled,minutes:day.minutes,start:day.startMinutes,planned:day.plannedMinutes,actual:day.actualMinutes}))
+ const mapDays=(records:ServerWeeklyReview['days']):WeekDay[]=>records.map(day=>({date:day.date,attendance:({PRESENT:'present',ABSENT:'absent',UNSCHEDULED:'excluded',UNKNOWN:'unknown'} as const)[day.attendance],submission:({SUBMITTED:'submitted',MISSING:'missing',UNKNOWN:'unknown'} as const)[day.submission],scheduled:day.scheduled,minutes:day.minutes,start:day.startMinutes,planned:day.plannedMinutes,actual:day.actualMinutes}))
+ const days=mapDays(review.days),baselineDays=mapDays(review.baselineDays??[])
  const c=review.current,b=review.baseline
  const metric=(type:SignalType,label:string,unit:ComparisonUnit,current:number|null,before:number|null,view:MetricView,beforeLabel='직전 28일 평균'):CareSnapshotMetric=>({type,label,unit,current,before,view,beforeLabel,currentLabel:'최근 7일',attention:signals.some(s=>s.type===type)})
  const rate=(s:ServerPeriodSummary)=>s.submissionRecordedDays?s.submissionDays/s.submissionRecordedDays*100:null
@@ -44,7 +46,7 @@ export function fromServerReview(review:ServerWeeklyReview,asOf=review.to,signal
  let run=0,longestMissingRun=0
  for(const day of days){run=day.scheduled!==false&&day.submission==='missing'?run+1:0;longestMissingRun=Math.max(run,longestMissingRun)}
  const paired=days.filter(d=>d.attendance==='present'&&d.planned!==null&&d.planned>0&&d.actual!==null)
- return {asOf,days,baselineDays:[],baselineFrom:review.baselineFrom,baselineTo:review.baselineTo,metrics,deferred,
+ return {asOf,days,baselineDays,baselineFrom:review.baselineFrom,baselineTo:review.baselineTo,metrics,deferred,
   weekdayBaseline:review.weekdayBaseline.map(d=>({date:d.date,minutes:d.minutes,start:d.startMinutes,samples:d.samples,startSamples:d.startSamples})),
   recent:{attended:c.attendanceDays,notEntered:c.scheduledAbsenceDays,missingPlans:days.filter(d=>d.scheduled!==false&&d.submission==='missing').length,minutes:c.studyMinutes,minutesPerVisit:c.minutesPerAttendance,validDays:days.filter(d=>d.attendance==='present'&&d.minutes!==null&&d.minutes>=30).length,longestMissingRun,planGapMinutes:paired.length?paired.reduce((n,d)=>n+d.actual!-d.planned!,0):null,comparablePlanDays:c.comparablePlanDays}}
 }

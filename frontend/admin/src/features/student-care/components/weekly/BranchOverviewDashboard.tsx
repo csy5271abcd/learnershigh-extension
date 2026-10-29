@@ -1,3 +1,4 @@
+import {inferredAttendance,type AttendancePattern} from '../../model/inferredAttendance.ts'
 import {useEffect,useId,useState} from 'react'
 import {studentCareApi} from '../../api/studentCareApi.ts'
 import type {CareApi} from '../../api/httpStudentCareApi.ts'
@@ -6,7 +7,7 @@ import {buildBranchOverview,metricContributors,type BranchMetricKind,type Branch
 import {useRemote,loadFailure} from '../../model/useRemote.ts'
 import {compactMinutes,dateText,displayClock,weekdayText,studentColor} from '../../model/careDisplay.ts'
 import {BranchDistributionChart} from './BranchDistributionChart.tsx'
-import {BranchStudentMetricDetail} from './BranchStudentMetricDetail.tsx'
+import {studentCareStudentHref} from '../../model/studentCareNavigation.ts'
 import {personalDistribution} from '../../model/personalDistribution.ts'
 import {BranchStudentPatterns} from './BranchStudentPatterns.tsx'
 import {tooltipPlacement} from '../../model/tooltipPlacement.ts'
@@ -15,7 +16,7 @@ import {useTooltipSize} from './useTooltipSize.ts'
 import './BranchOverviewDashboard.css'
 
 const kinds:BranchMetricKind[]=['study','arrival','absence','submission']
-const titles:Record<BranchMetricKind,string>={study:'학습 시간',arrival:'입실 변화',absence:'결석',submission:'계획 제출률'}
+const titles:Record<BranchMetricKind,string>={study:'학습 시간',arrival:'입실 시간',absence:'결석',submission:'계획 제출률'}
 const signed=(v:number,unit:string)=>`${v>0?'+':v<0?'−':''}${Number(Math.abs(v).toFixed(1))}${unit}`
 const percent=(part:number,total:number)=>total?part/total*100:null
 const rate=(metric:{value:number|null;samples:number})=>metric.value===null?null:percent(metric.samples-metric.value,metric.samples)
@@ -28,7 +29,7 @@ function headline(metric:BranchOverviewMetric):string{
 }
 function impactText(c:BranchMetricContributor,kind:BranchMetricKind){return signed(c.impact,kind==='study'?'%':kind==='arrival'?'분':'건')}
 
-function MetricChart({metric,rows,excluded,threshold,onInspect,selected=[],onDeselect}:{metric:BranchOverviewMetric;rows:CareRosterRow[];excluded:string[];threshold:number;onInspect:(date:string)=>void;selected?:string[];onDeselect?:(id:string)=>void}){
+function MetricChart({metric,rows,excluded,onInspect,selected=[],onDeselect}:{metric:BranchOverviewMetric;rows:CareRosterRow[];excluded:string[];threshold:number;onInspect:(date:string)=>void;selected?:string[];onDeselect?:(id:string)=>void}){
  const [ref,width]=usePlotWidth(),[hover,setHover]=useState<number|null>(null)
  const tipId=useId(),[tipRef,tipHeight]=useTooltipSize(hover)
  const kind=metric.kind,days=metric.daily
@@ -41,9 +42,8 @@ function MetricChart({metric,rows,excluded,threshold,onInspect,selected=[],onDes
  const left=kind==='arrival'?38:30,step=(width-left-10)/7,x=(i:number)=>left+(i+.5)*step
  const y=(v:number)=>kind==='arrival'?76-v/bound*48:124-v/bound*100
  const d=hover===null?undefined:days[hover]
- const contributors=d?metricContributors(rows,kind,excluded,threshold,d.date).filter(c=>Math.abs(c.impact)>.001).slice(0,2):[]
  const target=(i:number)=>({onMouseEnter:()=>setHover(i),onFocus:()=>setHover(i),onBlur:()=>setHover(null),onClick:()=>onInspect(days[i].date),onKeyDown:(e:React.KeyboardEvent)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onInspect(days[i].date)}},role:'button',tabIndex:0,'aria-label':`${dateText(days[i].date)} ${titles[kind]} 상세`,'aria-describedby':hover===i?tipId:undefined})
- if(kind==='absence')return <div className="bov-absence" aria-label="날짜별 결석">{days.map(day=><button type="button" key={day.date} data-count={day.value??'unknown'} onClick={()=>onInspect(day.date)} title={`등원 예정·출결 확인 ${day.samples}건, 미확인 ${day.missing}건`}><span>{dateText(day.date)}</span><small>{weekdayText(day.date)}</small><b>{day.value===null?'—':day.value}</b><small>결석</small>{day.missing>0&&<em>미확인 {day.missing}</em>}</button>)}</div>
+ if(kind==='absence')return <div className="bov-absence" aria-label="날짜별 미입실">{days.map(day=><button type="button" key={day.date} data-count={day.value??'unknown'} onClick={()=>onInspect(day.date)} data-unexpected={(day.unexpected??0)>0} title={day.value===null?'—':`결석(무단) ${day.unexpected??0}명 · 결석(정기) ${day.value-(day.unexpected??0)}명`}><span>{dateText(day.date)}</span><small>{weekdayText(day.date)}</small><b>{day.value===null?'—':day.unexpected??0}</b><small>결석(무단)</small>{day.value!==null&&<em>정기 {day.value-(day.unexpected??0)}명</em>}</button>)}</div>
  return <figure className="bov-chart" onMouseLeave={()=>setHover(null)} onKeyDown={e=>{if(e.key==='Escape')setHover(null)}}>
   <div className="bov-key">{kind==='study'?<><span><i/>학습관 평균</span><span><i className="bov-reference"/>평소</span>{series.map(s=><button type="button" key={s.id} onClick={()=>onDeselect?.(s.id)} aria-label={`${s.name} 그래프 비교 해제`}><i style={{background:studentColor(s.id)}}/>{s.name} ×</button>)}</>:kind==='arrival'?<span>+ 늦음 · − 빠름</span>:<span>날짜별 제출률</span>}</div>
   <div className="bov-plot" ref={ref}><svg viewBox={`0 0 ${width} 170`} role="group" aria-label={`${titles[kind]} 날짜별 그래프`}>
@@ -55,13 +55,13 @@ function MetricChart({metric,rows,excluded,threshold,onInspect,selected=[],onDes
   </svg>{d&&hover!==null&&<div ref={tipRef} role="tooltip" id={tipId} className={`bov-tooltip ${kind==='study'?'bov-study-tooltip':''}`} style={{width:Math.min(230,width-40),...tooltipPlacement({width,boxWidth:Math.min(230,width-40),boxHeight:tipHeight,left,bottom:124,anchor:{x:x(hover),y:values[hover]===null?80:y(values[hover]!)},series:[values,...(kind==='study'?[bases,...series.map(s=>s.values)]:[])].map(vs=>vs.map((v,i)=>v===null?null:{x:x(i),y:y(v)}))})}}>
    <b>{dateText(d.date)} ({weekdayText(d.date)})</b><div><span>{kind==='study'?'학습관 평균':kind==='arrival'?'평소 대비':'제출률'}</span><strong>{d.value===null?'—':kind==='study'?compactMinutes(d.value/d.samples):kind==='arrival'?signed(d.value,'분'):`${rate(d)!.toFixed(1)}%`}</strong></div>
    {kind==='study'&&<><div><span>평소</span><strong>{compactMinutes(d.baseline===null?null:d.baseline/d.samples)}</strong></div><div className="bov-tooltip-students">{series.map(s=><div key={s.id}><span style={{color:studentColor(s.id)}}>{s.name}</span><strong>{s.values[hover]===null?'—':`${Math.floor(s.values[hover]!/60)}h ${Math.round(s.values[hover]!)%60}m`}</strong></div>)}</div></>}
-   {kind!=='study'&&<div><span>비교 기록</span><strong>{d.samples}건{d.missing?` · 미확인 ${d.missing}`:''}</strong></div>}
-   {kind!=='study'&&contributors.map(c=><div key={c.studentId}><span>{c.studentName}</span><strong>{impactText(c,kind)}</strong></div>)}
+   {kind==='submission'&&<div><span>제출 / 전체</span><strong>{d.samples-(d.value??0)} / {d.samples}명</strong></div>}
+
   </div>}</div>
  </figure>
 }
 
-function StudentImpact({rows,kind,date,excluded,threshold,changeThreshold,onlyChanges,toggle,onOpenStudent}:{rows:CareRosterRow[];kind:BranchMetricKind;date:string|null;excluded:string[];threshold:number;changeThreshold:number;onlyChanges:boolean;toggle:(id:string)=>void;onOpenStudent:(id:string)=>void}){
+function StudentImpact({rows,kind,date,excluded,threshold,changeThreshold,onlyChanges,toggle}:{rows:CareRosterRow[];kind:BranchMetricKind;date:string|null;excluded:string[];threshold:number;changeThreshold:number;onlyChanges:boolean;toggle:(id:string)=>void}){
  const [query,setQuery]=useState(''),[page,setPage]=useState(0)
  const all:(BranchMetricContributor&{changeDays?:number})[]=kind==='study'||kind==='arrival'?(()=>{
   const grouped=new Map<string,{studentId:string;studentName:string;actual:number;usual:number;delta:number;samples:number;changeDays:number}>()
@@ -74,10 +74,10 @@ function StudentImpact({rows,kind,date,excluded,threshold,changeThreshold,onlyCh
  const filtered=all.filter(c=>c.studentName.includes(query)&&(!onlyChanges||(c.changeDays??0)>0)&&(kind==='study'||kind==='arrival'||c.delta>0))
  const shown=filtered.slice(page*8,page*8+8),max=Math.max(...all.map(c=>Math.abs(c.impact)),1)
  return <><div className="bov-impact-tools"><span>{date?`${dateText(date)} (${weekdayText(date)})`:'최근 7일'} · {filtered.length}명</span><input aria-label="학생별 기록 검색" placeholder="학생 검색" value={query} onChange={e=>{setQuery(e.target.value);setPage(0)}}/></div>
-  <div className="bov-impact-scroll"><table className="bov-impact-table"><thead><tr><th>학생</th><th>{kind==='study'||kind==='arrival'?'평소 / 최근':'해당 기록'}</th><th>{kind==='study'?'평소 대비 변화':kind==='arrival'?'평소 대비 변화':'건수'}</th><th>비교</th></tr></thead><tbody>{shown.map(c=><tr key={c.studentId}>
-   <th><button type="button" className="bov-student-link" onClick={()=>onOpenStudent(c.studentId)} aria-label={`${c.studentName} 학생 상세`}>{c.studentName}</button>{!!c.changeDays&&<small className="bov-repeat">{c.changeDays}일 {kind==='study'?'감소':'지연'}</small>}</th>
-   <td>{kind==='study'?`${compactMinutes(c.baseline)} / ${compactMinutes(c.current)}`:kind==='arrival'?`${displayClock(c.baseline)} / ${displayClock(c.current)}`:`${c.current}건`}</td>
-   <td><span className="bov-impact-value">{impactText(c,kind)}</span>{(kind==='study'||kind==='arrival')&&<span className="bov-impact-track"><i data-negative={c.impact<0} style={{width:`${Math.abs(c.impact)/max*50}%`}}/></span>}</td>
+  <div className="bov-impact-scroll"><table className="bov-impact-table"><thead><tr><th>학생</th><th>{kind==='study'||kind==='arrival'?'평소 / 최근':kind==='absence'?'결석 날짜':'미제출 날짜'}</th><th>{kind==='study'?'평소 대비 변화':kind==='arrival'?'평소 대비 변화':kind==='absence'?'결석 일수':'미제출 일수'}</th><th>비교</th></tr></thead><tbody>{shown.map(c=><tr key={c.studentId}>
+   <th><a className="bov-student-link" href={studentCareStudentHref(rows.find(r=>r.student.studentId===c.studentId)!.student.branchId,c.studentId)} target="_blank" rel="noopener noreferrer" aria-label={`${c.studentName} 학생 상세`}>{c.studentName}</a>{!!c.changeDays&&<small className="bov-repeat">{c.changeDays}일 {kind==='study'?'감소':'지연'}</small>}</th>
+   <td>{kind==='study'?`${compactMinutes(c.baseline)} / ${compactMinutes(c.current)}`:kind==='arrival'?`${displayClock(c.baseline)} / ${displayClock(c.current)}`:rows.find(r=>r.student.studentId===c.studentId)!.review.days.filter(d=>(!date||d.date===date)&&(kind==='submission'?d.submission==='missing':inferredAttendance(rows.find(r=>r.student.studentId===c.studentId)!.review,d)==='unexpected')).map(d=>dateText(d.date)).join(', ')}</td>
+   <td><span className="bov-impact-value">{kind==='study'||kind==='arrival'?impactText(c,kind):`${c.current}일`}</span>{(kind==='study'||kind==='arrival')&&<span className="bov-impact-track"><i data-negative={c.impact<0} style={{width:`${Math.abs(c.impact)/max*50}%`}}/></span>}</td>
    <td><button type="button" onClick={()=>toggle(c.studentId)} aria-label={`${c.studentName} 집계에서 제외`}>제외</button></td>
   </tr>)}</tbody></table></div>{!shown.length&&<p className="bov-empty">해당 기록이 없습니다.</p>}
   {filtered.length>8&&<div className="bov-pages"><button type="button" disabled={page===0} onClick={()=>setPage(p=>p-1)}>이전</button><span>{page+1} / {Math.ceil(filtered.length/8)}</span><button type="button" disabled={(page+1)*8>=filtered.length} onClick={()=>setPage(p=>p+1)}>다음</button></div>}
@@ -88,8 +88,8 @@ export function BranchOverviewDashboard({api=studentCareApi,branchId,version,onM
  const [excluded,setExcluded]=useState<string[]>([]),[filterOpen,setFilterOpen]=useState(false),[query,setQuery]=useState('')
  const [onlyChanges,setOnlyChanges]=useState(false)
  const [active,setActive]=useState<BranchMetricKind|null>(null),[date,setDate]=useState<string|null>(null)
- const [focus,setFocus]=useState<Partial<Record<BranchMetricKind,{id:string;origin:'chart'|'list'|'absence'|'contributors'}>>>({})
- const [absenceDate,setAbsenceDate]=useState<string|null>(null),[selected,setSelected]=useState<string[]>([])
+ const [absenceDate,setAbsenceDate]=useState<string|null>(null)
+ const [selectedByMetric,setSelectedByMetric]=useState<Partial<Record<BranchMetricKind,string[]>>>({}),[hoveredByMetric,setHoveredByMetric]=useState<Partial<Record<BranchMetricKind,string|null>>>({})
  const remote=useRemote(`branch-overview/${branchId}`,async()=>{const [roster,settings]=await Promise.all([loadCareRoster(api,branchId),api.settings(branchId)]);return {...roster,settings}},version)
  const missingBranch=remote.status==='error'&&remote.error.code==='BRANCH_NOT_FOUND'
  useEffect(()=>{if(missingBranch)onMissingBranch?.()},[missingBranch,onMissingBranch])
@@ -98,10 +98,8 @@ export function BranchOverviewDashboard({api=studentCareApi,branchId,version,onM
  const {rows,board,settings}=remote.data
  if(!rows.length)return <p>등록된 학생이 없습니다.</p>
  const overview=buildBranchOverview(rows,excluded,settings.startShiftMinutes),whole=buildBranchOverview(rows,[],settings.startShiftMinutes)
- const toggle=(id:string)=>{setExcluded(ids=>ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);setSelected(ids=>ids.filter(v=>v!==id))}
- const openStudent=(kind:BranchMetricKind,id:string,origin:'chart'|'list'|'absence'|'contributors')=>{setFocus(v=>({...v,[kind]:{id,origin}}));if(kind==='study'||kind==='arrival')setSelected(ids=>ids.includes(id)||ids.length>=6?ids:[...ids,id])}
- const closeStudent=(kind:BranchMetricKind)=>setFocus(v=>({...v,[kind]:undefined}))
- const detail=(kind:BranchMetricKind,origin:string)=>{const item=focus[kind],row=rows.find(r=>r.student.studentId===item?.id);return item?.origin===origin&&row?<BranchStudentMetricDetail row={row} kind={kind} onClose={()=>closeStudent(kind)}/>:null}
+ const toggle=(id:string)=>{setExcluded(ids=>ids.includes(id)?ids.filter(v=>v!==id):[...ids,id]);setSelectedByMetric(values=>Object.fromEntries(Object.entries(values).map(([kind,ids])=>[kind,ids.filter(value=>value!==id)])))}
+ const openStudent=(id:string)=>window.open(studentCareStudentHref(branchId,id),'_blank','noopener,noreferrer')
  const studyAverage=(omitted:string[])=>{const values=rows.filter(r=>!omitted.includes(r.student.studentId)).flatMap(r=>r.review.days.filter(d=>d.attendance==='present'&&d.minutes!==null).map(d=>d.minutes!));return values.length?values.reduce((n,v)=>n+v,0)/values.length:null}
  const averageStudy=studyAverage(excluded)
  const arrivalSummary=(omitted:string[])=>{const days=personalDistribution(rows,'arrival',omitted,settings.startShiftMinutes);return days.some(d=>d.points.length)?new Set(days.flatMap(d=>d.changed.map(p=>p.id))).size:null}
@@ -111,20 +109,17 @@ export function BranchOverviewDashboard({api=studentCareApi,branchId,version,onM
   <header className="bov-heading"><div><h2>{board.branch.name}</h2><p>{dateText(overview.dates[0])}–{dateText(overview.dates.at(-1)!)} · 최근 7일 <span>평소 {dateText(rows[0].review.baselineFrom)}–{dateText(rows[0].review.baselineTo)}</span></p></div><div className="bov-population"><b>{overview.excludedCount?`${overview.includedCount}명 선택 / `:''}전체 {overview.totalCount}명</b><button type="button" aria-expanded={filterOpen} onClick={()=>setFilterOpen(v=>!v)}>학생 포함·제외</button></div></header>
   {excluded.length>0&&<div className="bov-exclusions" role="status"><b>제외한 학생</b>{rows.filter(r=>excluded.includes(r.student.studentId)).map(r=><button type="button" key={r.student.studentId} aria-label={`${r.student.studentName} 집계에 복원`} onClick={()=>toggle(r.student.studentId)}>{r.student.studentName} ×</button>)}<button type="button" onClick={()=>setExcluded([])}>전체 복원</button></div>}
   {filterOpen&&<section className="bov-filter" aria-label="집계 학생 선택"><input aria-label="집계 학생 검색" placeholder="학생 검색" value={query} onChange={e=>setQuery(e.target.value)}/><div>{rows.filter(r=>r.student.studentName.includes(query)).map(r=><label key={r.student.studentId}><input type="checkbox" checked={!excluded.includes(r.student.studentId)} onChange={()=>toggle(r.student.studentId)}/>{r.student.studentName}</label>)}</div></section>}
-  <div className="bov-cards">{kinds.map(kind=>{const metric=overview.metrics[kind],original=whole.metrics[kind];return <section className="bov-card" key={kind} data-metric={kind} data-active={active===kind}>
+  <div className="bov-cards">{kinds.map(kind=>{const metric=overview.metrics[kind],original=whole.metrics[kind],selected=selectedByMetric[kind]??[];const setSelected=(update:string[]|((ids:string[])=>string[]))=>setSelectedByMetric(values=>({...values,[kind]:typeof update==='function'?update(values[kind]??[]):update}));return <section className="bov-card" key={kind} data-metric={kind} data-active={active===kind}>
    <button type="button" className="bov-card-title" aria-label={`${titles[kind]} 학생별 기록 펼치기`} aria-expanded={active===kind} onClick={()=>active===kind&&date===null?setActive(null):inspect(kind,null)}><h3>{titles[kind]}</h3><span aria-hidden="true">{active===kind?'⌄':'›'}</span></button>
-   <div className="bov-summary"><strong data-average={kind==='study'?averageStudy??'unknown':undefined} data-value={metric.value??'unknown'} data-baseline={metric.baseline??'unknown'}>{kind==='study'?compactMinutes(averageStudy):kind==='arrival'?arrivalChanges===null?'—':`${arrivalChanges}명`:headline(metric)}</strong><span>{kind==='study'?`입실일 평균`:kind==='arrival'?arrivalChanges===null?'비교 기록 없음':`입실 지연 학생`:kind==='absence'?`${metric.contributors.filter(c=>c.current!>0).length}명 결석`:`미제출 ${metric.value??'—'}건 · ${metric.contributors.filter(c=>c.current!>0).length}명`}</span></div>
+   <div className="bov-summary"><strong data-average={kind==='study'?averageStudy??'unknown':undefined} data-value={metric.value??'unknown'} data-baseline={metric.baseline??'unknown'}>{kind==='study'?compactMinutes(averageStudy):kind==='arrival'?arrivalChanges===null?'—':`${arrivalChanges}명`:kind==='absence'?`${rows.filter(r=>!excluded.includes(r.student.studentId)&&r.review.days.some(d=>inferredAttendance(r.review,d)==='unexpected')).length}명`:headline(metric)}</strong><span>{kind==='study'?`입실일 평균`:kind==='arrival'?arrivalChanges===null?'비교 기록 없음':`입실 지연 학생`:kind==='absence'?'최근 7일 결석 학생':`${metric.contributors.filter(c=>c.current!>0).length}명 미제출`}</span></div>
    {excluded.length>0&&<div className="bov-whole">전체 {kind==='study'?compactMinutes(studyAverage([])):kind==='arrival'?arrivalSummary([])===null?'—':`${arrivalSummary([])}명`:headline(original)} · 선택 {kind==='study'?compactMinutes(averageStudy):kind==='arrival'?arrivalChanges===null?'—':`${arrivalChanges}명`:headline(metric)}</div>}
-   {kind==='study'||kind==='arrival'?<BranchDistributionChart rows={rows} kind={kind} excluded={excluded} selected={selected} threshold={kind==='study'?settings.studyDropPercent:settings.startShiftMinutes} onDeselect={id=>setSelected(ids=>ids.filter(v=>v!==id))} onStudent={id=>openStudent(kind,id,'chart')} onDate={day=>inspect(kind,day)} onAll={()=>{setOnlyChanges(true);setActive(kind);setDate(null)}}/>:<MetricChart metric={metric} rows={rows} excluded={excluded} threshold={settings.startShiftMinutes} onInspect={day=>kind==='absence'?setAbsenceDate(v=>v===day?null:day):inspect(kind,day)}/>}
-   {detail(kind,'chart')}
-   {kind==='absence'&&absenceDate&&<section className="bov-absence-students" aria-label="날짜별 결석 학생"><b>{dateText(absenceDate)} ({weekdayText(absenceDate)}) 결석</b><div>{rows.filter(r=>!excluded.includes(r.student.studentId)&&r.review.days.some(d=>d.date===absenceDate&&d.scheduled===true&&d.attendance==='absent')).map(r=><button type="button" className="bov-student-link" key={r.student.studentId} onClick={()=>openStudent(kind,r.student.studentId,'absence')}>{r.student.studentName}</button>)}</div>{!rows.some(r=>!excluded.includes(r.student.studentId)&&r.review.days.some(d=>d.date===absenceDate&&d.scheduled===true&&d.attendance==='absent'))&&<p>결석한 학생이 없습니다.</p>}</section>}
-   {detail(kind,'absence')}
+   {kind==='study'||kind==='arrival'?<BranchDistributionChart rows={rows} kind={kind} excluded={excluded} selected={selected} highlight={hoveredByMetric[kind]??null} threshold={kind==='study'?settings.studyDropPercent:settings.startShiftMinutes} onDeselect={id=>setSelected(ids=>ids.filter(v=>v!==id))} onStudent={openStudent} onSolo={id=>setSelected(id?[id]:[])} onDate={day=>inspect(kind,day)} onAll={()=>{setOnlyChanges(true);setActive(kind);setDate(null)}}/>:<MetricChart metric={metric} rows={rows} excluded={excluded} threshold={settings.startShiftMinutes} onInspect={day=>kind==='absence'?setAbsenceDate(v=>v===day?null:day):inspect(kind,day)}/>}
+   {kind==='absence'&&absenceDate&&<section className="bov-absence-students" aria-label="날짜별 미입실 학생">{(()=>{const shown=rows.filter(r=>!excluded.includes(r.student.studentId)),of=(pattern:AttendancePattern)=>shown.filter(r=>r.review.days.some(d=>d.date===absenceDate&&inferredAttendance(r.review,d)===pattern)),unexpected=of('unexpected');return <><b>{dateText(absenceDate)} ({weekdayText(absenceDate)})</b><p className="bov-absence-counts">인원 {shown.length}명 · 출석 {of('present').length}명 · 결석(무단) <strong>{unexpected.length}명</strong> · 결석(정기) {of('regular').length}명</p>{unexpected.length>0&&<div data-pattern="unexpected"><span>결석(무단) {unexpected.length}명</span>{unexpected.map(r=><a className="bov-student-link" key={r.student.studentId} href={studentCareStudentHref(branchId,r.student.studentId)} target="_blank" rel="noopener noreferrer">{r.student.studentName}</a>)}</div>}</>})()}</section>}
   {active===kind&&<section className="bov-detail" aria-label={`${titles[kind]} 학생별 기록`}><header><h3>{titles[kind]} · 학생별 기록</h3><div>{excluded.length>0&&<button type="button" onClick={()=>setExcluded([])}>제외 {excluded.length}명 복원</button>}{onlyChanges&&<button type="button" onClick={()=>setOnlyChanges(false)}>전체 학생</button>}{date&&<button type="button" onClick={()=>setDate(null)}>7일 전체</button>}<button type="button" onClick={()=>setActive(null)}>접기</button></div></header>
-   <StudentImpact key={`${branchId}/${kind}/${date??'week'}/${excluded.join(',')}`} rows={rows} kind={kind} date={date} excluded={excluded} threshold={settings.startShiftMinutes} changeThreshold={kind==='study'?settings.studyDropPercent:settings.startShiftMinutes} onlyChanges={onlyChanges} toggle={toggle} onOpenStudent={id=>openStudent(kind,id,'contributors')}/>
-   {detail(kind,'contributors')}
+   <StudentImpact key={`${branchId}/${kind}/${date??'week'}/${excluded.join(',')}`} rows={rows} kind={kind} date={date} excluded={excluded} threshold={settings.startShiftMinutes} changeThreshold={kind==='study'?settings.studyDropPercent:settings.startShiftMinutes} onlyChanges={onlyChanges} toggle={toggle}/>
   </section>}
-   <BranchStudentPatterns key={`${branchId}/${kind}`} rows={rows} kind={kind} excluded={excluded} settings={settings} selected={selected} onSelect={id=>setSelected(ids=>ids.includes(id)?ids.filter(v=>v!==id):[...ids,id])} onOpenStudent={id=>openStudent(kind,id,'list')} focusedId={focus[kind]?.origin==='list'?focus[kind]?.id:undefined} onCloseFocus={()=>closeStudent(kind)}/>
-   {metric.missing>0&&<footer>미확인 기록 {metric.missing}건</footer>}
+   <BranchStudentPatterns key={`${branchId}/${kind}`} rows={rows} kind={kind} excluded={excluded} settings={settings} selected={selected} onHover={id=>setHoveredByMetric(v=>({...v,[kind]:id}))} onSelect={id=>setSelected(ids=>ids.includes(id)?ids.filter(v=>v!==id):[...ids,id])}/>
+
   </section>})}</div>
 
  </section>

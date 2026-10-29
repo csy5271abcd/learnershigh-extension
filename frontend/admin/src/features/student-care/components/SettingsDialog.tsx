@@ -5,14 +5,14 @@ import { PREVIEW_DEFAULTS } from '../api/previewData.ts'
 import type { CareSettingKey, CareSettings, CareSettingsValues } from '../model/types.ts'
 
 const FIELDS: readonly { key: CareSettingKey; label: string; unit: string; reason: string }[] = [
-  { key: 'absenceDays', label: '등원 예정일 미입실', unit: '일 이상', reason: '최근 7일의 등원 예정일 중 입실 기록이 없는 날짜 수입니다. 일정이 없는 학생은 결석으로 판정하지 않습니다.' },
-  { key: 'planMissingDays', label: '계획 미제출 (7일 중)', unit: '일 이상', reason: '최근 7일 중 학습 계획을 제출하지 않은 날짜 수입니다.' },
-  { key: 'studyDropPercent', label: '학습 시간 감소', unit: '% 이상', reason: '최근 7일을 제외한 직전 28일의 주평균 대비 최근 7일 총 학습 시간의 감소율입니다.' },
-  { key: 'executionRatePercent', label: '계획 달성률', unit: '% 미만', reason: '최근 7일 중 계획과 실제 기록이 모두 있는 날의 시간 합계로 비교합니다.' },
-  { key: 'subjectShareGapPoints', label: '과목별 계획·실제 비율 차이', unit: '%p 이상', reason: '최근 7일의 과목별 계획 비율과 실제 학습 비율의 차이입니다.' },
-  { key: 'startShiftMinutes', label: '입실 시각 지연', unit: '분 이상', reason: '최근 7일을 제외한 직전 28일 평균 대비 최근 7일 평균 입실 시각의 차이입니다.' },
-  { key: 'minValidDays', label: '분석에 필요한 최소 학습일', unit: '일 이상', reason: '최근 7일 중 30분 이상 학습한 날짜 수입니다. 이보다 적으면 학습 시간과 달성률을 분석하지 않습니다.' },
-  { key: 'cooldownDays', label: '관리 종료 후 다시 표시', unit: '일', reason: '관리를 종료한 항목을 다시 표시하기까지의 기간입니다. 0일이면 바로 표시합니다.' },
+  { key: 'absenceDays', label: '결석', unit: '일 이상', reason: '최근 7일 중 평소 오는 요일에 입실하지 않은 날' },
+  { key: 'planMissingDays', label: '계획 미제출', unit: '일 이상', reason: '최근 7일 중 계획을 내지 않은 날' },
+  { key: 'studyDropPercent', label: '학습 시간 감소', unit: '% 이상', reason: '평소(이전 4주) 대비 최근 7일 학습 시간' },
+  { key: 'executionRatePercent', label: '계획 달성률', unit: '% 미만', reason: '최근 7일 계획 대비 실제 학습 시간' },
+  { key: 'subjectShareGapPoints', label: '과목 비율 차이', unit: '%p 이상', reason: '과목별 계획 비율과 실제 비율의 차이' },
+  { key: 'startShiftMinutes', label: '입실 지연', unit: '분 이상', reason: '평소(같은 요일) 대비 늦게 들어온 시간' },
+  { key: 'minValidDays', label: '판단에 필요한 학습일', unit: '일 이상', reason: '30분 이상 공부한 날이 이보다 적으면 학습 시간·달성률은 판단하지 않음' },
+  { key: 'cooldownDays', label: '종료 후 다시 표시', unit: '일 뒤', reason: '관리를 끝낸 항목을 이 기간 동안 다시 띄우지 않음' },
 ]
 
 interface Props {
@@ -66,15 +66,23 @@ export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, on
     }
   }, [open, branchId, attempt, api])
 
-  const invalid = (key: CareSettingKey) => saveError?.hasField(key) ?? false
+  /** 범위를 벗어난 값만 짧게 알린다. 평소에는 범위를 보여 주지 않는다. */
+  const rangeError = (key: CareSettingKey): string | null => {
+    if (!draft || !settings) return null
+    const raw = draft[key].trim(), value = Number(raw), { min, max } = settings.ranges[key]
+    if (raw === '' || !Number.isInteger(value)) return '정수를 입력해 주세요.'
+    if (value > max) return `${max} 이하여야 합니다.`
+    if (value < min) return `${min} 이상이어야 합니다.`
+    return null
+  }
+  const invalid = (key: CareSettingKey) => rangeError(key) !== null || (saveError?.hasField(key) ?? false)
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!draft || !settings || pending) return
-    const fields = FIELDS.filter(({ key }) => draft[key].trim() === '' || !Number.isInteger(Number(draft[key])) || Number(draft[key]) < settings.ranges[key].min || Number(draft[key]) > settings.ranges[key].max)
-      .map(({ key }) => ({ field: key, reason: '허용 범위 안의 정수를 입력해 주세요.' }))
+    const fields = FIELDS.flatMap(({ key }) => { const reason = rangeError(key); return reason ? [{ field: key, reason }] : [] })
     if (fields.length) {
-      setSaveError(new ApiError(422, 'INVALID_CARE_SETTINGS', '허용 범위 안의 정수를 입력해 주세요.', fields))
+      setSaveError(new ApiError(422, 'INVALID_CARE_SETTINGS', '입력값을 확인해 주세요.', fields))
       return
     }
     setPending(true)
@@ -103,9 +111,7 @@ export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, on
         <h2 id="sc-settings-title" className="sc-dialog__title">
           관리 기준 설정
         </h2>
-        <p className="sc-settings-intro">학습관별 설정 · 초기값은 운영 전 검토용 제안입니다</p>
-        <p className="sc-settings-preview">미입실은 등원 예정일 기준입니다. 등원 일정이 없으면 결석으로 판정하지 않습니다.</p>
-        <p className="sc-settings-preview">새로고침하면 초기화됩니다.</p>
+        <p className="sc-settings-intro">학습관별로 적용됩니다</p>
         {loadError ? (
           <div className="sc-state" role="alert">
             <p>불러오지 못했습니다</p>
@@ -120,6 +126,7 @@ export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, on
             {FIELDS.map(({ key, label, unit, reason }) => {
               const range = settings.ranges[key]
               const hintId = `sc-setting-${key}-hint`
+              const error = rangeError(key)
               return (
                 <div key={key} className="sc-setting">
                   <label className="sc-setting__label" title={reason} htmlFor={`sc-setting-${key}`}>
@@ -136,15 +143,14 @@ export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, on
                       step={1}
                       value={draft[key]}
                       aria-invalid={invalid(key) || undefined}
-                      aria-describedby={`${hintId} sc-setting-${key}-default`}
+                      aria-describedby={hintId}
                       onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
                     />
                     <span className="sc-setting__unit">{unit}</span>
                   </div>
-                  <span id={hintId} className={invalid(key) ? 'sc-setting__hint sc-field__error' : 'sc-setting__hint'}>
-                    {reason} {invalid(key) ? '입력값 확인 · ' : '허용 범위 '}{range.min}~{range.max}
+                  <span id={hintId} className={error ? 'sc-setting__hint sc-field__error' : 'sc-setting__hint'}>
+                    {error ?? reason}
                   </span>
-                  <span id={`sc-setting-${key}-default`} className="sc-settings-defaults">기본값 {PREVIEW_DEFAULTS[key]}{unit}</span>
                 </div>
               )
             })}
