@@ -18,7 +18,7 @@ test('branch patterns expose several students, date-local absences, and average 
  expect(await arrival.locator('.bov-pattern-row').count()).toBeGreaterThan(1)
  await expect(arrival.locator('.bov-pattern-head time')).toHaveCount(7)
  const absence=page.locator('[data-metric=absence]')
- const date=absence.locator('.bov-absence button:not([data-count="0"]):not([data-count="unknown"])').first()
+ const date=absence.locator('.bov-absence button[data-unexpected=true]').first()
  await date.click()
  const inline=absence.getByRole('region',{name:'날짜별 미입실 학생'})
  await expect(inline).toBeVisible()
@@ -244,21 +244,20 @@ test('missing-day identity lines break and missing comparison symbols have an ex
  await expect(card.locator('.bov-selected-line line')).toHaveCount(expected)
 })
 
-test('absence counts include regular non-entry and turn red only when an unusual absence is mixed in',async({page})=>{
+test('absence days show unexcused counts, turn orange only with an unexcused absence, and list only unexcused students',async({page})=>{
  await page.route('https://**',r=>r.abort())
  const response=await page.request.get('/api/admin/student-care/metrics?branchId=demo_large')
  expect(response.ok()).toBe(true)
  const metrics=await response.json()
- // Same rule as the screen: four observed same-weekday baseline days without entry make a regular pattern.
+ // Same rule as the screen: no entry is an absence; four same-weekday baseline days without entry make it regular.
  const weekday=(date:string)=>new Date(`${date}T12:00:00Z`).getUTCDay()
- const observed=(day:{attendance:string;minutes:number|null})=>day.attendance!=='UNKNOWN'||day.minutes===0
  const expected=new Map<string,{total:number;unexpected:number;regular:number}>()
  for(const {review} of metrics.students)for(const day of review.days){
   const entry=expected.get(day.date)??{total:0,unexpected:0,regular:0}
   expected.set(day.date,entry)
-  if(day.attendance==='PRESENT'||!observed(day))continue
+  if(day.attendance==='PRESENT')continue
   const refs=review.baselineDays.filter((old:{date:string})=>old.date<day.date&&weekday(old.date)===weekday(day.date))
-  const regular=refs.length===4&&refs.every((old:{attendance:string;minutes:number|null})=>observed(old)&&old.attendance!=='PRESENT')
+  const regular=refs.length===4&&refs.every((old:{attendance:string})=>old.attendance!=='PRESENT')
   entry.total++
   if(regular)entry.regular++
   else entry.unexpected++
@@ -272,9 +271,9 @@ test('absence counts include regular non-entry and turn red only when an unusual
  const absence=page.locator('[data-metric=absence]')
  // Everyone has a weekly day off, so the headline counts students with at least one unusual absence.
  const unusualStudents=metrics.students.filter((r:{review:{days:{date:string;attendance:string;minutes:number|null}[];baselineDays:{date:string;attendance:string;minutes:number|null}[]}})=>r.review.days.some(day=>{
-  if(day.attendance==='PRESENT'||!observed(day))return false
+  if(day.attendance==='PRESENT')return false
   const refs=r.review.baselineDays.filter(old=>old.date<day.date&&weekday(old.date)===weekday(day.date))
-  return !(refs.length===4&&refs.every(old=>observed(old)&&old.attendance!=='PRESENT'))
+  return !(refs.length===4&&refs.every(old=>old.attendance!=='PRESENT'))
  })).length
  await expect(absence.locator('.bov-summary strong')).toHaveText(`${unusualStudents}명`)
  const buttons=absence.locator('.bov-absence button')
@@ -285,12 +284,13 @@ test('absence counts include regular non-entry and turn red only when an unusual
   await expect(buttons.nth(index)).toHaveAttribute('data-unexpected',String(e.unexpected>0))
  }
 
- // A mixed day lists every student once, split by pattern, and the split matches the count.
+ // A mixed day shows every count but lists names only for unexcused absences.
  const mixed=dates.findIndex(date=>{const e=expected.get(date)!;return e.regular>0&&e.unexpected>0})
  const e=expected.get(dates[mixed])!
  await buttons.nth(mixed).click()
  const list=absence.getByRole('region',{name:'날짜별 미입실 학생'})
- await expect(list.locator('[data-pattern=regular] a')).toHaveCount(e.regular)
+ await expect(list.locator('.bov-absence-counts')).toContainText(`결석(무단) ${e.unexpected}명 · 결석(정기) ${e.regular}명`)
+ await expect(list.locator('[data-pattern=regular]')).toHaveCount(0)
  await expect(list.locator('[data-pattern=unexpected] a')).toHaveCount(e.unexpected)
  await page.screenshot({path:`${evidence}/absence-mixed-day.png`,fullPage:false})
 })

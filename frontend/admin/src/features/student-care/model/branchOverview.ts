@@ -90,7 +90,6 @@ function summarize(rows: CareRosterRow[], kind: BranchMetricKind, lateThreshold:
         if (actual - usual >= lateThreshold) lateCount++
       } else if (kind === 'absence') {
         const pattern = inferredAttendance(row.review, day)
-        if (pattern === 'unavailable') { missing++; continue }
         actual = pattern === 'present' ? 0 : 1
         if (pattern === 'unexpected') unexpected++
       } else {
