@@ -48,3 +48,5 @@
 /* 학습관 평균선 켜기/끄기: 범례 모양을 유지하고 꺼지면 흐리게 */
 .bov-mean-toggle{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--color-border);border-radius:4px;background:none;color:var(--color-text-primary);font-size:11px;padding:2px 7px;cursor:pointer}.bov-mean-toggle[aria-pressed=false]{opacity:.45;text-decoration:line-through}
 .bov-tail-all line{stroke:var(--color-text-secondary)}.bov-tail-all text{fill:var(--color-text-primary)}
+/* 학생 이름·행에 마우스를 올리면 그 학생 선만 남기고 나머지는 흐리게 */
+.bov-distribution.has-focus .bov-change-line:not(.is-focus),.bov-distribution.has-focus .bov-selected-line:not(.is-focus){opacity:.15}.bov-distribution.has-focus .bov-population-point:not(.is-focus){opacity:.2}.bov-distribution .is-focus line{stroke-width:3.5;opacity:1}.bov-distribution circle.is-focus{stroke:var(--color-text-primary);stroke-width:1.5}
