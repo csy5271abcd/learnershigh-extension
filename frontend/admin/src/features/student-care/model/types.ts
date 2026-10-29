@@ -84,6 +84,7 @@ export interface SignalDetail extends SignalSummary {
 
 export interface CareEvent {
   eventId: string
+  actorName?: string | null
   caseId: string
   type: EventType
   occurredOn: string
@@ -143,6 +144,7 @@ export interface StudentCareDetail {
 export interface StudentHistory {
   student: StudentRef
   items: CareEvent[]
+  cases?: CareCase[]
 }
 
 export interface CareSettingsValues {
@@ -164,6 +166,7 @@ export interface CareSettings extends CareSettingsValues {
 }
 
 export interface OpenCaseInput {
+  actorName?: string
   branchId: string
   studentId: string
   channel: NoteChannel
@@ -173,6 +176,7 @@ export interface OpenCaseInput {
 }
 
 export interface DecisionInput {
+  actorName?: string
   decision: Decision
   recheckDate?: string
 }

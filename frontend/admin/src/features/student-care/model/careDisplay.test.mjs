@@ -1,17 +1,17 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
 import {attendanceText,submissionText,executionPercent,relativeStarts,subjectDifference} from './careDisplay.ts'
-test('confirmed absence is short, unverified schedule is not converted into absence',()=>{
+test('confirmed absence is short; unverified records show a dash, never an absence or a 미확인 label',()=>{
  assert.equal(attendanceText({attendance:'absent',minutes:0,scheduled:true}),'결석')
- assert.equal(attendanceText({attendance:'unknown',minutes:0,scheduled:null}),'미확인')
- assert.equal(attendanceText({attendance:'unknown',minutes:null,scheduled:null}),'미확인')
- assert.equal(attendanceText({attendance:'unknown',minutes:null,scheduled:false}),'미확인')
+ assert.equal(attendanceText({attendance:'unknown',minutes:0,scheduled:null}),'—')
+ assert.equal(attendanceText({attendance:'unknown',minutes:null,scheduled:null}),'—')
+ assert.equal(attendanceText({attendance:'unknown',minutes:null,scheduled:false}),'—')
 })
 
 test('a factual submitted plan survives off-day display and unknown is not a missing plan',()=>{
  assert.equal(submissionText({submission:'submitted',scheduled:false}),'제출')
  assert.equal(submissionText({submission:'missing',scheduled:false}),'—')
- assert.equal(submissionText({submission:'unknown',scheduled:null}),'미확인')
+ assert.equal(submissionText({submission:'unknown',scheduled:null}),'—')
 })
 test('morning and evening students are compared with their own weekday baseline',()=>{
  const days=[{date:'2026-10-18',attendance:'present',start:610},{date:'2026-10-19',attendance:'present',start:1150},{date:'2026-10-20',attendance:'absent',start:null}]

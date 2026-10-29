@@ -22,6 +22,9 @@ public interface CareCaseRepository extends JpaRepository<CareCase, String> {
     @Query("select c from CareCase c where c.id = :caseId and c.branchId = :branchId")
     Optional<CareCase> findForUpdate(String caseId, String branchId);
 
+    @EntityGraph(attributePaths = "events")
+    List<CareCase> findByBranchIdAndStudentId(String branchId, String studentId);
+
     List<CareCase> findByBranchIdAndStatus(String branchId, CareCaseStatus status);
 
     @EntityGraph(attributePaths = "events")

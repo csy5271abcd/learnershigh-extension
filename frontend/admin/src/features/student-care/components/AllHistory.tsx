@@ -1,6 +1,8 @@
 import {Fragment,useId,useState} from 'react'
 import {studentCareApi} from '../api/studentCareApi.ts'
 import {loadCareHistoryPage} from '../api/loadCareHistory.ts'
+import {caseTimeline} from '../model/caseTimeline.ts'
+import {comparisonMetric} from '../model/format.ts'
 import type {EventType,NoteChannel} from '../model/types.ts'
 import {loadFailure,useRemote} from '../model/useRemote.ts'
 import './AllHistory.css'
@@ -23,18 +25,22 @@ export function AllHistory({api=studentCareApi,branchId,version,onOpenStudent}:P
  const {students,rows}=remote.data,selected=students.find(s=>s.studentId===studentId)
  // Derive validity from the refreshed roster; never let a removed ID hide the remaining history.
  const activeStudentId=selected?.studentId??''
- const filtered=rows.filter(row=>(!activeStudentId||row.student.studentId===activeStudentId)&&`${row.student.studentName} ${row.student.className??''}`.includes(query.trim()))
+ const matching=rows.filter(row=>(!activeStudentId||row.student.studentId===activeStudentId)&&`${row.student.studentName} ${row.student.className??''}`.includes(query.trim()))
+ const seen=new Set<string>()
+ const filtered=matching.filter(row=>{if(seen.has(row.caseId))return false;seen.add(row.caseId);return true})
  const select=(value:string)=>{setStudentId(value);setExpanded(null);setQuery('')}
  return <section className="sc-history" aria-label="관리 이력 목록">
   <header className="sc-history-tools"><div><label htmlFor={`${id}-student`}>학생</label><select id={`${id}-student`} aria-label="이력 학생 선택" value={activeStudentId} onChange={e=>select(e.target.value)}><option value="">전체 학생</option>{[...students].sort((a,b)=>a.studentName.localeCompare(b.studentName,'ko')).map(s=><option key={s.studentId} value={s.studentId}>{s.studentName}{s.className?` · ${s.className}`:''}</option>)}</select></div><input aria-label="이력 학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={e=>{setQuery(e.target.value);setExpanded(null)}}/>{(activeStudentId||query)&&<button type="button" className="sc-button" onClick={()=>select('')}>전체 학생</button>}<span>{selected?.studentName??'전체'} · {filtered.length}건</span></header>
-  {!filtered.length?<p className="sc-state">{query?'검색 결과가 없습니다.':activeStudentId?'이 학생의 관리 이력이 없습니다.':'관리 이력이 없습니다.'}</p>:<table className="sc-all sc-history-table"><thead><tr><th scope="col">날짜</th><th scope="col">학생</th><th scope="col">기록</th></tr></thead><tbody>{filtered.map((row,index)=>{
+  {!filtered.length?<p className="sc-state">{query?'검색 결과가 없습니다.':activeStudentId?'이 학생의 관리 이력이 없습니다.':'관리 이력이 없습니다.'}</p>:<table className="sc-all sc-history-table"><thead><tr><th scope="col">날짜</th><th scope="col">학생</th><th scope="col">확인 항목</th><th scope="col">최근 진행</th><th scope="col">기록자</th></tr></thead><tbody>{filtered.map((row,index)=>{
    const open=expanded===row.eventId,panelId=`${id}-record-${index}`
    const preview=row.content.replace(/^상담 · (면담|통화|문자|메시지|기타) — /,'')
-   return <Fragment key={row.eventId}><tr data-expanded={open}>
+   return <Fragment key={row.eventId}><tr data-expanded={open} data-case-id={row.caseId}>
     <td className="sc-all__date"><time dateTime={row.occurredOn}>{dateText(row.occurredOn)}</time></td>
     <td><button type="button" className="sc-all__student" aria-label={`${row.student.studentName} 이력만 보기`} onClick={()=>select(row.student.studentId)}>{row.student.studentName}</button><span className="sc-all__class">{row.student.className}</span></td>
-    <td><button type="button" className="sc-history-expand" aria-expanded={open} aria-controls={panelId} aria-label={`${row.student.studentName} ${dateText(row.occurredOn)} 기록 내용 ${open?'접기':'펼치기'}`} onClick={()=>setExpanded(open?null:row.eventId)}><span className="sc-history-kind">{eventLabel[row.type]}</span><span className="sc-history-preview">{preview}</span><span aria-hidden="true">{open?'⌃':'⌄'}</span></button></td>
-   </tr>{open&&<tr className="sc-history-detail-row"><td colSpan={3}><section id={panelId} className="sc-history-detail" aria-label="기록 원문"><header><strong>{row.student.studentName} · {eventLabel[row.type]}</strong>{row.noteChannel&&<span>{channelLabel[row.noteChannel]}</span>}<button type="button" onClick={()=>setExpanded(null)}>접기</button></header><p className="sc-history-original">{row.content}</p><button type="button" className="sc-button" onClick={()=>onOpenStudent(row.student.studentId)}>현재 학생 지표</button></section></td></tr>}</Fragment>
+    <td className="sc-history-signals">{row.caseContext?.baseline.length?row.caseContext.baseline.map(signal=><span key={signal.type}>{signal.label}<b>{comparisonMetric(signal.value,signal.unit,signal.type)}</b></span>):<span>—</span>}</td>
+    <td><span className="sc-history-state">{row.caseContext?.status==='CLOSED'?'관리 종료':row.caseContext?'관리 중':''}</span><button type="button" className="sc-history-expand" aria-expanded={open} aria-controls={panelId} aria-label={`${row.student.studentName} ${dateText(row.occurredOn)} 기록 내용 ${open?'접기':'펼치기'}`} onClick={()=>setExpanded(open?null:row.eventId)}><span className="sc-history-kind">{eventLabel[row.type]}</span><span className="sc-history-preview">{preview}</span><span aria-hidden="true">{open?'⌃':'⌄'}</span></button></td><td className="sc-history-actor">{row.actorName??'—'}</td>
+   </tr>{open&&<tr className="sc-history-detail-row"><td colSpan={5}><section id={panelId} className="sc-history-detail" aria-label="기록 원문"><header><strong>{row.student.studentName} · {eventLabel[row.type]}</strong>{row.noteChannel&&<span>{channelLabel[row.noteChannel]}</span>}<button type="button" onClick={()=>setExpanded(null)}>접기</button></header>{row.caseContext&&<div className="sc-history-case"><h4>관리 시작 당시 · {dateText(row.caseContext.openedOn)}</h4><div className="sc-history-snapshot">{row.caseContext.baseline.map(signal=><div key={signal.type}><span>{signal.label}</span><strong>{comparisonMetric(signal.value,signal.unit,signal.type)}</strong><p>{signal.summary}</p></div>)}</div>{row.caseContext.recheckDate&&<p>다음 확인 {dateText(row.caseContext.recheckDate)}</p>}</div>}
+    <ol className="sc-history-timeline">{caseTimeline(rows,row.caseId,row.caseContext).map(event=><li key={event.eventId}><header><time>{dateText(event.occurredOn)}</time><b>{eventLabel[event.type]}</b><span>{event.actorName??'—'}</span></header><p className="sc-history-original">{event.content}</p></li>)}</ol><button type="button" className="sc-button" onClick={()=>onOpenStudent(row.student.studentId)}>현재 학생 지표</button></section></td></tr>}</Fragment>
   })}</tbody></table>}
  </section>
 }

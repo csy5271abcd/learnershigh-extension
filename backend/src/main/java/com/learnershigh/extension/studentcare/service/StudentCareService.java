@@ -110,6 +110,7 @@ public class StudentCareService {
 
         CareCase careCase = CareCase.open(branchId, studentId, request.reason(), baseline, request.channel(),
                 request.memo(), recheckDate, today, now);
+        careCase.events().forEach(event -> event.recordActor(request.actorName()));
         try {
             caseRepository.saveAndFlush(careCase);
         } catch (DataIntegrityViolationException exception) {
@@ -139,10 +140,12 @@ public class StudentCareService {
         CareComparison comparison = CareComparator.compare(careCase.baseline(), history, today.minusDays(1),
                 careCase.metricFormulaVersion());
         String comparisonText = comparison.text();
+        int previousEvents = careCase.events().size();
         switch (request.decision()) {
             case CLOSE -> careCase.closeAfterRecheck(comparisonText, today, now);
             case CONTINUE -> careCase.continueAfterRecheck(comparisonText, request.recheckDate(), today, now);
         }
+        careCase.events().stream().skip(previousEvents).forEach(event -> event.recordActor(request.actorName()));
         caseRepository.saveAndFlush(careCase);
         return CareCaseMapper.toResponse(careCase, today, reader.zone(), comparison);
     }
@@ -152,6 +155,7 @@ public class StudentCareService {
         CareCase careCase = caseRepository.findForUpdate(caseId, branchId)
                 .orElseThrow(() -> new BusinessException(StudentCareErrorCode.CARE_CASE_NOT_FOUND));
         CareEvent event = careCase.addNote(request.channel(), request.content(), reader.today(), reader.now());
+        event.recordActor(request.actorName());
         caseRepository.saveAndFlush(careCase);
         return CareEventResponse.from(event, reader.zone());
     }

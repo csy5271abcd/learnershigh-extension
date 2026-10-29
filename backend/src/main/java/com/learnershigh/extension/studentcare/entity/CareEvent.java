@@ -62,6 +62,17 @@ public class CareEvent {
     @Column(name = "record_no", insertable = false, updatable = false)
     private Long recordNo;
 
+    @Column(name = "actor_name", length = 100)
+    private String actorName;
+
+    public String actorName() { return actorName; }
+
+    public void recordActor(String name) {
+        if (name == null || name.isBlank()) return;
+        if (name.trim().length() > 100) throw new IllegalArgumentException("actor name too long");
+        this.actorName = name.trim();
+    }
+
     protected CareEvent() {
     }
 

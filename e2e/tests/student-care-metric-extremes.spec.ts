@@ -11,7 +11,7 @@ test('subject ten/ninety shares use one full scale and progress beyond 100 stays
  })
  for(const width of [1600,390]){
   await page.setViewportSize({width,height:1000})
-  await page.goto('/student-care/5')
+  await page.goto('/student-care')
   await page.locator('#rs-open-demo_s001').click()
   const detail=page.locator('.rs-detail')
   await expect(detail.locator('.cm-subject-axis')).toContainText('100%')
@@ -33,12 +33,12 @@ test('persisted local example history matches the API original and stays within 
  expect(note).toBeDefined()
  for(const width of [1600,390]){
   await page.setViewportSize({width,height:1000})
-  await page.goto('/student-care/5')
+  await page.goto('/student-care')
   await page.getByRole('tab',{name:'관리 이력',exact:true}).click()
   await page.getByRole('combobox',{name:'이력 학생 선택',exact:true}).selectOption('demo_s035')
-  const record=page.locator('.sc-history-expand').filter({hasText:'[화면 확인용 예시]'})
-  await record.click()
-  await expect(page.locator('.sc-history-original')).toHaveText(note.content)
+  // One row per case: open the case that holds the note and read it in the timeline.
+  await page.locator(`tr[data-case-id="${note.caseId}"] .sc-history-expand`).click()
+  await expect(page.locator('.sc-history-original').filter({hasText:'[화면 확인용 예시]'})).toHaveText(note.content)
   await expect(page.getByRole('tab',{name:'관리 이력',exact:true})).toHaveAttribute('aria-selected','true')
   await page.screenshot({path:`test-results/history-persisted-${width}.png`,fullPage:true})
  }

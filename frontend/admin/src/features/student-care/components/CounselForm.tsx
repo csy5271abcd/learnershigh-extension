@@ -1,3 +1,5 @@
+import {RecorderField} from './RecorderField.tsx'
+import {useRecorderName} from '../model/useRecorderName.ts'
 import { useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { addDays, CHANNELS, RECHECK_CHOICES, REASONS, shortDate } from '../model/format.ts'
@@ -20,6 +22,7 @@ interface Props {
 
 export function CounselForm({ api = studentCareApi, branchId, studentId, asOf, caseId, onSaved, onStale }: Props) {
   const id = useId()
+  const [actorName,setActorName]=useRecorderName()
   const [channel, setChannel] = useState<NoteChannel | null>(null)
   const [memo, setMemo] = useState('')
   const [reason, setReason] = useState<CareReason | null>(null)
@@ -44,7 +47,7 @@ export function CounselForm({ api = studentCareApi, branchId, studentId, asOf, c
     if (next.size > 0 || !channel) return
     if (caseId !== null) {
       void command.run(
-        () => api.addNote(branchId, caseId, channel, memo.trim()),
+        () => api.addNote(branchId, caseId, channel, memo.trim(), actorName.trim()||undefined),
         () => {
           setMemo('')
           setChannel(null)
@@ -56,7 +59,7 @@ export function CounselForm({ api = studentCareApi, branchId, studentId, asOf, c
     const chosen = reason as CareReason
     const recheckDate = chosen === 'ADJUSTMENT_NEEDED' ? addDays(asOf, Number(days)) : undefined
     void command.run(
-      () => api.openCase({ branchId, studentId, channel, memo: memo.trim(), reason: chosen, recheckDate }),
+      () => api.openCase({ branchId, studentId, channel, actorName:actorName.trim()||undefined, memo: memo.trim(), reason: chosen, recheckDate }),
       (saved) => {
         const label = REASONS.find((item) => item.value === chosen)?.label ?? ''
         onSaved(saved.status === 'CLOSED' ? `${label} · 관리 종료` : `계속 관리 · 다음 확인 ${shortDate(saved.recheckDate ?? '')}`)
@@ -71,6 +74,7 @@ export function CounselForm({ api = studentCareApi, branchId, studentId, asOf, c
       <h3 id={`${id}-title`} className="sc-section-title">
         상담 기록
       </h3>
+      <RecorderField name={actorName} onChange={setActorName}/>
       <Choice
         name={`${id}-channel`}
         legend="상담 방법"

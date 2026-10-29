@@ -127,7 +127,8 @@ public class StudentCareQueryService {
         List<CareEventResponse> items = eventRepository.findTimeline(branchId, studentId).stream()
                 .map(event -> CareEventResponse.from(event, reader.zone()))
                 .toList();
-        return new StudentHistoryResponse(toRef(student), items);
+        return new StudentHistoryResponse(toRef(student), items, caseRepository.findByBranchIdAndStudentId(branchId, studentId).stream()
+                .map(careCase -> CareCaseMapper.toResponse(careCase, reader.today(), reader.zone(), null)).toList());
     }
 
     public CareSettingsResponse settings(String branchId) {

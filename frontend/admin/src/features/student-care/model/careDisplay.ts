@@ -3,14 +3,14 @@ import type {WeekDay, WeekdayBaseline} from './weeklyReviewTypes.ts'
 export function attendanceText(day:Pick<WeekDay,'attendance'|'minutes'|'scheduled'>):string {
  if(day.attendance==='present')return '입실'
  if(day.attendance==='absent')return '결석'
- if(day.minutes===null)return '미확인'
+ if(day.minutes===null)return '—'
  if(day.attendance==='excluded'||day.scheduled===false)return '—'
- return '미확인'
+ return '—'
 }
 export function submissionText(day:Pick<WeekDay,'submission'|'scheduled'>):string {
  if(day.submission==='submitted')return '제출'
  if(day.scheduled===false||day.submission==='excluded')return '—'
- return day.submission==='missing'?'미제출':'미확인'
+ return day.submission==='missing'?'미제출':'—'
 }
 export function executionPercent(day:Pick<WeekDay,'submission'|'planned'|'actual'> & {attendance?:WeekDay['attendance']}):number|null {
  if(day.attendance&&day.attendance!=='present')return null

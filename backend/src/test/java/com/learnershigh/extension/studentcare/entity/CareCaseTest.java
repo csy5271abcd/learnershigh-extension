@@ -20,6 +20,18 @@ class CareCaseTest {
     private static final List<CareBaselineSignal> BASELINE = List.of(
             new CareBaselineSignal(CareSignalType.SUBJECT_SHARE, "수학 계획 30% → 실제 12%", 12, 30, "수학"));
 
+    @Test void recorderNamesArePreservedWithoutRewritingEarlierEvents() {
+        var careCase = adjusting();
+        var old = careCase.events().getFirst();
+        assertThat(old.actorName()).isNull();
+        var note = careCase.addNote(NoteChannel.CALL, "학습 계획 확인", TODAY, NOW);
+        note.recordActor("  기록 담당자  ");
+        assertThat(note.actorName()).isEqualTo("기록 담당자");
+        assertThat(old.actorName()).isNull();
+        var response = com.learnershigh.extension.studentcare.dto.CareEventResponse.from(note, java.time.ZoneId.of("Asia/Seoul"));
+        assertThat(response.actorName()).isEqualTo("기록 담당자");
+    }
+
     private static CareCase adjusting() {
         return CareCase.open("br", "stu", CareReason.ADJUSTMENT_NEEDED, BASELINE, NoteChannel.CALL, null,
                 TODAY.plusDays(7), TODAY, NOW);

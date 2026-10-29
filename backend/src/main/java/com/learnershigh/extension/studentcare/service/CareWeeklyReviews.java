@@ -40,7 +40,7 @@ final class CareWeeklyReviews {
         int actual = subjectSums.values().stream().mapToInt(v -> v[1]).sum();
         var subjects = subjectSums.entrySet().stream().map(e -> new Subject(e.getKey(), e.getValue()[0], e.getValue()[1],
                 percent(e.getValue()[0], planned), percent(e.getValue()[1], actual))).toList();
-        return new CareWeeklyReview(from, asOf, baselineFrom, from.minusDays(1), current, summary(current),
+        return new CareWeeklyReview(from, asOf, baselineFrom, from.minusDays(1), current, baseline, summary(current),
                 summary(baseline), weekday, subjects);
     }
 

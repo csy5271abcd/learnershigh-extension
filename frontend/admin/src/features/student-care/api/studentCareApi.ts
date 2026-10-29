@@ -125,7 +125,7 @@ return {
   history: async (branchId: string, studentId: string): Promise<StudentHistory> => {
     const student = studentOf(branchId, studentId)
     const items = [...cases.values()].filter(item => item.branchId === branchId && item.studentId === studentId).flatMap(item => item.events).reverse().sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    return copy({ student, items })
+    return copy({ student, items, cases:[...cases.values()].filter(item=>item.branchId===branchId&&item.studentId===studentId).map(caseView) })
   },
   openCase: async (input: OpenCaseInput): Promise<CareCase> => {
     const { branchId, studentId, channel, memo, reason } = input
@@ -140,6 +140,7 @@ return {
     const item: CareCase = { caseId: `preview_case_${++sequence}`, studentId, branchId, status: managing ? 'IN_ADJUSTMENT' : 'CLOSED', reason, closeType: managing ? null : reason === 'RECORD_ISSUE' ? 'RECORD_ISSUE' : 'EXPECTED_CHANGE', openedOn: PREVIEW_AS_OF, closedOn: managing ? null : PREVIEW_AS_OF, baseline: baselineOf(studentId, signals, settingsOf(branchId)), recheckDate, recheckDue: false, comparison: null, events: [] }
     event(item, 'REASON_CONFIRMED', `상담 · ${channelLabel[channel]}${memo.trim() ? ` — ${memo.trim()}` : ''}`, channel)
     event(item, managing ? 'ADJUSTMENT_STARTED' : 'CLOSED', managing ? `계속 관리 · 다음 확인 ${monthDay(recheckDate!)}` : `${reason === 'RECORD_ISSUE' ? '기록 오류' : '이상 없음'} · 관리 종료`)
+    item.events.forEach(e=>{e.actorName=input.actorName??null})
     cases.set(item.caseId, item)
     return caseView(item)
   },
@@ -149,6 +150,7 @@ return {
     if (!caseView(item).recheckDue) fail(409, 'RECHECK_NOT_DUE', '아직 다음 확인일 전입니다.')
     if (!['CLOSE', 'CONTINUE'].includes(input.decision)) fail(400, 'VALIDATION_ERROR', '관리 결과를 선택해 주세요.')
     const next = input.decision === 'CONTINUE' ? checkDate(input.recheckDate) : null
+    const previousEvents=item.events.length
     event(item, 'RECHECKED', '학습 확인 · 변화 없음')
     if (input.decision === 'CLOSE') {
       item.status = 'CLOSED'; item.closeType = 'AFTER_RECHECK'; item.closedOn = PREVIEW_AS_OF; item.recheckDate = null
@@ -157,12 +159,15 @@ return {
       item.recheckDate = next
       event(item, 'CONTINUED', `계속 관리 · 다음 확인 ${monthDay(next!)}`)
     }
+    item.events.slice(previousEvents).forEach(e=>{e.actorName=input.actorName??null})
     return caseView(item)
   },
-  addNote: async (branchId: string, caseId: string, channel: NoteChannel, content: string): Promise<CareEvent> => {
+  addNote: async (branchId: string, caseId: string, channel: NoteChannel, content: string, actorName?:string): Promise<CareEvent> => {
     const item = caseOf(branchId, caseId)
     checkMemo(channel, content, true)
-    return copy(event(item, 'NOTE', `상담 · ${channelLabel[channel]} — ${content.trim()}`, channel))
+    const saved=event(item, 'NOTE', `상담 · ${channelLabel[channel]} — ${content.trim()}`, channel)
+    saved.actorName=actorName??null
+    return copy(saved)
   },
   settings: async (branchId: string): Promise<CareSettings> => {
     branchOf(branchId)

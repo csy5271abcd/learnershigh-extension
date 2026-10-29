@@ -351,6 +351,45 @@ class StudentCareCaseApiTest {
     }
 
     @Test
+    void recorderIsStoredOnlyOnTheEventsItWroteAndHistoryCarriesTheCase() throws Exception {
+        String caseId = JsonPath.read(open(ADJUSTMENT.replace("\"recheckDate\"", "\"actorName\":\"김원장\",\"recheckDate\""))
+                .andReturn().getResponse().getContentAsString(), "$.caseId");
+        mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", caseId).param("branchId", BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"channel":"MEETING","content":"계획 분량 조정 확인","actorName":"이매니저"}"""))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.actorName").value("이매니저"));
+        mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", caseId).param("branchId", BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"channel":"CALL","content":"기록자 없이 남긴 메모"}"""))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/api/admin/student-care/students/stu_005/history").param("branchId", BRANCH))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[*].type", contains("NOTE", "NOTE", "ADJUSTMENT_STARTED", "REASON_CONFIRMED")))
+                .andExpect(jsonPath("$.items[0].actorName").doesNotExist())
+                .andExpect(jsonPath("$.items[1].actorName").value("이매니저"))
+                .andExpect(jsonPath("$.items[3].actorName").value("김원장"))
+                .andExpect(jsonPath("$.cases", hasSize(1)))
+                .andExpect(jsonPath("$.cases[0].caseId").value(caseId))
+                .andExpect(jsonPath("$.cases[0].baseline[0].type").value("SUBJECT_SHARE"))
+                // Same-request events share a timestamp; the case keeps entity sequence order.
+                .andExpect(jsonPath("$.cases[0].events[*].type", contains("REASON_CONFIRMED", "ADJUSTMENT_STARTED", "NOTE", "NOTE")));
+    }
+
+    @Test
+    void recorderLongerThanLimitIsValidationError() throws Exception {
+        String caseId = JsonPath.read(open(ADJUSTMENT).andReturn().getResponse().getContentAsString(), "$.caseId");
+        mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", caseId).param("branchId", BRANCH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"channel\":\"CALL\",\"content\":\"메모\",\"actorName\":\"" + "가".repeat(101) + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
     void noteValidationAndUnknownCase() throws Exception {
         mvc.perform(post("/api/admin/student-care/cases/{caseId}/notes", "care_none").param("branchId", BRANCH)
                         .contentType(MediaType.APPLICATION_JSON).content("{\"channel\":\"CALL\",\"content\":\"메모\"}"))

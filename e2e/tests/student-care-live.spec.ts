@@ -3,7 +3,7 @@ import {writeFileSync} from 'node:fs'
 test.setTimeout(90_000)
 const base='/api/admin/student-care',branch='br_gangnam',student='stu_002'
 const out='C:/Users/green/.codex/visualizations/2026/10/23/01a1691a-65a2-76b1-b9a0-578fcef98c40/oct26-diverse-data'
-async function open(page:Page){await page.route('https://**',r=>r.abort());await page.goto('/student-care/5',{waitUntil:'domcontentloaded'});await expect(page.locator('.rs-summary')).toHaveCount(10);await expect(page.locator('.sc-preview-tag')).toHaveText('API 연결 · 로컬 예시 원본')}
+async function open(page:Page){await page.route('https://**',r=>r.abort());await page.goto('/student-care',{waitUntil:'domcontentloaded'});await expect(page.locator('.rs-summary')).toHaveCount(10)}
 test('live roster and branch use bulk server values; selected detail uses the same server source',async({page})=>{
  const requested:string[]=[];page.on('request',r=>{if(r.url().includes(base))requested.push(r.url())})
  const metrics=await (await page.request.get(`${base}/metrics?branchId=${branch}`)).json()
@@ -67,7 +67,7 @@ test('live counseling POST and memo persist in inline/all history after browser 
 })
 test('live GET failure shows retry and never substitutes preview records',async({page})=>{
  await page.route(`**${base}/metrics?**`,r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({code:'SOURCE_UNAVAILABLE',message:'원본 연결 실패'})}))
- await page.goto('/student-care/5',{waitUntil:'domcontentloaded'})
+ await page.goto('/student-care',{waitUntil:'domcontentloaded'})
  await expect(page.getByRole('alert')).toContainText('학생 기록을 불러오지 못했습니다')
  await expect(page.locator('.rs-summary')).toHaveCount(0)
  await expect(page.getByRole('button',{name:'다시 시도',exact:true})).toBeVisible()

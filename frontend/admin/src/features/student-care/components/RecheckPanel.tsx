@@ -1,3 +1,5 @@
+import {RecorderField} from './RecorderField.tsx'
+import {useRecorderName} from '../model/useRecorderName.ts'
 import { useId, useState } from 'react'
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { addDays, comparisonMetric, RECHECK_CHOICES, shortDate, TREND_LABEL } from '../model/format.ts'
@@ -17,6 +19,7 @@ interface Props {
 /** 점검: 이전 → 지금 수치, 관리 종료 / 계속 관리 (student-care.md §4-3). */
 export function RecheckPanel({ api = studentCareApi, branchId, asOf, careCase, onSaved, onStale }: Props) {
   const id = useId()
+  const [actorName,setActorName]=useRecorderName()
   const [continuing, setContinuing] = useState(false)
   const [days, setDays] = useState('7')
   const command = useCommand(onStale)
@@ -24,7 +27,7 @@ export function RecheckPanel({ api = studentCareApi, branchId, asOf, careCase, o
 
   const close = () =>
     void command.run(
-      () => api.decide(branchId, careCase.caseId, { decision: 'CLOSE' }),
+      () => api.decide(branchId, careCase.caseId, { decision: 'CLOSE', actorName:actorName.trim()||undefined }),
       () => onSaved('관리 종료'),
     )
 
@@ -33,6 +36,7 @@ export function RecheckPanel({ api = studentCareApi, branchId, asOf, careCase, o
       () =>
         api.decide(branchId, careCase.caseId, {
           decision: 'CONTINUE',
+          actorName:actorName.trim()||undefined,
           recheckDate: addDays(asOf, Number(days)),
         }),
       (saved) => onSaved(`계속 관리 · 다음 확인 ${shortDate(saved.recheckDate ?? '')}`),
@@ -69,6 +73,7 @@ export function RecheckPanel({ api = studentCareApi, branchId, asOf, careCase, o
         </table>
       )}
 
+      <RecorderField name={actorName} onChange={setActorName}/>
       <div className="sc-actions">
         <button
           type="button"

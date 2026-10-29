@@ -17,7 +17,7 @@ export const httpStudentCareApi:CareApi & {metrics:(branchId:string)=>Promise<Ca
  history:(branchId,studentId)=>request(`${base}/students/${encodeURIComponent(studentId)}/history${branchQuery(branchId)}`),
  openCase:input=>request(`${base}/cases`,json('POST',input)),
  decide:(branchId,caseId,input)=>request(`${base}/cases/${encodeURIComponent(caseId)}/decisions${branchQuery(branchId)}`,json('POST',input)),
- addNote:(branchId,caseId,channel,content)=>request(`${base}/cases/${encodeURIComponent(caseId)}/notes${branchQuery(branchId)}`,json('POST',{channel,content})),
+ addNote:(branchId,caseId,channel,content,actorName)=>request(`${base}/cases/${encodeURIComponent(caseId)}/notes${branchQuery(branchId)}`,json('POST',{channel,content,actorName})),
  settings:branchId=>request(`${base}/settings${branchQuery(branchId)}`),
  updateSettings:(branchId,values)=>request(`${base}/settings${branchQuery(branchId)}`,json('PUT',values)),
 }

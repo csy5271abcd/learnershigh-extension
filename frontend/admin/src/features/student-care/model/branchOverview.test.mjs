@@ -70,16 +70,16 @@ test('date accessor recomputes daily denominators and excludes other days', () =
   assert.deepEqual(metricContributors(rows, 'study', ['a'], 60, second), [])
 })
 
-test('absence requires confirmed schedule and never fabricates historical comparisons', () => {
+test('absence counts observed nonentries regardless of an assumed schedule', () => {
   const rows = [row('a', [day(first, { attendance: 'absent' }), day(second, { attendance: 'absent', scheduled: null }), day('2026-10-21', { attendance: 'unknown' }), day('2026-10-22', { attendance: 'absent', scheduled: false })])]
   const metric = buildBranchOverview(rows).metrics.absence
-  assert.equal(metric.value, 1)
-  assert.equal(metric.samples, 1)
-  assert.equal(metric.missing, 2)
+  assert.equal(metric.value, 3)
+  assert.equal(metric.samples, 3)
+  assert.equal(metric.missing, 1)
   assert.equal(metric.baseline, null)
   assert.equal(metric.change, null)
   assert.equal(metric.contributors[0].baseline, null)
-  assert.equal(metric.contributors[0].impact, 1)
+  assert.equal(metric.contributors[0].impact, 3)
 })
 
 test('submission counts known plans and missing records separately without prior rate', () => {

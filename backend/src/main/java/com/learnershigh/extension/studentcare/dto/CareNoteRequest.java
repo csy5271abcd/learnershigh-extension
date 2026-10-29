@@ -5,5 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record CareNoteRequest(@NotNull NoteChannel channel, @NotBlank @Size(max = 1000) String content) {
+public record CareNoteRequest(@NotNull NoteChannel channel, @NotBlank @Size(max = 1000) String content, @Size(max = 100) String actorName) {
+    public CareNoteRequest(NoteChannel channel, String content) { this(channel, content, null); }
 }
