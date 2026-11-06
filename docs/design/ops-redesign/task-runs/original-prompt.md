@@ -32,4 +32,4 @@
 
 
 ## 출력
-`docs/design/ops-redesign/task-runs/original-answers.json`에 `{"Q1": ..., "Q2": [...], ...}` 형식으로 답을 쓰고, 문항별로 어떻게 찾았는지 한 줄씩 `original-notes.md`에 남겨라.
+`docs/design/ops-redesign/task-runs/original-answers.json`에 답을 쓴다. 형식: Q1·Q7 숫자, Q2·Q3·Q4·Q11·Q15 문자열 배열(Q15는 `"이름(요일)"`), Q5 날짜 배열(`"10/23"`), Q6 `{"date":"10/21","time":"21:03"}`, Q8 `"48시간 32분"`, Q9 날짜 `"11/04"`, Q10 `{"initial":숫자,"afterSave":숫자}`, Q12 `{"연속":[...],"흩어짐":[...]}`, Q13 `{"direction":"증가|감소|같음","percent":숫자}`, Q14 `{"executionRate":숫자,"subject":"과목","gapPoints":숫자}`. 그리고, 문항별로 어떻게 찾았는지 한 줄씩 `original-notes.md`에 남겨라.

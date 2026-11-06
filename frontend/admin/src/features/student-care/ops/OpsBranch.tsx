@@ -23,6 +23,8 @@ const startShift = (d: OpsStudent['days'][number]) => d.start !== null && d.usua
 export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinutes, excluded, onExcludedChange, onOpenStudent }: Props) {
   const [pick, setPick] = useState<Pick>({ metric: 'study', date: null })
   const [query, setQuery] = useState('')
+  // 날짜 변화를 함께 볼 학생(최대 3명). 칸 선택이 바뀌어도 유지된다
+  const [pinned, setPinned] = useState<string[]>([])
   const included = useMemo(() => rows.filter((r) => !excluded.has(r.student.studentId)), [rows, excluded])
   const days = useMemo(() => branchDays(rows, excluded), [rows, excluded])
   const change = useMemo(() => branchStudyChange(rows, excluded), [rows, excluded])
@@ -30,34 +32,40 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
   const idx = pick.date ? days.findIndex((d) => d.date === pick.date) : -1
   const dayIdx = (r: OpsStudent) => idx >= 0 ? [r.days[idx]] : r.days
   const cellBtn = (metric: Metric, date: string | null, body: React.ReactNode, label: string) => (
-    <button type="button" className="ops-bt-btn" aria-pressed={pick.metric === metric && pick.date === date} aria-label={label} onClick={() => setPick({ metric, date })}>{body}</button>
+    <button type="button" className="ops-bt-btn" aria-pressed={pick.metric === metric && pick.date === date} aria-label={label} onClick={() => {
+      setPick({ metric, date })
+      // 좁은 화면에서는 결과 목록이 표 아래 화면 밖에 생기므로 결과로 이동한다
+      if (window.matchMedia('(max-width: 1279px)').matches) requestAnimationFrame(() => document.querySelector('.ops-bt-detail')?.scrollIntoView({ block: 'start' }))
+    }}>{body}</button>
   )
   const name = (s: OpsStudent) => <button type="button" className="ops-link" onClick={() => onOpenStudent(s.student.studentId)}>{s.student.studentName}</button>
 
   // 선택한 칸의 학생 값. 7일 전체를 고르면 학생별로 기준을 넘은 날 수를 센다
   const detail = (() => {
     if (pick.metric === 'absence') {
-      const list = included.map((r) => ({ r, n: dayIdx(r).filter((d) => d.attendance === 'absent').length, unknown: dayIdx(r).filter((d) => d.attendance === 'unknown').length })).filter((x) => x.n > 0 || x.unknown > 0).sort((a, b) => b.n - a.n)
-      return { title: `결석 ${pick.date ? md(pick.date) : '최근 7일'}`, head: ['학생', pick.date ? '출결' : '결석 일수'], rows: list.map(({ r, n, unknown }) => [name(r), n ? (pick.date ? '결석' : `${n}일`) : '기록 없음', unknown && n ? ` · 기록 없음 ${unknown}일` : '']) }
+      // 결석과 기록 없음은 따로 센다. 결석 학생을 먼저, 결석 없이 기록만 없는 학생을 뒤에 둔다
+      const list = included.map((r) => ({ r, n: dayIdx(r).filter((d) => d.attendance === 'absent').length, unknown: dayIdx(r).filter((d) => d.attendance === 'unknown').length })).filter((x) => x.n > 0 || x.unknown > 0).sort((a, b) => b.n - a.n || b.unknown - a.unknown)
+      const absentCount = list.filter((x) => x.n > 0).length, unknownOnly = list.length - absentCount
+      return { ids: list.map((x) => x.r.student.studentId), title: `결석 ${pick.date ? md(pick.date) : '최근 7일'}`, count: `결석 ${absentCount}명${unknownOnly ? ` · 기록 없음만 ${unknownOnly}명` : ''}`, head: ['학생', pick.date ? '결석' : '결석 일수', '기록 없음'], rows: list.map(({ r, n, unknown }) => [name(r), n ? (pick.date ? '결석' : `${n}일`) : '—', unknown ? (pick.date ? '기록 없음' : `${unknown}일`) : '']) }
     }
     if (pick.metric === 'plan') {
       const list = included.map((r) => ({ r, n: dayIdx(r).filter((d) => d.submission === 'missing').length })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n)
-      return { title: `계획 미제출 ${pick.date ? md(pick.date) : '최근 7일'}`, head: ['학생', pick.date ? '제출' : '미제출 일수'], rows: list.map(({ r, n }) => [name(r), pick.date ? '미제출' : `${n}일`, '']) }
+      return { ids: list.map((x) => x.r.student.studentId), title: `계획 미제출 ${pick.date ? md(pick.date) : '최근 7일'}`, head: ['학생', pick.date ? '제출' : '미제출 일수'], rows: list.map(({ r, n }) => [name(r), pick.date ? '미제출' : `${n}일`, '']) }
     }
     if (pick.metric === 'study') {
       if (idx >= 0) {
         const list = included.flatMap((r) => { const d = r.days[idx], c = studyChange(d); return c === null ? [] : [{ r, d, c }] }).sort((a, b) => a.c - b.c)
-        return { title: `학습 시간 ${md(pick.date!)} · 평소 대비 낮은 순`, head: ['학생', '실제 / 평소', '변화'], rows: list.map(({ r, d, c }) => [name(r), `${hours(d.minutes)} / ${hours(d.usualMinutes)}`, <b key="v" className={c <= -studyDropPercent ? 'ops-down' : ''}>{pct(c)}</b>]) }
+        return { ids: list.map((x) => x.r.student.studentId), title: `학습 시간 ${md(pick.date!)} · 평소 대비 낮은 순`, head: ['학생', '실제 / 평소', '변화'], rows: list.map(({ r, d, c }) => [name(r), `${hours(d.minutes)} / ${hours(d.usualMinutes)}`, <b key="v" className={c <= -studyDropPercent ? 'ops-down' : ''}>{pct(c)}</b>]) }
       }
       const list = included.map((r) => ({ r, n: r.days.filter((d) => { const c = studyChange(d); return c !== null && c <= -studyDropPercent }).length })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n)
-      return { title: `학습 시간이 평소보다 ${studyDropPercent}% 이상 적은 날이 있는 학생`, head: ['학생', '해당 일수', '7일 / 평소 주'], rows: list.map(({ r, n }) => [name(r), `${n}일`, `${hours(r.week.minutes)} / ${hours(r.week.usualWeek)}`]) }
+      return { ids: list.map((x) => x.r.student.studentId), title: `학습 시간이 평소보다 ${studyDropPercent}% 이상 적은 날이 있는 학생`, head: ['학생', '해당 일수', '7일 / 평소 주'], rows: list.map(({ r, n }) => [name(r), `${n}일`, `${hours(r.week.minutes)} / ${hours(r.week.usualWeek)}`]) }
     }
     if (idx >= 0) {
       const list = included.flatMap((r) => { const d = r.days[idx], s = startShift(d); return s === null ? [] : [{ r, d, s }] }).sort((a, b) => b.s - a.s)
-      return { title: `입실 시각 ${md(pick.date!)} · 평소보다 늦은 순`, head: ['학생', '실제 / 평소', '차이'], rows: list.map(({ r, d, s }) => [name(r), `${clock(d.start)} / ${clock(d.usualStart)}`, <b key="v" className={s >= startShiftMinutes ? 'ops-down' : ''}>{min(s)}</b>]) }
+      return { ids: list.map((x) => x.r.student.studentId), title: `입실 시각 ${md(pick.date!)} · 평소보다 늦은 순`, head: ['학생', '실제 / 평소', '차이'], rows: list.map(({ r, d, s }) => [name(r), `${clock(d.start)} / ${clock(d.usualStart)}`, <b key="v" className={s >= startShiftMinutes ? 'ops-down' : ''}>{min(s)}</b>]) }
     }
     const list = included.map((r) => ({ r, n: r.days.filter((d) => { const s = startShift(d); return s !== null && s >= startShiftMinutes }).length })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n)
-    return { title: `입실이 평소보다 ${startShiftMinutes}분 이상 늦은 날이 있는 학생`, head: ['학생', '해당 일수'], rows: list.map(({ r, n }) => [name(r), `${n}일`, '']) }
+    return { ids: list.map((x) => x.r.student.studentId), title: `입실이 평소보다 ${startShiftMinutes}분 이상 늦은 날이 있는 학생`, head: ['학생', '해당 일수'], rows: list.map(({ r, n }) => [name(r), `${n}일`, '']) }
   })()
 
   return (
@@ -67,7 +75,7 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
         <span> · 상담 필요 {rows.filter((r) => r.status === 'check').length}명 · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명</span>
         {change && <span> · 학습 시간 평소 대비 <b className={change.percent < 0 ? 'ops-down' : ''}>{pct(change.percent)}</b></span>}
       </p>
-      <div className="ops-bt" role="table" aria-label="날짜별 학습관 지표. 칸을 누르면 아래에 학생별 값이 나옵니다">
+      <div className="ops-bt ops-bt-scroll" role="table" aria-label="날짜별 학습관 지표. 칸을 누르면 아래에 학생별 값이 나옵니다">
         <div className="ops-bt-row ops-bt-head" role="row"><span role="columnheader" />{days.map((d) => <span key={d.date} role="columnheader"><b>{md(d.date)}</b>{d.dow}</span>)}</div>
         <div className="ops-bt-row" role="row">
           <span role="rowheader">{cellBtn('absence', null, <>결석<small>결석 / 등원 예정</small></>, '결석 7일 전체 학생 보기')}</span>
@@ -88,13 +96,29 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
         </div>
       </div>
       <section className="ops-bt-detail" aria-live="polite" aria-label={detail.title}>
-        <h3>{detail.title} <small>{detail.rows.length}명</small></h3>
+        <h3>{detail.title} <small>{'count' in detail && detail.count ? detail.count : `${detail.rows.length}명`}</small></h3>
         {detail.rows.length ? (
           <div className="ops-bt-list" role="table">
             <div className="ops-bt-list-row ops-bt-list-head" role="row">{detail.head.map((h) => <span key={h} role="columnheader">{h}</span>)}</div>
-            {detail.rows.map((cells, i) => <div key={i} className="ops-bt-list-row" role="row">{cells.slice(0, detail.head.length).map((c, j) => <span key={j} role="cell">{c}</span>)}</div>)}
+            {detail.rows.map((cells, i) => <div key={i} className="ops-bt-list-row" role="row">{cells.slice(0, detail.head.length).map((c, j) => <span key={j} role="cell">{c}</span>)}<span role="cell">{detail.ids[i] && !pinned.includes(detail.ids[i]) && pinned.length < 3 ? <button type="button" className="ops-pin" aria-label="날짜 비교에 추가" onClick={() => setPinned([...pinned, detail.ids[i]])}>비교</button> : null}</span></div>)}
           </div>) : <p className="ops-muted">해당 학생 없음</p>}
       </section>
+      {pinned.length > 0 && (
+        <section className="ops-bt-detail ops-compare" aria-label="학생 날짜 비교">
+          <h3>날짜 비교 <small>{pick.metric === 'study' ? '학습 시간 실제 (평소 대비)' : pick.metric === 'start' ? '입실 시각 (평소 대비)' : pick.metric === 'absence' ? '출결' : '계획 제출'}</small></h3>
+          <div className="ops-bt-scroll"><div className="ops-cmp" role="table">
+            <div className="ops-cmp-row ops-bt-list-head" role="row"><span role="columnheader">학생</span>{days.map((d) => <span key={d.date} role="columnheader">{md(d.date)} {d.dow}</span>)}<span /></div>
+            {pinned.map((id) => { const r = rows.find((x) => x.student.studentId === id); if (!r) return null
+              return <div key={id} className="ops-cmp-row" role="row"><span role="rowheader">{name(r)}</span>{r.days.map((d) => {
+                const c = studyChange(d), s = startShift(d)
+                const text = pick.metric === 'study' ? (d.minutes === null ? (d.attendance === 'absent' ? '결석' : '—') : `${hours(d.minutes)}${c === null ? '' : ` (${pct(c)})`}`)
+                  : pick.metric === 'start' ? (d.start === null ? '—' : `${clock(d.start)}${s === null ? '' : ` (${min(s)})`}`)
+                  : pick.metric === 'absence' ? { present: '입실', absent: '결석', off: '예정 없음', unknown: '기록 없음' }[d.attendance]
+                  : { submitted: '제출', missing: '미제출', off: '—', unknown: '기록 없음' }[d.submission]
+                return <span key={d.date} role="cell">{text}</span> })}<span role="cell"><button type="button" className="ops-pin" onClick={() => setPinned(pinned.filter((x) => x !== id))}>빼기</button></span></div> })}
+          </div></div>
+        </section>
+      )}
       <section className="ops-exclude" aria-label="집계 제외">
         <h3>집계에서 제외 <small>학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음</small></h3>
         <input className="sc-input" aria-label="제외할 학생 이름" placeholder="학생 이름" value={query} onChange={(e) => setQuery(e.target.value)} />

@@ -20,7 +20,7 @@ function WeekColumns({ s, startShiftMinutes }: { s: OpsStudent; startShiftMinute
           {d.minutes !== null && <span className="ops-bar" style={{ height: `${(d.minutes / max) * 100}%` }} />}
           {d.usualMinutes !== null && <span className="ops-usual" style={{ bottom: `${(d.usualMinutes / max) * 100}%` }} />}
         </span>)))}</div>
-      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">실제<small>평소(같은 요일)</small></div>{s.days.map((d) => cell(d, <><b>{d.minutes === null ? '—' : shortH(d.minutes)}</b><span className="ops-muted">{d.usualMinutes === null ? '' : shortH(d.usualMinutes)}</span></>))}</div>
+      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">학습 시간<small>실제 / 평소</small></div>{s.days.map((d) => cell(d, <><b>{d.minutes === null ? '—' : shortH(d.minutes)}</b><span className="ops-muted">{d.usualMinutes === null ? '' : shortH(d.usualMinutes)}</span></>))}</div>
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">입실<small>평소 · 차이</small></div>{s.days.map((d) => {
         const diff = d.start !== null && d.usualStart !== null ? Math.round(d.start - d.usualStart) : null
         return cell(d, d.start === null ? '' : <><b>{clock(d.start)}</b>{d.usualStart !== null && <span className="ops-muted">{clock(d.usualStart)}</span>}{diff !== null && <span className={diff >= startShiftMinutes ? 'ops-late' : ''}>{diff > 0 ? '+' : ''}{diff}분</span>}</>)
@@ -83,8 +83,8 @@ export function OpsDetail({ api, s, version, startShiftMinutes, onSaved, onBack 
         {s.statusLabel && <span className={`ops-status ops-status-${s.status}`}>{s.statusLabel}{s.recheckDate ? ` · ${md(s.recheckDate)}` : ''}</span>}
       </header>
       {s.chips.length > 0 && <p className="ops-chips">{s.chips.map((c) => <span key={c.text} className={`ops-chip${c.derived ? ' ops-chip-derived' : ''}`}>{c.text}</span>)}</p>}
-      <p className="ops-numbers">7일 {hours(w.minutes)} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}% (비교 ${w.comparablePlanDays}일)`}</p>
-      <WeekColumns s={s} startShiftMinutes={startShiftMinutes} />
+      <p className="ops-numbers">7일 {hours(w.minutes)}{w.recorded < 7 ? ` (기록 ${w.recorded}/7일)` : ''} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}% (비교 ${w.comparablePlanDays}일)`}</p>
+      <div className="ops-wk-scroll"><WeekColumns s={s} startShiftMinutes={startShiftMinutes} /></div>
       <div className="ops-detail-two">
         <section><h3>35일 출결</h3><Calendar35 days={s.history35} /></section>
         <section><h3>과목 비중 <small>계획 → 실제, 최근 7일</small></h3><Subjects s={s} /></section>

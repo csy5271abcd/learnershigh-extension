@@ -7,7 +7,7 @@ import { OpsStrip, OpsStripLegend } from './OpsStrip.tsx'
 const md = (date: string) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
 /** "고3 A반" → "3A". 150행에 반복되는 글자를 줄인다(전체 반 이름은 상세 머리에 그대로) */
 const shortClass = (name: string | null | undefined) => name?.match(/(\d)\D*([A-Z가-힣])반/)?.slice(1).join('') ?? name ?? ''
-const h = (m: number | null) => m === null ? '—' : `${Math.round(m / 60)}`
+const h = (m: number | null) => m === null ? '—' : `${Math.floor(Math.round(m) / 60)}:${String(Math.round(m) % 60).padStart(2, '0')}`
 
 /** 상담 필요는 행 왼쪽 선과 사유 칩으로 이미 보이므로 배지를 반복하지 않는다. 관리 중·확인일·기록 부족만 배지로 쓴다 */
 function Chips({ s }: { s: OpsStudent }) {
@@ -35,11 +35,13 @@ export function OpsRoster({ rows, axisMax, selectedId, onSelect }: Props) {
   const firstFlagged = rows.find((r) => r.status !== 'normal' && r.status !== 'deferred')?.student.studentId
   const days = rows[0]?.days ?? []
   return (
+    <>
+    <div className="ops-table-legend"><OpsStripLegend /><span className="ops-muted">띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준</span></div>
     <div className="ops-table" role="table" aria-label="전체 학생">
       <div className="ops-row ops-head" role="row">
         <span>학생</span><span>사유</span>
         <span className="ops-head-days" aria-label={`최근 7일 ${md(days[0]?.date ?? '')}–${md(days[6]?.date ?? '')}`}>{days.map((d) => <span key={d.date}>{d.dow}</span>)}</span>
-        <span>학습 시간<small>7일 / 평소 주 (시간)</small></span><span className="ops-num">진행률</span>
+        <span>학습 시간<small>7일 / 평소 주 (시간:분)</small></span><span className="ops-num">진행률</span>
       </div>
       {rows.map((s) => (
         <div key={s.student.studentId} data-care-roster-row={s.student.studentId} data-care-open-student={s.student.studentId === firstFlagged ? s.student.studentName : undefined}
@@ -52,7 +54,7 @@ export function OpsRoster({ rows, axisMax, selectedId, onSelect }: Props) {
           <span className="ops-num">{s.week.executionRate === null ? '—' : `${Math.round(s.week.executionRate)}%`}</span>
         </div>
       ))}
-      <div className="ops-table-foot"><OpsStripLegend /><span className="ops-muted">띠 위 출결 · 아래 계획 제출</span></div>
     </div>
+    </>
   )
 }

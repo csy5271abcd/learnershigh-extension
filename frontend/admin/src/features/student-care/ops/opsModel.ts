@@ -34,7 +34,7 @@ export interface OpsStudent {
   recheckDate: string | null
   days: OpsDay[]
   history35: OpsDay[]
-  week: { minutes: number | null; usualWeek: number | null; attended: number; scheduled: number; submitted: number; submitKnown: number; executionRate: number | null; comparablePlanDays: number }
+  week: { minutes: number | null; usualWeek: number | null; recorded: number; attended: number; scheduled: number; submitted: number; submitKnown: number; executionRate: number | null; comparablePlanDays: number }
   subjects: ServerWeeklyReview['subjects']
   absencePattern: '연속' | '흩어짐' | null
   weekdayAbsence: WeekdayAbsence | null
@@ -147,7 +147,7 @@ export function buildOpsRoster(board: CareBoard, metrics: CareBranchMetricsRespo
     const signals = n?.signals ?? a?.signals ?? []
     const c = review.current, b = review.baseline
     const week = {
-      minutes: c.studyMinutes, usualWeek: b.recordedDays === 28 && b.studyMinutes !== null ? b.studyMinutes / 4 : null,
+      minutes: c.studyMinutes, usualWeek: b.recordedDays === 28 && b.studyMinutes !== null ? b.studyMinutes / 4 : null, recorded: c.recordedDays,
       attended: days.filter((d) => d.attendance === 'present').length,
       scheduled: days.filter((d) => d.attendance === 'present' || d.attendance === 'absent').length,
       submitted: days.filter((d) => d.submission === 'submitted').length,
