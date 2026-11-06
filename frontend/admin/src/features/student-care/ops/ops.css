@@ -3,7 +3,7 @@
 .ops-page { font-size: 15px; line-height: 1.5; min-width: 0; }
 .ops-page .ops-branch, .ops-page .ops-bt { min-width: 0; max-width: 100%; }
 /* 넓은 학습관 표가 페이지 폭을 밀어내지 않도록 자식의 최소 폭을 0으로 둔다(표 자체는 가로 스크롤) */
-.ops-page { display: grid; grid-template-columns: minmax(0, 1fr); }
+.ops-page { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
 /* 재사용한 관리 이력 컴포넌트의 11·12px 글자를 이 화면에서는 13px로 올린다(원본 화면은 그대로) */
 .ops-page .sc-history-table .sc-all__class, .ops-page .sc-history-state, .ops-page .sc-history-kind, .ops-page .sc-history-tools span, .ops-page .sc-history-signals > span, .ops-page .sc-history-snapshot span, .ops-page .sc-history-snapshot p, .ops-page .sc-history-timeline li > header, .ops-page .sc-history-table .sc-history-actor::before { font-size: 13px; }
 .ops-page small { font-size: 13px; }
@@ -90,18 +90,17 @@
 .ops-wk-row { display: grid; grid-template-columns: 74px repeat(7, minmax(0, 1fr)); align-items: center; border-bottom: 1px solid var(--color-border); min-height: 30px; }
 .ops-wk-h { font-size: 13px; color: var(--color-text-secondary); font-weight: 600; line-height: 1.3; }
 .ops-wk-h small { display: block; font-weight: 400; }
-.ops-wk-cell { text-align: center; font-size: 13px; line-height: 1.35; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; align-items: center; }
+.ops-wk-cell { white-space: nowrap; text-align: center; font-size: 13px; line-height: 1.35; font-variant-numeric: tabular-nums; display: flex; flex-direction: column; align-items: center; }
 .ops-wk-date b { font-size: 13px; }
 .ops-wk-date span { color: var(--color-text-secondary); }
 .ops-wk-att-absent { color: var(--color-flag); font-weight: 700; }
 .ops-wk-att-off, .ops-wk-att-unknown, .ops-wk-sub-off, .ops-wk-sub-unknown { color: var(--color-text-secondary); }
 .ops-wk-sub-missing { color: var(--color-flag); font-weight: 700; }
 .ops-late { color: var(--color-flag); font-weight: 700; }
-.ops-wk-bars { min-height: 96px; align-items: start; padding-top: 6px; }
+.ops-wk-bars { min-height: 72px; }
 .ops-bar-box { position: relative; width: 22px; height: 60px; border-bottom: 1px solid var(--color-input-border); }
 .ops-bar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-accent); border-radius: 2px 2px 0 0; }
 .ops-usual { position: absolute; left: -5px; right: -5px; height: 2px; background: var(--color-text-primary); }
-.ops-bar-val { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); font-size: 13px; white-space: nowrap; }
 .ops-detail-two { display: grid; grid-template-columns: auto 1fr; gap: 18px; }
 .ops-cal { display: grid; gap: 2px; }
 .ops-cal-row { display: grid; grid-template-columns: repeat(7, 24px); gap: 2px; font-size: 13px; text-align: center; }
@@ -126,7 +125,8 @@
 .ops-bt { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; overflow-x: auto; }
 .ops-bt-row { display: grid; grid-template-columns: 150px repeat(7, minmax(84px, 1fr)); border-top: 1px solid var(--color-border); }
 .ops-bt-head { border-top: 0; font-size: 13px; color: var(--color-text-secondary); }
-.ops-bt-row > span { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+.ops-bt-row > span { padding: 2px; display: flex; flex-direction: column; gap: 2px; }
+.ops-bt-head > span { padding: 8px 10px; }
 .ops-bt-row > span[role=rowheader] { font-weight: 600; }
 .ops-bt-row small { color: var(--color-text-secondary); font-weight: 400; }
 .ops-bt-head b { color: var(--color-text-primary); }
@@ -143,6 +143,7 @@
 
 @media (max-width: 1279px) {
   .ops-split { grid-template-columns: 1fr; }
+  .ops-back { display: inline-block; }
   .ops-detail { position: static; max-height: none; }
   .ops-branch-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -152,13 +153,30 @@
   .ops-row > .ops-name { grid-area: name; }
   .ops-row > .ops-chips { grid-area: chips; }
   .ops-row > .ops-strip { grid-area: strip; }
-  .ops-row > :nth-child(4), .ops-row > :nth-child(5) { display: none; }
-  .ops-head { grid-template-areas: 'name strip' 'chips chips'; }
-  .ops-head > :nth-child(1) { grid-area: name; } .ops-head > :nth-child(2) { grid-area: chips; } .ops-head > :nth-child(3) { grid-area: strip; }
+  .ops-row { grid-template-areas: 'name strip' 'chips chips' 'study rate'; }
+  .ops-row > .ops-bullet { grid-area: study; }
+  .ops-row > :nth-child(5) { grid-area: rate; }
+  .ops-head { grid-template-areas: 'name strip' 'chips chips' 'study rate'; }
+  .ops-head > :nth-child(1) { grid-area: name; } .ops-head > :nth-child(2) { grid-area: chips; } .ops-head > :nth-child(3) { grid-area: strip; } .ops-head > :nth-child(4) { grid-area: study; } .ops-head > :nth-child(5) { grid-area: rate; }
   .ops-chip { white-space: normal; }
-  .ops-table-min .ops-row { grid-template-columns: 84px minmax(0, 1fr) 90px; }
-  .ops-table-min .ops-row > :nth-child(n+4) { display: none; }
   .ops-wk-row { grid-template-columns: 54px repeat(7, minmax(0, 1fr)); }
   .ops-detail-two { grid-template-columns: 1fr; }
   .ops-branch-groups { grid-template-columns: 1fr; }
 }
+
+.ops-back { display: none; margin-bottom: 8px; min-height: 36px; border: 1px solid var(--color-border); background: var(--color-surface-muted); border-radius: 8px; padding: 0 12px; font: inherit; color: var(--color-text-primary); cursor: pointer; }
+@media (max-width: 1279px) { .ops-back { display: inline-block; } }
+.ops-bullet-val b { font-weight: 700; }
+.ops-table-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+/* 학습관 칸 버튼과 그 칸의 학생 목록 */
+.ops-bt-btn { all: unset; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; width: 100%; min-height: 44px; padding: 8px 10px; cursor: pointer; border-radius: 6px; }
+.ops-bt-btn:hover { background: var(--color-surface-muted); }
+.ops-bt-btn:focus-visible { outline: 2px solid var(--color-focus); }
+.ops-bt-btn[aria-pressed='true'] { background: var(--color-accent-soft); box-shadow: inset 0 -3px 0 var(--color-accent); }
+.ops-bt-detail { margin-top: 12px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 10px 12px; }
+.ops-bt-detail h3 { margin: 0 0 6px; font-size: 15px; }
+.ops-bt-list { max-height: 360px; overflow: auto; }
+.ops-bt-list-row { display: grid; grid-template-columns: 120px 180px 1fr; gap: 10px; padding: 3px 0; border-top: 1px solid var(--color-border); font-variant-numeric: tabular-nums; }
+.ops-bt-list-head { position: sticky; top: 0; background: var(--color-surface); font-size: 13px; color: var(--color-text-secondary); border-top: 0; }
+/* 390px 관리 이력: 재사용 컴포넌트의 12px 표 글자를 13px로(원본 화면은 그대로) */
+@media (max-width: 750px) { .ops-page .sc-history-table, .ops-page .sc-history-table td, .ops-page .sc-history-table time, .ops-page .sc-history-table button, .ops-page .sc-history-table span { font-size: 13px; } }

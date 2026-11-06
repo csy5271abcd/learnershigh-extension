@@ -15,19 +15,19 @@ function WeekColumns({ s, startShiftMinutes }: { s: OpsStudent; startShiftMinute
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader" />{s.days.map((d) => cell(d, <><b>{md(d.date)}</b><span>{d.dow}</span></>, 'ops-wk-date'))}</div>
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">출결</div>{s.days.map((d) => cell(d, attendanceLabel[d.attendance], `ops-wk-att-${d.attendance}`))}</div>
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">계획</div>{s.days.map((d) => cell(d, d.submission === 'submitted' ? '제출' : d.submission === 'missing' ? '미제출' : '—', `ops-wk-sub-${d.submission}`))}</div>
-      <div className="ops-wk-row ops-wk-bars" role="row"><div className="ops-wk-h" role="rowheader">학습<small>막대 실제 · 선 평소</small></div>{s.days.map((d) => cell(d, (
-        <span className="ops-bar-box" aria-label={d.minutes === null ? attendanceLabel[d.attendance] : `${hours(d.minutes)}, 평소 ${hours(d.usualMinutes)}`}>
+      <div className="ops-wk-row ops-wk-bars" aria-hidden="true"><div className="ops-wk-h">학습<small>막대 실제 · 선 평소</small></div>{s.days.map((d) => cell(d, (
+        <span className="ops-bar-box">
           {d.minutes !== null && <span className="ops-bar" style={{ height: `${(d.minutes / max) * 100}%` }} />}
           {d.usualMinutes !== null && <span className="ops-usual" style={{ bottom: `${(d.usualMinutes / max) * 100}%` }} />}
-          <span className="ops-bar-val">{d.minutes === null ? '' : shortH(d.minutes)}</span>
         </span>)))}</div>
-      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">입실<small>평소 대비</small></div>{s.days.map((d) => {
+      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">실제<small>평소(같은 요일)</small></div>{s.days.map((d) => cell(d, <><b>{d.minutes === null ? '—' : shortH(d.minutes)}</b><span className="ops-muted">{d.usualMinutes === null ? '' : shortH(d.usualMinutes)}</span></>))}</div>
+      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">입실<small>평소 · 차이</small></div>{s.days.map((d) => {
         const diff = d.start !== null && d.usualStart !== null ? Math.round(d.start - d.usualStart) : null
-        return cell(d, d.start === null ? '' : <><b>{clock(d.start)}</b>{diff !== null && <span className={Math.abs(diff) >= startShiftMinutes ? 'ops-late' : ''}>{diff > 0 ? '+' : ''}{diff}분</span>}</>)
+        return cell(d, d.start === null ? '' : <><b>{clock(d.start)}</b>{d.usualStart !== null && <span className="ops-muted">{clock(d.usualStart)}</span>}{diff !== null && <span className={diff >= startShiftMinutes ? 'ops-late' : ''}>{diff > 0 ? '+' : ''}{diff}분</span>}</>)
       })}</div>
-      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">진행률<small>실제 ÷ 계획</small></div>{s.days.map((d) => {
+      <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">진행률<small>실제 / 계획</small></div>{s.days.map((d) => {
         const rate = d.planned && d.actual !== null ? Math.round((d.actual / d.planned) * 100) : null
-        return cell(d, rate === null ? (d.planned === 0 || d.planned === null) && d.attendance === 'present' ? '계획 없음' : '' : `${rate}%`)
+        return cell(d, rate === null ? (d.planned === 0 || d.planned === null) && d.attendance === 'present' ? '계획 없음' : '' : <><b>{rate}%</b><span className="ops-muted">{shortH(d.actual)}/{shortH(d.planned)}</span></>)
       })}</div>
     </div>
   )
@@ -69,20 +69,21 @@ function Subjects({ s }: { s: OpsStudent }) {
   )
 }
 
-export function OpsDetail({ api, s, version, startShiftMinutes, onSaved }: { api: CareApi; s: OpsStudent; version: number; startShiftMinutes: number; onSaved: (m: string) => void }) {
+export function OpsDetail({ api, s, version, startShiftMinutes, onSaved, onBack }: { api: CareApi; s: OpsStudent; version: number; startShiftMinutes: number; onSaved: (m: string) => void; onBack: () => void }) {
   const detail = useRemote(s.student.studentId, () => api.detail(s.student.branchId, s.student.studentId), version)
   const history = useRemote(`${s.student.studentId}/history`, () => api.history(s.student.branchId, s.student.studentId), version)
   const w = s.week
   const active = detail.data?.activeCase
   return (
     <section className="ops-detail" aria-label={`${s.student.studentName} 상세`} data-care-detail-student={s.student.studentName}>
+      <button type="button" className="ops-back" onClick={onBack}>← 명부로</button>
       <header className="ops-detail-head">
         <h2>{s.student.studentName}</h2>
         <span className="ops-muted">{s.student.className}</span>
         {s.statusLabel && <span className={`ops-status ops-status-${s.status}`}>{s.statusLabel}{s.recheckDate ? ` · ${md(s.recheckDate)}` : ''}</span>}
       </header>
       {s.chips.length > 0 && <p className="ops-chips">{s.chips.map((c) => <span key={c.text} className={`ops-chip${c.derived ? ' ops-chip-derived' : ''}`}>{c.text}</span>)}</p>}
-      <p className="ops-numbers">7일 {hours(w.minutes)} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}%`}</p>
+      <p className="ops-numbers">7일 {hours(w.minutes)} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}% (비교 ${w.comparablePlanDays}일)`}</p>
       <WeekColumns s={s} startShiftMinutes={startShiftMinutes} />
       <div className="ops-detail-two">
         <section><h3>35일 출결</h3><Calendar35 days={s.history35} /></section>
@@ -93,11 +94,11 @@ export function OpsDetail({ api, s, version, startShiftMinutes, onSaved }: { api
           : !detail.data ? <p role="status">불러오는 중</p>
           : active?.recheckDue ? <RecheckPanel api={api} branchId={s.student.branchId} asOf={detail.data.today ?? detail.data.asOf} careCase={active} onSaved={onSaved} onStale={() => detail.reload()} />
           : active || detail.data.signals.length ? <CounselForm api={api} branchId={s.student.branchId} studentId={s.student.studentId} caseId={active?.caseId ?? null} asOf={detail.data.today ?? detail.data.asOf} onSaved={onSaved} onStale={() => detail.reload()} />
-          : <p className="ops-muted">표시된 사유가 없어 상담 기록 대상이 아닙니다.</p>}
+          : <p className="ops-muted">서버 판정 사유가 없는 학생입니다.{s.weekdayAbsence ? ' 같은 요일 결석 표시는 날짜에서 계산한 참고 표시입니다. 판정에 반영하려면 관리 기준 설정의 결석 기준을 조정하세요.' : ''}</p>}
         <h3>지난 관리</h3>
         {loadFailure(history) ? <p role="alert">이력을 불러오지 못했습니다. <button type="button" onClick={history.reload}>다시 시도</button></p>
           : !history.data ? <p role="status">불러오는 중</p>
-          : history.data.items.length ? <ul className="ops-history">{history.data.items.slice(0, 5).map((item) => <li key={item.eventId}><b>{md(item.occurredOn)}</b> {item.content}</li>)}</ul>
+          : history.data.items.length ? <ul className="ops-history">{history.data.items.map((item) => <li key={item.eventId}><b>{md(item.occurredOn)}</b> {item.content}</li>)}</ul>
           : <p className="ops-muted">관리 이력 없음</p>}
       </section>
     </section>

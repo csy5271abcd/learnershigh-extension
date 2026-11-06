@@ -1,0 +1,2931 @@
+[
+  {
+    "name": "sample 권유진",
+    "result": {
+      "student": {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 2,
+        "scheduledAbsenceDays": 4,
+        "submissionDays": 2,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 367,
+        "minutesPerAttendance": 183.5,
+        "averageStartMinutes": 1114.5,
+        "startSamples": 2,
+        "plannedMinutes": 416,
+        "actualMinutes": 367,
+        "executionRate": 88.22115384615384,
+        "comparablePlanDays": 2
+      },
+      "usualWeek": 1185,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 188,
+          "startMinutes": 1119,
+          "plannedMinutes": 209,
+          "actualMinutes": 188
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 179,
+          "startMinutes": 1110,
+          "plannedMinutes": 207,
+          "actualMinutes": 179
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        }
+      ],
+      "signals": [
+        {
+          "type": "CONSECUTIVE_ABSENCE",
+          "label": "미입실",
+          "summary": "최근 7일 중 4일 미입실",
+          "evidence": [
+            "최근 7일 중 4일 미입실",
+            "마지막 등원 10월 23일"
+          ]
+        },
+        {
+          "type": "PLAN_MISSING",
+          "label": "계획 미제출",
+          "summary": "최근 7일 중 4일 미제출",
+          "evidence": [
+            "최근 7일 중 4일 미제출"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "권유진\n2B\n결석 4일 연속·미제출\n6시간\n88%",
+          "detail": "권유진\n고2 B반\n상담 필요\n\n결석 4일 연속·미제출\n\n7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2/6일 · 제출 2/6일 · 진행률 88%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n결석\n결석\n결석\n결석\n계획\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n3:08\n2:59\n입실\n평소 대비\n18:39\n-7분\n18:30\n-7분\n진행률\n실제 ÷ 계획\n90%\n86%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 24%\n수학\n36% → 36%\n영어\n23% → 23%\n탐구\n17% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "3시간 8분, 평소 3시간 13분",
+            "2시간 59분, 평소 3시간 3분",
+            "결석",
+            "결석",
+            "결석",
+            "결석"
+          ]
+        },
+        "minimal": {
+          "row": "권유진\n고2 B반\n결석 4일 연속·미제출\n6시간 7분19시간 45분\n2일\n2 / 6일\n88%",
+          "detail": "권유진\n고2 B반\n상담 필요\n\n결석 4일 연속·미제출\n\n7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2/6일 · 제출 2/6일 · 진행률 88%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n결석\n결석\n결석\n결석\n계획\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n3:08\n2:59\n입실\n평소 대비\n18:39\n-7분\n18:30\n-7분\n진행률\n실제 ÷ 계획\n90%\n86%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 24%\n수학\n36% → 36%\n영어\n23% → 23%\n탐구\n17% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "3시간 8분, 평소 3시간 13분",
+            "2시간 59분, 평소 3시간 3분",
+            "결석",
+            "결석",
+            "결석",
+            "결석"
+          ]
+        },
+        "groups": {
+          "row": "권유진\n상담 필요",
+          "detail": "권유진\n고2 B반\n상담 필요\n\n결석 4일 연속·미제출\n\n7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2/6일 · 제출 2/6일 · 진행률 88%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n결석\n결석\n결석\n결석\n계획\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n3:08\n2:59\n입실\n평소 대비\n18:39\n-7분\n18:30\n-7분\n진행률\n실제 ÷ 계획\n90%\n86%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 24%\n수학\n36% → 36%\n영어\n23% → 23%\n탐구\n17% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "3시간 8분, 평소 3시간 13분",
+            "2시간 59분, 평소 3시간 3분",
+            "결석",
+            "결석",
+            "결석",
+            "결석"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 박예준",
+    "result": {
+      "student": {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 3,
+        "scheduledAbsenceDays": 3,
+        "submissionDays": 3,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 431,
+        "minutesPerAttendance": 143.66666666666666,
+        "averageStartMinutes": 1134.3333333333333,
+        "startSamples": 3,
+        "plannedMinutes": 479,
+        "actualMinutes": 431,
+        "executionRate": 89.97912317327766,
+        "comparablePlanDays": 3
+      },
+      "usualWeek": 887,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 151,
+          "startMinutes": 1143,
+          "plannedMinutes": 157,
+          "actualMinutes": 151
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 144,
+          "startMinutes": 1126,
+          "plannedMinutes": 160,
+          "actualMinutes": 144
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 136,
+          "startMinutes": 1134,
+          "plannedMinutes": 162,
+          "actualMinutes": 136
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        }
+      ],
+      "signals": [
+        {
+          "type": "CONSECUTIVE_ABSENCE",
+          "label": "미입실",
+          "summary": "최근 7일 중 3일 미입실",
+          "evidence": [
+            "최근 7일 중 3일 미입실",
+            "마지막 등원 10월 23일"
+          ]
+        },
+        {
+          "type": "PLAN_MISSING",
+          "label": "계획 미제출",
+          "summary": "최근 7일 중 3일 미제출",
+          "evidence": [
+            "최근 7일 중 3일 미제출"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "박예준\n3A\n결석 3일 연속·미제출\n7시간\n90%",
+          "detail": "박예준\n고3 A반\n상담 필요\n\n결석 3일 연속·미제출\n\n7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n결석\n예정 없음\n결석\n결석\n계획\n제출\n제출\n제출\n미제출\n—\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n2:31\n2:24\n2:16\n입실\n평소 대비\n19:03\n+3분\n18:46\n-10분\n18:54\n-4분\n진행률\n실제 ÷ 계획\n96%\n90%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n37% → 37%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 31분, 평소 2시간 35분",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 16분, 평소 2시간 20분",
+            "결석",
+            "예정 없음",
+            "결석",
+            "결석"
+          ]
+        },
+        "minimal": {
+          "row": "박예준\n고3 A반\n결석 3일 연속·미제출\n7시간 11분14시간 47분\n3일\n3 / 6일\n90%",
+          "detail": "박예준\n고3 A반\n상담 필요\n\n결석 3일 연속·미제출\n\n7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n결석\n예정 없음\n결석\n결석\n계획\n제출\n제출\n제출\n미제출\n—\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n2:31\n2:24\n2:16\n입실\n평소 대비\n19:03\n+3분\n18:46\n-10분\n18:54\n-4분\n진행률\n실제 ÷ 계획\n96%\n90%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n37% → 37%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 31분, 평소 2시간 35분",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 16분, 평소 2시간 20분",
+            "결석",
+            "예정 없음",
+            "결석",
+            "결석"
+          ]
+        },
+        "groups": {
+          "row": "박예준\n상담 필요",
+          "detail": "박예준\n고3 A반\n상담 필요\n\n결석 3일 연속·미제출\n\n7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n결석\n예정 없음\n결석\n결석\n계획\n제출\n제출\n제출\n미제출\n—\n미제출\n미제출\n학습\n막대 실제 · 선 평소\n2:31\n2:24\n2:16\n입실\n평소 대비\n19:03\n+3분\n18:46\n-10분\n18:54\n-4분\n진행률\n실제 ÷ 계획\n96%\n90%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n37% → 37%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 31분, 평소 2시간 35분",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 16분, 평소 2시간 20분",
+            "결석",
+            "예정 없음",
+            "결석",
+            "결석"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 오시윤",
+    "result": {
+      "student": {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 3,
+        "scheduledAbsenceDays": 3,
+        "submissionDays": 3,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 438,
+        "minutesPerAttendance": 146,
+        "averageStartMinutes": 1064.6666666666667,
+        "startSamples": 3,
+        "plannedMinutes": 488,
+        "actualMinutes": 438,
+        "executionRate": 89.75409836065573,
+        "comparablePlanDays": 3
+      },
+      "usualWeek": 884,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 138,
+          "startMinutes": 1090,
+          "plannedMinutes": 160,
+          "actualMinutes": 138
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 164,
+          "startMinutes": 1004,
+          "plannedMinutes": 174,
+          "actualMinutes": 164
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 136,
+          "startMinutes": 1100,
+          "plannedMinutes": 154,
+          "actualMinutes": 136
+        }
+      ],
+      "signals": [
+        {
+          "type": "CONSECUTIVE_ABSENCE",
+          "label": "미입실",
+          "summary": "최근 7일 중 3일 미입실",
+          "evidence": [
+            "최근 7일 중 3일 미입실",
+            "마지막 등원 10월 27일"
+          ]
+        },
+        {
+          "type": "PLAN_MISSING",
+          "label": "계획 미제출",
+          "summary": "최근 7일 중 3일 미제출",
+          "evidence": [
+            "최근 7일 중 3일 미제출"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "오시윤\n2B\n결석 3일 (띄엄띄엄)·미제출\n7시간\n90%",
+          "detail": "오시윤\n고2 B반\n상담 필요\n\n결석 3일 (띄엄띄엄)·미제출\n\n7일 7시간 18분 · 평소 주 14시간 44분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n결석\n입실\n결석\n입실\n예정 없음\n결석\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n미제출\n제출\n학습\n막대 실제 · 선 평소\n2:18\n2:44\n2:16\n입실\n평소 대비\n18:10\n-2분\n16:44\n+4분\n18:20\n+10분\n진행률\n실제 ÷ 계획\n86%\n94%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n29% → 29%\n영어\n23% → 23%\n탐구\n27% → 28%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "결석",
+            "2시간 18분, 평소 2시간 29분",
+            "결석",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "결석",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        },
+        "minimal": {
+          "row": "오시윤\n고2 B반\n결석 3일 (띄엄띄엄)·미제출\n7시간 18분14시간 44분\n3일\n3 / 6일\n90%",
+          "detail": "오시윤\n고2 B반\n상담 필요\n\n결석 3일 (띄엄띄엄)·미제출\n\n7일 7시간 18분 · 평소 주 14시간 44분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n결석\n입실\n결석\n입실\n예정 없음\n결석\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n미제출\n제출\n학습\n막대 실제 · 선 평소\n2:18\n2:44\n2:16\n입실\n평소 대비\n18:10\n-2분\n16:44\n+4분\n18:20\n+10분\n진행률\n실제 ÷ 계획\n86%\n94%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n29% → 29%\n영어\n23% → 23%\n탐구\n27% → 28%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "결석",
+            "2시간 18분, 평소 2시간 29분",
+            "결석",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "결석",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        },
+        "groups": {
+          "row": "오시윤\n상담 필요",
+          "detail": "오시윤\n고2 B반\n상담 필요\n\n결석 3일 (띄엄띄엄)·미제출\n\n7일 7시간 18분 · 평소 주 14시간 44분 · 입실 3/6일 · 제출 3/6일 · 진행률 90%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n결석\n입실\n결석\n입실\n예정 없음\n결석\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n미제출\n제출\n학습\n막대 실제 · 선 평소\n2:18\n2:44\n2:16\n입실\n평소 대비\n18:10\n-2분\n16:44\n+4분\n18:20\n+10분\n진행률\n실제 ÷ 계획\n86%\n94%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n29% → 29%\n영어\n23% → 23%\n탐구\n27% → 28%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "결석",
+            "2시간 18분, 평소 2시간 29분",
+            "결석",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "결석",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 강서윤",
+    "result": {
+      "student": {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 5,
+        "scheduledAbsenceDays": 1,
+        "submissionDays": 5,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 746,
+        "minutesPerAttendance": 149.2,
+        "averageStartMinutes": 1108.2,
+        "startSamples": 5,
+        "plannedMinutes": 790,
+        "actualMinutes": 746,
+        "executionRate": 94.43037974683544,
+        "comparablePlanDays": 5
+      },
+      "usualWeek": 734.75,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 148,
+          "startMinutes": 1123,
+          "plannedMinutes": 152,
+          "actualMinutes": 148
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 152,
+          "startMinutes": 1125,
+          "plannedMinutes": 151,
+          "actualMinutes": 152
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 164,
+          "startMinutes": 1036,
+          "plannedMinutes": 182,
+          "actualMinutes": 164
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 146,
+          "startMinutes": 1128,
+          "plannedMinutes": 157,
+          "actualMinutes": 146
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 136,
+          "startMinutes": 1129,
+          "plannedMinutes": 148,
+          "actualMinutes": 136
+        }
+      ],
+      "signals": [
+        {
+          "type": "CONSECUTIVE_ABSENCE",
+          "label": "미입실",
+          "summary": "최근 7일 중 1일 미입실",
+          "evidence": [
+            "최근 7일 중 1일 미입실",
+            "마지막 등원 10월 27일"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "강서윤\n3A\n결석 1일\n매주 목 결석\n12시간\n94%",
+          "detail": "강서윤\n고3 A반\n상담 필요\n\n결석 1일\n매주 목 결석\n\n7일 12시간 26분 · 평소 주 12시간 15분 · 입실 5/6일 · 제출 5/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n결석\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n미제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:28\n2:32\n2:44\n2:26\n2:16\n입실\n평소 대비\n18:43\n-1분\n18:45\n+5분\n17:16\n+5분\n18:48\n+5분\n18:49\n+5분\n진행률\n실제 ÷ 계획\n97%\n101%\n90%\n93%\n92%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n31% → 31%\n영어\n23% → 23%\n탐구\n25% → 26%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 28분, 평소 2시간 21분",
+            "결석",
+            "2시간 32분, 평소 2시간 25분",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 26분, 평소 2시간 20분",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        },
+        "minimal": {
+          "row": "강서윤\n고3 A반\n결석 1일\n매주 목 결석\n12시간 26분12시간 15분\n5일\n5 / 6일\n94%",
+          "detail": "강서윤\n고3 A반\n상담 필요\n\n결석 1일\n매주 목 결석\n\n7일 12시간 26분 · 평소 주 12시간 15분 · 입실 5/6일 · 제출 5/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n결석\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n미제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:28\n2:32\n2:44\n2:26\n2:16\n입실\n평소 대비\n18:43\n-1분\n18:45\n+5분\n17:16\n+5분\n18:48\n+5분\n18:49\n+5분\n진행률\n실제 ÷ 계획\n97%\n101%\n90%\n93%\n92%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n31% → 31%\n영어\n23% → 23%\n탐구\n25% → 26%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 28분, 평소 2시간 21분",
+            "결석",
+            "2시간 32분, 평소 2시간 25분",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 26분, 평소 2시간 20분",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        },
+        "groups": {
+          "row": "강서윤\n상담 필요",
+          "detail": "강서윤\n고3 A반\n상담 필요\n\n결석 1일\n매주 목 결석\n\n7일 12시간 26분 · 평소 주 12시간 15분 · 입실 5/6일 · 제출 5/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n결석\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n미제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:28\n2:32\n2:44\n2:26\n2:16\n입실\n평소 대비\n18:43\n-1분\n18:45\n+5분\n17:16\n+5분\n18:48\n+5분\n18:49\n+5분\n진행률\n실제 ÷ 계획\n97%\n101%\n90%\n93%\n92%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n31% → 31%\n영어\n23% → 23%\n탐구\n25% → 26%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 28분, 평소 2시간 21분",
+            "결석",
+            "2시간 32분, 평소 2시간 25분",
+            "2시간 44분, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 26분, 평소 2시간 20분",
+            "2시간 16분, 평소 2시간 27분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 강하준",
+    "result": {
+      "student": {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 6,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 531,
+        "minutesPerAttendance": 88.5,
+        "averageStartMinutes": 1062.5,
+        "startSamples": 6,
+        "plannedMinutes": 1283,
+        "actualMinutes": 531,
+        "executionRate": 41.38737334372564,
+        "comparablePlanDays": 6
+      },
+      "usualWeek": 1194,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 86,
+          "startMinutes": 1100,
+          "plannedMinutes": 209,
+          "actualMinutes": 86
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 84,
+          "startMinutes": 1097,
+          "plannedMinutes": 196,
+          "actualMinutes": 84
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 93,
+          "startMinutes": 1004,
+          "plannedMinutes": 233,
+          "actualMinutes": 93
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 90,
+          "startMinutes": 1001,
+          "plannedMinutes": 242,
+          "actualMinutes": 90
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 90,
+          "startMinutes": 1088,
+          "plannedMinutes": 198,
+          "actualMinutes": 90
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 88,
+          "startMinutes": 1085,
+          "plannedMinutes": 205,
+          "actualMinutes": 88
+        }
+      ],
+      "signals": [
+        {
+          "type": "STUDY_DROP",
+          "label": "공부 시간 감소",
+          "summary": "최근 7일 8시간 50분 · 평소 19시간 50분",
+          "evidence": [
+            "최근 7일 8시간 50분 · 평소 19시간 50분 · 56% 감소",
+            "하루 평균 171분 → 76분"
+          ]
+        },
+        {
+          "type": "EXECUTION_GAP",
+          "label": "계획 미달성",
+          "summary": "최근 7일 계획 달성률 41%",
+          "evidence": [
+            "계획 21시간 20분 중 8시간 50분 달성"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 50분 · 평소 19시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 41%"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "강하준\n3A\n학습 −11시간 3분 (-56%)\n진행률 41%\n9시간\n41%",
+          "detail": "강하준\n고3 A반\n상담 필요\n\n학습 −11시간 3분 (-56%)\n진행률 41%\n\n7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6/6일 · 제출 6/6일 · 진행률 41%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n1:26\n1:24\n1:33\n1:30\n1:30\n1:28\n입실\n평소 대비\n18:20\n+10분\n18:17\n+10분\n16:44\n+10분\n16:41\n+4분\n18:08\n-2분\n18:05\n-9분\n진행률\n실제 ÷ 계획\n41%\n43%\n40%\n37%\n45%\n43%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 33%\n영어\n23% → 22%\n탐구\n18% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "1시간 26분, 평소 3시간 11분",
+            "1시간 24분, 평소 3시간 13분",
+            "1시간 33분, 평소 3시간 35분",
+            "1시간 30분, 평소 3시간 38분",
+            "1시간 30분, 평소 3시간 12분",
+            "1시간 28분, 평소 3시간 6분"
+          ]
+        },
+        "minimal": {
+          "row": "강하준\n고3 A반\n학습 −11시간 3분 (-56%)\n진행률 41%\n8시간 51분19시간 54분\n6일\n6 / 6일\n41%",
+          "detail": "강하준\n고3 A반\n상담 필요\n\n학습 −11시간 3분 (-56%)\n진행률 41%\n\n7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6/6일 · 제출 6/6일 · 진행률 41%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n1:26\n1:24\n1:33\n1:30\n1:30\n1:28\n입실\n평소 대비\n18:20\n+10분\n18:17\n+10분\n16:44\n+10분\n16:41\n+4분\n18:08\n-2분\n18:05\n-9분\n진행률\n실제 ÷ 계획\n41%\n43%\n40%\n37%\n45%\n43%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 33%\n영어\n23% → 22%\n탐구\n18% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "1시간 26분, 평소 3시간 11분",
+            "1시간 24분, 평소 3시간 13분",
+            "1시간 33분, 평소 3시간 35분",
+            "1시간 30분, 평소 3시간 38분",
+            "1시간 30분, 평소 3시간 12분",
+            "1시간 28분, 평소 3시간 6분"
+          ]
+        },
+        "groups": {
+          "row": "강하준\n상담 필요",
+          "detail": "강하준\n고3 A반\n상담 필요\n\n학습 −11시간 3분 (-56%)\n진행률 41%\n\n7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6/6일 · 제출 6/6일 · 진행률 41%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n1:26\n1:24\n1:33\n1:30\n1:30\n1:28\n입실\n평소 대비\n18:20\n+10분\n18:17\n+10분\n16:44\n+10분\n16:41\n+4분\n18:08\n-2분\n18:05\n-9분\n진행률\n실제 ÷ 계획\n41%\n43%\n40%\n37%\n45%\n43%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 33%\n영어\n23% → 22%\n탐구\n18% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "1시간 26분, 평소 3시간 11분",
+            "1시간 24분, 평소 3시간 13분",
+            "1시간 33분, 평소 3시간 35분",
+            "1시간 30분, 평소 3시간 38분",
+            "1시간 30분, 평소 3시간 12분",
+            "1시간 28분, 평소 3시간 6분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 권하린",
+    "result": {
+      "student": {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 6,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 1074,
+        "minutesPerAttendance": 179,
+        "averageStartMinutes": 1193.5,
+        "startSamples": 6,
+        "plannedMinutes": 1144,
+        "actualMinutes": 1074,
+        "executionRate": 93.88111888111888,
+        "comparablePlanDays": 6
+      },
+      "usualWeek": 1077.5,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 170,
+          "startMinutes": 1208,
+          "plannedMinutes": 187,
+          "actualMinutes": 170
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 179,
+          "startMinutes": 1217,
+          "plannedMinutes": 193,
+          "actualMinutes": 179
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 187,
+          "startMinutes": 1201,
+          "plannedMinutes": 179,
+          "actualMinutes": 187
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 191,
+          "startMinutes": 1120,
+          "plannedMinutes": 211,
+          "actualMinutes": 191
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 184,
+          "startMinutes": 1203,
+          "plannedMinutes": 194,
+          "actualMinutes": 184
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 163,
+          "startMinutes": 1212,
+          "plannedMinutes": 180,
+          "actualMinutes": 163
+        }
+      ],
+      "signals": [
+        {
+          "type": "START_TIME_SHIFT",
+          "label": "등원 시간 늦어짐",
+          "summary": "평소보다 103분 늦게 입실",
+          "evidence": [
+            "평소보다 103분 늦게 입실 · 최근 7일 6일 비교"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 103분 늦게 입실"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "권하린\n3A\n입실 +103분\n18시간\n94%",
+          "detail": "권하린\n고3 A반\n상담 필요\n\n입실 +103분\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n20:08\n+108분\n20:17\n+108분\n20:01\n+95분\n18:40\n+108분\n20:03\n+95분\n20:12\n+108분\n진행률\n실제 ÷ 계획\n91%\n93%\n104%\n91%\n95%\n91%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 24%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n19% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        },
+        "minimal": {
+          "row": "권하린\n고3 A반\n입실 +103분\n17시간 54분17시간 58분\n6일\n6 / 6일\n94%",
+          "detail": "권하린\n고3 A반\n상담 필요\n\n입실 +103분\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n20:08\n+108분\n20:17\n+108분\n20:01\n+95분\n18:40\n+108분\n20:03\n+95분\n20:12\n+108분\n진행률\n실제 ÷ 계획\n91%\n93%\n104%\n91%\n95%\n91%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 24%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n19% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        },
+        "groups": {
+          "row": "권하린\n상담 필요",
+          "detail": "권하린\n고3 A반\n상담 필요\n\n입실 +103분\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n20:08\n+108분\n20:17\n+108분\n20:01\n+95분\n18:40\n+108분\n20:03\n+95분\n20:12\n+108분\n진행률\n실제 ÷ 계획\n91%\n93%\n104%\n91%\n95%\n91%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 24%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n19% → 18%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 김시윤",
+    "result": {
+      "student": {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 6,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 1074,
+        "minutesPerAttendance": 179,
+        "averageStartMinutes": 1073.6666666666667,
+        "startSamples": 6,
+        "plannedMinutes": 1145,
+        "actualMinutes": 1074,
+        "executionRate": 93.79912663755458,
+        "comparablePlanDays": 6
+      },
+      "usualWeek": 1077.5,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 170,
+          "startMinutes": 1098,
+          "plannedMinutes": 179,
+          "actualMinutes": 170
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 179,
+          "startMinutes": 1080,
+          "plannedMinutes": 193,
+          "actualMinutes": 179
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 187,
+          "startMinutes": 1087,
+          "plannedMinutes": 187,
+          "actualMinutes": 187
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 191,
+          "startMinutes": 1004,
+          "plannedMinutes": 209,
+          "actualMinutes": 191
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 184,
+          "startMinutes": 1083,
+          "plannedMinutes": 191,
+          "actualMinutes": 184
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 163,
+          "startMinutes": 1090,
+          "plannedMinutes": 186,
+          "actualMinutes": 163
+        }
+      ],
+      "signals": [
+        {
+          "type": "SUBJECT_SHARE",
+          "label": "수학 계획 미달성",
+          "summary": "수학 계획 29% → 실제 5%",
+          "evidence": [
+            "수학 계획 29% → 실제 5% · 전체 공부 시간은 평소 수준"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "SUBJECT_SHARE",
+            "label": "수학 계획 미달성",
+            "summary": "수학 계획 29% → 실제 5%"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "김시윤\n3A\n수학 비중 29→5%\n18시간\n94%",
+          "detail": "김시윤\n고3 A반\n상담 필요\n\n수학 비중 29→5%\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n18:18\n-2분\n18:00\n-2분\n18:07\n-2분\n16:44\n-2분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n95%\n93%\n100%\n91%\n96%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 23%\n수학\n29% → 5% (5시간 28분 → 0시간 51분)\n영어\n23% → 23%\n탐구\n25% → 49%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        },
+        "minimal": {
+          "row": "김시윤\n고3 A반\n수학 비중 29→5%\n17시간 54분17시간 58분\n6일\n6 / 6일\n94%",
+          "detail": "김시윤\n고3 A반\n상담 필요\n\n수학 비중 29→5%\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n18:18\n-2분\n18:00\n-2분\n18:07\n-2분\n16:44\n-2분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n95%\n93%\n100%\n91%\n96%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 23%\n수학\n29% → 5% (5시간 28분 → 0시간 51분)\n영어\n23% → 23%\n탐구\n25% → 49%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        },
+        "groups": {
+          "row": "김시윤\n상담 필요",
+          "detail": "김시윤\n고3 A반\n상담 필요\n\n수학 비중 29→5%\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n18:18\n-2분\n18:00\n-2분\n18:07\n-2분\n16:44\n-2분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n95%\n93%\n100%\n91%\n96%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 23%\n수학\n29% → 5% (5시간 28분 → 0시간 51분)\n영어\n23% → 23%\n탐구\n25% → 49%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 50분, 평소 2시간 46분",
+            "2시간 59분, 평소 2시간 54분",
+            "3시간 7분, 평소 3시간 3분",
+            "3시간 11분, 평소 3시간 15분",
+            "예정 없음",
+            "3시간 4분, 평소 3시간",
+            "2시간 43분, 평소 3시간 1분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 강하린",
+    "result": {
+      "student": {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 3,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 908,
+        "minutesPerAttendance": 151.33333333333334,
+        "averageStartMinutes": 1090.1666666666667,
+        "startSamples": 6,
+        "plannedMinutes": 504,
+        "actualMinutes": 469,
+        "executionRate": 93.05555555555556,
+        "comparablePlanDays": 3
+      },
+      "usualWeek": 888.75,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 139,
+          "startMinutes": 1098,
+          "plannedMinutes": null,
+          "actualMinutes": 139
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 145,
+          "startMinutes": 1102,
+          "plannedMinutes": 160,
+          "actualMinutes": 145
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 151,
+          "startMinutes": 1106,
+          "plannedMinutes": null,
+          "actualMinutes": 151
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 180,
+          "startMinutes": 1020,
+          "plannedMinutes": 184,
+          "actualMinutes": 180
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 144,
+          "startMinutes": 1118,
+          "plannedMinutes": 160,
+          "actualMinutes": 144
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 149,
+          "startMinutes": 1097,
+          "plannedMinutes": null,
+          "actualMinutes": 149
+        }
+      ],
+      "signals": [
+        {
+          "type": "PLAN_MISSING",
+          "label": "계획 미제출",
+          "summary": "최근 7일 중 3일 미제출",
+          "evidence": [
+            "최근 7일 중 3일 미제출"
+          ]
+        }
+      ],
+      "board": {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      "screen": {
+        "table": {
+          "row": "강하린\n3A\n계획 미제출 3일\n15시간\n93%",
+          "detail": "강하린\n고3 A반\n상담 필요\n\n계획 미제출 3일\n\n7일 15시간 8분 · 평소 주 14시간 49분 · 입실 6/6일 · 제출 3/6일 · 진행률 93%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n제출\n미제출\n학습\n막대 실제 · 선 평소\n2:19\n2:25\n2:31\n3:00\n2:24\n2:29\n입실\n평소 대비\n18:18\n-11분\n18:22\n-5분\n18:26\n+8분\n17:00\n+8분\n18:38\n+8분\n18:17\n-11분\n진행률\n실제 ÷ 계획\n계획 없음\n91%\n계획 없음\n98%\n90%\n계획 없음\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 19분, 평소 2시간 29분",
+            "2시간 25분, 평소 2시간 28분",
+            "2시간 31분, 평소 2시간 22분",
+            "3시간, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 29분, 평소 2시간 20분"
+          ]
+        },
+        "minimal": {
+          "row": "강하린\n고3 A반\n계획 미제출 3일\n15시간 8분14시간 49분\n6일\n3 / 6일\n93%",
+          "detail": "강하린\n고3 A반\n상담 필요\n\n계획 미제출 3일\n\n7일 15시간 8분 · 평소 주 14시간 49분 · 입실 6/6일 · 제출 3/6일 · 진행률 93%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n제출\n미제출\n학습\n막대 실제 · 선 평소\n2:19\n2:25\n2:31\n3:00\n2:24\n2:29\n입실\n평소 대비\n18:18\n-11분\n18:22\n-5분\n18:26\n+8분\n17:00\n+8분\n18:38\n+8분\n18:17\n-11분\n진행률\n실제 ÷ 계획\n계획 없음\n91%\n계획 없음\n98%\n90%\n계획 없음\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 19분, 평소 2시간 29분",
+            "2시간 25분, 평소 2시간 28분",
+            "2시간 31분, 평소 2시간 22분",
+            "3시간, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 29분, 평소 2시간 20분"
+          ]
+        },
+        "groups": {
+          "row": "강하린\n상담 필요",
+          "detail": "강하린\n고3 A반\n상담 필요\n\n계획 미제출 3일\n\n7일 15시간 8분 · 평소 주 14시간 49분 · 입실 6/6일 · 제출 3/6일 · 진행률 93%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n미제출\n제출\n미제출\n제출\n—\n제출\n미제출\n학습\n막대 실제 · 선 평소\n2:19\n2:25\n2:31\n3:00\n2:24\n2:29\n입실\n평소 대비\n18:18\n-11분\n18:22\n-5분\n18:26\n+8분\n17:00\n+8분\n18:38\n+8분\n18:17\n-11분\n진행률\n실제 ÷ 계획\n계획 없음\n91%\n계획 없음\n98%\n90%\n계획 없음\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 22%\n수학\n35% → 35%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "2시간 19분, 평소 2시간 29분",
+            "2시간 25분, 평소 2시간 28분",
+            "2시간 31분, 평소 2시간 22분",
+            "3시간, 평소 2시간 43분",
+            "예정 없음",
+            "2시간 24분, 평소 2시간 27분",
+            "2시간 29분, 평소 2시간 20분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 강도현",
+    "result": {
+      "student": {
+        "studentId": "demo_s053",
+        "studentName": "강도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 6,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 926,
+        "minutesPerAttendance": 154.33333333333334,
+        "averageStartMinutes": 1107.6666666666667,
+        "startSamples": 6,
+        "plannedMinutes": 1079,
+        "actualMinutes": 926,
+        "executionRate": 85.82020389249305,
+        "comparablePlanDays": 6
+      },
+      "usualWeek": 926,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 147,
+          "startMinutes": 1126,
+          "plannedMinutes": 176,
+          "actualMinutes": 147
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 147,
+          "startMinutes": 1134,
+          "plannedMinutes": 178,
+          "actualMinutes": 147
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 169,
+          "startMinutes": 1052,
+          "plannedMinutes": 206,
+          "actualMinutes": 169
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 169,
+          "startMinutes": 1060,
+          "plannedMinutes": 188,
+          "actualMinutes": 169
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 147,
+          "startMinutes": 1133,
+          "plannedMinutes": 165,
+          "actualMinutes": 147
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 147,
+          "startMinutes": 1141,
+          "plannedMinutes": 166,
+          "actualMinutes": 147
+        }
+      ],
+      "signals": [],
+      "screen": {
+        "table": {
+          "row": "강도현\n3A\n15시간\n86%",
+          "detail": "강도현\n고3 A반\n\n7일 15시간 26분 · 평소 주 15시간 26분 · 입실 6/6일 · 제출 6/6일 · 진행률 86%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:27\n2:27\n2:49\n2:49\n2:27\n2:27\n입실\n평소 대비\n18:46\n-10분\n18:54\n-4분\n17:32\n+3분\n17:40\n+15분\n18:53\n-4분\n19:01\n+3분\n진행률\n실제 ÷ 계획\n84%\n83%\n82%\n90%\n89%\n89%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n23% → 23%\n수학\n32% → 32%\n영어\n23% → 22%\n탐구\n23% → 23%\n\n표시된 사유가 없어 상담 기록 대상이 아닙니다.\n\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분"
+          ]
+        },
+        "minimal": {
+          "row": "강도현\n고3 A반\n15시간 26분15시간 26분\n6일\n6 / 6일\n86%",
+          "detail": "강도현\n고3 A반\n\n7일 15시간 26분 · 평소 주 15시간 26분 · 입실 6/6일 · 제출 6/6일 · 진행률 86%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:27\n2:27\n2:49\n2:49\n2:27\n2:27\n입실\n평소 대비\n18:46\n-10분\n18:54\n-4분\n17:32\n+3분\n17:40\n+15분\n18:53\n-4분\n19:01\n+3분\n진행률\n실제 ÷ 계획\n84%\n83%\n82%\n90%\n89%\n89%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n23% → 23%\n수학\n32% → 32%\n영어\n23% → 22%\n탐구\n23% → 23%\n\n표시된 사유가 없어 상담 기록 대상이 아닙니다.\n\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분"
+          ]
+        },
+        "groups": {
+          "row": "강도현",
+          "detail": "강도현\n고3 A반\n\n7일 15시간 26분 · 평소 주 15시간 26분 · 입실 6/6일 · 제출 6/6일 · 진행률 86%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:27\n2:27\n2:49\n2:49\n2:27\n2:27\n입실\n평소 대비\n18:46\n-10분\n18:54\n-4분\n17:32\n+3분\n17:40\n+15분\n18:53\n-4분\n19:01\n+3분\n진행률\n실제 ÷ 계획\n84%\n83%\n82%\n90%\n89%\n89%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n23% → 23%\n수학\n32% → 32%\n영어\n23% → 22%\n탐구\n23% → 23%\n\n표시된 사유가 없어 상담 기록 대상이 아닙니다.\n\n지난 관리\n\n관리 이력 없음",
+          "barLabels": [
+            "예정 없음",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 49분, 평소 2시간 49분",
+            "2시간 27분, 평소 2시간 27분",
+            "2시간 27분, 평소 2시간 27분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 김도현",
+    "result": {
+      "student": {
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 6,
+        "scheduledAbsenceDays": 0,
+        "submissionDays": 6,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 1114,
+        "minutesPerAttendance": 185.66666666666666,
+        "averageStartMinutes": 974.6666666666666,
+        "startSamples": 6,
+        "plannedMinutes": 1189,
+        "actualMinutes": 1114,
+        "executionRate": 93.69217830109335,
+        "comparablePlanDays": 6
+      },
+      "usualWeek": 1109,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 99,
+          "startMinutes": 1155,
+          "plannedMinutes": 107,
+          "actualMinutes": 99
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 106,
+          "startMinutes": 1138,
+          "plannedMinutes": 110,
+          "actualMinutes": 106
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 96,
+          "startMinutes": 1146,
+          "plannedMinutes": 102,
+          "actualMinutes": 96
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 371,
+          "startMinutes": 624,
+          "plannedMinutes": 378,
+          "actualMinutes": 371
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 335,
+          "startMinutes": 632,
+          "plannedMinutes": 389,
+          "actualMinutes": 335
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 107,
+          "startMinutes": 1153,
+          "plannedMinutes": 103,
+          "actualMinutes": 107
+        }
+      ],
+      "signals": [],
+      "board": {
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      },
+      "screen": {
+        "table": {
+          "row": "김도현\n2B\n관리 중\n관리 사유 계획 미제출\n19시간\n94%",
+          "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+          "barLabels": [
+            "1시간 39분, 평소 1시간 44분",
+            "1시간 46분, 평소 1시간 38분",
+            "1시간 36분, 평소 1시간 41분",
+            "6시간 11분, 평소 5시간 58분",
+            "5시간 35분, 평소 5시간 53분",
+            "예정 없음",
+            "1시간 47분, 평소 1시간 35분"
+          ]
+        },
+        "minimal": {
+          "row": "김도현\n고2 B반\n관리 중\n관리 사유 계획 미제출\n18시간 34분18시간 29분\n6일\n6 / 6일\n94%",
+          "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+          "barLabels": [
+            "1시간 39분, 평소 1시간 44분",
+            "1시간 46분, 평소 1시간 38분",
+            "1시간 36분, 평소 1시간 41분",
+            "6시간 11분, 평소 5시간 58분",
+            "5시간 35분, 평소 5시간 53분",
+            "예정 없음",
+            "1시간 47분, 평소 1시간 35분"
+          ]
+        },
+        "groups": {
+          "row": "김도현\n관리 중",
+          "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+          "barLabels": [
+            "1시간 39분, 평소 1시간 44분",
+            "1시간 46분, 평소 1시간 38분",
+            "1시간 36분, 평소 1시간 41분",
+            "6시간 11분, 평소 5시간 58분",
+            "5시간 35분, 평소 5시간 53분",
+            "예정 없음",
+            "1시간 47분, 평소 1시간 35분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "sample 최하준",
+    "result": {
+      "student": {
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      "reviewEqual": true,
+      "summary": {
+        "calendarDays": 7,
+        "recordedDays": 7,
+        "attendanceDays": 5,
+        "scheduledAbsenceDays": 1,
+        "submissionDays": 5,
+        "submissionRecordedDays": 6,
+        "studyMinutes": 1020,
+        "minutesPerAttendance": 204,
+        "averageStartMinutes": 1055,
+        "startSamples": 5,
+        "plannedMinutes": 1074,
+        "actualMinutes": 1020,
+        "executionRate": 94.97206703910615,
+        "comparablePlanDays": 5
+      },
+      "usualWeek": 1002.5,
+      "days": [
+        {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "MISSING",
+          "scheduled": false,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-22",
+          "attendance": "ABSENT",
+          "submission": "MISSING",
+          "scheduled": true,
+          "minutes": 0,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 0
+        },
+        {
+          "date": "2026-10-23",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 200,
+          "startMinutes": 1087,
+          "plannedMinutes": 201,
+          "actualMinutes": 200
+        },
+        {
+          "date": "2026-10-24",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 214,
+          "startMinutes": 1004,
+          "plannedMinutes": 222,
+          "actualMinutes": 214
+        },
+        {
+          "date": "2026-10-25",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 235,
+          "startMinutes": 1011,
+          "plannedMinutes": 238,
+          "actualMinutes": 235
+        },
+        {
+          "date": "2026-10-26",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 192,
+          "startMinutes": 1083,
+          "plannedMinutes": 200,
+          "actualMinutes": 192
+        },
+        {
+          "date": "2026-10-27",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 179,
+          "startMinutes": 1090,
+          "plannedMinutes": 213,
+          "actualMinutes": 179
+        }
+      ],
+      "signals": [
+        {
+          "type": "CONSECUTIVE_ABSENCE",
+          "label": "미입실",
+          "summary": "최근 7일 중 1일 미입실",
+          "evidence": [
+            "최근 7일 중 1일 미입실",
+            "마지막 등원 10월 27일"
+          ]
+        }
+      ],
+      "board": {
+        "caseId": "care_a5c75fdc-e55d-4d31-a466-a377806691d4",
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 101분 늦게 입실"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      },
+      "screen": {
+        "table": {
+          "row": "최하준\n3A\n관리 중\n매주 목 결석\n관리 사유 등원 시간 늦어짐\n17시간\n95%",
+          "detail": "최하준\n고3 A반\n관리 중 · 11/4\n\n매주 목 결석\n관리 사유 등원 시간 늦어짐\n\n7일 17시간 · 평소 주 16시간 43분 · 입실 5/6일 · 제출 5/6일 · 진행률 95%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n결석\n입실\n입실\n입실\n입실\n입실\n계획\n—\n미제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n3:20\n3:34\n3:55\n3:12\n2:59\n입실\n평소 대비\n18:07\n-2분\n16:44\n-2분\n16:51\n+16분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n100%\n96%\n99%\n96%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 34%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 상담 · 면담 — [화면 확인용 예시] 최근 입실이 평소보다 늦어지는 이유를 확인했습니다. 다음 주 입실 패턴과 학습 계획을 다시 확인하기로 했습니다.",
+          "barLabels": [
+            "예정 없음",
+            "결석",
+            "3시간 20분, 평소 3시간 10분",
+            "3시간 34분, 평소 3시간 32분",
+            "3시간 55분, 평소 3시간 45분",
+            "3시간 12분, 평소 3시간 3분",
+            "2시간 59분, 평소 3시간 14분"
+          ]
+        },
+        "minimal": {
+          "row": "최하준\n고3 A반\n관리 중\n매주 목 결석\n관리 사유 등원 시간 늦어짐\n17시간16시간 43분\n5일\n5 / 6일\n95%",
+          "detail": "최하준\n고3 A반\n관리 중 · 11/4\n\n매주 목 결석\n관리 사유 등원 시간 늦어짐\n\n7일 17시간 · 평소 주 16시간 43분 · 입실 5/6일 · 제출 5/6일 · 진행률 95%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n결석\n입실\n입실\n입실\n입실\n입실\n계획\n—\n미제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n3:20\n3:34\n3:55\n3:12\n2:59\n입실\n평소 대비\n18:07\n-2분\n16:44\n-2분\n16:51\n+16분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n100%\n96%\n99%\n96%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 34%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 상담 · 면담 — [화면 확인용 예시] 최근 입실이 평소보다 늦어지는 이유를 확인했습니다. 다음 주 입실 패턴과 학습 계획을 다시 확인하기로 했습니다.",
+          "barLabels": [
+            "예정 없음",
+            "결석",
+            "3시간 20분, 평소 3시간 10분",
+            "3시간 34분, 평소 3시간 32분",
+            "3시간 55분, 평소 3시간 45분",
+            "3시간 12분, 평소 3시간 3분",
+            "2시간 59분, 평소 3시간 14분"
+          ]
+        },
+        "groups": {
+          "row": "최하준\n관리 중",
+          "detail": "최하준\n고3 A반\n관리 중 · 11/4\n\n매주 목 결석\n관리 사유 등원 시간 늦어짐\n\n7일 17시간 · 평소 주 16시간 43분 · 입실 5/6일 · 제출 5/6일 · 진행률 95%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n결석\n입실\n입실\n입실\n입실\n입실\n계획\n—\n미제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n3:20\n3:34\n3:55\n3:12\n2:59\n입실\n평소 대비\n18:07\n-2분\n16:44\n-2분\n16:51\n+16분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n100%\n96%\n99%\n96%\n84%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n34% → 34%\n영어\n23% → 23%\n탐구\n19% → 19%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 상담 · 면담 — [화면 확인용 예시] 최근 입실이 평소보다 늦어지는 이유를 확인했습니다. 다음 주 입실 패턴과 학습 계획을 다시 확인하기로 했습니다.",
+          "barLabels": [
+            "예정 없음",
+            "결석",
+            "3시간 20분, 평소 3시간 10분",
+            "3시간 34분, 평소 3시간 32분",
+            "3시간 55분, 평소 3시간 45분",
+            "3시간 12분, 평소 3시간 3분",
+            "2시간 59분, 평소 3시간 14분"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "old branches/search/settings/link",
+    "result": {
+      "counts": [
+        {
+          "name": "분당점",
+          "rows": 50,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n전체 학생 50명\n\n최근 7일 10/21–10/27 비교 9/23–10/20 · 28일\n\n학생\t상태\t학습 시간\n7일 합계 / 기준 주평균\n\t입실\n최근 7일\n\t계획 제출\n제출 / 기록 일수\n\t계획 대비 진행률\n\n류서준\n›\n고3 A반\n\t\n상담 필요\n신규\n\t\n5시간 "
+        },
+        {
+          "name": "수지점",
+          "rows": 10,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n전체 학생 10명\n\n최근 7일 10/21–10/27 비교 9/23–10/20 · 28일\n\n학생\t상태\t학습 시간\n7일 합계 / 기준 주평균\n\t입실\n최근 7일\n\t계획 제출\n제출 / 기록 일수\n\t계획 대비 진행률\n\n홍도현\n›\n고3 A반\n\t\n상담 필요\n신규\n\t\n19시간"
+        },
+        {
+          "name": "강남점",
+          "rows": 150,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n전체 학생 150명\n\n최근 7일 10/21–10/27 비교 9/23–10/20 · 28일\n\n학생\t상태\t학습 시간\n7일 합계 / 기준 주평균\n\t입실\n최근 7일\n\t계획 제출\n제출 / 기록 일수\n\t계획 대비 진행률\n\n강서윤\n›\n고3 A반\n\t\n상담 필요\n신규\n\t\n12시"
+        }
+      ],
+      "byClass": 50,
+      "empty": true,
+      "values": [
+        {
+          "id": "sc-setting-absenceDays",
+          "value": "1"
+        },
+        {
+          "id": "sc-setting-planMissingDays",
+          "value": "2"
+        },
+        {
+          "id": "sc-setting-studyDropPercent",
+          "value": "30"
+        },
+        {
+          "id": "sc-setting-executionRatePercent",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-subjectShareGapPoints",
+          "value": "20"
+        },
+        {
+          "id": "sc-setting-startShiftMinutes",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-minValidDays",
+          "value": "3"
+        },
+        {
+          "id": "sc-setting-cooldownDays",
+          "value": "7"
+        }
+      ],
+      "link": "/__preview/parent-report"
+    }
+  },
+  {
+    "name": "old old/new detail hover/history",
+    "result": {
+      "detail": "김도현\n고2 B반\n관리 중\n접기\n10/21–10/27 · 최근 7일\n비교 9/23–10/20\n출결·계획 제출\n10/21\n수\n\t10/22\n목\n\t10/23\n금\n\t10/24\n토\n\t10/25\n일\n\t10/26\n월\n\t10/27\n화\n\n입실\t입실\t입실\t입실\t입실\t—\t입실\n제출\t제출\t제출\t제출\t제출\t—\t제출\n학습 시간\n18시간 34분\n기준 18시간 29분\n학습 시간\n요일 평균\n0h\n4h\n8h\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n입실 시각\n16:15\n기준 16:13\n입실 시각\n요일 평균\n09:00\n14:30\n20:00\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n—\n10/27\n화\n계획 대비 진행률\n94%\n기준 92%\n진행률\n계획 100%\n0%\n75%\n150%\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n—\n10/27\n화\n과목별 계획·실제 비중\n계획 / 실제\n0%\n50%\n100%\n국어\n-0.2%p\n계획\n24.7%\n실제\n24.5%\n수학\n차이 없음\n계획\n31.7%\n실제\n31.7%\n영어\n+0.1%p\n계획\n22.7%\n실제\n22.8%\n탐구\n+0.1%p\n계획\n20.9%\n실제\n21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n과거 관리 이력\n⌃\n\n2026-10-28 · 계속 관리 · 다음 점검 11월 4일\n\n2026-10-28 · 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n\n2026-10-27 · 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n\n2026-10-26 · 계속 관리 · 다음 점검 10월 28일\n\n2026-10-26 · 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+      "filtered": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n이지우 · 1건\n날짜\t학생\t확인 항목\t최근 진행\t기록자\n2026.10.28\t이지우\n고3 A반\n\t\n미입실\n1일\n\t관리 중\n계속 관리\n계속 관리 · 다음 점검 10월 30일\n⌄\n\t—",
+      "original": "이지우 · 계속 관리\n접기\n관리 시작 당시 · 2026.10.25\n미입실\n1일\n\n최근 7일 중 1일 미입실\n\n다음 확인 2026.10.30\n\n2026.10.25\n상담\n—\n\n상담 · 통화 — 예정된 입실일에 결석이 이어져 학생에게 연락함. 이번 주 입실 가능 일정을 다시 확인하고, 다음 연락 때 실제 입실 여부와 학습 계획을 함께 점검하기로 함.\n\n2026.10.25\n관리 시작\n—\n\n계속 관리 · 다음 점검 10월 28일\n\n2026.10.27\n상담\n—\n\n상담 · 통화 — 통화가 연결되지 않아 입실 가능한 날짜를 알려달라는 문자를 남김.\n\n2026.10.28\n상담\n—\n\n상담 · 문자 — 아직 일정 답변이 없어 관리 종료하지 않음. 다음 연락에서 미입실 이유와 이후 일정을 직접 확인할 예정임.\n\n2026.10.28\n학습 변화 확인\n—\n\n점검 · 나빠짐 — 연속 결석 1일 → 3일\n\n2026.10.28\n계속 관리\n—\n\n계속 관리 · 다음 점검 10월 30일\n\n현재 학생 지표",
+      "noHistory": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n강도현 · 0건\n\n이 학생의 관리 이력이 없습니다."
+    }
+  },
+  {
+    "name": "old branch exclude/restore/date/details",
+    "result": {
+      "before": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n강남점\n\n10/21–10/27 · 최근 7일\n평소 9/23–10/20\n\n전체 150명\n학생 포함·제외\n학습 시간\n›\n3시간 54분\n입실일 평균\n전체 학생 기록\n학습관 평균\n학생 분포 · 중간 50%\n학습 감소\n본인 평소 대비 학습 시간(%)\n10/27 (화)\n평균 변화\n+2.3%\n학생 분포 · 중간 50%\n−4.3% ~ +6.2%\n확인된 학생\n130명\n-60%\n0%\n+60%\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n+5명\n전체\n특이 11\n정상 135\n윤서윤\n장수빈\n최예준\n한하린\n강하준\n서도현\n전체 150명 학습 시간 감소 11명\n변화 학생만\n평소 대비(%)\n학생\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n일수\n장수빈\n—\n−54%\n−57%\n−57%\n−59%\n−53%\n−53%\n6일 감소\n강하준\n—\n−55%\n−56%\n−57%\n−59%\n−53%\n−53%\n6일 감소\n서도현\n—\n−55%\n−56%\n−57%\n−59%\n−53%\n−53%\n6일 감소\n최예준\n−53%\n−55%\n−57%\n−57%\n—\n−53%\n−53%\n6일 감소\n150명 모두 펼치기\n입실 시간\n›\n7명\n입실 지연 학생\n전체 학생 기록\n학습관 평균\n학생 분포 · 중간 50%\n입실 지연\n평소 대비 입실 시간 차이(분)\n10/27 (화)\n평균 변화\n+1.5분\n학생 분포 · 중간 50%\n−7.5분 ~ +5분\n확인된 학생\n130명\n-20\n0\n+120\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n+1명\n전체\n특이 7\n정상 139\n권하린\n박서준\n김지우\n최서윤\n신시윤\n이하준\n전체 150명 입실 지연 7명\n변화 학생만\n평소 대비(분)\n학생\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n일수\n권하린\n+108\n+108\n+95\n+108\n—\n+95\n+108\n6일 지연\n박서준\n—\n+108\n+95\n+108\n+83\n+95\n+108\n6일 지연\n김지우\n+113\n+100\n+88\n+106\n—\n+113\n+100\n6일 지연\n최서윤\n+95\n+95\n−7\n+5\n—\n+5\n+5\n2일 지연\n150명 모두 펼치기\n결석\n›\n14명\n최근 7일 결석 학생\n10/21\n수\n68\n미입실\n10/22\n목\n4\n미입실\n10/23\n금\n4\n미입실\n10/24\n토\n10\n미입실\n10/25\n일\n72\n미입실\n10/26\n월\n31\n미입실\n10/27\n화\n10\n미입실\n전체 150명 결석 14명\n변화 학생만\n학생\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n일수\n오도현\n미입실\n입실\n입실\n결석\n결석\n결석\n결석\n4일\n정하준\n미입실\n입실\n입실\n결석\n결석\n결석\n결석\n4일\n권유진\n미입실\n입실\n입실\n결석\n결석\n결석\n결석\n4일\n윤수빈\n미입실\n입실\n입실\n결석\n결석\n결석\n결석\n4일\n150명 모두 펼치기\n계획 제출률\n›\n88.5%\n35명 미제출\n날짜별 제출률\n0%\n100%\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n전체 150명 계획 미제출 35명\n변화 학생만\n학생\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n일수\n오도현\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n4일\n정하준\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n4일\n권유진\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n4일\n윤수빈\n—\n제출\n제출\n미제출\n미제출\n미제출\n미제출\n4일\n150명 모두 펼치기",
+      "controls": [
+        {
+          "type": "text",
+          "label": "집계 학생 검색"
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "checkbox",
+          "label": null
+        },
+        {
+          "type": "text",
+          "label": "학습 시간 감소 학생 검색"
+        },
+        {
+          "type": "checkbox",
+          "label": "장수빈 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "강하준 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "서도현 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "최예준 그래프 비교"
+        },
+        {
+          "type": "text",
+          "label": "입실 지연 학생 검색"
+        },
+        {
+          "type": "checkbox",
+          "label": "권하린 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "박서준 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "김지우 그래프 비교"
+        },
+        {
+          "type": "checkbox",
+          "label": "최서윤 그래프 비교"
+        },
+        {
+          "type": "text",
+          "label": "결석 학생 검색"
+        },
+        {
+          "type": "text",
+          "label": "계획 미제출 학생 검색"
+        }
+      ],
+      "buttons": [
+        "",
+        "학생별",
+        "학습관별",
+        "관리 이력",
+        "학생 포함·제외",
+        "학습 시간›",
+        "학습관 평균",
+        "학습 감소",
+        "변화 학생만",
+        "150명 모두 펼치기",
+        "입실 시간›",
+        "학습관 평균",
+        "입실 지연",
+        "변화 학생만",
+        "150명 모두 펼치기",
+        "결석›",
+        "10/21수68미입실",
+        "10/22목4미입실",
+        "10/23금4미입실",
+        "10/24토10미입실",
+        "10/25일72미입실",
+        "10/26월31미입실",
+        "10/27화10미입실",
+        "변화 학생만",
+        "150명 모두 펼치기",
+        "계획 제출률›",
+        "변화 학생만",
+        "150명 모두 펼치기",
+        "기본값으로 되돌리기",
+        "취소",
+        "저장"
+      ]
+    }
+  },
+  {
+    "name": "table branches/search/settings/link",
+    "result": {
+      "counts": [
+        {
+          "name": "분당점",
+          "rows": 50,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n50명 중 상담 필요 15명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n수\n목\n금\n토\n일\n월\n화\n학습 시간\n막대 7일 · 선 평소 주\n진행률\n류서준\n3A\n결석 4일 연속·미제출\n5시간\n90%\n류유"
+        },
+        {
+          "name": "수지점",
+          "rows": 10,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n10명 중 상담 필요 3명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n수\n목\n금\n토\n일\n월\n화\n학습 시간\n막대 7일 · 선 평소 주\n진행률\n홍지우\n2B\n결석 3일 연속·미제출\n7시간\n89%\n홍도현"
+        },
+        {
+          "name": "강남점",
+          "rows": 150,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n150명 중 상담 필요 49명 · 관리 중 5명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n수\n목\n금\n토\n일\n월\n화\n학습 시간\n막대 7일 · 선 평소 주\n진행률\n권유진\n2B\n결석 4일 연속·미제출\n6시간\n88%\n오"
+        }
+      ],
+      "byClass": 50,
+      "empty": true,
+      "values": [
+        {
+          "id": "sc-setting-absenceDays",
+          "value": "1"
+        },
+        {
+          "id": "sc-setting-planMissingDays",
+          "value": "2"
+        },
+        {
+          "id": "sc-setting-studyDropPercent",
+          "value": "30"
+        },
+        {
+          "id": "sc-setting-executionRatePercent",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-subjectShareGapPoints",
+          "value": "20"
+        },
+        {
+          "id": "sc-setting-startShiftMinutes",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-minValidDays",
+          "value": "3"
+        },
+        {
+          "id": "sc-setting-cooldownDays",
+          "value": "7"
+        }
+      ],
+      "link": "/__preview/parent-report"
+    }
+  },
+  {
+    "name": "table old/new detail hover/history",
+    "result": {
+      "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+      "filtered": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n이지우 · 1건\n날짜\t학생\t확인 항목\t최근 진행\t기록자\n2026.10.28\t이지우\n고3 A반\n\t\n미입실\n1일\n\t관리 중\n계속 관리\n계속 관리 · 다음 점검 10월 30일\n⌄\n\t—",
+      "original": "이지우 · 계속 관리\n접기\n관리 시작 당시 · 2026.10.25\n미입실\n1일\n\n최근 7일 중 1일 미입실\n\n다음 확인 2026.10.30\n\n2026.10.25\n상담\n—\n\n상담 · 통화 — 예정된 입실일에 결석이 이어져 학생에게 연락함. 이번 주 입실 가능 일정을 다시 확인하고, 다음 연락 때 실제 입실 여부와 학습 계획을 함께 점검하기로 함.\n\n2026.10.25\n관리 시작\n—\n\n계속 관리 · 다음 점검 10월 28일\n\n2026.10.27\n상담\n—\n\n상담 · 통화 — 통화가 연결되지 않아 입실 가능한 날짜를 알려달라는 문자를 남김.\n\n2026.10.28\n상담\n—\n\n상담 · 문자 — 아직 일정 답변이 없어 관리 종료하지 않음. 다음 연락에서 미입실 이유와 이후 일정을 직접 확인할 예정임.\n\n2026.10.28\n학습 변화 확인\n—\n\n점검 · 나빠짐 — 연속 결석 1일 → 3일\n\n2026.10.28\n계속 관리\n—\n\n계속 관리 · 다음 점검 10월 30일\n\n현재 학생 지표",
+      "noHistory": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n강도현 · 0건\n\n이 학생의 관리 이력이 없습니다."
+    }
+  },
+  {
+    "name": "table branch exclude/restore/date/details",
+    "result": {
+      "before": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 140\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 150\n오시윤\n장하린\n신유진\n한도현\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n5 / 83\n권유진\n오도현\n윤수빈\n이서준\n외 1명\n14 / 133\n권유진\n오도현\n윤수빈\n이서준\n외 10명\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-4% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n136 / 140\n86%\n129 / 150\n93%\n130 / 140\n83%\n69 / 83\n89%\n119 / 133\n81%\n113 / 140\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음",
+      "after": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 집계 149명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 139\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 149\n오시윤\n장하린\n신유진\n한도현\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n4 / 82\n오도현\n윤수빈\n이서준\n정하준\n13 / 132\n오도현\n윤수빈\n이서준\n정하준\n외 9명\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-5% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n135 / 139\n86%\n128 / 149\n94%\n130 / 139\n84%\n69 / 82\n90%\n119 / 132\n81%\n113 / 139\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음\n\n권유진 복원",
+      "restoredEqual": true,
+      "dates": "10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화",
+      "dateButtons": 0,
+      "overflow": {
+        "width": 1266,
+        "scrollWidth": 1266
+      },
+      "tabAfter": "학생별",
+      "detail": "권유진"
+    }
+  },
+  {
+    "name": "minimal branches/search/settings/link",
+    "result": {
+      "counts": [
+        {
+          "name": "분당점",
+          "rows": 50,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n50명 중 상담 필요 15명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n학습 시간\n7일 / 평소 주\n입실\n계획 제출\n진행률\n류서준\n고3 A반\n결석 4일 연속·미제출\n5시간 8분16시간 39분\n2일"
+        },
+        {
+          "name": "수지점",
+          "rows": 10,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n10명 중 상담 필요 3명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n학습 시간\n7일 / 평소 주\n입실\n계획 제출\n진행률\n홍지우\n고2 B반\n결석 3일 연속·미제출\n7시간 6분14시간 51분\n3일\n"
+        },
+        {
+          "name": "강남점",
+          "rows": 150,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n150명 중 상담 필요 49명 · 관리 중 5명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n학생\n상태 · 사유\n학습 시간\n7일 / 평소 주\n입실\n계획 제출\n진행률\n권유진\n고2 B반\n결석 4일 연속·미제출\n6시간 7분19시간 45분\n2"
+        }
+      ],
+      "byClass": 50,
+      "empty": true,
+      "values": [
+        {
+          "id": "sc-setting-absenceDays",
+          "value": "1"
+        },
+        {
+          "id": "sc-setting-planMissingDays",
+          "value": "2"
+        },
+        {
+          "id": "sc-setting-studyDropPercent",
+          "value": "30"
+        },
+        {
+          "id": "sc-setting-executionRatePercent",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-subjectShareGapPoints",
+          "value": "20"
+        },
+        {
+          "id": "sc-setting-startShiftMinutes",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-minValidDays",
+          "value": "3"
+        },
+        {
+          "id": "sc-setting-cooldownDays",
+          "value": "7"
+        }
+      ],
+      "link": "/__preview/parent-report"
+    }
+  },
+  {
+    "name": "minimal old/new detail hover/history",
+    "result": {
+      "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+      "filtered": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n이지우 · 1건\n날짜\t학생\t확인 항목\t최근 진행\t기록자\n2026.10.28\t이지우\n고3 A반\n\t\n미입실\n1일\n\t관리 중\n계속 관리\n계속 관리 · 다음 점검 10월 30일\n⌄\n\t—",
+      "original": "이지우 · 계속 관리\n접기\n관리 시작 당시 · 2026.10.25\n미입실\n1일\n\n최근 7일 중 1일 미입실\n\n다음 확인 2026.10.30\n\n2026.10.25\n상담\n—\n\n상담 · 통화 — 예정된 입실일에 결석이 이어져 학생에게 연락함. 이번 주 입실 가능 일정을 다시 확인하고, 다음 연락 때 실제 입실 여부와 학습 계획을 함께 점검하기로 함.\n\n2026.10.25\n관리 시작\n—\n\n계속 관리 · 다음 점검 10월 28일\n\n2026.10.27\n상담\n—\n\n상담 · 통화 — 통화가 연결되지 않아 입실 가능한 날짜를 알려달라는 문자를 남김.\n\n2026.10.28\n상담\n—\n\n상담 · 문자 — 아직 일정 답변이 없어 관리 종료하지 않음. 다음 연락에서 미입실 이유와 이후 일정을 직접 확인할 예정임.\n\n2026.10.28\n학습 변화 확인\n—\n\n점검 · 나빠짐 — 연속 결석 1일 → 3일\n\n2026.10.28\n계속 관리\n—\n\n계속 관리 · 다음 점검 10월 30일\n\n현재 학생 지표",
+      "noHistory": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n강도현 · 0건\n\n이 학생의 관리 이력이 없습니다."
+    }
+  },
+  {
+    "name": "minimal branch exclude/restore/date/details",
+    "result": {
+      "before": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 140\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 150\n오시윤\n장하린\n신유진\n한도현\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n5 / 83\n권유진\n오도현\n윤수빈\n이서준\n외 1명\n14 / 133\n권유진\n오도현\n윤수빈\n이서준\n외 10명\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-4% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n136 / 140\n86%\n129 / 150\n93%\n130 / 140\n83%\n69 / 83\n89%\n119 / 133\n81%\n113 / 140\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음",
+      "after": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 집계 149명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 139\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 149\n오시윤\n장하린\n신유진\n한도현\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n4 / 82\n오도현\n윤수빈\n이서준\n정하준\n13 / 132\n오도현\n윤수빈\n이서준\n정하준\n외 9명\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-5% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n135 / 139\n86%\n128 / 149\n94%\n130 / 139\n84%\n69 / 82\n90%\n119 / 132\n81%\n113 / 139\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음\n\n권유진 복원",
+      "restoredEqual": true,
+      "dates": "10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화",
+      "dateButtons": 0,
+      "overflow": {
+        "width": 1266,
+        "scrollWidth": 1266
+      },
+      "tabAfter": "학생별",
+      "detail": "권유진"
+    }
+  },
+  {
+    "name": "groups branches/search/settings/link",
+    "result": {
+      "counts": [
+        {
+          "name": "분당점",
+          "rows": 50,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n50명 중 상담 필요 15명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n결석 6명\n류서준\n결석 4일 연속·미제출\n류유진\n결석 4일 연속·미제출\n황도현\n결석 4일 연속·미제출\n안시윤\n결석 3일 연속·미제출\n안지우\n결석"
+        },
+        {
+          "name": "수지점",
+          "rows": 10,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n10명 중 상담 필요 3명 · 관리 중 0명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n결석 1명\n홍지우\n결석 3일 연속·미제출\n과목 비중 1명\n홍도현\n수학 비중 32→5%\n계획 미제출 1명\n홍수빈\n계획 미제출 3일\n전체 명부 10명"
+        },
+        {
+          "name": "강남점",
+          "rows": 150,
+          "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n150명 중 상담 필요 49명 · 관리 중 5명 · 최근 7일 10/21–10/27, 평소는 이전 28일 같은 요일\n\n결석 19명\n권유진\n결석 4일 연속·미제출\n오도현\n결석 4일 연속·미제출\n윤수빈\n결석 4일 연속·미제출\n이서준\n결석 4일 연속·미제출\n정하준\n"
+        }
+      ],
+      "byClass": 50,
+      "empty": true,
+      "values": [
+        {
+          "id": "sc-setting-absenceDays",
+          "value": "1"
+        },
+        {
+          "id": "sc-setting-planMissingDays",
+          "value": "2"
+        },
+        {
+          "id": "sc-setting-studyDropPercent",
+          "value": "30"
+        },
+        {
+          "id": "sc-setting-executionRatePercent",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-subjectShareGapPoints",
+          "value": "20"
+        },
+        {
+          "id": "sc-setting-startShiftMinutes",
+          "value": "60"
+        },
+        {
+          "id": "sc-setting-minValidDays",
+          "value": "3"
+        },
+        {
+          "id": "sc-setting-cooldownDays",
+          "value": "7"
+        }
+      ],
+      "link": "/__preview/parent-report"
+    }
+  },
+  {
+    "name": "groups old/new detail hover/history",
+    "result": {
+      "detail": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+      "filtered": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n이지우 · 1건\n날짜\t학생\t확인 항목\t최근 진행\t기록자\n2026.10.28\t이지우\n고3 A반\n\t\n미입실\n1일\n\t관리 중\n계속 관리\n계속 관리 · 다음 점검 10월 30일\n⌄\n\t—",
+      "original": "이지우 · 계속 관리\n접기\n관리 시작 당시 · 2026.10.25\n미입실\n1일\n\n최근 7일 중 1일 미입실\n\n다음 확인 2026.10.30\n\n2026.10.25\n상담\n—\n\n상담 · 통화 — 예정된 입실일에 결석이 이어져 학생에게 연락함. 이번 주 입실 가능 일정을 다시 확인하고, 다음 연락 때 실제 입실 여부와 학습 계획을 함께 점검하기로 함.\n\n2026.10.25\n관리 시작\n—\n\n계속 관리 · 다음 점검 10월 28일\n\n2026.10.27\n상담\n—\n\n상담 · 통화 — 통화가 연결되지 않아 입실 가능한 날짜를 알려달라는 문자를 남김.\n\n2026.10.28\n상담\n—\n\n상담 · 문자 — 아직 일정 답변이 없어 관리 종료하지 않음. 다음 연락에서 미입실 이유와 이후 일정을 직접 확인할 예정임.\n\n2026.10.28\n학습 변화 확인\n—\n\n점검 · 나빠짐 — 연속 결석 1일 → 3일\n\n2026.10.28\n계속 관리\n—\n\n계속 관리 · 다음 점검 10월 30일\n\n현재 학생 지표",
+      "noHistory": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n학생\n전체 학생\n강도현 · 고3 A반\n강서윤 · 고3 A반\n강서준 · 고2 B반\n강수빈 · 고3 A반\n강시윤 · 고2 B반\n강예준 · 고3 A반\n강유진 · 고2 B반\n강지우 · 고2 B반\n강하린 · 고3 A반\n강하준 · 고3 A반\n권도현 · 고3 A반\n권서윤 · 고3 A반\n권서준 · 고2 B반\n권수빈 · 고3 A반\n권시윤 · 고2 B반\n권예준 · 고3 A반\n권유진 · 고2 B반\n권지우 · 고2 B반\n권하린 · 고3 A반\n권하준 · 고3 A반\n김도현 · 고2 B반\n김서윤 · 고3 A반\n김서준 · 고3 A반\n김수빈 · 고2 B반\n김시윤 · 고3 A반\n김예준 · 고3 A반\n김유진 · 고3 A반\n김지우 · 고3 A반\n김하린 · 고2 B반\n김하준 · 고3 A반\n박도현 · 고3 A반\n박서윤 · 고3 A반\n박서준 · 고2 B반\n박수빈 · 고3 A반\n박시윤 · 고2 B반\n박예준 · 고3 A반\n박유진 · 고2 B반\n박지우 · 고2 B반\n박하린 · 고3 A반\n박하준 · 고3 A반\n서도현 · 고2 B반\n서서윤 · 고3 A반\n서서준 · 고3 A반\n서수빈 · 고2 B반\n서시윤 · 고3 A반\n서예준 · 고3 A반\n서유진 · 고3 A반\n서지우 · 고3 A반\n서하린 · 고2 B반\n서하준 · 고3 A반\n신도현 · 고3 A반\n신서윤 · 고2 B반\n신서준 · 고3 A반\n신수빈 · 고3 A반\n신시윤 · 고3 A반\n신예준 · 고2 B반\n신유진 · 고3 A반\n신지우 · 고3 A반\n신하린 · 고3 A반\n신하준 · 고2 B반\n오도현 · 고3 A반\n오서윤 · 고3 A반\n오서준 · 고2 B반\n오수빈 · 고3 A반\n오시윤 · 고2 B반\n오예준 · 고3 A반\n오유진 · 고2 B반\n오지우 · 고2 B반\n오하린 · 고3 A반\n오하준 · 고3 A반\n윤도현 · 고3 A반\n윤서윤 · 고2 B반\n윤서준 · 고3 A반\n윤수빈 · 고3 A반\n윤시윤 · 고3 A반\n윤예준 · 고2 B반\n윤유진 · 고3 A반\n윤지우 · 고3 A반\n윤하린 · 고3 A반\n윤하준 · 고2 B반\n이도현 · 고3 A반\n이서윤 · 고2 B반\n이서준 · 고3 A반\n이수빈 · 고3 A반\n이시윤 · 고3 A반\n이예준 · 고2 B반\n이유진 · 고3 A반\n이지우 · 고3 A반\n이하린 · 고3 A반\n이하준 · 고2 B반\n임도현 · 고2 B반\n임서윤 · 고3 A반\n임서준 · 고3 A반\n임수빈 · 고2 B반\n임시윤 · 고3 A반\n임예준 · 고3 A반\n임유진 · 고3 A반\n임지우 · 고3 A반\n임하린 · 고2 B반\n임하준 · 고3 A반\n장도현 · 고3 A반\n장서윤 · 고3 A반\n장서준 · 고2 B반\n장수빈 · 고3 A반\n장시윤 · 고2 B반\n장예준 · 고3 A반\n장유진 · 고2 B반\n장지우 · 고2 B반\n장하린 · 고3 A반\n장하준 · 고3 A반\n정도현 · 고3 A반\n정서윤 · 고2 B반\n정서준 · 고3 A반\n정수빈 · 고3 A반\n정시윤 · 고3 A반\n정예준 · 고2 B반\n정유진 · 고3 A반\n정지우 · 고3 A반\n정하린 · 고3 A반\n정하준 · 고2 B반\n조도현 · 고2 B반\n조서윤 · 고3 A반\n조서준 · 고3 A반\n조수빈 · 고2 B반\n조시윤 · 고3 A반\n조예준 · 고3 A반\n조유진 · 고3 A반\n조지우 · 고3 A반\n조하린 · 고2 B반\n조하준 · 고3 A반\n최도현 · 고2 B반\n최서윤 · 고3 A반\n최서준 · 고3 A반\n최수빈 · 고2 B반\n최시윤 · 고3 A반\n최예준 · 고3 A반\n최유진 · 고3 A반\n최지우 · 고3 A반\n최하린 · 고2 B반\n최하준 · 고3 A반\n한도현 · 고3 A반\n한서윤 · 고2 B반\n한서준 · 고3 A반\n한수빈 · 고3 A반\n한시윤 · 고3 A반\n한예준 · 고2 B반\n한유진 · 고3 A반\n한지우 · 고3 A반\n한하린 · 고3 A반\n한하준 · 고2 B반\n전체 학생\n강도현 · 0건\n\n이 학생의 관리 이력이 없습니다."
+    }
+  },
+  {
+    "name": "groups branch exclude/restore/date/details",
+    "result": {
+      "before": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 140\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 150\n오시윤\n장하린\n신유진\n한도현\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n5 / 83\n권유진\n오도현\n윤수빈\n이서준\n외 1명\n14 / 133\n권유진\n오도현\n윤수빈\n이서준\n외 10명\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-4% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n136 / 140\n86%\n129 / 150\n93%\n130 / 140\n83%\n69 / 83\n89%\n119 / 133\n81%\n113 / 140\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음",
+      "after": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 집계 149명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 139\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 149\n오시윤\n장하린\n신유진\n한도현\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n4 / 82\n오도현\n윤수빈\n이서준\n정하준\n13 / 132\n오도현\n윤수빈\n이서준\n정하준\n외 9명\n9 / 139\n오도현\n윤수빈\n이서준\n정하준\n외 5명\n기록 없음 10\n학습 시간\n개인 평소 대비, 중앙값 (중간 50%)\n0%\n-5% ~ +7%\n+2%\n-5% ~ +8%\n0%\n-5% ~ +5%\n+1%\n-2% ~ +8%\n0%\n-4% ~ +4%\n+2%\n-4% ~ +5%\n+1%\n-4% ~ +6%\n입실 시각\n개인 평소 대비, 중앙값 (중간 50%)\n0분\n-7분 ~ +7분\n0분\n-5분 ~ +8분\n+1분\n-5분 ~ +8분\n+4분\n+3분 ~ +6분\n+1분\n-7분 ~ +9분\n0분\n-7분 ~ +5분\n0분\n-7분 ~ +5분\n계획 제출\n제출 / 기록 확인\n88%\n74 / 84\n97%\n135 / 139\n86%\n128 / 149\n94%\n130 / 139\n84%\n69 / 82\n90%\n119 / 132\n81%\n113 / 139\n결석 19명\n\n권유진\n오도현\n윤수빈\n이서준\n정하준\n박예준\n서시윤\n신하린\n오시윤\n임하린\n장하린\n조서윤\n신유진\n한도현\n강서윤\n이예준\n조수빈\n이지우\n최하준\n\n학습 감소 6명\n\n강하준\n서도현\n윤서윤\n장수빈\n최예준\n한하린\n\n입실 늦어짐 4명\n\n권하린\n김지우\n박서준\n최하준\n\n계획 미제출 17명\n\n강하린\n권서준\n김하준\n박서윤\n서지우\n신하준\n오예준\n윤도현\n장시윤\n장지우\n정시윤\n조유진\n최도현\n최수빈\n한서준\n한유진\n김도현\n\n집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음\n\n권유진 복원",
+      "restoredEqual": true,
+      "dates": "10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화",
+      "dateButtons": 0,
+      "overflow": {
+        "width": 1266,
+        "scrollWidth": 1266
+      },
+      "tabAfter": "학생별",
+      "detail": "권유진"
+    }
+  },
+  {
+    "name": "old save request only (NO DB WRITE)",
+    "result": {
+      "requests": [
+        {
+          "url": "http://localhost:5174/api/admin/student-care/cases",
+          "method": "POST",
+          "body": {
+            "branchId": "demo_large",
+            "studentId": "demo_s147",
+            "channel": "MEETING",
+            "actorName": "기능 심사",
+            "memo": "기능 심사 요청 확인\n줄바꿈 원문",
+            "reason": "ADJUSTMENT_NEEDED",
+            "recheckDate": "2026-11-04"
+          }
+        },
+        {
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
+          "method": "PUT",
+          "body": {
+            "absenceDays": 2,
+            "planMissingDays": 2,
+            "studyDropPercent": 30,
+            "executionRatePercent": 60,
+            "subjectShareGapPoints": 20,
+            "startShiftMinutes": 60,
+            "minValidDays": 3,
+            "cooldownDays": 7
+          }
+        }
+      ],
+      "alerts": [
+        "검수: DB 쓰기 차단",
+        "검수: DB 쓰기 차단"
+      ],
+      "actualPersistence": "UNVERIFIED: restore command denied Docker pipe access"
+    }
+  },
+  {
+    "name": "table save request only (NO DB WRITE)",
+    "result": {
+      "requests": [
+        {
+          "url": "http://localhost:5174/api/admin/student-care/cases",
+          "method": "POST",
+          "body": {
+            "branchId": "demo_large",
+            "studentId": "demo_s147",
+            "channel": "MEETING",
+            "actorName": "기능 심사",
+            "memo": "기능 심사 요청 확인\n줄바꿈 원문",
+            "reason": "ADJUSTMENT_NEEDED",
+            "recheckDate": "2026-11-04"
+          }
+        },
+        {
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
+          "method": "PUT",
+          "body": {
+            "absenceDays": 2,
+            "planMissingDays": 2,
+            "studyDropPercent": 30,
+            "executionRatePercent": 60,
+            "subjectShareGapPoints": 20,
+            "startShiftMinutes": 60,
+            "minValidDays": 3,
+            "cooldownDays": 7
+          }
+        }
+      ],
+      "alerts": [
+        "검수: DB 쓰기 차단",
+        "검수: DB 쓰기 차단"
+      ],
+      "actualPersistence": "UNVERIFIED: restore command denied Docker pipe access"
+    }
+  }
+]

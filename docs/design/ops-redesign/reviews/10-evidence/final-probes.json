@@ -1,0 +1,697 @@
+[
+  {
+    "branch": "demo_large",
+    "variant": "old",
+    "tab": "students",
+    "text": 5595,
+    "hiddenText": 217,
+    "firstScreenText": 390,
+    "controls": 157,
+    "toggles": 150,
+    "height": 12386,
+    "innerScroll": 0,
+    "travel": 13.8,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "old",
+    "tab": "detail",
+    "text": 6104,
+    "hiddenText": 218,
+    "firstScreenText": 324,
+    "controls": 189,
+    "toggles": 152,
+    "height": 14374,
+    "innerScroll": 0,
+    "travel": 16,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "old",
+    "tab": "branch",
+    "text": 1310,
+    "hiddenText": 2249,
+    "firstScreenText": 581,
+    "controls": 1741,
+    "toggles": 43,
+    "height": 1782,
+    "innerScroll": 0,
+    "travel": 2,
+    "minFont": 10,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "table",
+    "tab": "students",
+    "text": 2802,
+    "hiddenText": 105,
+    "firstScreenText": 1000,
+    "controls": 166,
+    "toggles": 0,
+    "height": 4334,
+    "innerScroll": 359,
+    "travel": 5.2,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "table",
+    "tab": "branch",
+    "text": 714,
+    "hiddenText": 53,
+    "firstScreenText": 714,
+    "controls": 79,
+    "toggles": 0,
+    "height": 1041,
+    "innerScroll": 0,
+    "travel": 1.2,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "minimal",
+    "tab": "students",
+    "text": 5452,
+    "hiddenText": 53,
+    "firstScreenText": 944,
+    "controls": 166,
+    "toggles": 0,
+    "height": 7279,
+    "innerScroll": 359,
+    "travel": 8.5,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "minimal",
+    "tab": "branch",
+    "text": 714,
+    "hiddenText": 53,
+    "firstScreenText": 714,
+    "controls": 79,
+    "toggles": 0,
+    "height": 1041,
+    "innerScroll": 0,
+    "travel": 1.2,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "groups",
+    "tab": "students",
+    "text": 1875,
+    "hiddenText": 53,
+    "firstScreenText": 703,
+    "controls": 227,
+    "toggles": 0,
+    "height": 3270,
+    "innerScroll": 359,
+    "travel": 4,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_large",
+    "variant": "groups",
+    "tab": "branch",
+    "text": 714,
+    "hiddenText": 53,
+    "firstScreenText": 714,
+    "controls": 79,
+    "toggles": 0,
+    "height": 1041,
+    "innerScroll": 0,
+    "travel": 1.2,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "old",
+    "tab": "students",
+    "text": 1917,
+    "hiddenText": 117,
+    "firstScreenText": 390,
+    "controls": 57,
+    "toggles": 50,
+    "height": 4386,
+    "innerScroll": 0,
+    "travel": 4.9,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "old",
+    "tab": "detail",
+    "text": 2444,
+    "hiddenText": 118,
+    "firstScreenText": 322,
+    "controls": 89,
+    "toggles": 52,
+    "height": 6374,
+    "innerScroll": 0,
+    "travel": 7.1,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "old",
+    "tab": "branch",
+    "text": 1251,
+    "hiddenText": 2233,
+    "firstScreenText": 464,
+    "controls": 616,
+    "toggles": 40,
+    "height": 1859,
+    "innerScroll": 0,
+    "travel": 2.1,
+    "minFont": 10,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "table",
+    "tab": "students",
+    "text": 1194,
+    "hiddenText": 105,
+    "firstScreenText": 830,
+    "controls": 66,
+    "toggles": 0,
+    "height": 1716,
+    "innerScroll": 359,
+    "travel": 2.3,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "table",
+    "tab": "branch",
+    "text": 558,
+    "hiddenText": 53,
+    "firstScreenText": 558,
+    "controls": 34,
+    "toggles": 0,
+    "height": 989,
+    "innerScroll": 0,
+    "travel": 1.1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "minimal",
+    "tab": "students",
+    "text": 2074,
+    "hiddenText": 53,
+    "firstScreenText": 926,
+    "controls": 66,
+    "toggles": 0,
+    "height": 2679,
+    "innerScroll": 359,
+    "travel": 3.4,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "minimal",
+    "tab": "branch",
+    "text": 558,
+    "hiddenText": 53,
+    "firstScreenText": 558,
+    "controls": 34,
+    "toggles": 0,
+    "height": 989,
+    "innerScroll": 0,
+    "travel": 1.1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "groups",
+    "tab": "students",
+    "text": 860,
+    "hiddenText": 53,
+    "firstScreenText": 608,
+    "controls": 81,
+    "toggles": 0,
+    "height": 1338,
+    "innerScroll": 359,
+    "travel": 1.9,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_medium",
+    "variant": "groups",
+    "tab": "branch",
+    "text": 558,
+    "hiddenText": 53,
+    "firstScreenText": 558,
+    "controls": 34,
+    "toggles": 0,
+    "height": 989,
+    "innerScroll": 0,
+    "travel": 1.1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "old",
+    "tab": "students",
+    "text": 476,
+    "hiddenText": 77,
+    "firstScreenText": 371,
+    "controls": 17,
+    "toggles": 10,
+    "height": 1186,
+    "innerScroll": 0,
+    "travel": 1.3,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "old",
+    "tab": "detail",
+    "text": 980,
+    "hiddenText": 78,
+    "firstScreenText": 322,
+    "controls": 49,
+    "toggles": 12,
+    "height": 3111,
+    "innerScroll": 0,
+    "travel": 3.5,
+    "minFont": 11,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "old",
+    "tab": "branch",
+    "text": 1177,
+    "hiddenText": 2107,
+    "firstScreenText": 438,
+    "controls": 194,
+    "toggles": 32,
+    "height": 1859,
+    "innerScroll": 0,
+    "travel": 2.1,
+    "minFont": 10,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "table",
+    "tab": "students",
+    "text": 634,
+    "hiddenText": 105,
+    "firstScreenText": 592,
+    "controls": 26,
+    "toggles": 0,
+    "height": 1106,
+    "innerScroll": 359,
+    "travel": 1.6,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "table",
+    "tab": "branch",
+    "text": 467,
+    "hiddenText": 53,
+    "firstScreenText": 467,
+    "controls": 12,
+    "toggles": 0,
+    "height": 900,
+    "innerScroll": 0,
+    "travel": 1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "minimal",
+    "tab": "students",
+    "text": 808,
+    "hiddenText": 53,
+    "firstScreenText": 766,
+    "controls": 26,
+    "toggles": 0,
+    "height": 1106,
+    "innerScroll": 359,
+    "travel": 1.6,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "minimal",
+    "tab": "branch",
+    "text": 467,
+    "hiddenText": 53,
+    "firstScreenText": 467,
+    "controls": 12,
+    "toggles": 0,
+    "height": 900,
+    "innerScroll": 0,
+    "travel": 1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "groups",
+    "tab": "students",
+    "text": 560,
+    "hiddenText": 53,
+    "firstScreenText": 518,
+    "controls": 29,
+    "toggles": 0,
+    "height": 1106,
+    "innerScroll": 359,
+    "travel": 1.6,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "branch": "demo_small",
+    "variant": "groups",
+    "tab": "branch",
+    "text": 467,
+    "hiddenText": 53,
+    "firstScreenText": 467,
+    "controls": 12,
+    "toggles": 0,
+    "height": 900,
+    "innerScroll": 0,
+    "travel": 1,
+    "minFont": 13,
+    "overflow": false
+  },
+  {
+    "name": "table desktop column geometry",
+    "rects": {
+      "grid": "88px 292px 112px 128px 46px",
+      "width": 730,
+      "children": [
+        {
+          "text": "학생",
+          "width": 88,
+          "left": 289,
+          "right": 377
+        },
+        {
+          "text": "상태 · 사유",
+          "width": 292,
+          "left": 387,
+          "right": 679
+        },
+        {
+          "text": "10/21수10/22목10/23금10/24토10/25일10/26월10/27화",
+          "width": 112,
+          "left": 689,
+          "right": 801
+        },
+        {
+          "text": "학습 시간막대 7일 · 선 평소 주",
+          "width": 128,
+          "left": 811,
+          "right": 939
+        },
+        {
+          "text": "진행률",
+          "width": 46,
+          "left": 949,
+          "right": 995
+        }
+      ]
+    }
+  },
+  {
+    "name": "clock geometry",
+    "width": 1600,
+    "theme": "light",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "clock geometry",
+    "width": 850,
+    "theme": "light",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "clock geometry",
+    "width": 390,
+    "theme": "light",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 32.859375,
+        "height": 35.09375,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 32.859375,
+        "height": 35.09375,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "clock geometry",
+    "width": 1600,
+    "theme": "dark",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "clock geometry",
+    "width": 850,
+    "theme": "dark",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 33.546875,
+        "height": 17.546875,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "clock geometry",
+    "width": 390,
+    "theme": "dark",
+    "geometry": [
+      {
+        "text": "18:39",
+        "width": 32.859375,
+        "height": 35.09375,
+        "lineHeight": "17.55px"
+      },
+      {
+        "text": "18:30",
+        "width": 32.859375,
+        "height": 35.09375,
+        "lineHeight": "17.55px"
+      }
+    ]
+  },
+  {
+    "name": "partial record displayed as total",
+    "text": "권예준\n고3 A반\n\n7일 7시간 9분 · 평소 주 14시간 53분 · 입실 3/3일 · 제출 3/3일 · 진행률 92%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n기록 없음\n입실\n기록 없음\n예정 없음\n입실\n기록 없음\n계획\n제출\n—\n제출\n—\n—\n제출\n—\n학습\n막대 실제 · 선 평소\n2:16\n2:22\n2:31\n입실\n평소 대비\n19:08\n+15분\n19:04\n+3분\n18:58\n+3분\n진행률\n실제 ÷ 계획\n90%\n93%\n93%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22% → 21%\n수학\n37% → 37%\n영어\n23% → 23%\n탐구\n19% → 20%\n\n불러오는 중\n\n지난 관리\n\n불러오는 중"
+  },
+  {
+    "name": "subject exact minutes",
+    "text": "김시윤\n고3 A반\n상담 필요\n\n수학 비중 29→5%\n\n7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n예정 없음\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n—\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:50\n2:59\n3:07\n3:11\n3:04\n2:43\n입실\n평소 대비\n18:18\n-2분\n18:00\n-2분\n18:07\n-2분\n16:44\n-2분\n18:03\n-2분\n18:10\n-2분\n진행률\n실제 ÷ 계획\n95%\n93%\n100%\n91%\n96%\n88%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24% → 23%\n수학\n29% → 5% (5시간 28분 → 0시간 51분)\n영어\n23% → 23%\n탐구\n25% → 49%\n\n불러오는 중\n\n지난 관리\n\n불러오는 중",
+    "barData": {
+      "text": "국어24% → 23%수학29% → 5% (5시간 28분 → 0시간 51분)영어23% → 23%탐구25% → 49%",
+      "titles": []
+    }
+  },
+  {
+    "name": "exclude persistence across tabs",
+    "text": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n강남점 150명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n결석\n결석 / 등원 예정\n2 / 84\n오시윤\n장하린\n4 / 140\n강서윤\n이예준\n조수빈\n최하준\n기록 없음 10\n4 / 150\n오시윤\n장하린\n신유진\n한도현\n10 / 140\n권유진\n오도현\n윤수빈\n이서준\n외 6명\n기록 없음 10\n5 / 83\n권유진\n오도현\n윤수빈\n이서준\n외",
+    "restoreButtons": 0
+  },
+  {
+    "name": "computed colors",
+    "theme": "light",
+    "colors": [
+      {
+        "sel": ".ops-chip",
+        "color": "rgb(185, 60, 10)",
+        "background": "rgb(255, 241, 232)",
+        "border": "rgb(185, 60, 10)",
+        "ratio": 5.116178365803596
+      },
+      {
+        "sel": ".ops-muted",
+        "color": "rgb(78, 89, 104)",
+        "background": "rgb(245, 246, 248)",
+        "border": "rgb(78, 89, 104)",
+        "ratio": 6.576927211272468
+      },
+      {
+        "sel": ".ops-link",
+        "missing": true
+      },
+      {
+        "sel": ".ops-status-check",
+        "color": "rgb(255, 255, 255)",
+        "background": "rgb(185, 60, 10)",
+        "border": "rgb(255, 255, 255)",
+        "ratio": 5.654914585566124
+      },
+      {
+        "sel": ".ops-att-off",
+        "color": "rgb(25, 31, 40)",
+        "background": "rgb(232, 243, 255)",
+        "border": "rgb(229, 232, 235)",
+        "ratio": 14.744359684318033
+      },
+      {
+        "sel": ".ops-att-unknown",
+        "color": "rgb(78, 89, 104)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(125, 135, 147)",
+        "ratio": 7.1119253402872324
+      },
+      {
+        "sel": ".ops-att-present",
+        "color": "rgb(25, 31, 40)",
+        "background": "rgb(196, 202, 210)",
+        "border": "rgb(25, 31, 40)",
+        "ratio": 10.03651382189219
+      }
+    ]
+  },
+  {
+    "name": "computed colors",
+    "theme": "dark",
+    "colors": [
+      {
+        "sel": ".ops-chip",
+        "color": "rgb(255, 154, 92)",
+        "background": "rgb(51, 32, 15)",
+        "border": "rgb(255, 154, 92)",
+        "ratio": 7.405336686755475
+      },
+      {
+        "sel": ".ops-muted",
+        "color": "rgb(182, 190, 201)",
+        "background": "rgb(16, 19, 24)",
+        "border": "rgb(182, 190, 201)",
+        "ratio": 9.923876815979993
+      },
+      {
+        "sel": ".ops-link",
+        "missing": true
+      },
+      {
+        "sel": ".ops-status-check",
+        "color": "rgb(11, 18, 32)",
+        "background": "rgb(255, 154, 92)",
+        "border": "rgb(11, 18, 32)",
+        "ratio": 8.94142506636514
+      },
+      {
+        "sel": ".ops-att-off",
+        "color": "rgb(238, 241, 245)",
+        "background": "rgb(22, 38, 61)",
+        "border": "rgb(49, 56, 67)",
+        "ratio": 13.444162119520817
+      },
+      {
+        "sel": ".ops-att-unknown",
+        "color": "rgb(182, 190, 201)",
+        "background": "rgb(25, 29, 36)",
+        "border": "rgb(115, 125, 138)",
+        "ratio": 9.011917754708385
+      },
+      {
+        "sel": ".ops-att-present",
+        "color": "rgb(238, 241, 245)",
+        "background": "rgb(74, 83, 97)",
+        "border": "rgb(238, 241, 245)",
+        "ratio": 6.862449677070865
+      }
+    ]
+  },
+  {
+    "name": "original precise weekday baseline tooltip",
+    "text": "10/22 (목)\n학습 시간\n3시간 8분\n요일 평균\n3시간 13분"
+  },
+  {
+    "name": "six-event history old",
+    "apiCount": 6,
+    "hasSixth": true,
+    "text": "김도현\n고2 B반\n관리 중\n접기\n10/21–10/27 · 최근 7일\n비교 9/23–10/20\n출결·계획 제출\n10/21\n수\n\t10/22\n목\n\t10/23\n금\n\t10/24\n토\n\t10/25\n일\n\t10/26\n월\n\t10/27\n화\n\n입실\t입실\t입실\t입실\t입실\t—\t입실\n제출\t제출\t제출\t제출\t제출\t—\t제출\n학습 시간\n18시간 34분\n기준 18시간 29분\n학습 시간\n요일 평균\n0h\n4h\n8h\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n입실 시각\n16:15\n기준 16:13\n입실 시각\n요일 평균\n09:00\n14:30\n20:00\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n—\n10/27\n화\n계획 대비 진행률\n94%\n기준 92%\n진행률\n계획 100%\n0%\n75%\n150%\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n—\n10/27\n화\n과목별 계획·실제 비중\n계획 / 실제\n0%\n50%\n100%\n국어\n-0.2%p\n계획\n24.7%\n실제\n24.5%\n수학\n차이 없음\n계획\n31.7%\n실제\n31.7%\n영어\n+0.1%p\n계획\n22.7%\n실제\n22.8%\n탐구\n+0.1%p\n계획\n20.9%\n실제\n21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n과거 관리 이력\n⌃\n\n2026-10-28 · 계속 관리 · 다음 점검 11월 4일\n\n2026-10-28 · 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n\n2026-10-27 · 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n\n2026-10-26 · 계속 관리 · 다음 점검 10월 28일\n\n2026-10-26 · 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.\n\n2026-10-25 · 여섯 번째 원문: 숨기면 실패"
+  },
+  {
+    "name": "six-event history table",
+    "apiCount": 6,
+    "hasSixth": false,
+    "text": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n저장\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함."
+  }
+]

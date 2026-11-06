@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-11-06T23:12:52.772Z",
+  "reportSections": [
+    {
+      "i": 1,
+      "present": true
+    },
+    {
+      "i": 2,
+      "present": true
+    },
+    {
+      "i": 3,
+      "present": true
+    },
+    {
+      "i": 4,
+      "present": true
+    },
+    {
+      "i": 5,
+      "present": true
+    },
+    {
+      "i": 6,
+      "present": true
+    },
+    {
+      "i": 7,
+      "present": true
+    }
+  ],
+  "sourceChangedSinceFinalSnapshot": [
+    "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\OpsBranch.tsx",
+    "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\opsModel.test.mjs",
+    "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\opsModel.ts"
+  ],
+  "boardUnchanged": true,
+  "boardCounts": {
+    "students": 150,
+    "needsCheck": 49,
+    "inAdjustment": 5
+  },
+  "layoutStates": 72,
+  "layoutLoggedErrors": [
+    {
+      "theme": "light",
+      "width": 390,
+      "variant": "old",
+      "consoleError": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+    }
+  ],
+  "interactionItems": 25,
+  "interactionErrors": [],
+  "edgeItems": 12,
+  "edgeErrors": [],
+  "consoleRecheck": {
+    "states": 24,
+    "errors": [],
+    "failures": []
+  }
+}

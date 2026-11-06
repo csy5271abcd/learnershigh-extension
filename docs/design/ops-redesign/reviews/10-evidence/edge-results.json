@@ -1,0 +1,408 @@
+[
+  {
+    "name": "original branch exclude/restore, multi compare, date expansion",
+    "result": {
+      "excluded": "149명 선택 / 전체 150명\n학생 포함·제외",
+      "restored": "전체 150명\n학생 포함·제외",
+      "checked": 2,
+      "dates": "10/26 (월) 미입실\n결석 14명\n권유진\n박예준\n서시윤\n신유진\n신하린\n오도현\n오시윤\n윤수빈\n이서준\n임하린\n장하린\n정하준\n조서윤\n한도현\n매주 안 오는 요일 17명\n강시윤\n강지우\n권하준\n김도현\n김수빈\n박하린\n서서윤\n서예준\n오서준\n윤서준\n윤유진\n이시윤\n임지우\n장예준\n정도현\n최유진\n한하준"
+    }
+  },
+  {
+    "name": "old board 503/retry",
+    "result": {
+      "error": "학생 케어\n학습관\n강남점\n분당점\n수지점\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n학생 기록을 불러오지 못했습니다. 다시 시도",
+      "rows": 150,
+      "hits": 4
+    }
+  },
+  {
+    "name": "old metrics 503/retry",
+    "result": {
+      "error": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n학생 기록을 불러오지 못했습니다. 다시 시도",
+      "rows": 150,
+      "hits": 3
+    }
+  },
+  {
+    "name": "table board 503/retry",
+    "result": {
+      "error": "학생 케어\n학습관\n강남점\n분당점\n수지점\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n학생 기록을 불러오지 못했습니다.\n\n다시 시도",
+      "rows": 150,
+      "hits": 2
+    }
+  },
+  {
+    "name": "table metrics 503/retry",
+    "result": {
+      "error": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n학생 기록을 불러오지 못했습니다.\n\n다시 시도",
+      "rows": 150,
+      "hits": 2
+    }
+  },
+  {
+    "name": "ops loading is distinct",
+    "result": {
+      "loading": "학생 케어\n학습관\n강남점\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n불러오는 중",
+      "rows": 150
+    }
+  },
+  {
+    "name": "ops empty branches",
+    "result": {
+      "text": "학생 케어\n학습관\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n불러오는 중"
+    }
+  },
+  {
+    "name": "ops stale branch fallback",
+    "result": {
+      "text": "학생 케어\n학습관\n분당점\n수지점\n기준일 10월 27일\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n50명 중 상담 필요 15명 · 관리 중 0명 · 최근 7일 10/21–10/27 (평소: 이전 4주 같은 요일)\n\n학생\n상태 · 사유\n수\n목\n금\n토\n일\n월\n화\n학습 시간\n막대 7일 · 선 평소 주\n진행률\n류서준\n3A\n결석 4일 연속·미제출\n5시간\n90%\n류유진\n3A\n결석 4일 연속·미제출\n6시간\n93%\n황도현\n2B\n결",
+      "rows": 50
+    }
+  },
+  {
+    "name": "recheck UI via substituted GET; command intercepted (NO DB WRITE)",
+    "result": {
+      "text": "김도현\n고2 B반\n관리 중 · 11/4\n\n관리 사유 계획 미제출\n\n7일 18시간 34분 · 평소 주 18시간 29분 · 입실 6/6일 · 제출 6/6일 · 진행률 94%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n입실\n입실\n입실\n입실\n예정 없음\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n—\n제출\n학습\n막대 실제 · 선 평소\n1:39\n1:46\n1:36\n6:11\n5:35\n1:47\n입실\n평소 대비\n19:15\n+3분\n18:58\n-10분\n19:06\n-4분\n10:24\n+3분\n10:32\n+15분\n19:13\n+3분\n진행률\n실제 ÷ 계획\n93%\n96%\n94%\n98%\n86%\n104%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n25% → 25%\n수학\n32% → 32%\n영어\n23% → 23%\n탐구\n21% → 21%\n학습 변화 확인\n기록자\n관리 종료\n계속 관리\n지난 관리\n10/28 계속 관리 · 다음 점검 11월 4일\n10/28 점검 · 나빠짐 — 계획 미제출 2일 → 3일\n10/27 상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.\n10/26 계속 관리 · 다음 점검 10월 28일\n10/26 상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+      "requests": [
+        {
+          "decision": "CLOSE"
+        },
+        {
+          "decision": "CONTINUE",
+          "recheckDate": "2026-11-04"
+        }
+      ],
+      "serverRecheck": "UNVERIFIED: no due case in initial DB"
+    }
+  },
+  {
+    "name": "mobile click jump, no return and exact value hover",
+    "result": {
+      "before": 0,
+      "after": 7320,
+      "detailGeometry": {
+        "top": 0.40625,
+        "height": 1453.984375
+      },
+      "buttons": [
+        "저장"
+      ],
+      "cells": [
+        {
+          "text": "",
+          "width": 32.84375,
+          "height": 0
+        },
+        {
+          "text": "18:39-7분",
+          "width": 32.859375,
+          "height": 52.640625
+        },
+        {
+          "text": "18:30-7분",
+          "width": 32.859375,
+          "height": 52.640625
+        }
+      ],
+      "tooltips": 0
+    }
+  },
+  {
+    "name": "synthetic independent records and 3/5 weekday (GET substitution only)",
+    "result": {
+      "input": {
+        "day": {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "SUBMITTED",
+          "scheduled": false,
+          "minutes": 120,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 120
+        },
+        "thurs": [
+          {
+            "date": "2026-09-24",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-01",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-08",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-15",
+            "attendance": "PRESENT"
+          }
+        ],
+        "currentThurs": {
+          "date": "2026-10-22",
+          "attendance": "PRESENT",
+          "submission": "SUBMITTED",
+          "scheduled": true,
+          "minutes": 147,
+          "startMinutes": 1126,
+          "plannedMinutes": 176,
+          "actualMinutes": 147
+        }
+      },
+      "text": "강도현\n고3 A반\n\n매주 목 결석\n\n7일 15시간 26분 · 평소 주 15시간 26분 · 입실 6/6일 · 제출 6/6일 · 진행률 86%\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n2:27\n2:27\n2:49\n2:49\n2:27\n2:27\n입실\n평소 대비\n18:46\n-10분\n18:54\n-4분\n17:32\n+3분\n17:40\n+15분\n18:53\n-4분\n19:01\n+3분\n진행률\n실제 ÷ 계획\n84%\n83%\n82%\n90%\n89%\n89%\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n23% → 23%\n수학\n32% → 32%\n영어\n23% → 22%\n탐구\n23% → 23%\n\n표시된 사유가 없어 상담 기록 대상이 아닙니다.\n\n지난 관리\n\n관리 이력 없음",
+      "limits": "Synthetic DTO: aggregate current was held fixed to isolate day rendering; not production DB observation"
+    }
+  },
+  {
+    "name": "sample completeness and missing history",
+    "result": {
+      "nonpresent": [],
+      "offsubmit": [],
+      "unknown": [
+        {
+          "student": {
+            "studentId": "demo_s148",
+            "studentName": "권예준",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 429,
+            "minutesPerAttendance": 143,
+            "averageStartMinutes": 1143.3333333333333,
+            "startSamples": 3,
+            "plannedMinutes": 465,
+            "actualMinutes": 429,
+            "executionRate": 92.25806451612904,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s006",
+            "studentName": "김하린",
+            "className": "고2 B반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 556,
+            "minutesPerAttendance": 185.33333333333334,
+            "averageStartMinutes": 1107.3333333333333,
+            "startSamples": 3,
+            "plannedMinutes": 572,
+            "actualMinutes": 556,
+            "executionRate": 97.2027972027972,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s029",
+            "studentName": "박수빈",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 511,
+            "minutesPerAttendance": 170.33333333333334,
+            "averageStartMinutes": 1121.3333333333333,
+            "startSamples": 3,
+            "plannedMinutes": 527,
+            "actualMinutes": 511,
+            "executionRate": 96.96394686907021,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s131",
+            "studentName": "신서준",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 606,
+            "minutesPerAttendance": 202,
+            "averageStartMinutes": 1082.6666666666667,
+            "startSamples": 3,
+            "plannedMinutes": 654,
+            "actualMinutes": 606,
+            "executionRate": 92.66055045871559,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s114",
+            "studentName": "오지우",
+            "className": "고2 B반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 519,
+            "minutesPerAttendance": 173,
+            "averageStartMinutes": 1151.3333333333333,
+            "startSamples": 3,
+            "plannedMinutes": 571,
+            "actualMinutes": 519,
+            "executionRate": 90.89316987740806,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s080",
+            "studentName": "윤시윤",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 429,
+            "minutesPerAttendance": 143,
+            "averageStartMinutes": 1087.6666666666667,
+            "startSamples": 3,
+            "plannedMinutes": 464,
+            "actualMinutes": 429,
+            "executionRate": 92.45689655172414,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s012",
+            "studentName": "이서윤",
+            "className": "고2 B반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 429,
+            "minutesPerAttendance": 143,
+            "averageStartMinutes": 1120.3333333333333,
+            "startSamples": 3,
+            "plannedMinutes": 480,
+            "actualMinutes": 429,
+            "executionRate": 89.375,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s097",
+            "studentName": "임유진",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 511,
+            "minutesPerAttendance": 170.33333333333334,
+            "averageStartMinutes": 1090,
+            "startSamples": 3,
+            "plannedMinutes": 531,
+            "actualMinutes": 511,
+            "executionRate": 96.23352165725048,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s046",
+            "studentName": "정하린",
+            "className": "고3 A반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 519,
+            "minutesPerAttendance": 173,
+            "averageStartMinutes": 1104,
+            "startSamples": 3,
+            "plannedMinutes": 550,
+            "actualMinutes": 519,
+            "executionRate": 94.36363636363636,
+            "comparablePlanDays": 3
+          }
+        },
+        {
+          "student": {
+            "studentId": "demo_s063",
+            "studentName": "조도현",
+            "className": "고2 B반",
+            "branchId": "demo_large"
+          },
+          "current": {
+            "calendarDays": 7,
+            "recordedDays": 4,
+            "attendanceDays": 3,
+            "scheduledAbsenceDays": 0,
+            "submissionDays": 3,
+            "submissionRecordedDays": 3,
+            "studyMinutes": 606,
+            "minutesPerAttendance": 202,
+            "averageStartMinutes": 1114,
+            "startSamples": 3,
+            "plannedMinutes": 628,
+            "actualMinutes": 606,
+            "executionRate": 96.4968152866242,
+            "comparablePlanDays": 3
+          }
+        }
+      ],
+      "historyCount": 5
+    }
+  }
+]

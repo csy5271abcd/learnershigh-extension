@@ -1,0 +1,619 @@
+{
+  "asOf": "2026-10-27",
+  "student": {
+    "studentId": "demo_s003",
+    "studentName": "김도현",
+    "className": "고2 B반",
+    "branchId": "demo_large"
+  },
+  "signals": [],
+  "deferred": null,
+  "dailyStudy": [
+    {
+      "date": "2026-10-14",
+      "minutes": 101
+    },
+    {
+      "date": "2026-10-15",
+      "minutes": 108
+    },
+    {
+      "date": "2026-10-16",
+      "minutes": 98
+    },
+    {
+      "date": "2026-10-17",
+      "minutes": 378
+    },
+    {
+      "date": "2026-10-18",
+      "minutes": 342
+    },
+    {
+      "date": "2026-10-19",
+      "minutes": 0
+    },
+    {
+      "date": "2026-10-20",
+      "minutes": 92
+    },
+    {
+      "date": "2026-10-21",
+      "minutes": 99
+    },
+    {
+      "date": "2026-10-22",
+      "minutes": 106
+    },
+    {
+      "date": "2026-10-23",
+      "minutes": 96
+    },
+    {
+      "date": "2026-10-24",
+      "minutes": 371
+    },
+    {
+      "date": "2026-10-25",
+      "minutes": 335
+    },
+    {
+      "date": "2026-10-26",
+      "minutes": 0
+    },
+    {
+      "date": "2026-10-27",
+      "minutes": 107
+    }
+  ],
+  "usualDailyMinutes": 158,
+  "activeCase": {
+    "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+    "studentId": "demo_s003",
+    "branchId": "demo_large",
+    "status": "IN_ADJUSTMENT",
+    "reason": "ADJUSTMENT_NEEDED",
+    "closeType": null,
+    "openedOn": "2026-10-26",
+    "closedOn": null,
+    "baseline": [
+      {
+        "type": "PLAN_MISSING",
+        "label": "계획 미제출",
+        "summary": "최근 7일 중 2일 미제출",
+        "value": 2,
+        "target": null,
+        "unit": "DAYS"
+      }
+    ],
+    "recheckDate": "2026-11-04",
+    "recheckDue": false,
+    "comparison": null,
+    "events": [
+      {
+        "eventId": "evt_a18d5b11-78b7-44bc-bc04-a90b139e64d1",
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "type": "REASON_CONFIRMED",
+        "occurredOn": "2026-10-26",
+        "createdAt": "2026-10-26T12:00:00+09:00",
+        "content": "상담 · 면담 — 입실은 하고 있으나 계획 제출을 빠뜨리는 날이 반복됨. 입실 후 첫 학습을 시작하기 전에 계획을 제출하고, 어려운 날에는 실제 가능한 분량으로 작성하기로 함.",
+        "noteChannel": "MEETING",
+        "actorName": null
+      },
+      {
+        "eventId": "evt_be0a676d-fa08-4368-aeb8-78779a0f3838",
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "type": "ADJUSTMENT_STARTED",
+        "occurredOn": "2026-10-26",
+        "createdAt": "2026-10-26T12:00:00+09:00",
+        "content": "계속 관리 · 다음 점검 10월 28일",
+        "noteChannel": null,
+        "actorName": null
+      },
+      {
+        "eventId": "evt_f3223fe4-a33b-4443-955d-f475006f2fd9",
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "type": "NOTE",
+        "occurredOn": "2026-10-27",
+        "createdAt": "2026-10-27T12:00:00+09:00",
+        "content": "상담 · 문자 — 제출 방법은 알고 있으나 바로 공부를 시작하다 잊는다고 답함. 다음 입실 때 제출 여부를 함께 확인하기로 함.",
+        "noteChannel": "MESSAGE",
+        "actorName": null
+      },
+      {
+        "eventId": "evt_f5dfc883-4844-496d-ad08-f8004eaac0bf",
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "type": "RECHECKED",
+        "occurredOn": "2026-10-28",
+        "createdAt": "2026-10-28T12:00:00+09:00",
+        "content": "점검 · 나빠짐 — 계획 미제출 2일 → 3일",
+        "noteChannel": null,
+        "actorName": null
+      },
+      {
+        "eventId": "evt_0323498b-5a41-4a9b-9c5a-e3e3d9b4dc18",
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "type": "CONTINUED",
+        "occurredOn": "2026-10-28",
+        "createdAt": "2026-10-28T12:00:00+09:00",
+        "content": "계속 관리 · 다음 점검 11월 4일",
+        "noteChannel": null,
+        "actorName": null
+      }
+    ]
+  },
+  "review": {
+    "from": "2026-10-21",
+    "to": "2026-10-27",
+    "baselineFrom": "2026-09-23",
+    "baselineTo": "2026-10-20",
+    "days": [
+      {
+        "date": "2026-10-21",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 99,
+        "startMinutes": 1155,
+        "plannedMinutes": 107,
+        "actualMinutes": 99
+      },
+      {
+        "date": "2026-10-22",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 106,
+        "startMinutes": 1138,
+        "plannedMinutes": 110,
+        "actualMinutes": 106
+      },
+      {
+        "date": "2026-10-23",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 96,
+        "startMinutes": 1146,
+        "plannedMinutes": 102,
+        "actualMinutes": 96
+      },
+      {
+        "date": "2026-10-24",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 371,
+        "startMinutes": 624,
+        "plannedMinutes": 378,
+        "actualMinutes": 371
+      },
+      {
+        "date": "2026-10-25",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 335,
+        "startMinutes": 632,
+        "plannedMinutes": 389,
+        "actualMinutes": 335
+      },
+      {
+        "date": "2026-10-26",
+        "attendance": "UNSCHEDULED",
+        "submission": "MISSING",
+        "scheduled": false,
+        "minutes": 0,
+        "startMinutes": null,
+        "plannedMinutes": null,
+        "actualMinutes": 0
+      },
+      {
+        "date": "2026-10-27",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 107,
+        "startMinutes": 1153,
+        "plannedMinutes": 103,
+        "actualMinutes": 107
+      }
+    ],
+    "baselineDays": [
+      {
+        "date": "2026-09-23",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 107,
+        "startMinutes": 1156,
+        "plannedMinutes": 111,
+        "actualMinutes": 107
+      },
+      {
+        "date": "2026-09-24",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 97,
+        "startMinutes": 1139,
+        "plannedMinutes": 103,
+        "actualMinutes": 97
+      },
+      {
+        "date": "2026-09-25",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 104,
+        "startMinutes": 1147,
+        "plannedMinutes": 106,
+        "actualMinutes": 104
+      },
+      {
+        "date": "2026-09-26",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 338,
+        "startMinutes": 625,
+        "plannedMinutes": 392,
+        "actualMinutes": 338
+      },
+      {
+        "date": "2026-09-27",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 364,
+        "startMinutes": 608,
+        "plannedMinutes": 403,
+        "actualMinutes": 364
+      },
+      {
+        "date": "2026-09-28",
+        "attendance": "UNSCHEDULED",
+        "submission": "MISSING",
+        "scheduled": false,
+        "minutes": 0,
+        "startMinutes": null,
+        "plannedMinutes": null,
+        "actualMinutes": 0
+      },
+      {
+        "date": "2026-09-29",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 98,
+        "startMinutes": 1154,
+        "plannedMinutes": 107,
+        "actualMinutes": 98
+      },
+      {
+        "date": "2026-09-30",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 105,
+        "startMinutes": 1162,
+        "plannedMinutes": 110,
+        "actualMinutes": 105
+      },
+      {
+        "date": "2026-10-01",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 95,
+        "startMinutes": 1145,
+        "plannedMinutes": 102,
+        "actualMinutes": 95
+      },
+      {
+        "date": "2026-10-02",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 102,
+        "startMinutes": 1153,
+        "plannedMinutes": 105,
+        "actualMinutes": 102
+      },
+      {
+        "date": "2026-10-03",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 331,
+        "startMinutes": 631,
+        "plannedMinutes": 389,
+        "actualMinutes": 331
+      },
+      {
+        "date": "2026-10-04",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 356,
+        "startMinutes": 614,
+        "plannedMinutes": 400,
+        "actualMinutes": 356
+      },
+      {
+        "date": "2026-10-05",
+        "attendance": "UNSCHEDULED",
+        "submission": "MISSING",
+        "scheduled": false,
+        "minutes": 0,
+        "startMinutes": null,
+        "plannedMinutes": null,
+        "actualMinutes": 0
+      },
+      {
+        "date": "2026-10-06",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 96,
+        "startMinutes": 1160,
+        "plannedMinutes": 106,
+        "actualMinutes": 96
+      },
+      {
+        "date": "2026-10-07",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 103,
+        "startMinutes": 1143,
+        "plannedMinutes": 109,
+        "actualMinutes": 103
+      },
+      {
+        "date": "2026-10-08",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 93,
+        "startMinutes": 1151,
+        "plannedMinutes": 112,
+        "actualMinutes": 93
+      },
+      {
+        "date": "2026-10-09",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 100,
+        "startMinutes": 1159,
+        "plannedMinutes": 104,
+        "actualMinutes": 100
+      },
+      {
+        "date": "2026-10-10",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 385,
+        "startMinutes": 612,
+        "plannedMinutes": 385,
+        "actualMinutes": 385
+      },
+      {
+        "date": "2026-10-11",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 349,
+        "startMinutes": 620,
+        "plannedMinutes": 396,
+        "actualMinutes": 349
+      },
+      {
+        "date": "2026-10-12",
+        "attendance": "UNSCHEDULED",
+        "submission": "MISSING",
+        "scheduled": false,
+        "minutes": 0,
+        "startMinutes": null,
+        "plannedMinutes": null,
+        "actualMinutes": 0
+      },
+      {
+        "date": "2026-10-13",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 94,
+        "startMinutes": 1141,
+        "plannedMinutes": 105,
+        "actualMinutes": 94
+      },
+      {
+        "date": "2026-10-14",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 101,
+        "startMinutes": 1149,
+        "plannedMinutes": 108,
+        "actualMinutes": 101
+      },
+      {
+        "date": "2026-10-15",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 108,
+        "startMinutes": 1157,
+        "plannedMinutes": 111,
+        "actualMinutes": 108
+      },
+      {
+        "date": "2026-10-16",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 98,
+        "startMinutes": 1140,
+        "plannedMinutes": 103,
+        "actualMinutes": 98
+      },
+      {
+        "date": "2026-10-17",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 378,
+        "startMinutes": 618,
+        "plannedMinutes": 382,
+        "actualMinutes": 378
+      },
+      {
+        "date": "2026-10-18",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 342,
+        "startMinutes": 626,
+        "plannedMinutes": 392,
+        "actualMinutes": 342
+      },
+      {
+        "date": "2026-10-19",
+        "attendance": "UNSCHEDULED",
+        "submission": "MISSING",
+        "scheduled": false,
+        "minutes": 0,
+        "startMinutes": null,
+        "plannedMinutes": null,
+        "actualMinutes": 0
+      },
+      {
+        "date": "2026-10-20",
+        "attendance": "PRESENT",
+        "submission": "SUBMITTED",
+        "scheduled": true,
+        "minutes": 92,
+        "startMinutes": 1147,
+        "plannedMinutes": 104,
+        "actualMinutes": 92
+      }
+    ],
+    "current": {
+      "calendarDays": 7,
+      "recordedDays": 7,
+      "attendanceDays": 6,
+      "scheduledAbsenceDays": 0,
+      "submissionDays": 6,
+      "submissionRecordedDays": 6,
+      "studyMinutes": 1114,
+      "minutesPerAttendance": 185.66666666666666,
+      "averageStartMinutes": 974.6666666666666,
+      "startSamples": 6,
+      "plannedMinutes": 1189,
+      "actualMinutes": 1114,
+      "executionRate": 93.69217830109335,
+      "comparablePlanDays": 6
+    },
+    "baseline": {
+      "calendarDays": 28,
+      "recordedDays": 28,
+      "attendanceDays": 24,
+      "scheduledAbsenceDays": 0,
+      "submissionDays": 24,
+      "submissionRecordedDays": 24,
+      "studyMinutes": 4436,
+      "minutesPerAttendance": 184.83333333333334,
+      "averageStartMinutes": 973.2083333333334,
+      "startSamples": 24,
+      "plannedMinutes": 4845,
+      "actualMinutes": 4436,
+      "executionRate": 91.55830753353973,
+      "comparablePlanDays": 24
+    },
+    "weekdayBaseline": [
+      {
+        "date": "2026-10-21",
+        "minutes": 104,
+        "startMinutes": 1152.5,
+        "samples": 4,
+        "startSamples": 4
+      },
+      {
+        "date": "2026-10-22",
+        "minutes": 98.25,
+        "startMinutes": 1148,
+        "samples": 4,
+        "startSamples": 4
+      },
+      {
+        "date": "2026-10-23",
+        "minutes": 101,
+        "startMinutes": 1149.75,
+        "samples": 4,
+        "startSamples": 4
+      },
+      {
+        "date": "2026-10-24",
+        "minutes": 358,
+        "startMinutes": 621.5,
+        "samples": 4,
+        "startSamples": 4
+      },
+      {
+        "date": "2026-10-25",
+        "minutes": 352.75,
+        "startMinutes": 617,
+        "samples": 4,
+        "startSamples": 4
+      },
+      {
+        "date": "2026-10-26",
+        "minutes": 0,
+        "startMinutes": null,
+        "samples": 4,
+        "startSamples": 0
+      },
+      {
+        "date": "2026-10-27",
+        "minutes": 95,
+        "startMinutes": 1150.5,
+        "samples": 4,
+        "startSamples": 4
+      }
+    ],
+    "subjects": [
+      {
+        "name": "국어",
+        "plannedMinutes": 294,
+        "actualMinutes": 273,
+        "plannedShare": 24.726661059714047,
+        "actualShare": 24.506283662477557
+      },
+      {
+        "name": "수학",
+        "plannedMinutes": 377,
+        "actualMinutes": 353,
+        "plannedShare": 31.70731707317073,
+        "actualShare": 31.68761220825853
+      },
+      {
+        "name": "영어",
+        "plannedMinutes": 270,
+        "actualMinutes": 254,
+        "plannedShare": 22.70815811606392,
+        "actualShare": 22.800718132854577
+      },
+      {
+        "name": "탐구",
+        "plannedMinutes": 248,
+        "actualMinutes": 234,
+        "plannedShare": 20.857863751051305,
+        "actualShare": 21.005385996409334
+      }
+    ]
+  },
+  "today": "2026-10-28"
+}

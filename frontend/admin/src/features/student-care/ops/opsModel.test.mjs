@@ -28,16 +28,25 @@ test('absence pattern separates consecutive and scattered; off days do not break
 })
 
 test('weekly same-day absence is found over 35 days and matches the answer key', () => {
-  const found = rows.filter((r) => r.weekdayAbsence).map((r) => `${r.student.studentName}(${r.weekdayAbsence})`).sort()
+  const found = rows.filter((r) => r.weekdayAbsence).map((r) => `${r.student.studentName}(${r.weekdayAbsence.dow})`).sort()
   assert.deepEqual(found, [...answers.Q15.answer].sort())
-  assert.equal(weekdayAbsence([day('absent', { dow: '목' }), day('absent', { dow: '목' })]), null)
+  assert.equal(weekdayAbsence([day('absent', { dow: '목' }), day('absent', { dow: '목' }), day('absent', { dow: '목' }), day('present', { dow: '목' })]), null)
+  assert.deepEqual(weekdayAbsence([1, 2, 3, 4].map(() => day('absent', { dow: '목' })).concat([day('present', { dow: '목' })])), { dow: '목', absent: 4, weeks: 5 })
 })
 
-test('absent days have no minutes (not drawn as 0) and unscheduled days are not missed plans', () => {
+test('absent days with 0 minutes are not drawn as 0; unscheduled MISSING is not a missed plan', () => {
   for (const r of rows) for (const d of r.days) {
     if (d.attendance === 'absent') assert.equal(d.minutes, null)
     if (d.attendance === 'off') assert.notEqual(d.submission, 'missing')
   }
+})
+
+test('submission and study records stay independent of schedule and attendance (contract 반례)', () => {
+  const review = { days: [{ date: '2026-10-21', attendance: 'UNSCHEDULED', submission: 'SUBMITTED', scheduled: false, minutes: 120, startMinutes: null, plannedMinutes: 130, actualMinutes: 120 }], baselineDays: [], weekdayBaseline: [{ date: '2026-10-21', minutes: 100, startMinutes: null, samples: 4, startSamples: 0 }],
+    current: { studyMinutes: 120, executionRate: 92, comparablePlanDays: 1, recordedDays: 1 }, baseline: { recordedDays: 28, studyMinutes: 400 }, subjects: [] }
+  const [r] = buildOpsRoster({ needsCheck: [], inAdjustment: [], deferred: [] }, { students: [{ student: { studentId: 'z', studentName: 'z', branchId: 'b' }, review }] })
+  assert.equal(r.days[0].submission, 'submitted')
+  assert.equal(r.days[0].minutes, 120)
 })
 
 test('branch study change uses paired same-weekday observations (Q13 definition)', () => {

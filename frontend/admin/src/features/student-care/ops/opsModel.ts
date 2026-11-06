@@ -37,7 +37,7 @@ export interface OpsStudent {
   week: { minutes: number | null; usualWeek: number | null; attended: number; scheduled: number; submitted: number; submitKnown: number; executionRate: number | null; comparablePlanDays: number }
   subjects: ServerWeeklyReview['subjects']
   absencePattern: '연속' | '흩어짐' | null
-  weekdayAbsence: string | null
+  weekdayAbsence: WeekdayAbsence | null
   order: number
 }
 
@@ -57,14 +57,17 @@ export const clock = (minutes: number | null) => minutes === null ? '—' : `${S
 function toDays(review: ServerWeeklyReview, records: ServerWeeklyReview['days'], withUsual: boolean): OpsDay[] {
   return records.map((d, i) => {
     const attendance: OpsAttendance = d.attendance === 'PRESENT' ? 'present' : d.attendance === 'ABSENT' ? 'absent' : d.attendance === 'UNSCHEDULED' ? 'off' : 'unknown'
-    // 서버는 예정 없는 날의 제출도 MISSING으로 보낸다. 예정 없는 날은 제출 의무가 없으므로 'off'로 둔다
-    const submission: OpsSubmission = d.scheduled === false ? 'off' : d.submission === 'SUBMITTED' ? 'submitted' : d.submission === 'MISSING' ? 'missing' : 'unknown'
+    // 서버는 예정 없는 날의 미제출도 MISSING으로 보낸다. 예정 없는 날의 MISSING만 'off'(제출 의무 없음)로 두고,
+    // 실제로 제출한 기록(SUBMITTED)은 예정 여부와 관계없이 보존한다(api-contract: 일정·입실과 제출·학습은 독립)
+    const submission: OpsSubmission = d.submission === 'SUBMITTED' ? 'submitted' : d.scheduled === false && d.submission === 'MISSING' ? 'off' : d.submission === 'MISSING' ? 'missing' : 'unknown'
     const base = withUsual ? review.weekdayBaseline[i] : undefined
     return {
       date: d.date, dow: dowOf(d.date), attendance, submission,
-      minutes: attendance === 'present' ? d.minutes : null,
-      start: attendance === 'present' ? d.startMinutes : null,
-      planned: d.plannedMinutes, actual: attendance === 'present' ? d.actualMinutes : null,
+      // 학습 기록은 입실 여부와 독립이다. 입실이 없어도 0보다 큰 학습 기록은 그대로 둔다.
+      // 결석·예정 없음인데 0분인 날만 막대를 그리지 않도록 null로 둔다(실제 0분 입실과 구별)
+      minutes: d.minutes === null ? null : attendance !== 'present' && d.minutes === 0 ? null : d.minutes,
+      start: d.startMinutes,
+      planned: d.plannedMinutes, actual: d.actualMinutes === null ? null : attendance !== 'present' && d.actualMinutes === 0 ? null : d.actualMinutes,
       usualMinutes: base && base.samples > 0 ? base.minutes : null,
       usualStart: base && base.startSamples > 0 ? base.startMinutes : null,
     }
@@ -80,22 +83,30 @@ export function absencePattern(days: OpsDay[]): '연속' | '흩어짐' | null {
   return best === total ? '연속' : '흩어짐'
 }
 
-/** 35일 동안 같은 요일에 3번 이상 결석한 요일(가장 많은 요일). 없으면 null */
-export function weekdayAbsence(days: OpsDay[]): string | null {
-  const count = new Map<string, number>()
-  for (const d of days) if (d.attendance === 'absent') count.set(d.dow, (count.get(d.dow) ?? 0) + 1)
-  const top = [...count.entries()].sort((a, b) => b[1] - a[1])[0]
-  return top && top[1] >= 3 ? top[0] : null
+export interface WeekdayAbsence { dow: string; absent: number; weeks: number }
+/**
+ * 35일 동안 같은 요일에 4번 이상 결석한 요일. 서버 판정이 아니라 날짜에서 계산한 참고 표시이므로
+ * 확정 표현("매주") 대신 관측 횟수(결석 n번 / 그 요일 등원 예정 m번)를 함께 돌려준다. 없으면 null
+ */
+export function weekdayAbsence(days: OpsDay[]): WeekdayAbsence | null {
+  const absent = new Map<string, number>(), weeks = new Map<string, number>()
+  for (const d of days) {
+    if (d.attendance === 'absent' || d.attendance === 'present') weeks.set(d.dow, (weeks.get(d.dow) ?? 0) + 1)
+    if (d.attendance === 'absent') absent.set(d.dow, (absent.get(d.dow) ?? 0) + 1)
+  }
+  const top = [...absent.entries()].sort((a, b) => b[1] - a[1])[0]
+  return top && top[1] >= 4 ? { dow: top[0], absent: top[1], weeks: weeks.get(top[0]) ?? top[1] } : null
 }
+const weekdayText = (w: WeekdayAbsence) => `${w.dow}요일 결석 ${w.absent}/${w.weeks}번`
 
 const num = (text: string) => Number(text.match(/-?\d+(\.\d+)?/)?.[0] ?? NaN)
 
-export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStudent['week'], weekday: string | null, managed = false): OpsChip[] {
+export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStudent['week'], weekday: WeekdayAbsence | null, managed = false): OpsChip[] {
   const chips: OpsChip[] = []
   // 관리 중 학생의 신호는 관리를 시작할 때의 사유다. 지금 7일 값으로 다시 세면 "결석 0일"처럼 틀린 문구가 되므로 사유 이름만 쓴다
   if (managed) {
     for (const s of signals) chips.push({ type: s.type, text: `관리 사유 ${s.label}` })
-    if (weekday) chips.push({ type: 'WEEKDAY_ABSENCE', text: `매주 ${weekday} 결석`, derived: true })
+    if (weekday) chips.push({ type: 'WEEKDAY_ABSENCE', text: weekdayText(weekday), derived: true })
     return chips.sort((a, b) => SEVERITY.indexOf(a.type) - SEVERITY.indexOf(b.type))
   }
   const absent = days.filter((d) => d.attendance === 'absent')
@@ -120,7 +131,7 @@ export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStud
       chips.push({ type: s.type, text: m ? `${m[1]} 비중 ${m[2]}→${m[3]}%` : s.label })
     }
   }
-  if (weekday) chips.push({ type: 'WEEKDAY_ABSENCE', text: `매주 ${weekday} 결석`, derived: true })
+  if (weekday) chips.push({ type: 'WEEKDAY_ABSENCE', text: weekdayText(weekday), derived: true })
   return chips.sort((a, b) => SEVERITY.indexOf(a.type) - SEVERITY.indexOf(b.type))
 }
 

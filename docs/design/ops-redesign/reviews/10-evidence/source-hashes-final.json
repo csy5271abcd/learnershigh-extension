@@ -1,0 +1,42 @@
+﻿[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "45A222C10B016C74D5EC597B471536D975C53DB40F35CAC855372DFEB9100B03",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\ops.css"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "2F45BE33749016F85DD843867B9266B74AF919F226000448670C104009609FE6",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\OpsBranch.tsx"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "D3F623DB5C6C2FBB24EC36FFE4C71C19C20E5FAB3BC48B96A174F32752A69779",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\OpsDetail.tsx"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "5210C890C5DF732F06463B41533C1068CF12BC02B29AD74CC6BAE562CE425F31",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\opsModel.test.mjs"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "B40224A80B3C020C38FDA555FF58FE2B6FF4808489AF818C660336A41E2CC7DE",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\opsModel.ts"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "DF072D7FB05DAC78C4DD572AF808D32EF843F440C72DE5122D44936B5172B7F6",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\OpsRoster.tsx"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "7E31C69F30495EF735FC52DEDEF1F5A94814733995585E3D6B0514DC6A0A36D4",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\OpsStrip.tsx"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "AFF822D18C6395D75CF8BCEBED13B47B9F58A9D780472A136DC86E74E1FD8EEE",
+        "Path":  "D:\\univ\\capstone\\learnershigh-extension\\frontend\\admin\\src\\features\\student-care\\ops\\StudentCareOpsPage.tsx"
+    }
+]

@@ -5,7 +5,7 @@ import { SettingsDialog } from '../components/SettingsDialog.tsx'
 import { monthDay } from '../model/format.ts'
 import { useRemote, loadFailure } from '../model/useRemote.ts'
 import { buildOpsRoster } from './opsModel.ts'
-import { OpsRoster, type RosterVariant } from './OpsRoster.tsx'
+import { OpsRoster } from './OpsRoster.tsx'
 import { OpsDetail } from './OpsDetail.tsx'
 import { OpsBranch } from './OpsBranch.tsx'
 import '../student-care.css'
@@ -16,7 +16,6 @@ const api = httpStudentCareApi
 /** 학습관리 › 학생 케어 개선안(/student-care/ops). 기존 화면과 같은 API·판정·저장 기능을 쓰고 보여주는 방식만 바꾼다. */
 export function StudentCareOpsPage() {
   const params = new URLSearchParams(window.location.search)
-  const variant = (['table', 'minimal', 'groups'].includes(params.get('wf') ?? '') ? params.get('wf') : 'table') as RosterVariant
   const branches = useRemote('ops/branches', api.branches)
   const [selectedBranch, setSelectedBranch] = useState<string | null>(params.get('branchId'))
   const [tab, setTab] = useState<'students' | 'branches' | 'history'>('students')
@@ -25,12 +24,16 @@ export function StudentCareOpsPage() {
   const [version, setVersion] = useState(0)
   const [status, setStatus] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // 학습관 집계 제외는 지점별로 페이지에 둔다(학습관 탭에서 학생을 열었다 돌아와도 유지, 지점을 바꾸면 그 지점 것만 보임)
+  const [excludedByBranch, setExcludedByBranch] = useState<Record<string, Set<string>>>({})
   const branchId = branches.data?.some((b) => b.branchId === selectedBranch) ? selectedBranch : branches.data?.[0]?.branchId ?? null
   const branchName = branches.data?.find((b) => b.branchId === branchId)?.name ?? ''
   const board = useRemote(branchId && `ops/board/${branchId}`, () => api.board(branchId!), version)
   const metrics = useRemote(branchId && `ops/metrics/${branchId}`, () => api.metrics(branchId!), version)
   const settings = useRemote(branchId && `ops/settings/${branchId}`, () => api.settings(branchId!), version)
   const rows = useMemo(() => board.data && metrics.data ? buildOpsRoster(board.data, metrics.data) : null, [board.data, metrics.data])
+  // 학습 시간 막대의 축은 검색과 관계없이 지점 전체 학생 기준으로 고정한다
+  const axisMax = useMemo(() => rows ? Math.max(60, ...rows.map((r) => Math.max(r.week.minutes ?? 0, r.week.usualWeek ?? 0))) : 60, [rows])
   const shown = rows?.filter((r) => `${r.student.studentName} ${r.student.className ?? ''}`.includes(query.trim())) ?? []
   const current = rows?.find((r) => r.student.studentId === selectedId) ?? rows?.find((r) => r.status !== 'normal' && r.status !== 'deferred') ?? rows?.[0] ?? null
   const saved = (message: string) => { setStatus(message); setVersion((v) => v + 1) }
@@ -71,10 +74,11 @@ export function StudentCareOpsPage() {
       </div>
 
       {loadFailure(branches) ? <div className="sc-state" role="alert"><p>학습관을 불러오지 못했습니다.</p><button type="button" className="sc-button" onClick={branches.reload}>다시 시도</button></div>
+        : branches.data && branches.data.length === 0 ? <p className="sc-state">등록된 학습관이 없습니다.</p>
         : failed ? <div className="sc-state" role="alert"><p>학생 기록을 불러오지 못했습니다.</p><button type="button" className="sc-button" onClick={failed.reload}>다시 시도</button></div>
         : !rows || !branchId ? <p className="sc-state" role="status">불러오는 중</p>
         : tab === 'history' ? <AllHistory key={branchId} api={api} branchId={branchId} version={version} onOpenStudent={openStudent} />
-        : tab === 'branches' ? <OpsBranch key={branchId} rows={rows} branchName={branchName} onOpenStudent={openStudent} />
+        : tab === 'branches' ? <OpsBranch key={branchId} rows={rows} branchName={branchName} studyDropPercent={settings.data?.studyDropPercent ?? 30} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} excluded={excludedByBranch[branchId] ?? new Set()} onExcludedChange={(next) => setExcludedByBranch({ ...excludedByBranch, [branchId]: next })} onOpenStudent={openStudent} />
         : (
           <div className="ops-split">
             <section className="ops-list" aria-label="전체 학생">
@@ -82,9 +86,9 @@ export function StudentCareOpsPage() {
                 <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')} (평소: 이전 4주 같은 요일)</span>}</p>
                 <input className="sc-input" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
-              {shown.length ? <OpsRoster rows={shown} selectedId={current?.student.studentId ?? null} onSelect={select} variant={variant} /> : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
+              {shown.length ? <OpsRoster rows={shown} axisMax={axisMax} selectedId={current?.student.studentId ?? null} onSelect={select} /> : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
             </section>
-            {current && <OpsDetail key={current.student.studentId} api={api} s={current} version={version} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} onSaved={saved} />}
+            {current && <OpsDetail key={current.student.studentId} api={api} s={current} version={version} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} onSaved={saved} onBack={() => document.querySelector(`[data-care-roster-row="${current.student.studentId}"]`)?.scrollIntoView({ block: 'center' })} />}
           </div>
         )}
       {branchId && <SettingsDialog api={api} branchId={branchId} open={settingsOpen} onClose={() => setSettingsOpen(false)} onSaved={() => saved('관리 기준 저장')} />}
