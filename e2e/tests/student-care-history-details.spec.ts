@@ -65,6 +65,6 @@ test('history clears a removed student filter when the same branch roster refres
  await page.getByRole('button',{name:'관리 기준 설정',exact:true}).click()
  await page.getByRole('dialog').getByRole('button',{name:'저장',exact:true}).click()
  await expect(picker).toHaveValue('')
- await expect(picker.locator('option')).toHaveCount(60)
+ await expect(picker.locator('option')).toHaveCount(150)
  await expect(page.getByRole('button',{name:/기록 내용 펼치기/}).first()).toBeVisible()
 })

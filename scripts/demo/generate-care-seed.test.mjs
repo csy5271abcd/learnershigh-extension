@@ -5,11 +5,11 @@ import { createDataset, createSql } from './generate-care-seed.mjs';
 const data = createDataset();
 const total = subjects => Object.values(subjects ?? {}).reduce((sum, minutes) => sum + minutes, 0);
 
-test('100 distinct neutral identities have 35 persisted dates and branch sizes 60/30/10', () => {
-  assert.equal(new Set(data.students.map(student => student.id)).size, 100);
-  assert.equal(new Set(data.students.map(student => student.name)).size, 100);
-  assert.deepEqual(data.branches.map(branch => data.students.filter(student => student.branchId === branch.id).length), [60, 30, 10]);
-  assert.equal(data.days.length, 3500);
+test('210 distinct neutral identities have 35 persisted dates and branch sizes 150/50/10', () => {
+  assert.equal(new Set(data.students.map(student => student.id)).size, 210);
+  assert.equal(new Set(data.students.map(student => student.name)).size, 210);
+  assert.deepEqual(data.branches.map(branch => data.students.filter(student => student.branchId === branch.id).length), [150, 50, 10]);
+  assert.equal(data.days.length, 210 * 35);
   for (const student of data.students) {
     const days = data.days.filter(day => day.studentId === student.id);
     assert.equal(days.length, 35);
@@ -22,7 +22,7 @@ test('100 distinct neutral identities have 35 persisted dates and branch sizes 6
 
 test('recorded zero differs from missing source and no plan is invented on off days', () => {
   const missing = data.days.filter(day => !day.recordAvailable);
-  assert.equal(missing.length, 24);
+  assert.equal(missing.length, 51);
   for (const day of missing) {
     assert.equal(day.study, null);
     assert.equal(day.planned, null);
@@ -55,9 +55,9 @@ test('attended study and plans fit the remaining local day and source fields agr
   }
 });
 
-test('45 routine students have six actual attended days, one off day and no missing recent records', () => {
+test('88 routine students have six actual attended days, one off day and no missing recent records', () => {
   const healthy = data.students.filter(student => student.scenario.startsWith('healthy_'));
-  assert.equal(healthy.length, 45);
+  assert.equal(healthy.length, 88);
   for (const student of healthy) {
     const recent = data.days.filter(day => day.studentId === student.id && day.date >= '2026-10-21');
     assert.equal(recent.filter(day => day.checkedIn).length, 6);

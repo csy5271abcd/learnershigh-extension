@@ -33,7 +33,8 @@ import {
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
 import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCarePath, isStudentCarePath } from './app/studentCarePaths.ts'
+import { studentCarePath, isStudentCarePath, studentCareOpsPath } from './app/studentCarePaths.ts'
+import { StudentCareOpsPage } from './features/student-care/ops/StudentCareOpsPage.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
@@ -43,6 +44,7 @@ import { configureCommandScenario } from './store/adminCommands.ts'
 const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
   'student-care': studentCarePath,
+  'student-care-ops': studentCareOpsPath,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -111,6 +113,10 @@ function App() {
     current = 'interview'
     pageLabel = 'Interview 관리'
     page = <InterviewRoute location={location} />
+  } else if (pathname === studentCareOpsPath) {
+    current = 'student-care-ops'
+    pageLabel = '학생 케어 개선안'
+    page = <div className={ui.page}><StudentCareOpsPage /></div>
   } else if (isStudentCarePath(pathname)) {
     current = 'student-care'
     pageLabel = '학생 케어'

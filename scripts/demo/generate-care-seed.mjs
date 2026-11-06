@@ -4,17 +4,20 @@ import { resolve } from 'node:path';
 
 export const AS_OF = '2026-10-27';
 export const BRANCHES = [
-  { id: 'demo_large', name: '강남점', count: 60 },
-  { id: 'demo_medium', name: '분당점', count: 30 },
+  { id: 'demo_large', name: '강남점', count: 150 },
+  { id: 'demo_medium', name: '분당점', count: 50 },
   { id: 'demo_small', name: '수지점', count: 10 },
 ];
 
 const cohorts = [
-  ['healthy_morning', 10], ['healthy_evening', 15], ['healthy_long', 10], ['healthy_weekend', 10],
-  ['temporary_dip', 4], ['temporary_late', 4], ['persistent_drop', 3], ['persistent_late', 3], ['execution_gap', 3],
-  ['subject_shift', 3], ['missed_plans', 10], ['scheduled_absence', 8], ['recovery', 9], ['missing_records', 8],
+  // 2026-11-07: 150/50/10명(총210명)으로 확대. 각 집단 비율은 기존 100명 구성과 같게 약 2.1배로 늘렸다.
+  ['healthy_morning', 21], ['healthy_evening', 25], ['healthy_long', 21], ['healthy_weekend', 21],
+  ['temporary_dip', 8], ['temporary_late', 8], ['persistent_drop', 6], ['persistent_late', 6], ['execution_gap', 6],
+  ['subject_shift', 6], ['missed_plans', 21], ['scheduled_absence', 17], ['recovery', 19], ['missing_records', 17],
+  // 결석 패턴 비교용(2026-11-07 추가): 같은 결석 수라도 흩어진 결석과 매주 같은 요일 결석을 구별해야 한다
+  ['scattered_absence', 4], ['weekday_absence', 4],
 ];
-const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임'];
+const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '류', '전', '홍'];
 const firstNames = ['서준', '서윤', '도현', '지우', '하준', '하린', '유진', '예준', '수빈', '시윤'];
 const subjects = ['국어', '수학', '영어', '탐구'];
 const dateAt = index => new Date(Date.UTC(2026, 8, 23 + index)).toISOString().slice(0, 10);
@@ -33,12 +36,14 @@ export function createDataset() {
   const scenarios = cohorts.flatMap(([code, count]) => Array(count).fill(code));
   const students = [];
   const days = [];
-  for (let i = 1; i <= 100; i++) {
+  const total = BRANCHES.reduce((sum, branch) => sum + branch.count, 0);
+  if (scenarios.length !== total) throw new Error(`cohort total ${scenarios.length} != student total ${total}`);
+  for (let i = 1; i <= total; i++) {
     // A coprime permutation distributes cohorts across centers instead of segregating by scenario.
-    const scenario = scenarios[((i - 1) * 37) % 100];
+    const scenario = scenarios[((i - 1) * 37) % total];
     const student = {
       id: `demo_s${String(i).padStart(3, '0')}`,
-      branchId: i <= 60 ? 'demo_large' : i <= 90 ? 'demo_medium' : 'demo_small',
+      branchId: i <= BRANCHES[0].count ? 'demo_large' : i <= BRANCHES[0].count + BRANCHES[1].count ? 'demo_medium' : 'demo_small',
       name: lastNames[Math.floor((i - 1) / 10)] + firstNames[(i - 1) % 10],
       className: i % 3 === 0 ? '고2 B반' : '고3 A반', scenario,
     };
@@ -88,6 +93,10 @@ export function createDataset() {
         planSubmitted = false;
       }
       // A past decline followed by a complete recent week of ordinary routines, with no invented care actions.
+      // 최근 7일 중 하루씩 건너 결석(연속 아님): d=28, 30, 33
+      if (scenario === 'scattered_absence' && [28, 30, 33].includes(d) && scheduled) { checkedIn = false; planSubmitted = false }
+      // 5주 내내 매주 목요일 결석(정기 결석). 등원 예정일이지만 입실하지 않는다
+      if (scenario === 'weekday_absence' && weekday === 4 && scheduled) { checkedIn = false; planSubmitted = false }
       if (scenario === 'recovery' && d >= 14 && d < 28) study = Math.round(study * 0.45);
       if (scenario === 'missing_records' && [29, 31, 34].includes(d)) {
         recordAvailable = false;

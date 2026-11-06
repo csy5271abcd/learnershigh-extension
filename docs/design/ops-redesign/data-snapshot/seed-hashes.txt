@@ -1,0 +1,2 @@
+6f699e8d95e7729755a5f4d55e3433f836d68908b2a41ece327d9942ce54c8d1 *scripts/demo/generate-care-seed.mjs
+8eb704af607e26d21d4e61c83bcd409b460adb55117f6b8e8d68202d087f3cec *scripts/demo/care-demo.generated.sql

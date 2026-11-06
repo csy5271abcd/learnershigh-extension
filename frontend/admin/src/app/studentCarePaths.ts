@@ -3,3 +3,6 @@ export const studentCarePath = '/student-care'
 export function isStudentCarePath(path: string): boolean {
   return path === studentCarePath || path === '/student-care/5'
 }
+
+/** 학생 케어 개선안. 기존 /student-care는 그대로 두고 같은 API로 보여주는 방식만 바꾼 화면 (docs/design/ops-redesign/plan.md) */
+export const studentCareOpsPath = '/student-care/ops'
