@@ -34,7 +34,12 @@ export function StudentCareOpsPage() {
   const shown = rows?.filter((r) => `${r.student.studentName} ${r.student.className ?? ''}`.includes(query.trim())) ?? []
   const current = rows?.find((r) => r.student.studentId === selectedId) ?? rows?.find((r) => r.status !== 'normal' && r.status !== 'deferred') ?? rows?.[0] ?? null
   const saved = (message: string) => { setStatus(message); setVersion((v) => v + 1) }
-  const openStudent = (id: string) => { setTab('students'); setSelectedId(id); setQuery('') }
+  // 좁은 화면에서는 상세가 명부 아래에 오므로, 학생을 고르면 상세로 이동한다(넓은 화면은 옆에 고정돼 이동하지 않음)
+  const select = (id: string) => {
+    setSelectedId(id)
+    if (window.matchMedia('(max-width: 1279px)').matches) requestAnimationFrame(() => document.querySelector('.ops-detail')?.scrollIntoView({ block: 'start' }))
+  }
+  const openStudent = (id: string) => { setTab('students'); setQuery(''); select(id) }
   const failed = loadFailure(board) ? board : loadFailure(metrics) ? metrics : null
   const days = rows?.[0]?.days
 
@@ -74,10 +79,10 @@ export function StudentCareOpsPage() {
           <div className="ops-split">
             <section className="ops-list" aria-label="전체 학생">
               <div className="ops-list-head">
-                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')}, 평소는 이전 28일 같은 요일</span>}</p>
+                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')} (평소: 이전 4주 같은 요일)</span>}</p>
                 <input className="sc-input" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
-              {shown.length ? <OpsRoster rows={shown} selectedId={current?.student.studentId ?? null} onSelect={setSelectedId} variant={variant} /> : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
+              {shown.length ? <OpsRoster rows={shown} selectedId={current?.student.studentId ?? null} onSelect={select} variant={variant} /> : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
             </section>
             {current && <OpsDetail key={current.student.studentId} api={api} s={current} version={version} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} onSaved={saved} />}
           </div>

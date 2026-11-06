@@ -90,15 +90,21 @@ export function weekdayAbsence(days: OpsDay[]): string | null {
 
 const num = (text: string) => Number(text.match(/-?\d+(\.\d+)?/)?.[0] ?? NaN)
 
-export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStudent['week'], weekday: string | null): OpsChip[] {
+export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStudent['week'], weekday: string | null, managed = false): OpsChip[] {
   const chips: OpsChip[] = []
+  // 관리 중 학생의 신호는 관리를 시작할 때의 사유다. 지금 7일 값으로 다시 세면 "결석 0일"처럼 틀린 문구가 되므로 사유 이름만 쓴다
+  if (managed) {
+    for (const s of signals) chips.push({ type: s.type, text: `관리 사유 ${s.label}` })
+    if (weekday) chips.push({ type: 'WEEKDAY_ABSENCE', text: `매주 ${weekday} 결석`, derived: true })
+    return chips.sort((a, b) => SEVERITY.indexOf(a.type) - SEVERITY.indexOf(b.type))
+  }
   const absent = days.filter((d) => d.attendance === 'absent')
   const missing = days.filter((d) => d.submission === 'missing')
   const sameDays = absent.length > 0 && missing.length > 0 && missing.every((m) => absent.some((a) => a.date === m.date))
   for (const s of signals) {
     if (s.type === 'CONSECUTIVE_ABSENCE') {
       const pattern = absencePattern(days)
-      chips.push({ type: s.type, text: `결석 ${absent.length}일${pattern === '연속' ? ' 연속' : pattern === '흩어짐' ? ' (띄엄띄엄)' : ''}${sameDays && signals.some((x) => x.type === 'PLAN_MISSING') ? ' · 그날 계획 없음' : ''}` })
+      chips.push({ type: s.type, text: `결석 ${absent.length}일${pattern === '연속' ? ' 연속' : pattern === '흩어짐' ? ' (띄엄띄엄)' : ''}${sameDays && signals.some((x) => x.type === 'PLAN_MISSING') ? '·미제출' : ''}` })
     } else if (s.type === 'PLAN_MISSING') {
       if (sameDays && signals.some((x) => x.type === 'CONSECUTIVE_ABSENCE')) continue
       chips.push({ type: s.type, text: `계획 미제출 ${missing.length}일` })
@@ -138,7 +144,7 @@ export function buildOpsRoster(board: CareBoard, metrics: CareBranchMetricsRespo
       executionRate: c.executionRate, comparablePlanDays: c.comparablePlanDays,
     }
     const weekday = weekdayAbsence(history35)
-    const chips = status === 'normal' || status === 'deferred' ? (weekday ? chipsFor([], days, week, weekday) : []) : chipsFor(signals, days, week, weekday)
+    const chips = status === 'normal' || status === 'deferred' ? (weekday ? chipsFor([], days, week, weekday) : []) : chipsFor(signals, days, week, weekday, status === 'managed' || status === 'recheck')
     const statusLabel = { recheck: '확인일', check: '상담 필요', managed: '관리 중', deferred: '기록 부족', normal: '' }[status]
     const firstSeverity = chips.length ? SEVERITY.indexOf(chips[0].type) : 99
     // 상태 → 가장 무거운 사유 종류 → 결석 일수(많을수록 위) → 사유 수 순으로 정렬한다

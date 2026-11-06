@@ -5,6 +5,8 @@ import { OpsStrip, OpsStripLegend } from './OpsStrip.tsx'
 export type RosterVariant = 'table' | 'minimal' | 'groups'
 
 const md = (date: string) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
+/** "고3 A반" → "3A". 150행에 반복되는 글자를 줄인다(전체 반 이름은 상세 머리에 그대로) */
+const shortClass = (name: string | null | undefined) => name?.match(/(\d)\D*([A-Z가-힣])반/)?.slice(1).join('') ?? name ?? ''
 
 /** 상담 필요는 행 왼쪽 선과 사유 칩으로 이미 보이므로 배지를 반복하지 않는다. 관리 중·확인일·기록 부족만 배지로 쓴다 */
 function Chips({ s }: { s: OpsStudent }) {
@@ -71,7 +73,7 @@ export function OpsRoster({ rows, selectedId, onSelect, variant }: Props) {
       </div>
       {rows.map((s) => (
         <div key={s.student.studentId} {...rowProps(s, selectedId, onSelect, s.student.studentId === firstFlagged)}>
-          <span className="ops-name"><b>{s.student.studentName}</b><small>{s.student.className}</small></span>
+          <span className="ops-name"><b>{s.student.studentName}</b><small>{shortClass(s.student.className)}</small></span>
           <span className="ops-chips"><Chips s={s} /></span>
           <OpsStrip days={s.days} />
           <Bullet s={s} max={max} />

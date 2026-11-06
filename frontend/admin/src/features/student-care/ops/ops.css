@@ -1,6 +1,11 @@
 /* 학생 케어 개선안. 기존 theme.css 토큰만 쓴다(docs/design/ops-redesign/design-tokens.md).
    글자 크기: 본문 15px, 보조 13px, 최소 13px(12px 미만 없음). 행간 1.5 이상 */
-.ops-page { font-size: 15px; line-height: 1.5; }
+.ops-page { font-size: 15px; line-height: 1.5; min-width: 0; }
+.ops-page .ops-branch, .ops-page .ops-bt { min-width: 0; max-width: 100%; }
+/* 넓은 학습관 표가 페이지 폭을 밀어내지 않도록 자식의 최소 폭을 0으로 둔다(표 자체는 가로 스크롤) */
+.ops-page { display: grid; grid-template-columns: minmax(0, 1fr); }
+/* 재사용한 관리 이력 컴포넌트의 11·12px 글자를 이 화면에서는 13px로 올린다(원본 화면은 그대로) */
+.ops-page .sc-history-table .sc-all__class, .ops-page .sc-history-state, .ops-page .sc-history-kind, .ops-page .sc-history-tools span, .ops-page .sc-history-signals > span, .ops-page .sc-history-snapshot span, .ops-page .sc-history-snapshot p, .ops-page .sc-history-timeline li > header, .ops-page .sc-history-table .sc-history-actor::before { font-size: 13px; }
 .ops-page small { font-size: 13px; }
 .ops-muted { color: var(--color-text-secondary); }
 .ops-down { color: var(--color-flag); }
@@ -10,10 +15,12 @@
 .ops-list { min-width: 0; }
 .ops-list-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 4px 0 10px; }
 .ops-list-head p { margin: 0; }
-.ops-list-head .sc-input { width: 220px; }
+.ops-list-head .sc-input { width: 200px; }
+.ops-list-head { flex-wrap: nowrap; }
+@media (max-width: 1279px) { .ops-list-head { flex-wrap: wrap; } }
 
 .ops-table { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; }
-.ops-row { display: grid; grid-template-columns: 96px minmax(230px, 1fr) 112px 150px 52px; align-items: center; gap: 10px; padding: 3px 12px; min-height: 32px; border-top: 1px solid var(--color-border); cursor: pointer; }
+.ops-row { display: grid; grid-template-columns: 88px minmax(250px, 1fr) 112px 128px 46px; align-items: center; gap: 10px; padding: 0 12px; min-height: 26px; border-top: 1px solid var(--color-border); cursor: pointer; }
 .ops-table-min .ops-row { grid-template-columns: 96px minmax(150px, 1fr) 110px 52px 80px 60px; }
 .ops-row:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
 .ops-row:hover { background: var(--color-surface-muted); }
@@ -30,7 +37,7 @@
 .ops-name b { font-weight: 700; }
 .ops-name small { color: var(--color-text-secondary); }
 .ops-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
-.ops-chip, .ops-status { display: inline-block; font-size: 13px; line-height: 1.5; padding: 0 7px; border-radius: 6px; white-space: nowrap; }
+.ops-chip, .ops-status { display: inline-block; font-size: 13px; line-height: 1.45; padding: 0 7px; border-radius: 6px; white-space: nowrap; }
 .ops-chip { background: var(--color-flag-soft); color: var(--color-flag); font-weight: 600; }
 .ops-chip-derived { background: var(--color-surface-muted); color: var(--color-text-primary); border: 1px dashed var(--color-flag); }
 .ops-status { color: var(--color-text-secondary); background: var(--color-surface-muted); }
@@ -90,7 +97,7 @@
 .ops-wk-att-off, .ops-wk-att-unknown, .ops-wk-sub-off, .ops-wk-sub-unknown { color: var(--color-text-secondary); }
 .ops-wk-sub-missing { color: var(--color-flag); font-weight: 700; }
 .ops-late { color: var(--color-flag); font-weight: 700; }
-.ops-wk-bars { min-height: 84px; }
+.ops-wk-bars { min-height: 96px; align-items: start; padding-top: 6px; }
 .ops-bar-box { position: relative; width: 22px; height: 60px; border-bottom: 1px solid var(--color-input-border); }
 .ops-bar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--color-accent); border-radius: 2px 2px 0 0; }
 .ops-usual { position: absolute; left: -5px; right: -5px; height: 2px; background: var(--color-text-primary); }
@@ -117,7 +124,7 @@
 /* 학습관별 */
 .ops-branch-summary { margin: 4px 0 10px; }
 .ops-bt { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; overflow-x: auto; }
-.ops-bt-row { display: grid; grid-template-columns: 170px repeat(7, minmax(92px, 1fr)); border-top: 1px solid var(--color-border); }
+.ops-bt-row { display: grid; grid-template-columns: 150px repeat(7, minmax(84px, 1fr)); border-top: 1px solid var(--color-border); }
 .ops-bt-head { border-top: 0; font-size: 13px; color: var(--color-text-secondary); }
 .ops-bt-row > span { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
 .ops-bt-row > span[role=rowheader] { font-weight: 600; }
@@ -140,8 +147,15 @@
   .ops-branch-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
-  .ops-row { grid-template-columns: 84px minmax(0, 1fr) 112px; }
+  /* 좁은 화면: 이름·7일 띠 한 줄, 사유는 다음 줄에서 줄바꿈. 학습 막대와 진행률은 상세에서 본다 */
+  .ops-row { grid-template-columns: minmax(0, 1fr) 112px; grid-template-areas: 'name strip' 'chips chips'; row-gap: 2px; padding: 6px 12px; }
+  .ops-row > .ops-name { grid-area: name; }
+  .ops-row > .ops-chips { grid-area: chips; }
+  .ops-row > .ops-strip { grid-area: strip; }
   .ops-row > :nth-child(4), .ops-row > :nth-child(5) { display: none; }
+  .ops-head { grid-template-areas: 'name strip' 'chips chips'; }
+  .ops-head > :nth-child(1) { grid-area: name; } .ops-head > :nth-child(2) { grid-area: chips; } .ops-head > :nth-child(3) { grid-area: strip; }
+  .ops-chip { white-space: normal; }
   .ops-table-min .ops-row { grid-template-columns: 84px minmax(0, 1fr) 90px; }
   .ops-table-min .ops-row > :nth-child(n+4) { display: none; }
   .ops-wk-row { grid-template-columns: 54px repeat(7, minmax(0, 1fr)); }
