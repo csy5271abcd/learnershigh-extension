@@ -10,7 +10,7 @@ import { Overlay } from '../shared/Overlay.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
-import { RESULT_HEAD, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
@@ -70,7 +70,7 @@ export function VariantB() {
           {dateView.metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<span>학생 {list.length}명{dateView.metric === 'study' && d.studyChange ? ` · 평소 대비 가운데 값 ${Math.round(d.studyChange.median)}%` : ''}</span>
         </div></>}>
         <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(dateView.metric, axis)} />
-        <StudentValues list={list} head={RESULT_HEAD[dateView.metric]} onOpen={(r) => setOpenId(r.student.studentId)} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
+        <StudentValues list={list} head={RESULT_HEAD[dateView.metric]} axis={RESULT_AXIS[dateView.metric]} onOpen={(r) => setOpenId(r.student.studentId)} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
       </Overlay>)
   })()
 

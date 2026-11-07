@@ -19,3 +19,5 @@ export function compareValue(metric: MetricKey, axis: VisionAxis) {
     return v.photosReceived === 0 ? '사진 없음' : v.unsupportedAxes.includes(axis) ? '지원 안 함' : `${v.axes[axis].yes}/${v.analyzedPhotos}장`
   }
 }
+
+export const RESULT_AXIS: Partial<Record<MetricKey, { domain: [number, number]; baseline?: number }>> = { study: { domain: [-100, 100], baseline: 0 }, start: { domain: [-120, 120], baseline: 0 }, vision: { domain: [0, 100] } }

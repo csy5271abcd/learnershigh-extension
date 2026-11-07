@@ -97,14 +97,22 @@ export function Bins({ bins, selected, onPick, total }: { bins: Bin[]; selected?
 }
 
 /** 학생 값 표(학습관 결과·명단). 학생 이름을 누르면 학생 상세, "비교"로 최대 3명 */
-export function StudentValues({ list, head, onOpen, pinned, onPin }: { list: StudentValue[]; head: [string, string, string]; onOpen: (r: CareRow) => void; pinned: string[]; onPin: (id: string) => void }) {
+/** 학생 행 점: 한 행에 학생 한 명, 같은 축 위 점 하나(값 위치를 옮기지 않음). 축 밖은 끝에 화살표 */
+function RowDot({ v, domain, baseline }: { v: number; domain: [number, number]; baseline?: number }) {
+  const w = 160, pad = 8, x = (u: number) => pad + ((Math.max(domain[0], Math.min(domain[1], u)) - domain[0]) / (domain[1] - domain[0])) * (w - pad * 2)
+  const out = v < domain[0] ? '◀' : v > domain[1] ? '▶' : ''
+  return <svg width={w} height={14} aria-hidden="true" className="v5-rowdot">{baseline !== undefined && <line x1={x(baseline)} x2={x(baseline)} y1={0} y2={14} className="v5-axis-base" />}<line x1={pad} x2={w - pad} y1={7} y2={7} className="v5-grid" />{out ? <text x={out === '◀' ? 0 : w} y={11} textAnchor={out === '◀' ? 'start' : 'end'} className="v5-rail-num">{out}</text> : <circle cx={x(v)} cy={7} r={4} className="v5-median-dot" />}</svg>
+}
+
+export function StudentValues({ list, head, onOpen, pinned, onPin, axis }: { list: StudentValue[]; head: [string, string, string]; onOpen: (r: CareRow) => void; pinned: string[]; onPin: (id: string) => void; axis?: { domain: [number, number]; baseline?: number } }) {
   if (!list.length) return <p className="v5-muted">해당 학생 없음</p>
   return (
     <table className="v5-plain v5-values">
-      <thead><tr><th scope="col">학생</th><th scope="col">{head[0]}</th><th scope="col">{head[1]}</th><th scope="col">{head[2]}</th><th scope="col"><span className="lh-visually-hidden">비교</span></th></tr></thead>
+      <thead><tr><th scope="col">학생</th>{axis && <th scope="col"><span className="lh-visually-hidden">위치</span></th>}<th scope="col">{head[0]}</th><th scope="col">{head[1]}</th><th scope="col">{head[2]}</th><th scope="col"><span className="lh-visually-hidden">비교</span></th></tr></thead>
       <tbody>{list.map((v) => (
         <tr key={v.row.student.studentId}>
           <th scope="row"><button type="button" className="v5-link" onClick={() => onOpen(v.row)}>{v.row.student.studentName}</button> <span className="v5-muted">{v.row.student.className}</span></th>
+          {axis && <td>{v.num !== undefined && <RowDot v={v.num} domain={axis.domain} baseline={axis.baseline} />}</td>}
           <td>{v.actual}</td><td>{v.usual}</td><td>{v.diff}</td>
           <td>{!pinned.includes(v.row.student.studentId) && pinned.length < 3 && <button type="button" className="v5-mini" onClick={() => onPin(v.row.student.studentId)}>비교</button>}</td>
         </tr>))}</tbody>

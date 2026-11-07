@@ -1,0 +1,148 @@
+{
+  "records": [
+    {
+      "state": "study-audit",
+      "variant": "a",
+      "width": 1600,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 1230
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "b",
+      "width": 1600,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 1192
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "c",
+      "width": 1600,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 720
+        },
+        {
+          "width": 1230
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "a",
+      "width": 1600,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 1230
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "b",
+      "width": 1600,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 1192
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "c",
+      "width": 1600,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 720
+        },
+        {
+          "width": 1230
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "a",
+      "width": 1280,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 910
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "b",
+      "width": 1280,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 1184
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "c",
+      "width": 1280,
+      "theme": "light",
+      "plots": [
+        {
+          "width": 720
+        },
+        {
+          "width": 910
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "a",
+      "width": 1280,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 910
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "b",
+      "width": 1280,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 1184
+        }
+      ]
+    },
+    {
+      "state": "study-audit",
+      "variant": "c",
+      "width": 1280,
+      "theme": "dark",
+      "plots": [
+        {
+          "width": 720
+        },
+        {
+          "width": 910
+        }
+      ]
+    }
+  ]
+}

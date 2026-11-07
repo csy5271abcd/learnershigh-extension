@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { AllHistory } from '../../components/AllHistory.tsx'
 import { careApi, md, useCareData, REASONS, type CareRow } from '../shared/useCareData.ts'
-import { AxisPick, CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
+import { AxisPick, Bins, CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
 import { RosterText, ReasonChips, StatusText } from '../shared/roster.tsx'
 import { matchQuery, matchReason } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
@@ -11,11 +11,10 @@ import { Overlay } from '../shared/Overlay.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
-import { WeekStrip } from '../shared/charts.tsx'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
 import { BAND_LABEL } from '../shared/bands.ts'
-import { RESULT_HEAD, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
 import { sumVision, type VisionAxis } from '../shared/visionExample.ts'
 import { hours } from '../shared/model.ts'
 
@@ -34,6 +33,7 @@ export function VariantC() {
   const [pick, setPick] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
+  const [weekPick, setWeekPick] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [band, setBand] = useState<{ metric: MetricKey; band: Band | null } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const ex = excluded[data.branchId ?? ''] ?? EMPTY
@@ -58,6 +58,19 @@ export function VariantC() {
     plan: { value: (r) => r.days.some((d) => d.submission === 'missing' || d.submission === 'submitted') ? r.days.filter((d) => d.submission === 'missing').length : null, detail: (r) => `계획 미제출 ${r.days.filter((d) => d.submission === 'missing').length}일 / 대상 ${r.week.submitKnown}일`, domain: [0, 7], format: (v) => `${Math.round(v)}일`, warn: (v) => v >= th.planMissingDays },
     vision: { value: (r) => { const a = sumVision(r.vision).axes[axis]; return a.analyzed ? a.yes / a.analyzed * 100 : null }, detail: (r) => { const a = sumVision(r.vision).axes[axis]; return a.analyzed ? `관찰 ${a.yes}장 / 분석 ${a.analyzed}장 · 판단 불가 ${a.unknown}장` : '분석 사진 없음' }, domain: [0, 100], format: (v) => `${Math.round(v)}%` },
   }
+  // 학생별 7일 값을 구간으로 나눠 구간마다 학생 수(구간을 누르면 그 학생 전원과 정확값)
+  const weekBinsOf = (k: MetricKey, w: (typeof week)[MetricKey]) => {
+    const vals = (m?.included ?? []).map((r) => ({ r, v: w.value(r) })).filter((x): x is { r: CareRow; v: number } => x.v !== null)
+    const edges: [string, (v: number) => boolean][] = k === 'absence' || k === 'plan'
+      ? [['0일', (v) => v === 0], ['1일', (v) => v === 1], ['2일', (v) => v === 2], ['3일', (v) => v === 3], ['4일 이상', (v) => v >= 4]]
+      : k === 'study' ? [['−50% 이하', (v) => v <= -50], ['−50~−30%', (v) => v <= -30], ['−30~−10%', (v) => v < -10], ['±10%', (v) => v <= 10], ['+10~+30%', (v) => v <= 30], ['+30% 넘음', () => true]]
+      : k === 'start' ? [['30분 넘게 일찍', (v) => v <= -30], ['10~30분 일찍', (v) => v <= -10], ['±10분', (v) => v < 10], ['10~30분 늦게', (v) => v < 30], ['30~60분 늦게', (v) => v < 60], ['60분 넘게 늦게', () => true]]
+      : [['5% 미만', (v) => v < 5], ['5~10%', (v) => v < 10], ['10~20%', (v) => v < 20], ['20~30%', (v) => v < 30], ['30% 이상', () => true]]
+    const bins = edges.map(([label]) => ({ label, rows: [] as CareRow[] }))
+    for (const x of vals) bins[edges.findIndex(([, f]) => f(x.v))].rows.push(x.r)
+    const title = k === 'absence' ? '결석 일수' : k === 'plan' ? '계획 미제출 일수' : k === 'vision' ? '휴대폰 사용 관찰 비율' : '평소 대비'
+    return { bins, counted: vals.length, title }
+  }
   const tabs: [Tab, string][] = [['queue', `확인할 학생 ${queue.length}`], ['branch', '학습관 현황'], ['all', `전체 학생 ${rows.length}`], ['history', '관리 이력']]
   return (
     <div className="sc-page v5-page">
@@ -81,7 +94,11 @@ export function VariantC() {
       </>)}
       {tab === 'branch' && (<>
         <div className="v5-wrap"><Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} /></div>
-        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k, i) => { if (i !== undefined) { setBand({ metric: k, band: null }); setPick({ metric: k, i }); return } setPick(null); setBand(band?.metric === k && band.band === null ? null : { metric: k, band: null }) }} detail={(k) => <div className="v5-inline-detail">{(() => { const w = week[k]; return <div className="v5-c-week"><p className="v5-axis-name">학생별 최근 7일 {k === 'absence' ? '결석 일수' : k === 'plan' ? '미제출 일수' : k === 'vision' ? '휴대폰 사용 관찰 비율' : '평소 대비'}</p><WeekStrip rows={m.included} value={w.value} detail={(r) => w.detail(r)} domain={w.domain} format={w.format} warn={w.warn} baseline={w.baseline} label={`${METRIC_LABEL[k]} 학생별 7일 분포`} onStudent={(r) => go(() => setOpenId(r.student.studentId))} /></div> })()}<MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={260} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i) => setPick(pick?.metric === k && pick.i === i ? null : { metric: k, i })} selectedDay={pick?.metric === k ? pick.i : null} />{pick?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[pick.i].date)} 학생`}><div className="v5-result-head"><b>{md(m.days[pick.i].date)} {m.days[pick.i].dow} · 학생 {studentsOn(m, k, pick.i, axis).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div><div className="v5-result-body"><Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} /><StudentValues list={studentsOn(m, k, pick.i, axis)} head={RESULT_HEAD[k]} onOpen={(r) => go(() => setOpenId(r.student.studentId))} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} /></div></section>}</div>} /></section>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k, i) => { if (i !== undefined) { setBand({ metric: k, band: null }); setPick({ metric: k, i }); return } setPick(null); setBand(band?.metric === k && band.band === null ? null : { metric: k, band: null }) }} detail={(k) => <div className="v5-inline-detail">{(() => { const w = week[k]; const b = weekBinsOf(k, w); return <div className="v5-c-week"><p className="v5-axis-name">학생별 최근 7일 {b.title}</p>
+          <Bins bins={b.bins} total={b.counted} selected={weekPick?.metric === k ? weekPick.i : null} onPick={(i) => setWeekPick(weekPick?.metric === k && weekPick.i === i ? null : { metric: k, i })} />
+          {weekPick?.metric === k && <section className="v5-result"><div className="v5-result-head"><b>{b.bins[weekPick.i].label} · {b.bins[weekPick.i].rows.length}명</b><button type="button" className="sc-button" onClick={() => setWeekPick(null)}>접기</button></div>
+            <div className="v5-result-body"><ul className="v5-bandlist">{b.bins[weekPick.i].rows.map((r) => <li key={r.student.studentId}><button type="button" className="v5-link" onClick={() => go(() => setOpenId(r.student.studentId))}>{r.student.studentName}</button> <span className="v5-muted">{r.student.className}</span> <span>{w.detail(r)}</span></li>)}</ul></div></section>}
+        </div> })()}<MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={260} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i) => setPick(pick?.metric === k && pick.i === i ? null : { metric: k, i })} selectedDay={pick?.metric === k ? pick.i : null} />{pick?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[pick.i].date)} 학생`}><div className="v5-result-head"><b>{md(m.days[pick.i].date)} {m.days[pick.i].dow} · 학생 {studentsOn(m, k, pick.i, axis).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div><div className="v5-result-body"><Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} /><StudentValues list={studentsOn(m, k, pick.i, axis)} head={RESULT_HEAD[k]} axis={RESULT_AXIS[k]} onOpen={(r) => go(() => setOpenId(r.student.studentId))} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} /></div></section>}</div>} /></section>
         {band?.band && <section className="v5-result" aria-label="단계별 학생">
           <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {BAND_LABEL[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
           <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={(r) => go(() => setOpenId(r.student.studentId))} /></div>

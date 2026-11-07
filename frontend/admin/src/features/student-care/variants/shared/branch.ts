@@ -8,7 +8,7 @@ export type MetricKey = 'absence' | 'study' | 'start' | 'plan' | 'vision'
 export const METRIC_LABEL: Record<MetricKey, string> = { absence: '결석', study: '학습 시간', start: '입실 시각', plan: '계획 제출', vision: '비전 관찰' }
 export const METRIC_KEYS: MetricKey[] = ['absence', 'study', 'start', 'plan', 'vision']
 
-export interface StudentValue { row: CareRow; actual: string; usual: string; diff: string; sort: number }
+export interface StudentValue { row: CareRow; actual: string; usual: string; diff: string; sort: number; num?: number }
 
 const quantile = (s: number[], q: number) => { const i = (s.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo) }
 const hm = (m: number | null) => m === null ? '—' : `${Math.floor(Math.round(m) / 60)}시간 ${Math.round(m) % 60}분`
@@ -36,12 +36,12 @@ export function studentsOn(m: BranchModel, metric: MetricKey, i: number, axis: V
   for (const row of m.included) {
     const d = row.days[i]
     if (metric === 'absence') { if (d.attendance === 'absent' || d.attendance === 'unknown') out.push({ row, actual: d.attendance === 'absent' ? '결석' : '기록 없음', usual: `7일 결석 ${row.days.filter((x) => x.attendance === 'absent').length}일`, diff: d.submission === 'missing' ? '계획 미제출' : '', sort: d.attendance === 'absent' ? 0 : 1 }) }
-    else if (metric === 'study') { if (d.minutes !== null && d.usualMinutes) { const p = ((d.minutes - d.usualMinutes) / d.usualMinutes) * 100; out.push({ row, actual: hm(d.minutes), usual: hm(d.usualMinutes), diff: sgn(p, '%'), sort: p }) } }
-    else if (metric === 'start') { if (d.start !== null && d.usualStart !== null) { const x = d.start - d.usualStart; out.push({ row, actual: clockOf(d.start), usual: clockOf(d.usualStart), diff: sgn(x, '분'), sort: -x }) } }
+    else if (metric === 'study') { if (d.minutes !== null && d.usualMinutes) { const p = ((d.minutes - d.usualMinutes) / d.usualMinutes) * 100; out.push({ row, actual: hm(d.minutes), usual: hm(d.usualMinutes), diff: sgn(p, '%'), sort: p, num: p }) } }
+    else if (metric === 'start') { if (d.start !== null && d.usualStart !== null) { const x = d.start - d.usualStart; out.push({ row, actual: clockOf(d.start), usual: clockOf(d.usualStart), diff: sgn(x, '분'), sort: -x, num: x }) } }
     else if (metric === 'plan') { if (d.submission === 'missing' || d.submission === 'submitted') out.push({ row, actual: d.submission === 'missing' ? '미제출' : '제출', usual: `7일 미제출 ${row.days.filter((x) => x.submission === 'missing').length}일`, diff: '', sort: d.submission === 'missing' ? 0 : 1 }) }
     else {
       const v = row.vision[i]
-      if (v.analyzedPhotos > 0 && !v.unsupportedAxes.includes(axis)) { const share = v.axes[axis].yes / v.analyzedPhotos; out.push({ row, actual: `분석 ${v.analyzedPhotos}장 중 ${v.axes[axis].yes}장`, usual: `판단 불가 ${v.axes[axis].unknown}장`, diff: `${Math.round(share * 1000) / 10}%`, sort: -share }) }
+      if (v.analyzedPhotos > 0 && !v.unsupportedAxes.includes(axis)) { const share = v.axes[axis].yes / v.analyzedPhotos; out.push({ row, actual: `분석 ${v.analyzedPhotos}장 중 ${v.axes[axis].yes}장`, usual: `판단 불가 ${v.axes[axis].unknown}장`, diff: `${Math.round(share * 1000) / 10}%`, sort: -share, num: share * 100 }) }
     }
   }
   return out.sort((a, b) => a.sort - b.sort || a.row.student.studentName.localeCompare(b.row.student.studentName, 'ko'))

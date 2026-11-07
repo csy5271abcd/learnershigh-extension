@@ -1,7 +1,7 @@
 // 학습관 지표 하나의 그림(시안 A–D 공통, representation-v5.md 2장).
 import { usePlotWidth } from '../../components/weekly/usePlotWidth.ts'
-import { DaySwarm, AttendanceMatrix, VisionSwarms, type SwarmLine } from './charts.tsx'
-import { hours, clock } from './model.ts'
+import { DayRange, AttendanceMatrix, VisionSwarms, type SwarmLine } from './charts.tsx'
+import { hours } from './model.ts'
 import { md, type CareRow } from './useCareData.ts'
 import type { BranchModel, MetricKey } from './branch.ts'
 
@@ -18,9 +18,10 @@ function PlanBars({ m, onDay, selectedDay }: { m: BranchModel; onDay?: (i: numbe
       <svg width={width} height={H + top + 26} role="group" aria-label="날짜별 계획 미제출 인원">
         <line x1={left} x2={width - left} y1={top + H} y2={top + H} className="v5-grid" />
         {m.days.map((d, i) => { const cx = left + colW * i + colW / 2, bw = Math.min(36, colW * 0.5), h = (miss[i] / max) * H
-          return <g key={d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === i : undefined} data-tip={`${md(d.date)} 미제출 ${miss[i]}명 · 제출 ${d.submitted}명 · 대상 ${d.submitKnown}명`} aria-label={`${md(d.date)} 계획 미제출 ${miss[i]}명, 제출 ${d.submitted}명, 대상 ${d.submitKnown}명`} onClick={() => onDay?.(i)} onKeyDown={(e) => { if (onDay && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDay(i) } }} className="v5-day-hit">
+          return <g key={d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === i : undefined} data-tip={d.submitKnown ? `${md(d.date)} 미제출 ${miss[i]}명 · 제출 ${d.submitted}명 · 대상 ${d.submitKnown}명` : `${md(d.date)} 제출 기록 없음`} aria-label={`${md(d.date)} 계획 미제출 ${miss[i]}명, 제출 ${d.submitted}명, 대상 ${d.submitKnown}명`} onClick={() => onDay?.(i)} onKeyDown={(e) => { if (onDay && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDay(i) } }} className="v5-day-hit">
             {selectedDay === i && <rect x={cx - colW / 2 + 2} y={0} width={colW - 4} height={H + top + 26} rx={6} className="v5-col-sel" />}
-            <text x={cx} y={top + H - h - 6} textAnchor="middle" className="v5-head-num">{miss[i]}명</text>
+            {d.submitKnown > 0 && <text x={cx} y={top + H - h - 6} textAnchor="middle" className="v5-head-num">{miss[i]}명</text>}
+            {d.submitKnown === 0 && <text x={cx} y={top + H - 6} textAnchor="middle" className="v5-muted-svg">기록 없음</text>}
             {miss[i] > 0 && <rect x={cx - bw / 2} y={top + H - h} width={bw} height={h} rx={3} className="v5-bar-missing" />}
             <text x={cx} y={H + top + 18} textAnchor="middle" className="v5-tick">{md(d.date)} {d.dow}</text>
           </g> })}
@@ -37,14 +38,12 @@ export function MetricPanel({ metric, m, studyDropPercent, startShiftMinutes, on
   if (metric === 'plan') return <PlanBars m={m} onDay={onDay} selectedDay={selectedDay} />
   if (metric === 'vision') return <VisionSwarms rows={rows} pools={m.vision} onStudent={onStudent} onDay={onDay} selectedDay={selectedDay} />
   if (metric === 'study') return (<>
-    <DaySwarm rows={rows} label="학습 시간 학생별 평소 대비" height={height} domain={[-100, 100]} baseline={0} ticks={[-100, -50, 0, 50, 100]} format={pct} warn={(v) => v <= -studyDropPercent} lines={lines}
+    <DayRange rows={rows} label="학습 시간 학생별 평소 대비" height={height} domain={[-100, 100]} baseline={0} ticks={[-100, -50, 0, 50, 100]} format={pct} warn={(v) => v <= -studyDropPercent} lines={lines}
       value={(r, i) => { const d = r.days[i]; return d.minutes !== null && d.usualMinutes ? ((d.minutes - d.usualMinutes) / d.usualMinutes) * 100 : null }}
-      detail={(r, i) => { const d = r.days[i]; return `실제 ${hours(d.minutes)}, 평소 ${hours(d.usualMinutes)}, ${d.minutes !== null && d.usualMinutes ? pct((d.minutes - d.usualMinutes) / d.usualMinutes * 100) : '—'}` }}
-      onStudent={onStudent} onDay={onDay} selectedDay={selectedDay} />
+      onDay={onDay} selectedDay={selectedDay} />
     <div className="v5-avg-row" aria-label="입실 학생 평균 학습 시간"><span className="v5-muted" data-tip="입실 학생 평균 학습 시간">평균</span>{m.studyAvg.map((v, i) => <span key={i}>{v === null ? '—' : hours(v)}</span>)}</div>
   </>)
-  return <DaySwarm rows={rows} label="입실 시각 학생별 평소 대비" height={height} domain={[-120, 120]} baseline={0} ticks={[-120, -60, 0, 60, 120]} format={min} warn={(v) => v >= startShiftMinutes} lines={lines}
+  return <DayRange rows={rows} label="입실 시각 학생별 평소 대비" height={height} domain={[-120, 120]} baseline={0} ticks={[-120, -60, 0, 60, 120]} format={min} warn={(v) => v >= startShiftMinutes} lines={lines}
     value={(r, i) => { const d = r.days[i]; return d.start !== null && d.usualStart !== null ? d.start - d.usualStart : null }}
-    detail={(r, i) => { const d = r.days[i]; return `입실 ${clock(d.start)}, 평소 ${clock(d.usualStart)}, ${d.start !== null && d.usualStart !== null ? min(d.start - d.usualStart) : '—'}` }}
-    onStudent={onStudent} onDay={onDay} selectedDay={selectedDay} />
+    onDay={onDay} selectedDay={selectedDay} />
 }

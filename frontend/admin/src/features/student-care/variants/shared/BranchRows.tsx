@@ -5,6 +5,7 @@ import { METRIC_KEYS, METRIC_LABEL, type MetricKey } from './branch.ts'
 import { bandGroups, dailyOver, weekValue, weekText, BAND_LABEL, type Band, type Thresholds } from './bands.ts'
 
 const ORDER: Band[] = ['over', 'watch', 'ok', 'none']
+const DAILY_LABEL: Record<MetricKey, string> = { absence: '그날 결석', plan: '그날 계획 미제출', study: '그날 기준 넘음', start: '그날 기준 넘음', vision: '그날 사진 비율' }
 
 /** 7일 작은 추이선: 값이 없는 날은 선을 끊는다. 점마다 마우스·초점으로 그날 값과 대상 인원, 누르면 그날 자세히 */
 function Trend({ values, dates, unit, label, onDay }: { values: { v: number | null; base: number }[]; dates: string[]; unit: string; label: string; onDay?: (i: number) => void }) {
@@ -30,9 +31,9 @@ interface Props { rows: CareRow[]; t: Thresholds; selected?: { metric: MetricKey
 export function BranchRows({ rows, t, selected, onBand, onMetric, detail }: Props) {
   const dates = rows[0]?.days.map((d) => d.date) ?? []
   return (<>
-    <p className="v5-key"><span className="v5-key-over" />기준 넘음 <span className="v5-key-watch" />주의 <span className="v5-key-ok" />정상</p>
+    <p className="v5-key"><span className="v5-key-over" />기준 넘음 <span className="v5-key-watch" />주의 <span className="v5-key-ok" />정상 <span className="v5-key-none" />기록 부족</p>
     <table className="v5-bands" aria-label="학습관 지표별 학생 단계">
-      <thead><tr><th scope="col">지표</th><th scope="col">최근 7일 학생 단계</th><th scope="col">날마다 기준 넘은 학생</th><th scope="col">기준 넘음</th></tr></thead>
+      <thead><tr><th scope="col">지표</th><th scope="col">최근 7일 학생 단계</th><th scope="col">날마다</th><th scope="col">최근 7일</th></tr></thead>
       {METRIC_KEYS.map((m) => {
         const g = bandGroups(m, rows, t), total = rows.length || 1, vision = m === 'vision', daily = dailyOver(m, rows, t)
         const photo = (() => { let y = 0, n = 0; for (const r of rows) for (const v of r.vision) if (v.analyzedPhotos && !v.unsupportedAxes.includes('phone_interaction')) { y += v.axes.phone_interaction.yes; n += v.analyzedPhotos } return n ? Math.round((y / n) * 100) : null })()
@@ -46,12 +47,12 @@ export function BranchRows({ rows, t, selected, onBand, onMetric, detail }: Prop
                 {ORDER.map((b) => g[b].length ? (
                   <button key={b} type="button" className={`v5-band v5-band-${b}`} style={{ flexGrow: g[b].length }} aria-pressed={selected?.metric === m && selected.band === b}
                     aria-label={`${BAND_LABEL[b]} ${g[b].length}명 보기`} data-tip={`${BAND_LABEL[b]} ${g[b].length}명 / 전체 ${rows.length}명`} onClick={() => onBand(m, b)}>
-                    {g[b].length / total >= 0.08 && <span>{g[b].length}</span>}
+                    {(g[b].length / total >= 0.08 || b === 'none') && <span>{b === 'none' ? `기록 부족 ${g[b].length}` : g[b].length}</span>}
                   </button>) : null)}
               </div>}
             </td>
-            <td><Trend values={daily} dates={dates} unit={vision ? '%' : '명'} label={vision ? '날마다 사진 기준 휴대폰 사용 비율' : `날마다 ${METRIC_LABEL[m]} 기준 넘은 학생`} onDay={(i) => onMetric(m, i)} /></td>
-            <td className="v5-bands-num">{vision ? <span data-tip="사진 합산 비율(예시)">사진 {photo === null ? '—' : `${photo}%`}</span> : <b className={g.over.length ? 'v5-late' : ''}>{g.over.length}명</b>}</td>
+            <td><span className="v5-trend-name">{DAILY_LABEL[m]}</span><Trend values={daily} dates={dates} unit={vision ? '%' : '명'} label={DAILY_LABEL[m]} onDay={(i) => onMetric(m, i)} /></td>
+            <td className="v5-bands-num">{vision ? <span data-tip="사진 합산 비율(예시)">사진 {photo === null ? '—' : `${photo}%`}</span> : g.none.length === rows.length ? <span className="v5-muted">기록 부족</span> : <span>기준 넘음 <b className={g.over.length ? 'v5-late' : ''}>{g.over.length}명</b></span>}</td>
           </tr>
           {detail && selected?.metric === m && selected.band === null && <tr className="v5-bands-detail"><td colSpan={4}>{detail(m)}</td></tr>}
           </tbody>)

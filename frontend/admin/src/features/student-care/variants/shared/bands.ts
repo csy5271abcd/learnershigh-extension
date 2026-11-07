@@ -6,11 +6,20 @@ import type { CareRow } from './useCareData.ts'
 import { sumVision } from './visionExample.ts'
 
 export type Band = 'ok' | 'watch' | 'over' | 'none'
-export const BAND_LABEL: Record<Band, string> = { ok: '정상', watch: '주의', over: '기준 넘음', none: '기록 없음' }
+export const BAND_LABEL: Record<Band, string> = { ok: '정상', watch: '주의', over: '기준 넘음', none: '기록 부족' }
 
-export type Thresholds = Pick<CareSettingsValues, 'absenceDays' | 'planMissingDays' | 'studyDropPercent' | 'startShiftMinutes'>
+export type Thresholds = Pick<CareSettingsValues, 'absenceDays' | 'planMissingDays' | 'studyDropPercent' | 'startShiftMinutes'> & { minValidDays?: number }
 
 /** 학생의 최근 7일 값(지표마다 한 수). 없으면 null */
+/** 최근 7일 중 그 지표의 값이 있는 날 수 */
+export function validDays(metric: MetricKey, r: CareRow): number {
+  if (metric === 'absence') return r.days.filter((d) => d.attendance === 'absent' || d.attendance === 'present').length
+  if (metric === 'plan') return r.days.filter((d) => d.submission === 'missing' || d.submission === 'submitted').length
+  if (metric === 'study') return r.days.filter((d) => d.minutes !== null && d.usualMinutes).length
+  if (metric === 'start') return r.days.filter((d) => d.start !== null && d.usualStart !== null).length
+  return r.vision.filter((v) => v.analyzedPhotos > 0).length
+}
+
 export function weekValue(metric: MetricKey, r: CareRow): number | null {
   if (metric === 'absence') return r.days.some((d) => d.attendance === 'absent' || d.attendance === 'present') ? r.days.filter((d) => d.attendance === 'absent').length : null
   if (metric === 'plan') return r.days.some((d) => d.submission === 'missing' || d.submission === 'submitted') ? r.days.filter((d) => d.submission === 'missing').length : null
@@ -20,8 +29,8 @@ export function weekValue(metric: MetricKey, r: CareRow): number | null {
   return a.analyzed ? (a.yes / a.analyzed) * 100 : null
 }
 
-export function bandOf(metric: MetricKey, v: number | null, t: Thresholds): Band {
-  if (v === null) return 'none'
+export function bandOf(metric: MetricKey, v: number | null, t: Thresholds, valid = 7): Band {
+  if (v === null || valid < (t.minValidDays ?? 1)) return 'none'
   if (metric === 'absence') return v >= t.absenceDays ? 'over' : v >= 1 ? 'watch' : 'ok'
   if (metric === 'plan') return v >= t.planMissingDays ? 'over' : v >= 1 ? 'watch' : 'ok'
   if (metric === 'study') return v <= -t.studyDropPercent ? 'over' : v <= -t.studyDropPercent / 2 ? 'watch' : 'ok'
@@ -32,7 +41,7 @@ export function bandOf(metric: MetricKey, v: number | null, t: Thresholds): Band
 export interface BandGroups { ok: CareRow[]; watch: CareRow[]; over: CareRow[]; none: CareRow[] }
 export function bandGroups(metric: MetricKey, rows: CareRow[], t: Thresholds): BandGroups {
   const g: BandGroups = { ok: [], watch: [], over: [], none: [] }
-  for (const r of rows) g[bandOf(metric, weekValue(metric, r), t)].push(r)
+  for (const r of rows) g[bandOf(metric, weekValue(metric, r), t, validDays(metric, r))].push(r)
   // 기준에서 먼 학생부터
   const key = (r: CareRow) => { const v = weekValue(metric, r) ?? 0; return metric === 'study' ? v : -v }
   for (const k of ['watch', 'over'] as const) g[k].sort((a, b) => key(a) - key(b))

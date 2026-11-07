@@ -120,6 +120,44 @@ export function DaySwarm({ rows, value, detail, domain, baseline, format, warn, 
   )
 }
 
+/** 날짜별 학생 분포 요약: 날마다 가운데 절반(막대)과 가운데 값(점), 머리에 대표 숫자. 학생 점은 그리지 않는다(값을 옮기지 않기 위해).
+    날짜에 마우스·초점을 두면 학생 수·가운데 값·가운데 절반·기준 넘음, 누르면 그날 학생 전원(학생 행 점 그림)으로 간다.
+    lines: 고른 학생의 7일 선(A의 학생 선 비교) */
+export function DayRange({ rows, value, domain, baseline, format, warn, height = 200, head, headTip, selectedDay, onDay, label, ticks, lines }: { rows: CareRow[]; value: (r: CareRow, i: number) => number | null; domain: [number, number]; baseline?: number; format: (v: number) => string; warn?: (v: number) => boolean; height?: number; head?: (i: number, vals: number[]) => string; headTip?: (i: number, vals: number[]) => string; selectedDay?: number | null; onDay?: (i: number) => void; label: string; ticks?: number[]; lines?: SwarmLine[] }) {
+  const [ref, width] = usePlotWidth()
+  const days = rows[0]?.days ?? []
+  const left = 54, right = 8, top = 30, bottom = 46, H = height - top - bottom, colW = (width - left - right) / 7
+  const [lo, hi] = domain
+  const y = (v: number) => top + H - ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * H
+  const cols = days.map((d, i) => {
+    const vals = rows.flatMap((r) => { const v = value(r, i); return v === null ? [] : [v] }).sort((a, b) => a - b)
+    const hot = warn ? vals.filter(warn).length : 0
+    const above = vals.filter((v) => v > hi).length, below = vals.filter((v) => v < lo).length
+    const summary = vals.length ? `${md(d.date)} ${d.dow} · 학생 ${vals.length}명 · 가운데 값 ${format(quant(vals, 0.5))} · 가운데 절반 ${format(quant(vals, 0.25))}~${format(quant(vals, 0.75))}${warn ? ` · 기준 넘음 ${hot}명` : ''}${above ? ` · 위쪽 범위 밖 ${above}명` : ''}${below ? ` · 아래쪽 범위 밖 ${below}명` : ''}${headTip ? ` · ${headTip(i, vals)}` : ''}` : `${md(d.date)} 기록 없음`
+    return { d, i, cx: left + colW * i + colW / 2, vals, hot, summary }
+  })
+  return (
+    <div ref={ref} className="v5-plot">
+      <svg width={width} height={height} role="group" aria-label={label}>
+        {(ticks ?? [lo, baseline ?? (lo + hi) / 2, hi]).map((t) => <g key={t} aria-hidden="true"><line x1={left} x2={width - right} y1={y(t)} y2={y(t)} className={t === baseline ? 'v5-axis-base' : 'v5-grid'} /><text x={left - 6} y={y(t) + 4} textAnchor="end" className="v5-tick">{t === baseline ? '평소' : format(t)}</text></g>)}
+        {cols.map((c) => (
+          <g key={c.d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === c.i : undefined} aria-label={`${c.summary}. 누르면 학생 전원`} data-tip={c.summary} onClick={() => onDay?.(c.i)} onKeyDown={(e) => act(e, () => onDay?.(c.i))} className="v5-day-hit">
+            <rect x={c.cx - colW / 2 + 2} y={2} width={colW - 4} height={height - 4} rx={6} className={selectedDay === c.i ? 'v5-col-sel' : 'v5-col-hit'} />
+            {c.vals.length > 0 && <>
+              <rect x={c.cx - 7} y={y(quant(c.vals, 0.75))} width={14} height={Math.max(2, y(quant(c.vals, 0.25)) - y(quant(c.vals, 0.75)))} rx={4} className="v5-iqr-bar" />
+              <circle cx={c.cx} cy={y(quant(c.vals, 0.5))} r={5} className="v5-median-dot" />
+              <text x={c.cx} y={18} textAnchor="middle" className="v5-head-num">{head ? head(c.i, c.vals) : format(quant(c.vals, 0.5))}</text>
+            </>}
+            <text x={c.cx} y={height - 24} textAnchor="middle" className="v5-tick">{md(c.d.date)} {c.d.dow}</text>
+            {c.hot > 0 && <text x={c.cx} y={height - 6} textAnchor="middle" className="v5-hot-more">{colW >= 120 ? `기준 넘음 ${c.hot}명` : `${c.hot}명`}</text>}
+          </g>))}
+        {lines?.map((l) => { const pts = cols.flatMap((c) => { const v = value(l.row, c.i); return v === null ? [] : [[c.cx, y(v)] as const] })
+          return <g key={l.row.student.studentId} className={`v5-line v5-line-${l.tone}`} aria-label={`${l.label}의 7일`}><polyline points={pts.map((p) => p.join(',')).join(' ')} />{pts.map((p, k) => <circle key={k} cx={p[0]} cy={p[1]} r={3.5} />)}{pts.length > 0 && <text x={Math.min(width - right - 4, pts[pts.length - 1][0] + 6)} y={pts[pts.length - 1][1] - 6} textAnchor="end">{l.label}</text>}</g> })}
+      </svg>
+    </div>
+  )
+}
+
 /** 출결 행렬: 결석이 1일 이상인 학생만 행. 결석 = 채운 칸, 기록 없음 = 점선, 계획 미제출 = 칸 아래 선 */
 export function AttendanceMatrix({ rows, onStudent, onDay, selectedDay, limit }: { rows: CareRow[]; onStudent?: (r: CareRow) => void; onDay?: (i: number) => void; selectedDay?: number | null; limit?: number }) {
   const [ref, width] = usePlotWidth()
@@ -314,20 +352,17 @@ function visionHeadTip(rows: CareRow[], i: number, axis: VisionAxis, p: { photoS
   return `사진 합산 ${p.yes}/${p.analyzed}장${p.photoShare === null ? '' : ` = ${Math.round(p.photoShare * 100)}%`} · 학생 ${s.length}명 가운데 값 ${med === null ? '—' : `${Math.round(med)}%`} · 판단 불가 ${unk}장 · 분석 실패 ${failed}장(전부 실패 ${failOnly}명) · 지원 안 함 ${p.unsupportedPhotos}장(${p.unsupportedStudents}명) · 사진 없음 ${none}명`
 }
 
-/** 학습관 비전: 관찰 4개를 같은 날짜 열의 작은 분포 점 그림 4줄로. 머리 숫자 = 사진 합산 비율, 점 = 학생별 비율, 분석 10장 미만은 빈 원. 강조 없음 */
-export function VisionSwarms({ rows, pools, onStudent, onDay, selectedDay }: { rows: CareRow[]; pools: { [A in VisionAxis]: { photoShare: number | null; yes: number; analyzed: number; unsupportedPhotos: number; unsupportedStudents: number } }[]; onStudent?: (r: CareRow) => void; onDay?: (i: number) => void; selectedDay?: number | null }) {
+/** 학습관 비전: 관찰 4개를 같은 날짜 열의 분포 요약 4줄로. 머리 숫자 = 사진 합산 비율, 막대·점 = 학생별 비율의 가운데 절반·가운데 값. 강조 없음 */
+export function VisionSwarms({ rows, pools, onDay, selectedDay }: { rows: CareRow[]; pools: { [A in VisionAxis]: { photoShare: number | null; yes: number; analyzed: number; unsupportedPhotos: number; unsupportedStudents: number } }[]; onStudent?: (r: CareRow) => void; onDay?: (i: number) => void; selectedDay?: number | null }) {
   return (
     <div className="v5-vision-rows">
       {VISION_AXES.map((axis) => (
         <div key={axis} className="v5-vision-row">
           <p className="v5-axis-name">{visionAxisLabel[axis]}</p>
-          <DaySwarm rows={rows} label={`${visionAxisLabel[axis]} 학생별 사진 비율(예시)`} domain={[0, 100]} ticks={[0, 50, 100]} format={(v) => `${Math.round(v)}%`} height={190}
+          <DayRange rows={rows} label={`${visionAxisLabel[axis]} 학생별 사진 비율(예시)`} domain={[0, 100]} ticks={[0, 50, 100]} format={(v) => `${Math.round(v)}%`} height={150}
             value={(r, i) => { const x = axisOfDay(r.vision[i], axis); return x.analyzed ? (x.yes / x.analyzed) * 100 : null }}
-            detail={(r, i) => { const v = r.vision[i], x = axisOfDay(v, axis); return v.photosReceived === 0 ? '사진 없음' : v.analyzedPhotos === 0 ? `분석 실패 ${v.failedPhotos}장` : v.unsupportedAxes.includes(axis) ? '지원 안 함' : `분석 ${x.analyzed}장 중 관찰 ${x.yes}장, 판단 불가 ${x.unknown}장` }}
-            head={(i, vals) => { const p = pools[i][axis]; return p.photoShare === null ? '—' : `사진 ${Math.round(p.photoShare * 100)}%` + (vals.length ? '' : '') }}
-            headTip={(i, vals) => visionHeadTip(rows, i, axis, pools[i][axis], vals)}
-            sample={(r, i) => axisOfDay(r.vision[i], axis).analyzed} onStudent={onStudent} onDay={onDay} selectedDay={selectedDay} />
-          {pools.some((p) => p[axis].unsupportedPhotos) && <p className="v5-muted">지원 안 함: {pools.map((p, i) => p[axis].unsupportedPhotos ? `${md(rows[0].days[i].date)} ${p[axis].unsupportedStudents}명 ${p[axis].unsupportedPhotos}장` : '').filter(Boolean).join(' · ')}</p>}
+            head={(i) => { const p = pools[i][axis]; return p.photoShare === null ? '—' : `사진 ${Math.round(p.photoShare * 100)}%` }}
+            headTip={(i, vals) => visionHeadTip(rows, i, axis, pools[i][axis], vals)} onDay={onDay} selectedDay={selectedDay} />
         </div>))}
     </div>
   )

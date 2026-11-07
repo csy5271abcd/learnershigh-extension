@@ -13,7 +13,7 @@ import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
 import { BAND_LABEL } from '../shared/bands.ts'
-import { RESULT_HEAD, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 
 const EMPTY: ReadonlySet<string> = new Set()
@@ -85,7 +85,7 @@ export function VariantD() {
               <div className="v5-result-head"><b>{md(m.days[day].date)} {m.days[day].dow} · 학생 {list.length}명</b>{metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setDay(null)}>접기</button></div>
               <div className="v5-result-body">
                 <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(metric, axis)} />
-                <StudentValues list={list} head={RESULT_HEAD[metric]} onOpen={open} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
+                <StudentValues list={list} head={RESULT_HEAD[metric]} axis={RESULT_AXIS[metric]} onOpen={open} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
               </div>
             </section>}
           </section>)}
