@@ -1,0 +1,583 @@
+{
+  "records": [
+    {
+      "test": "equal",
+      "width": 1600,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 150명 보기",
+          "disabled": false
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1600,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 150명 보기",
+          "disabled": false
+        }
+      ],
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1600,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 대상 없음",
+      "tip": "10/21 제출 대상 없음 (대상 아님 150명 · 기록 없음 0명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n대상 없음\n10/21 수\n대상 없음\n10/22 목\n대상 없음\n10/23 금\n대상 없음\n10/24 토\n대상 없음\n10/25 일\n대상 없음\n10/26 월\n대상 없음\n10/27 화"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1600,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 기록 없음",
+      "tip": "10/21 제출 기록 없음 (대상 아님 0명 · 기록 없음 150명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n기록 없음\n10/21 수\n기록 없음\n10/22 목\n기록 없음\n10/23 금\n기록 없음\n10/24 토\n기록 없음\n10/25 일\n기록 없음\n10/26 월\n기록 없음\n10/27 화"
+    },
+    {
+      "test": "equal",
+      "width": 1600,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 150명 보기",
+          "disabled": false
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1600,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 150명 보기",
+          "disabled": false
+        }
+      ],
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1600,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 대상 없음",
+      "tip": "10/21 제출 대상 없음 (대상 아님 150명 · 기록 없음 0명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n대상 없음\n10/21 수\n대상 없음\n10/22 목\n대상 없음\n10/23 금\n대상 없음\n10/24 토\n대상 없음\n10/25 일\n대상 없음\n10/26 월\n대상 없음\n10/27 화"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1600,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 기록 없음",
+      "tip": "10/21 제출 기록 없음 (대상 아님 0명 · 기록 없음 150명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n기록 없음\n10/21 수\n기록 없음\n10/22 목\n기록 없음\n10/23 금\n기록 없음\n10/24 토\n기록 없음\n10/25 일\n기록 없음\n10/26 월\n기록 없음\n10/27 화"
+    },
+    {
+      "test": "equal",
+      "width": 1280,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 150명 보기",
+          "disabled": false
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1280,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 150명 보기",
+          "disabled": false
+        }
+      ],
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1280,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 대상 없음",
+      "tip": "10/21 제출 대상 없음 (대상 아님 150명 · 기록 없음 0명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n대상 없음\n10/21 수\n대상 없음\n10/22 목\n대상 없음\n10/23 금\n대상 없음\n10/24 토\n대상 없음\n10/25 일\n대상 없음\n10/26 월\n대상 없음\n10/27 화"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1280,
+      "theme": "light",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 기록 없음",
+      "tip": "10/21 제출 기록 없음 (대상 아님 0명 · 기록 없음 150명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n기록 없음\n10/21 수\n기록 없음\n10/22 목\n기록 없음\n10/23 금\n기록 없음\n10/24 토\n기록 없음\n10/25 일\n기록 없음\n10/26 월\n기록 없음\n10/27 화"
+    },
+    {
+      "test": "equal",
+      "width": 1280,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 150명 보기",
+          "disabled": false
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1280,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "−50% 이하 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−50~−30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "−30~−10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "±10% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+10~+30% 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "+30% 넘음 150명 보기",
+          "disabled": false
+        }
+      ],
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1280,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 대상 없음",
+      "tip": "10/21 제출 대상 없음 (대상 아님 150명 · 기록 없음 0명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n대상 없음\n10/21 수\n대상 없음\n10/22 목\n대상 없음\n10/23 금\n대상 없음\n10/24 토\n대상 없음\n10/25 일\n대상 없음\n10/26 월\n대상 없음\n10/27 화"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1280,
+      "theme": "dark",
+      "bins": [
+        {
+          "label": "0일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "1일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "2일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "3일 0명 보기",
+          "disabled": true
+        },
+        {
+          "label": "4일 이상 0명 보기",
+          "disabled": true
+        }
+      ],
+      "counts": [],
+      "aria": "10/21 제출 기록 없음",
+      "tip": "10/21 제출 기록 없음 (대상 아님 0명 · 기록 없음 150명)",
+      "visible": "학생별 최근 7일 계획 미제출 일수\n\n0명\n0일\n0명\n1일\n0명\n2일\n0명\n3일\n0명\n4일 이상\n학생 0명\n기록 없음\n10/21 수\n기록 없음\n10/22 목\n기록 없음\n10/23 금\n기록 없음\n10/24 토\n기록 없음\n10/25 일\n기록 없음\n10/26 월\n기록 없음\n10/27 화"
+    }
+  ],
+  "errors": [
+    {
+      "test": "actual",
+      "width": 1600,
+      "theme": "light",
+      "message": "locator.click: Error: strict mode violation: locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('button', { name: '고개 숙임' }).first()\n    2) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('region', { name: '비전 관찰 10/21 학생' }).getByRole('button', { name: '고개 숙임' })\n\nCall log:\n\u001b[2m  - waiting for locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true })\u001b[22m\n"
+    },
+    {
+      "test": "actual",
+      "width": 1600,
+      "theme": "dark",
+      "message": "locator.click: Error: strict mode violation: locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('button', { name: '고개 숙임' }).first()\n    2) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('region', { name: '비전 관찰 10/21 학생' }).getByRole('button', { name: '고개 숙임' })\n\nCall log:\n\u001b[2m  - waiting for locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true })\u001b[22m\n"
+    },
+    {
+      "test": "actual",
+      "width": 1280,
+      "theme": "light",
+      "message": "locator.click: Error: strict mode violation: locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('button', { name: '고개 숙임' }).first()\n    2) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('region', { name: '비전 관찰 10/21 학생' }).getByRole('button', { name: '고개 숙임' })\n\nCall log:\n\u001b[2m  - waiting for locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true })\u001b[22m\n"
+    },
+    {
+      "test": "actual",
+      "width": 1280,
+      "theme": "dark",
+      "message": "locator.click: Error: strict mode violation: locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true }) resolved to 2 elements:\n    1) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('button', { name: '고개 숙임' }).first()\n    2) <button type=\"button\" aria-pressed=\"false\">고개 숙임</button> aka getByRole('region', { name: '비전 관찰 10/21 학생' }).getByRole('button', { name: '고개 숙임' })\n\nCall log:\n\u001b[2m  - waiting for locator('.v5-inline-detail').getByRole('group', { name: '관찰 항목' }).getByRole('button', { name: '고개 숙임', exact: true })\u001b[22m\n"
+    }
+  ],
+  "blocked": []
+}

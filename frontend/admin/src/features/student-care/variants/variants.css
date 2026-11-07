@@ -298,3 +298,8 @@
 .v5-key-iqr { background: var(--color-accent-soft); border: 1px solid var(--color-accent); width: 8px !important; height: 14px !important; }
 .v5-progress-noactual { display: flex !important; align-items: center; justify-content: center; color: var(--color-text-secondary); font-weight: 700; }
 .v5-cbar-over-left { right: auto; left: -14px; }
+.v5-key-line { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+.v5-key-line i { display: inline-block; width: 14px; height: 3px; }
+.v5-key-line-1 { color: var(--color-accent-text); } .v5-key-line-1 i { background: var(--color-accent); }
+.v5-key-line-2 { color: #7a5af8; } .v5-key-line-2 i { background: #7a5af8; }
+.v5-key-line-3 { color: #0e9384; } .v5-key-line-3 i { background: #0e9384; }

@@ -10,7 +10,7 @@ import { Overlay } from '../shared/Overlay.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
-import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue, outFilter, dirLabel } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
@@ -27,7 +27,7 @@ export function VariantB() {
   const [query, setQuery] = useState('')
   const [reason, setReason] = useState('')
   const [openId, setOpenId] = useState<string | null>(null)
-  const [dateView, setDateView] = useState<{ metric: MetricKey; i: number } | null>(null)
+  const [dateView, setDateView] = useState<{ metric: MetricKey; i: number; dir?: 'above' | 'below' } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
   const [metricView, setMetricView] = useState<MetricKey | null>(null)
@@ -58,11 +58,11 @@ export function VariantB() {
       <StudentFull key={openRow.student.studentId} s={openRow} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} thresholds={data.thresholds} executionRate={data.executionRate} onSaved={data.saved} guard={guard} />
     </Overlay>)
   const dateOverlay = dateView && !openRow && (() => {
-    const list = studentsOn(m, dateView.metric, dateView.i, axis)
+    const list = outFilter(studentsOn(m, dateView.metric, dateView.i, axis), dateView.metric, dateView.dir)
     const d = m.days[dateView.i]
     return (
       <Overlay kind="modal" label={`${md(d.date)} ${METRIC_LABEL[dateView.metric]} 학생`} onClose={() => setDateView(null)} header={<>
-        <div className="v5-overlay-bar"><h2>{md(d.date)} {d.dow} · {METRIC_LABEL[dateView.metric]}</h2><button type="button" className="sc-button" onClick={() => setDateView(null)}>닫기</button></div>
+        <div className="v5-overlay-bar"><h2>{md(d.date)} {d.dow} · {METRIC_LABEL[dateView.metric]}{dirLabel(dateView.dir)}</h2><button type="button" className="sc-button" onClick={() => setDateView(null)}>닫기</button></div>
         <div className="v5-overlay-bar v5-wrap">
           <span className="v5-muted">다른 지표</span>{METRIC_KEYS.map((k) => <button key={k} type="button" className="v5-mini" aria-pressed={k === dateView.metric} onClick={() => setDateView({ metric: k, i: dateView.i })}>{METRIC_LABEL[k]}</button>)}
           <button type="button" className="v5-mini" disabled={dateView.i === 0} onClick={() => setDateView({ ...dateView, i: dateView.i - 1 })}>← {dateView.i > 0 ? md(m.days[dateView.i - 1].date) : ''}</button>
@@ -98,7 +98,7 @@ export function VariantB() {
       {tab === 'history' && <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => { setTab('students'); setOpenId(id) }} />}
       {band && !openRow && <Overlay kind="modal" label="단계별 학생" onClose={() => setBand(null)} header={<div className="v5-overlay-bar"><h2>{METRIC_LABEL[band.metric]} · {BAND_LABEL[band.band!]}</h2><button type="button" className="sc-button" onClick={() => setBand(null)}>닫기</button></div>}><BandList metric={band.metric} band={band.band!} rows={m.included} t={data.thresholds} onOpen={(r) => setOpenId(r.student.studentId)} /></Overlay>}
       {metricView && !dateView && !openRow && !band && <Overlay kind="modal" label={`${METRIC_LABEL[metricView]} 날짜별`} onClose={() => setMetricView(null)} header={<div className="v5-overlay-bar"><h2>{METRIC_LABEL[metricView]} · 날짜별</h2><button type="button" className="sc-button" onClick={() => setMetricView(null)}>닫기</button></div>}>
-        <MetricPanel metric={metricView} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i) => setDateView({ metric: metricView, i })} />
+        <MetricPanel metric={metricView} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i, dir) => setDateView({ metric: metricView, i, dir })} />
       </Overlay>}
       {studentOverlay}
       {dateOverlay}

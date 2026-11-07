@@ -55,7 +55,7 @@ export const hours = (minutes: number | null) => {
   const m = Math.round(minutes), h = Math.floor(m / 60), r = m % 60
   return r ? `${h}시간 ${r}분` : `${h}시간`
 }
-export const clock = (minutes: number | null) => minutes === null ? '—' : `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(Math.round(minutes) % 60).padStart(2, '0')}`
+export const clock = (minutes: number | null) => { if (minutes === null) return '—'; const m = Math.round(minutes); return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}` }
 
 function toDays(review: ServerWeeklyReview, records: ServerWeeklyReview['days'], withUsual: boolean): OpsDay[] {
   return records.map((d, i) => {

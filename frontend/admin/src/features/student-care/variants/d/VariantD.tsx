@@ -13,7 +13,7 @@ import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
 import { BAND_LABEL } from '../shared/bands.ts'
-import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue, outFilter, dirLabel } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 
 const EMPTY: ReadonlySet<string> = new Set()
@@ -27,6 +27,7 @@ export function VariantD() {
   const [tab, setTab] = useState<Tab>('branch')
   const [metric, setMetric] = useState<MetricKey>('study')
   const [day, setDay] = useState<number | null>(null)
+  const [dir, setDir] = useState<'above' | 'below' | undefined>(undefined)
   const [allOpen, setAllOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
@@ -52,7 +53,7 @@ export function VariantD() {
       {guard.prompt}
     </div>)
   const found = query.trim() ? rows.filter(matchQuery(query)).slice(0, 6) : []
-  const list = day !== null ? studentsOn(m, metric, day, axis) : []
+  const list = day !== null ? outFilter(studentsOn(m, metric, day, axis), metric, dir) : []
   return (
     <div className="sc-page v5-page">
       <CareHeader data={data} title="학생 케어 D" onBranchChange={() => { setDay(null); setPinned([]); setAllOpen(false) }} />
@@ -80,9 +81,9 @@ export function VariantD() {
         {allOpen ? <section className="v5-card"><div className="v5-card-head"><h3>전체 학생 {rows.length}명</h3></div><RosterText label="전체 학생" rows={rows} onOpen={open} /></section> : (
           <section className="v5-card">
             <div className="v5-card-head"><h3>{METRIC_LABEL[metric]}<span className="v5-muted"> {METRIC_SUB[metric]}</span></h3></div>
-            <MetricPanel metric={metric} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={open} onDay={(i) => setDay(day === i ? null : i)} selectedDay={day} />
+            <MetricPanel metric={metric} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={open} onDay={(i, d2) => { setDir(d2); setDay(day === i && dir === d2 ? null : i) }} selectedDay={day} />
             {day !== null && <section className="v5-result" aria-label={`${METRIC_LABEL[metric]} ${md(m.days[day].date)} 학생`}>
-              <div className="v5-result-head"><b>{md(m.days[day].date)} {m.days[day].dow} · 학생 {list.length}명</b>{metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setDay(null)}>접기</button></div>
+              <div className="v5-result-head"><b>{md(m.days[day].date)} {m.days[day].dow}{dirLabel(dir)} · 학생 {list.length}명</b>{metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setDay(null)}>접기</button></div>
               <div className="v5-result-body">
                 <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(metric, axis)} />
                 <StudentValues list={list} head={RESULT_HEAD[metric]} axis={RESULT_AXIS[metric]} onOpen={open} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />

@@ -21,3 +21,11 @@ export function compareValue(metric: MetricKey, axis: VisionAxis) {
 }
 
 export const RESULT_AXIS: Partial<Record<MetricKey, { domain: [number, number]; baseline?: number }>> = { study: { domain: [-100, 100], baseline: 0 }, start: { domain: [-120, 120], baseline: 0 }, vision: { domain: [0, 100] } }
+
+/** 범위 밖(위·아래) 학생만 고른다. 방향이 없으면 그대로 */
+export function outFilter<T extends { num?: number }>(list: T[], metric: MetricKey, dir?: 'above' | 'below'): T[] {
+  const a = RESULT_AXIS[metric]
+  if (!dir || !a) return list
+  return list.filter((v) => v.num !== undefined && (dir === 'above' ? v.num > a.domain[1] : v.num < a.domain[0]))
+}
+export const dirLabel = (dir?: 'above' | 'below') => dir === 'above' ? ' · 위쪽 범위 밖' : dir === 'below' ? ' · 아래쪽 범위 밖' : ''

@@ -12,7 +12,7 @@ export interface StudentValue { row: CareRow; actual: string; usual: string; dif
 
 const quantile = (s: number[], q: number) => { const i = (s.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo) }
 const hm = (m: number | null) => m === null ? '—' : `${Math.floor(Math.round(m) / 60)}시간 ${Math.round(m) % 60}분`
-const clockOf = (m: number | null) => m === null ? '—' : `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(Math.round(m) % 60).padStart(2, '0')}`
+const clockOf = (m: number | null) => { if (m === null) return '—'; const r = Math.round(m); return `${String(Math.floor(r / 60)).padStart(2, '0')}:${String(r % 60).padStart(2, '0')}` }
 const sgn = (v: number, unit: string) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Math.round(v))}${unit}`
 
 export interface BranchModel {

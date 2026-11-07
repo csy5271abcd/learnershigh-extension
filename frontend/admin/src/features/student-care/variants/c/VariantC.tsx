@@ -14,7 +14,7 @@ import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
 import { BAND_LABEL } from '../shared/bands.ts'
-import { RESULT_HEAD, RESULT_AXIS, compareValue } from '../shared/results.ts'
+import { RESULT_HEAD, RESULT_AXIS, compareValue, outFilter, dirLabel } from '../shared/results.ts'
 import { sumVision, visionAxisLabel, type VisionAxis } from '../shared/visionExample.ts'
 import { hours } from '../shared/model.ts'
 
@@ -30,10 +30,10 @@ export function VariantC() {
   const [reason, setReason] = useState('flagged')
   const [query, setQuery] = useState('')
   const [openId, setOpenId] = useState<string | null>(null)
-  const [pick, setPick] = useState<{ metric: MetricKey; i: number } | null>(null)
+  const [pick, setPick] = useState<{ metric: MetricKey; i: number; dir?: 'above' | 'below' } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
-  const [weekPick, setWeekPick] = useState<{ metric: MetricKey; i: number } | null>(null)
+  const [weekPick, setWeekPick] = useState<{ metric: MetricKey; i: number; dir?: 'above' | 'below' } | null>(null)
   const [band, setBand] = useState<{ metric: MetricKey; band: Band | null } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const ex = excluded[data.branchId ?? ''] ?? EMPTY
@@ -98,7 +98,7 @@ export function VariantC() {
           <Bins bins={b.bins} total={b.counted} selected={weekPick?.metric === k ? weekPick.i : null} onPick={(i) => setWeekPick(weekPick?.metric === k && weekPick.i === i ? null : { metric: k, i })} />
           {weekPick?.metric === k && <section className="v5-result"><div className="v5-result-head"><b>{b.bins[weekPick.i].label} · {b.bins[weekPick.i].rows.length}명</b><button type="button" className="sc-button" onClick={() => setWeekPick(null)}>접기</button></div>
             <div className="v5-result-body"><ul className="v5-bandlist">{b.bins[weekPick.i].rows.map((r) => <li key={r.student.studentId}><button type="button" className="v5-link" onClick={() => go(() => setOpenId(r.student.studentId))}>{r.student.studentName}</button> <span className="v5-muted">{r.student.className}</span> <span>{w.detail(r)}</span></li>)}</ul></div></section>}
-        </div> })()}<MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={260} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i) => setPick(pick?.metric === k && pick.i === i ? null : { metric: k, i })} selectedDay={pick?.metric === k ? pick.i : null} />{pick?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[pick.i].date)} 학생`}><div className="v5-result-head"><b>{md(m.days[pick.i].date)} {m.days[pick.i].dow} · 학생 {studentsOn(m, k, pick.i, axis).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div><div className="v5-result-body"><Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} /><StudentValues list={studentsOn(m, k, pick.i, axis)} head={RESULT_HEAD[k]} axis={RESULT_AXIS[k]} onOpen={(r) => go(() => setOpenId(r.student.studentId))} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} /></div></section>}</div>} /></section>
+        </div> })()}<MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={260} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i, dir) => setPick(pick?.metric === k && pick.i === i && pick.dir === dir ? null : { metric: k, i, dir })} selectedDay={pick?.metric === k ? pick.i : null} />{pick?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[pick.i].date)} 학생`}><div className="v5-result-head"><b>{md(m.days[pick.i].date)} {m.days[pick.i].dow}{dirLabel(pick.dir)} · 학생 {outFilter(studentsOn(m, k, pick.i, axis), k, pick.dir).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div><div className="v5-result-body"><Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} /><StudentValues list={outFilter(studentsOn(m, k, pick.i, axis), k, pick.dir)} head={RESULT_HEAD[k]} axis={RESULT_AXIS[k]} onOpen={(r) => go(() => setOpenId(r.student.studentId))} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} /></div></section>}</div>} /></section>
         {band?.band && <section className="v5-result" aria-label="단계별 학생">
           <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {BAND_LABEL[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
           <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={(r) => go(() => setOpenId(r.student.studentId))} /></div>

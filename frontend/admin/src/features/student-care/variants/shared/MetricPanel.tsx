@@ -9,12 +9,12 @@ const pct = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Math.r
 const min = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Math.round(v))}분`
 
 /** 계획 제출: 날짜마다 미제출 인원 막대(높이 = 인원). 막대 위 머리 숫자 = 미제출 인원, 안내에 제출·대상 */
-function PlanBars({ m, onDay, selectedDay }: { m: BranchModel; onDay?: (i: number) => void; selectedDay?: number | null }) {
+function PlanBars({ m, onDay, selectedDay }: { m: BranchModel; onDay?: (i: number, dir?: 'above' | 'below') => void; selectedDay?: number | null }) {
   const [ref, width] = usePlotWidth()
   const left = 8, colW = (width - left * 2) / 7, H = 90, top = 24
   const miss = m.days.map((d) => d.submitKnown - d.submitted), max = Math.max(1, ...miss)
   const offN = m.days.map((_, i) => m.included.filter((r) => r.days[i].submission === 'off').length), unkN = m.days.map((_, i) => m.included.filter((r) => r.days[i].submission === 'unknown').length)
-  const empty = (i: number) => offN[i] >= unkN[i] ? '제출 대상 없음' : '제출 기록 없음'
+  const empty = (i: number) => unkN[i] > 0 ? '제출 기록 없음' : '제출 대상 없음'
   return (
     <div ref={ref} className="v5-plot">
       <svg width={width} height={H + top + 26} role="group" aria-label="날짜별 계획 미제출 인원">
@@ -32,7 +32,7 @@ function PlanBars({ m, onDay, selectedDay }: { m: BranchModel; onDay?: (i: numbe
   )
 }
 
-interface Props { metric: MetricKey; m: BranchModel; studyDropPercent: number; startShiftMinutes: number; onStudent?: (r: CareRow) => void; onDay?: (i: number) => void; selectedDay?: number | null; height?: number; limit?: number; lines?: SwarmLine[] }
+interface Props { metric: MetricKey; m: BranchModel; studyDropPercent: number; startShiftMinutes: number; onStudent?: (r: CareRow) => void; onDay?: (i: number, dir?: 'above' | 'below') => void; selectedDay?: number | null; height?: number; limit?: number; lines?: SwarmLine[] }
 
 export function MetricPanel({ metric, m, studyDropPercent, startShiftMinutes, onStudent, onDay, selectedDay, height, limit, lines }: Props) {
   const rows = m.included
