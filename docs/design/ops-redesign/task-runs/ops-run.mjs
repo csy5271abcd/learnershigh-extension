@@ -1,44 +1,145 @@
-﻿import { start } from '../../../../scripts/research/care-task-harness.mjs';
-import { appendFileSync } from 'node:fs';
-import readline from 'node:readline';
-const t = await start('http://localhost:5174/student-care/ops', 'docs/design/ops-redesign/task-runs/ops-log-2.json');
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: false });
-for await (const line of rl) {
-  appendFileSync(new URL(import.meta.url), '\n// Executed: ' + line + '\n');
-  try { console.log(await eval(`(async () => { ${line} })()`)); }
-  catch (e) { console.log(String(e)); }
-}
-
-// Executed: await t.question('Q3'); await t.clickText('학습관별'); await t.scroll(500); await t.clickText('조하린'); console.log(await t.read());
-
-// Executed: await t.scroll(-20000); await t.clickText('학습관별'); await t.scroll(500); await t.clickText('14시간 21분 / 17시간 56분'); await t.scroll(400); console.log(await t.read());
-
-// Executed: await t.question('Q4'); await t.clickText('입실 시각'); console.log(await t.read()); await t.scroll(400); console.log(await t.read());
-
-// Executed: await t.click('button:has-text("입실 시각")'); console.log(await t.read());
-
-// Executed: await t.question('Q3'); await t.scroll(-20000); await t.clickText('학생별'); for(const n of ['강하준','서도현','윤서윤','장수빈','최예준','한하린','신지우','임시윤','조하린','오유진','장도현']){await t.fill('input[aria-label="학생 검색"]',n); await t.clickText(n); console.log(await t.read());}
-
-// Executed: await t.question('Q15'); for(const n of ['강서윤','이예준','조수빈','최하준']){await t.fill('input[aria-label="학생 검색"]',n); await t.clickText(n); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q15-'+n+'.png');} await t.question('Q11'); await t.fill('input[aria-label="학생 검색"]','박예준'); await t.clickText('박예준'); await t.scroll(700); console.log(await t.read());
-
-// Executed: await t.clickText('상담 기록'); await t.scroll(600); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q11-bottom.png');
-
-// Executed: await t.question('Q9'); await t.scroll(-20000); await t.clickText('학생별'); await t.fill('input[aria-label="학생 검색"]','이서준'); await t.clickText('이서준'); await t.clickText('상담 기록'); await t.scroll(650); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-form.png');
-
-// Executed: await t.fill('input[aria-label="기록자"]','과업 시험관'); await t.clickText('면담'); await t.fill('textarea[aria-label="상담 내용"]','과업 시험: 면담 결과 계속 관리, 다음 확인은 1주 뒤.'); await t.clickText('계속 관리'); await t.scroll(450); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-ready.png');
-
-// Executed: await t.fill('input[placeholder="이름"]','과업 시험관'); await t.clickText('면담'); await t.fill('textarea','과업 시험: 면담 결과 계속 관리, 다음 확인은 1주 뒤.'); await t.clickText('계속 관리'); await t.scroll(450); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-ready.png');
-
-// Executed: console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-current.png');
-
-// Executed: await t.click('label:has-text("면담") input'); await t.fill('textarea','과업 시험: 면담 결과 계속 관리, 다음 확인은 1주 뒤.'); await t.click('label:has-text("계속 관리") input'); await t.scroll(500); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-ready.png');
-
-// Executed: await t.click('label:has-text("1주 후") input'); await t.clickText('저장'); await t.clickText('관리 이력'); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q9-history.png');
-
-// Executed: await t.question('Q10'); await t.select('select[aria-label="학습관"]',{label:'수지점'}); await t.click('button:has(svg)'); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q10-settings.png');
-
-// Executed: console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q10-current.png');
-
-// Executed: await t.select('select',{label:'수지점'}); await t.click('button[aria-label="관리 기준 설정"]'); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q10-settings.png');
-
-// Executed: await t.fill('input[type="number"] >> nth=0','2'); await t.clickText('저장'); await t.click('button[aria-label="관리 기준 설정"]'); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q10-after.png'); await t.fill('input[type="number"] >> nth=0','1'); await t.clickText('저장'); await t.click('button[aria-label="관리 기준 설정"]'); console.log(await t.read()); await t.shot('docs/design/ops-redesign/task-runs/ops-shots/q10-restored.png'); await t.clickText('취소'); console.log(await t.end());
+import { start } from '../../../../scripts/research/care-task-harness.mjs';
+export const t = await start('http://localhost:5174/student-care/ops', 'docs/design/ops-redesign/task-runs/ops-log.json');
+await t.question("Q1");
+await t.read();
+try { await t.click("select[aria-label=\"학습관\"]"); } catch { /* 관찰 당시 선택자를 찾지 못함 */ }
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q1-initial.png");
+await t.click("select");
+await t.read();
+await t.question("Q2");
+await t.click("body");
+await t.read();
+await t.question("Q3");
+await t.scroll(560);
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q3-scroll.png");
+await t.scroll(-1000);
+await t.click("select >> nth=1");
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/filter.png");
+await t.select("select >> nth=1",{"label":"사유: 학습 감소 6"});
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q3.png");
+await t.question("Q4");
+await t.select("select >> nth=1",{"label":"사유: 입실 늦어짐 4"});
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q4.png");
+await t.question("Q5");
+await t.select("select >> nth=1",{"label":"전체 학생 150"});
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","김하준");
+await t.clickText("김하준");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q5.png");
+await t.question("Q6");
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","김지우");
+await t.clickText("김지우");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q6.png");
+await t.question("Q7");
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","");
+await t.select("select >> nth=1",{"label":"관리 중 5"});
+await t.read();
+await t.question("Q8");
+await t.select("select >> nth=1",{"label":"전체 학생 150"});
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","김예준");
+await t.clickText("김예준");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q8.png");
+await t.question("Q11");
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","박예준");
+await t.clickText("박예준");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q11.png");
+await t.question("Q12");
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","");
+await t.select("select >> nth=1",{"label":"사유: 결석 18"});
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q12.png");
+await t.clickText("이지우");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q12-managed.png");
+await t.question("Q13");
+await t.clickText("학습관별");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q13.png");
+await t.question("Q14");
+await t.clickText("학생별");
+await t.select("select >> nth=1",{"label":"전체 학생 150"});
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","김시윤");
+await t.clickText("김시윤");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q14.png");
+await t.question("Q15");
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","");
+await t.select("select >> nth=1",{"label":"참고: 같은 요일 결석 4"});
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q15.png");
+await t.question("Q3");
+await t.select("select >> nth=1",{"label":"사유: 학습 감소 6"});
+await t.clickText("강하준");
+await t.read();
+await t.clickText("서도현");
+await t.read();
+await t.clickText("윤서윤");
+await t.read();
+await t.clickText("장수빈");
+await t.read();
+await t.clickText("최예준");
+await t.read();
+await t.clickText("한하린");
+await t.read();
+await t.question("Q11");
+await t.select("select >> nth=1",{"label":"전체 학생 150"});
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","박예준");
+await t.clickText("박예준");
+await t.scroll(650);
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q11-reasons.png");
+await t.scroll(650);
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q11-bottom.png");
+await t.question("Q9");
+await t.scroll(-2000);
+await t.fill("input[placeholder=\"이름 또는 반 검색\"]","이서준");
+await t.clickText("이서준");
+await t.clickText("상담 기록");
+await t.scroll(650);
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q9-form.png");
+await t.scroll(500);
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q9-form-bottom.png");
+await t.fill("input[placeholder=\"이름\"]","과업 시험관");
+try { await t.clickText("면담"); } catch { /* 라디오 입력이 텍스트 클릭을 가로막아 label 클릭으로 재시도함 */ }
+await t.click("label:has-text(\"면담\")");
+await t.click("label:has-text(\"계속 관리\")");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q9-next.png");
+await t.click("label:has-text(\"1주 후\")");
+await t.fill("textarea","과업 시험: 면담, 계속 관리, 1주 후 확인.");
+await t.clickText("저장");
+await t.read();
+await t.scroll(-2500);
+await t.clickText("관리 이력");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q9-history.png");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q9-history-loaded.png");
+await t.question("Q10");
+await t.click("select");
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q10-branches.png");
+await t.select("select >> nth=0",{"label":"수지점"});
+await t.click("main button >> nth=0");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q10-settings.png");
+await t.fill("input[type=number] >> nth=0","2");
+await t.clickText("저장");
+await t.click("main button >> nth=0");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q10-after-save.png");
+await t.fill("input[type=number] >> nth=0","1");
+await t.clickText("저장");
+await t.click("main button >> nth=0");
+await t.read();
+await t.shot("docs/design/ops-redesign/task-runs/ops-shots/q10-restored.png");
+await t.clickText("취소");
+await t.end();

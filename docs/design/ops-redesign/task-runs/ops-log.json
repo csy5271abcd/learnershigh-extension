@@ -1,12 +1,13 @@
 {
   "url": "http://localhost:5174/student-care/ops",
   "counts": {
-    "scroll": 19,
-    "fill": 7,
-    "click": 8
+    "click": 32,
+    "scroll": 8,
+    "select": 11,
+    "fill": 14
   },
-  "total": 34,
-  "autoMoves": 0,
+  "total": 65,
+  "autoMoves": 3,
   "writes": [
     {
       "question": null,
@@ -14,15 +15,95 @@
       "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
       "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
       "status": 200,
-      "at": "2026-11-07T00:00:52.646Z"
+      "at": "2026-11-07T06:04:52.022Z"
+    },
+    {
+      "question": "Q9",
+      "method": "POST",
+      "url": "http://localhost:5174/api/admin/student-care/cases",
+      "body": "{\"branchId\":\"demo_large\",\"studentId\":\"demo_s011\",\"channel\":\"MEETING\",\"actorName\":\"과업 시험관\",\"memo\":\"과업 시험: 면담, 계속 관리, 1주 후 확인.\",\"reason\":\"ADJUSTMENT_NEEDED\",\"recheckDate\":\"2026-11-04\"}",
+      "status": 201,
+      "at": "2026-11-07T06:09:35.208Z"
+    },
+    {
+      "question": "Q9",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:09:35.250Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:09:59.344Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:10:00.861Z"
+    },
+    {
+      "question": "Q10",
+      "method": "PUT",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+      "status": 200,
+      "at": "2026-11-07T06:10:16.688Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:10:16.708Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:10:17.494Z"
+    },
+    {
+      "question": "Q10",
+      "method": "PUT",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+      "status": 200,
+      "at": "2026-11-07T06:10:18.880Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:10:18.898Z"
+    },
+    {
+      "question": "Q10",
+      "method": "GET",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+      "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+      "status": 200,
+      "at": "2026-11-07T06:10:19.696Z"
     }
   ],
   "errors": [],
   "log": [
     {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
+      "question": "Q1",
+      "kind": "click",
+      "target": "select",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -31,206 +112,121 @@
       },
       "after": {
         "x": 0,
-        "y": 650,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:14.505Z"
+      "at": "2026-11-07T06:05:38.416Z"
     },
     {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 600",
+      "question": "Q2",
+      "kind": "click",
+      "target": "body",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 650,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
         "x": 0,
-        "y": 1250,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:18.268Z"
+      "at": "2026-11-07T06:05:55.049Z"
     },
     {
       "question": "Q3",
       "kind": "scroll",
-      "target": "window 650",
+      "target": "window 560",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 1250,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
         "x": 0,
-        "y": 1900,
+        "y": 560,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:23.720Z"
+      "at": "2026-11-07T06:05:55.561Z"
     },
     {
       "question": "Q3",
       "kind": "scroll",
-      "target": "window 600",
+      "target": "window -1000",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 1900,
+        "y": 560,
         "inner": "[]"
       },
       "after": {
         "x": 0,
-        "y": 2500,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:27.225Z"
+      "at": "2026-11-07T06:06:09.251Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "click",
+      "target": "select >> nth=1",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:06:10.096Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:06:26.607Z"
     },
     {
       "question": "Q4",
-      "kind": "scroll",
-      "target": "window -1200",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 2500,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
         "x": 0,
-        "y": 1300,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:31.581Z"
-    },
-    {
-      "question": "Q4",
-      "kind": "scroll",
-      "target": "window 1800",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 1300,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 3100,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:32.048Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 3100,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 3750,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:36.351Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 3750,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 4400,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:36.812Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 4400,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 5050,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:37.261Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 5050,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 5700,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:37.712Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 5700,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 6350,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:38.166Z"
-    },
-    {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 650",
-      "autoMove": false,
-      "before": {
-        "x": 0,
-        "y": 6350,
-        "inner": "[]"
-      },
-      "after": {
-        "x": 0,
-        "y": 6450,
-        "inner": "[]"
-      },
-      "at": "2026-11-07T00:01:38.615Z"
+      "at": "2026-11-07T06:06:28.187Z"
     },
     {
       "question": "Q5",
-      "kind": "scroll",
-      "target": "window -20000",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 6450,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
@@ -238,12 +234,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:50.482Z"
+      "at": "2026-11-07T06:06:41.838Z"
     },
     {
       "question": "Q5",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = 김하준",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 김하준",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -255,7 +251,7 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:51.025Z"
+      "at": "2026-11-07T06:06:42.378Z"
     },
     {
       "question": "Q5",
@@ -272,12 +268,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:01:51.864Z"
+      "at": "2026-11-07T06:06:43.224Z"
     },
     {
       "question": "Q6",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = 김지우",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 김지우",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -289,7 +285,7 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:03.100Z"
+      "at": "2026-11-07T06:06:43.810Z"
     },
     {
       "question": "Q6",
@@ -306,12 +302,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:03.939Z"
+      "at": "2026-11-07T06:06:44.657Z"
     },
     {
-      "question": "Q8",
+      "question": "Q7",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = 김예준",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = ",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -323,7 +319,58 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:04.532Z"
+      "at": "2026-11-07T06:06:45.343Z"
+    },
+    {
+      "question": "Q7",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:06:46.868Z"
+    },
+    {
+      "question": "Q8",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:06:59.313Z"
+    },
+    {
+      "question": "Q8",
+      "kind": "fill",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 김예준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:06:59.852Z"
     },
     {
       "question": "Q8",
@@ -340,12 +387,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:05.361Z"
+      "at": "2026-11-07T06:07:00.691Z"
     },
     {
       "question": "Q11",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = 박예준",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 박예준",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -357,7 +404,7 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:16.749Z"
+      "at": "2026-11-07T06:07:01.269Z"
     },
     {
       "question": "Q11",
@@ -374,12 +421,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:17.585Z"
+      "at": "2026-11-07T06:07:02.106Z"
     },
     {
       "question": "Q12",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = ",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = ",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -391,12 +438,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:18.228Z"
+      "at": "2026-11-07T06:07:02.797Z"
     },
     {
       "question": "Q12",
-      "kind": "scroll",
-      "target": "window 540",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -405,19 +452,19 @@
       },
       "after": {
         "x": 0,
-        "y": 540,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:18.691Z"
+      "at": "2026-11-07T06:07:04.321Z"
     },
     {
-      "question": "Q13",
-      "kind": "scroll",
-      "target": "window -20000",
+      "question": "Q12",
+      "kind": "click",
+      "target": "text=이지우",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 540,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
@@ -425,7 +472,7 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:34.852Z"
+      "at": "2026-11-07T06:07:12.596Z"
     },
     {
       "question": "Q13",
@@ -442,7 +489,7 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:35.705Z"
+      "at": "2026-11-07T06:07:13.514Z"
     },
     {
       "question": "Q14",
@@ -459,12 +506,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:36.690Z"
+      "at": "2026-11-07T06:07:29.885Z"
     },
     {
       "question": "Q14",
-      "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = 김시윤",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -476,7 +523,24 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:37.228Z"
+      "at": "2026-11-07T06:07:31.472Z"
+    },
+    {
+      "question": "Q14",
+      "kind": "fill",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 김시윤",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:32.013Z"
     },
     {
       "question": "Q14",
@@ -493,12 +557,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:38.069Z"
+      "at": "2026-11-07T06:07:32.855Z"
     },
     {
       "question": "Q15",
       "kind": "fill",
-      "target": "input[aria-label=\"학생 검색\"] = ",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = ",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -510,12 +574,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:50.524Z"
+      "at": "2026-11-07T06:07:33.554Z"
     },
     {
       "question": "Q15",
-      "kind": "scroll",
-      "target": "window 2100",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -524,19 +588,19 @@
       },
       "after": {
         "x": 0,
-        "y": 2100,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:50.945Z"
+      "at": "2026-11-07T06:07:35.077Z"
     },
     {
       "question": "Q3",
-      "kind": "scroll",
-      "target": "window -20000",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 2100,
+        "y": 0,
         "inner": "[]"
       },
       "after": {
@@ -544,12 +608,12 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:51.412Z"
+      "at": "2026-11-07T06:07:47.139Z"
     },
     {
       "question": "Q3",
       "kind": "click",
-      "target": "text=학습관별",
+      "target": "text=강하준",
       "autoMove": false,
       "before": {
         "x": 0,
@@ -561,199 +625,785 @@
         "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:02:52.254Z"
+      "at": "2026-11-07T06:07:47.990Z"
     },
     {
       "question": "Q3",
+      "kind": "click",
+      "target": "text=서도현",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:48.864Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "click",
+      "target": "text=윤서윤",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:49.720Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "click",
+      "target": "text=장수빈",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:50.572Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "click",
+      "target": "text=최예준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:51.426Z"
+    },
+    {
+      "question": "Q3",
+      "kind": "click",
+      "target": "text=한하린",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:52.295Z"
+    },
+    {
+      "question": "Q11",
+      "kind": "select",
+      "target": "select >> nth=1 = [object Object]",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:53.911Z"
+    },
+    {
+      "question": "Q11",
+      "kind": "fill",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 박예준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:54.451Z"
+    },
+    {
+      "question": "Q11",
+      "kind": "click",
+      "target": "text=박예준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:55.286Z"
+    },
+    {
+      "question": "Q11",
+      "kind": "scroll",
+      "target": "window 650",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 206,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:07:55.704Z"
+    },
+    {
+      "question": "Q11",
+      "kind": "scroll",
+      "target": "window 650",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 206,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 206,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:08:06.762Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "scroll",
+      "target": "window -2000",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 206,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:08:17.454Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "fill",
+      "target": "input[placeholder=\"이름 또는 반 검색\"] = 이서준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:08:17.978Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "text=이서준",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:08:18.818Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "text=상담 기록",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:08:19.641Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "scroll",
+      "target": "window 650",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "at": "2026-11-07T06:08:20.060Z"
+    },
+    {
+      "question": "Q9",
       "kind": "scroll",
       "target": "window 500",
       "autoMove": false,
       "before": {
         "x": 0,
         "y": 0,
-        "inner": "[]"
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
       },
       "after": {
         "x": 0,
-        "y": 296,
-        "inner": "[]"
+        "y": 206,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
       },
-      "at": "2026-11-07T00:02:52.657Z"
+      "at": "2026-11-07T06:08:34.518Z"
     },
     {
-      "question": "Q3",
-      "kind": "scroll",
-      "target": "window 450",
+      "question": "Q9",
+      "kind": "fill",
+      "target": "input[placeholder=\"이름\"] = 과업 시험관",
       "autoMove": false,
       "before": {
         "x": 0,
-        "y": 296,
+        "y": 206,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 206,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "at": "2026-11-07T06:08:40.151Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "label:has-text(\"면담\")",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",40,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",40,0]]"
+      },
+      "at": "2026-11-07T06:09:20.126Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "label:has-text(\"계속 관리\")",
+      "autoMove": true,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",40,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "at": "2026-11-07T06:09:20.949Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "label:has-text(\"1주 후\")",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "at": "2026-11-07T06:09:34.474Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "fill",
+      "target": "textarea = 과업 시험: 면담, 계속 관리, 1주 후 확인.",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "at": "2026-11-07T06:09:34.994Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "text=저장",
+      "autoMove": true,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",390,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",336,0]]"
+      },
+      "at": "2026-11-07T06:09:35.816Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "scroll",
+      "target": "window -2500",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 133,
+        "inner": "[[\"SECTION.ops-detail\",336,0]]"
+      },
+      "after": {
+        "x": 0,
+        "y": 133,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:09:36.235Z"
+    },
+    {
+      "question": "Q9",
+      "kind": "click",
+      "target": "text=관리 이력",
+      "autoMove": true,
+      "before": {
+        "x": 0,
+        "y": 133,
         "inner": "[]"
       },
       "after": {
         "x": 0,
-        "y": 296,
+        "y": 0,
         "inner": "[]"
       },
-      "at": "2026-11-07T00:03:01.566Z"
+      "at": "2026-11-07T06:09:37.057Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "select",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:09:52.399Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "select",
+      "target": "select >> nth=0 = [object Object]",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:00.834Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "main button >> nth=0",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:01.655Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "fill",
+      "target": "input[type=number] >> nth=0 = 2",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:16.643Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "text=저장",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:17.463Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "main button >> nth=0",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:18.287Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "fill",
+      "target": "input[type=number] >> nth=0 = 1",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:18.846Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "text=저장",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:19.672Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "main button >> nth=0",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:20.496Z"
+    },
+    {
+      "question": "Q10",
+      "kind": "click",
+      "target": "text=취소",
+      "autoMove": false,
+      "before": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "after": {
+        "x": 0,
+        "y": 0,
+        "inner": "[]"
+      },
+      "at": "2026-11-07T06:10:21.369Z"
     }
   ],
   "reads": [
     {
       "question": "Q1",
-      "chars": 1461,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일 (띄엄띄엄)·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일 (띄엄띄엄)·미제출 8:48 / 17:47 88% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: ]",
-      "at": "2026-11-07T00:01:04.374Z"
+      "chars": 1954,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 −7 분 18:30 18:38 −7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( −1.1 %p) 수학 35.8 % → 35.7 % ( −0.1 %p) 영어 22.8 % → 22.9 % ( +0.1 %p) 탐구 16.6 % → 17.7 % ( +1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:05:03.264Z"
+    },
+    {
+      "question": "Q1",
+      "chars": 1954,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 −7 분 18:30 18:38 −7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( −1.1 %p) 수학 35.8 % → 35.7 % ( −0.1 %p) 영어 22.8 % → 22.9 % ( +0.1 %p) 탐구 16.6 % → 17.7 % ( +1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:05:38.491Z"
     },
     {
       "question": "Q2",
-      "chars": 1461,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일 (띄엄띄엄)·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일 (띄엄띄엄)·미제출 8:48 / 17:47 88% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: ]",
-      "at": "2026-11-07T00:01:14.079Z"
+      "chars": 1953,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 정하준 고2 B반 상담 필요 결석 4일 연속·미제출 7일 5시간 8분 · 평소 주 16시간 39분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 2:38 2:43 2:30 2:35 — 3:04 — 3:11 — 2:38 — 2:30 입실 평소 · 차이 18:10 18:13 −2 분 18:12 18:08 +4 분 진행률 실제 / 계획 90 % 2:38 / 2:56 85 % 2:30 / 2:56 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 22.4 % ( −0.3 %p) 수학 33.5 % → 33.8 % ( +0.2 %p) 영어 22.7 % → 22.7 % ( 0.0 %p) 탐구 21.0 % → 21.1 % ( +0.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:05:55.144Z"
     },
     {
       "question": "Q3",
-      "chars": 1617,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 오시윤 2B 결석 3일 (띄엄띄엄)·미제출 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일 (띄엄띄엄)·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일 (띄엄띄엄)·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일 (띄엄띄엄)·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 서수빈 2B 진행률 57% 16:50 / 16:53 57% 오서윤 3A 진행률 51% 14:50 / 14:53 51% 17:54 / 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:14.556Z"
+      "chars": 2138,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 서수빈 2B 진행률 57% 16:50 / 16:53 57% 오서윤 3A 진행률 51% 14:50 / 14:53 51% 윤예준 2B 진행률 60% 17:54 / 17:58 60% 임하준 3A 진행률 56% 19:59 / 20:02 56% 정지우 3A 진행률 53% 14:50 / 14:53 53% 조서준 3A 진행률 51% 16:50 / 16:53 51% 권하린 3A 입실 +103분 17:54 / 17:58 94% 김지우 3A 입실 +103분 15:19 / 14:49 96% 박서준 2B 입실 +99분 16:57 / 16:46 93% 김시윤 3A 수학 비중 29→5% 17:54 / 17:58 94% 강하린 3A 계획 미제출 3일 15:08 / 14:49 93% 권서준 2B 계획 미제출 3일 17:03 / 16:43 95% 김하준 3A 계획 미제출 3일 17:03 / 16:43 92% 박서윤 3A 계획 미제출 3일 18:15 / 17:53 96% 서지우 3A 계획 미제출 3일 15:08 / 14:49 95% 신하준 2B 계획 미제출 3일 19:50 / 19:57 91% 오예준 3A 계획 미제출 3일 17:49 / 17:55 90% 윤도현 3A 계획 미제출 3일 17:03 / 16:43 97% 장시윤 2B 계획 미제출 3일 18:15 / 17:53 97% 장지우 2B 계획 미제출 3일 14:44 / 14:52 93% 정시윤 3A 계획 미제출 3일 17:49 / 17:55 93% 조유진 3A 계획 미제출 3일 19:50 / 19:57 90% 최도현 2B 계획 미제출 3일 16:43 / 16:49 92% 2B 계획 미제출 3일 정하준 고2 B반 상담 필요 결석 4일 연속·미제출 7일 5시간 8분 · 평소 주 16시간 39분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 2:38 2:43 2:30 2:35 — 3:04 — 3:11 — 2:38 — 2:30 입실 평소 · 차이 18:10 18:13 −2 분 18:12 18:08 +4 분 진행률 실제 / 계획 90 % 2:38 / 2:56 85 % 2:30 / 2:56 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 22.4 % ( −0.3 %p) 수학 33.5 % → 33.8 % ( +0.2 %p) 영어 22.7 % → 22.7 % ( 0.0 %p) 탐구 21.0 % → 21.1 % ( +0.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
+      "at": "2026-11-07T06:05:55.642Z"
     },
     {
       "question": "Q3",
-      "chars": 1490,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 서수빈 2B 진행률 57% 16:50 / 16:53 57% 오서윤 3A 진행률 51% 14:50 / 14:53 51% 윤예준 2B 진행률 60% 17:54 / 17:58 60% 임하준 3A 진행률 56% 19:59 / 20:02 56% 정지우 3A 진행률 53% 14:50 / 14:53 53% 조서준 3A 진행률 51% 16:50 / 16:53 51% 권하린 3A 입실 +103분 17:54 / 17:58 94% 김지우 3A 입실 +103분 15:19 / 14:49 96% 박서준 2B 입실 +99분 16:57 / 16:46 93% 김시윤 3A 수학 비중 29→5% 17:54 / 17:58 94% 강하린 3A 계획 미제출 3일 15:08 / 14:49 93% 권서준 2B 계획 미제출 3일 17:03 / 16:43 95% 김하준 3A 계획 미제출 3일 17:03 / 16:43 92% 박서윤 3A 계획 미제출 3일 18:15 / 17:53 96% 서지우 3A 계획 미제출 3일 15:08 / 14:49 95% 19:50 / 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:18.315Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1507,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 16:43 박서윤 3A 계획 미제출 3일 18:15 / 17:53 96% 서지우 3A 계획 미제출 3일 15:08 / 14:49 95% 신하준 2B 계획 미제출 3일 19:50 / 19:57 91% 오예준 3A 계획 미제출 3일 17:49 / 17:55 90% 윤도현 3A 계획 미제출 3일 17:03 / 16:43 97% 장시윤 2B 계획 미제출 3일 18:15 / 17:53 97% 장지우 2B 계획 미제출 3일 14:44 / 14:52 93% 정시윤 3A 계획 미제출 3일 17:49 / 17:55 93% 조유진 3A 계획 미제출 3일 19:50 / 19:57 90% 최도현 2B 계획 미제출 3일 16:43 / 16:49 92% 최수빈 2B 계획 미제출 3일 20:14 / 19:51 96% 한서준 3A 계획 미제출 3일 16:43 / 16:49 93% 한유진 3A 계획 미제출 3일 20:14 / 19:51 94% 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 이하린 3A 관리 중 관리 사유 계획 미달성 14:44 / 14:52 89% 관리 중 관리 사유 수학 계획 미달성 19:59 / 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:23.766Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1405,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 19:51 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 이하린 3A 관리 중 관리 사유 계획 미달성 14:44 / 14:52 89% 박유진 2B 관리 중 관리 사유 수학 계획 미달성 19:59 / 20:02 92% 김도현 2B 관리 중 관리 사유 계획 미제출 18:34 / 18:29 94% 강도현 3A 15:26 / 15:26 86% 강서준 2B 19:57 / 14:26 94% 강수빈 3A 57:35 / 55:43 95% 강시윤 2B 18:50 / 18:29 94% 강예준 3A 42:44 / 45:01 90% 강유진 2B 17:06 / 12:10 95% 강지우 2B 18:34 / 18:29 93% 권도현 3A 44:04 / 46:05 90% 권서윤 3A 18:28 / 12:58 97% 권수빈 3A 48:38 / 49:34 92% 권시윤 2B 54:59 / 51:32 97% 권예준 3A 7:09 / 92% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:27.271Z"
+      "chars": 1326,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 정하준 고2 B반 상담 필요 결석 4일 연속·미제출 7일 5시간 8분 · 평소 주 16시간 39분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 2:38 2:43 2:30 2:35 — 3:04 — 3:11 — 2:38 — 2:30 입실 평소 · 차이 18:10 18:13 −2 분 18:12 18:08 +4 분 진행률 실제 / 계획 90 % 2:38 / 2:56 85 % 2:30 / 2:56 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 22.4 % ( −0.3 %p) 수학 33.5 % → 33.8 % ( +0.2 %p) 영어 22.7 % → 22.7 % ( 0.0 %p) 탐구 21.0 % → 21.1 % ( +0.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:06:26.623Z"
     },
     {
       "question": "Q4",
-      "chars": 1436,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 17:53 서수빈 2B 진행률 57% 16:50 / 16:53 57% 오서윤 3A 진행률 51% 14:50 / 14:53 51% 윤예준 2B 진행률 60% 17:54 / 17:58 60% 임하준 3A 진행률 56% 19:59 / 20:02 56% 정지우 3A 진행률 53% 14:50 / 14:53 53% 조서준 3A 진행률 51% 16:50 / 16:53 51% 권하린 3A 입실 +103분 17:54 / 17:58 94% 김지우 3A 입실 +103분 15:19 / 14:49 96% 박서준 2B 입실 +99분 16:57 / 16:46 93% 김시윤 3A 수학 비중 29→5% 17:54 / 17:58 94% 강하린 3A 계획 미제출 3일 15:08 / 14:49 93% 권서준 2B 계획 미제출 3일 17:03 / 16:43 95% 김하준 3A 계획 미제출 3일 17:03 / 16:43 92% 박서윤 3A 계획 미제출 3일 18:15 / 17:53 96% 서지우 3A 계획 미제출 3일 15:08 / 14:49 95% 신하준 2B 계획 미제출 3일 19:50 / 19:57 91% 17:49 / 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:31.625Z"
-    },
-    {
-      "question": "Q4",
-      "chars": 1298,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 46:05 권서윤 3A 18:28 / 12:58 97% 권수빈 3A 48:38 / 49:34 92% 권시윤 2B 54:59 / 51:32 97% 권예준 3A 7:09 / 14:53 92% 권지우 2B 15:20 / 14:48 93% 권하준 3A 20:41 / 20:18 95% 김서윤 3A 16:30 / 16:30 87% 김서준 3A 38:28 / 38:23 91% 김수빈 2B 18:50 / 18:29 94% 김예준 3A 48:32 / 46:56 97% 김유진 3A 40:32 / 42:23 90% 김하린 2B 9:16 / 17:52 97% 박도현 3A 20:15 / 14:26 92% 박수빈 3A 8:31 / 16:48 97% 박시윤 2B 17:36 / 17:57 92% 박지우 2B 46:11 / 48:40 90% 박하린 3A 22:34 / 94% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:32.085Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1295,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 박시윤 2B 17:36 / 17:57 92% 박지우 2B 46:11 / 48:40 90% 박하린 3A 22:34 / 22:07 94% 박하준 3A 52:12 / 50:31 96% 서서윤 3A 22:14 / 22:08 91% 서서준 3A 15:26 / 15:26 86% 서예준 3A 22:34 / 22:07 94% 서유진 3A 20:25 / 19:47 95% 서하린 2B 35:51 / 37:47 88% 서하준 3A 17:06 / 12:10 95% 신도현 3A 53:14 / 50:14 95% 신서윤 2B 40:12 / 41:00 92% 신서준 3A 10:06 / 19:56 93% 신수빈 3A 56:33 / 55:51 94% 신시윤 3A 15:19 / 14:49 97% 신예준 2B 16:30 / 16:30 85% 신지우 3A 14:21 / 75% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:36.389Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1298,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 신시윤 3A 15:19 / 14:49 97% 신예준 2B 16:30 / 16:30 85% 신지우 3A 14:21 / 17:56 75% 오서준 2B 18:50 / 18:29 92% 오수빈 3A 19:57 / 14:26 94% 오유진 2B 15:09 / 16:46 84% 오지우 2B 8:39 / 17:57 91% 오하린 3A 49:35 / 46:28 97% 오하준 3A 34:07 / 34:46 91% 윤서준 3A 22:14 / 22:08 92% 윤시윤 3A 7:09 / 14:53 92% 윤유진 3A 22:34 / 22:07 93% 윤지우 3A 18:28 / 12:58 97% 윤하린 3A 15:20 / 14:48 97% 윤하준 2B 33:26 / 34:57 90% 이도현 3A 16:33 / 16:52 92% 이서윤 2B 7:09 / 14:53 89% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:36.849Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1299,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 윤하준 2B 33:26 / 34:57 90% 이도현 3A 16:33 / 16:52 92% 이서윤 2B 7:09 / 14:53 89% 이수빈 3A 18:22 / 18:22 87% 이시윤 3A 22:14 / 22:08 93% 이유진 3A 16:50 / 12:10 93% 이하준 2B 19:49 / 19:54 93% 임도현 2B 17:13 / 16:40 95% 임서윤 3A 39:18 / 41:24 89% 임서준 3A 20:15 / 14:26 95% 임수빈 2B 58:42 / 55:24 97% 임시윤 3A 11:53 / 14:52 72% 임예준 3A 43:43 / 44:35 92% 임유진 3A 8:31 / 16:48 96% 임지우 3A 20:41 / 20:18 95% 장도현 3A 18:00 / 19:54 84% 장서윤 3A 54:59 / 51:32 97% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:37.300Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1300,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 임지우 3A 20:41 / 20:18 95% 장도현 3A 18:00 / 19:54 84% 장서윤 3A 54:59 / 51:32 97% 장서준 2B 37:46 / 38:29 92% 장예준 3A 20:24 / 20:18 92% 장유진 2B 18:22 / 18:22 85% 장하준 3A 16:50 / 12:10 94% 정도현 3A 20:41 / 20:18 94% 정서윤 2B 53:50 / 52:02 95% 정서준 3A 36:59 / 38:42 91% 정수빈 3A 16:40 / 16:46 91% 정예준 2B 49:35 / 46:28 97% 정유진 3A 19:40 / 20:01 93% 정하린 3A 8:39 / 17:57 94% 조도현 2B 10:06 / 19:56 96% 조시윤 3A 16:30 / 16:30 85% 조예준 3A 14:34 / 10:45 92% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:37.751Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1293,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 조도현 2B 19:56 96% 조시윤 3A 16:30 / 16:30 85% 조예준 3A 14:34 / 10:45 92% 조지우 3A 14:35 / 14:52 91% 조하린 2B 14:21 / 17:56 75% 조하준 3A 53:14 / 50:14 97% 최서윤 3A 14:34 / 14:52 92% 최서준 3A 58:42 / 55:24 98% 최시윤 3A 15:18 / 10:45 95% 최유진 3A 20:24 / 20:18 92% 최지우 3A 17:35 / 12:58 89% 최하린 2B 13:39 / 13:39 86% 한서윤 2B 17:35 / 12:58 92% 한수빈 3A 47:39 / 49:50 89% 한시윤 3A 18:28 / 17:52 97% 한예준 2B 15:18 / 10:45 95% 한지우 3A 13:39 / 13:39 85% 권유진 고2 B반 상담 필요 결석 4일 연속·미제출 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:38.204Z"
-    },
-    {
-      "question": "Q3",
-      "chars": 1228,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 10:45 조지우 3A 14:35 / 14:52 91% 조하린 2B 14:21 / 17:56 75% 조하준 3A 53:14 / 50:14 97% 최서윤 3A 14:34 / 14:52 92% 최서준 3A 58:42 / 55:24 98% 최시윤 3A 15:18 / 10:45 95% 최유진 3A 20:24 / 20:18 92% 최지우 3A 17:35 / 12:58 89% 최하린 2B 13:39 / 13:39 86% 한서윤 2B 17:35 / 12:58 92% 한수빈 3A 47:39 / 49:50 89% 한시윤 3A 18:28 / 17:52 97% 한예준 2B 15:18 / 10:45 95% 한지우 3A 13:39 / 13:39 85% 한하준 2B 18:34 / 18:29 94% 7일 6시간 7분 · 평소 주 19시간 45분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% (비교 2일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 3:08 3:13 2:59 3:03 — 3:38 — 3:46 — 3:07 — 2:58 입실 평소 · 차이 18:39 18:47 -7 분 18:30 18:38 -7 분 진행률 실제 / 계획 90 % 3:08 / 3:29 86 % 2:59 / 3:27 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.8 % → 23.7 % ( -1.1 %p) 수학 35.8 % → 35.7 % ( -0.1 %p) 영어 22.8 % → 22.9 % ( + 0.1 %p) 탐구 16.6 % → 17.7 % ( + 1.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:01:38.654Z"
+      "chars": 1186,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권하린 3A 입실 +103분 17:54 / 17:58 94% 김지우 3A 입실 +103분 15:19 / 14:49 96% 박서준 2B 입실 +99분 16:57 / 16:46 93% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 정하준 고2 B반 상담 필요 결석 4일 연속·미제출 7일 5시간 8분 · 평소 주 16시간 39분 · 입실 2 / 6 일 · 제출 2 / 6 일 · 진행률 88% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 결석 결석 결석 결석 계획 — 제출 제출 미제출 미제출 미제출 미제 학습 시간 실제 / 평소 — 0:00 2:38 2:43 2:30 2:35 — 3:04 — 3:11 — 2:38 — 2:30 입실 평소 · 차이 18:10 18:13 −2 분 18:12 18:08 +4 분 진행률 실제 / 계획 90 % 2:38 / 2:56 85 % 2:30 / 2:56 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 22.4 % ( −0.3 %p) 수학 33.5 % → 33.8 % ( +0.2 %p) 영어 22.7 % → 22.7 % ( 0.0 %p) 탐구 21.0 % → 21.1 % ( +0.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: START_TIME_SHIFT] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:06:28.201Z"
     },
     {
       "question": "Q5",
-      "chars": 1202,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김하준 3A 계획 미제출 3일 17:03 / 16:43 92% 김하준 고3 A반 상담 필요 계획 미제출 3일 7일 17시간 3분 · 평소 주 16시간 43분 · 입실 6 / 6 일 · 제출 3 / 6 일 · 진행률 92% (비교 3일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 입실 입실 입실 입실 계획 — 제출 미제출 제출 미제출 제출 미제 학습 시간 실제 / 평소 — 0:00 2:40 2:44 2:46 2:36 3:19 2:59 2:55 3:07 2:38 2:42 2:45 2:35 입실 평소 · 차이 18:20 18:10 + 10 분 18:17 18:07 + 10 분 16:44 16:34 + 10 분 16:41 16:37 + 4 분 18:08 18:11 -2 분 18:05 18:14 -9 분 진행률 실제 / 계획 91 % 2:40 / 2:56 계획 없음 98 % 3:19 / 3:24 계획 없음 88 % 2:38 / 2:59 계획 없 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 21.7 % ( -1.1 %p) 수학 33.6 % → 33.7 % ( + 0.0 %p) 영어 22.7 % → 22.6 % ( -0.1 %p) 탐구 20.9 % → 22.1 % ( + 1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: 김하준]",
-      "at": "2026-11-07T00:01:51.877Z"
+      "chars": 1163,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김하준 3A 계획 미제출 3일 17:03 / 16:43 92% 김하준 고3 A반 상담 필요 계획 미제출 3일 7일 17시간 3분 · 평소 주 16시간 43분 · 입실 6 / 6 일 · 제출 3 / 6 일 · 진행률 92% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 입실 입실 입실 입실 계획 — 제출 미제출 제출 미제출 제출 미제 학습 시간 실제 / 평소 — 0:00 2:40 2:44 2:46 2:36 3:19 2:59 2:55 3:07 2:38 2:42 2:45 2:35 입실 평소 · 차이 18:20 18:10 +10 분 18:17 18:07 +10 분 16:44 16:34 +10 분 16:41 16:37 +4 분 18:08 18:11 −2 분 18:05 18:14 −9 분 진행률 실제 / 계획 91 % 2:40 / 2:56 계획 없음 98 % 3:19 / 3:24 계획 없음 88 % 2:38 / 2:59 계획 없 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 21.7 % ( −1.1 %p) 수학 33.6 % → 33.7 % ( 0.0 %p) 영어 22.7 % → 22.6 % ( −0.1 %p) 탐구 20.9 % → 22.1 % ( +1.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 김하준]",
+      "at": "2026-11-07T06:06:43.239Z"
     },
     {
       "question": "Q6",
-      "chars": 1239,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김지우 3A 입실 +103분 15:19 / 14:49 96% 김지우 고3 A반 상담 필요 입실 +103분 7일 15시간 19분 · 평소 주 14시간 49분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 96% (비교 6일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:34 2:24 2:29 2:25 2:25 2:28 2:42 2:45 — 0:00 2:37 2:27 2:32 2:22 입실 평소 · 차이 21:03 19:11 + 113 분 20:53 19:13 + 100 분 20:43 19:16 + 88 분 19:28 17:42 + 106 분 21:03 19:11 + 113 분 20:53 19:13 + 100 진행률 실제 / 계획 98 % 2:34 / 2:37 93 % 2:29 / 2:40 92 % 2:25 / 2:38 90 % 2:42 / 3:00 102 % 2:37 / 2:34 100 2:32 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.6 % → 21.7 % ( + 0.0 %p) 수학 32.7 % → 32.6 % ( -0.0 %p) 영어 22.7 % → 22.7 % ( + 0.1 %p) 탐구 23.0 % → 23.0 % ( -0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: 김지우]",
-      "at": "2026-11-07T00:02:03.954Z"
+      "chars": 1196,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김지우 3A 입실 +103분 15:19 / 14:49 96% 김지우 고3 A반 상담 필요 입실 +103분 7일 15시간 19분 · 평소 주 14시간 49분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 96% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:34 2:24 2:29 2:25 2:25 2:28 2:42 2:45 — 0:00 2:37 2:27 2:32 2:22 입실 평소 · 차이 21:03 19:11 +113 분 20:53 19:13 +100 분 20:43 19:16 +88 분 19:28 17:42 +106 분 21:03 19:11 +113 분 20:53 19:13 +100 진행률 실제 / 계획 98 % 2:34 / 2:37 93 % 2:29 / 2:40 92 % 2:25 / 2:38 90 % 2:42 / 3:00 102 % 2:37 / 2:34 100 2:32 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.6 % → 21.7 % ( 0.0 %p) 수학 32.7 % → 32.6 % ( 0.0 %p) 영어 22.7 % → 22.7 % ( +0.1 %p) 탐구 23.0 % → 23.0 % ( 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 김지우]",
+      "at": "2026-11-07T06:06:44.672Z"
     },
     {
       "question": "Q7",
-      "chars": 1239,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김지우 3A 입실 +103분 15:19 / 14:49 96% 김지우 고3 A반 상담 필요 입실 +103분 7일 15시간 19분 · 평소 주 14시간 49분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 96% (비교 6일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:34 2:24 2:29 2:25 2:25 2:28 2:42 2:45 — 0:00 2:37 2:27 2:32 2:22 입실 평소 · 차이 21:03 19:11 + 113 분 20:53 19:13 + 100 분 20:43 19:16 + 88 분 19:28 17:42 + 106 분 21:03 19:11 + 113 분 20:53 19:13 + 100 진행률 실제 / 계획 98 % 2:34 / 2:37 93 % 2:29 / 2:40 92 % 2:25 / 2:38 90 % 2:42 / 3:00 102 % 2:37 / 2:34 100 2:32 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.6 % → 21.7 % ( + 0.0 %p) 수학 32.7 % → 32.6 % ( -0.0 %p) 영어 22.7 % → 22.7 % ( + 0.1 %p) 탐구 23.0 % → 23.0 % ( -0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: 김지우]",
-      "at": "2026-11-07T00:02:04.005Z"
+      "chars": 1396,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 이하린 3A 관리 중 관리 사유 계획 미달성 14:44 / 14:52 89% 박유진 2B 관리 중 관리 사유 수학 계획 미달성 19:59 / 20:02 92% 김도현 2B 관리 중 관리 사유 계획 미제출 18:34 / 18:29 94% 김지우 고3 A반 상담 필요 입실 +103분 7일 15시간 19분 · 평소 주 14시간 49분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 96% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:34 2:24 2:29 2:25 2:25 2:28 2:42 2:45 — 0:00 2:37 2:27 2:32 2:22 입실 평소 · 차이 21:03 19:11 +113 분 20:53 19:13 +100 분 20:43 19:16 +88 분 19:28 17:42 +106 분 21:03 19:11 +113 분 20:53 19:13 +100 진행률 실제 / 계획 98 % 2:34 / 2:37 93 % 2:29 / 2:40 92 % 2:25 / 2:38 90 % 2:42 / 3:00 102 % 2:37 / 2:34 100 2:32 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.6 % → 21.7 % ( 0.0 %p) 수학 32.7 % → 32.6 % ( 0.0 %p) 영어 22.7 % → 22.7 % ( +0.1 %p) 탐구 23.0 % → 23.0 % ( 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: managed] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:06:46.887Z"
     },
     {
       "question": "Q8",
-      "chars": 1236,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김예준 3A 48:32 / 46:56 97% 김예준 고3 A반 7일 48시간 32분 · 평소 주 46시간 56분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 97% (비교 6일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 7:40 7:41 8:17 7:39 7:35 7:37 9:26 8:43 — 0:00 8:08 7:50 7:26 7:27 입실 평소 · 차이 08:59 08:57 + 3 분 08:52 08:50 + 3 분 09:10 09:08 + 3 분 09:03 09:01 + 3 분 08:49 08:59 -10 분 09:07 09:05 + 3 분 진행률 실제 / 계획 95 % 7:40 / 8:03 98 % 8:17 / 8:26 95 % 7:35 / 7:58 98 % 9:26 / 9:37 98 % 8:08 / 8:17 95 % 7:26 / 7: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.9 % → 21.4 % ( -0.5 %p) 수학 36.9 % → 36.9 % ( + 0.0 %p) 영어 22.9 % → 22.9 % ( + 0.0 %p) 탐구 18.3 % → 18.8 % ( + 0.4 %p) 서버 판정 사유가 없는 학생입니다. 지난 관리 관리 이력 없음 [입력 학습관: demo_large] [입력 학생 검색: 김예준]",
-      "at": "2026-11-07T00:02:05.373Z"
+      "chars": 1183,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김예준 3A 48:32 / 46:56 97% 김예준 고3 A반 7일 48시간 32분 · 평소 주 46시간 56분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 97% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 7:40 7:41 8:17 7:39 7:35 7:37 9:26 8:43 — 0:00 8:08 7:50 7:26 7:27 입실 평소 · 차이 08:59 08:57 +3 분 08:52 08:50 +3 분 09:10 09:08 +3 분 09:03 09:01 +3 분 08:49 08:59 −10 분 09:07 09:05 +3 분 진행률 실제 / 계획 95 % 7:40 / 8:03 98 % 8:17 / 8:26 95 % 7:35 / 7:58 98 % 9:26 / 9:37 98 % 8:08 / 8:17 95 % 7:26 / 7: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.9 % → 21.4 % ( −0.5 %p) 수학 36.9 % → 36.9 % ( 0.0 %p) 영어 22.9 % → 22.9 % ( 0.0 %p) 탐구 18.3 % → 18.8 % ( +0.4 %p) 관리 사유 없음 지난 관리 관리 이력 없음 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 김예준]",
+      "at": "2026-11-07T06:07:00.706Z"
     },
     {
       "question": "Q11",
-      "chars": 1125,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 박예준 고3 A반 상담 필요 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% (비교 3일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 + 3 분 18:46 18:56 -10 분 18:54 18:58 -4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( + 0.1 %p) 수학 36.7 % → 36.7 % ( -0.1 %p) 영어 22.8 % → 22.7 % ( -0.0 %p) 탐구 18.8 % → 18.8 % ( + 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: 박예준]",
-      "at": "2026-11-07T00:02:17.596Z"
+      "chars": 1088,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 박예준 고3 A반 상담 필요 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 +3 분 18:46 18:56 −10 분 18:54 18:58 −4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( +0.1 %p) 수학 36.7 % → 36.7 % ( −0.1 %p) 영어 22.8 % → 22.7 % ( 0.0 %p) 탐구 18.8 % → 18.8 % ( 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 박예준]",
+      "at": "2026-11-07T06:07:02.121Z"
     },
     {
       "question": "Q12",
-      "chars": 1500,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일 (띄엄띄엄)·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일 (띄엄띄엄)·미제출 8:48 / 17:47 88% 박예준 고3 A반 상담 필요 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% (비교 3일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 + 3 분 18:46 18:56 -10 분 18:54 18:58 -4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( + 0.1 %p) 수학 36.7 % → 36.7 % ( -0.1 %p) 영어 22.8 % → 22.7 % ( -0.0 %p) 탐구 18.8 % → 18.8 % ( + 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: ]",
-      "at": "2026-11-07T00:02:18.273Z"
+      "chars": 1744,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 박예준 고3 A반 상담 필요 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 +3 분 18:46 18:56 −10 분 18:54 18:58 −4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( +0.1 %p) 수학 36.7 % → 36.7 % ( −0.1 %p) 영어 22.8 % → 22.7 % ( 0.0 %p) 탐구 18.8 % → 18.8 % ( 0.0 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: CONSECUTIVE_ABSENCE] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:04.345Z"
     },
     {
       "question": "Q12",
-      "chars": 1663,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일 (띄엄띄엄)·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일 (띄엄띄엄)·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일 (띄엄띄엄)·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일 (띄엄띄엄)·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 박예준 고3 A반 상담 필요 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% (비교 3일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 + 3 분 18:46 18:56 -10 분 18:54 18:58 -4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( + 0.1 %p) 수학 36.7 % → 36.7 % ( -0.1 %p) 영어 22.8 % → 22.7 % ( -0.0 %p) 탐구 18.8 % → 18.8 % ( + 0.0 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:02:18.749Z"
+      "chars": 1859,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 권유진 2B 결석 4일 연속·미제출 6:07 / 19:45 88% 오도현 3A 결석 4일 연속·미제출 5:08 / 16:39 91% 윤수빈 3A 결석 4일 연속·미제출 6:07 / 19:45 90% 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 정하준 2B 결석 4일 연속·미제출 5:08 / 16:39 88% 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 서시윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신하린 3A 결석 3일 연속·미제출 7:06 / 14:51 89% 오시윤 2B 결석 3일·미제출 7:18 / 14:44 90% 임하린 2B 결석 3일 연속·미제출 7:11 / 14:47 93% 장하린 3A 결석 3일·미제출 8:48 / 17:47 88% 조서윤 3A 결석 3일 연속·미제출 8:40 / 17:51 90% 신유진 3A 결석 2일·미제출 11:21 / 16:49 91% 한도현 3A 결석 2일·미제출 13:29 / 19:58 92% 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 이지우 고3 A반 관리 중 · 10/30 관리 사유 미입실 7일 54시간 59분 · 평소 주 51시간 32분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 99% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 9:11 8:30 9:06 8:25 9:01 8:20 10:16 9:30 — 0:00 8:45 8:26 8:40 8:21 입실 평소 · 차이 09:11 09:11 0 분 09:21 09:09 +13 분 09:06 09:12 −6 분 09:16 09:10 +6 분 09:11 09:11 0 분 09:21 09:09 +13 진행률 실제 / 계획 101 % 9:11 / 9:06 97 % 9:06 / 9:21 104 % 9:01 / 8:40 100 % 10:16 / 10:16 93 % 8:45 / 9:26 99 % 8:40 / 8: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.9 % → 24.5 % ( +0.6 %p) 수학 32.9 % → 32.9 % ( 0.0 %p) 영어 22.9 % → 22.9 % ( 0.0 %p) 탐구 20.2 % → 19.7 % ( −0.5 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: CONSECUTIVE_ABSENCE] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:12.624Z"
     },
     {
       "question": "Q13",
-      "chars": 1111,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 강남점 150 명 · 상담 필요 49 명 · 관리 중 5 명 · 학습 시간 평소 대비 -3% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/27 화 결석 결석 / 등원 예정 2 / 84 4 / 140 기록 없음 10 4 / 150 10 / 140 기록 없음 10 5 / 83 14 / 133 10 / 140 기록 없음 10 학습 시간 평균 · 평소 대비 중앙값 3시간 12분 0% ( -5% ~ +7% ) 3시간 34분 +2% ( -4% ~ +8% ) 3시간 34분 0% ( -5% ~ +5% ) 4시간 46분 +1% ( -2% ~ +8% ) 4시간 58분 0% ( -4% ~ +4% ) 3시간 53분 +2% ( -4% ~ +5% ) 3시간 38분 +1% ( -4% ~ +6% ) 입실 시각 평소 대비 중앙값 (중간 50%) 0분 -7분 ~ +7분 0분 -5분 ~ +8분 +1분 -5분 ~ +8분 +4분 +3분 ~ +6분 +1분 -7분 ~ +9분 0분 -7분 ~ +5분 0분 -7분 ~ +5분 계획 제출 제출 / 기록 확인 88 % 74 / 84 97 % 136 / 140 86 % 129 / 150 93 % 130 / 140 83 % 69 / 83 89 % 119 / 133 81 % 113 / 140 학습 시간이 평소보다 30% 이상 적은 날이 있는 학생 11명 학생 해당 일수 7일 / 평소 주 강하준 6일 8시간 51분 / 19시간 54분 비교 서도현 6일 8시간 51분 / 19시간 54분 비교 윤서윤 6일 6시간 45분 / 14시간 49분 비교 장수빈 6일 7시간 27분 / 16시간 46분 비교 최예준 6일 8시간 8분 / 17시간 53분 비교 한하린 6일 8시간 8분 / 17시간 53분 비교 [입력 학습관: demo_large]",
-      "at": "2026-11-07T00:02:35.714Z"
+      "chars": 956,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 강남점 150 명 · 상담 필요 49 명 · 관리 중 5 명 · 학습 시간 평소 대비 −3% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/27 화 결석 결석 / 등원 예정 2 / 84 4 / 140 기록 없음 10 4 / 150 10 / 140 기록 없음 10 5 / 83 14 / 133 10 / 140 기록 없음 10 학습 시간 평균 · 평소 대비 3시간 12분 0% 3시간 34분 +2% 3시간 34분 0% 4시간 46분 +1% 4시간 58분 0% 3시간 53분 +2% 3시간 38분 +1% 입실 시각 평소 대비 0분 0분 +1분 +4분 +1분 0분 0분 계획 제출 제출 / 대상 학생 88 % 74 / 84 97 % 136 / 140 86 % 129 / 150 93 % 130 / 140 83 % 69 / 83 89 % 119 / 133 81 % 113 / 140 학습 시간이 평소보다 30% 이상 적은 날이 있는 학생 11명 학생 해당 일수 7일 / 평소 주 강하준 6일 8시간 51분 / 19시간 54분 비교 서도현 6일 8시간 51분 / 19시간 54분 비교 윤서윤 6일 6시간 45분 / 14시간 49분 비교 장수빈 6일 7시간 27분 / 16시간 46분 비교 최예준 6일 8시간 8분 / 17시간 53분 비교 한하린 6일 8시간 8분 / 17시간 53분 비교 신지우 2일 14시간 21분 / 17시간 56분 비교 [입력 학습관: demo_large]",
+      "at": "2026-11-07T06:07:13.523Z"
     },
     {
       "question": "Q14",
-      "chars": 1252,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 (평소: 이전 4주 같은 요일) 띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김시윤 3A 수학 비중 29→5% 17:54 / 17:58 94% 김시윤 고3 A반 상담 필요 수학 비중 29→5% 7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 94% (비교 6일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:50 2:46 2:59 2:54 3:07 3:03 3:11 3:15 — 0:00 3:04 2:00 2:43 3:01 입실 평소 · 차이 18:18 18:21 -2 분 18:00 18:03 -2 분 18:07 18:10 -2 분 16:44 16:47 -2 분 18:03 18:06 -2 분 18:10 18:13 -2 분 진행률 실제 / 계획 95 % 2:50 / 2:59 93 % 2:59 / 3:13 100 % 3:07 / 3:07 91 % 3:11 / 3:29 96 % 3:04 / 3:11 88 % 2:43 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.7 % → 23.5 % ( -0.2 %p) 수학 28.6 % → 4.7 % ( -23.9 %p) (5시간 28분 → 0시간 51분) 영어 22.8 % → 22.8 % ( + 0.0 %p) 탐구 24.9 % → 49.0 % ( + 24.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 학생 검색: 김시윤]",
-      "at": "2026-11-07T00:02:38.084Z"
+      "chars": 1217,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 김시윤 3A 수학 비중 29→5% 17:54 / 17:58 94% 김시윤 고3 A반 상담 필요 수학 비중 29→5% 7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 94% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:50 2:46 2:59 2:54 3:07 3:03 3:11 3:15 — 0:00 3:04 2:00 2:43 3:01 입실 평소 · 차이 18:18 18:21 −2 분 18:00 18:03 −2 분 18:07 18:10 −2 분 16:44 16:47 −2 분 18:03 18:06 −2 분 18:10 18:13 −2 분 진행률 실제 / 계획 95 % 2:50 / 2:59 93 % 2:59 / 3:13 100 % 3:07 / 3:07 91 % 3:11 / 3:29 96 % 3:04 / 3:11 88 % 2:43 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.7 % → 23.5 % ( −0.2 %p) 수학 28.6 % → 4.7 % ( −23.9 %p) (5시간 28분 → 0시간 51분) 영어 22.8 % → 22.8 % ( 0.0 %p) 탐구 24.9 % → 49.0 % ( +24.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 김시윤]",
+      "at": "2026-11-07T06:07:32.872Z"
     },
     {
       "question": "Q15",
-      "chars": 1662,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 윤도현 3A 계획 미제출 3일 17:03 / 16:43 97% 장시윤 2B 계획 미제출 3일 18:15 / 17:53 97% 장지우 2B 계획 미제출 3일 14:44 / 14:52 93% 정시윤 3A 계획 미제출 3일 17:49 / 17:55 93% 조유진 3A 계획 미제출 3일 19:50 / 19:57 90% 최도현 2B 계획 미제출 3일 16:43 / 16:49 92% 최수빈 2B 계획 미제출 3일 20:14 / 19:51 96% 한서준 3A 계획 미제출 3일 16:43 / 16:49 93% 한유진 3A 계획 미제출 3일 20:14 / 19:51 94% 이지우 3A 관리 중 관리 사유 미입실 54:59 / 51:32 99% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 이하린 3A 관리 중 관리 사유 계획 미달성 14:44 / 14:52 89% 박유진 2B 관리 중 관리 사유 수학 계획 미달성 19:59 / 20:02 92% 김도현 2B 관리 중 관리 사유 계획 미제출 18:34 / 18:29 94% 강도현 3A 15:26 / 15:26 86% 강서준 2B 19:57 / 14:26 94% 강수빈 3A 57:35 / 55:43 95% 김시윤 고3 A반 상담 필요 수학 비중 29→5% 7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 94% (비교 6일) 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:50 2:46 2:59 2:54 3:07 3:03 3:11 3:15 — 0:00 3:04 2:00 2:43 3:01 입실 평소 · 차이 18:18 18:21 -2 분 18:00 18:03 -2 분 18:07 18:10 -2 분 16:44 16:47 -2 분 18:03 18:06 -2 분 18:10 18:13 -2 분 진행률 실제 / 계획 95 % 2:50 / 2:59 93 % 2:59 / 3:13 100 % 3:07 / 3:07 91 % 3:11 / 3:29 96 % 3:04 / 3:11 88 % 2:43 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.7 % → 23.5 % ( -0.2 %p) 수학 28.6 % → 4.7 % ( -23.9 %p) (5시간 28분 → 0시간 51분) 영어 22.8 % → 22.8 % ( + 0.0 %p) 탐구 24.9 % → 49.0 % ( + 24.1 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
-      "at": "2026-11-07T00:02:50.996Z"
+      "chars": 1379,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강서윤 3A 결석 1일 목요일 결석 5/5번 12:26 / 12:15 94% 이예준 2B 결석 1일 목요일 결석 5/5번 15:02 / 14:47 93% 조수빈 2B 결석 1일 목요일 결석 5/5번 14:19 / 14:05 96% 최하준 3A 관리 중 목요일 결석 5/5번 관리 사유 등원 시간 늦어짐 17:00 / 16:43 95% 김시윤 고3 A반 상담 필요 수학 비중 29→5% 7일 17시간 54분 · 평소 주 17시간 58분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 94% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 2:50 2:46 2:59 2:54 3:07 3:03 3:11 3:15 — 0:00 3:04 2:00 2:43 3:01 입실 평소 · 차이 18:18 18:21 −2 분 18:00 18:03 −2 분 18:07 18:10 −2 분 16:44 16:47 −2 분 18:03 18:06 −2 분 18:10 18:13 −2 분 진행률 실제 / 계획 95 % 2:50 / 2:59 93 % 2:59 / 3:13 100 % 3:07 / 3:07 91 % 3:11 / 3:29 96 % 3:04 / 3:11 88 % 2:43 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.7 % → 23.5 % ( −0.2 %p) 수학 28.6 % → 4.7 % ( −23.9 %p) (5시간 28분 → 0시간 51분) 영어 22.8 % → 22.8 % ( 0.0 %p) 탐구 24.9 % → 49.0 % ( +24.1 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: WEEKDAY_ABSENCE] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:35.097Z"
     },
     {
       "question": "Q3",
-      "chars": 991,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학습 시간 평균 · 평소 대비 중앙값 3시간 12분 0% ( -5% ~ +7% ) 3시간 34분 +2% ( -4% ~ +8% ) 3시간 34분 0% ( -5% ~ +5% ) 4시간 46분 +1% ( -2% ~ +8% ) 4시간 58분 0% ( -4% ~ +4% ) 3시간 53분 +2% ( -4% ~ +5% ) 3시간 38분 +1% ( -4% ~ +6% ) 입실 시각 평소 대비 중앙값 (중간 50%) 0분 -7분 ~ +7분 0분 -5분 ~ +8분 +1분 -5분 ~ +8분 +4분 +3분 ~ +6분 +1분 -7분 ~ +9분 0분 -7분 ~ +5분 0분 -7분 ~ +5분 계획 제출 제출 / 기록 확인 88 % 74 / 84 97 % 136 / 140 86 % 129 / 150 93 % 130 / 140 83 % 69 / 83 89 % 119 / 133 81 % 113 / 140 학습 시간이 평소보다 30% 이상 적은 날이 있는 학생 11명 학생 해당 일수 7일 / 평소 주 강하준 6일 8시간 51분 / 19시간 54분 비교 서도현 6일 8시간 51분 / 19시간 54분 비교 윤서윤 6일 6시간 45분 / 14시간 49분 비교 장수빈 6일 7시간 27분 / 16시간 46분 비교 최예준 6일 8시간 8분 / 17시간 53분 비교 한하린 6일 8시간 8분 / 17시간 53분 비교 신지우 2일 14시간 21분 / 17시간 56분 비교 임시윤 2일 11시간 53분 / 14시간 52분 비교 조하린 2일 14시간 21분 / 17시간 56분 비교 집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음 [입력 제외할 학생 이름: ]",
-      "at": "2026-11-07T00:02:52.665Z"
+      "chars": 1487,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 강하준 고3 A반 상담 필요 학습 −11시간 3분 (-56%) 진행률 41% 7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 41% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 입실 입실 입실 입실 계획 — 제출 제출 제출 제출 제출 제출 학습 시간 실제 / 평소 — 0:00 1:26 3:11 1:24 3:13 1:33 3:35 1:30 3:38 1:30 3:12 1:28 3:06 입실 평소 · 차이 18:20 18:10 +10 분 18:17 18:07 +10 분 16:44 16:34 +10 분 16:41 16:37 +4 분 18:08 18:11 −2 분 18:05 18:14 −9 분 진행률 실제 / 계획 41 % 1:26 / 3:29 43 % 1:24 / 3:16 40 % 1:33 / 3:53 37 % 1:30 / 4:02 45 % 1:30 / 3:18 43 % 1:28 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 24.9 % ( 0.0 %p) 수학 33.8 % → 33.3 % ( −0.5 %p) 영어 22.8 % → 22.4 % ( −0.4 %p) 탐구 18.5 % → 19.4 % ( +0.9 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:48.011Z"
     },
     {
       "question": "Q3",
-      "chars": 991,
-      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학습 시간 평균 · 평소 대비 중앙값 3시간 12분 0% ( -5% ~ +7% ) 3시간 34분 +2% ( -4% ~ +8% ) 3시간 34분 0% ( -5% ~ +5% ) 4시간 46분 +1% ( -2% ~ +8% ) 4시간 58분 0% ( -4% ~ +4% ) 3시간 53분 +2% ( -4% ~ +5% ) 3시간 38분 +1% ( -4% ~ +6% ) 입실 시각 평소 대비 중앙값 (중간 50%) 0분 -7분 ~ +7분 0분 -5분 ~ +8분 +1분 -5분 ~ +8분 +4분 +3분 ~ +6분 +1분 -7분 ~ +9분 0분 -7분 ~ +5분 0분 -7분 ~ +5분 계획 제출 제출 / 기록 확인 88 % 74 / 84 97 % 136 / 140 86 % 129 / 150 93 % 130 / 140 83 % 69 / 83 89 % 119 / 133 81 % 113 / 140 학습 시간이 평소보다 30% 이상 적은 날이 있는 학생 11명 학생 해당 일수 7일 / 평소 주 강하준 6일 8시간 51분 / 19시간 54분 비교 서도현 6일 8시간 51분 / 19시간 54분 비교 윤서윤 6일 6시간 45분 / 14시간 49분 비교 장수빈 6일 7시간 27분 / 16시간 46분 비교 최예준 6일 8시간 8분 / 17시간 53분 비교 한하린 6일 8시간 8분 / 17시간 53분 비교 신지우 2일 14시간 21분 / 17시간 56분 비교 임시윤 2일 11시간 53분 / 14시간 52분 비교 조하린 2일 14시간 21분 / 17시간 56분 비교 집계에서 제외 학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음 [입력 제외할 학생 이름: ]",
-      "at": "2026-11-07T00:03:01.573Z"
+      "chars": 1485,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 서도현 고2 B반 상담 필요 학습 −11시간 3분 (-56%) 진행률 41% 7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 41% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 입실 입실 입실 입실 계획 — 제출 제출 제출 제출 제출 제출 학습 시간 실제 / 평소 — 0:00 1:26 3:11 1:24 3:13 1:33 3:35 1:30 3:38 1:30 3:12 1:28 3:06 입실 평소 · 차이 19:06 18:57 +9 분 19:04 19:02 +3 분 17:32 17:30 +3 분 17:30 17:28 +3 분 18:58 18:56 +3 분 18:56 18:00 −4 분 진행률 실제 / 계획 41 % 1:26 / 3:29 42 % 1:24 / 3:21 42 % 1:33 / 3:42 38 % 1:30 / 3:58 45 % 1:30 / 3:20 41 % 1:28 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 24.7 % ( −0.2 %p) 수학 31.9 % → 31.3 % ( −0.6 %p) 영어 22.8 % → 22.4 % ( −0.4 %p) 탐구 20.4 % → 21.7 % ( +1.2 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:48.884Z"
+    },
+    {
+      "question": "Q3",
+      "chars": 1485,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 윤서윤 고2 B반 상담 필요 학습 −8시간 4분 (-54%) 진행률 42% 7일 6시간 45분 · 평소 주 14시간 49분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 42% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 1:08 2:24 1:06 2:25 1:04 2:28 1:11 2:45 — 0:00 1:09 2:27 1:07 2:22 입실 평소 · 차이 18:48 18:43 +5 분 18:39 18:47 −7 분 18:30 18:38 −7 분 17:16 17:11 +5 분 18:53 18:42 +11 분 18:44 18:39 +5 분 진행률 실제 / 계획 43 % 1:08 / 2:37 41 % 1:06 / 2:40 40 % 1:04 / 2:42 41 % 1:11 / 2:52 45 % 1:09 / 2:35 42 % 1:07 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.0 % ( −0.7 %p) 수학 30.7 % → 30.4 % ( −0.3 %p) 영어 22.7 % → 22.2 % ( −0.5 %p) 탐구 24.9 % → 26.4 % ( +1.5 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:49.738Z"
+    },
+    {
+      "question": "Q3",
+      "chars": 1485,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 장수빈 고3 A반 상담 필요 학습 −9시간 19분 (-56%) 진행률 40% 7일 7시간 27분 · 평소 주 16시간 46분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 40% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 예정 없음 입실 입실 입실 입실 입실 입실 계획 — 제출 제출 제출 제출 제출 제출 학습 시간 실제 / 평소 — 0:00 1:13 2:40 1:10 2:42 1:18 3:01 1:16 3:04 1:16 2:42 1:14 2:37 입실 평소 · 차이 19:23 19:11 +13 분 19:08 19:14 −6 분 17:48 17:42 +6 분 17:33 17:46 −12 분 19:13 19:13 0 분 19:23 19:11 +13 진행률 실제 / 계획 41 % 1:13 / 2:56 40 % 1:10 / 2:56 39 % 1:18 / 3:22 38 % 1:16 / 3:22 43 % 1:16 / 2:56 42 % 1:14 / 2: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 22.7 % → 22.6 % ( −0.1 %p) 수학 37.5 % → 37.1 % ( −0.4 %p) 영어 22.7 % → 22.4 % ( −0.4 %p) 탐구 17.0 % → 17.9 % ( +0.9 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:50.590Z"
+    },
+    {
+      "question": "Q3",
+      "chars": 1485,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 최예준 고3 A반 상담 필요 학습 −9시간 45분 (-55%) 진행률 42% 7일 8시간 8분 · 평소 주 17시간 53분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 42% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 1:22 2:54 1:19 2:56 1:17 2:58 1:26 3:18 — 0:00 1:23 2:57 1:21 2:52 입실 평소 · 차이 18:53 19:03 −10 분 18:56 18:00 −4 분 18:59 18:57 +3 분 17:32 17:30 +3 분 19:08 18:53 +15 분 18:46 18:56 −10 진행률 실제 / 계획 45 % 1:22 / 3:02 41 % 1:19 / 3:13 42 % 1:17 / 3:04 39 % 1:26 / 3:43 42 % 1:23 / 3:16 43 % 1:21 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.8 % → 23.2 % ( −0.6 %p) 수학 36.8 % → 36.3 % ( −0.6 %p) 영어 22.8 % → 22.3 % ( −0.5 %p) 탐구 16.6 % → 18.2 % ( +1.7 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:51.444Z"
+    },
+    {
+      "question": "Q3",
+      "chars": 1484,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 강하준 3A 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 서도현 2B 학습 −11시간 3분 (-56%) 진행률 41% 8:51 / 19:54 41% 윤서윤 2B 학습 −8시간 4분 (-54%) 진행률 42% 6:45 / 14:49 42% 장수빈 3A 학습 −9시간 19분 (-56%) 진행률 40% 7:27 / 16:46 40% 최예준 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 3A 학습 −9시간 45분 (-55%) 진행률 42% 8:08 / 17:53 42% 한하린 고3 A반 상담 필요 학습 −9시간 45분 (-55%) 진행률 42% 7일 8시간 8분 · 평소 주 17시간 53분 · 입실 6 / 6 일 · 제출 6 / 6 일 · 진행률 42% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 입실 예정 없음 입실 입실 계획 제출 제출 제출 제출 — 제출 제출 학습 시간 실제 / 평소 1:22 2:54 1:19 2:56 1:17 2:58 1:26 3:18 — 0:00 1:23 2:57 1:21 2:52 입실 평소 · 차이 18:18 18:29 −11 분 18:22 18:27 −5 분 18:26 18:19 +8 분 17:00 16:53 +8 분 18:38 18:31 +8 분 18:17 18:28 −11 진행률 실제 / 계획 42 % 1:22 / 3:16 41 % 1:19 / 3:13 41 % 1:17 / 3:09 40 % 1:26 / 3:33 46 % 1:23 / 2:59 42 % 1:21 / 3: 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 23.8 % → 23.0 % ( −0.8 %p) 수학 34.7 % → 34.4 % ( −0.3 %p) 영어 22.8 % → 22.3 % ( −0.4 %p) 탐구 18.7 % → 20.3 % ( +1.6 %p) 상담 기록 [입력 학습관: demo_large] [입력 사유로 좁히기: STUDY_DROP] [입력 학생 검색: ]",
+      "at": "2026-11-07T06:07:52.313Z"
+    },
+    {
+      "question": "Q11",
+      "chars": 943,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 +3 분 18:46 18:56 −10 분 18:54 18:58 −4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( +0.1 %p) 수학 36.7 % → 36.7 % ( −0.1 %p) 영어 22.8 % → 22.7 % ( 0.0 %p) 탐구 18.8 % → 18.8 % ( 0.0 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
+      "at": "2026-11-07T06:07:55.718Z"
+    },
+    {
+      "question": "Q11",
+      "chars": 943,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 박예준 3A 결석 3일 연속·미제출 7:11 / 14:47 90% 결석 3일 연속·미제출 7일 7시간 11분 · 평소 주 14시간 47분 · 입실 3 / 6 일 · 제출 3 / 6 일 · 진행률 90% 10/21 수 10/22 목 10/23 금 10/24 토 10/25 일 10/26 월 10/2 화 출결 입실 입실 입실 결석 예정 없음 결석 결석 계획 제출 제출 제출 미제출 — 미제출 미제 학습 시간 실제 / 평소 2:31 2:35 2:24 2:27 2:16 2:20 — 2:47 — 0:00 — 2:23 — 2:16 입실 평소 · 차이 19:03 19:01 +3 분 18:46 18:56 −10 분 18:54 18:58 −4 분 진행률 실제 / 계획 96 % 2:31 / 2:37 90 % 2:24 / 2:40 84 % 2:16 / 2:42 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 21.7 % → 21.8 % ( +0.1 %p) 수학 36.7 % → 36.7 % ( −0.1 %p) 영어 22.8 % → 22.7 % ( 0.0 %p) 탐구 18.8 % → 18.8 % ( 0.0 %p) 상담 기록 기록자 상담 방법 [입력 기록자: ]",
+      "at": "2026-11-07T06:08:06.776Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 771,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 실제 / 계획 3:08 / 3:29 2:59 / 3:16 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 26.7 % ( +1.8 %p) 수학 29.6 % → 29.7 % ( +0.1 %p) 영어 23.0 % → 22.9 % ( −0.1 %p) 탐구 22.5 % → 20.7 % ( −1.8 %p) 상담 기록 기록자 상담 방법 상담 내용 상담 결과 [입력 학습관: demo_large] [입력 사유로 좁히기: ] [입력 학생 검색: 이서준] [입력 기록자: ] [입력 상담 내용: ]",
+      "at": "2026-11-07T06:08:20.069Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 607,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 26.7 % ( +1.8 %p) 수학 29.6 % → 29.7 % ( +0.1 %p) 영어 23.0 % → 22.9 % ( −0.1 %p) 탐구 22.5 % → 20.7 % ( −1.8 %p) 상담 기록 기록자 상담 방법 상담 내용 상담 결과 저장 지난 관리 관리 이력 없음 [입력 기록자: ] [입력 상담 내용: ]",
+      "at": "2026-11-07T06:08:34.527Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 720,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 150 명 중 상담 필요 49 명 · 관리 중 5 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 이서준 3A 결석 4일 연속·미제출 6:07 / 19:45 91% 실제 / 계획 3:08 / 3:29 2:59 / 3:16 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 26.7 % ( +1.8 %p) 수학 29.6 % → 29.7 % ( +0.1 %p) 영어 23.0 % → 22.9 % ( −0.1 %p) 탐구 22.5 % → 20.7 % ( −1.8 %p) 상담 기록 기록자 상담 방법 상담 내용 상담 결과 다음 확인일 저장 [입력 사유로 좁히기: ] [입력 학생 검색: 이서준] [입력 기록자: 과업 시험관] [입력 상담 내용: ]",
+      "at": "2026-11-07T06:09:20.960Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 856,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생별 학습관별 관리 이력 학부모 리포트 미리보기 150 명 중 상담 필요 48 명 · 관리 중 6 명 · 최근 7일 10/21 – 10/27 위 줄 출결 · 아래 줄 계획 제출 학생 사유 수 목 금 토 일 월 화 학습 시간 7일 / 평소 주 (시간:분) 진행률 이서준 3A 관리 중 관리 사유 미입실 관리 사유 계획 미제출 6:07 / 19:45 91% 입실 평소 · 차이 18:32 −5 분 18:21 −5 분 진행률 실제 / 계획 90 % 3:08 / 3:29 91 % 2:59 / 3:16 35일 출결 월 화 수 목 금 토 일 23 24 25 26 27 28 29 30 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 과목 비중 계획 → 실제, 최근 7일 국어 24.9 % → 26.7 % ( +1.8 %p) 수학 29.6 % → 29.7 % ( +0.1 %p) 영어 23.0 % → 22.9 % ( −0.1 %p) 탐구 22.5 % → 20.7 % ( −1.8 %p) 상담 기록 기록자 상담 방법 상담 내용 저장 지난 관리 10/28 계속 관리 · 다음 점검 11월 4일 [입력 사유로 좁히기: ] [입력 학생 검색: 이서준] [입력 기록자: 과업 시험관] [입력 상담 내용: 과업 시험: 면담, 계속 관리, 1주 후 확인.]",
+      "at": "2026-11-07T06:09:35.827Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 274,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 계속 관리 · 다음 확인 11/4 학생별 학습관별 관리 이력 학부모 리포트 미리보기 관리 이력 불러오는 중 [입력 학습관: demo_large]",
+      "at": "2026-11-07T06:09:37.060Z"
+    },
+    {
+      "question": "Q9",
+      "chars": 823,
+      "text": "LEARNERS HIGH ADMIN 학습관리 학습관리 학생 케어 개선안 학원관리 문자관리 학생관리 학습관리 Today Board 학생 케어 학생 케어 개선안 Feedback Dashboard Mentor 추천 Connection 검토 Interview 관리 Operations 학습조정 학원비결제 리워드 솔루션결제 학생 케어 기준일 10월 27일 계속 관리 · 다음 확인 11/4 학생별 학습관별 관리 이력 학부모 리포트 미리보기 학생 전체 · 9 건 날짜 학생 확인 항목 최근 진행 기록자 2026.10.28 김도현 고2 B반 계획 미제출 2일 관리 중 계속 관리 계속 관리 · 다음 점검 11월 4일 — 2026.10.28 김하린 고2 B반 계획 미달성 41% 관리 종료 관리 종료 관리 종료 — 2026.10.28 박유진 고2 B반 수학 계획 미달성 14% 관리 중 상담 수학부터 시작하는 방식으로 바꿔보겠다고 답함. 과목 비중만으로 학습 성과를 판단하지 않고 실제 진행한 내용을 — 2026.10.28 이서준 고3 A반 미입실 4일 계획 미제출 4일 관리 중 관리 시작 계속 관리 · 다음 점검 11월 4일 과업 시험관 2026.10.28 이지우 고3 A반 미입실 1일 관리 중 계속 관리 계속 관리 · 다음 점검 10월 30일 — 2026.10.28 이하린 고3 A반 계획 미달성 56% 관리 중 계속 관리 계속 관리 · 다음 점검 11월 2일 — 2026.10.28 최하준 고3 A반 등원 시간 늦어짐 101분 늦음 관리 중 관리 시작 계속 관리 · 다음 점검 11월 4일 — [입력 학습관: demo_large] [입력 학생: ] [입력 이력 학생 검색: ]",
+      "at": "2026-11-07T06:09:51.501Z"
+    },
+    {
+      "question": "Q10",
+      "chars": 481,
+      "text": "관리 기준 설정 학습관별로 적용됩니다 결석 일 이상 최근 7일 중 평소 오는 요일에 입실하지 않은 날 계획 미제출 일 이상 최근 7일 중 계획을 내지 않은 날 학습 시간 감소 % 이상 평소(이전 4주) 대비 최근 7일 학습 시간 계획 달성률 % 미만 최근 7일 계획 대비 실제 학습 시간 과목 비율 차이 %p 이상 과목별 계획 비율과 실제 비율의 차이 입실 지연 분 이상 평소(같은 요일) 대비 늦게 들어온 시간 판단에 필요한 학습일 일 이상 30분 이상 공부한 날이 이보다 적으면 학습 시간·달성률은 판단하지 않음 종료 후 다시 표시 일 뒤 관리를 끝낸 항목을 이 기간 동안 다시 띄우지 않음 기본값으로 되돌리기 취소 저장 [입력 결석: 1] [입력 계획 미제출: 2] [입력 학습 시간 감소: 30] [입력 계획 달성률: 60] [입력 과목 비율 차이: 20] [입력 입실 지연: 60] [입력 판단에 필요한 학습일: 3] [입력 종료 후 다시 표시: 7]",
+      "at": "2026-11-07T06:10:01.660Z"
+    },
+    {
+      "question": "Q10",
+      "chars": 481,
+      "text": "관리 기준 설정 학습관별로 적용됩니다 결석 일 이상 최근 7일 중 평소 오는 요일에 입실하지 않은 날 계획 미제출 일 이상 최근 7일 중 계획을 내지 않은 날 학습 시간 감소 % 이상 평소(이전 4주) 대비 최근 7일 학습 시간 계획 달성률 % 미만 최근 7일 계획 대비 실제 학습 시간 과목 비율 차이 %p 이상 과목별 계획 비율과 실제 비율의 차이 입실 지연 분 이상 평소(같은 요일) 대비 늦게 들어온 시간 판단에 필요한 학습일 일 이상 30분 이상 공부한 날이 이보다 적으면 학습 시간·달성률은 판단하지 않음 종료 후 다시 표시 일 뒤 관리를 끝낸 항목을 이 기간 동안 다시 띄우지 않음 기본값으로 되돌리기 취소 저장 [입력 결석: 2] [입력 계획 미제출: 2] [입력 학습 시간 감소: 30] [입력 계획 달성률: 60] [입력 과목 비율 차이: 20] [입력 입실 지연: 60] [입력 판단에 필요한 학습일: 3] [입력 종료 후 다시 표시: 7]",
+      "at": "2026-11-07T06:10:18.291Z"
+    },
+    {
+      "question": "Q10",
+      "chars": 481,
+      "text": "관리 기준 설정 학습관별로 적용됩니다 결석 일 이상 최근 7일 중 평소 오는 요일에 입실하지 않은 날 계획 미제출 일 이상 최근 7일 중 계획을 내지 않은 날 학습 시간 감소 % 이상 평소(이전 4주) 대비 최근 7일 학습 시간 계획 달성률 % 미만 최근 7일 계획 대비 실제 학습 시간 과목 비율 차이 %p 이상 과목별 계획 비율과 실제 비율의 차이 입실 지연 분 이상 평소(같은 요일) 대비 늦게 들어온 시간 판단에 필요한 학습일 일 이상 30분 이상 공부한 날이 이보다 적으면 학습 시간·달성률은 판단하지 않음 종료 후 다시 표시 일 뒤 관리를 끝낸 항목을 이 기간 동안 다시 띄우지 않음 기본값으로 되돌리기 취소 저장 [입력 결석: 1] [입력 계획 미제출: 2] [입력 학습 시간 감소: 30] [입력 계획 달성률: 60] [입력 과목 비율 차이: 20] [입력 입실 지연: 60] [입력 판단에 필요한 학습일: 3] [입력 종료 후 다시 표시: 7]",
+      "at": "2026-11-07T06:10:20.500Z"
     }
   ]
 }

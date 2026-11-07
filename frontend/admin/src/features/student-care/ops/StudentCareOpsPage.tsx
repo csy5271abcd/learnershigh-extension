@@ -108,7 +108,7 @@ export function StudentCareOpsPage() {
           <div className="ops-split">
             {!(narrow && detailOpen) && <section className="ops-list" aria-label="전체 학생">
               <div className="ops-list-head">
-                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')} · 평소 = 이전 4주 같은 요일</span>}</p>
+                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')}</span>}</p>
                 <span className="ops-list-tools">
                   <select className="sc-select" aria-label="사유로 좁히기" value={reason} onChange={(e) => setReason(e.target.value)}>{REASONS.map((x) => <option key={x.key} value={x.key}>{x.label}{rows ? ` ${rows.filter(x.match).length}` : ''}</option>)}</select>
                   <input className="sc-input" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />

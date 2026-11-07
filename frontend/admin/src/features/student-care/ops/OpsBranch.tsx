@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
-import { branchDays, branchStudyChange, clock, hours, type OpsStudent } from './opsModel.ts'
+import { branchDays, branchStudyChange, clock, hours, signed, type OpsStudent } from './opsModel.ts'
 
 const md = (date: string) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
-const pct = (v: number) => `${v > 0 ? '+' : ''}${Math.round(v)}%`
-const min = (v: number) => `${v > 0 ? '+' : ''}${Math.round(v)}분`
+const pct = (v: number) => `${signed(v)}%`
+const min = (v: number) => `${signed(v)}분`
 
 type Metric = 'absence' | 'study' | 'start' | 'plan'
 interface Pick { metric: Metric; date: string | null }
@@ -73,25 +73,25 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
       <p className="ops-branch-summary">
         <b>{branchName} {rows.length}명</b>{excluded.size > 0 && <span> · 집계 {included.length}명</span>}
         <span> · 상담 필요 {rows.filter((r) => r.status === 'check').length}명 · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명</span>
-        {change && <span> · 학습 시간 평소 대비 <b className={change.percent < 0 ? 'ops-down' : ''}>{pct(change.percent)}</b></span>}
+        {change && <span> · 학습 시간 평소 대비 <b className={change.percent <= -studyDropPercent ? 'ops-down' : ''}>{pct(change.percent)}</b></span>}
       </p>
-      <div className="ops-bt ops-bt-scroll" role="table" aria-label="날짜별 학습관 지표. 칸을 누르면 아래에 학생별 값이 나옵니다">
+      <div className="ops-bt ops-bt-scroll" role="table" aria-label="날짜별 학습관 지표">
         <div className="ops-bt-row ops-bt-head" role="row"><span role="columnheader" />{days.map((d) => <span key={d.date} role="columnheader"><b>{md(d.date)}</b>{d.dow}</span>)}</div>
         <div className="ops-bt-row" role="row">
           <span role="rowheader">{cellBtn('absence', null, <>결석<small>결석 / 등원 예정</small></>, '결석 7일 전체 학생 보기')}</span>
-          {days.map((d) => <span key={d.date} role="cell">{cellBtn('absence', d.date, <><b className={d.absent.length ? 'ops-down' : ''}>{d.scheduled ? `${d.absent.length} / ${d.scheduled}` : '예정 없음'}</b>{d.unknown > 0 && <small>기록 없음 {d.unknown}</small>}</>, `${md(d.date)} 결석 학생 보기`)}</span>)}
+          {days.map((d) => <span key={d.date} role="cell">{cellBtn('absence', d.date, <><b>{d.scheduled ? `${d.absent.length} / ${d.scheduled}` : '예정 없음'}</b>{d.unknown > 0 && <small>기록 없음 {d.unknown}</small>}</>, `${md(d.date)} 결석 학생 보기`)}</span>)}
         </div>
         <div className="ops-bt-row" role="row">
-          <span role="rowheader">{cellBtn('study', null, <>학습 시간<small>평균 · 평소 대비 중앙값</small></>, '학습 시간 7일 변화 학생 보기')}</span>
+          <span role="rowheader">{cellBtn('study', null, <>학습 시간<small>평균 · 평소 대비</small></>, '학습 시간 7일 변화 학생 보기')}</span>
           {days.map((d) => { const present = included.flatMap((r) => r.days[days.indexOf(d)].minutes ?? []); const avg = present.length ? present.reduce((a, b) => a + b, 0) / present.length : null
-            return <span key={d.date} role="cell">{cellBtn('study', d.date, <><b>{avg === null ? '—' : hours(avg)}</b>{d.studyChange && <small className={d.studyChange.median <= -studyDropPercent ? 'ops-down' : ''}>{pct(d.studyChange.median)} ({pct(d.studyChange.q1)}~{pct(d.studyChange.q3)})</small>}</>, `${md(d.date)} 학습 시간 학생별 보기`)}</span> })}
+            return <span key={d.date} role="cell">{cellBtn('study', d.date, <><b>{avg === null ? '—' : hours(avg)}</b>{d.studyChange && <small className={d.studyChange.median <= -studyDropPercent ? 'ops-down' : ''}>{pct(d.studyChange.median)}</small>}</>, `${md(d.date)} 학습 시간 학생별 보기`)}</span> })}
         </div>
         <div className="ops-bt-row" role="row">
-          <span role="rowheader">{cellBtn('start', null, <>입실 시각<small>평소 대비 중앙값 (중간 50%)</small></>, '입실 시각 7일 변화 학생 보기')}</span>
-          {days.map((d) => <span key={d.date} role="cell">{cellBtn('start', d.date, d.startShift ? <><b className={d.startShift.median >= startShiftMinutes ? 'ops-down' : ''}>{min(d.startShift.median)}</b><small>{min(d.startShift.q1)} ~ {min(d.startShift.q3)}</small></> : '—', `${md(d.date)} 입실 시각 학생별 보기`)}</span>)}
+          <span role="rowheader">{cellBtn('start', null, <>입실 시각<small>평소 대비</small></>, '입실 시각 7일 변화 학생 보기')}</span>
+          {days.map((d) => <span key={d.date} role="cell">{cellBtn('start', d.date, d.startShift ? <b className={d.startShift.median >= startShiftMinutes ? 'ops-down' : ''}>{min(d.startShift.median)}</b> : '—', `${md(d.date)} 입실 시각 학생별 보기`)}</span>)}
         </div>
         <div className="ops-bt-row" role="row">
-          <span role="rowheader">{cellBtn('plan', null, <>계획 제출<small>제출 / 기록 확인</small></>, '계획 미제출 7일 학생 보기')}</span>
+          <span role="rowheader">{cellBtn('plan', null, <>계획 제출<small>제출 / 대상 학생</small></>, '계획 미제출 7일 학생 보기')}</span>
           {days.map((d) => <span key={d.date} role="cell">{cellBtn('plan', d.date, d.submitKnown ? <><b>{Math.round((d.submitted / d.submitKnown) * 100)}%</b><small>{d.submitted} / {d.submitKnown}</small></> : '—', `${md(d.date)} 계획 미제출 학생 보기`)}</span>)}
         </div>
       </div>
@@ -120,7 +120,7 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
         </section>
       )}
       <section className="ops-exclude" aria-label="집계 제외">
-        <h3>집계에서 제외 <small>학습관 대표값 계산에서만 빠지고 학생 기록·상담 상태는 바뀌지 않음</small></h3>
+        <h3>집계에서 제외</h3>
         <input className="sc-input" aria-label="제외할 학생 이름" placeholder="학생 이름" value={query} onChange={(e) => setQuery(e.target.value)} />
         {candidates.map((s) => <button key={s.student.studentId} type="button" className="ops-link" onClick={() => { onExcludedChange(new Set([...excluded, s.student.studentId])); setQuery('') }}>{s.student.studentName} 제외</button>)}
         {excluded.size > 0 && <p>{[...excluded].map((id) => { const s = rows.find((r) => r.student.studentId === id); return s ? <button key={id} type="button" className="ops-chip-btn" onClick={() => { const next = new Set(excluded); next.delete(id); onExcludedChange(next) }}>{s.student.studentName} 복원</button> : null })}</p>}

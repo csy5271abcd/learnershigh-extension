@@ -8,8 +8,8 @@
     },
     "items": [
       {
-        "eventId": "evt_db95341e-caa1-4123-b33f-a31169b073ff",
-        "caseId": "care_bf439fec-1fa2-4eca-b689-940879126b8c",
+        "eventId": "evt_3a91fcb9-f45f-4e28-b0aa-2b7051941930",
+        "caseId": "care_e7849dae-736d-443b-be47-e2099e8514e2",
         "type": "ADJUSTMENT_STARTED",
         "occurredOn": "2026-10-28",
         "createdAt": "2026-10-28T12:00:00+09:00",
@@ -18,19 +18,19 @@
         "actorName": "과업 시험관"
       },
       {
-        "eventId": "evt_202417fc-ae11-4cd0-a97b-664d2c9365fe",
-        "caseId": "care_bf439fec-1fa2-4eca-b689-940879126b8c",
+        "eventId": "evt_edbfc8b8-b2b0-4f32-b105-e46ef4ebd3f7",
+        "caseId": "care_e7849dae-736d-443b-be47-e2099e8514e2",
         "type": "REASON_CONFIRMED",
         "occurredOn": "2026-10-28",
         "createdAt": "2026-10-28T12:00:00+09:00",
-        "content": "상담 · 면담 — 과업 시험: 면담 결과 계속 관리, 다음 확인은 1주 뒤.",
+        "content": "상담 · 면담 — 과업 시험: 면담, 계속 관리, 1주 후 확인.",
         "noteChannel": "MEETING",
         "actorName": "과업 시험관"
       }
     ],
     "cases": [
       {
-        "caseId": "care_bf439fec-1fa2-4eca-b689-940879126b8c",
+        "caseId": "care_e7849dae-736d-443b-be47-e2099e8514e2",
         "studentId": "demo_s011",
         "branchId": "demo_large",
         "status": "IN_ADJUSTMENT",
@@ -61,18 +61,18 @@
         "comparison": null,
         "events": [
           {
-            "eventId": "evt_202417fc-ae11-4cd0-a97b-664d2c9365fe",
-            "caseId": "care_bf439fec-1fa2-4eca-b689-940879126b8c",
+            "eventId": "evt_edbfc8b8-b2b0-4f32-b105-e46ef4ebd3f7",
+            "caseId": "care_e7849dae-736d-443b-be47-e2099e8514e2",
             "type": "REASON_CONFIRMED",
             "occurredOn": "2026-10-28",
             "createdAt": "2026-10-28T12:00:00+09:00",
-            "content": "상담 · 면담 — 과업 시험: 면담 결과 계속 관리, 다음 확인은 1주 뒤.",
+            "content": "상담 · 면담 — 과업 시험: 면담, 계속 관리, 1주 후 확인.",
             "noteChannel": "MEETING",
             "actorName": "과업 시험관"
           },
           {
-            "eventId": "evt_db95341e-caa1-4123-b33f-a31169b073ff",
-            "caseId": "care_bf439fec-1fa2-4eca-b689-940879126b8c",
+            "eventId": "evt_3a91fcb9-f45f-4e28-b0aa-2b7051941930",
+            "caseId": "care_e7849dae-736d-443b-be47-e2099e8514e2",
             "type": "ADJUSTMENT_STARTED",
             "occurredOn": "2026-10-28",
             "createdAt": "2026-10-28T12:00:00+09:00",

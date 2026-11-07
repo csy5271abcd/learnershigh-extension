@@ -34,14 +34,18 @@ s.Q7 = num(answers.Q7) === key.Q7.answer ? 10 : 0
 s.Q8 = Math.abs(minutes(answers.Q8) - key.Q8.answer) <= 10 ? 10 : 0
 { const post = writes.filter((w) => w.question === 'Q9' && w.method === 'POST' && /\/cases/.test(w.url) && w.status < 300).map((w) => { try { return JSON.parse(w.body) } catch { return {} } })
   const ok = post.some((b) => b.studentId === key.Q9.studentId && b.channel === 'MEETING' && b.reason === 'ADJUSTMENT_NEEDED' && b.recheckDate === key.Q9.answer)
-  // 이력 항목은 날짜를 "11월 4일"처럼 글로 쓰고, 케이스 목록에는 recheckDate가 있다. 둘 중 하나로 확인한다
-  const [, km, kd] = key.Q9.answer.split('-').map(Number)
-  const inHistory = (after?.q9History?.cases ?? []).some((c) => c.recheckDate === key.Q9.answer && c.studentId === key.Q9.studentId)
-    || (after?.q9History?.items ?? []).some((i) => (i.content ?? '').includes(`${km}월 ${kd}일`))
+  // 새로 만든 기록만 인정한다: 시험 전 스냅숏 이력에 없던 케이스이고, 같은 학생·업무일·다음 확인일이어야 한다
+  const before = JSON.parse(readFileSync(new URL(`../data-snapshot/history-${key.Q9.studentId}.json`, dir), 'utf8'))
+  const oldCases = new Set([...(before.cases ?? []).map((c) => c.caseId), ...(before.items ?? []).map((i) => i.caseId)])
+  const newCases = (after?.q9History?.cases ?? []).filter((c) => !oldCases.has(c.caseId) && c.studentId === key.Q9.studentId && c.openedOn === key.businessDate && c.recheckDate === key.Q9.answer)
+  const inHistory = newCases.length > 0 && (after?.q9History?.items ?? []).some((i) => newCases.some((c) => c.caseId === i.caseId))
   const said = dateIn(answers.Q9) === key.Q9.answer.slice(5)
   s.Q9 = ok && inHistory ? (said ? 10 : 5) : 0 }
 { const puts = writes.filter((w) => w.question === 'Q10' && w.method === 'PUT' && /\/settings\?branchId=demo_small/.test(w.url) && w.status < 300).map((w) => { try { return JSON.parse(w.body).absenceDays } catch { return null } })
-  const gets = writes.filter((w) => w.question === 'Q10' && w.method === 'GET').map((w) => { try { return JSON.parse(w.body).absenceDays } catch { return null } })
+  // 중간 값 확인은 수지점 설정 조회가 첫 저장 뒤·둘째 저장 전에 있었고 그 응답이 값+1인지로 본다
+  const q10 = writes.filter((w) => w.question === 'Q10' && /branchId=demo_small/.test(w.url)).sort((a, b) => a.at.localeCompare(b.at))
+  const putAt = q10.filter((w) => w.method === 'PUT' && w.status < 300).map((w) => w.at)
+  const gets = q10.filter((w) => w.method === 'GET' && putAt.length >= 2 && w.at > putAt[0] && w.at < putAt[1]).map((w) => { try { return JSON.parse(w.body).absenceDays } catch { return null } })
   const first = num(Array.isArray(answers.Q10) ? answers.Q10[0] : typeof answers.Q10 === 'object' ? answers.Q10.initial ?? answers.Q10.current : answers.Q10)
   const middleSaid = num(typeof answers.Q10 === 'object' && !Array.isArray(answers.Q10) ? answers.Q10.afterSave ?? answers.Q10.middle : Array.isArray(answers.Q10) ? answers.Q10[1] : NaN)
   const order = puts.length >= 2 && puts[0] === key.Q10.expectedSaves[0] && puts.at(-1) === key.Q10.expectedSaves[1]

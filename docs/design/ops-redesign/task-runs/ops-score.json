@@ -1,23 +1,23 @@
 {
   "screen": "ops",
-  "total": 135,
+  "total": 150,
   "max": 150,
   "perQuestion": {
     "Q1": {
       "score": 10,
-      "operations": 0
+      "operations": 1
     },
     "Q2": {
       "score": 10,
-      "operations": 0
+      "operations": 1
     },
     "Q3": {
-      "score": 5,
-      "operations": 46
+      "score": 10,
+      "operations": 11
     },
     "Q4": {
-      "score": 0,
-      "operations": 4
+      "score": 10,
+      "operations": 1
     },
     "Q5": {
       "score": 10,
@@ -29,19 +29,19 @@
     },
     "Q7": {
       "score": 10,
-      "operations": 0
+      "operations": 2
     },
     "Q8": {
       "score": 10,
-      "operations": 2
+      "operations": 3
     },
     "Q9": {
       "score": 10,
-      "operations": 18
+      "operations": 17
     },
     "Q10": {
       "score": 10,
-      "operations": 9
+      "operations": 10
     },
     "Q11": {
       "score": 10,
@@ -49,26 +49,26 @@
     },
     "Q12": {
       "score": 10,
-      "operations": 2
+      "operations": 3
     },
     "Q13": {
       "score": 10,
-      "operations": 2
+      "operations": 1
     },
     "Q14": {
       "score": 10,
-      "operations": 3
+      "operations": 4
     },
     "Q15": {
       "score": 10,
-      "operations": 10
+      "operations": 2
     }
   },
-  "readOperations": 81,
+  "readOperations": 41,
   "writeOperations": {
-    "Q9": 18,
-    "Q10": 9
+    "Q9": 17,
+    "Q10": 10
   },
-  "autoMoves": 5,
+  "autoMoves": 3,
   "pageErrors": 0
 }

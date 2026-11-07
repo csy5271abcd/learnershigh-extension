@@ -47,6 +47,9 @@ const DOW = ['일', '월', '화', '수', '목', '금', '토']
 const dowOf = (date: string) => DOW[new Date(`${date}T00:00:00Z`).getUTCDay()]
 const SEVERITY: (SignalType | 'WEEKDAY_ABSENCE')[] = ['CONSECUTIVE_ABSENCE', 'WEEKDAY_ABSENCE', 'STUDY_DROP', 'EXECUTION_GAP', 'START_TIME_SHIFT', 'SUBJECT_SHARE', 'PLAN_MISSING']
 
+/** 부호 있는 수. 음수는 화면 전체에서 같은 빼기 기호(−)를 쓴다 */
+export const signed = (v: number, digits = 0) => { const r = Number(v.toFixed(digits)); return `${r > 0 ? '+' : r < 0 ? '−' : ''}${Math.abs(r).toFixed(digits)}` }
+
 export const hours = (minutes: number | null) => {
   if (minutes === null) return '—'
   const m = Math.round(minutes), h = Math.floor(m / 60), r = m % 60
@@ -115,7 +118,7 @@ export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStud
   for (const s of signals) {
     if (s.type === 'CONSECUTIVE_ABSENCE') {
       const pattern = absencePattern(days)
-      chips.push({ type: s.type, text: `결석 ${absent.length}일${pattern === '연속' ? ' 연속' : pattern === '흩어짐' ? ' (띄엄띄엄)' : ''}${sameDays && signals.some((x) => x.type === 'PLAN_MISSING') ? '·미제출' : ''}` })
+      chips.push({ type: s.type, text: `결석 ${absent.length}일${pattern === '연속' ? ' 연속' : ''}${sameDays && signals.some((x) => x.type === 'PLAN_MISSING') ? '·미제출' : ''}` })
     } else if (s.type === 'PLAN_MISSING') {
       if (sameDays && signals.some((x) => x.type === 'CONSECUTIVE_ABSENCE')) continue
       chips.push({ type: s.type, text: `계획 미제출 ${missing.length}일` })

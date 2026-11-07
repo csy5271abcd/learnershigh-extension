@@ -1,0 +1,332 @@
+[
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "light",
+    "width": 1600,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "light",
+    "width": 850,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "light",
+    "width": 390,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "dark",
+    "width": 850,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학생별+상세",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학습관 초기",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학습관 10/22 결석",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학습관 10/22 학습+비교 2명",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학습관 10/22 입실+비교",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "관리 이력",
+    "overlaps": 0,
+    "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "학습관 표 지표 이름 고정",
+    "ok": true
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "pageerror",
+    "overlaps": 0,
+    "sample": []
+  }
+]

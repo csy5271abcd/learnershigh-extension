@@ -2,7 +2,7 @@ import type { CareApi } from '../api/httpStudentCareApi.ts'
 import { CounselForm } from '../components/CounselForm.tsx'
 import { RecheckPanel } from '../components/RecheckPanel.tsx'
 import { useRemote, loadFailure } from '../model/useRemote.ts'
-import { attendanceLabel, clock, hours, type OpsDay, type OpsStudent } from './opsModel.ts'
+import { attendanceLabel, clock, hours, signed, type OpsDay, type OpsStudent } from './opsModel.ts'
 
 const md = (date: string) => `${Number(date.slice(5, 7))}/${Number(date.slice(8, 10))}`
 const shortH = (m: number | null) => m === null ? '' : `${Math.floor(m / 60)}:${String(Math.round(m) % 60).padStart(2, '0')}`
@@ -23,7 +23,7 @@ function WeekColumns({ s, startShiftMinutes }: { s: OpsStudent; startShiftMinute
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">학습 시간<small>실제 / 평소</small></div>{s.days.map((d) => cell(d, <><b>{d.minutes === null ? '—' : shortH(d.minutes)}</b><span className="ops-muted">{d.usualMinutes === null ? '' : shortH(d.usualMinutes)}</span></>))}</div>
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">입실<small>평소 · 차이</small></div>{s.days.map((d) => {
         const diff = d.start !== null && d.usualStart !== null ? Math.round(d.start - d.usualStart) : null
-        return cell(d, d.start === null ? '' : <><b>{clock(d.start)}</b>{d.usualStart !== null && <span className="ops-muted">{clock(d.usualStart)}</span>}{diff !== null && <span className={diff >= startShiftMinutes ? 'ops-late' : ''}>{diff > 0 ? '+' : ''}{diff}분</span>}</>)
+        return cell(d, d.start === null ? '' : <><b>{clock(d.start)}</b>{d.usualStart !== null && <span className="ops-muted">{clock(d.usualStart)}</span>}{diff !== null && <span className={diff >= startShiftMinutes ? 'ops-late' : ''}>{signed(diff)}분</span>}</>)
       })}</div>
       <div className="ops-wk-row" role="row"><div className="ops-wk-h" role="rowheader">진행률<small>실제 / 계획</small></div>{s.days.map((d) => {
         const rate = d.planned && d.actual !== null ? Math.round((d.actual / d.planned) * 100) : null
@@ -63,7 +63,7 @@ function Subjects({ s }: { s: OpsStudent }) {
             <span className="ops-subj-actual" style={{ width: `${x.actualShare ?? 0}%` }} />
           </span>
           {/* 정수 반올림하면 차이가 같은 과목이 생겨(예: −24 vs +24) 가장 큰 차이를 가릴 수 없으므로 소수 첫째 자리와 차이(%p)를 쓴다 */}
-          <span role="cell">{x.plannedShare === null ? '—' : x.plannedShare.toFixed(1)}% → {x.actualShare === null ? '—' : x.actualShare.toFixed(1)}%{x.plannedShare !== null && x.actualShare !== null && <b className={Math.abs(x.actualShare - x.plannedShare) >= 10 ? 'ops-late' : ''}> ({x.actualShare - x.plannedShare > 0 ? '+' : ''}{(x.actualShare - x.plannedShare).toFixed(1)}%p)</b>}{x.name === flagged ? ` (${hours(x.plannedMinutes)} → ${hours(x.actualMinutes)})` : ''}</span>
+          <span role="cell">{x.plannedShare === null ? '—' : x.plannedShare.toFixed(1)}% → {x.actualShare === null ? '—' : x.actualShare.toFixed(1)}%{x.plannedShare !== null && x.actualShare !== null && <b className={Math.abs(x.actualShare - x.plannedShare) >= 10 ? 'ops-late' : ''}> ({signed(x.actualShare - x.plannedShare, 1)}%p)</b>}{x.name === flagged ? ` (${hours(x.plannedMinutes)} → ${hours(x.actualMinutes)})` : ''}</span>
         </div>
       ))}
     </div>
@@ -84,7 +84,7 @@ export function OpsDetail({ api, s, version, startShiftMinutes, onSaved, onBack 
         {s.statusLabel && <span className={`ops-status ops-status-${s.status}`}>{s.statusLabel}{s.recheckDate ? ` · ${md(s.recheckDate)}` : ''}</span>}
       </header>
       {s.chips.length > 0 && <p className="ops-chips">{s.chips.map((c) => <span key={c.text} className={`ops-chip${c.derived ? ' ops-chip-derived' : ''}`}>{c.text}</span>)}</p>}
-      <p className="ops-numbers">7일 {hours(w.minutes)}{w.recorded < 7 ? ` (기록 ${w.recorded}/7일)` : ''} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}% (비교 ${w.comparablePlanDays}일)`}</p>
+      <p className="ops-numbers">7일 {hours(w.minutes)}{w.recorded < 7 ? ` (기록 ${w.recorded}/7일)` : ''} · 평소 주 {hours(w.usualWeek)} · 입실 {w.attended}/{w.scheduled}일 · 제출 {w.submitted}/{w.submitKnown}일 · 진행률 {w.executionRate === null ? '—' : `${Math.round(w.executionRate)}%`}</p>
       <div className="ops-wk-scroll"><WeekColumns s={s} startShiftMinutes={startShiftMinutes} /></div>
       <div className="ops-detail-two">
         <section><h3>35일 출결</h3><Calendar35 days={s.history35} /></section>
@@ -95,7 +95,7 @@ export function OpsDetail({ api, s, version, startShiftMinutes, onSaved, onBack 
           : !detail.data ? <p role="status">불러오는 중</p>
           : active?.recheckDue ? <RecheckPanel api={api} branchId={s.student.branchId} asOf={detail.data.today ?? detail.data.asOf} careCase={active} onSaved={onSaved} onStale={() => detail.reload()} />
           : active || detail.data.signals.length ? <CounselForm api={api} branchId={s.student.branchId} studentId={s.student.studentId} caseId={active?.caseId ?? null} asOf={detail.data.today ?? detail.data.asOf} onSaved={onSaved} onStale={() => detail.reload()} />
-          : <p className="ops-muted">서버 판정 사유가 없는 학생입니다.{s.weekdayAbsence ? ' 같은 요일 결석 표시는 날짜에서 계산한 참고 표시입니다. 판정에 반영하려면 관리 기준 설정의 결석 기준을 조정하세요.' : ''}</p>}
+          : <p className="ops-muted">관리 사유 없음</p>}
         <h3>지난 관리</h3>
         {loadFailure(history) ? <p role="alert">이력을 불러오지 못했습니다. <button type="button" onClick={history.reload}>다시 시도</button></p>
           : !history.data ? <p role="status">불러오는 중</p>

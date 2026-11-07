@@ -19,7 +19,7 @@ function Chips({ s }: { s: OpsStudent }) {
 function Bullet({ s, max }: { s: OpsStudent; max: number }) {
   const w = s.week
   return (
-    <span className="ops-bullet" role="img" aria-label={`7일 ${hours(w.minutes)}, 평소 주 ${hours(w.usualWeek)}`}>
+    <span className="ops-bullet" role="img" aria-label={`7일 ${hours(w.minutes)}${w.recorded < 7 ? ` (기록 ${w.recorded}/7일)` : ''}, 평소 주 ${hours(w.usualWeek)}`}>
       <span className="ops-bullet-track">
         {w.minutes !== null && <span className="ops-bullet-bar" style={{ width: `${Math.min(100, (w.minutes / max) * 100)}%` }} />}
         {w.usualWeek !== null && <span className="ops-bullet-usual" style={{ left: `${Math.min(100, (w.usualWeek / max) * 100)}%` }} />}
@@ -36,7 +36,7 @@ export function OpsRoster({ rows, axisMax, selectedId, onSelect }: Props) {
   const days = rows[0]?.days ?? []
   return (
     <>
-    <div className="ops-table-legend"><OpsStripLegend /><span className="ops-muted">띠: 위 출결 · 아래 계획 · 연속은 등원 예정일 기준</span></div>
+    <div className="ops-table-legend"><OpsStripLegend /><span className="ops-muted">위 줄 출결 · 아래 줄 계획 제출</span></div>
     <div className="ops-table" role="table" aria-label="전체 학생">
       <div className="ops-row ops-head" role="row">
         <span>학생</span><span>사유</span>
