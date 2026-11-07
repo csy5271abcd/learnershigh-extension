@@ -124,7 +124,7 @@ export function chipsFor(signals: SignalSummary[], days: OpsDay[], week: OpsStud
       chips.push({ type: s.type, text: `계획 미제출 ${missing.length}일` })
     } else if (s.type === 'STUDY_DROP') {
       const diff = week.minutes !== null && week.usualWeek ? week.minutes - week.usualWeek : null
-      chips.push({ type: s.type, text: diff === null ? '학습 감소' : `학습 ${diff < 0 ? '−' : '+'}${hours(Math.abs(diff))} (${Math.round((diff / week.usualWeek!) * 100)}%)` })
+      chips.push({ type: s.type, text: diff === null ? '학습 감소' : `학습 ${diff < 0 ? '−' : '+'}${hours(Math.abs(diff))} (${signed((diff / week.usualWeek!) * 100)}%)` })
     } else if (s.type === 'EXECUTION_GAP') {
       chips.push({ type: s.type, text: `진행률 ${week.executionRate === null ? num(s.summary) : Math.round(week.executionRate)}%` })
     } else if (s.type === 'START_TIME_SHIFT') {

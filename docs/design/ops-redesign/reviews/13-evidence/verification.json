@@ -1,0 +1,249 @@
+{
+  "head": "85a10995a80e9c5be5be83ae95e6d980a9467387",
+  "boardUnchanged": true,
+  "settingsUnchanged": true,
+  "hashesUnchanged": true,
+  "auditErrors": [],
+  "pageErrors": [],
+  "sampleErrors": [],
+  "openMetrics": [
+    {
+      "width": 1600,
+      "theme": "light",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 542,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1321,
+      "innerScroll": 4692,
+      "travel": 6.7,
+      "minFont": 13,
+      "overflow": false
+    },
+    {
+      "width": 1600,
+      "theme": "dark",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 542,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1321,
+      "innerScroll": 4692,
+      "travel": 6.7,
+      "minFont": 13,
+      "overflow": false
+    },
+    {
+      "width": 850,
+      "theme": "light",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 480,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1400,
+      "innerScroll": 4692,
+      "travel": 6.8,
+      "minFont": 13,
+      "overflow": false
+    },
+    {
+      "width": 850,
+      "theme": "dark",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 480,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1400,
+      "innerScroll": 4692,
+      "travel": 6.8,
+      "minFont": 13,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 408,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1526,
+      "innerScroll": 4692,
+      "travel": 6.9,
+      "minFont": 13,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "text": 3416,
+      "hiddenText": 57,
+      "firstScreenText": 408,
+      "controls": 313,
+      "toggles": 32,
+      "height": 1526,
+      "innerScroll": 4692,
+      "travel": 6.9,
+      "minFont": 13,
+      "overflow": false
+    }
+  ],
+  "taskLogs": [
+    {
+      "screen": "original",
+      "q9": [
+        {
+          "question": "Q9",
+          "method": "POST",
+          "url": "http://localhost:5174/api/admin/student-care/cases",
+          "body": "{\"branchId\":\"demo_large\",\"studentId\":\"demo_s011\",\"channel\":\"MEETING\",\"actorName\":\"과업 시험관\",\"memo\":\"과업 시험 기록: 면담 후 계속 관리, 1주 뒤 확인.\",\"reason\":\"ADJUSTMENT_NEEDED\",\"recheckDate\":\"2026-11-04\"}",
+          "status": 201,
+          "at": "2026-11-06T23:46:27.257Z"
+        }
+      ],
+      "q10": [
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-06T23:46:50.199Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-06T23:47:05.978Z"
+        },
+        {
+          "question": "Q10",
+          "method": "PUT",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+          "status": 200,
+          "at": "2026-11-06T23:47:07.331Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-06T23:47:08.157Z"
+        },
+        {
+          "question": "Q10",
+          "method": "PUT",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+          "status": 200,
+          "at": "2026-11-06T23:47:09.556Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-06T23:47:10.377Z"
+        }
+      ],
+      "duplicateEvents": 0
+    },
+    {
+      "screen": "ops",
+      "q9": [
+        {
+          "question": "Q9",
+          "method": "POST",
+          "url": "http://localhost:5174/api/admin/student-care/cases",
+          "body": "{\"branchId\":\"demo_large\",\"studentId\":\"demo_s011\",\"channel\":\"MEETING\",\"actorName\":\"과업 시험관\",\"memo\":\"과업 시험: 면담, 계속 관리, 1주 후 확인.\",\"reason\":\"ADJUSTMENT_NEEDED\",\"recheckDate\":\"2026-11-04\"}",
+          "status": 201,
+          "at": "2026-11-07T06:09:35.208Z"
+        },
+        {
+          "question": "Q9",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:09:35.250Z"
+        }
+      ],
+      "q10": [
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:09:59.344Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:10:00.861Z"
+        },
+        {
+          "question": "Q10",
+          "method": "PUT",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+          "status": 200,
+          "at": "2026-11-07T06:10:16.688Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:10:16.708Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":2,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:10:17.494Z"
+        },
+        {
+          "question": "Q10",
+          "method": "PUT",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7}",
+          "status": 200,
+          "at": "2026-11-07T06:10:18.880Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:10:18.898Z"
+        },
+        {
+          "question": "Q10",
+          "method": "GET",
+          "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_small",
+          "body": "{\"absenceDays\":1,\"planMissingDays\":2,\"studyDropPercent\":30,\"executionRatePercent\":60,\"subjectShareGapPoints\":20,\"startShiftMinutes\":60,\"minValidDays\":3,\"cooldownDays\":7,\"ranges\":{\"absenceDays\":{\"min\":1,\"max\":14},\"planMissingDays\":{\"min\":1,\"max\":7},\"studyDropPercent\":{\"min\":10,\"max\":90},\"executionRatePercent\":{\"min\":10,\"max\":100},\"subjectShareGapPoints\":{\"min\":5,\"max\":60},\"startShiftMinutes\":{\"min\":30,\"max\":300},\"minValidDays\":{\"min\":1,\"max\":7},\"cooldownDays\":{\"min\":0,\"max\":30}}}",
+          "status": 200,
+          "at": "2026-11-07T06:10:19.696Z"
+        }
+      ],
+      "duplicateEvents": 0
+    }
+  ]
+}

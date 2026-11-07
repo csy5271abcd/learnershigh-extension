@@ -63,7 +63,7 @@ function Subjects({ s }: { s: OpsStudent }) {
             <span className="ops-subj-actual" style={{ width: `${x.actualShare ?? 0}%` }} />
           </span>
           {/* 정수 반올림하면 차이가 같은 과목이 생겨(예: −24 vs +24) 가장 큰 차이를 가릴 수 없으므로 소수 첫째 자리와 차이(%p)를 쓴다 */}
-          <span role="cell">{x.plannedShare === null ? '—' : x.plannedShare.toFixed(1)}% → {x.actualShare === null ? '—' : x.actualShare.toFixed(1)}%{x.plannedShare !== null && x.actualShare !== null && <b className={Math.abs(x.actualShare - x.plannedShare) >= 10 ? 'ops-late' : ''}> ({signed(x.actualShare - x.plannedShare, 1)}%p)</b>}{x.name === flagged ? ` (${hours(x.plannedMinutes)} → ${hours(x.actualMinutes)})` : ''}</span>
+          <span role="cell">{x.plannedShare === null ? '—' : x.plannedShare.toFixed(1)}% → {x.actualShare === null ? '—' : x.actualShare.toFixed(1)}%{x.plannedShare !== null && x.actualShare !== null && (Math.abs(x.actualShare - x.plannedShare) >= 10 ? <b className="ops-late"> ({signed(x.actualShare - x.plannedShare, 1)}%p)</b> : <span> ({signed(x.actualShare - x.plannedShare, 1)}%p)</span>)}{x.name === flagged ? ` (${hours(x.plannedMinutes)} → ${hours(x.actualMinutes)})` : ''}</span>
         </div>
       ))}
     </div>

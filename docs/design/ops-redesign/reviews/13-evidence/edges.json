@@ -1,0 +1,41 @@
+{
+  "writes": [
+    {
+      "url": "http://localhost:5174/api/admin/student-care/cases/care_105140bf-a62f-49e8-b306-a04fef8f4bcd/decisions?branchId=demo_large",
+      "method": "POST",
+      "body": {
+        "decision": "CLOSE"
+      },
+      "serverSent": false
+    },
+    {
+      "url": "http://localhost:5174/api/admin/student-care/cases/care_105140bf-a62f-49e8-b306-a04fef8f4bcd/decisions?branchId=demo_large",
+      "method": "POST",
+      "body": {
+        "decision": "CONTINUE",
+        "recheckDate": "2026-11-04"
+      },
+      "serverSent": false
+    }
+  ],
+  "checks": [
+    {
+      "recheck": "GET 치환; CLOSE/CONTINUE 요청만 확인, 영속성 미검증",
+      "alerts": [
+        "최종 심사 쓰기 차단"
+      ]
+    },
+    {
+      "errorText": "학생 기록을 불러오지 못했습니다.\n\n다시 시도"
+    },
+    {
+      "retryRows": 150
+    },
+    {
+      "classRows": 50
+    },
+    {
+      "searchEmpty": "조건에 맞는 학생이 없습니다."
+    }
+  ]
+}

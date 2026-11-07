@@ -2,6 +2,15 @@
   {
     "theme": "light",
     "width": 1600,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 1600,
     "state": "학생별+상세",
     "overlaps": 0,
     "sample": []
@@ -57,6 +66,15 @@
   {
     "theme": "light",
     "width": 850,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 850,
     "state": "학생별+상세",
     "overlaps": 0,
     "sample": []
@@ -112,6 +130,15 @@
   {
     "theme": "light",
     "width": 390,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
+  },
+  {
+    "theme": "light",
+    "width": 390,
     "state": "학생별+상세",
     "overlaps": 0,
     "sample": []
@@ -167,6 +194,15 @@
   {
     "theme": "dark",
     "width": 1600,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 1600,
     "state": "학생별+상세",
     "overlaps": 0,
     "sample": []
@@ -222,6 +258,15 @@
   {
     "theme": "dark",
     "width": 850,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
+  },
+  {
+    "theme": "dark",
+    "width": 850,
     "state": "학생별+상세",
     "overlaps": 0,
     "sample": []
@@ -273,6 +318,15 @@
     "state": "pageerror",
     "overlaps": 0,
     "sample": []
+  },
+  {
+    "theme": "dark",
+    "width": 390,
+    "state": "검사기 자체 시험(양성 1·음성 1)",
+    "ok": true,
+    "sample": [
+      "{\"positiveDetected\":1,\"negativeDetected\":0,\"ok\":true}"
+    ]
   },
   {
     "theme": "dark",

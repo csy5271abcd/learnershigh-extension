@@ -82,13 +82,13 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
           {days.map((d) => <span key={d.date} role="cell">{cellBtn('absence', d.date, <><b>{d.scheduled ? `${d.absent.length} / ${d.scheduled}` : '예정 없음'}</b>{d.unknown > 0 && <small>기록 없음 {d.unknown}</small>}</>, `${md(d.date)} 결석 학생 보기`)}</span>)}
         </div>
         <div className="ops-bt-row" role="row">
-          <span role="rowheader">{cellBtn('study', null, <>학습 시간<small>평균 · 평소 대비</small></>, '학습 시간 7일 변화 학생 보기')}</span>
+          <span role="rowheader">{cellBtn('study', null, <>학습 시간<small>평균 · 평소 대비 (범위)</small></>, '학습 시간 7일 변화 학생 보기')}</span>
           {days.map((d) => { const present = included.flatMap((r) => r.days[days.indexOf(d)].minutes ?? []); const avg = present.length ? present.reduce((a, b) => a + b, 0) / present.length : null
-            return <span key={d.date} role="cell">{cellBtn('study', d.date, <><b>{avg === null ? '—' : hours(avg)}</b>{d.studyChange && <small className={d.studyChange.median <= -studyDropPercent ? 'ops-down' : ''}>{pct(d.studyChange.median)}</small>}</>, `${md(d.date)} 학습 시간 학생별 보기`)}</span> })}
+            return <span key={d.date} role="cell">{cellBtn('study', d.date, <><b>{avg === null ? '—' : hours(avg)}</b>{d.studyChange && <small className={d.studyChange.median <= -studyDropPercent ? 'ops-down' : ''}>{pct(d.studyChange.median)} ({signed(d.studyChange.q1)}~{pct(d.studyChange.q3)})</small>}</>, `${md(d.date)} 학습 시간 학생별 보기`)}</span> })}
         </div>
         <div className="ops-bt-row" role="row">
-          <span role="rowheader">{cellBtn('start', null, <>입실 시각<small>평소 대비</small></>, '입실 시각 7일 변화 학생 보기')}</span>
-          {days.map((d) => <span key={d.date} role="cell">{cellBtn('start', d.date, d.startShift ? <b className={d.startShift.median >= startShiftMinutes ? 'ops-down' : ''}>{min(d.startShift.median)}</b> : '—', `${md(d.date)} 입실 시각 학생별 보기`)}</span>)}
+          <span role="rowheader">{cellBtn('start', null, <>입실 시각<small>평소 대비 (범위)</small></>, '입실 시각 7일 변화 학생 보기')}</span>
+          {days.map((d) => <span key={d.date} role="cell">{cellBtn('start', d.date, d.startShift ? <><b className={d.startShift.median >= startShiftMinutes ? 'ops-down' : ''}>{min(d.startShift.median)}</b><small>{signed(d.startShift.q1)}~{min(d.startShift.q3)}</small></> : '—', `${md(d.date)} 입실 시각 학생별 보기`)}</span>)}
         </div>
         <div className="ops-bt-row" role="row">
           <span role="rowheader">{cellBtn('plan', null, <>계획 제출<small>제출 / 대상 학생</small></>, '계획 미제출 7일 학생 보기')}</span>

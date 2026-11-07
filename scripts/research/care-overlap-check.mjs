@@ -12,35 +12,60 @@ const probe = () => {
   const tw = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT)
   const range = document.createRange()
   const clipped = (el, r) => { for (let e = el; e && e !== document.body; e = e.parentElement) { const cs = getComputedStyle(e); if (/(hidden|auto|scroll|clip)/.test(cs.overflowX + cs.overflowY)) { const c = e.getBoundingClientRect(); if (r.right <= c.left + 1 || r.left >= c.right - 1 || r.bottom <= c.top + 1 || r.top >= c.bottom - 1) return true } } return false }
+  // 가림 판정: 그 지점의 요소 쌓임(elementsFromPoint)에서 글자 요소보다 위에 있는, 글자 요소의 조상이 아닌 불투명 배경 요소가 있으면 가려진 것이다.
+  // 위에 있는 요소가 배경 없는 글자이면 가림이 아니라 겹침이다(13차 심사의 반례: 맨 위 글자만 보고 겹침을 빼던 결함 수정).
+  const opaque = (e) => { const m = getComputedStyle(e).backgroundColor.match(/rgba?\(([^)]+)\)/); if (!m) return false; const v = m[1].split(',').map(Number); return v.length < 4 || v[3] > 0.5 }
+  const occluded = (el, x, y) => {
+    const stack = document.elementsFromPoint(x, y)
+    const idx = stack.findIndex((e) => e === el || el.contains(e))
+    if (idx < 0) return true
+    return stack.slice(0, idx).some((e) => !e.contains(el) && opaque(e))
+  }
+  // 화면 밖이면 그 위치가 화면 가운데 오도록 세로로 옮긴 뒤 판정한다(가림은 보이는 위치에서만 알 수 있음)
+  const atView = (r, sy, fn) => {
+    let y = r.top + r.height / 2 + sy - scrollY
+    if (y < 80 || y > innerHeight - 1) { scrollBy(0, y - innerHeight / 2); y = r.top + r.height / 2 + sy - scrollY }
+    const x = Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1)
+    return fn(x, y)
+  }
   while (tw.nextNode()) {
     const t = tw.currentNode, el = t.parentElement
     if (!el || !t.textContent.trim()) continue
     const cs = getComputedStyle(el)
     if (cs.visibility === 'hidden' || cs.display === 'none' || el.closest('[hidden],[aria-hidden="true"],.lh-visually-hidden,.sc-visually-hidden')) continue
     range.selectNodeContents(t)
-    // 다른 요소(예: 고정된 첫 열의 배경)에 덮여 실제로 보이지 않는 글자 조각은 겹침 판정에서 뺀다
-    const visibleAt = (r) => { const x = Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1), y = Math.min(Math.max(r.top + r.height / 2, 0), innerHeight - 1); const hit = document.elementFromPoint(x, y); return !hit || hit === el || el.contains(hit) || hit.contains(el) }
-    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1 && !clipped(el, r) && (r.bottom < 0 || r.top > innerHeight || visibleAt(r))) boxes.push({ el, r, sy: scrollY, text: t.textContent.trim().slice(0, 20) })
+    for (const r of range.getClientRects()) if (r.width > 1 && r.height > 1 && !clipped(el, r)) boxes.push({ el, r, sy: scrollY, text: t.textContent.trim().slice(0, 20) })
   }
   const hits = []
   for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
     const a = boxes[i], b = boxes[j]
     if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue
-    const w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), h = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top)
+    const ay = a.r.top + a.sy, by = b.r.top + b.sy
+    const w = Math.min(a.r.right, b.r.right) - Math.max(a.r.left, b.r.left), h = Math.min(ay + a.r.height, by + b.r.height) - Math.max(ay, by)
     if (!(w > 1 && h > 2)) continue
-    // 겹친 영역의 가운데에서 맨 위 요소가 둘 중 하나뿐이면, 다른 쪽은 배경에 가려진 것(고정 열 아래로 스크롤된 칸)이지 글자 겹침이 아니다
-    // 사각형은 수집 당시 스크롤 위치 기준이므로, 지금 스크롤 위치로 바꿔서 잰다
-    let x = Math.max(a.r.left, b.r.left) + w / 2, y = Math.max(a.r.top, b.r.top) + h / 2 + a.sy - scrollY
-    // 화면 밖이면 그 위치가 보이도록 세로로 옮긴 뒤 다시 잰다(가림 여부는 화면 안에서만 알 수 있음)
-    // 화면 밖이거나 앱 머리글(고정) 아래에 깔린 위치면 화면 가운데로 옮긴 뒤 다시 잰다(가림 여부는 보이는 위치에서만 알 수 있음)
-    let probeTop = y >= 0 && y < innerHeight ? document.elementFromPoint(x, y) : null
-    if (!probeTop || !document.querySelector('main').contains(probeTop)) { const dy = y - innerHeight / 2; scrollBy(0, dy); y -= dy; probeTop = null }
-    const top = probeTop ?? (x >= 0 && y >= 0 && x < innerWidth && y < innerHeight ? document.elementFromPoint(x, y) : null)
-    const owns = (box) => top && (top === box.el || box.el.contains(top) || top.contains(box.el))
-    if (top && owns(a) !== owns(b)) continue
+    const cx = Math.max(a.r.left, b.r.left) + w / 2, cyDoc = Math.max(ay, by) + h / 2
+    const pt = { left: cx, top: cyDoc - a.sy, width: 0, height: 0 }
+    // 두 글자 모두 그 지점에서 가려지지 않았을 때만 실제 겹침이다
+    if (atView(pt, a.sy, (x, y) => occluded(a.el, x, y) || occluded(b.el, x, y))) continue
     hits.push(`${a.text} ↔ ${b.text} (${w.toFixed(1)}×${h.toFixed(1)})`)
   }
+  scrollTo(0, 0)
   return hits
+}
+
+// 검사기 자체 시험: 실제 겹침(양성)은 잡고, 불투명 고정 칸 아래로 지나간 글자(음성)는 빼야 한다
+const selfTest = async (p) => {
+  const plant = (kind) => p.evaluate((kind) => {
+    const box = document.createElement('div'); box.id = 'overlap-selftest'
+    box.style.cssText = 'position:relative;height:40px;background:transparent'
+    if (kind === 'positive') box.innerHTML = '<span style="position:absolute;left:30px;top:10px">12시간 34분</span><span style="position:absolute;left:60px;top:10px">56시간 78분</span>'
+    else box.innerHTML = '<span style="position:absolute;left:30px;top:10px">12시간 34분</span><span style="position:absolute;left:20px;top:0;width:140px;height:40px;background:rgb(255,255,255)"></span><span style="position:absolute;left:180px;top:10px">고정 칸</span>'
+    document.querySelector('main').prepend(box)
+  }, kind)
+  const clear = () => p.evaluate(() => document.getElementById('overlap-selftest')?.remove())
+  await plant('positive'); const pos = (await p.evaluate(probe)).filter((h) => h.includes('12시간')).length; await clear()
+  await plant('negative'); const neg = (await p.evaluate(probe)).filter((h) => h.includes('12시간')).length; await clear()
+  return { positiveDetected: pos, negativeDetected: neg, ok: pos > 0 && neg === 0 }
 }
 
 const browser = await chromium.launch({ channel: 'chrome', args: ['--no-proxy-server'] })
@@ -50,6 +75,8 @@ for (const theme of ['light', 'dark']) for (const width of [1600, 850, 390]) {
   const errs = []; p.on('pageerror', (e) => errs.push(e.message))
   await p.goto('http://localhost:5174/student-care/ops'); await p.waitForSelector('[data-care-roster-row]'); await p.waitForTimeout(2500)
   const states = []
+  const st = await selfTest(p)
+  out.push({ theme, width, state: '검사기 자체 시험(양성 1·음성 1)', ok: st.ok, sample: [JSON.stringify(st)] })
   states.push(['학생별+상세', await p.evaluate(probe)])
   await p.click('[role=tab]:has-text("학습관별")'); await p.waitForTimeout(1200)
   states.push(['학습관 초기', await p.evaluate(probe)])
@@ -73,5 +100,6 @@ await browser.close()
 writeFileSync(new URL('../../docs/design/ops-redesign/overlap-check.json', import.meta.url), JSON.stringify(out, null, 2))
 const bad = out.filter((r) => r.overlaps > 0 || r.ok === false)
 for (const r of bad) console.log(JSON.stringify(r))
-console.log(`검사 ${out.length}건, 실패 ${bad.length}건`)
+const screens = out.filter((r) => r.overlaps !== undefined && r.state !== 'pageerror').length
+console.log(`화면 상태 ${screens}개 겹침 검사, 보조 검사 ${out.length - screens}건(지표 이름 고정·콘솔 오류·검사기 자체 시험), 실패 ${bad.length}건`)
 process.exit(bad.length ? 1 : 0)
