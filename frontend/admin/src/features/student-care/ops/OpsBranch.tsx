@@ -98,25 +98,25 @@ export function OpsBranch({ rows, branchName, studyDropPercent, startShiftMinute
       <section className="ops-bt-detail" aria-live="polite" aria-label={detail.title}>
         <h3>{detail.title} <small>{'count' in detail && detail.count ? detail.count : `${detail.rows.length}명`}</small></h3>
         {detail.rows.length ? (
-          <div className="ops-bt-list" role="table">
-            <div className="ops-bt-list-row ops-bt-list-head" role="row">{detail.head.map((h) => <span key={h} role="columnheader">{h}</span>)}</div>
-            {detail.rows.map((cells, i) => <div key={i} className="ops-bt-list-row" role="row">{cells.slice(0, detail.head.length).map((c, j) => <span key={j} role="cell">{c}</span>)}<span role="cell">{detail.ids[i] && !pinned.includes(detail.ids[i]) && pinned.length < 3 ? <button type="button" className="ops-pin" aria-label="날짜 비교에 추가" onClick={() => setPinned([...pinned, detail.ids[i]])}>비교</button> : null}</span></div>)}
-          </div>) : <p className="ops-muted">해당 학생 없음</p>}
+          <div className="ops-bt-list"><table className="ops-tbl">
+            <thead><tr>{detail.head.map((h) => <th key={h} scope="col">{h}</th>)}<th scope="col"><span className="lh-visually-hidden">비교</span></th></tr></thead>
+            <tbody>{detail.rows.map((cells, i) => <tr key={i}>{cells.slice(0, detail.head.length).map((c, j) => j === 0 ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>)}<td>{detail.ids[i] && !pinned.includes(detail.ids[i]) && pinned.length < 3 ? <button type="button" className="ops-pin" aria-label="날짜 비교에 추가" onClick={() => setPinned([...pinned, detail.ids[i]])}>비교</button> : null}</td></tr>)}</tbody>
+          </table></div>) : <p className="ops-muted">해당 학생 없음</p>}
       </section>
       {pinned.length > 0 && (
         <section className="ops-bt-detail ops-compare" aria-label="학생 날짜 비교">
           <h3>날짜 비교 <small>{pick.metric === 'study' ? '학습 시간 실제 (평소 대비)' : pick.metric === 'start' ? '입실 시각 (평소 대비)' : pick.metric === 'absence' ? '출결' : '계획 제출'}</small></h3>
-          <div className="ops-bt-scroll"><div className="ops-cmp" role="table">
-            <div className="ops-cmp-row ops-bt-list-head" role="row"><span role="columnheader">학생</span>{days.map((d) => <span key={d.date} role="columnheader">{md(d.date)} {d.dow}</span>)}<span /></div>
-            {pinned.map((id) => { const r = rows.find((x) => x.student.studentId === id); if (!r) return null
-              return <div key={id} className="ops-cmp-row" role="row"><span role="rowheader">{name(r)}</span>{r.days.map((d) => {
+          <div className="ops-bt-scroll"><table className="ops-tbl ops-cmp">
+            <thead><tr><th scope="col">학생</th>{days.map((d) => <th key={d.date} scope="col">{md(d.date)} {d.dow}</th>)}<th scope="col"><span className="lh-visually-hidden">빼기</span></th></tr></thead>
+            <tbody>{pinned.map((id) => { const r = rows.find((x) => x.student.studentId === id); if (!r) return null
+              return <tr key={id}><th scope="row">{name(r)}</th>{r.days.map((d) => {
                 const c = studyChange(d), s = startShift(d)
                 const text = pick.metric === 'study' ? (d.minutes === null ? (d.attendance === 'absent' ? '결석' : '—') : `${hours(d.minutes)}${c === null ? '' : ` (${pct(c)})`}`)
                   : pick.metric === 'start' ? (d.start === null ? '—' : `${clock(d.start)}${s === null ? '' : ` (${min(s)})`}`)
                   : pick.metric === 'absence' ? { present: '입실', absent: '결석', off: '예정 없음', unknown: '기록 없음' }[d.attendance]
                   : { submitted: '제출', missing: '미제출', off: '—', unknown: '기록 없음' }[d.submission]
-                return <span key={d.date} role="cell">{text}</span> })}<span role="cell"><button type="button" className="ops-pin" onClick={() => setPinned(pinned.filter((x) => x !== id))}>빼기</button></span></div> })}
-          </div></div>
+                return <td key={d.date}>{text}</td> })}<td><button type="button" className="ops-pin" onClick={() => setPinned(pinned.filter((x) => x !== id))}>빼기</button></td></tr> })}</tbody>
+          </table></div>
         </section>
       )}
       <section className="ops-exclude" aria-label="집계 제외">

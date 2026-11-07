@@ -36,7 +36,7 @@ export function OpsRoster({ rows, axisMax, selectedId, onSelect }: Props) {
   const days = rows[0]?.days ?? []
   return (
     <>
-    <div className="ops-table-legend"><OpsStripLegend /><span className="ops-muted">띠 위 줄 출결 · 아래 줄 계획 제출 · 결석 연속은 등원 예정일 기준</span></div>
+    <div className="ops-table-legend"><OpsStripLegend /><span className="ops-muted">띠: 위 출결 · 아래 계획 · 연속은 등원 예정일 기준</span></div>
     <div className="ops-table" role="table" aria-label="전체 학생">
       <div className="ops-row ops-head" role="row">
         <span>학생</span><span>사유</span>

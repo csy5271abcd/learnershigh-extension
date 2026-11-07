@@ -196,3 +196,20 @@
 @media (max-width: 760px) {
   .ops-bt-list-row { grid-template-columns: minmax(64px, 1fr) minmax(120px, auto) minmax(52px, auto) auto; white-space: nowrap; }
 }
+
+/* 최종 채점 반영: 학생 목록·날짜 비교는 table. 칸은 글자 폭만큼 넓어지고 줄바꿈하지 않으며, 좁으면 감싼 영역이 가로로 스크롤된다 */
+.ops-tbl { border-collapse: collapse; width: max-content; min-width: 100%; font-variant-numeric: tabular-nums; }
+.ops-tbl th, .ops-tbl td { padding: 4px 14px 4px 0; text-align: left; white-space: nowrap; border-top: 1px solid var(--color-border); font-weight: 400; }
+.ops-tbl thead th { position: sticky; top: 0; z-index: 1; background: var(--color-surface); font-size: 13px; color: var(--color-text-secondary); border-top: 0; }
+.ops-tbl tbody th { position: sticky; left: 0; background: var(--color-surface); }
+.ops-bt-list { max-height: 360px; overflow: auto; }
+/* 학습관 표: 행이 내용 폭만큼 넓어져야 왼쪽 지표 이름 칸이 가로 스크롤 중에도 고정된다 */
+.ops-bt-row { width: max-content; min-width: 100%; }
+/* 좁은 화면: 학습관 표의 모든 행을 같은 고정 폭으로 두어, 끝까지 가로로 넘겨도 지표 이름 칸이 고정된다 */
+@media (max-width: 1279px) { .ops-bt-row { grid-template-columns: 150px repeat(7, 112px); width: 934px; min-width: 934px; } }
+
+.ops-list-tools { display: flex; flex-wrap: nowrap; gap: 8px; align-items: center; flex: none; }
+.ops-list-tools .sc-input { width: 170px; }
+.ops-list-head p { flex: 1; min-width: 0; }
+@media (max-width: 760px) { .ops-list-tools { flex-wrap: wrap; } }
+.ops-list-tools .sc-select { min-height: 40px; }

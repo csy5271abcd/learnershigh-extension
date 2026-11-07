@@ -1,0 +1,21 @@
+{
+  "head": "620d0b8905719d0b1ef2dd3f6ebd77c78bf3aa48",
+  "trackedDiff": "",
+  "sourceUnchanged": true,
+  "auditResults": 12,
+  "auditErrors": [],
+  "runtimeErrors": [],
+  "samples": 8,
+  "sampleErrors": [],
+  "sourceHashes": {
+    "ops.css": "9c9566d68b3d82fcaaab64efe62f7c4e2a639f71ebf28f25e7599a6c81c989c4",
+    "OpsBranch.tsx": "8464e6092a538beeac1dde4ff3bfba3dbe6cb4a42d2b40be3c5f01e9a706883c",
+    "OpsDetail.tsx": "f22257339b2f71468181ffd78d0ea629d8c30b4414e174ced2818a3c9729c20c",
+    "opsModel.test.mjs": "d2777574b335c6f63e7d0bec19d7d279f7a5bfdc0d96daa016c7786db3555941",
+    "opsModel.ts": "1dd1f51489d9786af6a4695123d5b07818b958d56eb155de5354a7a069194a8c",
+    "OpsRoster.tsx": "a5a003de909f8aa3fe9bc53ed357c292716e5a2f6037114b44d39311010ba299",
+    "OpsStrip.tsx": "7e31c69f30495ef735fc52dedef1f5a94814733995585e3d6b0514dc6a0a36d4",
+    "StudentCareOpsPage.tsx": "ade7f79cfbc1d849bc72293fbcabe1679c0eb09afb35f9d1524f09fc70e242f9"
+  },
+  "brokenEvidenceLinks": []
+}

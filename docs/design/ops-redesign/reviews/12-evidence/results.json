@@ -1,0 +1,6128 @@
+{
+  "results": [
+    {
+      "name": "layout matrix",
+      "result": [
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 390,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12386,
+          "innerScroll": 0,
+          "travel": 13.8,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 1310,
+          "hiddenText": 2249,
+          "firstScreenText": 489,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 1859,
+          "innerScroll": 0,
+          "travel": 2.1,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 390,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12386,
+          "innerScroll": 0,
+          "travel": 13.8,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 1310,
+          "hiddenText": 2249,
+          "firstScreenText": 489,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 1859,
+          "innerScroll": 0,
+          "travel": 2.1,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 333,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12495,
+          "innerScroll": 0,
+          "travel": 13.9,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 1310,
+          "hiddenText": 2249,
+          "firstScreenText": 262,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 3502,
+          "innerScroll": 0,
+          "travel": 3.9,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 333,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12495,
+          "innerScroll": 0,
+          "travel": 13.9,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 1310,
+          "hiddenText": 2249,
+          "firstScreenText": 262,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 3502,
+          "innerScroll": 0,
+          "travel": 3.9,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 850,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 272,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12612,
+          "innerScroll": 0,
+          "travel": 14,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 1294,
+          "hiddenText": 2265,
+          "firstScreenText": 204,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 4129,
+          "innerScroll": 0,
+          "travel": 4.6,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 272,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12612,
+          "innerScroll": 0,
+          "travel": 14,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 1294,
+          "hiddenText": 2265,
+          "firstScreenText": 204,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 4129,
+          "innerScroll": 0,
+          "travel": 4.6,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "width": 390,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 67,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 4009,
+          "hiddenText": 84,
+          "firstScreenText": 1233,
+          "controls": 166,
+          "toggles": 0,
+          "height": 4350,
+          "innerScroll": 390,
+          "travel": 5.3,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 653,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1196,
+          "innerScroll": 51,
+          "travel": 1.4,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 4009,
+          "hiddenText": 84,
+          "firstScreenText": 1233,
+          "controls": 166,
+          "toggles": 0,
+          "height": 4350,
+          "innerScroll": 390,
+          "travel": 5.3,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 653,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1196,
+          "innerScroll": 51,
+          "travel": 1.4,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 1600,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 4013,
+          "hiddenText": 80,
+          "firstScreenText": 611,
+          "controls": 167,
+          "toggles": 0,
+          "height": 5714,
+          "innerScroll": 0,
+          "travel": 6.3,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 549,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1336,
+          "innerScroll": 51,
+          "travel": 1.5,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 4013,
+          "hiddenText": 80,
+          "firstScreenText": 611,
+          "controls": 167,
+          "toggles": 0,
+          "height": 5714,
+          "innerScroll": 0,
+          "travel": 6.3,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 549,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1336,
+          "innerScroll": 51,
+          "travel": 1.5,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 850,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "light",
+          "tab": "학생별",
+          "text": 4013,
+          "hiddenText": 80,
+          "firstScreenText": 198,
+          "controls": 167,
+          "toggles": 0,
+          "height": 12666,
+          "innerScroll": 0,
+          "travel": 14.1,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "light",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 470,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1530,
+          "innerScroll": 51,
+          "travel": 1.8,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "light",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "dark",
+          "tab": "학생별",
+          "text": 4013,
+          "hiddenText": 80,
+          "firstScreenText": 198,
+          "controls": 167,
+          "toggles": 0,
+          "height": 12666,
+          "innerScroll": 0,
+          "travel": 14.1,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "dark",
+          "tab": "학습관별",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 470,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1530,
+          "innerScroll": 51,
+          "travel": 1.8,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "width": 390,
+          "theme": "dark",
+          "tab": "관리 이력",
+          "text": 43,
+          "hiddenText": 53,
+          "firstScreenText": 43,
+          "controls": 6,
+          "toggles": 0,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 14,
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "name": "branch populations and desktop metrics",
+      "result": [
+        {
+          "old": true,
+          "branch": "demo_large",
+          "tab": "students",
+          "count": 150,
+          "text": 5595,
+          "hiddenText": 217,
+          "firstScreenText": 390,
+          "controls": 157,
+          "toggles": 150,
+          "height": 12386,
+          "innerScroll": 0,
+          "travel": 13.8,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_large",
+          "tab": "detail",
+          "text": 6104,
+          "hiddenText": 218,
+          "firstScreenText": 324,
+          "controls": 189,
+          "toggles": 152,
+          "height": 14374,
+          "innerScroll": 0,
+          "travel": 16,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_large",
+          "tab": "branch",
+          "text": 1310,
+          "hiddenText": 2249,
+          "firstScreenText": 489,
+          "controls": 1741,
+          "toggles": 43,
+          "height": 1859,
+          "innerScroll": 0,
+          "travel": 2.1,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_medium",
+          "tab": "students",
+          "count": 50,
+          "text": 1917,
+          "hiddenText": 117,
+          "firstScreenText": 390,
+          "controls": 57,
+          "toggles": 50,
+          "height": 4386,
+          "innerScroll": 0,
+          "travel": 4.9,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_medium",
+          "tab": "detail",
+          "text": 2444,
+          "hiddenText": 118,
+          "firstScreenText": 322,
+          "controls": 89,
+          "toggles": 52,
+          "height": 6374,
+          "innerScroll": 0,
+          "travel": 7.1,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_medium",
+          "tab": "branch",
+          "text": 1251,
+          "hiddenText": 2233,
+          "firstScreenText": 464,
+          "controls": 616,
+          "toggles": 40,
+          "height": 1859,
+          "innerScroll": 0,
+          "travel": 2.1,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_small",
+          "tab": "students",
+          "count": 10,
+          "text": 476,
+          "hiddenText": 77,
+          "firstScreenText": 371,
+          "controls": 17,
+          "toggles": 10,
+          "height": 1186,
+          "innerScroll": 0,
+          "travel": 1.3,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_small",
+          "tab": "detail",
+          "text": 980,
+          "hiddenText": 78,
+          "firstScreenText": 322,
+          "controls": 49,
+          "toggles": 12,
+          "height": 3174,
+          "innerScroll": 0,
+          "travel": 3.5,
+          "minFont": 11,
+          "overflow": false
+        },
+        {
+          "old": true,
+          "branch": "demo_small",
+          "tab": "branch",
+          "text": 1177,
+          "hiddenText": 2107,
+          "firstScreenText": 438,
+          "controls": 194,
+          "toggles": 32,
+          "height": 1859,
+          "innerScroll": 0,
+          "travel": 2.1,
+          "minFont": 10,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_large",
+          "tab": "students",
+          "count": 150,
+          "text": 4009,
+          "hiddenText": 84,
+          "firstScreenText": 1233,
+          "controls": 166,
+          "toggles": 0,
+          "height": 4350,
+          "innerScroll": 390,
+          "travel": 5.3,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_large",
+          "tab": "branch",
+          "text": 772,
+          "hiddenText": 53,
+          "firstScreenText": 653,
+          "controls": 61,
+          "toggles": 32,
+          "height": 1196,
+          "innerScroll": 51,
+          "travel": 1.4,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_medium",
+          "tab": "students",
+          "count": 50,
+          "text": 1685,
+          "hiddenText": 84,
+          "firstScreenText": 1091,
+          "controls": 66,
+          "toggles": 0,
+          "height": 1731,
+          "innerScroll": 390,
+          "travel": 2.4,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_medium",
+          "tab": "branch",
+          "text": 582,
+          "hiddenText": 53,
+          "firstScreenText": 582,
+          "controls": 45,
+          "toggles": 32,
+          "height": 966,
+          "innerScroll": 0,
+          "travel": 1.1,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_small",
+          "tab": "students",
+          "count": 10,
+          "text": 858,
+          "hiddenText": 84,
+          "firstScreenText": 813,
+          "controls": 26,
+          "toggles": 0,
+          "height": 1106,
+          "innerScroll": 390,
+          "travel": 1.7,
+          "minFont": 13,
+          "overflow": false
+        },
+        {
+          "old": false,
+          "branch": "demo_small",
+          "tab": "branch",
+          "text": 496,
+          "hiddenText": 53,
+          "firstScreenText": 496,
+          "controls": 39,
+          "toggles": 32,
+          "height": 900,
+          "innerScroll": 0,
+          "travel": 1,
+          "minFont": 13,
+          "overflow": false
+        }
+      ]
+    },
+    {
+      "name": "V01 V02 branch exact lists",
+      "result": [
+        {
+          "label": "결석 7일 전체 학생 보기",
+          "text": "결석 최근 7일 결석 18명 · 기록 없음만 10명\n학생\n결석 일수\n기록 없음\n권유진\n4일\n비교\n오도현\n4일\n비교\n윤수빈\n4일\n비교\n이서준\n4일\n비교\n정하준\n4일\n비교\n박예준\n3일\n비교\n서시윤\n3일\n비교\n신하린\n3일\n비교\n오시윤\n3일\n비교\n임하린\n3일\n비교\n장하린\n3일\n비교\n조서윤\n3일\n비교\n신유진\n2일\n비교\n한도현\n2일\n비교\n강서윤\n1일\n비교\n이예준\n1일\n비교\n조수빈\n1일\n비교\n최하준\n1일\n비교\n권예준\n—\n3일\n비교\n김하린\n—\n3일\n비교\n박수빈\n—\n3일\n비교\n신서준\n—\n3일\n비교\n오지우\n—\n3일\n비교\n윤시윤\n—\n3일\n비교\n이서윤\n—\n3일\n비교\n임유진\n—\n3일\n비교\n정하린\n—\n3일\n비교\n조도현\n—\n3일\n비교",
+          "rows": 28
+        },
+        {
+          "label": "10/26 결석 학생 보기",
+          "text": "결석 10/26 결석 14명\n학생\n결석\n기록 없음\n권유진\n결석\n비교\n오도현\n결석\n비교\n윤수빈\n결석\n비교\n이서준\n결석\n비교\n정하준\n결석\n비교\n박예준\n결석\n비교\n서시윤\n결석\n비교\n신하린\n결석\n비교\n오시윤\n결석\n비교\n임하린\n결석\n비교\n장하린\n결석\n비교\n조서윤\n결석\n비교\n신유진\n결석\n비교\n한도현\n결석\n비교",
+          "rows": 14
+        },
+        {
+          "label": "계획 미제출 7일 학생 보기",
+          "text": "계획 미제출 최근 7일 35명\n학생\n미제출 일수\n권유진\n4일\n비교\n오도현\n4일\n비교\n윤수빈\n4일\n비교\n이서준\n4일\n비교\n정하준\n4일\n비교\n박예준\n3일\n비교\n서시윤\n3일\n비교\n신하린\n3일\n비교\n오시윤\n3일\n비교\n임하린\n3일\n비교\n장하린\n3일\n비교\n조서윤\n3일\n비교\n강하린\n3일\n비교\n권서준\n3일\n비교\n김하준\n3일\n비교\n박서윤\n3일\n비교\n서지우\n3일\n비교\n신하준\n3일\n비교\n오예준\n3일\n비교\n윤도현\n3일\n비교\n장시윤\n3일\n비교\n장지우\n3일\n비교\n정시윤\n3일\n비교\n조유진\n3일\n비교\n최도현\n3일\n비교\n최수빈\n3일\n비교\n한서준\n3일\n비교\n한유진\n3일\n비교\n이하린\n3일\n비교\n신유진\n2일\n비교\n한도현\n2일\n비교\n강서윤\n1일\n비교\n이예준\n1일\n비교\n조수빈\n1일\n비교\n최하준\n1일\n비교",
+          "rows": 35
+        },
+        {
+          "label": "학습 시간 7일 변화 학생 보기",
+          "text": "학습 시간이 평소보다 30% 이상 적은 날이 있는 학생 11명\n학생\n해당 일수\n7일 / 평소 주\n강하준\n6일\n8시간 51분 / 19시간 54분\n비교\n서도현\n6일\n8시간 51분 / 19시간 54분\n비교\n윤서윤\n6일\n6시간 45분 / 14시간 49분\n비교\n장수빈\n6일\n7시간 27분 / 16시간 46분\n비교\n최예준\n6일\n8시간 8분 / 17시간 53분\n비교\n한하린\n6일\n8시간 8분 / 17시간 53분\n비교\n신지우\n2일\n14시간 21분 / 17시간 56분\n비교\n임시윤\n2일\n11시간 53분 / 14시간 52분\n비교\n조하린\n2일\n14시간 21분 / 17시간 56분\n비교\n오유진\n1일\n15시간 9분 / 16시간 46분\n비교\n장도현\n1일\n18시간 / 19시간 54분\n비교",
+          "rows": 11
+        },
+        {
+          "label": "입실 시각 7일 변화 학생 보기",
+          "text": "입실이 평소보다 60분 이상 늦은 날이 있는 학생 7명\n학생\n해당 일수\n권하린\n6일\n비교\n김지우\n6일\n비교\n박서준\n6일\n비교\n신시윤\n2일\n비교\n최서윤\n2일\n비교\n이하준\n1일\n비교\n정수빈\n1일\n비교",
+          "rows": 7
+        },
+        {
+          "label": "10/22 학습 시간 학생별 보기",
+          "text": "학습 시간 10/22 · 평소 대비 낮은 순 136명\n학생\n실제 / 평소\n변화\n최예준\n1시간 19분 / 2시간 56분\n-55%\n비교\n한하린\n1시간 19분 / 2시간 56분\n-55%\n비교\n강하준\n1시간 26분 / 3시간 11분\n-55%\n비교\n서도현\n1시간 26분 / 3시간 11분\n-55%\n비교\n윤서윤\n1시간 6분 / 2시간 25분\n-55%\n비교\n장수빈\n1시간 13분 / 2시간 40분\n-54%\n비교\n신지우\n1시간 22분 / 2시간 57분\n-54%\n비교\n조하린\n1시간 22분 / 2시간 57분\n-54%\n비교\n오유진\n1시간 15분 / 2시간 42분\n-54%\n비교\n장도현\n1시간 29분 / 3시간 12분\n-54%\n비교\n임시윤\n1시간 8분 / 2시간 27분\n-54%\n비교\n장서준\n5시간 39분 / 6시간 10분\n-8%\n비교\n권수빈\n7시간 17분 / 7시간 56분\n-8%\n비교\n이도현\n2시간 29분 / 2시간 42분\n-8%\n비교\n신서윤\n6시간 12분 / 6시간 45분\n-8%\n비교\n오하준\n5시간 7분 / 5시간 34분\n-8%\n비교\n임예준\n6시간 45분 / 7시간 21분\n-8%\n비교\n박시윤\n2시간 43분 / 2시간 57분\n-8%\n비교\n조지우\n2시간 15분 / 2시간 27분\n-8%\n비교\n정유진\n2시간 57분 / 3시간 12분\n-8%\n비교\n서하린\n5시간 43분 / 6시간 13분\n-8%\n비교\n정서준\n5시간 43분 / 6시간 13분\n-8%\n비교\n윤하준\n5시간 10분 / 5시간 37분\n-8%\n비교\n김유진\n6시간 16분 / 6시간 48분\n-8%\n비교\n임서윤\n6시간 16분 / 6시간 48분\n-8%\n비교\n박지우\n7시간 22분 / 8시간\n-8%\n비교\n한수빈\n7시간 22분 / 8시간\n-8%\n비교\n강예준\n6시간 49분 / 7시간 24분\n-8%\n비교\n권도현\n6시간 49분 / 7시간 24분\n-8%\n비교\n장하린\n2시간 46분 / 3시간\n-8%\n비교\n신유진\n2시간 32분 / 2시간 45분\n-8%\n비교\n오시윤\n2시간 18분 / 2시간 29분\n-8%\n비교\n김서준\n5시간 47분 / 6시간 15분\n-7%\n비교\n한도현\n3시간 1분 / 3시간 15분\n-7%\n비교\n오도현\n2시간 38분 / 2시간 43분\n-3%\n비교\n정하준\n2시간 38분 / 2시간 43분\n-3%\n비교\n신하린\n2시간 22분 / 2시간 26분\n-3%\n비교\n서시윤\n2시간 53분 / 2시간 58분\n-3%\n비교\n조서윤\n2시간 53분 / 2시간 58분\n-3%\n비교\n권유진\n3시간 8분 / 3시간 13분\n-3%\n비교\n윤수빈\n3시간 8분 / 3시간 13분\n-3%\n비교\n이서준\n3시간 8분 / 3시간 13분\n-3%\n비교\n권서준\n2시간 40분 / 2시간 44분\n-2%\n비교\n김하준\n2시간 40분 / 2시간 44분\n-2%\n비교\n윤도현\n2시간 40분 / 2시간 44분\n-2%\n비교\n박서윤\n2시간 55분 / 2시간 59분\n-2%\n비교\n장시윤\n2시간 55분 / 2시간 59분\n-2%\n비교\n강하린\n2시간 25분 / 2시간 28분\n-2%\n비교\n서지우\n2시간 25분 / 2시간 28분\n-2%\n비교\n최수빈\n3시간 10분 / 3시간 14분\n-2%\n비교\n한유진\n3시간 10분 / 3시간 14분\n-2%\n비교\n박예준\n2시간 24분 / 2시간 27분\n-2%\n비교\n임하린\n2시간 24분 / 2시간 27분\n-2%\n비교\n강도현\n2시간 27분 / 2시간 27분\n0%\n비교\n김서윤\n2시간 41분 / 2시간 41분\n0%\n비교\n서서준\n2시간 27분 / 2시간 27분\n0%\n비교\n신예준\n2시간 41분 / 2시간 41분\n0%\n비교\n이수빈\n2시간 55분 / 2시간 55분\n0%\n비교\n장유진\n2시간 55분 / 2시간 55분\n0%\n비교\n조시윤\n2시간 41분 / 2시간 41분\n0%\n비교\n최하린\n2시간 13분 / 2시간 13분\n0%\n비교\n한지우\n2시간 13분 / 2시간 13분\n0%\n비교\n장지우\n2시간 26분 / 2시간 23분\n+2%\n비교\n이하린\n2시간 26분 / 2시간 23분\n+2%\n비교\n신하준\n3시간 12분 / 3시간 8분\n+2%\n비교\n조유진\n3시간 12분 / 3시간 8분\n+2%\n비교\n오예준\n2시간 57분 / 2시간 53분\n+2%\n비교\n정시윤\n2시간 57분 / 2시간 53분\n+2%\n비교\n서수빈\n2시간 43분 / 2시간 39분\n+2%\n비교\n조서준\n2시간 43분 / 2시간 39분\n+2%\n비교\n최도현\n2시간 42분 / 2시간 38분\n+3%\n비교\n한서준\n2시간 42분 / 2시간 38분\n+3%\n비교\n김지우\n2시간 29분 / 2시간 25분\n+3%\n비교\n신시윤\n2시간 29분 / 2시간 25분\n+3%\n비교\n오서윤\n2시간 28분 / 2시간 24분\n+3%\n비교\n정지우\n2시간 28분 / 2시간 24분\n+3%\n비교\n정수빈\n2시간 46분 / 2시간 42분\n+3%\n비교\n임하준\n3시간 14분 / 3시간 9분\n+3%\n비교\n박유진\n3시간 14분 / 3시간 9분\n+3%\n비교\n윤예준\n2시간 59분 / 2시간 54분\n+3%\n비교\n권하린\n2시간 59분 / 2시간 54분\n+3%\n비교\n김시윤\n2시간 59분 / 2시간 54분\n+3%\n비교\n박서준\n2시간 45분 / 2시간 40분\n+3%\n비교\n최서윤\n2시간 31분 / 2시간 27분\n+3%\n비교\n이하준\n3시간 18분 / 3시간 12분\n+3%\n비교\n강시윤\n1시간 45분 / 1시간 38분\n+8%\n비교\n김수빈\n1시간 45분 / 1시간 38분\n+8%\n비교\n오서준\n1시간 45분 / 1시간 38분\n+8%\n비교\n신수빈\n9시간 27분 / 8시간 46분\n+8%\n비교\n박하린\n2시간 17분 / 2시간 7분\n+8%\n비교\n서예준\n2시간 17분 / 2시간 7분\n+8%\n비교\n윤유진\n2시간 17분 / 2시간 7분\n+8%\n비교\n김도현\n1시간 46분 / 1시간 38분\n+8%\n비교\n강지우\n1시간 46분 / 1시간 38분\n+8%\n비교\n한하준\n1시간 46분 / 1시간 38분\n+8%\n비교\n장예준\n2시간 2분 / 1시간 53분\n+8%\n비교\n최유진\n2시간 2분 / 1시간 53분\n+8%\n비교\n서서윤\n2시간 18분 / 2시간 8분\n+8%\n비교\n윤서준\n2시간 18분 / 2시간 8분\n+8%\n비교\n이시윤\n2시간 18분 / 2시간 8분\n+8%\n비교\n임수빈\n9시간 32분 / 8시간 50분\n+8%\n비교\n최서준\n9시간 32분 / 8시간 50분\n+8%\n비교\n권하준\n2시간 1분 / 1시간 52분\n+8%\n비교\n임지우\n2시간 1분 / 1시간 52분\n+8%\n비교\n정도현\n2시간 1분 / 1시간 52분\n+8%\n비교\n서유진\n3시간 25분 / 3시간 10분\n+8%\n비교\n오하린\n8시간 12분 / 7시간 35분\n+8%\n비교\n정예준\n8시간 12분 / 7시간 35분\n+8%\n비교\n신도현\n8시간 39분 / 8시간\n+8%\n비교\n조하준\n8시간 39분 / 8시간\n+8%\n비교\n한시윤\n3시간 9분 / 2시간 55분\n+8%\n비교\n이지우\n9시간 6분 / 8시간 25분\n+8%\n비교\n권시윤\n9시간 6분 / 8시간 25분\n+8%\n비교\n장서윤\n9시간 6분 / 8시간 25분\n+8%\n비교\n김예준\n8시간 17분 / 7시간 39분\n+8%\n비교\n강수빈\n9시간 38분 / 8시간 54분\n+8%\n비교\n임도현\n2시간 53분 / 2시간 40분\n+8%\n비교\n정서윤\n9시간 11분 / 8시간 29분\n+8%\n비교\n박하준\n8시간 44분 / 8시간 4분\n+8%\n비교\n권지우\n2시간 37분 / 2시간 25분\n+9%\n비교\n윤하린\n2시간 37분 / 2시간 25분\n+9%\n비교\n박도현\n3시간 4분 / 2시간 18분\n+34%\n비교\n임서준\n3시간 4분 / 2시간 18분\n+34%\n비교\n강서준\n3시간 6분 / 2시간 19분\n+34%\n비교\n오수빈\n3시간 6분 / 2시간 19분\n+34%\n비교\n강유진\n2시간 35분 / 1시간 56분\n+34%\n비교\n서하준\n2시간 35분 / 1시간 56분\n+34%\n비교\n조예준\n2시간 22분 / 1시간 46분\n+34%\n비교\n권서윤\n2시간 50분 / 2시간 7분\n+34%\n비교\n윤지우\n2시간 50분 / 2시간 7분\n+34%\n비교\n이유진\n2시간 37분 / 1시간 57분\n+34%\n비교\n장하준\n2시간 37분 / 1시간 57분\n+34%\n비교\n최시윤\n2시간 21분 / 1시간 45분\n+34%\n비교\n한예준\n2시간 21분 / 1시간 45분\n+34%\n비교\n최지우\n2시간 52분 / 2시간 8분\n+35%\n비교\n한서윤\n2시간 52분 / 2시간 8분\n+35%\n비교",
+          "rows": 136
+        },
+        {
+          "label": "10/22 입실 시각 학생별 보기",
+          "text": "입실 시각 10/22 · 평소보다 늦은 순 136명\n학생\n실제 / 평소\n차이\n권하린\n20:17 / 18:30\n+108분\n비교\n박서준\n20:17 / 18:30\n+108분\n비교\n김지우\n20:53 / 19:13\n+100분\n비교\n최서윤\n20:19 / 18:44\n+95분\n비교\n신시윤\n19:35 / 18:08\n+88분\n비교\n이하준\n19:35 / 18:08\n+88분\n비교\n정수빈\n20:38 / 19:14\n+84분\n비교\n조서윤\n18:54 / 18:37\n+18분\n비교\n신유진\n18:54 / 18:37\n+18분\n비교\n오서윤\n18:54 / 18:37\n+18분\n비교\n장유진\n18:54 / 18:37\n+18분\n비교\n최유진\n19:22 / 19:05\n+18분\n비교\n장수빈\n19:23 / 19:11\n+13분\n비교\n최수빈\n19:23 / 19:11\n+13분\n비교\n이지우\n09:21 / 09:09\n+13분\n비교\n신수빈\n09:21 / 09:09\n+13분\n비교\n조지우\n19:23 / 19:11\n+13분\n비교\n서시윤\n18:20 / 18:10\n+10분\n비교\n강하준\n18:20 / 18:10\n+10분\n비교\n김하준\n18:20 / 18:10\n+10분\n비교\n박시윤\n18:20 / 18:10\n+10분\n비교\n한하준\n19:20 / 19:10\n+10분\n비교\n서도현\n19:06 / 18:57\n+9분\n비교\n윤도현\n19:06 / 18:57\n+9분\n비교\n박도현\n19:06 / 18:57\n+9분\n비교\n임예준\n09:07 / 08:58\n+9분\n비교\n정예준\n09:07 / 08:58\n+9분\n비교\n임하린\n18:37 / 18:30\n+8분\n비교\n권서준\n18:32 / 18:25\n+8분\n비교\n이하린\n18:32 / 18:25\n+8분\n비교\n서서준\n18:37 / 18:30\n+8분\n비교\n오하린\n08:39 / 08:32\n+8분\n비교\n윤서준\n19:21 / 19:14\n+8분\n비교\n임서준\n18:32 / 18:25\n+8분\n비교\n정서준\n08:39 / 08:32\n+8분\n비교\n조하린\n18:32 / 18:25\n+8분\n비교\n한유진\n18:49 / 18:44\n+5분\n비교\n박유진\n18:44 / 18:39\n+5분\n비교\n강유진\n18:49 / 18:44\n+5분\n비교\n김서윤\n18:44 / 18:39\n+5분\n비교\n김유진\n08:53 / 08:48\n+5분\n비교\n서유진\n18:44 / 18:39\n+5분\n비교\n신서윤\n08:53 / 08:48\n+5분\n비교\n윤유진\n19:12 / 19:07\n+5분\n비교\n장서윤\n08:53 / 08:48\n+5분\n비교\n한서윤\n18:44 / 18:39\n+5분\n비교\n정시윤\n18:15 / 18:11\n+4분\n비교\n권시윤\n08:25 / 08:21\n+4분\n비교\n박하준\n08:25 / 08:21\n+4분\n비교\n서하준\n18:15 / 18:11\n+4분\n비교\n윤하준\n08:25 / 08:21\n+4분\n비교\n임시윤\n18:15 / 18:11\n+4분\n비교\n오예준\n19:01 / 18:59\n+3분\n비교\n최도현\n18:51 / 18:49\n+3분\n비교\n강예준\n08:52 / 08:50\n+3분\n비교\n권도현\n09:02 / 08:00\n+3분\n비교\n김예준\n08:52 / 08:50\n+3분\n비교\n신도현\n08:52 / 08:50\n+3분\n비교\n임도현\n19:01 / 18:59\n+3분\n비교\n장도현\n18:51 / 18:49\n+3분\n비교\n정도현\n19:13 / 19:11\n+3분\n비교\n조예준\n19:01 / 18:59\n+3분\n비교\n한예준\n18:51 / 18:49\n+3분\n비교\n윤수빈\n19:13 / 19:13\n0분\n비교\n서수빈\n19:13 / 19:13\n0분\n비교\n장지우\n19:18 / 19:18\n0분\n비교\n강수빈\n09:16 / 09:16\n0분\n비교\n강지우\n19:09 / 19:09\n0분\n비교\n김수빈\n19:14 / 19:14\n0분\n비교\n신지우\n19:18 / 19:18\n0분\n비교\n최지우\n19:18 / 19:18\n0분\n비교\n한수빈\n09:16 / 09:16\n0분\n비교\n한지우\n19:13 / 19:13\n0분\n비교\n정하준\n18:10 / 18:13\n-2분\n비교\n오시윤\n18:10 / 18:13\n-2분\n비교\n임하준\n18:10 / 18:13\n-2분\n비교\n김시윤\n18:00 / 18:03\n-2분\n비교\n신하준\n18:00 / 18:03\n-2분\n비교\n장시윤\n18:05 / 18:08\n-2분\n비교\n강시윤\n19:00 / 19:03\n-2분\n비교\n권하준\n19:10 / 19:13\n-2분\n비교\n오하준\n08:15 / 08:18\n-2분\n비교\n이시윤\n19:10 / 19:13\n-2분\n비교\n장하준\n18:00 / 18:03\n-2분\n비교\n조시윤\n18:10 / 18:13\n-2분\n비교\n조하준\n08:15 / 08:18\n-2분\n비교\n최시윤\n18:05 / 18:08\n-2분\n비교\n한시윤\n18:00 / 18:03\n-2분\n비교\n오도현\n18:56 / 18:00\n-4분\n비교\n최예준\n18:56 / 18:00\n-4분\n비교\n신예준\n18:56 / 18:00\n-4분\n비교\n이도현\n18:56 / 18:00\n-4분\n비교\n장예준\n19:08 / 19:12\n-4분\n비교\n이서준\n18:27 / 18:32\n-5분\n비교\n신하린\n18:27 / 18:32\n-5분\n비교\n장하린\n18:27 / 18:32\n-5분\n비교\n한하린\n18:22 / 18:27\n-5분\n비교\n조서준\n18:27 / 18:32\n-5분\n비교\n강하린\n18:22 / 18:27\n-5분\n비교\n오서준\n19:11 / 19:16\n-5분\n비교\n장서준\n08:29 / 08:34\n-5분\n비교\n최서준\n08:29 / 08:34\n-5분\n비교\n최하린\n18:27 / 18:32\n-5분\n비교\n서지우\n19:08 / 19:14\n-6분\n비교\n권수빈\n09:06 / 09:12\n-6분\n비교\n박지우\n09:06 / 09:12\n-6분\n비교\n윤지우\n19:08 / 19:14\n-6분\n비교\n임수빈\n09:06 / 09:12\n-6분\n비교\n권유진\n18:39 / 18:47\n-7분\n비교\n윤서윤\n18:39 / 18:47\n-7분\n비교\n박서윤\n18:39 / 18:47\n-7분\n비교\n조유진\n18:34 / 18:42\n-7분\n비교\n권서윤\n18:34 / 18:42\n-7분\n비교\n서서윤\n19:07 / 19:15\n-7분\n비교\n오유진\n18:34 / 18:42\n-7분\n비교\n이유진\n18:34 / 18:42\n-7분\n비교\n임서윤\n08:38 / 08:46\n-7분\n비교\n정서윤\n08:38 / 08:46\n-7분\n비교\n정유진\n18:39 / 18:47\n-7분\n비교\n박예준\n18:46 / 18:56\n-10분\n비교\n한도현\n18:46 / 18:56\n-10분\n비교\n윤예준\n18:46 / 18:56\n-10분\n비교\n김도현\n18:58 / 19:08\n-10분\n비교\n강도현\n18:46 / 18:56\n-10분\n비교\n서예준\n18:58 / 19:08\n-10분\n비교\n한서준\n18:17 / 18:28\n-11분\n비교\n강서준\n18:17 / 18:28\n-11분\n비교\n김서준\n08:24 / 08:35\n-11분\n비교\n박하린\n19:01 / 19:12\n-11분\n비교\n서하린\n08:24 / 08:35\n-11분\n비교\n윤하린\n18:17 / 18:28\n-11분\n비교\n정지우\n19:03 / 19:16\n-12분\n비교\n권지우\n19:03 / 19:16\n-12분\n비교\n오수빈\n19:03 / 19:16\n-12분\n비교\n이수빈\n19:03 / 19:16\n-12분\n비교\n임지우\n18:59 / 19:12\n-12분\n비교",
+          "rows": 136
+        },
+        {
+          "keyboard": "결석 10/26 결석 14명"
+        }
+      ]
+    },
+    {
+      "name": "V03 detail exact values fixed axis",
+      "result": {
+        "first": "강하준\n고3 A반\n상담 필요\n\n학습 −11시간 3분 (-56%)\n진행률 41%\n\n7일 8시간 51분 · 평소 주 19시간 54분 · 입실 6/6일 · 제출 6/6일 · 진행률 41% (비교 6일)\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n—\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n학습 시간\n실제 / 평소\n—\n0:00\n1:26\n3:11\n1:24\n3:13\n1:33\n3:35\n1:30\n3:38\n1:30\n3:12\n1:28\n3:06\n입실\n평소 · 차이\n18:20\n18:10\n+10분\n18:17\n18:07\n+10분\n16:44\n16:34\n+10분\n16:41\n16:37\n+4분\n18:08\n18:11\n-2분\n18:05\n18:14\n-9분\n진행률\n실제 / 계획\n41%\n1:26/3:29\n43%\n1:24/3:16\n40%\n1:33/3:53\n37%\n1:30/4:02\n45%\n1:30/3:18\n43%\n1:28/3:25\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n24.9% → 24.9% (-0.0%p)\n수학\n33.8% → 33.3% (-0.5%p)\n영어\n22.8% → 22.4% (-0.4%p)\n탐구\n18.5% → 19.4% (+0.9%p)\n상담 기록\n기록자\n상담 방법\n면담\n통화\n문자\n상담 내용\n상담 결과\n이상 없음\n기록 오류\n계속 관리\n저장\n지난 관리\n\n관리 이력 없음",
+        "before": "width: 15.0767%;",
+        "after": "width: 15.0767%;",
+        "row": "강하준\n3A\n학습 −11시간 3분 (-56%)\n진행률 41%\n8:51 / 19:54\n41%"
+      }
+    },
+    {
+      "name": "V04 V05 independent records and weekday counterexample (synthetic GET)",
+      "result": {
+        "input": {
+          "date": "2026-10-21",
+          "attendance": "UNSCHEDULED",
+          "submission": "SUBMITTED",
+          "scheduled": false,
+          "minutes": 120,
+          "startMinutes": null,
+          "plannedMinutes": null,
+          "actualMinutes": 120
+        },
+        "thurs": [
+          {
+            "date": "2026-09-24",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-01",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-08",
+            "attendance": "ABSENT"
+          },
+          {
+            "date": "2026-10-15",
+            "attendance": "PRESENT"
+          }
+        ],
+        "text": "강도현\n고3 A반\n\n7일 15시간 26분 · 평소 주 15시간 26분 · 입실 6/6일 · 제출 7/7일 · 진행률 86% (비교 6일)\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n예정 없음\n입실\n입실\n입실\n입실\n입실\n입실\n계획\n제출\n제출\n제출\n제출\n제출\n제출\n제출\n학습\n막대 실제 · 선 평소\n학습 시간\n실제 / 평소\n2:00\n0:00\n2:27\n2:27\n2:27\n2:27\n2:49\n2:49\n2:49\n2:49\n2:27\n2:27\n2:27\n2:27\n입실\n평소 · 차이\n18:46\n18:56\n-10분\n18:54\n18:58\n-4분\n17:32\n17:30\n+3분\n17:40\n17:25\n+15분\n18:53\n18:57\n-4분\n19:01\n18:59\n+3분\n진행률\n실제 / 계획\n84%\n2:27/2:56\n83%\n2:27/2:58\n82%\n2:49/3:26\n90%\n2:49/3:08\n89%\n2:27/2:45\n89%\n2:27/2:46\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n22.7% → 22.8% (+0.1%p)\n수학\n31.7% → 32.0% (+0.3%p)\n영어\n22.7% → 22.5% (-0.2%p)\n탐구\n22.9% → 22.8% (-0.1%p)\n\n불러오는 중\n\n지난 관리\n\n불러오는 중",
+        "aggregateHeldFixed": true
+      }
+    },
+    {
+      "name": "V07 full six-event history (synthetic GET)",
+      "result": {
+        "count": 6,
+        "text": "10/25 심사 이력 1\n10/25 심사 이력 2\n10/25 심사 이력 3\n10/25 심사 이력 4\n10/25 심사 이력 5\n10/25 심사 이력 6"
+      }
+    },
+    {
+      "name": "V08 empty branches (synthetic GET)",
+      "result": "학생 케어\n학습관\n학생별\n학습관별\n관리 이력\n학부모 리포트 미리보기 ↗\n\n등록된 학습관이 없습니다."
+    },
+    {
+      "name": "V06 mobile detail and return geometry",
+      "result": [
+        {
+          "theme": "light",
+          "clicked": {
+            "scroll": 11002,
+            "detailTop": 72.40625,
+            "backTop": 87.40625
+          },
+          "cells": [
+            {
+              "text": "10/21수10/22목10/23금10/24토10/25일10/26월10/27화",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "10/21수",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/22목",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/23금",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/24토",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/25일",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/26월",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/27화",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "출결예정 없음입실입실결석결석결석결석",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "출결",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "예정 없음",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "입실",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "입실",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "계획—제출제출미제출미제출미제출미제출",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "계획",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "—",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "학습막대 실제 · 선 평소",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "학습막대 실제 · 선 평소",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "학습 시간실제 / 평소—0:003:083:132:593:03—3:38—3:46—3:07—2:58",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "학습 시간실제 / 평소",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "—0:00",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "3:083:13",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "2:593:03",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:38",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:46",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:07",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—2:58",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "입실평소 · 차이18:3918:47-7분18:3018:38-7분",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "입실평소 · 차이",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "18:3918:47-7분",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "18:3018:38-7분",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "진행률실제 / 계획90%3:08/3:2986%2:59/3:27",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "진행률실제 / 계획",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "90%3:08/3:29",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "86%2:59/3:27",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            }
+          ],
+          "returned": {
+            "scroll": 263,
+            "selected": {
+              "x": 37,
+              "y": 446,
+              "width": 316,
+              "height": 80.84375,
+              "top": 446,
+              "right": 353,
+              "bottom": 526.84375,
+              "left": 37
+            }
+          }
+        },
+        {
+          "theme": "dark",
+          "clicked": {
+            "scroll": 11002,
+            "detailTop": 72.40625,
+            "backTop": 87.40625
+          },
+          "cells": [
+            {
+              "text": "10/21수10/22목10/23금10/24토10/25일10/26월10/27화",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "10/21수",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/22목",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/23금",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/24토",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/25일",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/26월",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "10/27화",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "출결예정 없음입실입실결석결석결석결석",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "출결",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "예정 없음",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "입실",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "입실",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "결석",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "계획—제출제출미제출미제출미제출미제출",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "계획",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "—",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "미제출",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "학습막대 실제 · 선 평소",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "학습막대 실제 · 선 평소",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "학습 시간실제 / 평소—0:003:083:132:593:03—3:38—3:46—3:07—2:58",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "학습 시간실제 / 평소",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "—0:00",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "3:083:13",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "2:593:03",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:38",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:46",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—3:07",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "—2:58",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "입실평소 · 차이18:3918:47-7분18:3018:38-7분",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "입실평소 · 차이",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "18:3918:47-7분",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "18:3018:38-7분",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            },
+            {
+              "text": "진행률실제 / 계획90%3:08/3:2986%2:59/3:27",
+              "width": 500,
+              "scroll": 500,
+              "cells": [
+                {
+                  "text": "진행률실제 / 계획",
+                  "width": 54,
+                  "scroll": 54
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "90%3:08/3:29",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "86%2:59/3:27",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.703125,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                },
+                {
+                  "text": "",
+                  "width": 63.71875,
+                  "scroll": 64
+                }
+              ]
+            }
+          ],
+          "returned": {
+            "scroll": 263,
+            "selected": {
+              "x": 37,
+              "y": 446,
+              "width": 316,
+              "height": 80.84375,
+              "top": 446,
+              "right": 353,
+              "bottom": 526.84375,
+              "left": 37
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "branch buttons mobile hit and offscreen feedback",
+      "result": [
+        {
+          "theme": "light",
+          "scroll": 608,
+          "detailTop": 310,
+          "viewport": 900,
+          "table": {
+            "width": 316,
+            "scroll": 738,
+            "left": 422
+          },
+          "buttons": [
+            {
+              "label": "결석 7일 전체 학생 보기",
+              "x": -217,
+              "y": -83,
+              "width": 146,
+              "height": 60,
+              "top": -83,
+              "right": -71,
+              "bottom": -23,
+              "left": -217,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 결석 학생 보기",
+              "x": -233,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": -153,
+              "bottom": -39,
+              "left": -233,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 결석 학생 보기",
+              "x": -149,
+              "y": -83,
+              "width": 80,
+              "height": 79.5,
+              "top": -83,
+              "right": -69,
+              "bottom": -3.5,
+              "left": -149,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 결석 학생 보기",
+              "x": -65,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": 15,
+              "bottom": -39,
+              "left": -65,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 결석 학생 보기",
+              "x": 19,
+              "y": -83,
+              "width": 80,
+              "height": 102,
+              "top": -83,
+              "right": 99,
+              "bottom": 19,
+              "left": 19,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 결석 학생 보기",
+              "x": 103,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": 183,
+              "bottom": -39,
+              "left": 103,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 결석 학생 보기",
+              "x": 187,
+              "y": -83,
+              "width": 80,
+              "height": 61,
+              "top": -83,
+              "right": 267,
+              "bottom": -22,
+              "left": 187,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 결석 학생 보기",
+              "x": 271,
+              "y": -83,
+              "width": 80,
+              "height": 102,
+              "top": -83,
+              "right": 351,
+              "bottom": 19,
+              "left": 271,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "학습 시간 7일 변화 학생 보기",
+              "x": -217,
+              "y": 24,
+              "width": 146,
+              "height": 79.5,
+              "top": 24,
+              "right": -71,
+              "bottom": 103.5,
+              "left": -217,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 학습 시간 학생별 보기",
+              "x": -233,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": -153,
+              "bottom": 145.5,
+              "left": -233,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 학습 시간 학생별 보기",
+              "x": -149,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": -69,
+              "bottom": 145.5,
+              "left": -149,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 학습 시간 학생별 보기",
+              "x": -65,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 15,
+              "bottom": 145.5,
+              "left": -65,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 학습 시간 학생별 보기",
+              "x": 19,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 99,
+              "bottom": 145.5,
+              "left": 19,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 학습 시간 학생별 보기",
+              "x": 103,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 183,
+              "bottom": 145.5,
+              "left": 103,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 학습 시간 학생별 보기",
+              "x": 187,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 267,
+              "bottom": 145.5,
+              "left": 187,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 학습 시간 학생별 보기",
+              "x": 271,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 351,
+              "bottom": 145.5,
+              "left": 271,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "입실 시각 7일 변화 학생 보기",
+              "x": -217,
+              "y": 150.5,
+              "width": 146,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -71,
+              "bottom": 230,
+              "left": -217,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 입실 시각 학생별 보기",
+              "x": -233,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -153,
+              "bottom": 230,
+              "left": -233,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 입실 시각 학생별 보기",
+              "x": -149,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -69,
+              "bottom": 230,
+              "left": -149,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 입실 시각 학생별 보기",
+              "x": -65,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 15,
+              "bottom": 230,
+              "left": -65,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 입실 시각 학생별 보기",
+              "x": 19,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 99,
+              "bottom": 230,
+              "left": 19,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 입실 시각 학생별 보기",
+              "x": 103,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 183,
+              "bottom": 230,
+              "left": 103,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 입실 시각 학생별 보기",
+              "x": 187,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 267,
+              "bottom": 230,
+              "left": 187,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 입실 시각 학생별 보기",
+              "x": 271,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 351,
+              "bottom": 230,
+              "left": 271,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "계획 미제출 7일 학생 보기",
+              "x": -217,
+              "y": 235,
+              "width": 146,
+              "height": 60,
+              "top": 235,
+              "right": -71,
+              "bottom": 295,
+              "left": -217,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 계획 미제출 학생 보기",
+              "x": -233,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": -153,
+              "bottom": 295,
+              "left": -233,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 계획 미제출 학생 보기",
+              "x": -149,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": -69,
+              "bottom": 295,
+              "left": -149,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 계획 미제출 학생 보기",
+              "x": -65,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 15,
+              "bottom": 295,
+              "left": -65,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 계획 미제출 학생 보기",
+              "x": 19,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 99,
+              "bottom": 295,
+              "left": 19,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 계획 미제출 학생 보기",
+              "x": 103,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 183,
+              "bottom": 295,
+              "left": 103,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 계획 미제출 학생 보기",
+              "x": 187,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 267,
+              "bottom": 295,
+              "left": 187,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 계획 미제출 학생 보기",
+              "x": 271,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 351,
+              "bottom": 295,
+              "left": 271,
+              "color": "rgb(25, 31, 40)",
+              "bg": "rgb(232, 243, 255)"
+            }
+          ],
+          "list": {
+            "width": 292,
+            "scroll": 292
+          }
+        },
+        {
+          "theme": "dark",
+          "scroll": 608,
+          "detailTop": 310,
+          "viewport": 900,
+          "table": {
+            "width": 316,
+            "scroll": 738,
+            "left": 422
+          },
+          "buttons": [
+            {
+              "label": "결석 7일 전체 학생 보기",
+              "x": -217,
+              "y": -83,
+              "width": 146,
+              "height": 60,
+              "top": -83,
+              "right": -71,
+              "bottom": -23,
+              "left": -217,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 결석 학생 보기",
+              "x": -233,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": -153,
+              "bottom": -39,
+              "left": -233,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 결석 학생 보기",
+              "x": -149,
+              "y": -83,
+              "width": 80,
+              "height": 79.5,
+              "top": -83,
+              "right": -69,
+              "bottom": -3.5,
+              "left": -149,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 결석 학생 보기",
+              "x": -65,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": 15,
+              "bottom": -39,
+              "left": -65,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 결석 학생 보기",
+              "x": 19,
+              "y": -83,
+              "width": 80,
+              "height": 102,
+              "top": -83,
+              "right": 99,
+              "bottom": 19,
+              "left": 19,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 결석 학생 보기",
+              "x": 103,
+              "y": -83,
+              "width": 80,
+              "height": 44,
+              "top": -83,
+              "right": 183,
+              "bottom": -39,
+              "left": 103,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 결석 학생 보기",
+              "x": 187,
+              "y": -83,
+              "width": 80,
+              "height": 61,
+              "top": -83,
+              "right": 267,
+              "bottom": -22,
+              "left": 187,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 결석 학생 보기",
+              "x": 271,
+              "y": -83,
+              "width": 80,
+              "height": 102,
+              "top": -83,
+              "right": 351,
+              "bottom": 19,
+              "left": 271,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "학습 시간 7일 변화 학생 보기",
+              "x": -217,
+              "y": 24,
+              "width": 146,
+              "height": 79.5,
+              "top": 24,
+              "right": -71,
+              "bottom": 103.5,
+              "left": -217,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 학습 시간 학생별 보기",
+              "x": -233,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": -153,
+              "bottom": 145.5,
+              "left": -233,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 학습 시간 학생별 보기",
+              "x": -149,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": -69,
+              "bottom": 145.5,
+              "left": -149,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 학습 시간 학생별 보기",
+              "x": -65,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 15,
+              "bottom": 145.5,
+              "left": -65,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 학습 시간 학생별 보기",
+              "x": 19,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 99,
+              "bottom": 145.5,
+              "left": 19,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 학습 시간 학생별 보기",
+              "x": 103,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 183,
+              "bottom": 145.5,
+              "left": 103,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 학습 시간 학생별 보기",
+              "x": 187,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 267,
+              "bottom": 145.5,
+              "left": 187,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 학습 시간 학생별 보기",
+              "x": 271,
+              "y": 24,
+              "width": 80,
+              "height": 121.5,
+              "top": 24,
+              "right": 351,
+              "bottom": 145.5,
+              "left": 271,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "입실 시각 7일 변화 학생 보기",
+              "x": -217,
+              "y": 150.5,
+              "width": 146,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -71,
+              "bottom": 230,
+              "left": -217,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 입실 시각 학생별 보기",
+              "x": -233,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -153,
+              "bottom": 230,
+              "left": -233,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 입실 시각 학생별 보기",
+              "x": -149,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": -69,
+              "bottom": 230,
+              "left": -149,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 입실 시각 학생별 보기",
+              "x": -65,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 15,
+              "bottom": 230,
+              "left": -65,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 입실 시각 학생별 보기",
+              "x": 19,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 99,
+              "bottom": 230,
+              "left": 19,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 입실 시각 학생별 보기",
+              "x": 103,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 183,
+              "bottom": 230,
+              "left": 103,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 입실 시각 학생별 보기",
+              "x": 187,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 267,
+              "bottom": 230,
+              "left": 187,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 입실 시각 학생별 보기",
+              "x": 271,
+              "y": 150.5,
+              "width": 80,
+              "height": 79.5,
+              "top": 150.5,
+              "right": 351,
+              "bottom": 230,
+              "left": 271,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "계획 미제출 7일 학생 보기",
+              "x": -217,
+              "y": 235,
+              "width": 146,
+              "height": 60,
+              "top": 235,
+              "right": -71,
+              "bottom": 295,
+              "left": -217,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/21 계획 미제출 학생 보기",
+              "x": -233,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": -153,
+              "bottom": 295,
+              "left": -233,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/22 계획 미제출 학생 보기",
+              "x": -149,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": -69,
+              "bottom": 295,
+              "left": -149,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/23 계획 미제출 학생 보기",
+              "x": -65,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 15,
+              "bottom": 295,
+              "left": -65,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/24 계획 미제출 학생 보기",
+              "x": 19,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 99,
+              "bottom": 295,
+              "left": 19,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/25 계획 미제출 학생 보기",
+              "x": 103,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 183,
+              "bottom": 295,
+              "left": 103,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/26 계획 미제출 학생 보기",
+              "x": 187,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 267,
+              "bottom": 295,
+              "left": 187,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgba(0, 0, 0, 0)"
+            },
+            {
+              "label": "10/27 계획 미제출 학생 보기",
+              "x": 271,
+              "y": 235,
+              "width": 80,
+              "height": 60,
+              "top": 235,
+              "right": 351,
+              "bottom": 295,
+              "left": 271,
+              "color": "rgb(238, 241, 245)",
+              "bg": "rgb(22, 38, 61)"
+            }
+          ],
+          "list": {
+            "width": 292,
+            "scroll": 292
+          }
+        }
+      ]
+    },
+    {
+      "name": "exclusion persistence",
+      "result": {
+        "restoreCount": 1,
+        "summary": "강남점 150명 · 집계 149명 · 상담 필요 49명 · 관리 중 5명 · 학습 시간 평소 대비 -3%"
+      }
+    },
+    {
+      "name": "partial data and consecutive unit",
+      "result": {
+        "partial": "권예준\n고3 A반\n\n7일 7시간 9분 (기록 4/7일) · 평소 주 14시간 53분 · 입실 3/3일 · 제출 3/3일 · 진행률 92% (비교 3일)\n\n10/21\n수\n10/22\n목\n10/23\n금\n10/24\n토\n10/25\n일\n10/26\n월\n10/27\n화\n출결\n입실\n기록 없음\n입실\n기록 없음\n예정 없음\n입실\n기록 없음\n계획\n제출\n—\n제출\n—\n—\n제출\n—\n학습\n막대 실제 · 선 평소\n학습 시간\n실제 / 평소\n2:16\n2:27\n—\n2:30\n2:22\n2:27\n—\n2:46\n—\n0:00\n2:31\n2:23\n—\n2:20\n입실\n평소 · 차이\n19:08\n18:53\n+15분\n19:04\n19:02\n+3분\n18:58\n18:56\n+3분\n진행률\n실제 / 계획\n90%\n2:16/2:31\n93%\n2:22/2:32\n93%\n2:31/2:42\n35일 출결\n월\n화\n수\n목\n금\n토\n일\n23\n24\n25\n26\n27\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n과목 비중 계획 → 실제, 최근 7일\n국어\n21.7% → 21.2% (-0.5%p)\n수학\n36.6% → 36.6% (+0.0%p)\n영어\n22.6% → 22.6% (+0.0%p)\n탐구\n19.1% → 19.6% (+0.4%p)\n\n불러오는 중\n\n지난 관리\n\n불러오는 중",
+        "source": {
+          "calendarDays": 7,
+          "recordedDays": 4,
+          "attendanceDays": 3,
+          "scheduledAbsenceDays": 0,
+          "submissionDays": 3,
+          "submissionRecordedDays": 3,
+          "studyMinutes": 429,
+          "minutesPerAttendance": 143,
+          "averageStartMinutes": 1143.3333333333333,
+          "startSamples": 3,
+          "plannedMinutes": 465,
+          "actualMinutes": 429,
+          "executionRate": 92.25806451612904,
+          "comparablePlanDays": 3
+        },
+        "consecutive": [
+          "결석 4일 연속·미제출",
+          "결석 4일 연속·미제출",
+          "결석 4일 연속·미제출",
+          "결석 4일 연속·미제출",
+          "결석 4일 연속·미제출",
+          "결석 3일 연속·미제출",
+          "결석 3일 연속·미제출",
+          "결석 3일 연속·미제출",
+          "결석 3일 (띄엄띄엄)·미제출",
+          "결석 3일 연속·미제출",
+          "결석 3일 (띄엄띄엄)·미제출",
+          "결석 3일 연속·미제출",
+          "결석 2일 (띄엄띄엄)·미제출",
+          "결석 2일 (띄엄띄엄)·미제출",
+          "결석 1일",
+          "목요일 결석 5/5번",
+          "결석 1일",
+          "목요일 결석 5/5번",
+          "결석 1일",
+          "목요일 결석 5/5번",
+          "학습 −11시간 3분 (-56%)",
+          "진행률 41%",
+          "학습 −11시간 3분 (-56%)",
+          "진행률 41%",
+          "학습 −8시간 4분 (-54%)",
+          "진행률 42%",
+          "학습 −9시간 19분 (-56%)",
+          "진행률 40%",
+          "학습 −9시간 45분 (-55%)",
+          "진행률 42%",
+          "학습 −9시간 45분 (-55%)",
+          "진행률 42%",
+          "진행률 57%",
+          "진행률 51%",
+          "진행률 60%",
+          "진행률 56%",
+          "진행률 53%",
+          "진행률 51%",
+          "입실 +103분",
+          "입실 +103분",
+          "입실 +99분",
+          "수학 비중 29→5%",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "계획 미제출 3일",
+          "관리 사유 미입실",
+          "목요일 결석 5/5번",
+          "관리 사유 등원 시간 늦어짐",
+          "관리 사유 계획 미달성",
+          "관리 사유 수학 계획 미달성",
+          "관리 사유 계획 미제출"
+        ]
+      }
+    },
+    {
+      "name": "save UI requests (real writes gated on restore)",
+      "result": {
+        "mode": "NO_SERVER_WRITE",
+        "rs": [
+          {
+            "id": "demo_s055",
+            "error": [
+              "검수: DB 복원 불가로 실제 쓰기 보류"
+            ]
+          },
+          {
+            "id": "demo_s014",
+            "error": [
+              "검수: DB 복원 불가로 실제 쓰기 보류"
+            ]
+          },
+          {
+            "settingsError": "검수: DB 복원 불가로 실제 쓰기 보류"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "writes": [
+    {
+      "method": "POST",
+      "url": "http://localhost:5174/api/admin/student-care/cases",
+      "body": {
+        "branchId": "demo_large",
+        "studentId": "demo_s055",
+        "channel": "MEETING",
+        "memo": "2차 기능 심사 저장 검증",
+        "reason": "ADJUSTMENT_NEEDED",
+        "recheckDate": "2026-11-04"
+      },
+      "serverSent": false
+    },
+    {
+      "method": "POST",
+      "url": "http://localhost:5174/api/admin/student-care/cases/care_105140bf-a62f-49e8-b306-a04fef8f4bcd/notes?branchId=demo_large",
+      "body": {
+        "channel": "MEETING",
+        "content": "2차 기능 심사 저장 검증"
+      },
+      "serverSent": false
+    },
+    {
+      "method": "PUT",
+      "url": "http://localhost:5174/api/admin/student-care/settings?branchId=demo_large",
+      "body": {
+        "absenceDays": 2,
+        "planMissingDays": 2,
+        "studyDropPercent": 30,
+        "executionRatePercent": 60,
+        "subjectShareGapPoints": 20,
+        "startShiftMinutes": 60,
+        "minValidDays": 3,
+        "cooldownDays": 7
+      },
+      "serverSent": false
+    }
+  ],
+  "head": "620d0b8905719d0b1ef2dd3f6ebd77c78bf3aa48",
+  "hashesBefore": {
+    "ops.css": "9c9566d68b3d82fcaaab64efe62f7c4e2a639f71ebf28f25e7599a6c81c989c4",
+    "OpsBranch.tsx": "8464e6092a538beeac1dde4ff3bfba3dbe6cb4a42d2b40be3c5f01e9a706883c",
+    "OpsDetail.tsx": "f22257339b2f71468181ffd78d0ea629d8c30b4414e174ced2818a3c9729c20c",
+    "opsModel.test.mjs": "d2777574b335c6f63e7d0bec19d7d279f7a5bfdc0d96daa016c7786db3555941",
+    "opsModel.ts": "1dd1f51489d9786af6a4695123d5b07818b958d56eb155de5354a7a069194a8c",
+    "OpsRoster.tsx": "a5a003de909f8aa3fe9bc53ed357c292716e5a2f6037114b44d39311010ba299",
+    "OpsStrip.tsx": "7e31c69f30495ef735fc52dedef1f5a94814733995585e3d6b0514dc6a0a36d4",
+    "StudentCareOpsPage.tsx": "ade7f79cfbc1d849bc72293fbcabe1679c0eb09afb35f9d1524f09fc70e242f9"
+  },
+  "restoreBefore": {
+    "status": 1,
+    "note": "User prohibits DB writes; restore not attempted"
+  },
+  "boardBefore": {
+    "asOf": "2026-10-27",
+    "branch": {
+      "branchId": "demo_large",
+      "name": "강남점"
+    },
+    "students": [
+      {
+        "studentId": "demo_s053",
+        "studentName": "강도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s051",
+        "studentName": "강서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s059",
+        "studentName": "강수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s060",
+        "studentName": "강시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s058",
+        "studentName": "강예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s057",
+        "studentName": "강유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s054",
+        "studentName": "강지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s143",
+        "studentName": "권도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s142",
+        "studentName": "권서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s141",
+        "studentName": "권서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s149",
+        "studentName": "권수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s150",
+        "studentName": "권시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s148",
+        "studentName": "권예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s144",
+        "studentName": "권지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s145",
+        "studentName": "권하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s002",
+        "studentName": "김서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s001",
+        "studentName": "김서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s009",
+        "studentName": "김수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s008",
+        "studentName": "김예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s007",
+        "studentName": "김유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s004",
+        "studentName": "김지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s006",
+        "studentName": "김하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s005",
+        "studentName": "김하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s023",
+        "studentName": "박도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s022",
+        "studentName": "박서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s021",
+        "studentName": "박서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s029",
+        "studentName": "박수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s030",
+        "studentName": "박시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s027",
+        "studentName": "박유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s024",
+        "studentName": "박지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s026",
+        "studentName": "박하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s025",
+        "studentName": "박하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s123",
+        "studentName": "서도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s122",
+        "studentName": "서서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s121",
+        "studentName": "서서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s129",
+        "studentName": "서수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s130",
+        "studentName": "서시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s128",
+        "studentName": "서예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s127",
+        "studentName": "서유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s124",
+        "studentName": "서지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s126",
+        "studentName": "서하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s125",
+        "studentName": "서하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s133",
+        "studentName": "신도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s132",
+        "studentName": "신서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s131",
+        "studentName": "신서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s139",
+        "studentName": "신수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s140",
+        "studentName": "신시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s138",
+        "studentName": "신예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s137",
+        "studentName": "신유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s134",
+        "studentName": "신지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s136",
+        "studentName": "신하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s135",
+        "studentName": "신하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s113",
+        "studentName": "오도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s112",
+        "studentName": "오서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s111",
+        "studentName": "오서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s119",
+        "studentName": "오수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s118",
+        "studentName": "오예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s117",
+        "studentName": "오유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s114",
+        "studentName": "오지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s116",
+        "studentName": "오하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s115",
+        "studentName": "오하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s073",
+        "studentName": "윤도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s072",
+        "studentName": "윤서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s071",
+        "studentName": "윤서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s079",
+        "studentName": "윤수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s080",
+        "studentName": "윤시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s078",
+        "studentName": "윤예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s077",
+        "studentName": "윤유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s074",
+        "studentName": "윤지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s076",
+        "studentName": "윤하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s075",
+        "studentName": "윤하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s013",
+        "studentName": "이도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s012",
+        "studentName": "이서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s011",
+        "studentName": "이서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s019",
+        "studentName": "이수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s020",
+        "studentName": "이시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s018",
+        "studentName": "이예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s017",
+        "studentName": "이유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s014",
+        "studentName": "이지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s016",
+        "studentName": "이하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s015",
+        "studentName": "이하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s093",
+        "studentName": "임도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s092",
+        "studentName": "임서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s091",
+        "studentName": "임서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s099",
+        "studentName": "임수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s100",
+        "studentName": "임시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s098",
+        "studentName": "임예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s097",
+        "studentName": "임유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s094",
+        "studentName": "임지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s096",
+        "studentName": "임하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s095",
+        "studentName": "임하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s083",
+        "studentName": "장도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s082",
+        "studentName": "장서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s081",
+        "studentName": "장서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s089",
+        "studentName": "장수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s090",
+        "studentName": "장시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s088",
+        "studentName": "장예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s087",
+        "studentName": "장유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s084",
+        "studentName": "장지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s086",
+        "studentName": "장하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s085",
+        "studentName": "장하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s043",
+        "studentName": "정도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s042",
+        "studentName": "정서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s041",
+        "studentName": "정서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s049",
+        "studentName": "정수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s050",
+        "studentName": "정시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s048",
+        "studentName": "정예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s047",
+        "studentName": "정유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s044",
+        "studentName": "정지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s046",
+        "studentName": "정하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s045",
+        "studentName": "정하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s063",
+        "studentName": "조도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s062",
+        "studentName": "조서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s061",
+        "studentName": "조서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s069",
+        "studentName": "조수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s070",
+        "studentName": "조시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s068",
+        "studentName": "조예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s067",
+        "studentName": "조유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s064",
+        "studentName": "조지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s066",
+        "studentName": "조하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s065",
+        "studentName": "조하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s033",
+        "studentName": "최도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s032",
+        "studentName": "최서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s031",
+        "studentName": "최서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s039",
+        "studentName": "최수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s040",
+        "studentName": "최시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s038",
+        "studentName": "최예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s037",
+        "studentName": "최유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s034",
+        "studentName": "최지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s036",
+        "studentName": "최하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s103",
+        "studentName": "한도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s102",
+        "studentName": "한서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s101",
+        "studentName": "한서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s109",
+        "studentName": "한수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s110",
+        "studentName": "한시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s108",
+        "studentName": "한예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s107",
+        "studentName": "한유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s104",
+        "studentName": "한지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s106",
+        "studentName": "한하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s105",
+        "studentName": "한하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      }
+    ],
+    "needsCheck": [
+      {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 50분 · 평소 19시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 41%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s123",
+        "studentName": "서도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 50분 · 평소 19시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 41%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s130",
+        "studentName": "서시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s137",
+        "studentName": "신유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 2일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s136",
+        "studentName": "신하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s113",
+        "studentName": "오도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s072",
+        "studentName": "윤서윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 6시간 50분 · 평소 14시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s079",
+        "studentName": "윤수빈",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s011",
+        "studentName": "이서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s096",
+        "studentName": "임하린",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s089",
+        "studentName": "장수빈",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 7시간 30분 · 평소 16시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 40%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s086",
+        "studentName": "장하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s045",
+        "studentName": "정하준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s062",
+        "studentName": "조서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s038",
+        "studentName": "최예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 10분 · 평소 17시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s103",
+        "studentName": "한도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 2일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s106",
+        "studentName": "한하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 10분 · 평소 17시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s141",
+        "studentName": "권서준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 103분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "SUBJECT_SHARE",
+            "label": "수학 계획 미달성",
+            "summary": "수학 계획 29% → 실제 5%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s004",
+        "studentName": "김지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 103분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s005",
+        "studentName": "김하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s022",
+        "studentName": "박서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s021",
+        "studentName": "박서준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 99분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s129",
+        "studentName": "서수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 57%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s124",
+        "studentName": "서지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s135",
+        "studentName": "신하준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s112",
+        "studentName": "오서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 51%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s118",
+        "studentName": "오예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s073",
+        "studentName": "윤도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s078",
+        "studentName": "윤예준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 60%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s018",
+        "studentName": "이예준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s095",
+        "studentName": "임하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 56%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s090",
+        "studentName": "장시윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s084",
+        "studentName": "장지우",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s050",
+        "studentName": "정시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s044",
+        "studentName": "정지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 53%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s061",
+        "studentName": "조서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 51%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s069",
+        "studentName": "조수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s067",
+        "studentName": "조유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s033",
+        "studentName": "최도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s039",
+        "studentName": "최수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s101",
+        "studentName": "한서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s107",
+        "studentName": "한유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      }
+    ],
+    "inAdjustment": [
+      {
+        "caseId": "care_105140bf-a62f-49e8-b306-a04fef8f4bcd",
+        "studentId": "demo_s014",
+        "studentName": "이지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ],
+        "recheckDate": "2026-10-30",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_4421d026-2147-4106-8956-bfe867dfb4a2",
+        "studentId": "demo_s027",
+        "studentName": "박유진",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "SUBJECT_SHARE",
+            "label": "수학 계획 미달성",
+            "summary": "수학 계획 36% → 실제 14%"
+          }
+        ],
+        "recheckDate": "2026-11-02",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_83108a2d-1e6f-4710-b52b-7355bf7d90c9",
+        "studentId": "demo_s016",
+        "studentName": "이하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 56%"
+          }
+        ],
+        "recheckDate": "2026-11-02",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_a5c75fdc-e55d-4d31-a466-a377806691d4",
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 101분 늦게 입실"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      }
+    ],
+    "deferred": []
+  },
+  "settingsBefore": {
+    "absenceDays": 1,
+    "planMissingDays": 2,
+    "studyDropPercent": 30,
+    "executionRatePercent": 60,
+    "subjectShareGapPoints": 20,
+    "startShiftMinutes": 60,
+    "minValidDays": 3,
+    "cooldownDays": 7,
+    "ranges": {
+      "absenceDays": {
+        "min": 1,
+        "max": 14
+      },
+      "planMissingDays": {
+        "min": 1,
+        "max": 7
+      },
+      "studyDropPercent": {
+        "min": 10,
+        "max": 90
+      },
+      "executionRatePercent": {
+        "min": 10,
+        "max": 100
+      },
+      "subjectShareGapPoints": {
+        "min": 5,
+        "max": 60
+      },
+      "startShiftMinutes": {
+        "min": 30,
+        "max": 300
+      },
+      "minValidDays": {
+        "min": 1,
+        "max": 7
+      },
+      "cooldownDays": {
+        "min": 0,
+        "max": 30
+      }
+    }
+  },
+  "boardAfter": {
+    "asOf": "2026-10-27",
+    "branch": {
+      "branchId": "demo_large",
+      "name": "강남점"
+    },
+    "students": [
+      {
+        "studentId": "demo_s053",
+        "studentName": "강도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s051",
+        "studentName": "강서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s059",
+        "studentName": "강수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s060",
+        "studentName": "강시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s058",
+        "studentName": "강예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s057",
+        "studentName": "강유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s054",
+        "studentName": "강지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s143",
+        "studentName": "권도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s142",
+        "studentName": "권서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s141",
+        "studentName": "권서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s149",
+        "studentName": "권수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s150",
+        "studentName": "권시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s148",
+        "studentName": "권예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s144",
+        "studentName": "권지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s145",
+        "studentName": "권하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s002",
+        "studentName": "김서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s001",
+        "studentName": "김서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s009",
+        "studentName": "김수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s008",
+        "studentName": "김예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s007",
+        "studentName": "김유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s004",
+        "studentName": "김지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s006",
+        "studentName": "김하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s005",
+        "studentName": "김하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s023",
+        "studentName": "박도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s022",
+        "studentName": "박서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s021",
+        "studentName": "박서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s029",
+        "studentName": "박수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s030",
+        "studentName": "박시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s027",
+        "studentName": "박유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s024",
+        "studentName": "박지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s026",
+        "studentName": "박하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s025",
+        "studentName": "박하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s123",
+        "studentName": "서도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s122",
+        "studentName": "서서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s121",
+        "studentName": "서서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s129",
+        "studentName": "서수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s130",
+        "studentName": "서시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s128",
+        "studentName": "서예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s127",
+        "studentName": "서유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s124",
+        "studentName": "서지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s126",
+        "studentName": "서하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s125",
+        "studentName": "서하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s133",
+        "studentName": "신도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s132",
+        "studentName": "신서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s131",
+        "studentName": "신서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s139",
+        "studentName": "신수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s140",
+        "studentName": "신시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s138",
+        "studentName": "신예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s137",
+        "studentName": "신유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s134",
+        "studentName": "신지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s136",
+        "studentName": "신하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s135",
+        "studentName": "신하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s113",
+        "studentName": "오도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s112",
+        "studentName": "오서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s111",
+        "studentName": "오서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s119",
+        "studentName": "오수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s118",
+        "studentName": "오예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s117",
+        "studentName": "오유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s114",
+        "studentName": "오지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s116",
+        "studentName": "오하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s115",
+        "studentName": "오하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s073",
+        "studentName": "윤도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s072",
+        "studentName": "윤서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s071",
+        "studentName": "윤서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s079",
+        "studentName": "윤수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s080",
+        "studentName": "윤시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s078",
+        "studentName": "윤예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s077",
+        "studentName": "윤유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s074",
+        "studentName": "윤지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s076",
+        "studentName": "윤하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s075",
+        "studentName": "윤하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s013",
+        "studentName": "이도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s012",
+        "studentName": "이서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s011",
+        "studentName": "이서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s019",
+        "studentName": "이수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s020",
+        "studentName": "이시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s018",
+        "studentName": "이예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s017",
+        "studentName": "이유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s014",
+        "studentName": "이지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s016",
+        "studentName": "이하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s015",
+        "studentName": "이하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s093",
+        "studentName": "임도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s092",
+        "studentName": "임서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s091",
+        "studentName": "임서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s099",
+        "studentName": "임수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s100",
+        "studentName": "임시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s098",
+        "studentName": "임예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s097",
+        "studentName": "임유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s094",
+        "studentName": "임지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s096",
+        "studentName": "임하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s095",
+        "studentName": "임하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s083",
+        "studentName": "장도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s082",
+        "studentName": "장서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s081",
+        "studentName": "장서준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s089",
+        "studentName": "장수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s090",
+        "studentName": "장시윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s088",
+        "studentName": "장예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s087",
+        "studentName": "장유진",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s084",
+        "studentName": "장지우",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s086",
+        "studentName": "장하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s085",
+        "studentName": "장하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s043",
+        "studentName": "정도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s042",
+        "studentName": "정서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s041",
+        "studentName": "정서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s049",
+        "studentName": "정수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s050",
+        "studentName": "정시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s048",
+        "studentName": "정예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s047",
+        "studentName": "정유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s044",
+        "studentName": "정지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s046",
+        "studentName": "정하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s045",
+        "studentName": "정하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s063",
+        "studentName": "조도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s062",
+        "studentName": "조서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s061",
+        "studentName": "조서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s069",
+        "studentName": "조수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s070",
+        "studentName": "조시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s068",
+        "studentName": "조예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s067",
+        "studentName": "조유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s064",
+        "studentName": "조지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s066",
+        "studentName": "조하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s065",
+        "studentName": "조하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s033",
+        "studentName": "최도현",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s032",
+        "studentName": "최서윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s031",
+        "studentName": "최서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s039",
+        "studentName": "최수빈",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s040",
+        "studentName": "최시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s038",
+        "studentName": "최예준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s037",
+        "studentName": "최유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s034",
+        "studentName": "최지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s036",
+        "studentName": "최하린",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s103",
+        "studentName": "한도현",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s102",
+        "studentName": "한서윤",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s101",
+        "studentName": "한서준",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s109",
+        "studentName": "한수빈",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s110",
+        "studentName": "한시윤",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s108",
+        "studentName": "한예준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s107",
+        "studentName": "한유진",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s104",
+        "studentName": "한지우",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s106",
+        "studentName": "한하린",
+        "className": "고3 A반",
+        "branchId": "demo_large"
+      },
+      {
+        "studentId": "demo_s105",
+        "studentName": "한하준",
+        "className": "고2 B반",
+        "branchId": "demo_large"
+      }
+    ],
+    "needsCheck": [
+      {
+        "studentId": "demo_s055",
+        "studentName": "강하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 50분 · 평소 19시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 41%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s147",
+        "studentName": "권유진",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s028",
+        "studentName": "박예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s123",
+        "studentName": "서도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 50분 · 평소 19시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 41%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s130",
+        "studentName": "서시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s137",
+        "studentName": "신유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 2일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s136",
+        "studentName": "신하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s113",
+        "studentName": "오도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s120",
+        "studentName": "오시윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s072",
+        "studentName": "윤서윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 6시간 50분 · 평소 14시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s079",
+        "studentName": "윤수빈",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s011",
+        "studentName": "이서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s096",
+        "studentName": "임하린",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s089",
+        "studentName": "장수빈",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 7시간 30분 · 평소 16시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 40%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s086",
+        "studentName": "장하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s045",
+        "studentName": "정하준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 4일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 4일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s062",
+        "studentName": "조서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 3일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s038",
+        "studentName": "최예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 10분 · 평소 17시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s103",
+        "studentName": "한도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 2일 미입실"
+          },
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s106",
+        "studentName": "한하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "STUDY_DROP",
+            "label": "공부 시간 감소",
+            "summary": "최근 7일 8시간 10분 · 평소 17시간 50분"
+          },
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 42%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s052",
+        "studentName": "강서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s056",
+        "studentName": "강하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s141",
+        "studentName": "권서준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s146",
+        "studentName": "권하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 103분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s010",
+        "studentName": "김시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "SUBJECT_SHARE",
+            "label": "수학 계획 미달성",
+            "summary": "수학 계획 29% → 실제 5%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s004",
+        "studentName": "김지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 103분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s005",
+        "studentName": "김하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s022",
+        "studentName": "박서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s021",
+        "studentName": "박서준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 99분 늦게 입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s129",
+        "studentName": "서수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 57%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s124",
+        "studentName": "서지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s135",
+        "studentName": "신하준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s112",
+        "studentName": "오서윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 51%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s118",
+        "studentName": "오예준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s073",
+        "studentName": "윤도현",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s078",
+        "studentName": "윤예준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 60%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s018",
+        "studentName": "이예준",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s095",
+        "studentName": "임하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 56%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s090",
+        "studentName": "장시윤",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s084",
+        "studentName": "장지우",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s050",
+        "studentName": "정시윤",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s044",
+        "studentName": "정지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 53%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s061",
+        "studentName": "조서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 51%"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s069",
+        "studentName": "조수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s067",
+        "studentName": "조유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s033",
+        "studentName": "최도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s039",
+        "studentName": "최수빈",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s101",
+        "studentName": "한서준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      },
+      {
+        "studentId": "demo_s107",
+        "studentName": "한유진",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 3일 미제출"
+          }
+        ]
+      }
+    ],
+    "inAdjustment": [
+      {
+        "caseId": "care_105140bf-a62f-49e8-b306-a04fef8f4bcd",
+        "studentId": "demo_s014",
+        "studentName": "이지우",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "CONSECUTIVE_ABSENCE",
+            "label": "미입실",
+            "summary": "최근 7일 중 1일 미입실"
+          }
+        ],
+        "recheckDate": "2026-10-30",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_4421d026-2147-4106-8956-bfe867dfb4a2",
+        "studentId": "demo_s027",
+        "studentName": "박유진",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "SUBJECT_SHARE",
+            "label": "수학 계획 미달성",
+            "summary": "수학 계획 36% → 실제 14%"
+          }
+        ],
+        "recheckDate": "2026-11-02",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_83108a2d-1e6f-4710-b52b-7355bf7d90c9",
+        "studentId": "demo_s016",
+        "studentName": "이하린",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "EXECUTION_GAP",
+            "label": "계획 미달성",
+            "summary": "최근 7일 계획 달성률 56%"
+          }
+        ],
+        "recheckDate": "2026-11-02",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_9356a433-053a-45d1-bb6c-0e205a747cca",
+        "studentId": "demo_s003",
+        "studentName": "김도현",
+        "className": "고2 B반",
+        "signals": [
+          {
+            "type": "PLAN_MISSING",
+            "label": "계획 미제출",
+            "summary": "최근 7일 중 2일 미제출"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      },
+      {
+        "caseId": "care_a5c75fdc-e55d-4d31-a466-a377806691d4",
+        "studentId": "demo_s035",
+        "studentName": "최하준",
+        "className": "고3 A반",
+        "signals": [
+          {
+            "type": "START_TIME_SHIFT",
+            "label": "등원 시간 늦어짐",
+            "summary": "평소보다 101분 늦게 입실"
+          }
+        ],
+        "recheckDate": "2026-11-04",
+        "recheckDue": false
+      }
+    ],
+    "deferred": []
+  },
+  "settingsAfter": {
+    "absenceDays": 1,
+    "planMissingDays": 2,
+    "studyDropPercent": 30,
+    "executionRatePercent": 60,
+    "subjectShareGapPoints": 20,
+    "startShiftMinutes": 60,
+    "minValidDays": 3,
+    "cooldownDays": 7,
+    "ranges": {
+      "absenceDays": {
+        "min": 1,
+        "max": 14
+      },
+      "planMissingDays": {
+        "min": 1,
+        "max": 7
+      },
+      "studyDropPercent": {
+        "min": 10,
+        "max": 90
+      },
+      "executionRatePercent": {
+        "min": 10,
+        "max": 100
+      },
+      "subjectShareGapPoints": {
+        "min": 5,
+        "max": 60
+      },
+      "startShiftMinutes": {
+        "min": 30,
+        "max": 300
+      },
+      "minValidDays": {
+        "min": 1,
+        "max": 7
+      },
+      "cooldownDays": {
+        "min": 0,
+        "max": 30
+      }
+    }
+  },
+  "hashesAfter": {
+    "ops.css": "9c9566d68b3d82fcaaab64efe62f7c4e2a639f71ebf28f25e7599a6c81c989c4",
+    "OpsBranch.tsx": "8464e6092a538beeac1dde4ff3bfba3dbe6cb4a42d2b40be3c5f01e9a706883c",
+    "OpsDetail.tsx": "f22257339b2f71468181ffd78d0ea629d8c30b4414e174ced2818a3c9729c20c",
+    "opsModel.test.mjs": "d2777574b335c6f63e7d0bec19d7d279f7a5bfdc0d96daa016c7786db3555941",
+    "opsModel.ts": "1dd1f51489d9786af6a4695123d5b07818b958d56eb155de5354a7a069194a8c",
+    "OpsRoster.tsx": "a5a003de909f8aa3fe9bc53ed357c292716e5a2f6037114b44d39311010ba299",
+    "OpsStrip.tsx": "7e31c69f30495ef735fc52dedef1f5a94814733995585e3d6b0514dc6a0a36d4",
+    "StudentCareOpsPage.tsx": "ade7f79cfbc1d849bc72293fbcabe1679c0eb09afb35f9d1524f09fc70e242f9"
+  },
+  "restoreAfter": {
+    "status": 1,
+    "note": "User prohibits DB writes; restore not attempted"
+  }
+}

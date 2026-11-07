@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { httpStudentCareApi } from '../api/httpStudentCareApi.ts'
 import { AllHistory } from '../components/AllHistory.tsx'
 import { SettingsDialog } from '../components/SettingsDialog.tsx'
 import { monthDay } from '../model/format.ts'
 import { useRemote, loadFailure } from '../model/useRemote.ts'
-import { buildOpsRoster } from './opsModel.ts'
+import { buildOpsRoster, type OpsStudent } from './opsModel.ts'
 import { OpsRoster } from './OpsRoster.tsx'
 import { OpsDetail } from './OpsDetail.tsx'
 import { OpsBranch } from './OpsBranch.tsx'
@@ -12,6 +12,21 @@ import '../student-care.css'
 import './ops.css'
 
 const api = httpStudentCareApi
+const NARROW = '(max-width: 1279px)'
+
+/** 사유 종류로 명부를 좁힌다. 판정을 바꾸지 않고 보여주는 학생만 고른다 */
+const REASONS: { key: string; label: string; match: (s: OpsStudent) => boolean }[] = [
+  { key: '', label: '전체 학생', match: () => true },
+  { key: 'flagged', label: '상담 필요 · 확인일', match: (s) => s.status === 'check' || s.status === 'recheck' },
+  { key: 'managed', label: '관리 중', match: (s) => s.status === 'managed' || s.status === 'recheck' },
+  { key: 'CONSECUTIVE_ABSENCE', label: '사유: 결석', match: (s) => s.chips.some((c) => c.type === 'CONSECUTIVE_ABSENCE') },
+  { key: 'STUDY_DROP', label: '사유: 학습 감소', match: (s) => s.chips.some((c) => c.type === 'STUDY_DROP') },
+  { key: 'EXECUTION_GAP', label: '사유: 진행률', match: (s) => s.chips.some((c) => c.type === 'EXECUTION_GAP') },
+  { key: 'START_TIME_SHIFT', label: '사유: 입실 늦어짐', match: (s) => s.chips.some((c) => c.type === 'START_TIME_SHIFT') },
+  { key: 'SUBJECT_SHARE', label: '사유: 과목 비중', match: (s) => s.chips.some((c) => c.type === 'SUBJECT_SHARE') },
+  { key: 'PLAN_MISSING', label: '사유: 계획 미제출', match: (s) => s.signals.some((x) => x.type === 'PLAN_MISSING') },
+  { key: 'WEEKDAY_ABSENCE', label: '참고: 같은 요일 결석', match: (s) => s.weekdayAbsence !== null },
+]
 
 /** 학습관리 › 학생 케어 개선안(/student-care/ops). 기존 화면과 같은 API·판정·저장 기능을 쓰고 보여주는 방식만 바꾼다. */
 export function StudentCareOpsPage() {
@@ -21,6 +36,11 @@ export function StudentCareOpsPage() {
   const [tab, setTab] = useState<'students' | 'branches' | 'history'>('students')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+  const [reason, setReason] = useState('')
+  // 좁은 화면은 명부와 상세를 한 번에 하나만 보여준다(상세가 명부 150행 아래로 밀려 오가는 거리가 길어지지 않도록)
+  const [narrow, setNarrow] = useState(() => window.matchMedia(NARROW).matches)
+  const [detailOpen, setDetailOpen] = useState(false)
+  useEffect(() => { const m = window.matchMedia(NARROW); const on = () => setNarrow(m.matches); m.addEventListener('change', on); return () => m.removeEventListener('change', on) }, [])
   const [version, setVersion] = useState(0)
   const [status, setStatus] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -34,15 +54,20 @@ export function StudentCareOpsPage() {
   const rows = useMemo(() => board.data && metrics.data ? buildOpsRoster(board.data, metrics.data) : null, [board.data, metrics.data])
   // 학습 시간 막대의 축은 검색과 관계없이 지점 전체 학생 기준으로 고정한다
   const axisMax = useMemo(() => rows ? Math.max(60, ...rows.map((r) => Math.max(r.week.minutes ?? 0, r.week.usualWeek ?? 0))) : 60, [rows])
-  const shown = rows?.filter((r) => `${r.student.studentName} ${r.student.className ?? ''}`.includes(query.trim())) ?? []
+  const reasonMatch = REASONS.find((x) => x.key === reason)?.match ?? (() => true)
+  const shown = rows?.filter((r) => `${r.student.studentName} ${r.student.className ?? ''}`.includes(query.trim()) && reasonMatch(r)) ?? []
   const current = rows?.find((r) => r.student.studentId === selectedId) ?? rows?.find((r) => r.status !== 'normal' && r.status !== 'deferred') ?? rows?.[0] ?? null
   const saved = (message: string) => { setStatus(message); setVersion((v) => v + 1) }
-  // 좁은 화면에서는 상세가 명부 아래에 오므로, 학생을 고르면 상세로 이동한다(넓은 화면은 옆에 고정돼 이동하지 않음)
+  // 좁은 화면: 학생을 고르면 상세만 보이고 맨 위로, "명부로"를 누르면 명부로 돌아가 그 학생 행을 가운데에 둔다
   const select = (id: string) => {
     setSelectedId(id)
-    if (window.matchMedia('(max-width: 1279px)').matches) requestAnimationFrame(() => document.querySelector('.ops-detail')?.scrollIntoView({ block: 'start' }))
+    if (window.matchMedia(NARROW).matches) { setDetailOpen(true); requestAnimationFrame(() => window.scrollTo(0, 0)) }
   }
-  const openStudent = (id: string) => { setTab('students'); setQuery(''); select(id) }
+  const backToList = (id: string) => {
+    setDetailOpen(false)
+    requestAnimationFrame(() => document.querySelector(`[data-care-roster-row="${id}"]`)?.scrollIntoView({ block: 'center' }))
+  }
+  const openStudent = (id: string) => { setTab('students'); setQuery(''); setReason(''); select(id) }
   const failed = loadFailure(board) ? board : loadFailure(metrics) ? metrics : null
   const days = rows?.[0]?.days
 
@@ -81,14 +106,17 @@ export function StudentCareOpsPage() {
         : tab === 'branches' ? <OpsBranch key={branchId} rows={rows} branchName={branchName} studyDropPercent={settings.data?.studyDropPercent ?? 30} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} excluded={excludedByBranch[branchId] ?? new Set()} onExcludedChange={(next) => setExcludedByBranch({ ...excludedByBranch, [branchId]: next })} onOpenStudent={openStudent} />
         : (
           <div className="ops-split">
-            <section className="ops-list" aria-label="전체 학생">
+            {!(narrow && detailOpen) && <section className="ops-list" aria-label="전체 학생">
               <div className="ops-list-head">
-                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')} (평소: 이전 4주 같은 요일)</span>}</p>
-                <input className="sc-input" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <p><b>{rows.length}명</b> 중 상담 필요 <b className="ops-down">{rows.filter((r) => r.status === 'check').length}명</b> · 관리 중 {rows.filter((r) => r.status === 'managed' || r.status === 'recheck').length}명{days && <span className="ops-muted"> · 최근 7일 {days[0].date.slice(5).replace('-', '/')}–{days[6].date.slice(5).replace('-', '/')} · 평소 = 이전 4주 같은 요일</span>}</p>
+                <span className="ops-list-tools">
+                  <select className="sc-select" aria-label="사유로 좁히기" value={reason} onChange={(e) => setReason(e.target.value)}>{REASONS.map((x) => <option key={x.key} value={x.key}>{x.label}{rows ? ` ${rows.filter(x.match).length}` : ''}</option>)}</select>
+                  <input className="sc-input" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />
+                </span>
               </div>
               {shown.length ? <OpsRoster rows={shown} axisMax={axisMax} selectedId={current?.student.studentId ?? null} onSelect={select} /> : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
-            </section>
-            {current && <OpsDetail key={current.student.studentId} api={api} s={current} version={version} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} onSaved={saved} onBack={() => document.querySelector(`[data-care-roster-row="${current.student.studentId}"]`)?.scrollIntoView({ block: 'center' })} />}
+            </section>}
+            {current && (!narrow || detailOpen) && <OpsDetail key={current.student.studentId} api={api} s={current} version={version} startShiftMinutes={settings.data?.startShiftMinutes ?? 60} onSaved={saved} onBack={() => backToList(current.student.studentId)} />}
           </div>
         )}
       {branchId && <SettingsDialog api={api} branchId={branchId} open={settingsOpen} onClose={() => setSettingsOpen(false)} onSaved={() => saved('관리 기준 저장')} />}
