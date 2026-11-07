@@ -10,8 +10,9 @@ import { StudentFull } from '../shared/StudentFull.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, METRIC_SUB, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
-import { OverviewStrip } from '../shared/charts.tsx'
-import { overviewRows } from '../shared/overview.ts'
+import { BranchRows, BandList } from '../shared/BranchRows.tsx'
+import type { Band } from '../shared/bands.ts'
+import { BAND_LABEL, VISION_BAND_LABEL } from '../shared/bands.ts'
 import { RESULT_HEAD, compareValue } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 
@@ -30,6 +31,7 @@ export function VariantD() {
   const [query, setQuery] = useState('')
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
+  const [band, setBand] = useState<{ metric: MetricKey; band: Band } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const [studentId, setStudentId] = useState<string | null>(studentInUrl)
   const scrollY = useRef(0)
@@ -46,7 +48,7 @@ export function VariantD() {
   if (current) return (
     <div className="sc-page v5-page">
       <div className="v5-wrap"><button type="button" className="sc-button" onClick={back}>← 학습관으로 ({METRIC_LABEL[metric]}{day !== null ? ` · ${md(m.days[day].date)}` : ''})</button></div>
-      <StudentFull key={current.student.studentId} s={current} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} onSaved={data.saved} guard={guard} />
+      <StudentFull key={current.student.studentId} s={current} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} thresholds={data.thresholds} executionRate={data.executionRate} onSaved={data.saved} guard={guard} />
       {guard.prompt}
     </div>)
   const found = query.trim() ? rows.filter(matchQuery(query)).slice(0, 6) : []
@@ -66,7 +68,11 @@ export function VariantD() {
           <Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />
           <button type="button" className="v5-mini" aria-pressed={allOpen} onClick={() => setAllOpen(!allOpen)}>전체 학생 {rows.length}명</button>
         </div>
-        <section className="v5-card"><OverviewStrip dates={m.days} rows={overviewRows(m, data.studyDropPercent, data.startShiftMinutes, (k) => { setMetric(k); setDay(null); setAllOpen(false) }, allOpen ? null : metric)} /></section>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band ?? { metric, band: null }} onBand={(k, b) => { setMetric(k); setDay(null); setAllOpen(false); setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b }) }} onMetric={(k) => { setMetric(k); setDay(null); setAllOpen(false); setBand(null) }} /></section>
+        {band && <section className="v5-result" aria-label="단계별 학생">
+          <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {(band.metric === 'vision' ? VISION_BAND_LABEL : BAND_LABEL)[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
+          <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={open} /></div>
+        </section>}
         <div className="v5-sticky v5-wrap" role="group" aria-label="지표 고르기">
           {METRIC_KEYS.map((k) => <button key={k} type="button" className="v5-mini" aria-pressed={!allOpen && metric === k} onClick={() => { setMetric(k); setDay(null); setAllOpen(false) }}>{METRIC_LABEL[k]}</button>)}
           {(day !== null || allOpen) && <button type="button" className="v5-mini" onClick={() => { setDay(null); setAllOpen(false) }}>결과 접기</button>}

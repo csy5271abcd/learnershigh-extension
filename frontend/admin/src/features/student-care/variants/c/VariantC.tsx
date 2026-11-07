@@ -11,8 +11,10 @@ import { Overlay } from '../shared/Overlay.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
-import { WeekStrip, OverviewStrip } from '../shared/charts.tsx'
-import { overviewRows } from '../shared/overview.ts'
+import { WeekStrip } from '../shared/charts.tsx'
+import { BranchRows, BandList } from '../shared/BranchRows.tsx'
+import type { Band } from '../shared/bands.ts'
+import { BAND_LABEL, VISION_BAND_LABEL } from '../shared/bands.ts'
 import { RESULT_HEAD, compareValue } from '../shared/results.ts'
 import { sumVision, type VisionAxis } from '../shared/visionExample.ts'
 
@@ -31,6 +33,7 @@ export function VariantC() {
   const [res, setRes] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
+  const [band, setBand] = useState<{ metric: MetricKey; band: Band } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const ex = excluded[data.branchId ?? ''] ?? EMPTY
   const rows = data.rows
@@ -78,7 +81,11 @@ export function VariantC() {
           {METRIC_KEYS.map((k) => <button key={k} type="button" className="v5-mini" onClick={() => document.getElementById(`c-metric-${k}`)?.scrollIntoView({ block: 'start' })}>{METRIC_LABEL[k]}</button>)}
           <Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />
         </div>
-        <section className="v5-card"><OverviewStrip dates={m.days} rows={overviewRows(m, data.studyDropPercent, data.startShiftMinutes, (k) => document.getElementById(`c-metric-${k}`)?.scrollIntoView({ block: 'start' }))} /></section>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k) => document.getElementById(`c-metric-${k}`)?.scrollIntoView({ block: 'start' })} /></section>
+        {band && <section className="v5-result" aria-label="단계별 학생">
+          <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {(band.metric === 'vision' ? VISION_BAND_LABEL : BAND_LABEL)[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
+          <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={(r) => go(() => setOpenId(r.student.studentId))} /></div>
+        </section>}
         {METRIC_KEYS.map((k) => { const w = week[k]
           return <section key={k} id={`c-metric-${k}`} className="v5-card v5-anchor">
             <div className="v5-card-head"><h3>{METRIC_LABEL[k]}</h3></div>
@@ -103,7 +110,7 @@ export function VariantC() {
       </>)}
       {tab === 'history' && <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => setOpenId(id)} />}
       {openRow && <Overlay kind="drawer" label={`${openRow.student.studentName} 상세`} onClose={close} header={<div className="v5-overlay-bar"><h2>{openRow.student.studentName}</h2><button type="button" className="sc-button" onClick={close}>닫기</button></div>}>
-        <StudentFull key={openRow.student.studentId} s={openRow} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} onSaved={data.saved} guard={guard} />
+        <StudentFull key={openRow.student.studentId} s={openRow} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} thresholds={data.thresholds} executionRate={data.executionRate} onSaved={data.saved} guard={guard} />
       </Overlay>}
       {guard.prompt}
     </div>

@@ -1,15 +1,15 @@
 // 겹친 창(모달·오른쪽 서랍). 열려 있는 동안 뒤 문서 스크롤을 잠그고 창 안에서만 스크롤한다(P3).
 // 머리글은 창 안 위에 고정돼 긴 목록 끝에서도 닫기·전환이 보인다. 닫으면 열기 전 포커스로 돌아간다.
 import { useEffect, useRef, type ReactNode } from 'react'
+import { lockScroll } from './scrollLock.ts'
 
 export function Overlay({ label, kind, header, onClose, children }: { label: string; kind: 'modal' | 'drawer'; header: ReactNode; onClose: () => void; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const opener = document.activeElement as HTMLElement | null
-    const html = document.documentElement, prev = html.style.overflow
-    html.style.overflow = 'hidden'
+    const unlock = lockScroll()
     box.current?.focus()
-    return () => { html.style.overflow = prev; opener?.focus?.({ preventScroll: true }) }
+    return () => { unlock(); opener?.focus?.({ preventScroll: true }) }
   }, [])
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') { e.stopPropagation(); onClose() }

@@ -220,3 +220,42 @@
 .v5-vision-rows { display: grid; gap: 6px; }
 .v5-vision-row .v5-axis-name { margin-top: 4px; }
 .v5-c-row > div, .v5-vision-row, .v5-cards > section, .v5-student-grid > section { min-width: 0; }
+.v5-vision-bar .v5-vision-yes { background: var(--color-text-secondary); }
+.v5-vision-bar .v5-vision-unk { background: repeating-linear-gradient(135deg, var(--color-input-border) 0 2px, transparent 2px 5px); }
+.v5-vision-bar span { background: none; }
+/* 학습관 단계 줄 */
+.v5-bands { width: 100%; border-collapse: collapse; }
+.v5-bands th, .v5-bands td { padding: 8px 12px 8px 0; border-top: 1px solid var(--color-border); text-align: left; vertical-align: middle; }
+.v5-bands thead th { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); border-top: 0; }
+.v5-bands tbody th { white-space: nowrap; width: 150px; }
+.v5-bands-sel { background: var(--color-accent-soft); }
+.v5-bands-num { white-space: nowrap; width: 90px; text-align: right !important; }
+.v5-bandbar { display: flex; gap: 2px; height: 26px; min-width: 240px; }
+.v5-band { border: 0; border-radius: 4px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; min-width: 6px; padding: 0 4px; }
+.v5-band-ok { background: var(--color-surface-muted); color: var(--color-text-secondary); }
+.v5-band-watch { background: var(--color-flag-soft); color: var(--color-flag); }
+.v5-band-over { background: var(--color-flag); color: var(--color-on-accent); }
+.v5-band-none { background: transparent; border: 1px dashed var(--color-border); color: var(--color-text-secondary); }
+.v5-band-v-ok { background: var(--color-surface-muted); color: var(--color-text-secondary); }
+.v5-band-v-watch { background: var(--color-chart-bar); color: var(--color-text-primary); }
+.v5-band-v-over { background: var(--color-text-secondary); color: var(--color-surface); }
+.v5-band[aria-pressed='true'] { outline: 2px solid var(--color-accent); outline-offset: 1px; }
+.v5-trend polyline { fill: none; stroke: var(--color-text-secondary); stroke-width: 1.8; }
+.v5-trend circle { fill: var(--color-text-primary); }
+.v5-bandlist { list-style: none; margin: 0; padding: 0; columns: 3 260px; column-gap: 24px; }
+.v5-bandlist li { padding: 3px 0; break-inside: avoid; }
+/* 학생 지표 요약 줄 */
+.v5-srows { width: 100%; border-collapse: collapse; }
+.v5-srows th, .v5-srows td { padding: 7px 14px 7px 0; border-top: 1px solid var(--color-border); text-align: left; vertical-align: middle; white-space: nowrap; }
+.v5-srows thead th { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); border-top: 0; }
+.v5-srows tbody th { font-weight: 600; width: 130px; }
+.v5-srows td:nth-child(2) { width: 45%; }
+.v5-cbar { position: relative; display: block; height: 18px; background: transparent; border-left: 1px solid var(--color-border); }
+.v5-cbar-usual { position: absolute; top: 0; bottom: 0; left: 0; background: var(--color-surface-muted); border-radius: 0 3px 3px 0; }
+.v5-cbar-value { position: absolute; top: 5px; height: 8px; left: 0; background: var(--color-text-secondary); border-radius: 0 3px 3px 0; }
+.v5-cbar-bad { background: var(--color-flag); }
+.v5-cbar-limit { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: var(--color-text-primary); }
+.v5-key-cbar { height: 6px !important; background: var(--color-text-secondary); }
+.v5-key-cusual { background: var(--color-surface-muted); border: 1px solid var(--color-border); }
+.v5-key-climit { width: 2px !important; background: var(--color-text-primary); }
+.v5-byday { margin-top: 12px; }

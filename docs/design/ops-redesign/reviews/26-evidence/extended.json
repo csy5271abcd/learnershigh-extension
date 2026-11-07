@@ -1,0 +1,1674 @@
+[
+  {
+    "name": "c-fouraxes-자리에 있음",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-자리에 있음",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-고개 숙임",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-고개 숙임",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-휴대폰 사용",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-휴대폰 사용",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-읽기쓰기",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-읽기쓰기",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-result-end",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-result-jump-study",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-settings",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-detail-vision",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-dirty",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-settings",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-detail-vision",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-dirty",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-settings",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-detail-vision",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-dirty",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-settings",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-detail-vision",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-dirty",
+    "width": 1600,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-자리에 있음",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-자리에 있음",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-고개 숙임",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-고개 숙임",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-휴대폰 사용",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-휴대폰 사용",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-읽기쓰기",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-읽기쓰기",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-result-end",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-result-jump-study",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-settings",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-detail-vision",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-dirty",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-settings",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-detail-vision",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-dirty",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-settings",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-detail-vision",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-dirty",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-settings",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-detail-vision",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-dirty",
+    "width": 1600,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-자리에 있음",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-자리에 있음",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-고개 숙임",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-고개 숙임",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-휴대폰 사용",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-휴대폰 사용",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-읽기쓰기",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-읽기쓰기",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-result-end",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-result-jump-study",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-settings",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-detail-vision",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "a-dirty",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-settings",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-detail-vision",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "b-dirty",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-settings",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-detail-vision",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-dirty",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-settings",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-detail-vision",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "d-dirty",
+    "width": 1280,
+    "theme": "light",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": false,
+      "background": "rgb(245, 246, 248)"
+    }
+  },
+  {
+    "name": "c-fouraxes-자리에 있음",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-자리에 있음",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-고개 숙임",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-고개 숙임",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-휴대폰 사용",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-휴대폰 사용",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-읽기쓰기",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-fouraxes-result-읽기쓰기",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-result-end",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-result-jump-study",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-settings",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-detail-vision",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "a-dirty",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-settings",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-detail-vision",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "b-dirty",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-settings",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-detail-vision",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "권유진 상세",
+      "scrollAreas": 1,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "c-dirty",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-settings",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "sc-dialog",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-detail-vision",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": null,
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": null,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  },
+  {
+    "name": "d-dirty",
+    "width": 1280,
+    "theme": "dark",
+    "layout": {
+      "active": "v5-confirm",
+      "scrollAreas": 0,
+      "hScroll": 0,
+      "nested": 0,
+      "backgroundLocked": true,
+      "p3": 0,
+      "p4": 0,
+      "clipped": []
+    },
+    "themeCheck": {
+      "dark": true,
+      "background": "rgb(16, 19, 24)"
+    }
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "head": "0fb32bc383f88d75bda98051aa5dd4b79757bdd2",
+  "node": "v24.19.0",
+  "artifactChecks": {
+    "links": true,
+    "measure108": true,
+    "extended88": true,
+    "focus36": true,
+    "audit36": true,
+    "modal32": true,
+    "self10": true,
+    "pageErrors0": true,
+    "mutationAttempts0": true,
+    "trackedFilesUnchanged": true,
+    "discardRecordsComplete": true
+  },
+  "productChecks": {
+    "dirtyReturn": false
+  },
+  "missing": [],
+  "links": 53,
+  "hashes": {
+    "docs/design/ops-redesign/plan-v5.md": "2714e6cabd63f25ec545d5b565bcadafcb459c366cca24878e17194598c88aa4",
+    "docs/design/ops-redesign/representation-v5.md": "915b14f9d903324de06df230f127f0b3de08e184ac4499efe2667b24106d6284",
+    "docs/design/ops-redesign/function-map-v5.md": "1a6c5064dc97e0b5de133e7ce45688d443a9f6fb80d15118ff0695ebc4fda366",
+    "docs/design/ops-redesign/contract-v5.md": "e1522de0702665cdfb502887aa51655f7cc73f170c223c703c338baa0532fae0",
+    "frontend/admin/src/features/student-care/variants/shared/charts.tsx": "497f37960ee12b1279cc0a89575f08536c6a85332cee94023afb962d9a5656c4",
+    "frontend/admin/src/features/student-care/variants/shared/pack.ts": "77f4f2bd12c1682f63778c74f7186f904da3eaadf9e49c5ae250aee1ee2d686c",
+    "frontend/admin/src/features/student-care/variants/variants.css": "a8ebbb056d9c79a0fd1ca5eb62f51c93fe911ccd7991bc8aa57086a28d5cdc04"
+  }
+}

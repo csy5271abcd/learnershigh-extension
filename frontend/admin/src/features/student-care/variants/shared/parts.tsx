@@ -2,6 +2,7 @@
 // 그래프는 모든 값을 그 자리에 글자로 쓴다(범례를 두지 않음).
 import { useEffect, useState, type ReactNode } from 'react'
 import { SettingsDialog } from '../../components/SettingsDialog.tsx'
+import { lockScroll } from './scrollLock.ts'
 import { monthDay } from '../../model/format.ts'
 import { careApi, md, type CareData, type CareRow } from './useCareData.ts'
 import type { Bin, StudentValue } from './branch.ts'
@@ -9,7 +10,7 @@ import type { Bin, StudentValue } from './branch.ts'
 export function CareHeader({ data, title, onBranchChange }: { data: CareData; title: string; onBranchChange?: () => void }) {
   const [open, setOpen] = useState(false)
   // 설정 창이 열려 있는 동안 뒤 문서 스크롤을 잠근다
-  useEffect(() => { if (!open) return; const html = document.documentElement, prev = html.style.overflow; html.style.overflow = 'hidden'; return () => { html.style.overflow = prev } }, [open])
+  useEffect(() => { if (!open) return; return lockScroll() }, [open])
   return (
     <header className="sc-top">
       <h1 className="sc-top__title">{title}</h1>

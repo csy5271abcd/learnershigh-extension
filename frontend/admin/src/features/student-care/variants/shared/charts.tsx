@@ -58,13 +58,18 @@ export function DaySwarm({ rows, value, detail, domain, baseline, format, warn, 
     const cx = left + colW * i + colW / 2
     const pts = rows.flatMap((r) => { const v = value(r, i); return v === null ? [] : [{ r, v }] })
     const inside = pts.filter((p) => p.v >= lo && p.v <= hi), above = pts.filter((p) => p.v > hi), below = pts.filter((p) => p.v < lo)
-    const { points, r } = packFit(inside.map((p) => ({ item: p, y: y(p.v) })), cx, colW * 0.46, 2.6)
-    const railPts = (list: typeof pts, yy: number) => packFit(list.map((p) => ({ item: p, y: yy })), cx, colW * 0.46, 2.6, 2, 0).points
+    // 값 좌표(y)는 그대로 두고 옆으로만 비킨다. 자리가 모자란 점은 그 높이에 '+n'으로 묶는다(값을 옮기지 않음)
+    const { points: packedAll, r } = packFit(inside.map((p) => ({ item: p, y: y(p.v) })), cx, colW * 0.42, 2.6, 1.8, 0)
+    const points = packedAll.filter((p) => p.packed)
+    const extra = new Map<number, { y: number; n: number }>()
+    for (const p of packedAll) if (!p.packed) { const k = Math.round(p.y / 8); const e = extra.get(k) ?? { y: p.y, n: 0 }; e.n++; extra.set(k, e) }
+    const railPts = (list: typeof pts, yy: number) => packFit(list.map((p) => ({ item: p, y: yy })), cx, colW * 0.42, 2.6, 1.8, 0).points.filter((p) => p.packed)
     const all = [...points, ...railPts(above, top - rail / 2 - 2), ...railPts(below, top + H + rail / 2 + 2)]
     const vals = pts.map((p) => p.v).sort((a, b) => a - b)
     const order = [...all].sort((a, b) => Math.abs(b.item.v - (baseline ?? 0)) - Math.abs(a.item.v - (baseline ?? 0)))
-    return { d, i, cx, all, r, vals, above: above.length, below: below.length, order, hot: pts.filter((p) => warn && isHotRow(p.r) && warn(p.v)).length }
+    return { d, i, cx, all, r, vals, extra: [...extra.values()], above: above.length, below: below.length, order, hot: pts.filter((p) => warn && isHotRow(p.r) && warn(p.v)).length }
   })
+  const daySummary = (c: { d: { date: string; dow: string }; vals: number[]; hot: number }) => c.vals.length ? `${md(c.d.date)} ${c.d.dow} · 학생 ${c.vals.length}명 · 가운데 값 ${format(quant(c.vals, 0.5))} · 가운데 절반 ${format(quant(c.vals, 0.25))}~${format(quant(c.vals, 0.75))}${c.hot ? ` · 기준 넘음 ${c.hot}명` : ''}` : `${md(c.d.date)} 기록 없음`
   const show = (p: { item: { r: CareRow }; x: number; y: number }, i: number) => setTip({ x: p.x, y: p.y, text: `${p.item.r.student.studentName} · ${md(days[i].date)} · ${detail(p.item.r, i)}` })
   const onKey = (e: React.KeyboardEvent, c: (typeof cols)[number]) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -87,14 +92,16 @@ export function DaySwarm({ rows, value, detail, domain, baseline, format, warn, 
             {c.all.map((p) => { const v = p.item.v, over = v > hi || v < lo, hot = !!warn && isHotRow(p.item.r) && warn(v), small = sample ? sample(p.item.r, c.i) < 10 : false
               return over
                 ? <path key={p.item.r.student.studentId} d={`M${p.x - 3.5},${p.y + (v > hi ? 3 : -3)} L${p.x + 3.5},${p.y + (v > hi ? 3 : -3)} L${p.x},${p.y + (v > hi ? -3 : 3)} Z`} className={hot ? 'v5-dot-hot' : 'v5-dot-over'} onMouseEnter={() => show(p, c.i)} onClick={() => onStudent?.(p.item.r)} />
-                : <circle key={p.item.r.student.studentId} cx={p.x} cy={p.y} r={c.r} className={small ? 'v5-dot-small' : hot ? 'v5-dot-hot' : 'v5-dot'} onMouseEnter={() => show(p, c.i)} onClick={() => onStudent?.(p.item.r)} /> })}
+                : <circle key={p.item.r.student.studentId} cx={p.x} cy={p.y} r={sample ? Math.max(1.6, Math.min(c.r, 1.2 + Math.sqrt(sample(p.item.r, c.i)) * 0.35)) : c.r} className={small ? 'v5-dot-small' : hot ? 'v5-dot-hot' : 'v5-dot'} onMouseEnter={() => show(p, c.i)} onClick={() => onStudent?.(p.item.r)} /> })}
+            {c.extra.map((e, k) => <text key={k} x={c.cx + colW * 0.47} y={e.y + 4} textAnchor="end" className="v5-rail-num">+{e.n}</text>)}
             {c.above > 0 && <text x={c.cx + colW * 0.47} y={top - rail - 4} textAnchor="end" className="v5-rail-num">▲ {c.above}명</text>}
             {c.below > 0 && <text x={c.cx + colW * 0.47} y={top + H + rail + 4} textAnchor="end" className="v5-rail-num">▼ {c.below}명</text>}
             {c.vals.length > 0 && <><line x1={c.cx - colW * 0.32} x2={c.cx + colW * 0.32} y1={y(quant(c.vals, 0.5))} y2={y(quant(c.vals, 0.5))} className="v5-median" aria-hidden="true" />
               <text x={c.cx} y={14} textAnchor="middle" className="v5-head-num">{head ? head(c.i, c.vals) : format(quant(c.vals, 0.5))}</text></>}
             <g role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === c.i : undefined}
               aria-label={`${md(c.d.date)} ${label}: 학생 ${c.vals.length}명${c.vals.length ? `, 가운데 값 ${format(quant(c.vals, 0.5))}, 가운데 절반 ${format(quant(c.vals, 0.25))}~${format(quant(c.vals, 0.75))}` : ''}${c.hot ? `, 기준을 넘은 관리 대상 ${c.hot}명` : ''}. 위아래 화살표로 학생, Enter로 열기`}
-              onClick={() => onDay?.(c.i)} onKeyDown={(e) => onKey(e, c)} onBlur={() => { setCursor(null); setTip(null) }} className="v5-day-hit">
+              onClick={() => onDay?.(c.i)} onKeyDown={(e) => onKey(e, c)} onBlur={() => { setCursor(null); setTip(null) }} className="v5-day-hit"
+              onFocus={() => setTip({ x: c.cx, y: height - 40, text: daySummary(c) })} onMouseEnter={() => setTip({ x: c.cx, y: height - 40, text: daySummary(c) })}>
               <rect x={c.cx - colW / 2 + 2} y={height - 40} width={colW - 4} height={38} fill="transparent" />
               <text x={c.cx} y={height - 24} textAnchor="middle" className="v5-tick">{md(c.d.date)} {c.d.dow}</text>
             </g>
@@ -119,7 +126,7 @@ export function AttendanceMatrix({ rows, onStudent, onDay, selectedDay, limit }:
     .sort((a, b) => run(b) - run(a) || b.days.filter((d) => d.attendance === 'absent').length - a.days.filter((d) => d.attendance === 'absent').length || a.student.studentName.localeCompare(b.student.studentName, 'ko'))
   const missOnly = rows.filter((r) => !r.days.some((d) => d.attendance === 'absent') && r.days.filter((d) => d.submission === 'missing').length >= 2)
   const list = all || !limit ? absent : absent.slice(0, limit)
-  const left = 92, top = 40, ch = 16, gap = 4, cw = Math.min(64, (width - left - 8) / 7)
+  const left = 92, top = 54, ch = 16, gap = 4, cw = Math.min(64, (width - left - 8) / 7)
   const height = top + list.length * (ch + gap) + 6
   const state = (d: OpsDay) => d.attendance === 'absent' ? '결석' : d.attendance === 'present' ? '입실' : d.attendance === 'off' ? '예정 없음' : '기록 없음'
   return (
@@ -129,8 +136,8 @@ export function AttendanceMatrix({ rows, onStudent, onDay, selectedDay, limit }:
         {days.map((d, i) => { const n = rows.filter((r) => r.days[i].attendance === 'absent').length, sch = rows.filter((r) => r.days[i].attendance === 'absent' || r.days[i].attendance === 'present').length
           return <g key={d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === i : undefined} aria-label={`${md(d.date)} 결석 ${n}명, 등원 예정 ${sch}명`} onClick={() => onDay?.(i)} onKeyDown={(e) => act(e, () => onDay?.(i))} className="v5-day-hit">
             {selectedDay === i && <rect x={left + cw * i + 1} y={0} width={cw - 2} height={height} rx={6} className="v5-col-sel" />}
-            <text x={left + cw * i + cw / 2} y={14} textAnchor="middle" className="v5-tick">{md(d.date)} {d.dow}</text>
-            <text x={left + cw * i + cw / 2} y={31} textAnchor="middle" className="v5-head-num">{n}명</text>
+            <text x={left + cw * i + cw / 2} y={12} textAnchor="middle" className="v5-tick">{md(d.date)}</text><text x={left + cw * i + cw / 2} y={27} textAnchor="middle" className="v5-tick">{d.dow}</text>
+            <text x={left + cw * i + cw / 2} y={44} textAnchor="middle" className="v5-head-num">{n}명</text>
           </g> })}
         {list.map((r, k) => { const yy = top + k * (ch + gap), long = run(r) >= 4
           return <g key={r.student.studentId}>
@@ -273,7 +280,7 @@ export function VisionMini({ s }: { s: CareRow }) {
   const sum = sumVision(s.vision)
   return (
     <div>
-      <p className="v5-key"><span className="v5-key-actual-bar" />관찰 <span className="v5-key-unknown-bar" />판단 불가 <span className="v5-key-none" />사진 없음 <span className="v5-key-fail">×</span>분석 실패 <span className="v5-key-unsup" />지원 안 함</p>
+      <p className="v5-key"><span className="v5-key-actual-bar" />관찰 <span className="v5-key-unknown-bar" />판단 불가</p>
       <table className="v5-vision" aria-label="비전 관찰 7일(예시)" onKeyDown={nav}>
         <thead><tr><th scope="col"><span className="lh-visually-hidden">관찰</span></th>{s.days.map((d) => <th key={d.date} scope="col">{md(d.date)}</th>)}<th scope="col">7일</th></tr></thead>
         <tbody>{VISION_AXES.map((a, ri) => { const t = sum.axes[a]
@@ -282,7 +289,7 @@ export function VisionMini({ s }: { s: CareRow }) {
             const kind = v.photosReceived === 0 ? 'none' : v.analyzedPhotos === 0 ? 'fail' : v.unsupportedAxes.includes(a) ? 'unsup' : 'ok'
             const text = `${md(s.days[i].date)} ${visionAxisLabel[a]}: ${kind === 'none' ? '사진 없음' : kind === 'fail' ? `분석 실패 ${v.failedPhotos}장` : kind === 'unsup' ? `지원 안 함 (${v.analyzedPhotos}장)` : `분석 ${x.analyzed}장 중 관찰 ${x.yes}장, 판단 불가 ${x.unknown}장${v.failedPhotos ? `, 분석 실패 ${v.failedPhotos}장` : ''}`}`
             return <td key={i} data-cell={`${ri},${i}`} tabIndex={ri === 0 && i === 0 ? 0 : -1} aria-label={text} data-tip={text}>
-              {kind === 'ok' ? <span className="v5-vision-bar"><span className="v5-vision-unk" style={{ height: `${(x.unknown / x.analyzed) * 100}%` }} /><span className="v5-vision-yes" style={{ height: `${Math.max(3, (x.yes / x.analyzed) * 100)}%` }} /></span>
+              {kind === 'ok' ? <span className="v5-vision-bar"><span className="v5-vision-unk" style={{ height: `${(x.unknown / x.analyzed) * 100}%` }} /><span className="v5-vision-yes" style={{ height: `${(x.yes / x.analyzed) * 100}%` }} /></span>
                 : kind === 'none' ? <span className="v5-vision-none" /> : kind === 'fail' ? <span className="v5-vision-fail">×</span> : <span className="v5-vision-unsup" />}
             </td> })}
             <td className="v5-vision-sum" data-cell={`${ri},7`} tabIndex={-1} aria-label={`${visionAxisLabel[a]} 7일: 분석 ${t.analyzed}장 중 관찰 ${t.yes}장, 판단 불가 ${t.unknown}장, 지원 안 함 ${t.unsupportedPhotos}장, 분석 실패 ${sum.failed}장`} data-tip={`7일: 분석 ${t.analyzed}장 중 관찰 ${t.yes}장 · 판단 불가 ${t.unknown}장 · 지원 안 함 ${t.unsupportedPhotos}장 · 분석 실패 ${sum.failed}장`}>{t.analyzed ? `${Math.round((t.yes / t.analyzed) * 100)}%` : '—'}</td>
@@ -296,7 +303,6 @@ export function VisionMini({ s }: { s: CareRow }) {
 export function VisionSwarms({ rows, pools, onStudent, onDay, selectedDay }: { rows: CareRow[]; pools: { [A in VisionAxis]: { photoShare: number | null; yes: number; analyzed: number; unsupportedPhotos: number; unsupportedStudents: number } }[]; onStudent?: (r: CareRow) => void; onDay?: (i: number) => void; selectedDay?: number | null }) {
   return (
     <div className="v5-vision-rows">
-      <p className="v5-muted">맨 위 숫자 = 그날 사진 합산 비율, 점 = 학생 한 명(빈 원 = 분석 10장 미만)</p>
       {VISION_AXES.map((axis) => (
         <div key={axis} className="v5-vision-row">
           <p className="v5-axis-name">{visionAxisLabel[axis]}</p>
@@ -322,8 +328,11 @@ export function WeekStrip({ rows, value, detail, domain, format, warn, label, on
   const vals = pts.map((p) => p.v).sort((a, b) => a - b)
   // 가로 분포는 x가 값 위치이므로 pack을 축을 바꿔 쓴다(값 → 세로 좌표로 넣고 결과를 뒤집음)
   const inside = pts.filter((p) => p.v >= domain[0] && p.v <= domain[1]), lowOut = pts.filter((p) => p.v < domain[0]), highOut = pts.filter((p) => p.v > domain[1])
-  const packed = packFit(inside.map((p) => ({ item: p, y: x(p.v) })), mid, 44, 2.6).points.map((p) => ({ ...p, px: p.y, py: p.x }))
-  const railed = (list: typeof pts, px: number) => packFit(list.map((p) => ({ item: p, y: mid })), px, rail / 2 - 2, 2.6, 2, 0).points.map((p) => ({ ...p, px: p.x, py: p.y }))
+  const fit = packFit(inside.map((p) => ({ item: p, y: x(p.v) })), mid, 44, 2.6, 1.8, 0)
+  const packed = fit.points.filter((p) => p.packed).map((p) => ({ ...p, px: p.y, py: p.x }))
+  const wextra = new Map<number, { x: number; n: number }>()
+  for (const p of fit.points) if (!p.packed) { const k = Math.round(p.y / 8); const e = wextra.get(k) ?? { x: p.y, n: 0 }; e.n++; wextra.set(k, e) }
+  const railed = (list: typeof pts, px: number) => packFit(list.map((p) => ({ item: p, y: mid })), px, rail / 2 - 2, 2.6, 1.8, 0).points.filter((p) => p.packed).map((p) => ({ ...p, px: p.x, py: p.y }))
   const all = [...packed, ...railed(lowOut, left - rail / 2), ...railed(highOut, width - right + rail / 2)]
   const order = [...all].sort((a, b) => Math.abs(b.item.v - (baseline ?? 0)) - Math.abs(a.item.v - (baseline ?? 0)))
   const show = (p: (typeof all)[number]) => setTip({ x: p.px, y: p.py, text: `${p.item.r.student.studentName} · ${detail(p.item.r)}` })
@@ -338,7 +347,8 @@ export function WeekStrip({ rows, value, detail, domain, format, warn, label, on
         {lowOut.length > 0 && <text x={left - rail / 2} y={12} textAnchor="middle" className="v5-rail-num">◀{lowOut.length}</text>}
         {highOut.length > 0 && <text x={width - right + rail / 2} y={12} textAnchor="middle" className="v5-rail-num">{highOut.length}▶</text>}
         {vals.length > 0 && <rect x={x(quant(vals, 0.25))} y={14} width={Math.max(1, x(quant(vals, 0.75)) - x(quant(vals, 0.25)))} height={88} rx={3} className="v5-iqr" />}
-        {all.map((p) => <circle key={p.item.r.student.studentId} cx={p.px} cy={p.py} r={2.4} className={warn && isHotRow(p.item.r) && warn(p.item.v) ? 'v5-dot-hot' : 'v5-dot'} onMouseEnter={() => show(p)} onClick={() => onStudent?.(p.item.r)} />)}
+        {[...wextra.values()].map((e, k) => <text key={k} x={e.x} y={height - 22} textAnchor="middle" className="v5-rail-num">+{e.n}</text>)}
+        {all.map((p) => { const out = p.item.v < domain[0] || p.item.v > domain[1]; return out ? <path key={p.item.r.student.studentId} d={`M${p.px - 3.5},${p.py - 3} L${p.px + 3.5},${p.py - 3} L${p.px},${p.py + 3} Z`} className="v5-dot-over" onMouseEnter={() => show(p)} onClick={() => onStudent?.(p.item.r)} /> : <circle key={p.item.r.student.studentId} cx={p.px} cy={p.py} r={fit.r} className={warn && isHotRow(p.item.r) && warn(p.item.v) ? 'v5-dot-hot' : 'v5-dot'} onMouseEnter={() => show(p)} onClick={() => onStudent?.(p.item.r)} /> })}
         {vals.length > 0 && <line x1={x(quant(vals, 0.5))} x2={x(quant(vals, 0.5))} y1={18} y2={98} className="v5-median" />}
         {order[idx] && <circle cx={order[idx].px} cy={order[idx].py} r={6} className="v5-dot-focus" />}
       </svg>

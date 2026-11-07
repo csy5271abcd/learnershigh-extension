@@ -11,8 +11,9 @@ import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
 import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, METRIC_SUB, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { RESULT_HEAD, compareValue } from '../shared/results.ts'
-import { OverviewStrip } from '../shared/charts.tsx'
-import { overviewRows } from '../shared/overview.ts'
+import { BranchRows, BandList } from '../shared/BranchRows.tsx'
+import type { Band } from '../shared/bands.ts'
+import { BAND_LABEL, VISION_BAND_LABEL } from '../shared/bands.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 
 const EMPTY: ReadonlySet<string> = new Set()
@@ -30,6 +31,7 @@ export function VariantA() {
   const [pick, setPick] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
+  const [band, setBand] = useState<{ metric: MetricKey; band: Band } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const [cols, setCols] = useState(() => window.matchMedia(WIDE).matches ? 2 : 1)
   useEffect(() => { const q = window.matchMedia(WIDE); const on = () => setCols(q.matches ? 2 : 1); q.addEventListener('change', on); return () => q.removeEventListener('change', on) }, [])
@@ -66,7 +68,7 @@ export function VariantA() {
                   <td><StatusText r={r} /></td>
                   <td>{r.chips[0] && <span className={`v5-chip${r.chips[0].derived ? ' v5-chip-ref' : ''}`}>{r.chips[0].text}</span>}{r.chips.length > 1 && <span className="v5-muted">+{r.chips.length - 1}</span>}</td>
                 </tr>
-                {open && <tr className="v5-expanded"><td colSpan={3}><StudentFull s={r} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} onSaved={data.saved} guard={guard} actions={<button type="button" className="sc-button" onClick={() => toggle(id)}>접기</button>} /></td></tr>}
+                {open && <tr className="v5-expanded"><td colSpan={3}><StudentFull s={r} version={data.version} startShiftMinutes={data.startShiftMinutes} studyDropPercent={data.studyDropPercent} thresholds={data.thresholds} executionRate={data.executionRate} onSaved={data.saved} guard={guard} actions={<button type="button" className="sc-button" onClick={() => toggle(id)}>접기</button>} /></td></tr>}
               </Fragment> })}</tbody>
           </table>) : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
       </>)}
@@ -77,7 +79,11 @@ export function VariantA() {
           <Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />
           {ex.size > 0 && <span className="v5-muted">집계 {m.included.length}명</span>}
         </div>
-        <section className="v5-card"><OverviewStrip dates={m.days} rows={overviewRows(m, data.studyDropPercent, data.startShiftMinutes, (k) => document.getElementById(`a-metric-${k}`)?.scrollIntoView({ block: 'start' }))} /></section>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k) => document.getElementById(`a-metric-${k}`)?.scrollIntoView({ block: 'start' })} /></section>
+        {band && <section className="v5-result" aria-label="단계별 학생">
+          <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {(band.metric === 'vision' ? VISION_BAND_LABEL : BAND_LABEL)[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
+          <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={openFromBranch} /></div>
+        </section>}
         {groups.map((g) => {
           const res = pick && g.includes(pick.metric) ? pick : null
           return <Fragment key={g.join()}>

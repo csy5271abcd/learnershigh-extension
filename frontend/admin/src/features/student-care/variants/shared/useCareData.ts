@@ -34,6 +34,8 @@ export function useCareData(prefix: string) {
     asOf: board.data?.asOf ?? null,
     studyDropPercent: settings.data?.studyDropPercent ?? 30,
     startShiftMinutes: settings.data?.startShiftMinutes ?? 60,
+    executionRate: settings.data?.executionRatePercent ?? 70,
+    thresholds: { absenceDays: settings.data?.absenceDays ?? 3, planMissingDays: settings.data?.planMissingDays ?? 3, studyDropPercent: settings.data?.studyDropPercent ?? 30, startShiftMinutes: settings.data?.startShiftMinutes ?? 60 },
   }
 }
 export type CareData = ReturnType<typeof useCareData>

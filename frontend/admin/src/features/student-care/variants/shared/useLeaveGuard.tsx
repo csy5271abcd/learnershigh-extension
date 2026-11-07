@@ -1,6 +1,7 @@
 // 상담 입력에 저장하지 않은 내용이 있을 때 학생 전환·닫기·탭 이동을 한 번 멈춘다(plan-v5 3장).
 // 기존 CounselForm은 고치지 않고, 감싼 영역에서 입력·선택이 일어났는지만 본다.
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { lockScroll } from './scrollLock.ts'
 
 export function useLeaveGuard() {
   const [dirty, setDirty] = useState(false)
@@ -11,10 +12,9 @@ export function useLeaveGuard() {
   useEffect(() => {
     if (!pending) return
     const opener = document.activeElement as HTMLElement | null
-    const html = document.documentElement, prev = html.style.overflow
-    html.style.overflow = 'hidden'
+    const unlock = lockScroll()
     keep.current?.focus()
-    return () => { html.style.overflow = prev; opener?.focus?.({ preventScroll: true }) }
+    return () => { unlock(); opener?.focus?.({ preventScroll: true }) }
   }, [pending])
   const trap = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setPending(null); return }

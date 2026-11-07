@@ -1,0 +1,3660 @@
+{
+  "measurementStates": 108,
+  "errors": [],
+  "blocked": [],
+  "layoutFailures": [],
+  "selfTests": [
+    {
+      "name": "잠금 모달 한 곳 스크롤(통과)",
+      "ok": true,
+      "result": {
+        "active": "dialog",
+        "scrollAreas": 1,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": true,
+        "p3": 0,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "미잠금 모달(위반)",
+      "ok": true,
+      "result": {
+        "active": "dialog",
+        "scrollAreas": 1,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": false,
+        "p3": 1,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "일반 화면 중첩 스크롤(위반)",
+      "ok": true,
+      "result": {
+        "active": null,
+        "scrollAreas": 1,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": null,
+        "p3": 1,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "포털 대화상자(대상 포함)",
+      "ok": true,
+      "result": {
+        "active": "portal",
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": true,
+        "p3": 0,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "숨김 잘림(위반)",
+      "ok": true,
+      "result": {
+        "active": null,
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": null,
+        "p3": 0,
+        "p4": 1,
+        "clipped": [
+          "아주 긴 글자 값 12시간 34분"
+        ]
+      }
+    },
+    {
+      "name": "조상 잘림(위반)",
+      "ok": true,
+      "result": {
+        "active": null,
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": null,
+        "p3": 0,
+        "p4": 1,
+        "clipped": [
+          "긴 값이 잘리는 칸 99시간"
+        ]
+      }
+    },
+    {
+      "name": "겹친 창(맨 위 창 선택)",
+      "ok": true,
+      "result": {
+        "active": "top",
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": true,
+        "p3": 0,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "미저장 확인창(alertdialog)이 학생 창 위에 있으면 맨 위로 선택",
+      "ok": true,
+      "result": {
+        "active": "confirm",
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": true,
+        "p3": 0,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "미잠금 alertdialog(위반)",
+      "ok": true,
+      "result": {
+        "active": "confirm",
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": false,
+        "p3": 1,
+        "p4": 0,
+        "clipped": []
+      }
+    },
+    {
+      "name": "정상 화면(통과)",
+      "ok": true,
+      "result": {
+        "active": null,
+        "scrollAreas": 0,
+        "hScroll": 0,
+        "nested": 0,
+        "backgroundLocked": null,
+        "p3": 0,
+        "p4": 0,
+        "clipped": []
+      }
+    }
+  ],
+  "extendedStates": 88,
+  "extendedFailures": [],
+  "text": [
+    {
+      "variant": "original",
+      "width": 1600,
+      "state": "roster",
+      "text": 5595,
+      "first": 390,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "original",
+      "width": 1600,
+      "state": "detail",
+      "text": 6104,
+      "first": 324,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "original",
+      "width": 1600,
+      "state": "branch",
+      "text": 1310,
+      "first": 44,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "a",
+      "width": 1600,
+      "state": "roster",
+      "text": 1945,
+      "first": 432,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "a",
+      "width": 1600,
+      "state": "detail",
+      "text": 2439,
+      "first": 312,
+      "detailWidth": 1250,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "a",
+      "width": 1600,
+      "state": "branch",
+      "text": 1029,
+      "first": 473,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "b",
+      "width": 1600,
+      "state": "roster",
+      "text": 1939,
+      "first": 398,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "b",
+      "width": 1600,
+      "state": "detail",
+      "text": 2449,
+      "first": 752,
+      "detailWidth": 1192,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "b",
+      "width": 1600,
+      "state": "branch",
+      "text": 1132,
+      "first": 370,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "c",
+      "width": 1600,
+      "state": "roster",
+      "text": 1919,
+      "first": 378,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "c",
+      "width": 1600,
+      "state": "detail",
+      "text": 2416,
+      "first": 721,
+      "detailWidth": 1152,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "c",
+      "width": 1600,
+      "state": "branch",
+      "text": 1126,
+      "first": 350,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "d",
+      "width": 1600,
+      "state": "roster",
+      "text": 2051,
+      "first": 341,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "d",
+      "width": 1600,
+      "state": "detail",
+      "text": 504,
+      "first": 346,
+      "detailWidth": 1268,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "d",
+      "width": 1600,
+      "state": "branch",
+      "text": 331,
+      "first": 331,
+      "mainWidth": 1380
+    },
+    {
+      "variant": "original",
+      "width": 1280,
+      "state": "roster",
+      "text": 5595,
+      "first": 390,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "original",
+      "width": 1280,
+      "state": "detail",
+      "text": 6104,
+      "first": 300,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "original",
+      "width": 1280,
+      "state": "branch",
+      "text": 1310,
+      "first": 489,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "a",
+      "width": 1280,
+      "state": "roster",
+      "text": 1945,
+      "first": 432,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "a",
+      "width": 1280,
+      "state": "detail",
+      "text": 2439,
+      "first": 312,
+      "detailWidth": 930,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "a",
+      "width": 1280,
+      "state": "branch",
+      "text": 1029,
+      "first": 465,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "b",
+      "width": 1280,
+      "state": "roster",
+      "text": 1939,
+      "first": 398,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "b",
+      "width": 1280,
+      "state": "detail",
+      "text": 2449,
+      "first": 752,
+      "detailWidth": 1184,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "b",
+      "width": 1280,
+      "state": "branch",
+      "text": 1132,
+      "first": 346,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "c",
+      "width": 1280,
+      "state": "roster",
+      "text": 1919,
+      "first": 378,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "c",
+      "width": 1280,
+      "state": "detail",
+      "text": 2416,
+      "first": 721,
+      "detailWidth": 1152,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "c",
+      "width": 1280,
+      "state": "branch",
+      "text": 1126,
+      "first": 350,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "d",
+      "width": 1280,
+      "state": "roster",
+      "text": 2051,
+      "first": 341,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "d",
+      "width": 1280,
+      "state": "detail",
+      "text": 504,
+      "first": 346,
+      "detailWidth": 948,
+      "mainWidth": 1060
+    },
+    {
+      "variant": "d",
+      "width": 1280,
+      "state": "branch",
+      "text": 331,
+      "first": 331,
+      "mainWidth": 1060
+    }
+  ],
+  "focused": [
+    {
+      "test": "day-wide",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 1230,
+          "height": 220,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 83.992,
+          "maxY": 116.008,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "day-A-card",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 590,
+          "height": 220,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 63.982,
+          "maxY": 140.02,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "day-C-card",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 726,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 56.986000000000004,
+          "maxY": 117.01599999999999,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "week-equal",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "centers": 150,
+          "overlaps": 62,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 16.6,
+          "maxY": 99.4,
+          "hollow": 0,
+          "radii": [
+            "2.4"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "rails-day",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 1230,
+          "height": 220,
+          "points": 0,
+          "centers": 0,
+          "overlaps": 0,
+          "paths": 1050,
+          "uniquePaths": 766,
+          "minY": null,
+          "maxY": null,
+          "hollow": 0,
+          "radii": []
+        }
+      ]
+    },
+    {
+      "test": "rails-week",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "centers": 9,
+          "overlaps": 10299,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 49.996,
+          "maxY": 66.004,
+          "hollow": 0,
+          "radii": [
+            "2.4"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-samples",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 101.008,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 101.008,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 101.008,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 101.008,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-weighted",
+      "width": 1600,
+      "charts": [
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 1230,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-states",
+      "width": 1600,
+      "charts": []
+    },
+    {
+      "test": "day-wide",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 910,
+          "height": 220,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 79.99000000000001,
+          "maxY": 124.012,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "day-A-card",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 430,
+          "height": 220,
+          "points": 1050,
+          "centers": 817,
+          "overlaps": 3995,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 59.98,
+          "maxY": 140.02,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "day-C-card",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 534,
+          "height": 190,
+          "points": 1050,
+          "centers": 967,
+          "overlaps": 537,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 44.98,
+          "maxY": 125.02000000000001,
+          "hollow": 0,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "week-equal",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "centers": 150,
+          "overlaps": 62,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 16.6,
+          "maxY": 99.4,
+          "hollow": 0,
+          "radii": [
+            "2.4"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "rails-day",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 910,
+          "height": 220,
+          "points": 0,
+          "centers": 0,
+          "overlaps": 0,
+          "paths": 1050,
+          "uniquePaths": 576,
+          "minY": null,
+          "maxY": null,
+          "hollow": 0,
+          "radii": []
+        }
+      ]
+    },
+    {
+      "test": "rails-week",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "centers": 9,
+          "overlaps": 10299,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 49.996,
+          "maxY": 66.004,
+          "hollow": 0,
+          "radii": [
+            "2.4"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-samples",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 910,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 109.012,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 109.012,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 109.012,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 1050,
+          "centers": 1050,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 42,
+          "maxY": 109.012,
+          "hollow": 7,
+          "radii": [
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-weighted",
+      "width": 1280,
+      "charts": [
+        {
+          "width": 910,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        },
+        {
+          "width": 910,
+          "height": 190,
+          "points": 14,
+          "centers": 14,
+          "overlaps": 0,
+          "paths": 0,
+          "uniquePaths": 0,
+          "minY": 85,
+          "maxY": 119.4,
+          "hollow": 7,
+          "radii": [
+            "2.6"
+          ]
+        }
+      ]
+    },
+    {
+      "test": "vision-states",
+      "width": 1280,
+      "charts": []
+    }
+  ],
+  "visionUnknown": [
+    {
+      "label": "10/24 자리에 있음: 분석 10장 중 관찰 0장, 판단 불가 10장",
+      "tip": "10/24 자리에 있음: 분석 10장 중 관찰 0장, 판단 불가 10장",
+      "cell": "0,3",
+      "height": 0.796875,
+      "unknownBackground": "rgb(78, 89, 104) none repeat scroll 0% 0% / auto padding-box border-box",
+      "yesBackground": "rgb(78, 89, 104) none repeat scroll 0% 0% / auto padding-box border-box"
+    },
+    {
+      "label": "10/25 자리에 있음: 분석 10장 중 관찰 0장, 판단 불가 0장",
+      "tip": "10/25 자리에 있음: 분석 10장 중 관찰 0장, 판단 불가 0장",
+      "cell": "0,4",
+      "height": 0.828125,
+      "unknownBackground": "rgb(78, 89, 104) none repeat scroll 0% 0% / auto padding-box border-box",
+      "yesBackground": "rgb(78, 89, 104) none repeat scroll 0% 0% / auto padding-box border-box"
+    }
+  ],
+  "actualC": [
+    {
+      "width": 1600,
+      "theme": "light",
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "overlaps": 113
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 726,
+          "height": 190,
+          "points": 821,
+          "overlaps": 0
+        }
+      ]
+    },
+    {
+      "width": 1600,
+      "theme": "dark",
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "overlaps": 113
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 726,
+          "height": 190,
+          "points": 821,
+          "overlaps": 0
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "overlaps": 120
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 534,
+          "height": 190,
+          "points": 821,
+          "overlaps": 0
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "overlaps": 120
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 534,
+          "height": 190,
+          "points": 821,
+          "overlaps": 0
+        }
+      ]
+    }
+  ],
+  "modal": {
+    "out": [
+      {
+        "v": "a",
+        "width": 1600,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 A학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "a",
+        "width": 1600,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "b",
+        "width": 1600,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 B학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "b",
+        "width": 1600,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "c",
+        "width": 1600,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 C학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "c",
+        "width": 1600,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "d",
+        "width": 1600,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 D학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "d",
+        "width": 1600,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "a",
+        "width": 1600,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 A학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "a",
+        "width": 1600,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "b",
+        "width": 1600,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 B학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "b",
+        "width": 1600,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "c",
+        "width": 1600,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 C학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "c",
+        "width": 1600,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "d",
+        "width": 1600,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 D학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "d",
+        "width": 1600,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "a",
+        "width": 1280,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 A학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "a",
+        "width": 1280,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "b",
+        "width": 1280,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 B학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "b",
+        "width": 1280,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "c",
+        "width": 1280,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 C학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "c",
+        "width": 1280,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "d",
+        "width": 1280,
+        "theme": "light",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 D학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "d",
+        "width": 1280,
+        "theme": "light",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "a",
+        "width": 1280,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 A학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "a",
+        "width": 1280,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      },
+      {
+        "v": "b",
+        "width": 1280,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 B학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "b",
+        "width": 1280,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "c",
+        "width": 1280,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 C학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "c",
+        "width": 1280,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "hidden",
+          "scroll": 0,
+          "scrollAfter": 0
+        }
+      },
+      {
+        "v": "d",
+        "width": 1280,
+        "theme": "dark",
+        "state": "settings",
+        "trapped": true,
+        "strictDomLoop": false,
+        "focusShift": {
+          "tag": "BODY",
+          "text": "\n    본문으로 건너뛰기LEARNERS HIGH ADMIN학습관리학습관리 ›,  학생 케어 D학원관리문자관",
+          "inside": false
+        },
+        "focusTab": {
+          "tag": "INPUT",
+          "text": "",
+          "inside": true
+        },
+        "focusSequence": [
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "BUTTON",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "INPUT",
+            "inside": true
+          },
+          {
+            "tag": "BODY",
+            "inside": false
+          }
+        ],
+        "before": 0,
+        "after": 0,
+        "restored": true,
+        "layout": {
+          "active": "sc-dialog",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        }
+      },
+      {
+        "v": "d",
+        "width": 1280,
+        "theme": "dark",
+        "state": "dirty",
+        "shift": true,
+        "tab": true,
+        "scrollBefore": 0,
+        "scrollAfter": 0,
+        "restored": true,
+        "layout": {
+          "active": "v5-confirm",
+          "scrollAreas": 0,
+          "hScroll": 0,
+          "nested": 0,
+          "backgroundLocked": true,
+          "p3": 0,
+          "p4": 0,
+          "clipped": []
+        },
+        "afterDiscard": {
+          "overflow": "visible",
+          "scroll": 0,
+          "scrollAfter": 400
+        }
+      }
+    ],
+    "errors": [],
+    "blocked": []
+  },
+  "labels": [
+    {
+      "width": 1600,
+      "theme": "light",
+      "result": [
+        {
+          "a": "10/21 수",
+          "b": "10/22 목",
+          "gap": 12.625
+        },
+        {
+          "a": "10/22 목",
+          "b": "10/23 금",
+          "gap": 12.625
+        },
+        {
+          "a": "10/23 금",
+          "b": "10/24 토",
+          "gap": 12.625
+        },
+        {
+          "a": "10/24 토",
+          "b": "10/25 일",
+          "gap": 12.625
+        },
+        {
+          "a": "10/25 일",
+          "b": "10/26 월",
+          "gap": 12.625
+        },
+        {
+          "a": "10/26 월",
+          "b": "10/27 화",
+          "gap": 12.625
+        }
+      ]
+    },
+    {
+      "width": 1600,
+      "theme": "dark",
+      "result": [
+        {
+          "a": "10/21 수",
+          "b": "10/22 목",
+          "gap": 12.625
+        },
+        {
+          "a": "10/22 목",
+          "b": "10/23 금",
+          "gap": 12.625
+        },
+        {
+          "a": "10/23 금",
+          "b": "10/24 토",
+          "gap": 12.625
+        },
+        {
+          "a": "10/24 토",
+          "b": "10/25 일",
+          "gap": 12.625
+        },
+        {
+          "a": "10/25 일",
+          "b": "10/26 월",
+          "gap": 12.625
+        },
+        {
+          "a": "10/26 월",
+          "b": "10/27 화",
+          "gap": 12.625
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "result": [
+        {
+          "a": "10/21 수",
+          "b": "10/22 목",
+          "gap": -4.23211669921875
+        },
+        {
+          "a": "10/22 목",
+          "b": "10/23 금",
+          "gap": -4.232147216796875
+        },
+        {
+          "a": "10/23 금",
+          "b": "10/24 토",
+          "gap": -4.232177734375
+        },
+        {
+          "a": "10/24 토",
+          "b": "10/25 일",
+          "gap": -4.232177734375
+        },
+        {
+          "a": "10/25 일",
+          "b": "10/26 월",
+          "gap": -4.23211669921875
+        },
+        {
+          "a": "10/26 월",
+          "b": "10/27 화",
+          "gap": -4.23211669921875
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "result": [
+        {
+          "a": "10/21 수",
+          "b": "10/22 목",
+          "gap": -4.23211669921875
+        },
+        {
+          "a": "10/22 목",
+          "b": "10/23 금",
+          "gap": -4.232147216796875
+        },
+        {
+          "a": "10/23 금",
+          "b": "10/24 토",
+          "gap": -4.232177734375
+        },
+        {
+          "a": "10/24 토",
+          "b": "10/25 일",
+          "gap": -4.232177734375
+        },
+        {
+          "a": "10/25 일",
+          "b": "10/26 월",
+          "gap": -4.23211669921875
+        },
+        {
+          "a": "10/26 월",
+          "b": "10/27 화",
+          "gap": -4.23211669921875
+        }
+      ]
+    }
+  ]
+}
