@@ -31,7 +31,7 @@ interface Props { rows: CareRow[]; t: Thresholds; selected?: { metric: MetricKey
 export function BranchRows({ rows, t, selected, onBand, onMetric, detail }: Props) {
   const dates = rows[0]?.days.map((d) => d.date) ?? []
   return (<>
-    <p className="v5-key"><span className="v5-key-over" />기준 넘음 <span className="v5-key-watch" />주의 <span className="v5-key-ok" />정상 <span className="v5-key-none" />기록 부족</p>
+    <p className="v5-key"><span className="v5-key-over" />기준 넘음 <span className="v5-key-watch" />주의 <span className="v5-key-ok" />정상</p>
     <table className="v5-bands" aria-label="학습관 지표별 학생 단계">
       <thead><tr><th scope="col">지표</th><th scope="col">최근 7일 학생 단계</th><th scope="col">날마다</th><th scope="col">최근 7일</th></tr></thead>
       {METRIC_KEYS.map((m) => {

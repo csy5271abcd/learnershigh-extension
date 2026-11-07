@@ -1,6 +1,6 @@
 // 학생 한 명의 지표 요약(best-practice-v5.md 3장): 지표마다 한 줄 = 기준과 비교하는 막대 + 최근 5주 작은 추이선 + 숫자 하나.
 // 막대: 진한 막대 = 최근 7일, 회색 띠 = 평소, 세로 눈금 = 관리 기준. 날짜별 값은 아래 "날짜별"에서.
-import { hours, type OpsDay } from './model.ts'
+import { hours, clock, type OpsDay } from './model.ts'
 import { md, type CareRow } from './useCareData.ts'
 import { sumVision } from './visionExample.ts'
 import type { Thresholds } from './bands.ts'
@@ -19,7 +19,7 @@ function Bar({ b }: { b: CompareBar }) {
       {b.usual !== null && <span className="v5-cbar-usual" style={{ left: pos(Math.min(0, b.usual)), width: `calc(${pos(Math.max(0, b.usual))} - ${pos(Math.min(0, b.usual))})` }} />}
       <span className={`v5-cbar-value${b.bad ? ' v5-cbar-bad' : ''}${b.partial ? ' v5-cbar-partial' : ''}`} style={{ left: pos(lo < 0 ? a : 0), width: `calc(${pos(lo < 0 ? z : b.value)} - ${pos(lo < 0 ? a : 0)})` }} />
       {b.limit !== null && <span className="v5-cbar-limit" style={{ left: pos(b.limit) }} />}
-      {b.over && <span className="v5-cbar-over">▶</span>}
+      {b.over && <span className={b.value < 0 ? 'v5-cbar-over v5-cbar-over-left' : 'v5-cbar-over'}>{b.value < 0 ? '◀' : '▶'}</span>}
     </span>
   )
 }
@@ -35,7 +35,7 @@ function Weeks({ values, label, unit, ends, partial }: { values: (number | null)
     <svg width={w} height={h} className="v5-trend" role="group" aria-label={`${label} 최근 5주`}>
       {segs.map((s, k) => <polyline key={k} points={s.join(' ')} />)}
       {values.map((v, i) => { const text = `${ends[i]} 끝난 주 ${v === null ? '기록 없음' : unit(v)}${partial?.[i] ? ` (${partial[i]})` : ''}`
-        return <g key={i} tabIndex={0} role="img" aria-label={`${label} ${text}`} data-tip={text}><rect x={xAt(i) - 9} y={0} width={18} height={h} fill="transparent" />{pts[i] ? <circle cx={pts[i]![0]} cy={pts[i]![1]} r={i === values.length - 1 ? 3 : 2} className={partial?.[i] ? 'v5-trend-partial' : ''} /> : <line x1={xAt(i) - 3} x2={xAt(i) + 3} y1={h - 5} y2={h - 5} className="v5-trend-gap" />}</g> })}
+        return <g key={i} tabIndex={0} role="img" aria-label={`${label} ${text}`} data-tip={text}><rect x={xAt(i) - 9} y={0} width={18} height={h} fill="transparent" />{pts[i] ? <circle cx={pts[i]![0]} cy={pts[i]![1]} r={i === values.length - 1 ? 3 : 2} className={partial?.[i] && !/ 7일$/.test(partial[i]) ? 'v5-trend-partial' : ''} /> : <line x1={xAt(i) - 3} x2={xAt(i) + 3} y1={h - 5} y2={h - 5} className="v5-trend-gap" />}</g> })}
     </svg>
   )
 }
@@ -51,7 +51,11 @@ export function StudentRows({ s, t, executionRate }: { s: CareRow; t: Thresholds
   const studyWeeks = weeks.map((x) => x.some((d) => d.minutes !== null) ? x.reduce((a, d) => a + (d.minutes ?? 0), 0) : null)
   const studyRec = weeks.map((x) => x.filter((d) => d.minutes !== null).length)
   const absentWeeks = weeks.map((x) => x.some((d) => d.attendance === 'absent' || d.attendance === 'present') ? x.filter((d) => d.attendance === 'absent').length : null)
+  const attObs = weeks.map((x) => x.filter((d) => d.attendance === 'absent' || d.attendance === 'present').length)
   const missWeeks = weeks.map((x) => x.some((d) => d.submission === 'missing' || d.submission === 'submitted') ? x.filter((d) => d.submission === 'missing').length : null)
+  const subObs = weeks.map((x) => x.filter((d) => d.submission === 'missing' || d.submission === 'submitted').length)
+  const startWeeks = weeks.map((x) => { const v = x.flatMap((d) => d.start ?? []); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null })
+  const startObs = weeks.map((x) => x.filter((d) => d.start !== null).length)
   const studyPct = w.minutes !== null && w.usualWeek ? Math.round(((w.minutes - w.usualWeek) / w.usualWeek) * 100) : null
   const shifts = s.days.flatMap((d) => d.start !== null && d.usualStart !== null ? [d.start - d.usualStart] : [])
   const shift = shifts.length ? Math.round(shifts.reduce((a, b) => a + b, 0) / shifts.length) : null
@@ -63,15 +67,15 @@ export function StudentRows({ s, t, executionRate }: { s: CareRow; t: Thresholds
     { name: '학습 시간', bad: studyPct !== null && studyPct <= -t.studyDropPercent && w.recorded >= (t.minValidDays ?? 1),
       bar: w.minutes === null ? null : { value: w.minutes, usual: w.usualWeek, limit: w.usualWeek ? w.usualWeek * (1 - t.studyDropPercent / 100) : null, max: Math.max(w.minutes, (w.usualWeek ?? 0) * 1.3, 60), bad: studyPct !== null && studyPct <= -t.studyDropPercent, label: `최근 7일 ${hours(w.minutes)}${w.recorded < 7 ? ` (기록 ${w.recorded}일)` : ''}, 평소 주 ${hours(w.usualWeek)}, 기준 평소의 ${100 - t.studyDropPercent}%`, partial: w.recorded < 7 },
       trend: <Weeks values={studyWeeks} ends={ends} label="주별 학습 시간" unit={(v) => hours(v)} partial={studyRec.map((n) => n < 7 ? `기록 ${n}일` : '')} />, num: `${hours(w.minutes)}${studyPct !== null ? ` · ${studyPct > 0 ? '+' : studyPct < 0 ? '−' : ''}${Math.abs(studyPct)}%` : ''}${w.recorded < 7 ? ` · 기록 ${w.recorded}일` : ''}` },
-    { name: '입실 시각 (평소 대비)', bad: shift !== null && shift >= t.startShiftMinutes,
+    { name: '입실 시각', bad: shift !== null && shift >= t.startShiftMinutes,
       bar: shift === null ? null : { value: Math.max(-t.startShiftMinutes * 1.5, Math.min(t.startShiftMinutes * 1.5, shift)), usual: null, limit: t.startShiftMinutes, min: -t.startShiftMinutes * 1.5, max: t.startShiftMinutes * 1.5, over: Math.abs(shift) > t.startShiftMinutes * 1.5, bad: shift >= t.startShiftMinutes, label: `최근 7일 평균 평소보다 ${Math.abs(shift)}분 ${shift >= 0 ? '늦게' : '일찍'}, 기준 ${t.startShiftMinutes}분 늦음` },
-      trend: null, num: shift === null ? '입실 기록 없음' : `평소보다 ${Math.abs(shift)}분 ${shift >= 0 ? '늦게' : '일찍'}` },
+      trend: <><Weeks values={startWeeks} ends={ends} label="주별 평균 입실 시각" unit={(v) => clock(v)} partial={startObs.map((n) => `입실 ${n}일`)} /><span className="v5-trend-name">주별 평균 시각</span></>, num: shift === null ? '입실 기록 없음' : `평소보다 ${Math.abs(shift)}분 ${shift >= 0 ? '늦게' : '일찍'}` },
     { name: '결석', bad: attKnown && absent >= t.absenceDays,
       bar: !attKnown ? null : { value: absent, usual: null, limit: t.absenceDays, max: 7, bad: absent >= t.absenceDays, label: `최근 7일 결석 ${absent}일, 기준 ${t.absenceDays}일` },
-      trend: <Weeks values={absentWeeks} ends={ends} label="주별 결석" unit={(v) => `${v}일`} />, num: attKnown ? `${absent}일 / 등원 예정 ${w.scheduled}일` : '기록 없음' },
+      trend: <Weeks values={absentWeeks} ends={ends} label="주별 결석" unit={(v) => `${v}일`} partial={attObs.map((n) => `출결 확인 ${n}일`)} />, num: attKnown ? `${absent}일 / 등원 예정 ${w.scheduled}일` : '기록 없음' },
     { name: '계획 미제출', bad: subKnown && missing >= t.planMissingDays,
       bar: !subKnown ? null : { value: missing, usual: null, limit: t.planMissingDays, max: 7, bad: missing >= t.planMissingDays, label: `최근 7일 계획 미제출 ${missing}일, 기준 ${t.planMissingDays}일` },
-      trend: <Weeks values={missWeeks} ends={ends} label="주별 계획 미제출" unit={(v) => `${v}일`} />, num: subKnown ? `${missing}일 / 대상 ${w.submitKnown}일` : '기록 없음' },
+      trend: <Weeks values={missWeeks} ends={ends} label="주별 계획 미제출" unit={(v) => `${v}일`} partial={subObs.map((n) => `제출 확인 ${n}일`)} />, num: subKnown ? `${missing}일 / 대상 ${w.submitKnown}일` : '기록 없음' },
     { name: '진행률', bad: w.executionRate !== null && w.executionRate < executionRate,
       bar: w.executionRate === null ? null : { value: Math.min(w.executionRate, 150), usual: null, limit: executionRate, max: 150, over: w.executionRate > 150, bad: w.executionRate < executionRate, label: `최근 7일 진행률 ${Math.round(w.executionRate)}%, 기준 ${executionRate}%` },
       trend: null, num: w.executionRate === null ? progressReason(s) : `${Math.round(w.executionRate)}%` },

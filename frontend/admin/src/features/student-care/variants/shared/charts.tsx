@@ -126,18 +126,19 @@ export function DaySwarm({ rows, value, detail, domain, baseline, format, warn, 
 export function DayRange({ rows, value, domain, baseline, format, warn, height = 200, head, headTip, selectedDay, onDay, label, ticks, lines }: { rows: CareRow[]; value: (r: CareRow, i: number) => number | null; domain: [number, number]; baseline?: number; format: (v: number) => string; warn?: (v: number) => boolean; height?: number; head?: (i: number, vals: number[]) => string; headTip?: (i: number, vals: number[]) => string; selectedDay?: number | null; onDay?: (i: number) => void; label: string; ticks?: number[]; lines?: SwarmLine[] }) {
   const [ref, width] = usePlotWidth()
   const days = rows[0]?.days ?? []
-  const left = 54, right = 8, top = 30, bottom = 46, H = height - top - bottom, colW = (width - left - right) / 7
+  const left = 54, right = 8, top = 40, bottom = 58, H = height - top - bottom, colW = (width - left - right) / 7
   const [lo, hi] = domain
   const y = (v: number) => top + H - ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo)) * H
   const cols = days.map((d, i) => {
     const vals = rows.flatMap((r) => { const v = value(r, i); return v === null ? [] : [v] }).sort((a, b) => a - b)
     const hot = warn ? vals.filter(warn).length : 0
     const above = vals.filter((v) => v > hi).length, below = vals.filter((v) => v < lo).length
-    const summary = vals.length ? `${md(d.date)} ${d.dow} · 학생 ${vals.length}명 · 가운데 값 ${format(quant(vals, 0.5))} · 가운데 절반 ${format(quant(vals, 0.25))}~${format(quant(vals, 0.75))}${warn ? ` · 기준 넘음 ${hot}명` : ''}${above ? ` · 위쪽 범위 밖 ${above}명` : ''}${below ? ` · 아래쪽 범위 밖 ${below}명` : ''}${headTip ? ` · ${headTip(i, vals)}` : ''}` : `${md(d.date)} 기록 없음`
-    return { d, i, cx: left + colW * i + colW / 2, vals, hot, summary }
+    const summary = !vals.length ? `${md(d.date)} 기록 없음${headTip ? ` · ${headTip(i, vals)}` : ''}` : `${md(d.date)} ${d.dow} · 학생 ${vals.length}명 · 가운데 값 ${format(quant(vals, 0.5))} · 가운데 절반 ${format(quant(vals, 0.25))}~${format(quant(vals, 0.75))}${warn ? ` · 기준 넘음 ${hot}명` : ''}${above ? ` · 위쪽 범위 밖 ${above}명` : ''}${below ? ` · 아래쪽 범위 밖 ${below}명` : ''}${headTip ? ` · ${headTip(i, vals)}` : ''}`
+    return { d, i, cx: left + colW * i + colW / 2, vals, hot, summary, above, below }
   })
   return (
     <div ref={ref} className="v5-plot">
+      <p className="v5-key"><span className="v5-key-med" />학생 가운데 값 <span className="v5-key-iqr" />학생 가운데 절반</p>
       <svg width={width} height={height} role="group" aria-label={label}>
         {(ticks ?? [lo, baseline ?? (lo + hi) / 2, hi]).map((t) => <g key={t} aria-hidden="true"><line x1={left} x2={width - right} y1={y(t)} y2={y(t)} className={t === baseline ? 'v5-axis-base' : 'v5-grid'} /><text x={left - 6} y={y(t) + 4} textAnchor="end" className="v5-tick">{t === baseline ? '평소' : format(t)}</text></g>)}
         {cols.map((c) => (
@@ -148,6 +149,8 @@ export function DayRange({ rows, value, domain, baseline, format, warn, height =
               <circle cx={c.cx} cy={y(quant(c.vals, 0.5))} r={5} className="v5-median-dot" />
               <text x={c.cx} y={18} textAnchor="middle" className="v5-head-num">{head ? head(c.i, c.vals) : format(quant(c.vals, 0.5))}</text>
             </>}
+            {c.above > 0 && <text x={c.cx} y={top - 2} textAnchor="middle" className="v5-rail-num">▲ {c.above}명</text>}
+            {c.below > 0 && <text x={c.cx} y={top + H + 14} textAnchor="middle" className="v5-rail-num">▼ {c.below}명</text>}
             <text x={c.cx} y={height - 24} textAnchor="middle" className="v5-tick">{md(c.d.date)} {c.d.dow}</text>
             {c.hot > 0 && <text x={c.cx} y={height - 6} textAnchor="middle" className="v5-hot-more">{colW >= 120 ? `기준 넘음 ${c.hot}명` : `${c.hot}명`}</text>}
           </g>))}
@@ -252,12 +255,12 @@ export function StartDumbbell({ s, shift }: { s: CareRow; shift: number }) {
 export function Progress7({ days }: { days: OpsDay[] }) {
   return (
     <div className="v5-progress" role="list" aria-label="날짜별 진행률">
-      {days.map((d) => { const rate = d.planned && d.actual !== null ? d.actual / d.planned : null, noPlan = (d.planned === 0 || d.planned === null) && d.attendance === 'present'
-        const text = rate !== null ? `${Math.round(rate * 100)}% (실제 ${hours(d.actual)} / 계획 ${hours(d.planned)})` : noPlan ? '계획 없음' : '기록 없음'
+      {days.map((d) => { const rate = d.planned && d.actual !== null ? d.actual / d.planned : null, noPlan = d.planned === 0
+        const text = rate !== null ? `${Math.round(rate * 100)}% (실제 ${hours(d.actual)} / 계획 ${hours(d.planned)})` : d.planned === null ? '계획 기록 없음' : d.planned === 0 ? '계획 없음' : '실제 기록 없음'
         return <div role="listitem" key={d.date} tabIndex={0} className="v5-progress-col" aria-label={`${md(d.date)} ${text}`} data-tip={`${md(d.date)} ${text}`}>
           <span className="v5-progress-over">{rate !== null && rate > 1 ? '▲' : ''}</span>
           {rate !== null ? <span className="v5-progress-track"><span className={`v5-progress-fill${rate < 0.7 ? ' v5-progress-low' : ''}`} style={{ height: `${Math.min(100, rate * 100)}%` }} /></span>
-            : noPlan ? <span className="v5-progress-track v5-progress-noplan" /> : <span className="v5-progress-none" />}
+            : noPlan ? <span className="v5-progress-track v5-progress-noplan" /> : d.planned === null ? <span className="v5-progress-none" /> : <span className="v5-progress-track v5-progress-noactual">?</span>}
           <span className="v5-tick">{md(d.date)}</span>
         </div> })}
     </div>

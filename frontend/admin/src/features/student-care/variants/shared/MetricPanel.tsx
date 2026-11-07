@@ -13,15 +13,17 @@ function PlanBars({ m, onDay, selectedDay }: { m: BranchModel; onDay?: (i: numbe
   const [ref, width] = usePlotWidth()
   const left = 8, colW = (width - left * 2) / 7, H = 90, top = 24
   const miss = m.days.map((d) => d.submitKnown - d.submitted), max = Math.max(1, ...miss)
+  const offN = m.days.map((_, i) => m.included.filter((r) => r.days[i].submission === 'off').length), unkN = m.days.map((_, i) => m.included.filter((r) => r.days[i].submission === 'unknown').length)
+  const empty = (i: number) => offN[i] >= unkN[i] ? '제출 대상 없음' : '제출 기록 없음'
   return (
     <div ref={ref} className="v5-plot">
       <svg width={width} height={H + top + 26} role="group" aria-label="날짜별 계획 미제출 인원">
         <line x1={left} x2={width - left} y1={top + H} y2={top + H} className="v5-grid" />
         {m.days.map((d, i) => { const cx = left + colW * i + colW / 2, bw = Math.min(36, colW * 0.5), h = (miss[i] / max) * H
-          return <g key={d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === i : undefined} data-tip={d.submitKnown ? `${md(d.date)} 미제출 ${miss[i]}명 · 제출 ${d.submitted}명 · 대상 ${d.submitKnown}명` : `${md(d.date)} 제출 기록 없음`} aria-label={`${md(d.date)} 계획 미제출 ${miss[i]}명, 제출 ${d.submitted}명, 대상 ${d.submitKnown}명`} onClick={() => onDay?.(i)} onKeyDown={(e) => { if (onDay && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDay(i) } }} className="v5-day-hit">
+          return <g key={d.date} role="button" tabIndex={0} aria-pressed={onDay ? selectedDay === i : undefined} data-tip={d.submitKnown ? `${md(d.date)} 미제출 ${miss[i]}명 · 제출 ${d.submitted}명 · 대상 ${d.submitKnown}명 · 대상 아님 ${offN[i]}명 · 기록 없음 ${unkN[i]}명` : `${md(d.date)} ${empty(i)} (대상 아님 ${offN[i]}명 · 기록 없음 ${unkN[i]}명)`} aria-label={d.submitKnown ? `${md(d.date)} 계획 미제출 ${miss[i]}명, 제출 ${d.submitted}명, 대상 ${d.submitKnown}명` : `${md(d.date)} ${empty(i)}`} onClick={() => onDay?.(i)} onKeyDown={(e) => { if (onDay && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onDay(i) } }} className="v5-day-hit">
             {selectedDay === i && <rect x={cx - colW / 2 + 2} y={0} width={colW - 4} height={H + top + 26} rx={6} className="v5-col-sel" />}
             {d.submitKnown > 0 && <text x={cx} y={top + H - h - 6} textAnchor="middle" className="v5-head-num">{miss[i]}명</text>}
-            {d.submitKnown === 0 && <text x={cx} y={top + H - 6} textAnchor="middle" className="v5-muted-svg">기록 없음</text>}
+            {d.submitKnown === 0 && <text x={cx} y={top + H - 6} textAnchor="middle" className="v5-muted-svg">{empty(i) === '제출 대상 없음' ? '대상 없음' : '기록 없음'}</text>}
             {miss[i] > 0 && <rect x={cx - bw / 2} y={top + H - h} width={bw} height={h} rx={3} className="v5-bar-missing" />}
             <text x={cx} y={H + top + 18} textAnchor="middle" className="v5-tick">{md(d.date)} {d.dow}</text>
           </g> })}

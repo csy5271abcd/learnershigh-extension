@@ -41,7 +41,8 @@ export function studentsOn(m: BranchModel, metric: MetricKey, i: number, axis: V
     else if (metric === 'plan') { if (d.submission === 'missing' || d.submission === 'submitted') out.push({ row, actual: d.submission === 'missing' ? '미제출' : '제출', usual: `7일 미제출 ${row.days.filter((x) => x.submission === 'missing').length}일`, diff: '', sort: d.submission === 'missing' ? 0 : 1 }) }
     else {
       const v = row.vision[i]
-      if (v.analyzedPhotos > 0 && !v.unsupportedAxes.includes(axis)) { const share = v.axes[axis].yes / v.analyzedPhotos; out.push({ row, actual: `분석 ${v.analyzedPhotos}장 중 ${v.axes[axis].yes}장`, usual: `판단 불가 ${v.axes[axis].unknown}장`, diff: `${Math.round(share * 1000) / 10}%`, sort: -share, num: share * 100 }) }
+      if (v.analyzedPhotos > 0 && !v.unsupportedAxes.includes(axis)) { const share = v.axes[axis].yes / v.analyzedPhotos; out.push({ row, actual: `분석 ${v.analyzedPhotos}장 중 ${v.axes[axis].yes}장${v.analyzedPhotos < 10 ? ' (작은 표본)' : ''}`, usual: `판단 불가 ${v.axes[axis].unknown}장${v.failedPhotos ? ` · 실패 ${v.failedPhotos}장` : ''}`, diff: `${Math.round(share * 1000) / 10}%`, sort: -share, num: share * 100 }) }
+      else out.push({ row, actual: v.photosReceived === 0 ? '사진 없음' : v.analyzedPhotos === 0 ? `분석 실패 ${v.failedPhotos}장` : `지원 안 함 ${v.analyzedPhotos}장`, usual: '', diff: '비율 없음', sort: 2 })
     }
   }
   return out.sort((a, b) => a.sort - b.sort || a.row.student.studentName.localeCompare(b.row.student.studentName, 'ko'))
@@ -69,4 +70,4 @@ export function weekBins(m: BranchModel, metric: MetricKey, axis: VisionAxis = '
 export const visionAxes = VISION_AXES
 export const quantileOf = quantile
 
-export const METRIC_SUB: Record<MetricKey, string> = { absence: '결석이 있는 학생의 7일', study: '학생별 평소 대비, 점 하나 = 학생 한 명', start: '학생별 평소 대비', plan: '날짜별 제출·미제출', vision: '사진 기준 비율, 예시' }
+export const METRIC_SUB: Record<MetricKey, string> = { absence: '결석이 있는 학생의 7일', study: '학생별 평소 대비, 날마다 가운데 값과 가운데 절반', start: '학생별 평소 대비, 날마다 가운데 값과 가운데 절반', plan: '날짜별 계획 미제출 인원', vision: '사진 기준 비율, 예시' }

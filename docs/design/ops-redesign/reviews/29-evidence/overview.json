@@ -1,0 +1,633 @@
+{
+  "screenStates": 272,
+  "screenErrors": [],
+  "screenP3": [],
+  "screenP4": [],
+  "modalStates": 32,
+  "modalFailures": [],
+  "discard": [
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "d",
+      "width": 1280,
+      "theme": "light",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    },
+    {
+      "v": "d",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": "visible",
+      "scroll": 0,
+      "scrollAfter": 400
+    }
+  ],
+  "text": [
+    {
+      "v": "original",
+      "state": "roster",
+      "text": 5595,
+      "first": 390,
+      "main": 1380
+    },
+    {
+      "v": "original",
+      "state": "detail",
+      "text": 6104,
+      "first": 324,
+      "main": 1380
+    },
+    {
+      "v": "original",
+      "state": "branch",
+      "text": 1310,
+      "first": 489,
+      "main": 1380
+    },
+    {
+      "v": "a",
+      "state": "roster",
+      "text": 1945,
+      "first": 432,
+      "main": 1380
+    },
+    {
+      "v": "a",
+      "state": "detail",
+      "text": 2257,
+      "first": 309,
+      "width": 1250,
+      "main": 1380
+    },
+    {
+      "v": "a",
+      "state": "byday",
+      "text": 2497,
+      "first": 309,
+      "width": 1250,
+      "main": 1380
+    },
+    {
+      "v": "a",
+      "state": "branch",
+      "text": 192,
+      "first": 192,
+      "main": 1380
+    },
+    {
+      "v": "b",
+      "state": "roster",
+      "text": 1939,
+      "first": 398,
+      "main": 1380
+    },
+    {
+      "v": "b",
+      "state": "detail",
+      "text": 2267,
+      "first": 668,
+      "width": 1192,
+      "main": 1380
+    },
+    {
+      "v": "b",
+      "state": "byday",
+      "text": 2507,
+      "first": 681,
+      "width": 1192,
+      "main": 1380
+    },
+    {
+      "v": "b",
+      "state": "branch",
+      "text": 241,
+      "first": 241,
+      "main": 1380
+    },
+    {
+      "v": "c",
+      "state": "roster",
+      "text": 1919,
+      "first": 378,
+      "main": 1380
+    },
+    {
+      "v": "c",
+      "state": "detail",
+      "text": 2234,
+      "first": 640,
+      "width": 1152,
+      "main": 1380
+    },
+    {
+      "v": "c",
+      "state": "byday",
+      "text": 2474,
+      "first": 656,
+      "width": 1152,
+      "main": 1380
+    },
+    {
+      "v": "c",
+      "state": "branch",
+      "text": 204,
+      "first": 204,
+      "main": 1380
+    },
+    {
+      "v": "d",
+      "state": "roster",
+      "text": 2104,
+      "first": 268,
+      "main": 1380
+    },
+    {
+      "v": "d",
+      "state": "detail",
+      "text": 322,
+      "first": 264,
+      "width": 1268,
+      "main": 1380
+    },
+    {
+      "v": "d",
+      "state": "byday",
+      "text": 562,
+      "first": 264,
+      "width": 1268,
+      "main": 1380
+    },
+    {
+      "v": "d",
+      "state": "branch",
+      "text": 381,
+      "first": 252,
+      "main": 1380
+    }
+  ],
+  "flows": [
+    {
+      "test": "actual",
+      "width": 1600,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 0,
+          "n": 23,
+          "text": "권유진 고2 B반 7일 6시간 7분 · 평소 주 19시간 45분 · −69%"
+        },
+        {
+          "i": 1,
+          "n": 7,
+          "text": "신유진 고3 A반 7일 11시간 21분 · 평소 주 16시간 49분 · −33%"
+        },
+        {
+          "i": 2,
+          "n": 3,
+          "text": "신지우 고3 A반 7일 14시간 21분 · 평소 주 17시간 56분 · −20%"
+        },
+        {
+          "i": 3,
+          "n": 102,
+          "text": "강서윤 고3 A반 7일 12시간 26분 · 평소 주 12시간 15분 · +2%"
+        },
+        {
+          "i": 5,
+          "n": 15,
+          "text": "강서준 고2 B반 7일 19시간 57분 · 평소 주 14시간 26분 · +38%"
+        }
+      ],
+      "title": "학생별 최근 7일 휴대폰 사용 관찰 비율",
+      "phone": [
+        "55명5% 미만",
+        "33명5~10%",
+        "34명10~20%",
+        "28명20~30%",
+        "0명30% 이상"
+      ],
+      "changed": [
+        "1명5% 미만",
+        "40명5~10%",
+        "65명10~20%",
+        "44명20~30%",
+        "0명30% 이상"
+      ]
+    },
+    {
+      "test": "equal",
+      "width": 1600,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1600,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1600,
+      "theme": "light",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1600,
+      "theme": "light",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "actual",
+      "width": 1600,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 0,
+          "n": 23,
+          "text": "권유진 고2 B반 7일 6시간 7분 · 평소 주 19시간 45분 · −69%"
+        },
+        {
+          "i": 1,
+          "n": 7,
+          "text": "신유진 고3 A반 7일 11시간 21분 · 평소 주 16시간 49분 · −33%"
+        },
+        {
+          "i": 2,
+          "n": 3,
+          "text": "신지우 고3 A반 7일 14시간 21분 · 평소 주 17시간 56분 · −20%"
+        },
+        {
+          "i": 3,
+          "n": 102,
+          "text": "강서윤 고3 A반 7일 12시간 26분 · 평소 주 12시간 15분 · +2%"
+        },
+        {
+          "i": 5,
+          "n": 15,
+          "text": "강서준 고2 B반 7일 19시간 57분 · 평소 주 14시간 26분 · +38%"
+        }
+      ],
+      "title": "학생별 최근 7일 휴대폰 사용 관찰 비율",
+      "phone": [
+        "55명5% 미만",
+        "33명5~10%",
+        "34명10~20%",
+        "28명20~30%",
+        "0명30% 이상"
+      ],
+      "changed": [
+        "1명5% 미만",
+        "40명5~10%",
+        "65명10~20%",
+        "44명20~30%",
+        "0명30% 이상"
+      ]
+    },
+    {
+      "test": "equal",
+      "width": 1600,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1600,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1600,
+      "theme": "dark",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1600,
+      "theme": "dark",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "actual",
+      "width": 1280,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 0,
+          "n": 23,
+          "text": "권유진 고2 B반 7일 6시간 7분 · 평소 주 19시간 45분 · −69%"
+        },
+        {
+          "i": 1,
+          "n": 7,
+          "text": "신유진 고3 A반 7일 11시간 21분 · 평소 주 16시간 49분 · −33%"
+        },
+        {
+          "i": 2,
+          "n": 3,
+          "text": "신지우 고3 A반 7일 14시간 21분 · 평소 주 17시간 56분 · −20%"
+        },
+        {
+          "i": 3,
+          "n": 102,
+          "text": "강서윤 고3 A반 7일 12시간 26분 · 평소 주 12시간 15분 · +2%"
+        },
+        {
+          "i": 5,
+          "n": 15,
+          "text": "강서준 고2 B반 7일 19시간 57분 · 평소 주 14시간 26분 · +38%"
+        }
+      ],
+      "title": "학생별 최근 7일 휴대폰 사용 관찰 비율",
+      "phone": [
+        "55명5% 미만",
+        "33명5~10%",
+        "34명10~20%",
+        "28명20~30%",
+        "0명30% 이상"
+      ],
+      "changed": [
+        "1명5% 미만",
+        "40명5~10%",
+        "65명10~20%",
+        "44명20~30%",
+        "0명30% 이상"
+      ]
+    },
+    {
+      "test": "equal",
+      "width": 1280,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1280,
+      "theme": "light",
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1280,
+      "theme": "light",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1280,
+      "theme": "light",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "actual",
+      "width": 1280,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 0,
+          "n": 23,
+          "text": "권유진 고2 B반 7일 6시간 7분 · 평소 주 19시간 45분 · −69%"
+        },
+        {
+          "i": 1,
+          "n": 7,
+          "text": "신유진 고3 A반 7일 11시간 21분 · 평소 주 16시간 49분 · −33%"
+        },
+        {
+          "i": 2,
+          "n": 3,
+          "text": "신지우 고3 A반 7일 14시간 21분 · 평소 주 17시간 56분 · −20%"
+        },
+        {
+          "i": 3,
+          "n": 102,
+          "text": "강서윤 고3 A반 7일 12시간 26분 · 평소 주 12시간 15분 · +2%"
+        },
+        {
+          "i": 5,
+          "n": 15,
+          "text": "강서준 고2 B반 7일 19시간 57분 · 평소 주 14시간 26분 · +38%"
+        }
+      ],
+      "title": "학생별 최근 7일 휴대폰 사용 관찰 비율",
+      "phone": [
+        "55명5% 미만",
+        "33명5~10%",
+        "34명10~20%",
+        "28명20~30%",
+        "0명30% 이상"
+      ],
+      "changed": [
+        "1명5% 미만",
+        "40명5~10%",
+        "65명10~20%",
+        "44명20~30%",
+        "0명30% 이상"
+      ]
+    },
+    {
+      "test": "equal",
+      "width": 1280,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 3,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 11시간 40분 · 평소 주 11시간 40분 · 0%"
+        }
+      ]
+    },
+    {
+      "test": "extreme",
+      "width": 1280,
+      "theme": "dark",
+      "counts": [
+        {
+          "i": 5,
+          "n": 150,
+          "text": "강서윤 고3 A반 7일 40시간 50분 · 평소 주 11시간 40분 · +250%"
+        }
+      ]
+    },
+    {
+      "test": "plan-off",
+      "width": 1280,
+      "theme": "dark",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    },
+    {
+      "test": "plan-unknown",
+      "width": 1280,
+      "theme": "dark",
+      "counts": [],
+      "aria": "10/21 계획 미제출 0명, 제출 0명, 대상 0명",
+      "tip": "10/21 제출 기록 없음"
+    }
+  ],
+  "currentCases": 56,
+  "blocked": []
+}

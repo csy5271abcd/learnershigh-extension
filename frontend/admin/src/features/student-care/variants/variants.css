@@ -294,3 +294,7 @@
 .v5-bin-fill { width: 100%; background: var(--color-chart-bar); border-radius: 3px 3px 0 0; }
 .v5-bin-label { font-size: 13px; color: var(--color-text-secondary); white-space: nowrap; }
 .v5-bins-total { grid-column: 1 / -1; }
+.v5-key-med { border-radius: 50% !important; width: 10px !important; background: var(--color-accent); }
+.v5-key-iqr { background: var(--color-accent-soft); border: 1px solid var(--color-accent); width: 8px !important; height: 14px !important; }
+.v5-progress-noactual { display: flex !important; align-items: center; justify-content: center; color: var(--color-text-secondary); font-weight: 700; }
+.v5-cbar-over-left { right: auto; left: -14px; }
