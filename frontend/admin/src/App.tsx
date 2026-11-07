@@ -33,7 +33,8 @@ import {
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
 import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCarePath, isStudentCarePath, studentCareOpsPath } from './app/studentCarePaths.ts'
+import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath } from './app/studentCarePaths.ts'
+import { StudentCareVariantPage } from './features/student-care/variants/StudentCareVariantPage.tsx'
 import { StudentCareOpsPage } from './features/student-care/ops/StudentCareOpsPage.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
@@ -45,6 +46,10 @@ const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
   'student-care': studentCarePath,
   'student-care-ops': studentCareOpsPath,
+  'student-care-a': studentCareVariantPath('a'),
+  'student-care-b': studentCareVariantPath('b'),
+  'student-care-c': studentCareVariantPath('c'),
+  'student-care-d': studentCareVariantPath('d'),
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -113,6 +118,11 @@ function App() {
     current = 'interview'
     pageLabel = 'Interview 관리'
     page = <InterviewRoute location={location} />
+  } else if (studentCareVariantOf(pathname)) {
+    const variant = studentCareVariantOf(pathname)!
+    current = `student-care-${variant}`
+    pageLabel = `학생 케어 ${variant.toUpperCase()}`
+    page = <div className={ui.page}><StudentCareVariantPage key={variant} variant={variant} /></div>
   } else if (pathname === studentCareOpsPath) {
     current = 'student-care-ops'
     pageLabel = '학생 케어 개선안'

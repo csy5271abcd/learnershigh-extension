@@ -1,0 +1,11 @@
+{
+  "selfTests": 8,
+  "measurements": 46,
+  "modalMeasurements": 10,
+  "generalMeasurements": 36,
+  "unchangedInputs": 60,
+  "changedInputs": [],
+  "reportLinks": 9,
+  "brokenLinks": [],
+  "evidencePNGs": 46
+}
