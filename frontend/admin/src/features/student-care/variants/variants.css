@@ -181,3 +181,42 @@
 .v5-expanded > td { padding: 12px 8px 20px; white-space: normal; background: var(--color-surface); }
 .v5-table-a { background: var(--color-surface); border-radius: 12px; }
 .v5-table-a th, .v5-table-a td { padding-left: 10px; }
+/* 안내 상자·초점 */
+.v5-rel { position: relative; }
+.v5-tip { position: absolute; z-index: 20; max-width: 280px; background: var(--color-text-primary); color: var(--color-surface); font-size: 13px; line-height: 1.4; padding: 6px 10px; border-radius: 6px; pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.v5-tip-fixed { position: fixed; z-index: 70; }
+.v5-dot-small { fill: var(--color-surface); stroke: var(--color-text-tertiary); stroke-width: 1.2; cursor: pointer; }
+.v5-dot-focus { fill: none; stroke: var(--color-focus); stroke-width: 2.5; }
+.v5-rail-num { fill: var(--color-text-secondary); font-size: 13px; font-weight: 700; }
+.v5-hot-more { fill: var(--color-flag); font-size: 13px; font-weight: 600; }
+.v5-hot-more-p { margin: 0; font-size: 13px; color: var(--color-flag); font-weight: 600; }
+.v5-muted-svg { fill: var(--color-text-secondary); font-size: 13px; }
+.v5-line polyline { fill: none; stroke-width: 2.5; }
+.v5-line text { font-size: 13px; font-weight: 700; }
+.v5-line-1 polyline, .v5-line-1 circle { stroke: var(--color-accent); } .v5-line-1 circle, .v5-line-1 text { fill: var(--color-accent-text); }
+.v5-line-2 polyline { stroke: #7a5af8; } .v5-line-2 circle, .v5-line-2 text { fill: #7a5af8; }
+.v5-line-3 polyline { stroke: #0e9384; } .v5-line-3 circle, .v5-line-3 text { fill: #0e9384; }
+.v5-avg-row { display: grid; grid-template-columns: 54px repeat(7, minmax(0, 1fr)); font-size: 13px; text-align: center; color: var(--color-text-primary); }
+.v5-avg-row .v5-muted { text-align: left; }
+.v5-matrix-foot { margin: 6px 0 0; display: flex; gap: 8px 12px; flex-wrap: wrap; align-items: center; }
+[data-cell]:focus-visible, .v5-progress-col:focus-visible, .v5-subject:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.v5-progress-over { height: 14px; font-size: 12px; color: var(--color-text-secondary); }
+.v5-progress-noplan { border-style: dashed; }
+.v5-progress-none { width: 26px; height: 80px; }
+.v5-rep { color: var(--color-flag) !important; font-weight: 700 !important; }
+.v5-vision td { padding: 0; }
+.v5-vision-bar { display: flex; flex-direction: column; justify-content: flex-end; height: 28px; background: var(--color-surface-muted); border-radius: 3px; overflow: hidden; }
+.v5-vision-bar span { width: 100%; }
+.v5-vision-unk { background: repeating-linear-gradient(135deg, var(--color-border) 0 3px, transparent 3px 6px); }
+.v5-vision-yes { background: var(--color-text-secondary); }
+.v5-vision-fail { display: grid; place-items: center; height: 28px; border: 1px solid var(--color-border); border-radius: 3px; color: var(--color-text-secondary); font-weight: 700; }
+.v5-vision-unsup { display: block; height: 28px; border-radius: 3px; background: repeating-linear-gradient(45deg, var(--color-surface-muted) 0 4px, var(--color-border) 4px 5px); }
+.v5-vision-sum { font-size: 13px; font-weight: 700; text-align: center; }
+.v5-key-actual-bar { background: var(--color-text-secondary); }
+.v5-key-unknown-bar { background: repeating-linear-gradient(135deg, var(--color-border) 0 3px, transparent 3px 6px); border: 1px solid var(--color-border); }
+.v5-key-none { border: 1px dashed var(--color-border); }
+.v5-key-fail { width: auto !important; height: auto !important; margin-right: 2px !important; font-weight: 700; }
+.v5-key-unsup { background: repeating-linear-gradient(45deg, var(--color-surface-muted) 0 4px, var(--color-border) 4px 5px); }
+.v5-vision-rows { display: grid; gap: 6px; }
+.v5-vision-row .v5-axis-name { margin-top: 4px; }
+.v5-c-row > div, .v5-vision-row, .v5-cards > section, .v5-student-grid > section { min-width: 0; }

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { AllHistory } from '../../components/AllHistory.tsx'
 import { careApi, md, useCareData, REASONS, type CareRow } from '../shared/useCareData.ts'
-import { CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
+import { AxisPick, CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
 import { RosterText, ReasonChips, StatusText } from '../shared/roster.tsx'
 import { matchQuery, matchReason } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
@@ -44,12 +44,12 @@ export function VariantC() {
 
   if (!rows || !data.branchId || !m) return <div className="sc-page v5-page"><CareHeader data={data} title="학생 케어 C" /><LoadState data={data} /></div>
   const reasonKeys = REASONS.filter((x) => !['', 'managed', 'WEEKDAY_ABSENCE'].includes(x.key))
-  const week: Record<MetricKey, { value: (r: CareRow) => number | null; domain: [number, number]; format: (v: number) => string; warn: (v: number) => boolean; baseline?: number }> = {
+  const week: Record<MetricKey, { value: (r: CareRow) => number | null; domain: [number, number]; format: (v: number) => string; warn?: (v: number) => boolean; baseline?: number }> = {
     absence: { value: (r) => r.days.filter((d) => d.attendance === 'absent').length, domain: [0, 7], format: (v) => `${Math.round(v)}일`, warn: (v) => v >= 2 },
     study: { value: (r) => r.week.minutes !== null && r.week.usualWeek ? (r.week.minutes - r.week.usualWeek) / r.week.usualWeek * 100 : null, domain: [-100, 100], format: (v) => sg(v, '%'), warn: (v) => v <= -data.studyDropPercent, baseline: 0 },
     start: { value: (r) => { const x = r.days.flatMap((d) => d.start !== null && d.usualStart !== null ? [d.start - d.usualStart] : []); return x.length ? x.reduce((a, b) => a + b, 0) / x.length : null }, domain: [-120, 120], format: (v) => sg(v, '분'), warn: (v) => v >= data.startShiftMinutes / 2, baseline: 0 },
     plan: { value: (r) => r.days.filter((d) => d.submission === 'missing').length, domain: [0, 7], format: (v) => `${Math.round(v)}일`, warn: (v) => v >= 3 },
-    vision: { value: (r) => { const a = sumVision(r.vision).axes[axis]; return a.analyzed ? a.yes / a.analyzed * 100 : null }, domain: [0, 100], format: (v) => `${Math.round(v)}%`, warn: (v) => v >= 30 },
+    vision: { value: (r) => { const a = sumVision(r.vision).axes[axis]; return a.analyzed ? a.yes / a.analyzed * 100 : null }, domain: [0, 100], format: (v) => `${Math.round(v)}%` },
   }
   const tabs: [Tab, string][] = [['queue', `확인할 학생 ${queue.length}`], ['branch', '학습관 현황'], ['all', `전체 학생 ${rows.length}`], ['history', '관리 이력']]
   return (
@@ -84,12 +84,12 @@ export function VariantC() {
             <div className="v5-card-head"><h3>{METRIC_LABEL[k]}</h3></div>
             <div className="v5-c-row">
               <div><p className="v5-axis-name">학생별 최근 7일 {k === 'absence' ? '결석 일수' : k === 'plan' ? '미제출 일수' : k === 'vision' ? '관찰 비율' : '평소 대비'}</p>
-                <WeekStrip rows={m.included} value={w.value} domain={w.domain} format={w.format} warn={w.warn} baseline={w.baseline} label={`${METRIC_LABEL[k]} 학생별 7일 분포`} onStudent={(r) => go(() => setOpenId(r.student.studentId))} /></div>
+                <WeekStrip rows={m.included} value={w.value} detail={(r) => { const v = w.value(r); return v === null ? '기록 없음' : w.format(v) }} domain={w.domain} format={w.format} warn={w.warn} baseline={w.baseline} label={`${METRIC_LABEL[k]} 학생별 7일 분포`} onStudent={(r) => go(() => setOpenId(r.student.studentId))} /></div>
               <div><p className="v5-axis-name">날짜별</p>
-                <MetricPanel metric={k} rows={m.included} axis={axis} onAxis={setAxis} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={190} compact onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i) => setRes(res?.metric === k && res.i === i ? null : { metric: k, i })} selectedDay={res?.metric === k ? res.i : null} /></div>
+                <MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={190} limit={8} onStudent={(r) => go(() => setOpenId(r.student.studentId))} onDay={(i) => setRes(res?.metric === k && res.i === i ? null : { metric: k, i })} selectedDay={res?.metric === k ? res.i : null} /></div>
             </div>
             {res?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[res.i].date)} 학생`}>
-              <div className="v5-result-head"><b>{METRIC_LABEL[k]} · {md(m.days[res.i].date)} {m.days[res.i].dow} · 학생 {studentsOn(m, k, res.i, axis).length}명</b><button type="button" className="sc-button" onClick={() => setRes(null)}>접기</button></div>
+              <div className="v5-result-head"><b>{METRIC_LABEL[k]} · {md(m.days[res.i].date)} {m.days[res.i].dow} · 학생 {studentsOn(m, k, res.i, axis).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setRes(null)}>접기</button></div>
               <div className="v5-result-body">
                 <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} />
                 <StudentValues list={studentsOn(m, k, res.i, axis)} head={RESULT_HEAD[k]} onOpen={(r) => go(() => setOpenId(r.student.studentId))} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />

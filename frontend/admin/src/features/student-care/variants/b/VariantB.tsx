@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react'
 import { AllHistory } from '../../components/AllHistory.tsx'
 import { careApi, md, useCareData, REASONS, type CareRow } from '../shared/useCareData.ts'
-import { CareHeader, LoadState, Compare, Exclude, Section, StudentValues } from '../shared/parts.tsx'
+import { AxisPick, CareHeader, LoadState, Compare, Exclude, Section, StudentValues } from '../shared/parts.tsx'
 import { RosterText, ReasonFilter } from '../shared/roster.tsx'
 import { matchQuery, matchReason } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
@@ -64,7 +64,7 @@ export function VariantB() {
           <span className="v5-muted">다른 지표</span>{METRIC_KEYS.map((k) => <button key={k} type="button" className="v5-mini" aria-pressed={k === dateView.metric} onClick={() => setDateView({ metric: k, i: dateView.i })}>{METRIC_LABEL[k]}</button>)}
           <button type="button" className="v5-mini" disabled={dateView.i === 0} onClick={() => setDateView({ ...dateView, i: dateView.i - 1 })}>← {dateView.i > 0 ? md(m.days[dateView.i - 1].date) : ''}</button>
           <button type="button" className="v5-mini" disabled={dateView.i === 6} onClick={() => setDateView({ ...dateView, i: dateView.i + 1 })}>{dateView.i < 6 ? md(m.days[dateView.i + 1].date) : ''} →</button>
-          <span>학생 {list.length}명{dateView.metric === 'study' && d.studyChange ? ` · 평소 대비 가운데 값 ${Math.round(d.studyChange.median)}%` : ''}</span>
+          {dateView.metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<span>학생 {list.length}명{dateView.metric === 'study' && d.studyChange ? ` · 평소 대비 가운데 값 ${Math.round(d.studyChange.median)}%` : ''}</span>
         </div></>}>
         <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(dateView.metric, axis)} />
         <StudentValues list={list} head={RESULT_HEAD[dateView.metric]} onOpen={(r) => setOpenId(r.student.studentId)} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
@@ -95,7 +95,7 @@ export function VariantB() {
         </Section>
         {METRIC_KEYS.map((k) => (
           <Section key={k} id={`b-metric-${k}`} title={METRIC_LABEL[k]} sub={METRIC_SUB[k]}>
-            <MetricPanel metric={k} rows={m.included} axis={axis} onAxis={setAxis} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={k === 'study' || k === 'start' ? 200 : undefined} compact onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i) => setDateView({ metric: k, i })} selectedDay={dateView?.metric === k ? dateView.i : null} />
+            <MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={k === 'study' || k === 'start' ? 200 : undefined} limit={8} onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i) => setDateView({ metric: k, i })} selectedDay={dateView?.metric === k ? dateView.i : null} />
           </Section>))}
       </>)}
       {tab === 'history' && <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => { setTab('students'); setOpenId(id) }} />}

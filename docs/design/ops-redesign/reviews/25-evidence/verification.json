@@ -1,0 +1,10 @@
+{
+  "links": 36,
+  "missing": [],
+  "baseStates": 140,
+  "pageErrors": [],
+  "mutationsAttempted": [],
+  "extendedStates": 72,
+  "selfTestPassed": 8,
+  "expectedSelfTests": 8
+}

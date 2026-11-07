@@ -7,7 +7,23 @@ export function useLeaveGuard() {
   const [pending, setPending] = useState<(() => void) | null>(null)
   const keep = useRef<HTMLButtonElement>(null)
   const guard = useCallback((action: () => void) => { if (dirty) setPending(() => action); else action() }, [dirty])
-  useEffect(() => { if (pending) keep.current?.focus() }, [pending])
+  // 확인창이 열리면 뒤 문서 스크롤을 잠그고 초점을 확인창 안에 가두며, 닫으면 원래 초점으로 돌린다
+  useEffect(() => {
+    if (!pending) return
+    const opener = document.activeElement as HTMLElement | null
+    const html = document.documentElement, prev = html.style.overflow
+    html.style.overflow = 'hidden'
+    keep.current?.focus()
+    return () => { html.style.overflow = prev; opener?.focus?.({ preventScroll: true }) }
+  }, [pending])
+  const trap = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setPending(null); return }
+    if (e.key !== 'Tab') return
+    const items = [...e.currentTarget.querySelectorAll<HTMLElement>('button')]
+    const i = items.indexOf(document.activeElement as HTMLElement)
+    e.preventDefault(); e.stopPropagation()
+    items[(i + (e.shiftKey ? -1 : 1) + items.length) % items.length]?.focus()
+  }
   // 브라우저 새로고침·닫기
   useEffect(() => {
     if (!dirty) return
@@ -17,7 +33,7 @@ export function useLeaveGuard() {
   }, [dirty])
   const prompt: ReactNode = pending && (
     <div className="v5-confirm-dim">
-      <div className="v5-confirm" role="alertdialog" aria-modal="true" aria-labelledby="v5-leave-title">
+      <div className="v5-confirm" role="alertdialog" aria-modal="true" aria-labelledby="v5-leave-title" onKeyDown={trap}>
         <p id="v5-leave-title"><b>저장하지 않은 기록이 있습니다</b></p>
         <div className="v5-confirm-actions">
           <button ref={keep} type="button" className="sc-button" onClick={() => setPending(null)}>계속 작성</button>

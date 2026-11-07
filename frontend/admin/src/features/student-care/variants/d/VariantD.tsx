@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AllHistory } from '../../components/AllHistory.tsx'
 import { careApi, md, useCareData, type CareRow } from '../shared/useCareData.ts'
-import { CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
+import { AxisPick, CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
 import { RosterText } from '../shared/roster.tsx'
 import { matchQuery } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
@@ -74,9 +74,9 @@ export function VariantD() {
         {allOpen ? <section className="v5-card"><div className="v5-card-head"><h3>전체 학생 {rows.length}명</h3></div><RosterText label="전체 학생" rows={rows} onOpen={open} /></section> : (
           <section className="v5-card">
             <div className="v5-card-head"><h3>{METRIC_LABEL[metric]}<span className="v5-muted"> {METRIC_SUB[metric]}</span></h3></div>
-            <MetricPanel metric={metric} rows={m.included} axis={axis} onAxis={setAxis} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={open} onDay={(i) => setDay(day === i ? null : i)} selectedDay={day} />
+            <MetricPanel metric={metric} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={open} onDay={(i) => setDay(day === i ? null : i)} selectedDay={day} />
             {day !== null && <section className="v5-result" aria-label={`${METRIC_LABEL[metric]} ${md(m.days[day].date)} 학생`}>
-              <div className="v5-result-head"><b>{md(m.days[day].date)} {m.days[day].dow} · 학생 {list.length}명</b><button type="button" className="sc-button" onClick={() => setDay(null)}>접기</button></div>
+              <div className="v5-result-head"><b>{md(m.days[day].date)} {m.days[day].dow} · 학생 {list.length}명</b>{metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setDay(null)}>접기</button></div>
               <div className="v5-result-body">
                 <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(metric, axis)} />
                 <StudentValues list={list} head={RESULT_HEAD[metric]} onOpen={open} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />

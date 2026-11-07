@@ -4,7 +4,7 @@
 /** 브라우저 안에서 실행. 활성 화면(맨 위 aria-modal 대화상자, 없으면 문서)을 기준으로 잰다 */
 export const p34Probe = () => {
   const visible = (el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== 'hidden' && cs.display !== 'none' && !el.closest('[hidden],[aria-hidden="true"]') }
-  const dialogs = [...document.querySelectorAll('[role=dialog][aria-modal="true"], dialog[open]')].filter(visible)
+  const dialogs = [...document.querySelectorAll('[role=dialog][aria-modal="true"], [role=alertdialog][aria-modal="true"], dialog[open]')].filter(visible)
   // 맨 위 창: 문서 순서상 마지막(겹친 창은 나중에 열린 것이 뒤에 붙는다) 중 가장 높은 z-index
   const z = (el) => { for (let e = el; e; e = e.parentElement) { const v = parseInt(getComputedStyle(e).zIndex, 10); if (!Number.isNaN(v)) return v } return 0 }
   const active = dialogs.sort((a, b) => z(a) - z(b) || (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1)).at(-1) ?? null
@@ -56,6 +56,8 @@ const cases = [
   ['숨김 잘림(위반)', fixture('<main><div style="width:60px;overflow:hidden;white-space:nowrap">아주 긴 글자 값 12시간 34분</div></main>'), (r) => r.p4 > 0],
   ['조상 잘림(위반)', fixture('<main><div style="width:80px;height:20px;overflow:hidden"><div><span style="display:inline-block;width:200px">긴 값이 잘리는 칸 99시간</span></div></div></main>'), (r) => r.p4 > 0],
   ['겹친 창(맨 위 창 선택)', fixture('<style>html{overflow:hidden}</style><div role="dialog" aria-modal="true" aria-label="bottom" style="position:fixed;inset:10px;z-index:10"><p>a</p></div><div role="dialog" aria-modal="true" aria-label="top" style="position:fixed;inset:60px;z-index:20"><p>b</p></div>'), (r) => r.active === 'top'],
+  ['미저장 확인창(alertdialog)이 학생 창 위에 있으면 맨 위로 선택', fixture('<style>html{overflow:hidden}</style><div role="dialog" aria-modal="true" aria-label="student" style="position:fixed;inset:10px;z-index:50;overflow:auto"><div class="long">s</div></div><div role="alertdialog" aria-modal="true" aria-label="confirm" style="position:fixed;inset:200px;z-index:60"><button>계속</button></div>'), (r) => r.active === 'confirm' && r.p3 === 0],
+  ['미잠금 alertdialog(위반)', fixture('<div class="long">page</div><div role="alertdialog" aria-modal="true" aria-label="confirm" style="position:fixed;inset:200px"><button>계속</button></div>'), (r) => r.active === 'confirm' && r.p3 > 0],
   ['정상 화면(통과)', fixture('<main><p>값 3시간 12분</p><table><tr><td>권유진</td><td>결석</td></tr></table></main>'), (r) => r.p3 === 0 && r.p4 === 0],
 ]
 

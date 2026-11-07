@@ -6,7 +6,8 @@ import { VariantC } from './c/VariantC.tsx'
 import { VariantD } from './d/VariantD.tsx'
 import '../student-care.css'
 import './variants.css'
+import { TipLayer } from './shared/charts.tsx'
 
 export function StudentCareVariantPage({ variant }: { variant: StudentCareVariant }) {
-  return variant === 'a' ? <VariantA /> : variant === 'b' ? <VariantB /> : variant === 'c' ? <VariantC /> : <VariantD />
+  return <TipLayer>{variant === 'a' ? <VariantA /> : variant === 'b' ? <VariantB /> : variant === 'c' ? <VariantC /> : <VariantD />}</TipLayer>
 }

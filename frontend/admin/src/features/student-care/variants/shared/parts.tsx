@@ -1,6 +1,6 @@
 // 시안 A–D 공통 화면 조각: 머리(지점·기준일·설정), 날짜 값 그래프, 날짜 범위 그래프, 분포 구간, 집계 제외, 학생 값 표.
 // 그래프는 모든 값을 그 자리에 글자로 쓴다(범례를 두지 않음).
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { SettingsDialog } from '../../components/SettingsDialog.tsx'
 import { monthDay } from '../../model/format.ts'
 import { careApi, md, type CareData, type CareRow } from './useCareData.ts'
@@ -8,6 +8,8 @@ import type { Bin, StudentValue } from './branch.ts'
 
 export function CareHeader({ data, title, onBranchChange }: { data: CareData; title: string; onBranchChange?: () => void }) {
   const [open, setOpen] = useState(false)
+  // 설정 창이 열려 있는 동안 뒤 문서 스크롤을 잠근다
+  useEffect(() => { if (!open) return; const html = document.documentElement, prev = html.style.overflow; html.style.overflow = 'hidden'; return () => { html.style.overflow = prev } }, [open])
   return (
     <header className="sc-top">
       <h1 className="sc-top__title">{title}</h1>
@@ -139,4 +141,11 @@ export function Exclude({ rows, excluded, onChange }: { rows: CareRow[]; exclude
 
 export function Section({ title, sub, children, actions, id }: { title: ReactNode; sub?: ReactNode; children: ReactNode; actions?: ReactNode; id?: string }) {
   return <section className="v5-card" id={id}><div className="v5-card-head"><h3>{title}{sub && <span className="v5-muted"> {sub}</span>}</h3>{actions}</div>{children}</section>
+}
+
+/** 비전 결과 표에서 볼 관찰 항목 고르기 */
+export function AxisPick({ axis, onAxis }: { axis: import('./visionExample.ts').VisionAxis; onAxis: (a: import('./visionExample.ts').VisionAxis) => void }) {
+  const axes = ['person_visible', 'head_down', 'phone_interaction', 'reading_or_writing'] as const
+  const label = { person_visible: '자리에 있음', head_down: '고개 숙임', phone_interaction: '휴대폰 사용', reading_or_writing: '읽기·쓰기' }
+  return <span className="v5-seg" role="group" aria-label="관찰 항목">{axes.map((a) => <button key={a} type="button" aria-pressed={axis === a} onClick={() => onAxis(a)}>{label[a]}</button>)}</span>
 }
