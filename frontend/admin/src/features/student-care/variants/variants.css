@@ -259,3 +259,21 @@
 .v5-key-cusual { background: var(--color-surface-muted); border: 1px solid var(--color-border); }
 .v5-key-climit { width: 2px !important; background: var(--color-text-primary); }
 .v5-byday { margin-top: 12px; }
+.v5-hotline { margin: 4px 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.v5-key-over { background: var(--color-flag); } .v5-key-watch { background: var(--color-flag-soft); border: 1px solid var(--color-flag); } .v5-key-ok { background: var(--color-surface-muted); border: 1px solid var(--color-border); }
+.v5-trend-gap { stroke: var(--color-border); stroke-width: 2; }
+.v5-bands-detail > td { padding: 4px 0 16px; background: var(--color-surface); }
+.v5-inline-detail { display: grid; gap: 10px; }
+.v5-c-week { max-width: 720px; }
+.v5-cbar-zero { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--color-text-tertiary); }
+.v5-cbar-over { position: absolute; right: -14px; top: -1px; font-size: 12px; color: var(--color-text-secondary); }
+.v5-cbar:focus-visible, .v5-trend g:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.v5-week7 { border-collapse: separate; border-spacing: 4px; }
+.v5-week7 th { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); text-align: center; white-space: nowrap; }
+.v5-week7 tbody th { text-align: left; padding-right: 8px; }
+.v5-w7 { width: 76px; height: 28px; border-radius: 4px; text-align: center; font-size: 13px; font-weight: 600; background: var(--color-surface-muted); }
+.v5-w7.v5-cell-absent { background: var(--color-text-secondary); color: var(--color-surface); }
+.v5-w7.v5-cell-off { background: transparent; border: 1px solid var(--color-border); color: var(--color-text-secondary); font-weight: 400; }
+.v5-w7.v5-cell-unknown, .v5-w7.v5-sub7-unknown { background: transparent; border: 1px dashed var(--color-input-border); color: var(--color-text-secondary); font-weight: 400; }
+.v5-w7.v5-sub7-missing { background: var(--color-flag-soft); color: var(--color-flag); }
+.v5-w7.v5-sub7-off { background: transparent; border: 1px solid var(--color-border); }

@@ -7,7 +7,6 @@ import { sumVision } from './visionExample.ts'
 
 export type Band = 'ok' | 'watch' | 'over' | 'none'
 export const BAND_LABEL: Record<Band, string> = { ok: '정상', watch: '주의', over: '기준 넘음', none: '기록 없음' }
-export const VISION_BAND_LABEL: Record<Band, string> = { ok: '10% 미만', watch: '10~20%', over: '20% 이상', none: '사진 없음' }
 
 export type Thresholds = Pick<CareSettingsValues, 'absenceDays' | 'planMissingDays' | 'studyDropPercent' | 'startShiftMinutes'>
 
@@ -27,7 +26,7 @@ export function bandOf(metric: MetricKey, v: number | null, t: Thresholds): Band
   if (metric === 'plan') return v >= t.planMissingDays ? 'over' : v >= 1 ? 'watch' : 'ok'
   if (metric === 'study') return v <= -t.studyDropPercent ? 'over' : v <= -t.studyDropPercent / 2 ? 'watch' : 'ok'
   if (metric === 'start') return v >= t.startShiftMinutes ? 'over' : v >= t.startShiftMinutes / 2 ? 'watch' : 'ok'
-  return v >= 20 ? 'over' : v >= 10 ? 'watch' : 'ok'
+  return 'ok'
 }
 
 export interface BandGroups { ok: CareRow[]; watch: CareRow[]; over: CareRow[]; none: CareRow[] }
@@ -40,17 +39,23 @@ export function bandGroups(metric: MetricKey, rows: CareRow[], t: Thresholds): B
   return g
 }
 
-/** 날짜별로 그날 기준을 넘은 학생 수(작은 추이선용). 비전은 그날 사진 합산 휴대폰 사용 비율(%) */
-export function dailyOver(metric: MetricKey, rows: CareRow[], t: Thresholds): (number | null)[] {
+/** 날짜별로 그날 기준을 넘은 학생 수(그날 값이 있는 학생이 없으면 null). 비전은 그날 사진 합산 휴대폰 사용 비율(%) */
+export function dailyOver(metric: MetricKey, rows: CareRow[], t: Thresholds): { v: number | null; base: number }[] {
   const days = rows[0]?.days ?? []
   return days.map((_, i) => {
-    if (metric === 'vision') { let y = 0, n = 0; for (const r of rows) { const v = r.vision[i]; if (v.analyzedPhotos && !v.unsupportedAxes.includes('phone_interaction')) { y += v.axes.phone_interaction.yes; n += v.analyzedPhotos } } return n ? (y / n) * 100 : null }
-    return rows.filter((r) => { const d = r.days[i]
+    if (metric === 'vision') { let y = 0, n = 0, k = 0; for (const r of rows) { const v = r.vision[i]; if (v.analyzedPhotos && !v.unsupportedAxes.includes('phone_interaction')) { y += v.axes.phone_interaction.yes; n += v.analyzedPhotos; k++ } } return { v: n ? (y / n) * 100 : null, base: k } }
+    const has = (r: CareRow) => { const d = r.days[i]
+      if (metric === 'absence') return d.attendance === 'absent' || d.attendance === 'present'
+      if (metric === 'plan') return d.submission === 'missing' || d.submission === 'submitted'
+      if (metric === 'study') return d.minutes !== null && !!d.usualMinutes
+      return d.start !== null && d.usualStart !== null }
+    const over = (r: CareRow) => { const d = r.days[i]
       if (metric === 'absence') return d.attendance === 'absent'
       if (metric === 'plan') return d.submission === 'missing'
-      if (metric === 'study') return d.minutes !== null && !!d.usualMinutes && ((d.minutes - d.usualMinutes) / d.usualMinutes) * 100 <= -t.studyDropPercent
-      return d.start !== null && d.usualStart !== null && d.start - d.usualStart >= t.startShiftMinutes
-    }).length
+      if (metric === 'study') return ((d.minutes! - d.usualMinutes!) / d.usualMinutes!) * 100 <= -t.studyDropPercent
+      return d.start! - d.usualStart! >= t.startShiftMinutes }
+    const valid = rows.filter(has)
+    return { v: valid.length ? valid.filter(over).length : null, base: valid.length }
   })
 }
 
@@ -59,6 +64,6 @@ export const weekText = (metric: MetricKey, v: number | null) => {
   if (metric === 'absence') return `결석 ${v}일`
   if (metric === 'plan') return `계획 미제출 ${v}일`
   if (metric === 'study') return `평소 대비 ${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Math.round(v))}%`
-  if (metric === 'start') return `평소보다 ${Math.abs(Math.round(v))}분 ${v >= 0 ? '늦음' : '이름'}`
+  if (metric === 'start') return v >= 0 ? `평소보다 ${Math.round(v)}분 늦게` : `평소보다 ${Math.abs(Math.round(v))}분 일찍`
   return `휴대폰 사용 ${Math.round(v)}%`
 }

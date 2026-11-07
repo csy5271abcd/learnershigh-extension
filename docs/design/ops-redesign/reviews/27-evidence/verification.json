@@ -1,0 +1,89 @@
+{
+  "head": "9f6fa98",
+  "counts": {
+    "screens": {
+      "states": 272,
+      "errors": 0,
+      "blocked": 0
+    },
+    "audit": {
+      "states": 16,
+      "errors": 0,
+      "blocked": 0
+    },
+    "focused": {
+      "states": 36,
+      "errors": 0,
+      "blocked": 0
+    },
+    "summary-cases": {
+      "states": 32,
+      "errors": 0,
+      "blocked": 0
+    },
+    "modal-complete": {
+      "states": 32,
+      "errors": 0,
+      "blocked": 0
+    }
+  },
+  "selftests": 10,
+  "links": 42,
+  "missing": [],
+  "trackedDiff": "",
+  "stagedDiff": "",
+  "dateGaps": [
+    {
+      "width": 1600,
+      "theme": "light",
+      "minGap": 29.37158203125
+    },
+    {
+      "width": 1600,
+      "theme": "dark",
+      "minGap": 29.37158203125
+    },
+    {
+      "width": 1280,
+      "theme": "light",
+      "minGap": 12.514404296875
+    },
+    {
+      "width": 1280,
+      "theme": "dark",
+      "minGap": 12.514404296875
+    }
+  ],
+  "knownProductFailures": {
+    "barKeyboardUnavailable": true,
+    "gate": "A/B/C/D fail; M01-M09 in report"
+  },
+  "sourceHashes": {
+    "frontend/admin/src/features/student-care/variants/a/VariantA.tsx": "8cd1195bb4ae4ef462f437755860b5801f537f4ff336fc11c0f7f097f2a72860",
+    "frontend/admin/src/features/student-care/variants/b/VariantB.tsx": "1c11f6b05b0bcd6163b42d023f3f06129846bf36aea77944eb579311dff17e0f",
+    "frontend/admin/src/features/student-care/variants/c/VariantC.tsx": "80fa3898af7f83d766347d2635571505003ca0fb6179393f75f4d71037726ddf",
+    "frontend/admin/src/features/student-care/variants/d/VariantD.tsx": "f84b90fc78c54b5e0d1657b90ef5cbe6c4f393008713ad2130782d79841fa7ec",
+    "frontend/admin/src/features/student-care/variants/shared/bands.ts": "df37f873ea9ee64ac7f60cd720ed657d9a1e80863b8b4eff5cf6de626ddfc4bf",
+    "frontend/admin/src/features/student-care/variants/shared/branch.ts": "4e236f14a543982779c3418abc437acbce05b50e3829f10d3f1c619022371861",
+    "frontend/admin/src/features/student-care/variants/shared/BranchRows.tsx": "eacbf7d2141a893d94d18f4cfbeb64ecb31b87cd118b741c5866b72196825029",
+    "frontend/admin/src/features/student-care/variants/shared/charts.tsx": "b4492a44683e3297c92fbc367177a114d3a16401edd95f2f1e5926c054603a73",
+    "frontend/admin/src/features/student-care/variants/shared/MetricPanel.tsx": "a607547655a8369a7fe406c4fc4e9bec0488572c818c9e53d90c225b755e242a",
+    "frontend/admin/src/features/student-care/variants/shared/model.ts": "e28714b61f53be5cf717608cccb8bbc2d252f9dee8b500603a33ffa9fcef0c2c",
+    "frontend/admin/src/features/student-care/variants/shared/Overlay.tsx": "0af61c749ce3bd149469210bfad571b22c8ce864543ea67cf6e4f15fa09b58d8",
+    "frontend/admin/src/features/student-care/variants/shared/pack.test.mjs": "18810e5967ba71d54fcc89f8c80b2c1429a9a476c5feef7d5cd4c35d54f0538e",
+    "frontend/admin/src/features/student-care/variants/shared/pack.ts": "77f4f2bd12c1682f63778c74f7186f904da3eaadf9e49c5ae250aee1ee2d686c",
+    "frontend/admin/src/features/student-care/variants/shared/parts.tsx": "f729d5e486d2c0f08c3c3845de00ee8dd072e3b323b9605094582940c63227c4",
+    "frontend/admin/src/features/student-care/variants/shared/results.ts": "4851de2240f50ebc42c23d8e9f429872c5d755dbe782e74bab076292702e147c",
+    "frontend/admin/src/features/student-care/variants/shared/roster.tsx": "834c276777b9ac303cfbdf13da71b29184c21df1caae447ecb3814290ed256b3",
+    "frontend/admin/src/features/student-care/variants/shared/scrollLock.ts": "a61e1e22f77f60a16e1853e2379cfdc0b1b1607f15f5106b44a0e68b7ee41d8d",
+    "frontend/admin/src/features/student-care/variants/shared/StudentFull.tsx": "286067c41abf53bbe43d9f6fe1125f47af5c8fe899f72653fe8c2698f73b97d3",
+    "frontend/admin/src/features/student-care/variants/shared/StudentRows.tsx": "69aafe2f9c23be8481e2c9fb9050cbf56321a6108c85f44cb7ad2b4939776a59",
+    "frontend/admin/src/features/student-care/variants/shared/useCareData.ts": "e07ad7b9b9446b706d8e3f5081b9ad186d0ace244f9aa76e18c5d718d0f0ef4a",
+    "frontend/admin/src/features/student-care/variants/shared/useLeaveGuard.tsx": "54f8d03efc4753e55101121fd97f2049c6134d5e86ff425be9a7d3964f5cba8c",
+    "frontend/admin/src/features/student-care/variants/shared/visionExample.test.mjs": "4183fdff74efe44fb9a102b6164978e989d12966f05373aaebf8535c67c62c09",
+    "frontend/admin/src/features/student-care/variants/shared/visionExample.ts": "615aeb429aac64bd1cdd12560f8bcd3f388610e5836e64a6634312144b3330d3",
+    "frontend/admin/src/features/student-care/variants/StudentCareVariantPage.tsx": "1cf742423b51d7cae3db34edc86646d1a688d42973f122e47472414676578e65",
+    "frontend/admin/src/features/student-care/variants/variants.css": "fef8404f7443d6f764fb1ff09756f781294142da82236bf3a1d7f6cf347d335c"
+  },
+  "fail": []
+}

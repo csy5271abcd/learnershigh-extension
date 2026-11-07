@@ -8,13 +8,13 @@ import { matchQuery, matchReason } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
 import { Overlay } from '../shared/Overlay.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
-import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, METRIC_SUB, type MetricKey } from '../shared/branch.ts'
+import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { RESULT_HEAD, compareValue } from '../shared/results.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
-import { BAND_LABEL, VISION_BAND_LABEL } from '../shared/bands.ts'
+import { BAND_LABEL } from '../shared/bands.ts'
 
 const EMPTY: ReadonlySet<string> = new Set()
 
@@ -30,7 +30,8 @@ export function VariantB() {
   const [dateView, setDateView] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
-  const [band, setBand] = useState<{ metric: MetricKey; band: Band } | null>(null)
+  const [metricView, setMetricView] = useState<MetricKey | null>(null)
+  const [band, setBand] = useState<{ metric: MetricKey; band: Band | null } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
   const ex = excluded[data.branchId ?? ''] ?? EMPTY
   const rows = data.rows
@@ -88,18 +89,17 @@ export function VariantB() {
         <RosterText label="전체 학생" rows={shown} selectedId={openId} onOpen={(r: CareRow) => { setDateView(null); setOpenId(r.student.studentId) }} />
       </>)}
       {tab === 'branch' && (<>
-        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand({ metric: k, band: b })} onMetric={(k) => document.getElementById(`b-metric-${k}`)?.scrollIntoView({ block: 'start' })} /></section>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} onBand={(k, b) => setBand({ metric: k, band: b })} selected={band ?? (metricView ? { metric: metricView, band: null } : null)} onMetric={(k, i) => { setMetricView(k); if (i !== undefined) setDateView({ metric: k, i }) }} /></section>
         <Section title="사유별 학생" actions={<Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />}>
           <div className="v5-wrap">{reasonCounts.map((x) => <button key={x.key} type="button" className="v5-mini" onClick={() => { setReason(x.key); setQuery(''); setTab('students') }}>{x.label} {rows.filter(x.match).length}명 →</button>)}</div>
           {ex.size > 0 && <p className="v5-muted">집계 {m.included.length}명 (제외 {ex.size}명)</p>}
         </Section>
-        {METRIC_KEYS.map((k) => (
-          <Section key={k} id={`b-metric-${k}`} title={METRIC_LABEL[k]} sub={METRIC_SUB[k]}>
-            <MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={k === 'study' || k === 'start' ? 200 : undefined} limit={8} onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i) => setDateView({ metric: k, i })} selectedDay={dateView?.metric === k ? dateView.i : null} />
-          </Section>))}
       </>)}
       {tab === 'history' && <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => { setTab('students'); setOpenId(id) }} />}
-      {band && !openRow && <Overlay kind="modal" label="단계별 학생" onClose={() => setBand(null)} header={<div className="v5-overlay-bar"><h2>{METRIC_LABEL[band.metric]} · {(band.metric === 'vision' ? VISION_BAND_LABEL : BAND_LABEL)[band.band]}</h2><button type="button" className="sc-button" onClick={() => setBand(null)}>닫기</button></div>}><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={(r) => setOpenId(r.student.studentId)} /></Overlay>}
+      {band && !openRow && <Overlay kind="modal" label="단계별 학생" onClose={() => setBand(null)} header={<div className="v5-overlay-bar"><h2>{METRIC_LABEL[band.metric]} · {BAND_LABEL[band.band!]}</h2><button type="button" className="sc-button" onClick={() => setBand(null)}>닫기</button></div>}><BandList metric={band.metric} band={band.band!} rows={m.included} t={data.thresholds} onOpen={(r) => setOpenId(r.student.studentId)} /></Overlay>}
+      {metricView && !dateView && !openRow && !band && <Overlay kind="modal" label={`${METRIC_LABEL[metricView]} 날짜별`} onClose={() => setMetricView(null)} header={<div className="v5-overlay-bar"><h2>{METRIC_LABEL[metricView]} · 날짜별</h2><button type="button" className="sc-button" onClick={() => setMetricView(null)}>닫기</button></div>}>
+        <MetricPanel metric={metricView} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={300} onStudent={(r) => setOpenId(r.student.studentId)} onDay={(i) => setDateView({ metric: metricView, i })} />
+      </Overlay>}
       {studentOverlay}
       {dateOverlay}
       {guard.prompt}

@@ -21,6 +21,22 @@ interface Props {
   actions?: ReactNode
 }
 
+const ATT = { present: '입실', absent: '결석', off: '예정 없음', unknown: '기록 없음' } as const
+const SUB = { submitted: '제출', missing: '미제출', off: '제출 대상 아님', unknown: '기록 없음' } as const
+/** 최근 7일 출결·계획 제출 두 줄. 칸 하나 Tab, 화살표로 이동하며 안내로 날짜·상태 */
+function Week7({ s }: { s: CareRow }) {
+  const nav = (e: React.KeyboardEvent<HTMLElement>) => { const c = (e.target as HTMLElement).closest('[data-cell]') as HTMLElement | null; if (!c) return; const [r, k] = c.dataset.cell!.split(',').map(Number); const d = ({ ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0] } as Record<string, number[]>)[e.key]; if (!d) return; e.preventDefault(); const n = e.currentTarget.querySelector<HTMLElement>(`[data-cell="${r + d[0]},${k + d[1]}"]`); if (n) { c.tabIndex = -1; n.tabIndex = 0; n.focus() } }
+  return (
+    <table className="v5-week7" aria-label="최근 7일 출결과 계획 제출" onKeyDown={nav}>
+      <thead><tr><th scope="col"><span className="lh-visually-hidden">항목</span></th>{s.days.map((d) => <th key={d.date} scope="col">{md(d.date)} {d.dow}</th>)}</tr></thead>
+      <tbody>
+        <tr><th scope="row">출결</th>{s.days.map((d, i) => <td key={d.date} data-cell={`0,${i}`} tabIndex={i === 0 ? 0 : -1} className={`v5-w7 v5-cell-${d.attendance}`} aria-label={`${md(d.date)} ${ATT[d.attendance]}`} data-tip={`${md(d.date)} ${ATT[d.attendance]}`}>{d.attendance === 'present' ? '' : ATT[d.attendance]}</td>)}</tr>
+        <tr><th scope="row">계획</th>{s.days.map((d, i) => <td key={d.date} data-cell={`1,${i}`} tabIndex={-1} className={`v5-w7 v5-sub7-${d.submission}`} aria-label={`${md(d.date)} 계획 ${SUB[d.submission]}`} data-tip={`${md(d.date)} 계획 ${SUB[d.submission]}`}>{d.submission === 'missing' ? '미제출' : d.submission === 'unknown' ? '기록 없음' : ''}</td>)}</tr>
+      </tbody>
+    </table>
+  )
+}
+
 export function StudentFull({ s, version, startShiftMinutes, studyDropPercent, thresholds, executionRate, onSaved, guard, actions }: Props) {
   const [byDay, setByDay] = useState(false)
   const detail = useRemote(s.student.studentId, () => careApi.detail(s.student.branchId, s.student.studentId), version)
@@ -38,6 +54,7 @@ export function StudentFull({ s, version, startShiftMinutes, studyDropPercent, t
         {actions && <div className="v5-actions v5-no-dirty">{actions}</div>}
       </header>
       <StudentRows s={s} t={thresholds} executionRate={executionRate} />
+      <section><h3>최근 7일 출결 · 계획 제출</h3><Week7 s={s} /></section>
       <div className="v5-student-grid">
         <section><h3>35일 출결</h3><Month35 s={s} /></section>
         <section><h3>과목 비중 <span className="v5-muted">계획 → 실제</span></h3><SubjectDumbbell s={s} /></section>

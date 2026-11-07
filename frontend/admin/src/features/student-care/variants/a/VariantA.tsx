@@ -1,6 +1,6 @@
 // 시안 A: 기존 학생 케어 화면 개선. 구조 유지(학생 표 → 행 아래 펼침, 학습관별 지표 카드).
 // 고친 점: 상태 칸에 사유, 사유 필터, 펼친 상세는 본문 전체 폭, 카드 안 결과(그 카드 행 바로 아래), 지표별 표현(representation-v5).
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { AllHistory } from '../../components/AllHistory.tsx'
 import { careApi, md, useCareData, type CareRow } from '../shared/useCareData.ts'
 import { AxisPick, CareHeader, LoadState, Compare, Exclude, StudentValues } from '../shared/parts.tsx'
@@ -8,18 +8,17 @@ import { ReasonFilter, StatusText } from '../shared/roster.tsx'
 import { matchQuery, matchReason } from '../shared/useCareData.ts'
 import { StudentFull } from '../shared/StudentFull.tsx'
 import { useLeaveGuard } from '../shared/useLeaveGuard.tsx'
-import { branchModel, studentsOn, METRIC_KEYS, METRIC_LABEL, METRIC_SUB, type MetricKey } from '../shared/branch.ts'
+import { branchModel, studentsOn, METRIC_LABEL, type MetricKey } from '../shared/branch.ts'
 import { MetricPanel } from '../shared/MetricPanel.tsx'
 import { RESULT_HEAD, compareValue } from '../shared/results.ts'
 import { BranchRows, BandList } from '../shared/BranchRows.tsx'
 import type { Band } from '../shared/bands.ts'
-import { BAND_LABEL, VISION_BAND_LABEL } from '../shared/bands.ts'
+import { BAND_LABEL } from '../shared/bands.ts'
 import type { VisionAxis } from '../shared/visionExample.ts'
 
 const EMPTY: ReadonlySet<string> = new Set()
 
 type Tab = 'students' | 'branch' | 'history'
-const WIDE = '(min-width: 1280px)'
 
 export function VariantA() {
   const data = useCareData('a')
@@ -31,10 +30,8 @@ export function VariantA() {
   const [pick, setPick] = useState<{ metric: MetricKey; i: number } | null>(null)
   const [axis, setAxis] = useState<VisionAxis>('phone_interaction')
   const [pinned, setPinned] = useState<string[]>([])
-  const [band, setBand] = useState<{ metric: MetricKey; band: Band } | null>(null)
+  const [band, setBand] = useState<{ metric: MetricKey; band: Band | null } | null>(null)
   const [excluded, setExcluded] = useState<Record<string, Set<string>>>({})
-  const [cols, setCols] = useState(() => window.matchMedia(WIDE).matches ? 2 : 1)
-  useEffect(() => { const q = window.matchMedia(WIDE); const on = () => setCols(q.matches ? 2 : 1); q.addEventListener('change', on); return () => q.removeEventListener('change', on) }, [])
   const ex = excluded[data.branchId ?? ''] ?? EMPTY
   const rows = data.rows
   const shown = useMemo(() => rows?.filter((r) => matchReason(reason)(r) && matchQuery(query)(r)) ?? [], [rows, reason, query])
@@ -44,8 +41,6 @@ export function VariantA() {
   const openFromBranch = (r: CareRow) => go(() => { setTab('students'); setReason(''); setQuery(''); setOpenId(r.student.studentId); requestAnimationFrame(() => document.getElementById(`v5-open-${r.student.studentId}`)?.scrollIntoView({ block: 'start' })) })
 
   if (!rows || !data.branchId || !m) return <div className="sc-page v5-page"><CareHeader data={data} title="학생 케어 A" /><LoadState data={data} /></div>
-  const groups: MetricKey[][] = []
-  for (let i = 0; i < METRIC_KEYS.length; i += cols) groups.push(METRIC_KEYS.slice(i, i + cols))
   return (
     <div className="sc-page v5-page">
       <CareHeader data={data} title="학생 케어 A" onBranchChange={() => { setOpenId(null); setPick(null); setPinned([]) }} />
@@ -73,33 +68,12 @@ export function VariantA() {
           </table>) : <p className="sc-state">조건에 맞는 학생이 없습니다.</p>}
       </>)}
       {tab === 'branch' && (<>
-        <div className="v5-sticky v5-wrap">
-          <span className="v5-muted">지표로 가기</span>
-          {METRIC_KEYS.map((k) => <button key={k} type="button" className="v5-mini" onClick={() => document.getElementById(`a-metric-${k}`)?.scrollIntoView({ block: 'start' })}>{METRIC_LABEL[k]}</button>)}
-          <Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />
-          {ex.size > 0 && <span className="v5-muted">집계 {m.included.length}명</span>}
-        </div>
-        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k) => document.getElementById(`a-metric-${k}`)?.scrollIntoView({ block: 'start' })} /></section>
-        {band && <section className="v5-result" aria-label="단계별 학생">
-          <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {(band.metric === 'vision' ? VISION_BAND_LABEL : BAND_LABEL)[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
+        <div className="v5-wrap"><Exclude rows={rows} excluded={ex as Set<string>} onChange={(n) => setExcluded({ ...excluded, [data.branchId!]: n })} />{ex.size > 0 && <span className="v5-muted">집계 {m.included.length}명</span>}</div>
+        <section className="v5-card"><BranchRows rows={m.included} t={data.thresholds} selected={band} onBand={(k, b) => setBand(band?.metric === k && band.band === b ? null : { metric: k, band: b })} onMetric={(k, i) => { if (i !== undefined) { setBand({ metric: k, band: null }); setPick({ metric: k, i }); return } setPick(null); setBand(band?.metric === k && band.band === null ? null : { metric: k, band: null }) }} detail={(k) => <div className="v5-inline-detail"><MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={260} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={openFromBranch} onDay={(i) => setPick(pick?.metric === k && pick.i === i ? null : { metric: k, i })} selectedDay={pick?.metric === k ? pick.i : null} />{pick?.metric === k && <section className="v5-result" aria-label={`${METRIC_LABEL[k]} ${md(m.days[pick.i].date)} 학생`}><div className="v5-result-head"><b>{md(m.days[pick.i].date)} {m.days[pick.i].dow} · 학생 {studentsOn(m, k, pick.i, axis).length}명</b>{k === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div><div className="v5-result-body"><Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(k, axis)} /><StudentValues list={studentsOn(m, k, pick.i, axis)} head={RESULT_HEAD[k]} onOpen={openFromBranch} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} /></div></section>}</div>} /></section>
+        {band?.band && <section className="v5-result" aria-label="단계별 학생">
+          <div className="v5-result-head"><b>{METRIC_LABEL[band.metric]} · {BAND_LABEL[band.band]}</b><button type="button" className="sc-button" onClick={() => setBand(null)}>접기</button></div>
           <div className="v5-result-body"><BandList metric={band.metric} band={band.band} rows={m.included} t={data.thresholds} onOpen={openFromBranch} /></div>
         </section>}
-        {groups.map((g) => {
-          const res = pick && g.includes(pick.metric) ? pick : null
-          return <Fragment key={g.join()}>
-            <div className="v5-cards" style={{ gridTemplateColumns: `repeat(${g.length}, minmax(0, 1fr))` }}>
-              {g.map((k) => <section key={k} id={`a-metric-${k}`} className="v5-card v5-anchor"><div className="v5-card-head"><h3>{METRIC_LABEL[k]}<span className="v5-muted"> {METRIC_SUB[k]}</span></h3></div>
-                <MetricPanel metric={k} m={m} studyDropPercent={data.studyDropPercent} startShiftMinutes={data.startShiftMinutes} height={220} limit={8} lines={(k === 'study' || k === 'start') ? pinned.flatMap((id, n) => { const r = rows.find((x) => x.student.studentId === id); return r ? [{ row: r, label: r.student.studentName, tone: (n + 1) as 1 | 2 | 3 }] : [] }) : undefined} onStudent={openFromBranch} onDay={(i) => setPick(pick?.metric === k && pick.i === i ? null : { metric: k, i })} selectedDay={pick?.metric === k ? pick.i : null} /></section>)}
-            </div>
-            {res && <section className="v5-result" aria-label={`${METRIC_LABEL[res.metric]} ${md(m.days[res.i].date)} 학생`}>
-              <div className="v5-result-head"><b>{METRIC_LABEL[res.metric]} · {md(m.days[res.i].date)} {m.days[res.i].dow} · 학생 {studentsOn(m, res.metric, res.i, axis).length}명</b>{res.metric === 'vision' && <AxisPick axis={axis} onAxis={setAxis} />}<button type="button" className="sc-button" onClick={() => setPick(null)}>접기</button></div>
-              <div className="v5-result-body">
-                <Compare rows={rows} ids={pinned} onRemove={(id) => setPinned(pinned.filter((x) => x !== id))} value={compareValue(res.metric, axis)} />
-                <StudentValues list={studentsOn(m, res.metric, res.i, axis)} head={RESULT_HEAD[res.metric]} onOpen={openFromBranch} pinned={pinned} onPin={(id) => setPinned([...pinned, id])} />
-              </div>
-            </section>}
-          </Fragment>
-        })}
       </>)}
       {tab === 'history' && <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => { setTab('students'); setOpenId(id) }} />}
       {guard.prompt}

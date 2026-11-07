@@ -1,0 +1,3555 @@
+{
+  "records": [
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 590,
+          "height": 220,
+          "points": 729,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ],
+      "dates": [
+        {
+          "text": "10/21",
+          "x": 402.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "수",
+          "x": 412.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/22",
+          "x": 466.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "목",
+          "x": 476.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/23",
+          "x": 530.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "금",
+          "x": 540.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/24",
+          "x": 594.1015625,
+          "y": 703.5,
+          "w": 34.62841796875,
+          "h": 17
+        },
+        {
+          "text": "토",
+          "x": 604.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/25",
+          "x": 658.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "일",
+          "x": 668.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/26",
+          "x": 722.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "월",
+          "x": 732.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/27",
+          "x": 786.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "화",
+          "x": 796.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        }
+      ]
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        ""
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 1230,
+          "height": 200,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        ""
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "overlap": 0
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 726,
+          "height": 190,
+          "points": 800,
+          "overlap": 0
+        }
+      ],
+      "weekTip": [
+        "오도현 · −69%"
+      ],
+      "dayTip": [
+        "오도현 · −69%",
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 1230,
+          "height": 300,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 590,
+          "height": 220,
+          "points": 729,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ],
+      "dates": [
+        {
+          "text": "10/21",
+          "x": 402.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "수",
+          "x": 412.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/22",
+          "x": 466.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "목",
+          "x": 476.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/23",
+          "x": 530.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "금",
+          "x": 540.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/24",
+          "x": 594.1015625,
+          "y": 703.5,
+          "w": 34.62841796875,
+          "h": 17
+        },
+        {
+          "text": "토",
+          "x": 604.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/25",
+          "x": 658.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "일",
+          "x": 668.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/26",
+          "x": 722.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "월",
+          "x": 732.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/27",
+          "x": 786.1015625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "화",
+          "x": 796.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        }
+      ]
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        ""
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 1230,
+          "height": 200,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 484,
+          "height": 130,
+          "points": 150,
+          "overlap": 0
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 726,
+          "height": 190,
+          "points": 800,
+          "overlap": 0
+        }
+      ],
+      "weekTip": [
+        "오도현 · −69%"
+      ],
+      "dayTip": [
+        "오도현 · −69%",
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 1230,
+          "height": 300,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 430,
+          "height": 220,
+          "points": 608,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ],
+      "dates": [
+        {
+          "text": "10/21",
+          "x": 393.6729736328125,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "수",
+          "x": 404.0714111328125,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/22",
+          "x": 440.81585693359375,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "목",
+          "x": 451.21429443359375,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/23",
+          "x": 487.9587097167969,
+          "y": 703.5,
+          "w": 33.796905517578125,
+          "h": 17
+        },
+        {
+          "text": "금",
+          "x": 498.3571472167969,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/24",
+          "x": 535.1015625,
+          "y": 703.5,
+          "w": 34.62841796875,
+          "h": 17
+        },
+        {
+          "text": "토",
+          "x": 545.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/25",
+          "x": 582.244384765625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "일",
+          "x": 592.642822265625,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/26",
+          "x": 629.3872680664062,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "월",
+          "x": 639.7857055664062,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/27",
+          "x": 676.5301513671875,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "화",
+          "x": 686.9285888671875,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        }
+      ]
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 910,
+          "height": 200,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "overlap": 0
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 534,
+          "height": 190,
+          "points": 650,
+          "overlap": 0
+        }
+      ],
+      "weekTip": [
+        "오도현 · −69%"
+      ],
+      "dayTip": [
+        "오도현 · −69%",
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "d",
+      "width": 1280,
+      "theme": "light",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(125, 135, 147) 0px, rgb(125, 135, 147) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 910,
+          "height": 300,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 430,
+          "height": 220,
+          "points": 608,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ],
+      "dates": [
+        {
+          "text": "10/21",
+          "x": 393.6729736328125,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "수",
+          "x": 404.0714111328125,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/22",
+          "x": 440.81585693359375,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "목",
+          "x": 451.21429443359375,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/23",
+          "x": 487.9587097167969,
+          "y": 703.5,
+          "w": 33.796905517578125,
+          "h": 17
+        },
+        {
+          "text": "금",
+          "x": 498.3571472167969,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/24",
+          "x": 535.1015625,
+          "y": 703.5,
+          "w": 34.62841796875,
+          "h": 17
+        },
+        {
+          "text": "토",
+          "x": 545.5,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/25",
+          "x": 582.244384765625,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "일",
+          "x": 592.642822265625,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/26",
+          "x": 629.3872680664062,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "월",
+          "x": 639.7857055664062,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        },
+        {
+          "text": "10/27",
+          "x": 676.5301513671875,
+          "y": 703.5,
+          "w": 33.796875,
+          "h": 17
+        },
+        {
+          "text": "화",
+          "x": 686.9285888671875,
+          "y": 718.5,
+          "w": 13,
+          "h": 17
+        }
+      ]
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 910,
+          "height": 200,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "",
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "",
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 7일 분포: 학생 150명, 가운데 값 0%, 가운데 절반 −5%~+2%. 위아래 화살표로 학생",
+          "width": 356,
+          "height": 130,
+          "points": 150,
+          "overlap": 0
+        },
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 534,
+          "height": 190,
+          "points": 650,
+          "overlap": 0
+        }
+      ],
+      "weekTip": [
+        "오도현 · −69%"
+      ],
+      "dayTip": [
+        "오도현 · −69%",
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    },
+    {
+      "v": "d",
+      "width": 1280,
+      "theme": "dark",
+      "bandCount": 30,
+      "chosen": "오도현",
+      "opened": "오도현",
+      "barHover": [
+        "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%"
+      ],
+      "barFocus": false,
+      "bars": [
+        {
+          "label": "최근 7일 5시간 8분, 평소 주 16시간 39분, 기준 평소의 70%",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 평균 평소보다 -1분 이름, 기준 60분",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 결석 4일, 기준 1일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 계획 미제출 4일, 기준 2일",
+          "tab": -1
+        },
+        {
+          "label": "최근 7일 진행률 91%, 기준 60%",
+          "tab": -1
+        },
+        {
+          "label": "분석 사진 31장 중 휴대폰 사용 관찰 0장",
+          "tab": -1
+        }
+      ],
+      "visionTip": [
+        "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장"
+      ],
+      "visionCells": [
+        {
+          "label": "10/21 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 자리에 있음: 분석 16장 중 관찰 14장, 판단 불가 2장",
+          "height": 24.5,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 자리에 있음: 분석 15장 중 관찰 10장, 판단 불가 1장",
+          "height": 18.65625,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 자리에 있음: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "자리에 있음 7일: 분석 31장 중 관찰 24장, 판단 불가 3장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 고개 숙임: 분석 16장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.75,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 고개 숙임: 분석 15장 중 관찰 1장, 판단 불가 2장",
+          "height": 1.859375,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 고개 숙임: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "고개 숙임 7일: 분석 31장 중 관찰 2장, 판단 불가 4장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 휴대폰 사용: 분석 16장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/23 휴대폰 사용: 분석 15장 중 관찰 0장, 판단 불가 1장",
+          "height": 0,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 휴대폰 사용: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "휴대폰 사용 7일: 분석 31장 중 관찰 0장, 판단 불가 2장, 지원 안 함 0장, 분석 실패 0장",
+          "background": null
+        },
+        {
+          "label": "10/21 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/22 읽기·쓰기: 지원 안 함 (16장)",
+          "background": null
+        },
+        {
+          "label": "10/23 읽기·쓰기: 분석 15장 중 관찰 5장, 판단 불가 2장",
+          "height": 9.328125,
+          "background": "rgba(0, 0, 0, 0) repeating-linear-gradient(135deg, rgb(115, 125, 138) 0px, rgb(115, 125, 138) 2px, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0) 5px) repeat scroll 0% 0% / auto padding-box border-box"
+        },
+        {
+          "label": "10/24 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/25 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/26 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "10/27 읽기·쓰기: 사진 없음",
+          "background": null
+        },
+        {
+          "label": "읽기·쓰기 7일: 분석 15장 중 관찰 5장, 판단 불가 2장, 지원 안 함 16장, 분석 실패 0장",
+          "background": null
+        }
+      ],
+      "plots": [
+        {
+          "label": "학습 시간 학생별 평소 대비",
+          "width": 910,
+          "height": 300,
+          "points": 821,
+          "overlap": 0
+        }
+      ],
+      "dayTip": [
+        "10/21 수 · 학생 82명 · 가운데 값 0% · 가운데 절반 −5%~+7% · 기준 넘음 3명"
+      ],
+      "studentTip": [
+        "신지우 · 10/21 · 실제 1시간 17분, 평소 3시간 1분, −57%"
+      ]
+    }
+  ],
+  "errors": [],
+  "blocked": []
+}
