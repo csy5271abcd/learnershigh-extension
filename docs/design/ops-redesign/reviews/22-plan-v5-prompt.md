@@ -1,0 +1,29 @@
+너는 학원·독서실 관리자용 "학생 케어" 화면 재설계 계획의 검토자다. 사용자는 작업 중 답할 수 없으므로 네 검토 통과가 사용자 승인을 대신한다. 특히 작성자가 제안한 C·D안은 네가 승인해야 구현된다.
+
+## 읽을 것
+- 계획: `docs/design/ops-redesign/plan-v5.md` (이번 검토 대상, 3차. 먼저 2차 결과 `reviews/21-plan-v5-result.md`의 R01·R02와 C·D 조건, 개선 제안이 해소됐는지 확인하라(계획 9장 대조표). 비전 집계 코드 `frontend/admin/src/features/student-care/variants/shared/visionExample.ts`와 테스트도 확인하라. 함께 읽을 것: `function-map-v5.md`, `contract-v5.md`)
+- 이전 계획·결과: `docs/design/ops-redesign/plan.md`(0장에 사용자 피드백 기준 P1–P7), `result-2026-11-07.md`, `reviews/14-final-result.md`(4판 96점 통과했지만 사용자가 목적 상실로 판정)
+- 기존 피드백 계약: `docs/design/student-care-feedback-contract.md`(F01–F24), `docs/design/student-care-feedback-gate-2026-10-28.md`(G01–G54)
+- 비전: `docs/design/ops-redesign/vision-contract-draft.md`
+- 실행 중 화면: 기존 http://localhost:5174/student-care , 4판 http://localhost:5174/student-care/ops (백엔드 8081, 강남 150 · 분당 50 · 수지 10명). 브라우저: `e2e/node_modules/@playwright/test` chromium, `channel: 'chrome', args: ['--no-proxy-server']`. DB에 쓰지 마라.
+- 코드: `frontend/admin/src/features/student-care/` (기존 화면 `StudentCarePage.tsx`, `components/weekly/`, 4판 `ops/`)
+
+## 이번 사용자 피드백 (4판을 직접 본 뒤)
+1. 학생 탭은 학생 하나씩 개별로 상세히, 학습관별 탭은 학습관 전체 지표를 잘 보이게. 4판 학생별은 "그 사이 어딘가".
+2. 4판은 학습관별 탭의 의미가 없어졌고 학습관 전체 지표를 유의미하게 볼 곳이 없다. 4판 구조라면 학생 클릭 시 팝업이 나을 수도.
+3. 스크롤바 2개는 나쁜 디자인. 칸이 넉넉한데 억지로 우겨넣음.
+4. 명부 위 범례·형식 설명이 하나하나 박힌 것은 표현이 스스로 이해되지 않는다는 뜻이고 확장성을 낮춘다.
+5. 비전 AI 기능을 넣으라 했는데 반영 안 됨.
+6. 시안 수 요구 불이행.
+핵심 요구(사용자 정의): 관리자 입장에서 이해하기 쉬운 프로세스, 학습관 전체 지표와 학생별 지표를 각각 쉽게 식별.
+사용자 결정: A=기존 운영 화면 개선, B=4판 개선(큰 변경), C·D=작성자 제안 후 너의 승인, 비전 네 안 모두, 과업 시험 네 안 모두, 완료=네 안 모두 Codex 최종 채점 93점 이상·필수 위반 0.
+
+## 검토 기준 (100점)
+1. 사용자 피드백·결정 반영 25: 위 1–6과 결정이 빠짐없이 계획에 들어갔는가. 피드백을 다시 어기는 설계가 숨어 있는가(예: 내부 스크롤, 범례 필요한 표현, 학습관 지표를 학생 목록이 밀어냄).
+2. 네 안의 구분과 타당성 25: A–D가 실제로 다른 구조인가(자가복제 아닌가). C·D가 핵심 요구를 만족할 가능성이 있는가. 더 나은 C·D가 분명히 있다면 구체적으로 제시하라(승인 거부 사유가 될 수 있음).
+3. 기능·지표 보존과 데이터 의미 20: 기존 지표·기능 축소 위험, 공용 모델로 계산 일치, 비전 예시 데이터의 의미 보존(사진 표본 비율, 축 독립, 판정 미반영).
+4. 검증 설계 20: 측정 추가 항목(P3·P4), 과업 시험 Q16·Q17과 비교 공정성, 최종 채점 기준·필수 위반 정의가 사용자 목적을 잡는가(4판처럼 숫자만 맞추고 목적을 놓치는 일을 막는가).
+5. 실행 가능성·범위 10: 과설계·과소설계, 순서, 기존 화면 불변, API·DB 무변경.
+
+## 출력
+`docs/design/ops-redesign/reviews/22-plan-v5-result.md`에 한국어로: (1) 항목별 점수와 근거, 총점, (2) 필수 지적(이것을 고치지 않으면 구현하면 안 되는 것) 목록, (3) C·D 승인 여부(승인/조건부 승인/거부와 이유), (4) 통과 여부(85점 이상, 필수 지적 0건), (5) 개선 제안(우선순위 순). 소스와 계획 문서를 수정하지 마라. 필요한 시험 파일은 `docs/design/ops-redesign/reviews/22-evidence/` 안에만.

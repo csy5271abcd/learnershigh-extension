@@ -46,8 +46,18 @@ const probe = () => {
   }
   const controls = [...main.querySelectorAll('button,a[href],input,select,textarea,summary,[role=button],[role=tab],[tabindex="0"]')].filter(visible)
   const toggles = controls.filter((el) => el.hasAttribute('aria-expanded') || el.hasAttribute('aria-pressed') || el.matches('input[type=checkbox],summary') || /펼치기|접기|제외|복원|더 보기|모두 보기/.test(el.textContent || ''))
+  // P3·P4(plan-v5): 페이지 말고 실제로 스크롤되는 영역 수, 그중 가로로 스크롤되는 영역 수
+  let scrollAreas = 0, hScrollAreas = 0
+  for (const el of main.querySelectorAll('*')) {
+    if (!visible(el)) continue
+    const cs = getComputedStyle(el)
+    const v = /(auto|scroll)/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1
+    const h = /(auto|scroll)/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1
+    if (v || h) scrollAreas++
+    if (h) hScrollAreas++
+  }
   const height = document.documentElement.scrollHeight
-  return { text, hiddenText, firstScreenText, controls: controls.length, toggles: toggles.length, height, innerScroll, travel: +((height + innerScroll) / 900).toFixed(1), minFont: minFont === Infinity ? null : minFont, overflow: document.documentElement.scrollWidth > innerWidth + 1 }
+  return { text, hiddenText, firstScreenText, controls: controls.length, toggles: toggles.length, height, innerScroll, travel: +((height + innerScroll) / 900).toFixed(1), scrollAreas, hScrollAreas, minFont: minFont === Infinity ? null : minFont, overflow: document.documentElement.scrollWidth > innerWidth + 1 }
 }
 
 const browser = await chromium.launch({ channel: 'chrome', args: ['--no-proxy-server'] })

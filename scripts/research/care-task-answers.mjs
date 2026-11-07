@@ -71,4 +71,48 @@ const answers = {
   Q15: { answer: q15, rule: '학생(요일) 명단 일치율' },
 }
 writeFileSync(new URL('../task-answers.json', dir), JSON.stringify(answers, null, 2) + '\n')
+
+// ── 5판 정답(task-test-v5.md). Q1–Q15 정답은 같고 Q3·Q4는 문구만 "서버 관리 사유"로 고정했다 ──
+const { visionDay } = await import('../../frontend/admin/src/features/student-care/variants/shared/visionExample.ts')
+// 화면과 같은 학습 분 규칙: 입실하지 않은 날의 0분은 기록 없음(null). 입실 여부와 별개로 0보다 큰 기록은 둔다
+const shownMinutes = (d) => d.minutes === null ? null : d.attendance !== 'PRESENT' && d.minutes === 0 ? null : d.minutes
+const idx = (id, date) => days(id).findIndex((d) => d.date === date)
+const q7Dates = days(allIds[0]).map((d) => d.date)
+// 휴대폰 축은 모든 예시 모델이 지원하므로 분모 = 분석 장수
+const phone = (id, date) => { const d = days(id)[idx(id, date)]; const v = visionDay(id, date, shownMinutes(d), d.startMinutes); return { analyzed: v.unsupportedAxes.includes('phone_interaction') ? 0 : v.analyzedPhotos, yes: v.axes.phone_interaction.yes } }
+// Q16: 기준일(최근 7일 마지막 날)에 사진이 있는 학생 중 ID가 가장 앞선 학생
+const lastDate = q7Dates[6]
+const q16 = allIds.find((id) => phone(id, lastDate).analyzed > 0)
+// Q17: 기준일, 분석 10장 이상 학생 중 휴대폰 사용 관찰 비율(원자료)이 가장 높은 학생. 원자료 동률이면 모두(곱셈 비교로 부동소수 오차 없이)
+const q17Pool = allIds.map((id) => ({ id, ...phone(id, lastDate) })).filter((x) => x.analyzed >= 10)
+const q17Best = q17Pool.reduce((best, x) => (!best || x.yes * best.analyzed > best.yes * x.analyzed ? x : best), null)
+const q17 = q17Pool.filter((x) => x.yes * q17Best.analyzed === q17Best.yes * x.analyzed).map((x) => name(x.id))
+// Q18: 최근 7일 6번째 날의 학습 시간 평소 대비 변화(그날 학습 기록이 있고 같은 요일 평소가 있는 학생). 중앙값과 25%–75% 범위(선형 보간), −30% 이하 학생
+const q18Date = q7Dates[5]
+const q18Vals = allIds.flatMap((id) => { const i = idx(id, q18Date), d = days(id)[i], b = byId[id].review.weekdayBaseline[i], m = shownMinutes(d)
+  return m !== null && b && b.samples > 0 && b.minutes ? [{ id, pct: ((m - b.minutes) / b.minutes) * 100 }] : [] })
+const qt = (s, q) => { const i = (s.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return s[lo] + (s[hi] - s[lo]) * (i - lo) }
+const q18Sorted = q18Vals.map((x) => x.pct).sort((a, b) => a - b)
+const r1 = (v) => Math.round(v * 10) / 10
+// Q19: 학습 감소 사유가 있고 최근 7일 결석이 1일 이상인 상담 필요 학생 중 ID가 가장 앞선 학생(없으면 학습 감소 사유 학생)
+const q19 = sortIds(board.needsCheck.filter((c) => hasSignal(c, 'STUDY_DROP') && absences(c.studentId) >= 1).map((c) => c.studentId))[0]
+  ?? sortIds(board.needsCheck.filter((c) => hasSignal(c, 'STUDY_DROP')).map((c) => c.studentId))[0]
+const r19 = byId[q19].review
+const starts = days(q19).map((d, i) => ({ d, i })).filter(({ d }) => d.startMinutes !== null)
+const latest = Math.max(...starts.map(({ d }) => d.startMinutes))
+const q19Late = starts.filter(({ d }) => d.startMinutes === latest).map(({ d, i }) => { const b = r19.weekdayBaseline[i]; return { date: d.date, diff: b && b.startSamples > 0 ? d.startMinutes - b.startMinutes : null } })
+const v5 = {
+  ...answers, version: 5,
+  Q16: { student: name(q16), studentId: q16, date: lastDate, answer: phone(q16, lastDate), rule: '분석 장수 5점 + 관찰 장수 5점(정확히 일치)' },
+  Q17: { date: lastDate, answer: q17, rule: '정답 학생 전원 일치 10점(원자료 동률 전원 인정)' },
+  Q18: { date: q18Date, answer: { median: r1(qt(q18Sorted, 0.5)), q1: r1(qt(q18Sorted, 0.25)), q3: r1(qt(q18Sorted, 0.75)), students: sortIds(q18Vals.filter((x) => x.pct <= -30).map((x) => x.id)).map(name), n: q18Vals.length },
+    rule: '중앙값 ±1%p 4점, 범위 양 끝 모두 ±1%p 3점(하나만 1점), 학생 명단 자카드 ≥0.8 3점·≥0.5 1점(정답 명단이 비면 답도 비어야 3점)' },
+  Q19: { student: name(q19), studentId: q19, answer: {
+      absentDates: days(q19).filter((d) => d.attendance === 'ABSENT').map((d) => d.date),
+      weekMinutes: days(q19).reduce((s, d) => s + (shownMinutes(d) ?? 0), 0),
+      usualWeek: r19.baseline.recordedDays === 28 && r19.baseline.studyMinutes !== null ? r19.baseline.studyMinutes / 4 : null,
+      latestStart: q19Late, executionRate: r19.current.executionRate === null ? null : Math.round(r19.current.executionRate) },
+    rule: '결석 날짜 정확 2점, 7일 합계 ±10분 2점, 평소 주 ±10분 2점, 가장 늦은 입실 날의 평소 대비 차이 ±1분 2점(동률 날짜 중 하나, 평소 없으면 "평소 없음"), 진행률 ±1%p 2점' },
+}
+writeFileSync(new URL('../task-answers-v5.json', dir), JSON.stringify(v5, null, 2) + '\n')
 console.log(JSON.stringify(answers, null, 1))

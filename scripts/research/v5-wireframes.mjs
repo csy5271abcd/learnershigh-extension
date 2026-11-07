@@ -1,0 +1,86 @@
+// plan-v5 1.5단계: 시안 A–D의 주요 화면 상태 배치도(정적 그림). 실제 데이터가 아닌 구조 확인용이며 값은 자리 표시다.
+// 사용: node scripts/research/v5-wireframes.mjs → docs/design/ops-redesign/wireframes-v5/<안>-<상태>-<폭>.png
+import { createRequire } from 'node:module'
+import { mkdirSync, writeFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+const require = createRequire(new URL('../../e2e/package.json', import.meta.url))
+const { chromium } = require('@playwright/test')
+const out = new URL('../../docs/design/ops-redesign/wireframes-v5/', import.meta.url)
+mkdirSync(out, { recursive: true })
+
+const DATES = ['10/21 수', '10/22 목', '10/23 금', '10/24 토', '10/25 일', '10/26 월', '10/27 화']
+const NAMES = ['권유진', '오도현', '윤수빈', '이서준', '정하준', '박예준', '서시윤', '신하린', '오시윤', '임하린', '장하린', '조서윤']
+const name = (i) => NAMES[i % NAMES.length] + (i >= NAMES.length ? Math.floor(i / NAMES.length) : '')
+const REASONS = ['결석 4일 연속 · 계획 미제출', '학습 −11시간 3분 (−56%) · 진행률 41%', '입실 +62분', '과목 비중 수학 36→20%', '계획 미제출 3일']
+const css = `
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 'Pretendard','Malgun Gothic',sans-serif;color:#1d2433;background:#f5f6f8}
+.shell{display:flex;min-height:100vh}.side{width:220px;background:#fff;border-right:1px solid #e3e6eb;padding:20px 16px;color:#667085;font-size:13px}.side b{display:block;margin:8px 0;padding:8px 10px;border-radius:8px}.side .on{background:#2563eb;color:#fff}
+.main{flex:1;padding:24px 40px;min-width:0}h1{font-size:22px;margin:0 0 12px}.top{display:flex;justify-content:space-between;align-items:center}.ctl{display:flex;gap:8px;align-items:center;color:#667085}
+.box{border:1px solid #d0d5dd;border-radius:8px;background:#fff;padding:6px 10px}.tabs{display:flex;gap:24px;border-bottom:1px solid #e3e6eb;margin:12px 0 14px}.tabs span{padding:8px 4px}.tabs .on{border-bottom:3px solid #2563eb;font-weight:700}
+.card{background:#fff;border:1px solid #e3e6eb;border-radius:12px;padding:14px 16px;margin-bottom:12px}.muted{color:#667085;font-size:13px}.chip{display:inline-block;background:#fff1e8;color:#c2410c;border-radius:6px;padding:1px 8px;margin-right:6px;font-size:13px;font-weight:600}
+table{border-collapse:collapse;width:100%}td,th{border-top:1px solid #eef0f3;padding:6px 8px;text-align:left;font-weight:400;white-space:nowrap}th{color:#667085;font-size:13px}
+.grid{display:grid;gap:12px}.chart{height:var(--h,110px);border:1px dashed #b8c0cc;border-radius:8px;display:flex;align-items:flex-end;gap:4%;padding:8px 150px 8px 10px;position:relative}.chart i{flex:1;background:#93b4f5;border-radius:3px 3px 0 0;position:relative}.chart i b{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:11px;color:#1d2433;white-space:nowrap;font-weight:600}
+.band{position:absolute;left:10px;right:150px;background:rgba(37,99,235,.12);border-top:1px dashed #2563eb;border-bottom:1px dashed #2563eb}.lbl{position:absolute;right:6px;width:136px;font-size:12px;color:#2563eb;white-space:normal}
+.dates{display:grid;grid-template-columns:repeat(7,1fr);font-size:12px;color:#667085;text-align:center;margin-top:4px;margin-right:140px}
+.hist{display:flex;align-items:flex-end;gap:6px;height:90px}.hist i{flex:1;background:#c7d7fb;position:relative}.hist i b{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:11px}
+.dim{position:fixed;inset:0;background:rgba(16,24,40,.45)}.dlg{position:fixed;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:auto;padding:20px 24px}
+.note{position:fixed;left:240px;bottom:10px;background:#111827;color:#fff;font-size:12px;padding:6px 10px;border-radius:6px;z-index:99}
+.wk{display:grid;grid-template-columns:150px repeat(7,1fr);font-size:13px}.wk>div{border-top:1px solid #eef0f3;padding:6px 6px}.wk .h{color:#667085}
+.sticky{position:sticky;top:0;z-index:5;background:#f5f6f8;padding:8px 0}
+`
+const bars = (vals, fmt) => `<div class="chart">${vals.map((v) => `<i style="height:${Math.max(6, v)}%"><b>${fmt(v)}</b></i>`).join('')}<div class="band" style="top:35%;height:22%"></div><span class="lbl" style="top:26%">학생 가운데 절반 −5~+7%</span></div><div class="dates">${DATES.map((d) => `<span>${d}</span>`).join('')}</div>`
+const studyVals = [62, 70, 70, 85, 90, 72, 66]
+const fmtFor = (title) => (v) => title.includes('결석') ? `${Math.round(v / 6)}/140명` : title.includes('입실') ? `+${Math.round(v / 20)}분` : title.includes('계획') ? `${v}%` : title.includes('비전') ? `${Math.round(v / 6)}%` : `${(v / 20).toFixed(1)}시간`
+const metricCard = (title, sub, h = 110) => `<div class="card"><b>${title}</b> <span class="muted">${sub}</span><div style="--h:${h}px;margin-top:22px">${bars(studyVals, (v) => title.includes('결석') ? `${Math.round(v / 6)}/140명` : title.includes('입실') ? `+${Math.round(v / 20)}분` : title.includes('계획') ? `${v}%` : title.includes('비전') ? `${Math.round(v / 6)}%` : `${(v / 20).toFixed(1)}시간`)}</div></div>`
+const METRICS = [['결석', '결석 / 등원 예정'], ['학습 시간', '입실 학생 평균 · 평소 대비 변화'], ['입실 시각', '평소 대비 변화'], ['계획 제출', '제출 / 대상 학생'], ['비전 관찰 (예시)', '휴대폰 사용 · 사진 기준 비율']]
+const roster = (n, cols) => `<table><thead><tr>${cols.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>${Array.from({ length: n }, (_, i) => `<tr><td><b>${name(i)}</b> <span class="muted">고3 A반</span></td>${cols.slice(1).map((c, j) => `<td>${c === '사유' ? (i < 49 ? `<span class="chip">${REASONS[i % 5]}</span>` : '<span class="muted">—</span>') : c === '상태' ? (i < 49 ? '상담 필요' : i < 54 ? '관리 중' : '') : ['6시간 7분 / 평소 19시간 45분', '2/6일', '88%', '+12분'][j % 4]}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+const detail = (wide = true) => `
+<div class="top"><div><h1 style="margin:0">권유진 <span class="muted">고2 B반</span> <span class="chip">상담 필요</span></h1><div style="margin-top:6px"><span class="chip">결석 4일 연속 · 계획 미제출</span></div></div><div class="ctl"><span class="box">← 이전 학생</span><span class="box">다음 학생 →</span><span class="box">닫기</span></div></div>
+<p>7일 학습 6시간 7분 (기록 4/7일) · 평소 주 19시간 45분 · 입실 2/6일 · 계획 제출 2/6일 · 진행률 88%</p>
+<div class="card"><div class="wk"><div class="h"></div>${DATES.map((d) => `<div class="h">${d}</div>`).join('')}
+<div class="h">출결</div>${['예정 없음', '입실', '입실', '결석', '결석', '결석', '결석'].map((x) => `<div>${x}</div>`).join('')}
+<div class="h">계획</div>${['—', '제출', '제출', '미제출', '미제출', '미제출', '미제출'].map((x) => `<div>${x}</div>`).join('')}
+<div class="h">학습 시간</div>${['—', '3시간 8분 (평소 3시간 13분)', '2시간 59분 (평소 3시간 3분)', '— (평소 3시간 38분)', '—', '—', '—'].map((x) => `<div>${x}</div>`).join('')}
+<div class="h">입실 시각</div>${['', '18:39 (평소 18:47, −7분)', '18:30 (평소 18:38, −7분)', '', '', '', ''].map((x) => `<div>${x}</div>`).join('')}
+<div class="h">진행률</div>${['', '90% (3시간 8분/3시간 29분)', '86%', '', '', '', ''].map((x) => `<div>${x}</div>`).join('')}
+<div class="h">비전 (예시)<br>휴대폰 사용</div>${['사진 없음', '분석 19장 중 2장', '분석 17장 중 1장', '사진 없음', '사진 없음', '사진 없음', '사진 없음'].map((x) => `<div>${x}</div>`).join('')}</div></div>
+<div class="grid" style="grid-template-columns:${wide ? '1fr 1fr 1fr' : '1fr'}"><div class="card"><b>35일 출결</b><div class="chart" style="--h:120px"></div></div><div class="card"><b>과목 비중</b> <span class="muted">계획 → 실제, 최근 7일</span><p>국어 24.8% → 23.7% (−1.1%p)<br>수학 35.8% → 35.7%<br>영어 22.8% → 22.9%<br>탐구 16.6% → 17.7%</p></div><div class="card"><b>비전 관찰 7일 (예시, 사진 기준)</b><p>자리에 있음 분석 36장 중 33장<br>고개 숙임 분석 36장 중 6장<br>휴대폰 사용 분석 36장 중 3장<br>읽기·쓰기 분석 19장 중 9장 · 지원 안 함 17장</p></div></div>
+<div class="card"><b>상담 기록</b><div class="chart" style="--h:120px"></div><b>지난 관리</b><p class="muted">10/14 면담 · 계속 관리 · 다음 확인 10/21</p></div>`
+const branchHeader = (v) => `<div class="top"><h1>학생 케어 ${v}</h1><div class="ctl"><span class="box">강남점 ▾</span><span>기준일 10월 27일</span><span class="box">⚙</span></div></div>`
+const page = (v, tabs, onTab, body, extra = '') => `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body><div class="shell"><div class="side"><b>학습관리</b><b>학생 케어</b>${['A', 'B', 'C', 'D'].map((x) => `<b class="${x === v ? 'on' : ''}">학생 케어 ${x}</b>`).join('')}</div><div class="main">${branchHeader(v)}${tabs.length ? `<div class="tabs">${tabs.map((t) => `<span class="${t === onTab ? 'on' : ''}">${t}</span>`).join('')}</div>` : ''}${body}</div></div>${extra}</body></html>`
+const result150 = (title) => `<div class="card" style="border-color:#2563eb"><div class="top"><b>${title}</b><span class="box">접기 ✕</span></div>${roster(150, ['학생', '실제', '평소', '차이', ''])}</div>`
+
+const states = {
+  'A-students': page('A', ['학생별', '학습관별', '관리 이력'], '학생별', `<div class="top"><p><b>150명</b> 중 상담 필요 49명 · 관리 중 5명</p><div class="ctl"><span class="box">사유: 전체 ▾</span><span class="box">이름 또는 반 검색</span></div></div><div class="card">${roster(150, ['학생', '상태', '사유', '학습 시간 7일', '입실', '진행률'])}</div>`),
+  'A-student-open': page('A', ['학생별', '학습관별', '관리 이력'], '학생별', `<div class="card">${roster(1, ['학생', '상태', '사유', '학습 시간 7일', '입실', '진행률'])}<div style="border:2px solid #2563eb;border-radius:12px;padding:16px;margin:8px 0">${detail()}</div>${roster(6, ['학생', '상태', '사유', '학습 시간 7일', '입실', '진행률'])}</div>`),
+  'A-branch': page('A', ['학생별', '학습관별', '관리 이력'], '학습관별', `<div class="sticky ctl">지표로 가기: <span class="box">결석</span><span class="box">학습 시간</span><span class="box">입실 시각</span><span class="box">계획 제출</span><span class="box">비전</span> · <span class="box">집계 제외</span></div><div class="grid" style="grid-template-columns:repeat(var(--cols,3),1fr)">${METRICS.map(([t, s]) => metricCard(t, s, 95)).join('')}</div>`),
+  'A-branch-result': page('A', ['학생별', '학습관별', '관리 이력'], '학습관별', `<div class="sticky ctl">지표로 가기: <span class="box">결석</span><span class="box">학습 시간</span><span class="box">입실 시각</span><span class="box">계획 제출</span><span class="box">비전</span></div><div class="grid" style="grid-template-columns:repeat(var(--cols,3),1fr)">${METRICS.slice(0, 3).map(([t, s]) => metricCard(t, s, 95)).join('')}</div>${result150('학습 시간 · 10/26 월 · 입실 학생 119명 (카드 안 결과, 같은 카드 행 바로 아래)')}<div class="grid" style="grid-template-columns:repeat(var(--cols,3),1fr)">${METRICS.slice(3).map(([t, s]) => metricCard(t, s, 95)).join('')}</div>`),
+  'B-students': page('B', ['학생별', '학습관별', '관리 이력'], '학생별', `<div class="top"><p><b>150명</b> 중 상담 필요 49명 · 관리 중 5명</p><div class="ctl"><span class="box">사유: 전체 ▾</span><span class="box">이름 또는 반 검색</span></div></div><div class="card">${roster(150, ['학생', '상태', '사유', '학습 시간 7일', '진행률'])}</div>`),
+  'B-student-modal': page('B', ['학생별', '학습관별', '관리 이력'], '학생별', `<div class="card">${roster(20, ['학생', '상태', '사유', '학습 시간 7일', '진행률'])}</div>`, `<div class="dim"></div><div class="dlg" role="dialog" style="inset:40px max(40px,calc(50% - 600px))">${detail()}</div><style>html{overflow:hidden}</style>`),
+  'B-branch': page('B', ['학생별', '학습관별', '관리 이력'], '학습관별', `<div class="card" style="display:flex;gap:16px;flex-wrap:wrap"><b>사유별 학생</b>${['결석 18명', '학습 감소 11명', '진행률 9명', '입실 늦어짐 7명', '과목 비중 6명', '계획 미제출 35명'].map((x) => `<span class="box">${x} →</span>`).join('')}</div>${METRICS.map(([t, s]) => `<div class="card" style="display:grid;grid-template-columns:170px 1fr;gap:12px;padding:8px 16px"><div><b>${t}</b><br><span class="muted">${s}</span></div><div style="--h:70px;margin-top:16px">${bars(studyVals, fmtFor(t))}</div></div>`).join('')}`),
+  'B-branch-date': page('B', ['학생별', '학습관별', '관리 이력'], '학습관별', METRICS.map(([t, s]) => metricCard(t, s, 70)).join(''), `<div class="dim"></div><div class="dlg" role="dialog" style="inset:40px max(40px,calc(50% - 560px))"><div class="top"><h1>학습 시간 · 10/26 월</h1><span class="box">닫기</span></div><p>입실 학생 119명 · 평소 대비 중앙값 +2% · 학생 가운데 절반 −4~+5%</p><div class="card"><b>비교 (최대 3명)</b> <span class="muted">학생 행의 "비교"를 누르면 같은 날짜 열로 모인다</span></div>${roster(150, ['학생', '실제', '평소', '차이', '비교'])}</div><style>html{overflow:hidden}</style>`),
+  'C-queue': page('C', ['확인할 학생 54', '학습관 현황', '전체 학생 150', '관리 이력'], '확인할 학생 54', `<div class="ctl" style="margin-bottom:10px">${['전체 54', '결석 18', '학습 감소 11', '진행률 9', '입실 늦어짐 7', '과목 비중 6', '계획 미제출 35', '확인일 0'].map((x, i) => `<span class="box" style="${i ? '' : 'background:#2563eb;color:#fff'}">${x}</span>`).join('')}</div>${Array.from({ length: 12 }, (_, i) => `<div class="card" style="display:grid;grid-template-columns:200px 1fr 220px;gap:12px;align-items:center;padding:10px 16px"><div><b>${name(i)}</b> <span class="muted">고3 A반</span><br><span class="muted">상담 필요</span></div><div><span class="chip">${REASONS[i % 5]}</span><br>10/24–10/27 결석 4일 연속, 그 4일 모두 계획 미제출</div><div class="muted">다음 확인 —<br>지난 관리 없음</div></div>`).join('')}`),
+  'C-drawer': page('C', ['확인할 학생 54', '학습관 현황', '전체 학생 150', '관리 이력'], '확인할 학생 54', Array.from({ length: 8 }, (_, i) => `<div class="card"><b>${name(i)}</b> <span class="chip">${REASONS[i % 5]}</span></div>`).join(''), `<div class="dim"></div><div class="dlg" role="dialog" style="top:0;bottom:0;right:0;width:min(1200px,75vw);border-radius:14px 0 0 14px">${detail(false)}</div><style>html{overflow:hidden}</style>`),
+  'C-branch': page('C', ['확인할 학생 54', '학습관 현황', '전체 학생 150', '관리 이력'], '학습관 현황', METRICS.map(([t, s]) => `<div class="card" style="display:grid;grid-template-columns:160px 1.3fr 1fr;gap:20px;padding:8px 16px;align-items:end"><div style="align-self:start"><b>${t}</b><br><span class="muted">${s}</span></div><div style="--h:64px;margin-top:16px">${bars(studyVals, fmtFor(t))}</div><div><span class="muted">학생별 평소 대비 변화 (학생 119명)</span><div class="hist" style="height:60px;margin-top:16px">${[2, 5, 11, 30, 41, 20, 7, 3].map((n) => `<i style="height:${n * 2}%"><b>${n}명</b></i>`).join('')}</div><div class="dates" style="grid-template-columns:repeat(8,1fr)">${['−50%', '−30%', '−10%', '0', '+10%', '+30%', '+50%', '+70%'].map((x) => `<span>${x}</span>`).join('')}</div></div></div>`).join('')),
+  'C-branch-result': page('C', ['확인할 학생 54', '학습관 현황', '전체 학생 150', '관리 이력'], '학습관 현황', `<div class="sticky ctl">지표로 가기: <span class="box">결석</span><span class="box">학습 시간</span><span class="box">입실 시각</span><span class="box">계획 제출</span><span class="box">비전</span></div>` + METRICS.slice(0, 2).map(([t, s]) => `<div class="card"><b>${t}</b> <span class="muted">${s}</span><div style="--h:60px;margin-top:16px">${bars(studyVals, fmtFor(t))}</div></div>`).join('') + result150('학습 시간 · 평소보다 −30% 이하 학생 6명 (그 지표 줄 바로 아래)').replace(roster(150, ['학생', '실제', '평소', '차이', '']), roster(6, ['학생', '실제', '평소', '차이', '비교'])) + METRICS.slice(2).map(([t, s]) => `<div class="card"><b>${t}</b> <span class="muted">${s}</span><div class="chart" style="--h:60px"></div></div>`).join('')),
+  'D-branch': page('D', ['학습관', '관리 이력'], '학습관', `<div class="top" style="margin-bottom:8px"><span class="box" style="width:320px">이름으로 학생 찾기</span><span class="box">전체 학생 150명 →</span></div><div class="grid" style="grid-template-columns:repeat(3,1fr)">${METRICS.map(([t, s], i) => `<div class="card" style="${i === 1 ? 'border:2px solid #2563eb' : ''};padding:10px 14px"><b>${t}</b> <span class="muted">${s}</span><div style="font-size:18px;font-weight:700;margin:4px 0">${['하루 평균 6.9명 / 등원 예정 119명', '하루 평균 3시간 54분, 평소 대비 +1%', '평소 대비 +1분', '제출 88%', '휴대폰 사용 6% (사진 기준)'][i]}</div><div style="--h:56px;margin-top:14px">${bars(studyVals, fmtFor(t))}</div></div>`).join('')}</div><div class="card" style="border-color:#2563eb"><b>학습 시간 자세히</b><div class="grid" style="grid-template-columns:1.4fr 1fr;margin-top:10px"><div style="--h:150px;margin-top:16px">${bars(studyVals, (v) => `${(v / 20).toFixed(1)}시간`)}</div><div><span class="muted">10/26 학생별 평소 대비 변화 (119명)</span><div class="hist" style="margin-top:16px">${[2, 5, 11, 30, 41, 20, 7, 3].map((n) => `<i style="height:${n * 2}%"><b>${n}명</b></i>`).join('')}</div></div></div></div>`),
+  'D-branch-result': page('D', ['학습관', '관리 이력'], '학습관', `<div class="grid" style="grid-template-columns:repeat(5,1fr)">${METRICS.map(([t], i) => `<div class="card" style="${i === 1 ? 'border:2px solid #2563eb' : ''};padding:8px 12px"><b>${t}</b><div class="muted">요약 칸 (항상 위)</div></div>`).join('')}</div><div class="card" style="border-color:#2563eb"><b>학습 시간 자세히 · 10/26 선택</b><div class="chart" style="--h:90px"></div>${result150('10/26 학습 기록 있는 학생 119명 (선택 지표 상세 안)')}</div>`),
+  'D-student': page('D', [], '', `<div class="ctl" style="margin-bottom:12px"><span class="box">← 학습관으로 (학습 시간 · 10/26 · 검색 · 제외 복원)</span></div>${detail()}`),
+}
+
+const browser = await chromium.launch({ channel: 'chrome', args: ['--no-proxy-server'] })
+const index = []
+for (const width of [1600, 1280]) {
+  const p = await (await browser.newContext({ viewport: { width, height: 900 } })).newPage()
+  for (const [key, html] of Object.entries(states)) {
+    await p.setContent(html.replace('repeat(var(--cols,3),1fr)', width < 1440 ? 'repeat(2,1fr)' : 'repeat(3,1fr)').replaceAll('repeat(var(--cols,3),1fr)', width < 1440 ? 'repeat(2,1fr)' : 'repeat(3,1fr)'))
+    const file = `${key}-${width}.png`
+    await p.screenshot({ path: fileURLToPath(new URL(file, out)), fullPage: false })
+    if (/result|students|queue/.test(key) && width === 1600) await p.screenshot({ path: fileURLToPath(new URL(`${key}-${width}-full.png`, out)), fullPage: true })
+    index.push(file)
+  }
+  await p.context().close()
+}
+await browser.close()
+writeFileSync(new URL('index.json', out), JSON.stringify(index, null, 2))
+console.log(index.length, 'images')

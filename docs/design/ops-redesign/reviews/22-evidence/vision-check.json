@@ -1,0 +1,357 @@
+{
+  "runtime": "v24.19.0",
+  "sourceSha256": "615aeb429aac64bd1cdd12560f8bcd3f388610e5836e64a6634312144b3330d3",
+  "cases": [
+    {
+      "axis": "person_visible",
+      "total": {
+        "yes": 1,
+        "no": 6,
+        "unknown": 3,
+        "analyzed": 10,
+        "unsupportedPhotos": 10
+      },
+      "branch": {
+        "photoShare": 0.1,
+        "yes": 1,
+        "analyzed": 10,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 1,
+        "median": 0.1,
+        "q1": 0.1,
+        "q3": 0.1,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.1,
+            "yes": 1,
+            "analyzed": 10
+          }
+        ]
+      },
+      "allUnsupported": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      },
+      "pooled": {
+        "photoShare": 0.10784313725490197,
+        "yes": 11,
+        "analyzed": 102,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 2,
+        "median": 0.30000000000000004,
+        "q1": 0.2,
+        "q3": 0.4,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.5,
+            "yes": 1,
+            "analyzed": 2
+          },
+          {
+            "studentId": "b",
+            "share": 0.1,
+            "yes": 10,
+            "analyzed": 100
+          }
+        ]
+      },
+      "failures": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      }
+    },
+    {
+      "axis": "head_down",
+      "total": {
+        "yes": 1,
+        "no": 6,
+        "unknown": 3,
+        "analyzed": 10,
+        "unsupportedPhotos": 10
+      },
+      "branch": {
+        "photoShare": 0.1,
+        "yes": 1,
+        "analyzed": 10,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 1,
+        "median": 0.1,
+        "q1": 0.1,
+        "q3": 0.1,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.1,
+            "yes": 1,
+            "analyzed": 10
+          }
+        ]
+      },
+      "allUnsupported": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      },
+      "pooled": {
+        "photoShare": 0.10784313725490197,
+        "yes": 11,
+        "analyzed": 102,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 2,
+        "median": 0.30000000000000004,
+        "q1": 0.2,
+        "q3": 0.4,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.5,
+            "yes": 1,
+            "analyzed": 2
+          },
+          {
+            "studentId": "b",
+            "share": 0.1,
+            "yes": 10,
+            "analyzed": 100
+          }
+        ]
+      },
+      "failures": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      }
+    },
+    {
+      "axis": "phone_interaction",
+      "total": {
+        "yes": 1,
+        "no": 6,
+        "unknown": 3,
+        "analyzed": 10,
+        "unsupportedPhotos": 10
+      },
+      "branch": {
+        "photoShare": 0.1,
+        "yes": 1,
+        "analyzed": 10,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 1,
+        "median": 0.1,
+        "q1": 0.1,
+        "q3": 0.1,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.1,
+            "yes": 1,
+            "analyzed": 10
+          }
+        ]
+      },
+      "allUnsupported": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      },
+      "pooled": {
+        "photoShare": 0.10784313725490197,
+        "yes": 11,
+        "analyzed": 102,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 2,
+        "median": 0.30000000000000004,
+        "q1": 0.2,
+        "q3": 0.4,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.5,
+            "yes": 1,
+            "analyzed": 2
+          },
+          {
+            "studentId": "b",
+            "share": 0.1,
+            "yes": 10,
+            "analyzed": 100
+          }
+        ]
+      },
+      "failures": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      }
+    },
+    {
+      "axis": "reading_or_writing",
+      "total": {
+        "yes": 1,
+        "no": 6,
+        "unknown": 3,
+        "analyzed": 10,
+        "unsupportedPhotos": 10
+      },
+      "branch": {
+        "photoShare": 0.1,
+        "yes": 1,
+        "analyzed": 10,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 1,
+        "median": 0.1,
+        "q1": 0.1,
+        "q3": 0.1,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.1,
+            "yes": 1,
+            "analyzed": 10
+          }
+        ]
+      },
+      "allUnsupported": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 10,
+        "unsupportedStudents": 1,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      },
+      "pooled": {
+        "photoShare": 0.10784313725490197,
+        "yes": 11,
+        "analyzed": 102,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 2,
+        "median": 0.30000000000000004,
+        "q1": 0.2,
+        "q3": 0.4,
+        "shares": [
+          {
+            "studentId": "a",
+            "share": 0.5,
+            "yes": 1,
+            "analyzed": 2
+          },
+          {
+            "studentId": "b",
+            "share": 0.1,
+            "yes": 10,
+            "analyzed": 100
+          }
+        ]
+      },
+      "failures": {
+        "photoShare": null,
+        "yes": 0,
+        "analyzed": 0,
+        "unsupportedPhotos": 0,
+        "unsupportedStudents": 0,
+        "students": 0,
+        "median": null,
+        "q1": null,
+        "q3": null,
+        "shares": []
+      }
+    }
+  ],
+  "noRecord": {
+    "studentId": "present",
+    "date": "2026-10-27",
+    "source": "example",
+    "photosReceived": 0,
+    "analyzedPhotos": 0,
+    "failedPhotos": 0,
+    "failures": {},
+    "unsupportedAxes": [],
+    "axes": {
+      "person_visible": {
+        "yes": 0,
+        "no": 0,
+        "unknown": 0
+      },
+      "head_down": {
+        "yes": 0,
+        "no": 0,
+        "unknown": 0
+      },
+      "phone_interaction": {
+        "yes": 0,
+        "no": 0,
+        "unknown": 0
+      },
+      "reading_or_writing": {
+        "yes": 0,
+        "no": 0,
+        "unknown": 0
+      }
+    },
+    "coverage": {
+      "firstCaptureAt": null,
+      "lastCaptureAt": null,
+      "expectedPhotos": null,
+      "expectedPhotosReason": "capture_interval_unknown"
+    },
+    "ratioMeaning": "photo_sample_ratio"
+  }
+}

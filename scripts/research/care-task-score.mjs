@@ -4,8 +4,9 @@
 import { readFileSync, readdirSync, existsSync, writeFileSync } from 'node:fs'
 
 const screen = process.argv[2]
-const dir = new URL('../../docs/design/ops-redesign/task-runs/', import.meta.url)
-const key = JSON.parse(readFileSync(new URL('../task-answers.json', dir), 'utf8'))
+const V5 = ['original-v5', 'a', 'b', 'c', 'd'].includes(screen)
+const dir = new URL(`../../docs/design/ops-redesign/${V5 ? 'task-runs-v5' : 'task-runs'}/`, import.meta.url)
+const key = JSON.parse(readFileSync(new URL(V5 ? '../task-answers-v5.json' : '../task-answers.json', dir), 'utf8'))
 const answers = JSON.parse(readFileSync(new URL(`${screen}-answers.json`, dir), 'utf8'))
 const logs = readdirSync(dir).filter((f) => f.startsWith(`${screen}-log`) && f.endsWith('.json')).map((f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8')))
 const after = existsSync(new URL(`${screen}-after.json`, dir)) ? JSON.parse(readFileSync(new URL(`${screen}-after.json`, dir), 'utf8')) : null
@@ -62,9 +63,22 @@ s.Q11 = listScore(list(answers.Q11).map(reasonType), key.Q11.answer.map(reasonTy
   s.Q14 = (Math.abs(rate - key.Q14.answer.executionRate) <= 2 ? 5 : 0) + (subj.includes(key.Q14.answer.subject) && Math.abs(Math.abs(gap) - Math.abs(key.Q14.answer.gapPoints)) <= 3 ? 5 : 0) }
 s.Q15 = listScore(list(answers.Q15).map((x) => x.replace(/요일/, '')), key.Q15.answer)
 
+if (V5) {
+  { const a = answers.Q16 ?? {}; s.Q16 = (num(a.analyzed) === key.Q16.answer.analyzed ? 5 : 0) + (num(a.yes) === key.Q16.answer.yes ? 5 : 0) }
+  { const got = new Set(list(answers.Q17)), want = new Set(list(key.Q17.answer)); s.Q17 = got.size === want.size && [...want].every((x) => got.has(x)) ? 10 : 0 }
+  { const a = answers.Q18 ?? {}, k = key.Q18.answer, near = (x, y) => Math.abs(num(x) - y) <= 1
+    const ends = (near(a.q1, k.q1) ? 1 : 0) + (near(a.q3, k.q3) ? 1 : 0)
+    const names = !k.students.length ? (list(a.students).length ? 0 : 3) : (() => { const j = jaccard(a.students, k.students); return j >= 0.8 ? 3 : j >= 0.5 ? 1 : 0 })()
+    s.Q18 = (near(a.median, k.median) ? 4 : 0) + (ends === 2 ? 3 : ends === 1 ? 1 : 0) + names }
+  { const a = answers.Q19 ?? {}, k = key.Q19.answer
+    const dates = list(a.absentDates).filter((x) => !/없음/.test(x)).map(dateIn).sort().join(','), kd = k.absentDates.map((d) => d.slice(5)).sort().join(',')
+    const late = k.latestStart.some((x) => x.diff === null ? /평소\s*없음/.test(String(a.latestStartDiff)) : Math.abs(num(a.latestStartDiff) - x.diff) <= 1)
+    s.Q19 = (dates === kd ? 2 : 0) + (Math.abs(minutes(a.weekMinutes) - k.weekMinutes) <= 10 ? 2 : 0) + (k.usualWeek === null ? (/없음|—/.test(String(a.usualWeek)) ? 2 : 0) : Math.abs(minutes(a.usualWeek) - k.usualWeek) <= 10 ? 2 : 0) + (late ? 2 : 0) + (k.executionRate === null ? 0 : Math.abs(num(a.executionRate) - k.executionRate) <= 1 ? 2 : 0) }
+}
 const total = Object.values(s).reduce((a, b) => a + b, 0)
 const perQuestion = Object.fromEntries(Object.keys(s).map((q) => [q, { score: s[q], operations: opsFor(q) }]))
-const readOps = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q11', 'Q12', 'Q13', 'Q14', 'Q15'].reduce((a, q) => a + opsFor(q), 0)
-const out = { screen, total, max: 150, perQuestion, readOperations: readOps, writeOperations: { Q9: opsFor('Q9'), Q10: opsFor('Q10') }, autoMoves: ops.filter((e) => e.autoMove).length, pageErrors: logs.flatMap((l) => l.errors ?? []).length }
+const readOps = ['Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7', 'Q8', 'Q11', 'Q12', 'Q13', 'Q14', 'Q15', ...(V5 ? ['Q18', 'Q19'] : [])].reduce((a, q) => a + opsFor(q), 0)
+const compared = V5 ? Object.entries(s).filter(([q]) => q !== 'Q16' && q !== 'Q17').reduce((a, [, v]) => a + v, 0) : null
+const out = { screen, total, max: V5 ? 190 : 150, ...(V5 ? { comparedTotal: compared, comparedMax: 170, vision: (s.Q16 ?? 0) + (s.Q17 ?? 0) } : {}), perQuestion, readOperations: readOps, writeOperations: { Q9: opsFor('Q9'), Q10: opsFor('Q10') }, autoMoves: ops.filter((e) => e.autoMove).length, pageErrors: logs.flatMap((l) => l.errors ?? []).length }
 writeFileSync(new URL(`${screen}-score.json`, dir), JSON.stringify(out, null, 2))
 console.log(JSON.stringify(out, null, 1))

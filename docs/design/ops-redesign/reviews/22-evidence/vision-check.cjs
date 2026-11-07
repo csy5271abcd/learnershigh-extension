@@ -1,0 +1,32 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const root = path.resolve(__dirname, '../../../../..');
+const ts = require(path.join(root, 'frontend/node_modules/typescript'));
+const source = fs.readFileSync(path.join(root, 'frontend/admin/src/features/student-care/variants/shared/visionExample.ts'), 'utf8');
+const api = {};
+vm.runInNewContext(ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText, {exports:api});
+const day = (id, n, yes, unknown = 0, unsupported = [], failed = 0) => ({studentId:id,date:'2026-10-27',source:'example',photosReceived:n+failed,analyzedPhotos:n,failedPhotos:failed,failures:failed?{timeout:failed}:{},unsupportedAxes:unsupported,axes:Object.fromEntries(api.VISION_AXES.map(a=>[a,unsupported.includes(a)?{yes:0,no:0,unknown:n}:{yes,no:n-yes-unknown,unknown}]))});
+const cases = [];
+for (const axis of api.VISION_AXES) {
+  const a = day('a',10,1,3), b = day('b',10,0,0,[axis]);
+  const total = api.sumVision([a,{...b,studentId:'a'}]).axes[axis];
+  const br = api.branchVisionDay([{studentId:'a',day:a},{studentId:'b',day:b}])[axis];
+  assert.equal(total.analyzed,10); assert.equal(total.yes,1); assert.equal(total.unknown,3); assert.equal(total.unsupportedPhotos,10);
+  assert.equal(br.analyzed,10); assert.equal(br.photoShare,0.1); assert.equal(br.unsupportedPhotos,10); assert.equal(br.unsupportedStudents,1); assert.equal(br.students,1);
+  const all = api.branchVisionDay([{studentId:'b',day:b}])[axis];
+  assert.equal(all.photoShare,null); assert.equal(all.students,0); assert.equal(all.unsupportedPhotos,10);
+  const removed = api.branchVisionDay([{studentId:'a',day:a},{studentId:'b',day:b}],new Set(['a']))[axis];
+  assert.equal(removed.photoShare,null);
+  const pooled = api.branchVisionDay([{studentId:'a',day:day('a',2,1)},{studentId:'b',day:day('b',100,10)}])[axis];
+  assert.equal(pooled.photoShare,11/102); assert.ok(Math.abs(pooled.median-0.3)<1e-12);
+  const failures = api.branchVisionDay([{studentId:'f',day:day('f',0,0,0,[],3)}])[axis];
+  assert.equal(failures.photoShare,null); assert.equal(failures.students,0);
+  cases.push({axis,total,branch:br,allUnsupported:all,pooled,failures});
+}
+const noRecord = api.visionDay('present','2026-10-27',null,1100);
+assert.equal(noRecord.photosReceived,0); assert.equal(noRecord.attendance,undefined);
+const result = {runtime:process.version,sourceSha256:require('node:crypto').createHash('sha256').update(source).digest('hex'),cases,noRecord};
+fs.writeFileSync(path.join(__dirname,'vision-check.json'),JSON.stringify(result,null,2));
+console.log(JSON.stringify({axes:cases.length,assertions:'passed',runtime:process.version}));
