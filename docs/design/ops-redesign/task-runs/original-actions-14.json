@@ -1,0 +1,1 @@
+[["question","Q6"],["fill","input[placeholder=\"이름 또는 반 검색\"]","김지우"],["click","text=김지우"],["scroll",450],["click","svg:has(text:text-is(\"22:00\")) circle"],["read"],["shot","D:/univ/capstone/learnershigh-extension/docs/design/ops-redesign/task-runs/original-shots/Q6-tooltip.png"]]

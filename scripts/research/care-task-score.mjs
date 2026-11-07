@@ -34,7 +34,10 @@ s.Q7 = num(answers.Q7) === key.Q7.answer ? 10 : 0
 s.Q8 = Math.abs(minutes(answers.Q8) - key.Q8.answer) <= 10 ? 10 : 0
 { const post = writes.filter((w) => w.question === 'Q9' && w.method === 'POST' && /\/cases/.test(w.url) && w.status < 300).map((w) => { try { return JSON.parse(w.body) } catch { return {} } })
   const ok = post.some((b) => b.studentId === key.Q9.studentId && b.channel === 'MEETING' && b.reason === 'ADJUSTMENT_NEEDED' && b.recheckDate === key.Q9.answer)
-  const inHistory = after?.q9History?.items?.some((i) => (i.recheckDate ?? i.content ?? '').includes?.(key.Q9.answer) || JSON.stringify(i).includes(key.Q9.answer)) ?? false
+  // 이력 항목은 날짜를 "11월 4일"처럼 글로 쓰고, 케이스 목록에는 recheckDate가 있다. 둘 중 하나로 확인한다
+  const [, km, kd] = key.Q9.answer.split('-').map(Number)
+  const inHistory = (after?.q9History?.cases ?? []).some((c) => c.recheckDate === key.Q9.answer && c.studentId === key.Q9.studentId)
+    || (after?.q9History?.items ?? []).some((i) => (i.content ?? '').includes(`${km}월 ${kd}일`))
   const said = dateIn(answers.Q9) === key.Q9.answer.slice(5)
   s.Q9 = ok && inHistory ? (said ? 10 : 5) : 0 }
 { const puts = writes.filter((w) => w.question === 'Q10' && w.method === 'PUT' && /\/settings\?branchId=demo_small/.test(w.url) && w.status < 300).map((w) => { try { return JSON.parse(w.body).absenceDays } catch { return null } })
@@ -45,7 +48,9 @@ s.Q8 = Math.abs(minutes(answers.Q8) - key.Q8.answer) <= 10 ? 10 : 0
   const middleSeen = gets.includes(key.Q10.middleValue) && reads.some((r) => r.question === 'Q10' && r.text.includes(String(key.Q10.middleValue))) && middleSaid === key.Q10.middleValue
   const finalOk = after?.q10Final === key.Q10.answer
   s.Q10 = !puts.length ? 0 : first === key.Q10.answer && order && middleSeen && finalOk ? 10 : first === key.Q10.answer && finalOk ? 5 : 0 }
-s.Q11 = listScore(answers.Q11, key.Q11.answer)
+// 사유는 화면마다 이름이 다르다(미입실/결석, 공부 시간 감소/학습 감소 등). 같은 신호 종류로 바꿔 비교한다
+const reasonType = (t) => /결석|미입실/.test(t) ? 'absence' : /미제출/.test(t) ? 'plan' : /공부|학습/.test(t) && /감소|−|-/.test(t) ? 'study' : /진행률|미달성|달성률/.test(t) && !/과목|국어|수학|영어|탐구/.test(t) ? 'exec' : /입실|등원/.test(t) ? 'start' : /비중|국어|수학|영어|탐구/.test(t) ? 'subject' : norm(t)
+s.Q11 = listScore(list(answers.Q11).map(reasonType), key.Q11.answer.map(reasonType))
 { const a = answers.Q12 ?? {}; s.Q12 = (listScore(a['연속'] ?? a.consecutive, key.Q12.answer['연속']) + listScore(a['흩어짐'] ?? a.scattered, key.Q12.answer['흩어짐'])) / 2 }
 { const a = answers.Q13, dir = /감소|줄/.test(JSON.stringify(a)) ? '감소' : /증가|늘/.test(JSON.stringify(a)) ? '증가' : '같음', p = num(typeof a === 'object' ? a.percent : String(a).match(/-?\d+(\.\d+)?\s*%/)?.[0] ?? a)
   s.Q13 = dir === key.Q13.answer.direction ? (Math.abs(Math.abs(p) - Math.abs(key.Q13.answer.percent)) <= 3 ? 10 : 5) : 0 }
