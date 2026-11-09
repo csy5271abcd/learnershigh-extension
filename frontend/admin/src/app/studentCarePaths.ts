@@ -10,6 +10,15 @@ export const studentCareOpsPath = '/student-care/ops'
 /** 학생 케어 시안 A–D(docs/design/ops-redesign/plan-v5.md). 기존 /student-care와 /student-care/ops는 그대로 둔다 */
 export type StudentCareVariant = 'a' | 'b' | 'c' | 'd'
 export const studentCareVariantPath = (v: StudentCareVariant) => `/student-care/${v}`
+/** 학생 케어 Z안(docs/design/ops-redesign/plan-z.md). A–D와 별도 화면 */
+export const studentCareZPath = '/student-care/z'
+/** 표시법 20종 비교(docs/design/ops-redesign/plan-yxz.md). 메뉴에 두지 않는다 */
+export const studentCareNotationPath = '/student-care/notation'
+/** 시안 Y(데이터 중심)·X(원본 스타일)·Z′(Z 개선, 사용자 경험 우선) */
+export const studentCareYPath = '/student-care/y'
+export const studentCareXPath = '/student-care/x'
+export const studentCareZ2Path = '/student-care/z2'
+
 export function studentCareVariantOf(path: string): StudentCareVariant | null {
   const m = path.match(/^\/student-care\/([abcd])$/)
   return m ? (m[1] as StudentCareVariant) : null

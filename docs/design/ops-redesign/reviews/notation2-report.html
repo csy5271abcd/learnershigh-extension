@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학생 케어 표시법 2차</title>
+<style>
+  :root { --bg: #f2f4f6; --card: #fff; --text: #191f28; --sub: #4e5968; --line: #e5e8eb; --blue: #1b8cf2; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #101318; --card: #191d24; --text: #eef1f5; --sub: #b6bec9; --line: #313843; --blue: #4aa8ff; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.6 'Pretendard Variable', Pretendard, system-ui, sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; padding: 28px 24px 64px; display: grid; gap: 20px; }
+  h1 { margin: 0; font-size: 26px; } h2 { margin: 0; font-size: 21px; } h3 { margin: 0; font-size: 17px; }
+  p { margin: 0; color: var(--sub); }
+  .card { background: var(--card); border-radius: 14px; padding: 20px 24px; display: grid; gap: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: 0; color: var(--sub); font-weight: 600; }
+  .bar { position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 10px 0; display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; }
+  .bar label { display: inline-flex; gap: 6px; align-items: center; }
+  .bar nav { display: flex; gap: 12px; flex-wrap: wrap; } .bar a { color: var(--blue); text-decoration: none; font-weight: 600; }
+  .opt { border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 10px; }
+  .opt:first-of-type { border-top: 0; padding-top: 0; }
+  dl { margin: 0; display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+  dt { color: var(--sub); } dd { margin: 0; }
+  .shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .shots figure { margin: 0; display: grid; gap: 4px; }
+  .shots img { width: 100%; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .shots figcaption { font-size: 13px; color: var(--sub); }
+  @media (max-width: 1000px) { .shots { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>학생 케어 표시법 2차</h1>
+    <p>1차 20종은 기존 형태를 피하려다 낯설고 읽기 어려운 그림이 되어 모두 취소했습니다. 2차는 막대, 꺾은선, 분포 막대, 산점도, 사진 카드처럼 관리자가 익숙한 형태를 쓰고 디자인을 끌어올렸습니다. 같은 형태를 여러 번 써도 비교 기준과 배치가 다르고, 코드는 그림마다 따로 썼습니다.</p>
+    <p>그림마다 비교 기준을 하나 이상 함께 그렸습니다. 기준은 같은 요일 평소, 지난 4주, 학습관 학생, 계획 양 중 하나입니다. 정확한 값은 마우스를 올리거나 초점을 둘 때만 나옵니다. 출결·계획 제출은 채택한 글자 칸을 그대로 쓰므로 여기서 다시 만들지 않았습니다.</p>
+    <p>제외한 것(명시적으로 기각된 것)은 다음과 같습니다.</p>
+    <ul>
+      <li>칸 안 글자·%·±</li>
+      <li>모양 기호</li>
+      <li>아령</li>
+      <li>축 없는 꺾은선</li>
+      <li>칸마다 축이 따로인 시각 점</li>
+      <li>평소와의 차이 막대</li>
+      <li>작은 시계</li>
+      <li>요약 문장</li>
+      <li>범례가 있어야 읽히는 그림</li>
+      <li>Z 최근 7일 막대+선</li>
+      <li>1차 20종</li>
+    </ul>
+    <p>자료는 실제 서버에서 가져왔습니다. 공부·입실·계획은 학생 케어 API(150명, 35일), 사진 관찰은 이미지 인식 감독관 API(비몰입 이벤트와 근거 사진 3장)에서 읽습니다. 사진 관찰 자료는 가상 시드입니다.</p>
+    <table>
+      <thead><tr><th>학생</th><th>최근 7일</th></tr></thead>
+      <tbody>
+        <tr><td>권유진</td><td>10/24부터 4일 연속 결석</td></tr>
+        <tr><td>장수빈</td><td>매일 출석했지만 공부 시간이 평소의 40%대, 휴대폰 사용 증가</td></tr>
+        <tr><td>권하린</td><td>매일 평소보다 1시간 반 넘게 늦게 입실</td></tr>
+        <tr><td>강도현</td><td>특이 없음(평소에도 휴대폰 사용이 잦음)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="bar">
+    <label>폭 <select id="w"><option>1600</option><option>1280</option></select></label>
+    <label>화면 <select id="t"><option value="light">라이트</option><option value="dark">다크</option></select></label>
+    <nav><a href="#study">공부 시간</a><a href="#start">입실 시각</a><a href="#plan">전체 계획 대비</a><a href="#vision">사진 관찰</a><a href="#check">검증</a></nav>
+  </div>
+
+  <section class="card" id="study"><h2>공부 시간</h2><div data-group="A"></div></section>
+  <section class="card" id="start"><h2>입실 시각</h2><div data-group="B"></div></section>
+  <section class="card" id="plan"><h2>전체 계획 대비</h2><div data-group="C"></div></section>
+  <section class="card" id="vision"><h2>사진 관찰</h2><div data-group="D"></div></section>
+
+  <section class="card" id="check">
+    <h2>검증</h2>
+    <table>
+      <thead><tr><th>항목</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>글자 겹침·카드 밖 넘침(DOM 실측)</td><td>20종 × 학생 4 × 폭 2(1600·1280) × 화면 2(라이트·다크) = 320장 모두 0건(<code>notation2/measure.json</code>)</td></tr>
+        <tr><td>화면 확인</td><td>학생 4명 1600 라이트 전부, 다크·1280 일부를 캡처로 직접 봤습니다. 그리고 이름표 겹침(A5), 촘촘한 눈금(B4), 설명 없는 선(B5), 어긋난 이름표(C1·C4)를 고쳤습니다.</td></tr>
+        <tr><td>칸 안 글자·범례</td><td>없음. 이름은 범례 대신 그림 옆에 직접 붙였습니다(평소 하루, 4주 평균, 계획만큼, 관리 기준, 입실한 날).</td></tr>
+        <tr><td>타입 검사·린트</td><td><code>npm --prefix frontend/admin run typecheck</code>, <code>lint</code> 통과</td></tr>
+      </tbody>
+    </table>
+    <p>확인하지 못한 것은 세 가지입니다. 키보드 초점 이동은 화면에서 돌려 보지 않았습니다. 정상 학생(강도현 등)은 시드 자료가 주마다 거의 같아 비교 기준과 겹쳐 보입니다. 사진 관찰 판정 기준(휴대폰 3분, 자리 비움 5분)은 이미지 인식 레포의 제안값입니다.</p>
+  </section>
+</main>
+<script>
+const STUDENTS = ['권유진', '장수빈', '권하린', '강도현']
+const N = {
+  A: [
+    ['A1', '겹친 막대(최근 7일)', '뒤의 넓고 옅은 막대가 같은 요일 평소, 앞의 좁은 막대가 그날 공부입니다. 앞 막대가 뒤 막대를 못 채운 만큼이 줄어든 시간이고, 기준만큼 줄어든 날은 빨강입니다. 결석·예정 없음은 날짜 아래에 적힙니다.', '같은 요일 평소'],
+    ['A2', '35일 막대 + 평소 하루 선', '35일을 날짜 막대로 세우고(지난 4주 회색, 최근 7일 진하게), 지난 4주 공부한 날의 하루 평균을 가로선으로 그었습니다. 최근 막대가 선 아래로 내려앉았는지가 한눈에 보입니다.', '지난 4주 하루 평균'],
+    ['A3', '주 합계 가로 막대(5주)', '주마다 한 줄, 막대 길이가 그 주 공부 시간 합입니다. 세로선은 지난 4주 평균이라, 최근 7일 줄이 선에 못 미친 만큼이 한 주 동안 줄어든 시간입니다.', '지난 4주 주평균'],
+    ['A4', '35일 꺾은선', '공부한 날을 점으로 찍고 이어진 날끼리 잇습니다. 결석·예정 없는 날은 선이 끊깁니다. 최근 7일 구간만 굵고, 기준만큼 줄어든 날 점은 빨강입니다.', '35일 흐름'],
+    ['A5', '학습관 분포 속 위치', '학습관 학생들의 이번 주 하루 평균 공부 시간 분포(30분 구간 막대)에, 이 학생의 평소(회색 선)와 이번 주(색 선)를 세웠습니다. 하루 2시간 학생과 9시간 학생 사이에서 이 학생이 어디에서 어디로 옮겼는지 보입니다.', '학습관 150명, 학생 평소'],
+  ],
+  B: [
+    ['B1', '날짜별 시각 점(최근 7일)', '세로는 하루 시각(위가 이른 시각)입니다. 날짜마다 회색 가로 막대가 같은 요일 평소 입실, 점이 그날 입실입니다. 점이 막대보다 아래면 늦게 온 것이고, 기준만큼 늦으면 빨강입니다.', '같은 요일 평소'],
+    ['B2', '35일 입실 꺾은선', '35일 입실 시각을 점과 선으로 이었습니다(위가 이른 시각). 요일마다 반복되는 모양이 평소이고, 최근 7일 구간이 그 모양에서 내려갔는지가 늦어진 것입니다.', '35일 흐름, 같은 요일 평소'],
+    ['B3', '요일별 범위 막대', '요일마다 한 줄에 지난 4주 그 요일 입실의 가장 이른~가장 늦은 시각을 회색 막대로, 최근 7일 입실을 세로 선으로 그렸습니다. 선이 막대 밖 오른쪽이면 평소 범위보다 늦은 것입니다.', '같은 요일 지난 4주 범위'],
+    ['B4', '입실 시각 분포 막대', '35일 입실 시각을 30분 칸에 모은 막대입니다(세로는 일수). 지난 4주는 회색, 최근 7일은 그 위에 색으로 쌓아, 최근 날들이 평소 무리와 떨어진 칸에 있는지 보입니다.', '학생 자신의 35일 분포'],
+    ['B5', '주별 늦은 날 수', '5주 기둥의 높이가 그 주에 같은 요일 평소보다 기준만큼 늦게 온 날 수입니다. 굵은 가로선은 그 주에 입실한 날 수라, 온 날 중 몇 날이 늦었는지가 함께 보입니다.', '지난 4주, 입실한 날'],
+  ],
+  C: [
+    ['C1', '계획·실제 묶은 막대(최근 7일)', '날짜마다 계획(회색)과 실제(파랑) 막대를 나란히 세웠습니다. 계획보다 더 한 날은 파랑이 더 높고, 기준만큼 못 한 날은 빨강입니다.', '그날 계획 양'],
+    ['C2', '35일 계획 대비 꺾은선', '세로는 %입니다. 굵은 선은 계획만큼(100%), 옅은 빨간 선은 관리 기준입니다. 100%를 넘은 날도 잘리지 않고 위로 올라갑니다.', '100%, 관리 기준, 35일 흐름'],
+    ['C3', '과목별 계획 대비 가로 막대', '과목마다 실제/계획 %를 가로 막대로 그리고, 100%에 세로선을 그었습니다. 덜 한 과목이 위에 오도록 정렬했고, 기준만큼 못 한 과목은 빨강입니다.', '과목별 계획'],
+    ['C4', '계획·실제 산점도(35일)', '가로는 그날 계획 시간, 세로는 실제 시간, 대각선은 계획만큼입니다. 최근 7일 점이 왼쪽으로 몰리면 계획을 줄인 것이고, 대각선 아래면 계획보다 덜 한 것입니다.', '계획 양 변화, 35일'],
+    ['C5', '과목 구성 두 줄', '위 줄은 계획의 과목별 몫, 아래 줄은 실제의 과목별 몫입니다. 줄 길이가 시간에 비례하므로 아래 줄이 짧으면 전체를 덜 한 것이고, 같은 과목 칸 폭이 위아래로 다르면 과목 쏠림입니다.', '과목 구성, 전체 계획'],
+  ],
+  D: [
+    ['D1', '근거 사진 카드', '비몰입 한 건을 카드 하나로, 큰 사진은 비몰입이 확정된 순간, 작은 두 장은 처음 보인 때와 중간입니다. 카드 아래에 종류, 날짜·시각, 길이를 적었습니다. 최근 7일에서 긴 순서로 6건입니다.', '근거 사진'],
+    ['D2', '종류별 작은 막대 줄(35일)', '종류마다 한 줄, 날짜마다 그날 건수만큼 칸을 쌓았습니다(칸 하나 = 한 번). 세 줄이 같은 날짜 열을 써서 어느 날 무엇이 몇 번인지 한 번에 보이고, 공부 시간이 줄어든 날의 칸은 빨강입니다.', '35일 흐름, 공부 감소일'],
+    ['D3', '종류별 최근 7일과 평소', '종류마다 한 줄, 뒤의 넓고 옅은 막대는 지난 4주 주평균 비몰입 시간, 앞의 좁은 막대는 최근 7일입니다. 앞 막대가 뒤 막대를 넘으면 평소보다 늘어난 것입니다.', '지난 4주 주평균'],
+    ['D4', '시간대 막대', '비몰입이 시작된 시각을 1시간 칸에 모은 막대입니다. 지난 4주는 회색, 최근 7일은 빨강으로 위에 쌓아, 그 학생이 주로 몇 시에 흐트러지는지 보입니다.', '학생 자신의 35일'],
+    ['D5', '공부 시간 대비 비몰입 비율', '그날 비몰입 시간을 공부 시간으로 나눈 비율의 35일 꺾은선입니다. 공부 시간이 기준만큼 줄어든 날의 점은 빨강이라, 비몰입이 많았던 날과 공부가 줄어든 날이 겹치는지 보입니다.', '공부 시간, 35일'],
+  ],
+}
+const render = () => {
+  const w = document.getElementById('w').value, t = document.getElementById('t').value
+  for (const el of document.querySelectorAll('[data-group]')) {
+    el.innerHTML = N[el.dataset.group].map(([id, name, reads, ctx]) => `
+      <article class="opt" id="${id}">
+        <h3>${id} ${name}</h3>
+        <dl><dt>읽는 법</dt><dd>${reads}</dd><dt>비교 기준</dt><dd>${ctx}</dd></dl>
+        <div class="shots">${STUDENTS.map((s) => `<figure><img loading="lazy" src="notation2/${id}-${s}-${w}-${t}.png" alt="${id} ${name} · ${s}"><figcaption>${s}</figcaption></figure>`).join('')}</div>
+      </article>`).join('')
+  }
+}
+document.getElementById('w').addEventListener('change', render)
+document.getElementById('t').addEventListener('change', render)
+render()
+</script>
+</body>
+</html>

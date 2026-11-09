@@ -1,0 +1,699 @@
+{
+  "records": [
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "light",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "light",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "light",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "dark",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "a",
+      "width": 1600,
+      "theme": "dark",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "dark",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1600,
+      "theme": "dark",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "dark",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "d",
+      "width": 1600,
+      "theme": "dark",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "a",
+      "width": 1280,
+      "theme": "light",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "c",
+      "width": 1280,
+      "theme": "light",
+      "test": "start-both",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 4명\n접기",
+          "rows": [
+            "한유진 고3 A반▶21:4016:40+300분비교",
+            "한지우 고3 A반▶21:4016:40+300분비교",
+            "한하린 고3 A반▶21:4016:40+300분비교",
+            "한하준 고2 B반▶21:4016:40+300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        },
+        {
+          "dir": "아래쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 아래쪽 범위 밖 · 학생 3명\n접기",
+          "rows": [
+            "강도현 고3 A반◀11:4016:40−300분비교",
+            "강서윤 고3 A반◀11:4016:40−300분비교",
+            "강서준 고2 B반◀11:4016:40−300분비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 아래쪽 범위 밖 3명 보기",
+      "allRows": 150
+    },
+    {
+      "v": "d",
+      "width": 1280,
+      "theme": "light",
+      "test": "study-one",
+      "actions": [
+        {
+          "dir": "위쪽",
+          "method": "mouse",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        },
+        {
+          "dir": "위쪽",
+          "method": "keyboard",
+          "head": "10/21 수 · 위쪽 범위 밖 · 학생 1명\n접기",
+          "rows": [
+            "한하준 고2 B반▶5시간 50분1시간 40분+250%비교"
+          ]
+        }
+      ],
+      "controlLabel": "10/21 위쪽 범위 밖 1명 보기",
+      "allRows": 150
+    }
+  ],
+  "errors": [
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "light",
+      "test": "study-one",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 학습 시간 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "light",
+      "test": "start-both",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 입실 시각 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "dark",
+      "test": "study-one",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 학습 시간 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    },
+    {
+      "v": "b",
+      "width": 1600,
+      "theme": "dark",
+      "test": "start-both",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 입실 시각 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "light",
+      "test": "study-one",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 학습 시간 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    },
+    {
+      "v": "b",
+      "width": 1280,
+      "theme": "light",
+      "test": "start-both",
+      "error": "locator.innerText: Error: strict mode violation: getByRole('dialog').locator('.v5-overlay-bar') resolved to 2 elements:\n    1) <div class=\"v5-overlay-bar\">…</div> aka getByText('/21 수 · 입실 시각 · 위쪽 범위 밖닫기')\n    2) <div class=\"v5-overlay-bar v5-wrap\">…</div> aka getByText('다른 지표결석학습 시간입실 시각계획 제출비전 관찰←')\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').locator('.v5-overlay-bar')\u001b[22m\n"
+    }
+  ],
+  "blocked": []
+}

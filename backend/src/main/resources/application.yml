@@ -52,6 +52,13 @@ learnershigh:
   mock:
     # 비어 있으면 Application 시작일을 시연 기준일로 쓴다.
     anchor-date:
+  vision:
+    # 사진 관찰 서비스의 근거 사진 저장소를 읽기 전용으로 쓴다(api-contract.md §65-11). 비어 있으면 사진 조회는 503이다.
+    evidence:
+      datasource-url: ${LEARNERSHIGH_VISION_EVIDENCE_DB_URL:}
+      datasource-username: ${LEARNERSHIGH_VISION_EVIDENCE_DB_USERNAME:}
+      datasource-password: ${LEARNERSHIGH_VISION_EVIDENCE_DB_PASSWORD:}
+      private-root: ${LEARNERSHIGH_VISION_EVIDENCE_PRIVATE_ROOT:}
 
 ---
 # E2E (ADR-0007): 기준일 고정 + 조정 가능한 Clock

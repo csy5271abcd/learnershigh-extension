@@ -4,7 +4,7 @@ import styles from './AdminShell.module.css'
 /** 기존 LearnersHigh Admin Sidebar의 상위 메뉴 (references/existing-runners-high/screens/admin, FeedbackDashboard-00). 기존 기능이라 여기서 이동하지 않는다. */
 const existingMenus = ['학원관리', '문자관리', '학생관리', '학습관리', '학습조정', '학원비결제', '리워드', '솔루션결제'] as const
 
-export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'student-care-ops' | 'student-care-a' | 'student-care-b' | 'student-care-c' | 'student-care-d' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations'
+export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'student-care-ops' | 'student-care-a' | 'student-care-b' | 'student-care-c' | 'student-care-d' | 'student-care-z' | 'student-care-y' | 'student-care-x' | 'student-care-z2' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations'
 
 interface AdminExtensionEntry {
   id: AdminExtensionEntryId
@@ -22,6 +22,10 @@ const extensionEntries: AdminExtensionEntry[] = [
   { id: 'student-care-b', label: '학생 케어 B' },
   { id: 'student-care-c', label: '학생 케어 C' },
   { id: 'student-care-d', label: '학생 케어 D' },
+  { id: 'student-care-z', label: '학생 케어 Z' },
+  { id: 'student-care-y', label: '학생 케어 Y' },
+  { id: 'student-care-x', label: '학생 케어 X' },
+  { id: 'student-care-z2', label: '학생 케어 Z′' },
   { id: 'feedback-dashboard', label: 'Feedback Dashboard' },
   { id: 'mentor-cases', label: 'Mentor 추천' },
   { id: 'connections', label: 'Connection 검토' },

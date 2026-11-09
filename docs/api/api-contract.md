@@ -3435,6 +3435,35 @@ PUT /api/admin/student-care/settings?branchId=br_gangnam
 
 Error: `400 VALIDATION_ERROR`, `404 BRANCH_NOT_FOUND`, `422 INVALID_CARE_SETTINGS`.
 
+## 65-11. Vision Evidence (사진 관찰 근거 사진)
+
+사진 인식·판정과 근거 사진 저장·보관(7일)·삭제는 사진 관찰 서비스(runners_hi_vision_ai)가 맡고, 관리자에게 보여주는 조회는 학생 케어가 맡는다.
+학생 케어는 사진을 따로 저장하지 않는다. 사진 관찰 서비스의 근거 사진 저장소(메타데이터 `rhv_evidence_asset`, 원본은 비공개 저장 루트의 `{storage_key}/image.bin`)를 읽기 전용으로 읽고, `state = available`이며 보관 기한 전인 사진만 내준다. 원본은 `content_hash`와 대조한다. 학습관 ID와 학생 ID는 두 서비스가 같은 값을 쓴다.
+
+```http
+GET /api/admin/student-care/students/{studentId}/vision-evidence?branchId=br_gangnam&from=2026-10-21&to=2026-10-27
+```
+
+```json
+{
+  "items": [
+    { "evidenceId": "asset_zc_s012_20261027_14", "serviceDate": "2026-10-27", "captureId": "zc_s012_20261027_14",
+      "capturedAt": "2026-10-27T11:30:00Z" }
+  ]
+}
+```
+
+```http
+GET /api/admin/student-care/students/{studentId}/vision-evidence/{evidenceId}/content?branchId=br_gangnam
+```
+
+- `evidenceId`는 사진 관찰 서비스의 자산 ID(`assetId`)다. `serviceDate`는 촬영 시각의 Asia/Seoul 날짜다.
+- 관리 사유는 이 응답에 두지 않는다. 같은 `captureId`를 가진 사진 관찰 보고의 장면(`AttentionEpisode.captureIds`)에서 읽는다.
+- 응답 본문은 사진 원본(`image/jpeg` | `image/png` | `image/webp`), `Cache-Control: no-store, private`.
+- 기간은 `from` ≤ `to`, 최대 35일. 어기면 `422 INVALID_VISION_EVIDENCE_PERIOD`.
+- 다른 지점·학생의 사진, 만료·삭제된 사진, 내용 해시가 맞지 않는 사진은 `404 VISION_EVIDENCE_NOT_FOUND`. 사진 관찰 저장소에 닿지 못하면 `503 VISION_EVIDENCE_UNAVAILABLE`(사진 없음과 구분).
+- 사진은 사진 표본이다. 시간·집중도·수면을 뜻하지 않으며 판정·사유·정렬에 쓰지 않는다.
+
 ## 65-10. Endpoint Inventory
 
 ```text
@@ -3443,6 +3472,8 @@ GET    /api/admin/student-care/board
 GET    /api/admin/student-care/metrics
 GET    /api/admin/student-care/students/{studentId}
 GET    /api/admin/student-care/students/{studentId}/history
+GET    /api/admin/student-care/students/{studentId}/vision-evidence
+GET    /api/admin/student-care/students/{studentId}/vision-evidence/{evidenceId}/content
 POST   /api/admin/student-care/cases
 POST   /api/admin/student-care/cases/{caseId}/decisions
 POST   /api/admin/student-care/cases/{caseId}/notes

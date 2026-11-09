@@ -33,8 +33,13 @@ import {
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
 import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath } from './app/studentCarePaths.ts'
+import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath, studentCareZPath, studentCareNotationPath, studentCareYPath, studentCareXPath, studentCareZ2Path } from './app/studentCarePaths.ts'
 import { StudentCareVariantPage } from './features/student-care/variants/StudentCareVariantPage.tsx'
+import { VariantZ } from './features/student-care/variants/z/VariantZ.tsx'
+import { NotationLab } from './features/student-care/variants/notation/NotationLab.tsx'
+import { VariantZ2 } from './features/student-care/variants/z2/VariantZ2.tsx'
+import { VariantY } from './features/student-care/variants/y/VariantY.tsx'
+import { VariantX } from './features/student-care/variants/x/VariantX.tsx'
 import { StudentCareOpsPage } from './features/student-care/ops/StudentCareOpsPage.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
@@ -50,6 +55,10 @@ const entryPaths: Record<AdminExtensionEntryId, string> = {
   'student-care-b': studentCareVariantPath('b'),
   'student-care-c': studentCareVariantPath('c'),
   'student-care-d': studentCareVariantPath('d'),
+  'student-care-z': studentCareZPath,
+  'student-care-y': studentCareYPath,
+  'student-care-x': studentCareXPath,
+  'student-care-z2': studentCareZ2Path,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -123,6 +132,26 @@ function App() {
     current = `student-care-${variant}`
     pageLabel = `학생 케어 ${variant.toUpperCase()}`
     page = <div className={ui.page}><StudentCareVariantPage key={variant} variant={variant} /></div>
+  } else if (pathname === studentCareZPath) {
+    current = 'student-care-z'
+    pageLabel = '학생 케어 Z'
+    page = <div className={ui.page}><VariantZ /></div>
+  } else if (pathname === studentCareZ2Path) {
+    current = 'student-care-z2'
+    pageLabel = '학생 케어 Z′'
+    page = <div className={ui.page}><VariantZ2 /></div>
+  } else if (pathname === studentCareYPath) {
+    current = 'student-care-y'
+    pageLabel = '학생 케어 Y'
+    page = <div className={ui.page}><VariantY /></div>
+  } else if (pathname === studentCareXPath) {
+    current = 'student-care-x'
+    pageLabel = '학생 케어 X'
+    page = <div className={ui.page}><VariantX /></div>
+  } else if (pathname === studentCareNotationPath) {
+    current = 'student-care-z'
+    pageLabel = '표시법 20종'
+    page = <div className={ui.page}><NotationLab /></div>
   } else if (pathname === studentCareOpsPath) {
     current = 'student-care-ops'
     pageLabel = '학생 케어 개선안'
