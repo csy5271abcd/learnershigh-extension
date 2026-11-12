@@ -1,0 +1,18 @@
+/* 생활 레포트 세 시안 공통 바탕: 원본 리포트 색(바탕 #26282c, 청록 #4ef0ff, 노랑 #FBE15A) 위에 테두리 있는 칸 */
+.lb { --c: #4ef0ff; --v: #a98bff; --y: #FBE15A; --up: #59e08a; --dn: #ff6b81; --mute: #9a9ea8; --card: #2f3237; --card2: #383b41; --line: #43474f; display: grid; gap: 16px; color: #f2f3f5; font-variant-numeric: tabular-nums; }
+.lb-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; min-width: 0; }
+.lb-in { background: var(--card2); border-radius: 12px; }
+.lb-h { margin: 0 0 14px; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+.lb-h::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+.lb-h small { font-size: 14px; font-weight: 400; color: var(--mute); }
+.lb-h .lb-r { margin-left: auto; font-size: 13px; font-weight: 400; color: var(--mute); }
+.lb-up { color: var(--up); }
+.lb-dn { color: var(--dn); }
+.lb-mute { color: var(--mute); }
+.lb-c { color: var(--c); }
+.lb-v { color: var(--v); }
+.lb-y { color: var(--y); }
+.lb-track { height: 10px; border-radius: 99px; background: #4a4e56; overflow: hidden; }
+.lb-track > i { display: block; height: 100%; border-radius: 99px; background: var(--c); }
+.lb-none { color: var(--mute); font-size: 14px; margin: 6px 0; }
+.lb-tag { display: inline-block; padding: 2px 10px; border-radius: 99px; border: 1px solid currentColor; font-size: 13px; white-space: nowrap; }

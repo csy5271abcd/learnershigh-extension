@@ -254,3 +254,7 @@ storage/tmp/
 # database/seed/**
 # scripts/**
 # .github/**
+
+# 디자인 검토 산출물(스크린샷·검토 기록, 약 720MB)은 로컬에만 둔다
+docs/design/ops-redesign/reviews/
+docs/design/ops-redesign/task-runs/
