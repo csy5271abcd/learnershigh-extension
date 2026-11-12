@@ -19,6 +19,12 @@ export function slotsOf(s: CareRow, period: Period): Slot[] {
 /** 같은 요일 평소 입실 시각: 서버 값이 있으면 그것, 없으면 앞 주들의 같은 요일 평균(첫 주는 없음) */
 export const usualStartAt = (s: CareRow, d: Day, idx: number) => d.usualStart ?? sameWeekdayMean(s, idx, 'start')
 
+/** 입실이 같은 요일 평소보다 늦은 정도(분 차이) → 색 단계. 10분 미만(일찍 온 날 포함)은 칠하지 않는다(2026-11-12 사용자: 일찍은 표시 가치 없음).
+ *  경계 10·30·60분은 학습관별 입실 분포와 같다. 30분은 관리 기준 기본값이기도 하다 */
+export type LateBand = 1 | 2 | 3
+export const LATE_BANDS: { band: LateBand; label: string }[] = [{ band: 1, label: '10~30분 늦음' }, { band: 2, label: '30~60분 늦음' }, { band: 3, label: '60분 이상 늦음' }]
+export const lateBand = (diff: number | null): LateBand | null => (diff === null || diff < 10 ? null : diff < 30 ? 1 : diff < 60 ? 2 : 3)
+
 /** 비몰입 표시 기준(공부 1시간당 건수). 서버 판정이 아니라 화면 표시 기준이라 이 브라우저에만 저장한다 */
 const KEY = 'studentCare.x2.visionPerHour'
 export const VISION_DEFAULT = 3

@@ -10,7 +10,7 @@ import './x2.css'
 export function ParentReportFrame() {
   const data = useCareData('pr')
   const rows = useMemo(() => data.rows ?? [], [data.rows])
-  const [sid, setSid] = useState(() => new URLSearchParams(window.location.search).get('student') ?? 'demo_s309')
+  const [sid, setSid] = useState(() => new URLSearchParams(window.location.search).get('student') ?? 'demo_s320') // 기본은 발표용 학생 한서연(seed-care-showcase.mjs)
   const s = rows.find((r) => r.student.studentId === sid) ?? rows[0]
   const sup = useSupervisorEvents(useMemo(() => (s ? [s.student.studentId] : []), [s]))
   const ev = s && sup.status === 'ready' ? sup.byStudent.get(s.student.studentId) ?? [] : []

@@ -2,9 +2,9 @@
 // - 맨 위: 서버가 정한 관리 사유별 학생 수(누르면 학생별 명단을 그 사유로 거른다). 화면이 다시 센 수와 섞지 않는다.
 // - 행마다 제목은 화면이 센 것의 이름 그대로(서버 사유 이름을 빌리지 않는다). 막대를 누르면 그 칸의 학생이 행 안에 펼쳐지고,
 //   이름을 누르면 학생 겹창이 열린다.
-// - 공부 시간은 학습관 평균이 아니라 학생별 변화량: 평소보다 늘어난 학생(위)·줄어든 학생(아래)과 순변화 합.
+// - 공부 시간은 학습관 평균이 아니라 학생별 변화량: 평소보다 늘어난 학생(위)·줄어든 학생(아래) 수.
 // - 평소 값이 없는 칸(주별 첫 주 등)은 0이 아니라 '평소 값 없음'.
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
 import type { CareRow } from '../shared/useCareData.ts'
 import { useWidth } from '../z/useWidth.ts'
 import { eventDate, type SupState } from '../supervisor/supervisorClient.ts'
@@ -27,7 +27,9 @@ function nice(max: number, floor = 4) {
   return { top, ticks: Array.from({ length: top / step + 1 }, (_, k) => k * step) }
 }
 
-function Bars({ cells, unit, picked, onPick, label, diverge, percent }: { cells: Cell[]; unit: (v: number) => string; picked: string | null; onPick: (c: Cell) => void; label: string; diverge?: boolean; percent?: boolean }) {
+type Side = 'up' | 'down'
+
+function Bars({ cells, unit, picked, onPick, label, diverge, percent }: { cells: Cell[]; unit: (v: number) => string; picked: string | null; onPick: (c: Cell, side?: Side) => void; label: string; diverge?: boolean; percent?: boolean }) {
   const [hov, setHov] = useState<number | null>(null)
   const [ref, w] = useWidth<HTMLDivElement>()
   const n = cells.length, L = 52, R = 8, cw = (w - L - R) / Math.max(1, n), bw = Math.min(44, cw * 0.4)
@@ -40,19 +42,27 @@ function Bars({ cells, unit, picked, onPick, label, diverge, percent }: { cells:
   return (
     <div ref={ref} className="x2c-plot">
       <svg width={w} height={H} role="img" aria-label={label}>
-        {[hov, cells.findIndex((c) => c.key === picked)].map((h, z) => h !== null && h >= 0 && <rect key={z} x={L + cw * h + 2} y={4} width={cw - 4} height={H - 4 - B + 40} rx={6} className={z ? 'x2-bg x2-bg-on' : 'x2-bg'} />)}
+        {hov !== null && <rect x={L + cw * hov + 2} y={4} width={cw - 4} height={H - 4 - B + 40} rx={6} className="x2-bg" />}
+        {(() => { const [k, side] = (picked ?? '').split('|'), h = cells.findIndex((c) => c.key === k); if (h < 0) return null
+          // 공부 시간 변화: 누른 쪽(늘어남 위 / 줄어듦 아래) 반만 칠한다
+          return side ? <rect x={L + cw * h + 2} y={side === 'up' ? 4 : zero} width={cw - 4} height={side === 'up' ? zero - 4 : H - 4 - B + 40 - (zero - 4)} rx={6} className="x2-bg x2-bg-on" />
+            : <rect x={L + cw * h + 2} y={4} width={cw - 4} height={H - 4 - B + 40} rx={6} className="x2-bg x2-bg-on" /> })()}
         {ticks.map((t, i) => <g key={i}><line x1={L} x2={w - R} y1={y(t)} y2={y(t)} className="x2c-grid" /><text x={L - 8} y={y(t) + 4} textAnchor="end" className="x2c-axis-text">{unit(Math.abs(t))}</text></g>)}
         {cells.map((c, i) => {
-          const cx = L + cw * (i + 0.5), can = c.members.length > 0, on = picked === c.key
-          return <g key={c.key} className={can ? 'x2c-col x2c-can' : 'x2c-col'} tabIndex={can ? 0 : -1} role={can ? 'button' : undefined} aria-pressed={can ? on : undefined} aria-label={c.aria} onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)} onFocus={() => setHov(i)} onBlur={() => setHov(null)}
-            onClick={can ? () => onPick(c) : undefined} onKeyDown={can ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(c) } } : undefined}>
-            <rect x={L + cw * i + 2} y={4} width={cw - 4} height={H - 4 - B + 40} rx={6} className="x2-hit" />
+          const cx = L + cw * (i + 0.5), can = !diverge && c.members.length > 0, on = picked === c.key
+          const press = (side?: Side) => ({ tabIndex: 0, role: 'button', onClick: () => onPick(c, side), onKeyDown: (e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(c, side) } } })
+          return <g key={c.key} className={can ? 'x2c-col x2c-can' : 'x2c-col'} {...(can ? press() : {})} aria-pressed={can ? on : undefined} aria-label={diverge ? undefined : c.aria} onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}>
             {diverge ? <>
-              {c.up ? <rect x={cx - bw / 2} y={y(c.up)} width={bw} height={zero - y(c.up)} rx={3} className="x2c-bar" /> : null}
-              {c.down ? <rect x={cx - bw / 2} y={zero} width={bw} height={y(-c.down) - zero} rx={3} className="x2c-bar x2c-down" /> : null}
-              {c.value !== null && c.up ? <text x={cx} y={y(c.up) - 6} textAnchor="middle" className="x2c-val2">{c.up}명</text> : null}
-              {c.value !== null && c.down ? <text x={cx} y={y(-c.down) + 14} textAnchor="middle" className="x2c-val2">{c.down}명</text> : null}
-              <text x={cx} y={T - 12} textAnchor="middle" className="x2c-val">{c.label}</text>
+              {/* 위(늘어난 학생)·아래(줄어든 학생)를 따로 누른다 */}
+              <rect x={L + cw * i + 2} y={4} width={cw - 4} height={zero - 4} className={c.up ? 'x2-hit x2c-can' : 'x2-hit'} {...(c.up ? { ...press('up'), 'aria-pressed': picked === `${c.key}|up`, 'aria-label': `${c.line1} 늘어난 학생 ${c.up}명` } : {})} />
+              <rect x={L + cw * i + 2} y={zero} width={cw - 4} height={H - 4 - B + 40 - (zero - 4)} className={c.down ? 'x2-hit x2c-can' : 'x2-hit'} {...(c.down ? { ...press('down'), 'aria-pressed': picked === `${c.key}|down`, 'aria-label': `${c.line1} 줄어든 학생 ${c.down}명` } : {})} />
+            </> : <rect x={L + cw * i + 2} y={4} width={cw - 4} height={H - 4 - B + 40} rx={6} className="x2-hit" />}
+            {diverge ? <>
+              {c.up ? <rect x={cx - bw / 2} y={y(c.up)} width={bw} height={zero - y(c.up)} rx={3} className="x2c-bar" pointerEvents="none" /> : null}
+              {c.down ? <rect x={cx - bw / 2} y={zero} width={bw} height={y(-c.down) - zero} rx={3} className="x2c-bar x2c-down" pointerEvents="none" /> : null}
+              {c.value !== null && c.up ? <text x={cx} y={y(c.up) - 6} textAnchor="middle" pointerEvents="none" className="x2c-val2">{c.up}명</text> : null}
+              {c.value !== null && c.down ? <text x={cx} y={y(-c.down) + 14} textAnchor="middle" pointerEvents="none" className="x2c-val2">{c.down}명</text> : null}
+              {c.label && <text x={cx} y={T - 12} textAnchor="middle" className="x2c-val">{c.label}</text>}
             </> : <>
               {c.value !== null && <rect x={cx - bw / 2} y={y(c.value)} width={bw} height={Math.max(c.value ? 2 : 0, zero - y(c.value))} rx={3} className="x2c-bar" />}
               <text x={cx} y={(c.value === null ? zero : y(c.value)) - 8} textAnchor="middle" className={c.value === null ? 'x2c-val2' : 'x2c-val'}>{c.label}</text>
@@ -69,25 +79,26 @@ function Bars({ cells, unit, picked, onPick, label, diverge, percent }: { cells:
 
 function Row({ title, sub, legend, cells, unit, label, empty, diverge, percent, onStudent }: { title: string; sub: string; legend?: ReactNode; cells: Cell[]; unit: (v: number) => string; label: string; empty: string; diverge?: boolean; percent?: boolean; onStudent: (r: CareRow, list: CareRow[]) => void }) {
   const [picked, setPicked] = useState<string | null>(null)
-  const cell = cells.find((c) => c.key === picked) ?? null
-  const members = cell ? [...cell.members].sort((a, b) => b.sort - a.sort) : []
+  const [pk, side] = (picked ?? '').split('|')
+  const cell = cells.find((c) => c.key === pk) ?? null
+  const members = cell ? [...cell.members].filter((m) => !side || m.up === (side === 'up')).sort((a, b) => b.sort - a.sort) : []
   const any = cells.some((c) => c.members.length)
   return (
     <section className="x2b-row" aria-label={title}>
       <header className="x2f-head">
         <h3>{title}</h3>
-        <p className="x2f-note">{sub}</p>
+        {sub && <p className="x2f-note">{sub}</p>}
         {legend && <p className="x2f-legend">{legend}</p>}
       </header>
-      <Bars cells={cells} unit={unit} picked={picked} onPick={(c) => setPicked(picked === c.key ? null : c.key)} label={label} diverge={diverge} percent={percent} />
+      <Bars cells={cells} unit={unit} picked={picked} onPick={(c, sd) => { const k = sd ? `${c.key}|${sd}` : c.key; setPicked(picked === k ? null : k) }} label={label} diverge={diverge} percent={percent} />
       {cell ? <div className="x2b-list">
-        <p><b>{cell.line1}{cell.line2 ? ` ${cell.line2}` : ''}</b> {members.length}명 <button type="button" className="x2-link" onClick={() => setPicked(null)}>접기</button></p>
+        <p><b>{cell.line1}{cell.line2 ? ` ${cell.line2}` : ''}</b> {side ? (side === 'up' ? '늘어난 학생 ' : '줄어든 학생 ') : ''}{members.length}명 <button type="button" className="x2-link" onClick={() => setPicked(null)}>접기</button></p>
         {/* 공부 시간 변화는 줄어든 학생과 늘어난 학생을 나눠 보인다(1회차 검토: 섞여 나와 줄어든 학생을 못 찾았다) */}
-        {(members.some((m) => m.up !== undefined) ? [['줄어든 학생', members.filter((m) => m.up === false)], ['늘어난 학생', members.filter((m) => m.up === true)]] as [string, Member[]][] : [['', members]] as [string, Member[]][]).map(([h, ms]) => ms.length > 0 && <div key={h} className="x2b-group">
+        {(!side && members.some((m) => m.up !== undefined) ? [['줄어든 학생', members.filter((m) => m.up === false)], ['늘어난 학생', members.filter((m) => m.up === true)]] as [string, Member[]][] : [['', members]] as [string, Member[]][]).map(([h, ms]) => ms.length > 0 && <div key={h} className="x2b-group">
           {h && <h4>{h} {ms.length}명</h4>}
           <ul>{ms.map((m) => <li key={m.r.student.studentId}><button type="button" onClick={() => onStudent(m.r, ms.map((x) => x.r))}><b>{m.r.student.studentName}</b><span>{m.r.student.className}</span><em className={m.up === false ? 'x2b-down' : undefined}>{m.text}</em></button></li>)}</ul>
         </div>)}
-      </div> : <p className="x2b-hint">{any ? '막대를 누르면 그 칸의 학생 목록이 나옵니다' : empty}</p>}
+      </div> : <p className="x2b-hint">{any ? diverge ? '위·아래 막대를 누르면 늘어난·줄어든 학생이 나옵니다' : '막대를 누르면 그 칸의 학생 목록이 나옵니다' : empty}</p>}
     </section>
   )
 }
@@ -118,8 +129,9 @@ export function BranchX2({ rows, sup, th, perHour, period, onPeriod, onReason, o
       })
       const up = ch.filter((o) => o.pct >= th.drop), down = ch.filter((o) => o.pct <= -th.drop), net = ch.reduce((a, o) => a + o.diff, 0)
       const members = [...down, ...up].map((o) => ({ r: o.r, up: o.pct > 0, sort: Math.abs(o.pct), text: `평소 ${hm(o.usual)} → ${hm(o.now)}` }))
-      const label = ch.length ? `합 ${net >= 0 ? '+' : '−'}${hm(net)}` : '평소 값 없음'
-      return { key: x.key, line1: x.line1, line2: x.line2, value: ch.length ? net : null, up: up.length, down: down.length, label, members, aria: `${lab(x)} 늘어난 학생 ${up.length}명, 줄어든 학생 ${down.length}명, 순변화 ${label}` }
+      // 2026-11-12 사용자: 순변화 합은 의미 없음 → 머리 글자 없이 늘어난·줄어든 학생 수만
+      const label = ch.length ? '' : '평소 값 없음'
+      return { key: x.key, line1: x.line1, line2: x.line2, value: ch.length ? net : null, up: up.length, down: down.length, label, members, aria: `${lab(x)} 늘어난 학생 ${up.length}명, 줄어든 학생 ${down.length}명` }
     })
     const plan: Cell[] = ss.map((x) => {
       const per = rows.flatMap((r) => { const ds = pick(r, x, period).filter(({ d }) => (d.planned ?? 0) > 0); if (!ds.length) return []; const p = ds.reduce((a, { d }) => a + d.planned!, 0), a = ds.reduce((s, { d }) => s + (d.actual ?? 0), 0); return [{ r, p, a }] })
@@ -130,7 +142,7 @@ export function BranchX2({ rows, sup, th, perHour, period, onPeriod, onReason, o
     const vision: Cell[] | null = evBy && ss.map((x) => {
       const members = rows.flatMap((r) => { const ds = pick(r, x, period).map(({ d }) => d); const v = visionIn(evBy.get(r.student.studentId) ?? [], ds); return v.perHour !== null && v.n > 0 && v.perHour >= perHour ? [{ r, text: `${v.n}건 · 공부 ${hm(v.minutes)}`, sort: v.perHour }] : [] })
       const n = rows.reduce((a, r) => a + (evBy.get(r.student.studentId) ?? []).filter((e) => pick(r, x, period).some(({ d }) => d.date === eventDate(e))).length, 0)
-      return { key: x.key, line1: x.line1, line2: x.line2, value: members.length, label: `${members.length}명`, members, aria: `${lab(x)} 기준 넘은 학생 ${members.length}명, 전체 비몰입 ${n}건` }
+      return { key: x.key, line1: x.line1, line2: x.line2, value: members.length, label: `${members.length}명`, members, aria: `${lab(x)} 비몰입 식별 횟수 기준 초과 학생 ${members.length}명, 전체 비몰입 ${n}건` }
     })
     const seen = evBy ? rows.filter((r) => (evBy.get(r.student.studentId) ?? []).length > 0).length : 0
     return { absent, missing, late, study, plan, vision, seen }
@@ -149,13 +161,13 @@ export function BranchX2({ rows, sup, th, perHour, period, onPeriod, onReason, o
           <button type="button" aria-pressed={period === 'w'} onClick={() => onPeriod('w')}>주별 · 최근 5주</button>
         </div>
       </div>
-      <Row title="공부 시간 변화" sub={period === 'd' ? `입실한 학생의 그날 공부 시간을 같은 요일 평소와 비교 · ${th.drop}% 이상 늘어난(위)·줄어든(아래) 학생 수, 맨 위는 순변화 합` : `학생마다 그 주 공부 시간을 그 앞 주들 평균과 비교 · ${th.drop}% 이상 늘어난(위)·줄어든(아래) 학생 수, 맨 위는 순변화 합`} legend={<><Key kind="bar">늘어남</Key><Key kind="down">줄어듦</Key></>} cells={c.study} unit={people} label="학생별 공부 시간 변화" empty="평소와 크게 달라진 학생 없음" diverge onStudent={onStudent} />
-      <Row title="계획 달성률" sub={`계획을 낸 학생 전체의 실제 ÷ 계획 · 누르면 ${th.rate}% 미만 학생`} cells={c.plan} unit={(v) => `${v}%`} percent label="계획 달성률" empty="계획보다 크게 모자란 학생 없음" onStudent={onStudent} />
-      <Row title="결석한 학생" sub={period === 'd' ? '날짜별 결석한 학생 수(예정 없는 날 제외)' : '주별 한 번 이상 결석한 학생 수'} cells={c.absent} unit={people} label="결석한 학생 수" empty="결석한 학생 없음" onStudent={onStudent} />
-      <Row title="입실하고 계획을 내지 않은 학생" sub={period === 'd' ? '입실한 날 계획을 내지 않은 학생 수' : '주별 한 번 이상 입실하고 계획을 내지 않은 학생 수'} cells={c.missing} unit={people} label="계획을 내지 않은 학생 수" empty="계획을 내지 않은 학생 없음" onStudent={onStudent} />
-      <Row title="늦게 입실한 학생" sub={`같은 요일 평소보다 ${th.shift}분 이상 늦게 입실한 학생 수`} cells={c.late} unit={people} label="늦게 입실한 학생 수" empty="늦게 입실한 학생 없음" onStudent={onStudent} />
-      {c.vision ? <Row title="비몰입 기준을 넘은 학생" sub={`공부 1시간당 비몰입 ${rateText(perHour)}건 이상인 학생 수 · 사진 관찰 기록이 있는 학생 ${c.seen}명 / 전체 ${rows.length}명 중`} cells={c.vision} unit={people} label="비몰입 기준을 넘은 학생 수" empty={c.seen ? `기록이 있는 학생 ${c.seen}명 중 기준을 넘은 학생 없음` : '사진 관찰 기록이 있는 학생이 없습니다'} onStudent={onStudent} />
-        : <section className="x2b-row"><header className="x2f-head"><h3>비몰입 기준을 넘은 학생</h3></header><p className={sup.status === 'error' ? 'x2-error' : 'x2-empty'}>{sup.status === 'error' ? '사진 관찰 서버에 연결하지 못했습니다' : '불러오는 중'}</p></section>}
+      <Row title="공부 시간 변화" sub={period === 'd' ? `같은 요일 평소 대비 ±${th.drop}% 이상` : `앞 주들 평균 대비 ±${th.drop}% 이상`} legend={<><Key kind="bar">늘어남</Key><Key kind="down">줄어듦</Key></>} cells={c.study} unit={people} label="학생별 공부 시간 변화" empty="평소와 크게 달라진 학생 없음" diverge onStudent={onStudent} />
+      <Row title="계획 달성률" sub={`누르면 ${th.rate}% 미만 학생`} cells={c.plan} unit={(v) => `${v}%`} percent label="계획 달성률" empty="계획보다 크게 모자란 학생 없음" onStudent={onStudent} />
+      <Row title="결석한 학생" sub={period === 'd' ? '예정 없는 날 제외' : '주에 한 번 이상'} cells={c.absent} unit={people} label="결석한 학생 수" empty="결석한 학생 없음" onStudent={onStudent} />
+      <Row title="계획 미제출" sub={period === 'd' ? '' : '주에 한 번 이상'} cells={c.missing} unit={people} label="계획 미제출 학생 수" empty="계획 미제출 학생 없음" onStudent={onStudent} />
+      <Row title="늦게 입실한 학생" sub={`같은 요일 평소보다 ${th.shift}분 이상`} cells={c.late} unit={people} label="늦게 입실한 학생 수" empty="늦게 입실한 학생 없음" onStudent={onStudent} />
+      {c.vision ? <Row title="비몰입 식별 횟수 기준 초과" sub={`공부 1시간당 ${rateText(perHour)}건 이상 · 기록 있는 학생 ${c.seen}/${rows.length}명`} cells={c.vision} unit={people} label="비몰입 식별 횟수 기준 초과 학생 수" empty={c.seen ? `기록이 있는 학생 ${c.seen}명 중 기준 초과 학생 없음` : '사진 관찰 기록이 있는 학생이 없습니다'} onStudent={onStudent} />
+        : <section className="x2b-row"><header className="x2f-head"><h3>비몰입 식별 횟수 기준 초과</h3></header><p className={sup.status === 'error' ? 'x2-error' : 'x2-empty'}>{sup.status === 'error' ? '사진 관찰 서버에 연결하지 못했습니다' : '불러오는 중'}</p></section>}
     </div>
   )
 }

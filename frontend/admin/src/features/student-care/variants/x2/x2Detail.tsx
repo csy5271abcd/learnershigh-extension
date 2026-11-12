@@ -99,7 +99,7 @@ export function StudentDialog({ s, list, sup, th, perHour, version, onSaved, onM
         </header>
         <nav className="x2d-tabs" role="tablist" aria-label="학생 기록">
           {TABS.map(([k, l]) => <button key={k} type="button" role="tab" aria-selected={tab === k} className={k === 'life' && lifeHit ? 'x2d-tab-flag' : undefined} onClick={() => setTab(k)}>{l}</button>)}
-          {(tab === 'life' || tab === 'vision') && <PeriodSwitch value={period} onChange={(p) => { setPeriod(p); setFocus(null) }} />}
+          {tab === 'life' && <PeriodSwitch value={period} onChange={(p) => { setPeriod(p); setFocus(null) }} />}
         </nav>
         <div className="x2d-body" role="tabpanel">
           {tab === 'life' && <div className="x2d-life">
@@ -125,10 +125,11 @@ export function StudentDialog({ s, list, sup, th, perHour, version, onSaved, onM
           {tab === 'vision' && (sup.status !== 'ready'
             ? <p className={sup.status === 'error' ? 'x2-error' : 'x2-empty'} role={sup.status === 'error' ? 'alert' : 'status'}>{sup.status === 'error' ? '사진 관찰 서버에 연결하지 못했습니다' : supLoadingText(sup)}</p>
             : <div className="x2d-vision">
-              <VisionFig s={s} ev={ev} period={period} perHour={perHour} picked={focus?.key ?? null} onPick={(dates, label, key) => setFocus(focus?.key === key ? null : { dates, label, key, sid: s.student.studentId })} />
+              {/* 사진 관찰은 최근 7일 날짜별만(2026-11-12 사용자: 지난 주들 비교 불필요) */}
+              <VisionFig s={s} ev={ev} period="d" perHour={perHour} picked={focus?.key ?? null} onPick={(dates, label, key) => setFocus(focus?.key === key ? null : { dates, label, key, sid: s.student.studentId })} />
               <section className="x2f" aria-label="비몰입 기록">
-                <header className="x2f-head"><h3>비몰입 기록</h3><p className="x2f-note">막대를 누르면 그 {period === 'd' ? '날' : '주'}의 기록만 봅니다</p></header>
-                <EvidenceLog s={s} ev={ev} period={period} focus={focus} onClear={() => setFocus(null)} />
+                <header className="x2f-head"><h3>비몰입 기록</h3><p className="x2f-note">막대를 누르면 그 날의 기록만 봅니다</p></header>
+                <EvidenceLog s={s} ev={ev} period="d" focus={focus} onClear={() => setFocus(null)} />
               </section>
             </div>)}
           {tab === 'report' && <ReportWithAttach key={s.student.studentId} s={s} ev={ev} asOf={s.days[s.days.length - 1].date} version={version} />}

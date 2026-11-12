@@ -79,9 +79,10 @@
 .x2hb-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 230px; gap: 16px; align-items: center; }
 .x2hb-name { font-size: 15px; color: var(--ink); }
 .x2hb-track { position: relative; height: 30px; }
-.x2hb-bar { position: absolute; left: 0; top: 7px; height: 16px; border-radius: 0 5px 5px 0; background: var(--bar); }
+/* 둥근 모서리는 브라우저가 픽셀에 맞추지 않아 소수점 위치에서 위·아래 경계가 번진다(2026-11-12 사용자: 경계 흐릿). 네모 끝으로 픽셀에 붙인다 */
+.x2hb-bar { position: absolute; left: 0; top: 7px; height: 16px; border-radius: 0; background: var(--bar); }
 .x2hb-bar-bad { background: var(--danger); }
-.x2hb-target { position: absolute; top: 1px; height: 28px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+.x2hb-target { position: absolute; top: 1px; height: 28px; width: 3px; margin-left: -1px; border-radius: 0; background: var(--ink); }
 .x2hb-val { display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .x2hb-val strong { font-size: 16px; color: var(--ink); }
 .x2hb-val span { font-size: 13px; color: var(--sub); }
@@ -101,3 +102,13 @@
 .x2hb-target { top: 2px; height: 32px; }
 .x2hb-axis { margin-top: 0; }
 .x2hb + .x2st, .x2hb .x2t-legend { margin-top: 6px; }
+
+/* 입실 늦음 3단계(10·30·60분). 늦을수록 진하게: 옅은 주황 → 주황 → 빨강. 일찍·10분 미만은 기본 파랑 그대로 */
+.x2 { --late1: #f0b45a; --late2: #e8730c; --late3: var(--danger); }
+.x2t-vdot.x2t-late1 { fill: var(--late1); }
+.x2t-vdot.x2t-late2 { fill: var(--late2); }
+.x2t-vdot.x2t-late3 { fill: var(--late3); }
+.x2t-k-late { width: 12px; height: 12px; border-radius: 50%; }
+.x2t-k-late.x2t-late1 { background: var(--late1); }
+.x2t-k-late.x2t-late2 { background: var(--late2); }
+.x2t-k-late.x2t-late3 { background: var(--late3); }

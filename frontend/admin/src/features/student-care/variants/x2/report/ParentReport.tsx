@@ -1,4 +1,5 @@
 // 학부모 리포트(원본 서비스 util/daily_report 화면을 확장 쪽에 옮긴 것, 화면만). 2026-11-12 사용자: "원본 레포트를 extension report에 구현해 화면만".
+// 학부모에게는 '예정 없음'(off)도 결석으로 보인다(2026-11-12 사용자).
 // 원본과 같은 짜임: 위 밑줄 탭(데일리·주간·월간 레포트) + 날짜, 3열 어두운 칸. 여기에 신규 '생활 레포트' 탭과 선생님 코멘트 자리의 상담 첨부를 붙인다.
 // 자료는 학생 케어(최근 35일 출결·입실·공부·계획)와 이미지 인식(비몰입 기록)뿐이다. 원본에만 있는 값은 이렇게 바꿔 그린다:
 //  - 순공 시간 = 공부 시간 − 그날 비몰입이 이어진 시간(이미지 인식). 수업 시간은 기록이 없어 0(모두 자습).
@@ -74,7 +75,7 @@ function Daily({ s, d, date, study, pure, ev, attached }: { s: CareRow; d: Day |
         <h3>{s.student.studentName} 오늘의 학습</h3>
         <div className="pr-todo-count"><span>○ 계획 <b>{plan ? 1 : 0}</b></span><span>◎ 진행 <b>{plan && act < plan ? 1 : 0}</b></span><span className="pr-cyan">✔ 완료 <b>{plan && act >= plan ? 1 : 0}</b></span></div>
         <div className="pr-todo-list">
-          {!came ? <p className="pr-none">{d?.attendance === 'absent' ? '결석한 날이에요' : d?.attendance === 'off' ? '등원 예정이 없는 날이에요' : '기록이 없어요'}</p>
+          {!came ? <p className="pr-none">{d?.attendance === 'absent' || d?.attendance === 'off' ? '결석한 날이에요' : '기록이 없어요'}</p>
             : plan ? <div className="pr-todo-row"><span className={act >= plan ? 'pr-check on' : 'pr-check'}>✔</span><div><b>오늘 계획한 공부</b><small>계획 {hms(plan)}</small></div><em>{hms(act)}</em></div>
             : <p className="pr-none">계획을 내지 않은 날이에요</p>}
         </div>
@@ -127,7 +128,7 @@ function Weekly({ date, byDate, study, pure }: { date: string; byDate: Map<strin
   return <div className="pr-grid">
     <div className="pr-col">
       <div className="pr-card pr-gauge"><Gauge pct={rate} /><div className="pr-gauge-num"><small>순공률</small><b>{rate}%</b><span>지난주 대비 <em className={rate >= prate ? 'up' : 'down'}>{rate >= prate ? '▲' : '▼'} {Math.abs(rate - prate)}%</em></span></div></div>
-      <div className="pr-card pr-stamps">{wk.map((x) => { const d = byDate.get(x), today = x === date; return <div key={x}><span className={today ? 'pr-yellow' : undefined}>{DOW[dowOf(x)]}</span><i className={d?.attendance === 'present' ? (today ? 'st on today' : 'st on') : d?.attendance === 'absent' ? 'st no' : 'st'}>{d?.attendance === 'present' ? '✔' : d?.attendance === 'absent' ? '결' : d?.attendance === 'off' ? '쉼' : '–'}</i></div> })}</div>
+      <div className="pr-card pr-stamps">{wk.map((x) => { const d = byDate.get(x), today = x === date; return <div key={x}><span className={today ? 'pr-yellow' : undefined}>{DOW[dowOf(x)]}</span><i className={d?.attendance === 'present' ? (today ? 'st on today' : 'st on') : d?.attendance === 'absent' || d?.attendance === 'off' ? 'st no' : 'st'}>{d?.attendance === 'present' ? '✔' : d?.attendance === 'absent' || d?.attendance === 'off' ? '결' : '–'}</i></div> })}</div>
       <div className="pr-card pr-black"><p className="pr-legend"><i className="w" />공부시간 <i className="c" />순공시간</p><div className="pr-bars">{wk.map((x) => { const d = byDate.get(x); return <div key={x}><div className="pr-pair"><i className="w" style={{ height: `${(study(d) / max) * 100}%` }} /><i className="c" style={{ height: `${(pure(d) / max) * 100}%` }} /></div><span>{DOW[dowOf(x)]}</span></div> })}</div></div>
     </div>
     <div className="pr-col">

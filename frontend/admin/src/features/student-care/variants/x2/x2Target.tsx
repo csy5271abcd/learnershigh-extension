@@ -7,7 +7,7 @@ import { useState } from 'react'
 import type { CareRow } from '../shared/useCareData.ts'
 import { useWidth } from '../z/useWidth.ts'
 import { clock, clockDomain, hm, hourTicks, STATE } from '../notation/kit.tsx'
-import { newbieOf, rateText, slotsOf, usualStartAt, visionIn, type Period, type Slot } from './x2Model.ts'
+import { LATE_BANDS, lateBand, newbieOf, rateText, slotsOf, usualStartAt, visionIn, type Period, type Slot } from './x2Model.ts'
 import type { SupEvent } from '../supervisor/supervisorClient.ts'
 import './x2Target.css'
 
@@ -174,7 +174,7 @@ export function StartFig({ s, period, th }: P) {
   return <section id="x2-fig-start" tabIndex={-1} className="x2f x2f-wide" aria-label="입실 시각">
     <header className="x2f-head"><h3 className={flagged ? 'x2f-flag' : undefined}>입실 시각</h3><p className="x2f-note">최근 7일 · 평소는 같은 요일 지난 4주</p></header>
     <div className="x2h"><div className="x2h-row">
-      <div><p className="x2h-label">평소와 비교한 입실</p><p className={`x2h-big${bad ? ' x2h-bad' : ''}`}>{late === null ? '비교할 입실 없음' : Math.round(late) === 0 ? '평소와 같음' : `평균 ${hm(late)} ${late > 0 ? '늦게' : '일찍'}`}</p></div>
+      <div><p className="x2h-label">평소와 비교한 입실</p><p className={`x2h-big${bad ? ' x2h-bad' : ''}`}>{late === null ? '비교할 입실 없음' : late < 10 ? '평소대로' : `평균 ${hm(late)} 늦게`}</p></div>
       <div className="x2h-right"><p className="x2h-label">{th.shift}분 이상 늦은 날</p><p className={`x2h-big${lateDays ? ' x2h-bad' : ''}`}>{lateDays}일<span>/ 입실 {came}일</span></p></div>
     </div></div>
     <div className="x2t">
@@ -189,14 +189,14 @@ export function StartFig({ s, period, th }: P) {
           <path d={line('u')} className="x2t-casing" /><path d={line('u')} className="x2t-line" />
           <path d={line('v')} className="x2t-casing" /><path d={line('v')} className="x2t-vline" />
           {pts.map((p, i) => p.u !== null && <circle key={`u${i}`} cx={X(i)} cy={Y(p.u)} r={6} className="x2t-dot" />)}
-          {pts.map((p, i) => p.v !== null && <circle key={`v${i}`} cx={X(i)} cy={Y(p.v)} r={tip === i ? 8 : 6} className="x2t-vdot" />)}
+          {pts.map((p, i) => { const b = p.v !== null && p.u !== null ? lateBand(p.v - p.u) : null; return p.v !== null && <circle key={`v${i}`} cx={X(i)} cy={Y(p.v)} r={tip === i ? 8 : b ? 7 : 6} className={b ? `x2t-vdot x2t-late${b}` : 'x2t-vdot'} /> })}
         </svg>
         {tip !== null && (() => { const p = pts[tip], d = p.v !== null && p.u !== null ? Math.round(p.v - p.u) : null
-          const b: Badge = d === null ? undefined : Math.abs(d) < 5 ? { text: '평소와 같음', bad: false } : d > 0 ? { text: `↓ ${hm(d)} 늦게`, bad: d >= th.shift } : { text: `↑ ${hm(-d)} 일찍`, bad: false }
+          const b: Badge = d === null ? undefined : d < 10 ? { text: '평소대로', bad: false } : { text: `${hm(d)} 늦게`, bad: d >= th.shift }
           return <TipBox x={X(tip)} y={Math.min(p.v !== null ? Y(p.v) : H - B, p.u !== null ? Y(p.u) : H - B) - 8} w={w} title={p.title} badge={b}
             rows={[{ mark: 'vline', label: '입실 시각', value: p.v !== null ? clock(p.v) : '없음' }, { mark: 'line', label: '평소 입실 시각', value: p.u !== null ? clock(p.u) : '없음' }]} /> })()}
       </div>
-      <p className="x2t-legend"><span><i className="x2t-k-vline" aria-hidden="true" />입실 시각</span><span><i className="x2t-k-line" aria-hidden="true" />평소 입실 시각</span></p>
+      <p className="x2t-legend"><span><i className="x2t-k-vline" aria-hidden="true" />입실 시각</span><span><i className="x2t-k-line" aria-hidden="true" />평소 입실 시각</span>{LATE_BANDS.map((x) => <span key={x.band}><i className={`x2t-k-late x2t-late${x.band}`} aria-hidden="true" />{x.label}</span>)}</p>
     </div>
     {(() => { const ds = s.days.filter((d) => d.attendance === 'present' && d.start !== null), us = s.days.flatMap((d, i) => { const u = usualStartAt(s, d, 28 + i); return d.attendance === 'present' && u !== null ? [u] : [] })
       const avg = mean(ds.map((d) => d.start!)), uavg = mean(us), last = ds.length ? Math.max(...ds.map((d) => d.start!)) : null
@@ -254,10 +254,10 @@ export function VisionFig({ s, ev, period, perHour, picked, onPick }: { s: CareR
       <div><p className="x2h-label">최근 7일 비몰입</p><p className="x2h-big">{all.n}건<span>/ 공부 {hm(all.minutes)}</span></p></div>
       <div className="x2h-right"><p className="x2h-label">공부 1시간당</p><p className={`x2h-big${per !== null && per >= perHour ? ' x2h-bad' : ''}`}>{per === null ? '–' : `${rateText(per)}건`}<em className={hit ? 'x2h-badge x2h-badge-bad' : 'x2h-badge'}>기준 {rateText(perHour)}건</em></p></div>
     </div></div>
-    <TargetBars cols={cols} unit="count" valName="비몰입" refName={`기준(공부 1시간당 ${rateText(perHour)}건)`} badge={(_, i) => rs[i].perHour === null || !rs[i].n ? undefined : rs[i].perHour! >= perHour ? { text: '↑ 기준 넘음', bad: true } : { text: '기준 안', bad: false }}
+    <TargetBars cols={cols} unit="count" valName="비몰입" refName={`기준(공부 1시간당 ${rateText(perHour)}건)`} badge={(_, i) => rs[i].perHour === null || !rs[i].n ? undefined : rs[i].perHour! >= perHour ? { text: '↑ 기준 초과', bad: true } : { text: '기준 안', bad: false }}
       extra={(i) => [{ mark: 'rate', label: '공부 1시간당', value: ph(rs[i]), bad: rs[i].perHour !== null && rs[i].perHour! >= perHour }]} label={period === 'd' ? '최근 7일 날짜별 비몰입 건수' : '최근 5주 주별 비몰입 건수'}
       picked={pickedIdx >= 0 ? pickedIdx : null} onPick={(i) => { const x = sl[i]; onPick(x.days.map(({ d }) => d.date), x.line2 ? `${x.line2}요일 ${x.line1}` : x.line1, x.key) }} />
-    <Stats items={[['하루 평균', `${rateText(Math.round((all.n / Math.max(1, s.days.filter((d) => d.attendance === 'present').length)) * 10) / 10)}건`, '입실한 날'], ['가장 많은 날', rs[maxDay]?.n ? `${sl[maxDay].line2 ?? sl[maxDay].line1} ${rs[maxDay].n}건` : '–'], ['공부 1시간당', per === null ? '–' : `${rateText(per)}건`], ['기준 넘은 ' + (period === 'd' ? '날' : '주'), `${hit}${period === 'd' ? '일' : '주'}`, `/ ${sl.length}${period === 'd' ? '일' : '주'}`]]} />
+    <Stats items={[['하루 평균', `${rateText(Math.round((all.n / Math.max(1, s.days.filter((d) => d.attendance === 'present').length)) * 10) / 10)}건`, '입실한 날'], ['가장 많은 날', rs[maxDay]?.n ? `${sl[maxDay].line2 ?? sl[maxDay].line1} ${rs[maxDay].n}건` : '–'], ['공부 1시간당', per === null ? '–' : `${rateText(per)}건`], ['기준 초과한 ' + (period === 'd' ? '날' : '주'), `${hit}${period === 'd' ? '일' : '주'}`, `/ ${sl.length}${period === 'd' ? '일' : '주'}`]]} />
   </section>
 }
 

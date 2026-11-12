@@ -2,7 +2,7 @@
 // - 원래 러너스하이 관리 화면 모양: 회색 바탕 위 흰 카드, 밑줄 탭, 줄 사이 선만 있는 표, 파란 주 버튼, 어두운 머리 띠의 겹창.
 // - 학생별: 한 줄에 한 명(상태 · 이름 · 반 · 서버 관리 사유와 그 값). 줄을 누르면 학생 겹창.
 // - 학습관별: 한 행에 지표 하나. 학생을 누르면 같은 겹창.
-// - 상담 기록: 학습관 전체 상담 기록(기존 AllHistory). 학생 이름으로 걸러 볼 수 있고, '현재 학생 지표'는 같은 겹창을 연다.
+// - 상담 기록: 학습관 전체 상담 기록(기존 AllHistory). 학생 선택으로 걸러 보고, 이름이나 '현재 학생 지표'를 누르면 같은 겹창을 연다.
 import { useMemo, useState } from 'react'
 import { SettingsDialog } from '../../components/SettingsDialog.tsx'
 import { AllHistory } from '../../components/AllHistory.tsx'

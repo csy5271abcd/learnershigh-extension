@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 
 export type SupBehavior = 'ABSENCE' | 'LYING_DOWN' | 'PHONE_USAGE'
 export const SUP_BEHAVIORS: SupBehavior[] = ['PHONE_USAGE', 'LYING_DOWN', 'ABSENCE']
+// 감독관 계약(BEHAVIORS)에는 AMBIGUOUS(고개 숙임·손 미검출)도 있지만 단독으로 비몰입을 확정하지 않아 이벤트에 오지 않는다. 혹시 와도 아래에서 거른다(2026-11-12 계약 대조)
 export const SUP_LABEL: Record<SupBehavior, string> = { PHONE_USAGE: '휴대폰 사용', LYING_DOWN: '엎드림', ABSENCE: '자리 비움' }
 export type EvidenceType = 'START' | 'MIDDLE' | 'CONFIRMATION'
 export const EVIDENCE_LABEL: Record<EvidenceType, string> = { START: '처음 보임', MIDDLE: '중간', CONFIRMATION: '비몰입 확정' }
@@ -33,7 +34,7 @@ function fetchEvents(careId: string): Promise<SupEvent[]> {
   let p = cache.get(careId)
   if (!p) {
     p = fetch(`/supervisor-api/students/${supervisorIdOf(careId)}/events?limit=200`, { headers: { Accept: 'application/json' } })
-      .then(async (r) => { if (r.status === 404) return []; if (!r.ok) throw new Error(String(r.status)); return (await r.json()) as SupEvent[] })
+      .then(async (r) => { if (r.status === 404) return []; if (!r.ok) throw new Error(String(r.status)); return ((await r.json()) as { reason: string }[]).filter((e): e is SupEvent => (SUP_BEHAVIORS as string[]).includes(e.reason)) })
     p.catch(() => cache.delete(careId))
     cache.set(careId, p)
   }

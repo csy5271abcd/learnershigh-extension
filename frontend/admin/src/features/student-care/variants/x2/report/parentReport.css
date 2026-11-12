@@ -147,7 +147,7 @@
 .pra-muted { color: var(--sub, #5e6278); font-size: 13px; padding-top: 6px; }
 
 
-/* 생활 레포트(2026-11-12 다시 짬): 출결 요약 숫자, 5주 출결 달력, 입실·공부 변화 그림, 흐트러진 횟수 */
+/* 생활 레포트(2026-11-12 다시 짬): 출결 요약 숫자, 5주 출결 달력, 입실·공부 변화 그림, 비몰입 건수 */
 .pr .warn { color: #FBE15A; fill: #FBE15A; }
 .lf-sum { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 15px; color: #b9bcc4; }
 .lf-sum b { margin-left: 4px; color: #4ef0ff; font-size: 18px; }
@@ -191,11 +191,8 @@
 
 
 /* 생활 레포트 시안 1–5(변화량 위주). 원본 리포트 색 */
-.lv { display: grid; gap: 18px; max-width: 980px; }
+.lv { display: grid; gap: 18px; }
 .lv-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: #b9bcc4; font-size: 14px; }
-.lv-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: #1b1c1f; }
-.lv-seg button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 8px; font-size: 13px; color: #b9bcc4; }
-.lv-seg button[aria-pressed='true'] { background: #4ef0ff; color: #000; font-weight: 700; }
 .pr .warn { color: #FBE15A; }
 /* 1 정확한 값 */
 .v1 { background: #3a3d42; border-radius: 24px; padding: 18px 22px; display: grid; gap: 4px; }

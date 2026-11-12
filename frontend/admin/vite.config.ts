@@ -41,6 +41,8 @@ export default defineConfig(({mode}) => {
   server: {
     port: 5174,
     strictPort: true,
+    // 발표 시연용: 테일스케일 공개 주소(Funnel)로 들어오는 요청 허용
+    allowedHosts: ['.ts.net'],
     proxy: { '/supervisor-api': supervisorProxy, '/vision-api': visionProxy, '/api/admin/student-care': careApiTarget, '/api': apiTarget },
   },
   preview: {
