@@ -32,36 +32,18 @@ import {
   TaskInspectorRoute,
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
-import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath, studentCareZPath, studentCareNotationPath, studentCareYPath, studentCareXPath, studentCareZ2Path, studentCareX2Path, parentReportPath } from './app/studentCarePaths.ts'
-import { StudentCareVariantPage } from './features/student-care/variants/StudentCareVariantPage.tsx'
-import { VariantZ } from './features/student-care/variants/z/VariantZ.tsx'
-import { NotationLab } from './features/student-care/variants/notation/NotationLab.tsx'
-import { VariantZ2 } from './features/student-care/variants/z2/VariantZ2.tsx'
+import { studentCarePath, isStudentCarePath, studentCareX2Path, parentReportPath } from './app/studentCarePaths.ts'
 import { VariantX2 } from './features/student-care/variants/x2/VariantX2.tsx'
 import { ParentReportFrame } from './features/student-care/variants/x2/ParentReportFrame.tsx'
-import { VariantY } from './features/student-care/variants/y/VariantY.tsx'
-import { VariantX } from './features/student-care/variants/x/VariantX.tsx'
-import { StudentCareOpsPage } from './features/student-care/ops/StudentCareOpsPage.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
 // Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Mentor 추천 · Connection · Interview · Operations)
 // 학생 케어(features/student-care, Wangyu)는 같은 AdminShell 안의 Feature Route(/student-care)로 연결한다. (별도 App Shell을 쓰지 않는다)
-// 학생 케어 화면 제목 · 지점 선택은 StudentCarePage가 직접 그린다. (origin/main의 개발용 App은 StudentCarePage만 렌더링)
+// 학생 케어는 시안 X′(features/student-care/variants/x2) 하나다. 예전 화면(StudentCarePage·개선안·시안들)은 커밋 77ec091에 남겼다.
 const entryPaths: Record<AdminExtensionEntryId, string> = {
   'today-board': todayBoardPath,
   'student-care': studentCarePath,
-  'student-care-ops': studentCareOpsPath,
-  'student-care-a': studentCareVariantPath('a'),
-  'student-care-b': studentCareVariantPath('b'),
-  'student-care-c': studentCareVariantPath('c'),
-  'student-care-d': studentCareVariantPath('d'),
-  'student-care-z': studentCareZPath,
-  'student-care-y': studentCareYPath,
-  'student-care-x': studentCareXPath,
-  'student-care-z2': studentCareZ2Path,
-  'student-care-x2': studentCareX2Path,
   'parent-report': parentReportPath,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
@@ -131,47 +113,15 @@ function App() {
     current = 'interview'
     pageLabel = 'Interview 관리'
     page = <InterviewRoute location={location} />
-  } else if (studentCareVariantOf(pathname)) {
-    const variant = studentCareVariantOf(pathname)!
-    current = `student-care-${variant}`
-    pageLabel = `학생 케어 ${variant.toUpperCase()}`
-    page = <div className={ui.page}><StudentCareVariantPage key={variant} variant={variant} /></div>
-  } else if (pathname === studentCareZPath) {
-    current = 'student-care-z'
-    pageLabel = '학생 케어 Z'
-    page = <div className={ui.page}><VariantZ /></div>
   } else if (pathname === parentReportPath) {
     current = 'parent-report'
     pageLabel = '학부모 리포트'
     page = <div className={ui.page}><ParentReportFrame /></div>
-  } else if (pathname === studentCareX2Path) {
-    current = 'student-care-x2'
-    pageLabel = '학생 케어 X′'
-    page = <div className={ui.page}><VariantX2 /></div>
-  } else if (pathname === studentCareZ2Path) {
-    current = 'student-care-z2'
-    pageLabel = '학생 케어 Z′'
-    page = <div className={ui.page}><VariantZ2 /></div>
-  } else if (pathname === studentCareYPath) {
-    current = 'student-care-y'
-    pageLabel = '학생 케어 Y'
-    page = <div className={ui.page}><VariantY /></div>
-  } else if (pathname === studentCareXPath) {
-    current = 'student-care-x'
-    pageLabel = '학생 케어 X'
-    page = <div className={ui.page}><VariantX /></div>
-  } else if (pathname === studentCareNotationPath) {
-    current = 'student-care-z'
-    pageLabel = '표시법 20종'
-    page = <div className={ui.page}><NotationLab /></div>
-  } else if (pathname === studentCareOpsPath) {
-    current = 'student-care-ops'
-    pageLabel = '학생 케어 개선안'
-    page = <div className={ui.page}><StudentCareOpsPage /></div>
-  } else if (isStudentCarePath(pathname)) {
+  } else if (isStudentCarePath(pathname) || pathname === studentCareX2Path) {
+    // 학생 케어는 시안 X′ 하나로 정했다(2026-11-12). 폐기한 시안 A–D·Z·Y·X·Z′·표시법·개선안 화면은 커밋 77ec091에 남겨 두었다
     current = 'student-care'
     pageLabel = '학생 케어'
-    page = <StudentCareRoute />
+    page = <div className={ui.page}><VariantX2 /></div>
   } else if (pathname === operationsPath) {
     current = 'operations'
     pageLabel = 'Operations'
@@ -197,3 +147,4 @@ function App() {
 }
 
 export default App
+

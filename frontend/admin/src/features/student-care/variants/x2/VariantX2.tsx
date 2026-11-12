@@ -55,7 +55,7 @@ export function VariantX2() {
   return (
     <div className="x2">
       <header className="x2-top">
-        <div><h1>학생 케어 X′</h1><p>학습관리 - 학생 케어</p></div>
+        <div><h1>학생 케어</h1><p>학습관리 - 학생 케어</p></div>
         <div className="x2-top-tools">
           <select aria-label="학습관" value={data.branchId ?? ''} disabled={!data.branches.data?.length} onChange={(e) => { data.selectBranch(e.target.value); setOpen(null) }}>
             {data.branches.data?.map((b) => <option key={b.branchId} value={b.branchId}>{b.name}</option>)}
