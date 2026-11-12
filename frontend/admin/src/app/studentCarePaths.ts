@@ -18,6 +18,10 @@ export const studentCareNotationPath = '/student-care/notation'
 export const studentCareYPath = '/student-care/y'
 export const studentCareXPath = '/student-care/x'
 export const studentCareZ2Path = '/student-care/z2'
+/** 시안 X′(X를 겹창·한 줄 명단으로 다시 짠 것, docs/design/ops-redesign/x-handoff.md). X는 그대로 둔다 */
+export const studentCareX2Path = '/student-care/x2'
+/** 학부모 리포트 생활 탭(시안 B, 원본 리포트에 붙일 화면). 정적 화면 public/parent-report-mock/b.html을 관리 화면 안에 띄운다 */
+export const parentReportPath = '/parent-report'
 
 export function studentCareVariantOf(path: string): StudentCareVariant | null {
   const m = path.match(/^\/student-care\/([abcd])$/)

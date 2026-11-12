@@ -1,3 +1,5 @@
+> **폐기(2026-11-10).** 직접 만든 이 검토 방식은 문제를 잡지 못해 버렸다. 지금 검토는 `.claude/skills/care-design-review/`(OneRedOak design-review + impeccable critique를 고친 스킬)와 `xyz-checklist.md`로 한다.
+
 # 학생 케어 최종 시안 X·Y·Z′ 디자이너 검토 지침
 
 ## 1. 요구사항(사용자가 정한 것)

@@ -41,11 +41,11 @@ function PairBars({ buckets, top, ticks, unit, names, label }: { buckets: Bucket
             <rect x={L + cw * i} y={T} width={cw} height={H - T - B} className="n2-hit" />
             {k.a !== null && <rect x={cx - bw - 2} y={y(k.a)} width={bw} height={Math.max(k.a ? 2 : 0, y(0) - y(k.a))} rx={3} className="pc-base" />}
             {k.b !== null && <rect x={cx + 2} y={y(k.b)} width={bw} height={Math.max(k.b ? 2 : 0, y(0) - y(k.b))} rx={3} className={k.flag ? 'pc-flag' : k.strong ? 'pc-now' : 'pc-old'} />}
-            {k.b !== null && showVal && (() => { const lines = twoLine(k.b, cw >= 96); const top0 = y(k.b) - 8 - (lines.length - 1) * 15
-              return <text x={cx + 2 + bw / 2} y={top0} textAnchor="middle" className={`n2-tick n2-small n2-halo${k.flag ? ' n2-flag' : k.strong ? ' n2-strong' : ''}`}>{lines.map((t, j) => <tspan key={j} x={cx + 2 + bw / 2} dy={j ? 15 : 0}>{t}</tspan>)}</text> })()}
+            {k.b !== null && showVal && (() => { const lines = twoLine(k.b, cw >= 96); const top0 = Math.min(y(k.b), k.a !== null ? y(k.a) : y(k.b)) - 8 - (lines.length - 1) * 17
+              return <text x={cx + 2 + bw / 2} y={top0} textAnchor="middle" className={`n2-tick n2-small n2-halo${k.flag ? ' n2-flag' : k.strong ? ' n2-strong' : ''}`}>{lines.map((t, j) => <tspan key={j} x={cx + 2 + bw / 2} dy={j ? 17 : 0}>{t}</tspan>)}</text> })()}
             <text x={cx} y={H - B + 18} textAnchor="middle" className={`n2-tick${k.strong ? ' n2-strong' : ''}${k.sub?.flag && k.line2 ? ' n2-flag' : ''}`}>{k.line1}</text>
-            {k.line2 && <text x={cx} y={H - B + 33} textAnchor="middle" className={`n2-tick${k.sub?.flag ? ' n2-flag' : ''}`}>{k.line2}</text>}
-            {k.sub && <text x={cx} y={H - B + (k.line2 ? 49 : 34)} textAnchor="middle" className={`n2-tick n2-small${k.sub.flag ? ' n2-flag' : ''}`}>{k.sub.text}</text>}
+            {k.line2 && <text x={cx} y={H - B + 35} textAnchor="middle" className={`n2-tick${k.sub?.flag ? ' n2-flag' : ''}`}>{k.line2}</text>}
+            {k.sub && <text x={cx} y={H - B + (k.line2 ? 52 : 34)} textAnchor="middle" className={`n2-tick n2-small${k.sub.flag ? ' n2-flag' : ''}`}>{k.sub.text}</text>}
           </g>
         })}
         <line x1={L} x2={w - RG} y1={y(0)} y2={y(0)} className="n2-axis" />
@@ -55,7 +55,7 @@ function PairBars({ buckets, top, ticks, unit, names, label }: { buckets: Bucket
   )
 }
 
-/** 짝 선(시각): 위로 갈수록 늦은 시각 */
+/** 짝 선(시각): 위로 갈수록 늦은 시각. 평소 = 칸마다 회색 가로 막대, 입실 = 파란 점과 선 */
 function PairLines({ buckets, names, label }: { buckets: Bucket[]; names: [string, string]; label: string }) {
   const [ref, w] = useWidth<HTMLDivElement>()
   const n = buckets.length, L = 60, RG = 70, cw = (w - L - RG) / n
@@ -70,15 +70,15 @@ function PairLines({ buckets, names, label }: { buckets: Bucket[]; names: [strin
     <div ref={ref} className="n2-plot">
       <svg width={w} height={H} role="img" aria-label={label}>
         {ticks.map((t) => <g key={t}><line x1={L} x2={w - RG} y1={Y(t)} y2={Y(t)} className="n2-grid" /><text x={L - 10} y={Y(t) + 4} textAnchor="end" className="n2-tick">{clockTick(t)}</text></g>)}
-        {seg('a', 'pc-line-base')}
         {seg('b', 'pc-line')}
         {buckets.map((k, i) => <g key={k.key} tabIndex={0} data-tip={k.tip} aria-label={k.tip}>
           <rect x={L + cw * i} y={T} width={cw} height={H - T - B} className="n2-hit" />
-          {k.a !== null && <circle cx={X(i)} cy={Y(k.a)} r={3.5} className="pc-dot-base" />}
+          {/* 평소는 칸마다 짧은 가로 막대(선으로 잇지 않는다: 입실 선과 겹쳐 안 보이지 않게) */}
+          {k.a !== null && <rect x={X(i) - Math.min(22, cw * 0.32)} y={Y(k.a) - 2.5} width={Math.min(44, cw * 0.64)} height={5} rx={2.5} className="pc-tick-base" />}
           {k.b !== null && <circle cx={X(i)} cy={Y(k.b)} r={k.strong ? 6 : 5} className={k.flag ? 'pc-dot-flag' : 'pc-dot'} />}
           <text x={X(i)} y={H - B + 18} textAnchor="middle" className={`n2-tick${k.strong ? ' n2-strong' : ''}${k.sub?.flag && k.line2 ? ' n2-flag' : ''}`}>{k.line1}</text>
-          {k.line2 && <text x={X(i)} y={H - B + 33} textAnchor="middle" className={`n2-tick${k.sub?.flag ? ' n2-flag' : ''}`}>{k.line2}</text>}
-          {k.sub && <text x={X(i)} y={H - B + (k.line2 ? 49 : 34)} textAnchor="middle" className={`n2-tick n2-small${k.sub.flag ? ' n2-flag' : ''}`}>{k.sub.text}</text>}
+          {k.line2 && <text x={X(i)} y={H - B + 35} textAnchor="middle" className={`n2-tick${k.sub?.flag ? ' n2-flag' : ''}`}>{k.line2}</text>}
+          {k.sub && <text x={X(i)} y={H - B + (k.line2 ? 52 : 34)} textAnchor="middle" className={`n2-tick n2-small${k.sub.flag ? ' n2-flag' : ''}`}>{k.sub.text}</text>}
         </g>)}
         {lastA && lastB && <Names x={w - RG + 10} ya={Y(lastA.a!)} yb={Y(lastB.b!)} names={names} />}
       </svg>
@@ -159,4 +159,14 @@ export function StartPair({ s, th, period }: NotationProps & { period: 'd' | 'w'
     })
   }
   return <div ref={ref} className="pc-wrap"><PairLines buckets={buckets} names={period === 'd' ? ['평소', '입실'] : ['평소', '입실']} label={period === 'd' ? '최근 7일 입실 시각과 같은 요일 평소' : '최근 5주 주별 평균 입실 시각과 평소'} /></div>
+}
+
+/** 과목별 계획 ↔ 실제(최근 7일, 세로 짝 막대: 날짜별 그림과 같은 꼴) */
+export function SubjectPair({ s, th }: NotationProps) {
+  const sig = s.signals.some((x) => x.type === 'EXECUTION_GAP' || x.type === 'SUBJECT_SHARE')
+  const subs = s.subjects.filter((x) => x.plannedMinutes > 0 || x.actualMinutes > 0).sort((a, b) => b.plannedMinutes - a.plannedMinutes)
+  if (!subs.length) return <p className="n2-empty">최근 7일 과목 계획 없음</p>
+  const buckets: Bucket[] = subs.map((x) => ({ key: x.name, line1: x.name, a: x.plannedMinutes, b: x.actualMinutes, strong: true, flag: sig && x.plannedMinutes > 0 && (x.actualMinutes / x.plannedMinutes) * 100 < th.rate, tip: `${x.name} · 계획 ${hm(x.plannedMinutes)} · 실제 ${hm(x.actualMinutes)}${x.plannedMinutes ? ` (${Math.floor((x.actualMinutes / x.plannedMinutes) * 100)}%)` : ''}` }))
+  const { top, ticks } = hourTicks(Math.max(60, ...buckets.flatMap((k) => [k.a ?? 0, k.b ?? 0])), 4)
+  return <div className="pc-wrap"><PairBars buckets={buckets} top={top} ticks={ticks} unit={hours} names={['계획', '실제']} label="최근 7일 과목별 계획 시간과 실제 시간" /></div>
 }

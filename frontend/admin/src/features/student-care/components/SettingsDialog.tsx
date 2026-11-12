@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { ApiError, toApiError } from '../api/apiClient.ts'
 import { studentCareApi } from '../api/studentCareApi.ts'
 import { PREVIEW_DEFAULTS } from '../api/previewData.ts'
@@ -21,10 +21,12 @@ interface Props {
   open: boolean
   onClose: () => void
   onSaved: () => void
+  /** 서버 기준이 아닌 화면 표시 기준 칸(시안 X′의 비몰입 표시 기준). 없으면 그리지 않는다 */
+  extra?: ReactNode
 }
 
 /** 관리 기준 설정 (api-contract.md §65-9). 지점 단위. */
-export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, onSaved }: Props) {
+export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, onSaved, extra }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [settings, setSettings] = useState<CareSettings | null>(null)
   const [draft, setDraft] = useState<Record<CareSettingKey, string> | null>(null)
@@ -156,6 +158,7 @@ export function SettingsDialog({ api=studentCareApi, branchId, open, onClose, on
             })}
           </div>
         )}
+        {extra}
         {saveError && (
           <p className="sc-error" role="alert">
             {saveError.message}

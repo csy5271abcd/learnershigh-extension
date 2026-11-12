@@ -1,0 +1,14 @@
+import { chromium } from 'file:///D:/univ/capstone/learnershigh-extension/e2e/node_modules/playwright-core/index.mjs';
+const b = await chromium.launch({ executablePath: 'C:/Users/green/AppData/Local/ms-playwright/chromium-1208/chrome-win64/chrome.exe' });
+const p = await b.newPage({ viewport:{width:1280,height:2400}, colorScheme:'light' });
+await p.goto('http://localhost:5174/student-care/x2'); await p.waitForTimeout(2500);
+await p.locator('tr',{hasText:'최하준'}).first().click(); await p.waitForTimeout(1500);
+await p.screenshot({path:'choi-light.png',clip:{x:0,y:0,width:1280,height:1300}});
+console.log((await p.locator('dialog.x2d').innerText()).slice(0,300));
+await p.keyboard.press('Escape');
+await p.locator('input').first().fill('탁예린'); await p.waitForTimeout(400);
+await p.locator('tr',{hasText:'탁예린'}).first().click(); await p.waitForTimeout(1200);
+await p.getByText('주별 · 최근 5주').click(); await p.waitForTimeout(1500);
+await p.screenshot({path:'tak-week-light.png'});
+console.log((await p.locator('dialog.x2d').innerText()).slice(0,1800));
+await b.close();

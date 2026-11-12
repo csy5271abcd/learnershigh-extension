@@ -1,0 +1,135 @@
+[1600 light] ROSTER {"o":0,"c":[],"low":[]}
+[1600 light] sw 1600
+[1600 light] ROWTEXT 문가영 문가영 고3 A반 미입실2일 연속 계획 미제출4일 ›
+[1600 light] 문가영 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 문가영 일간 TITLES 미입실 2일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 4일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1600 light] 문가영 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1600 light] 문가영 주간 TITLES 미입실 2일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 4일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1600 light] ROWTEXT 배준서 배준서
+[1600 light] 배준서 일간 AUDIT {"overlaps":["\"예정 없음\" × \"평소\" (24×8)","\"예정 없음\" × \"계획\" (24×8)"],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 배준서 일간 TITLES 지표 4개
+[1600 light] 배준서 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 배준서 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 성하윤 성하윤
+[1600 light] 성하윤 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 성하윤 일간 TITLES 지표 4개
+[1600 light] 성하윤 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 성하윤 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 노은우 노은우
+[1600 light] 노은우 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 노은우 일간 TITLES 지표 4개
+[1600 light] 노은우 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 노은우 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 차민재 차민재
+[1600 light] 차민재 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 차민재 일간 TITLES 지표 4개
+[1600 light] 차민재 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 차민재 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 구서아 구서아 고2 B반 미입실6일 연속 계획 미제출6일 ›
+[1600 light] 구서아 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 구서아 일간 TITLES 미입실 6일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 6일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1600 light] 구서아 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1600 light] 구서아 주간 TITLES 미입실 6일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 6일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1600 light] ROWTEXT 변지호 변지호
+[1600 light] 변지호 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 변지호 일간 TITLES 지표 4개
+[1600 light] 변지호 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 변지호 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 염태윤 염태윤 고2 B반 계획 미제출6일 ›
+[1600 light] 염태윤 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 염태윤 일간 TITLES 계획 미제출 6일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1600 light] 염태윤 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1600 light] 염태윤 주간 TITLES 계획 미제출 6일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 5개
+[1600 light] ROWTEXT 탁예린 탁예린 고3 A반 공부 시간 감소3시간 45분, 평소 한 주 18시간 30분 계획 미달성계획의 19% 등원 시간 늦어짐평균 4시간 41분 늦게 ›
+[1600 light] 탁예린 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 탁예린 일간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 날짜별 공부 시간 · 같은 요일 평소와 | 계획 미달성 계획의 19% | 날짜별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 날짜별 입실 시각 · 같은 요일 평소와
+[1600 light] 탁예린 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 탁예린 주간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 주별 공부 시간 · 지난 4주 평균과 | 계획 미달성 계획의 19% | 주별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 주별 평균 입실 시각 · 평소와 | 다른 지표 2개
+[1600 light] ROWTEXT 방시우 방시우
+[1600 light] 방시우 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 방시우 일간 TITLES 지표 4개
+[1600 light] 방시우 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 방시우 주간 TITLES 지표 6개
+[1600 light] ROWTEXT 권유진 권유진 고2 B반 미입실4일 연속 계획 미제출4일 ›
+[1600 light] 권유진 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 권유진 일간 TITLES 미입실 4일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 4일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1600 light] 권유진 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1600 light] 권유진 주간 TITLES 미입실 4일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 4일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1600 light] ROWTEXT 장수빈 장수빈 고3 A반 공부 시간 감소7시간 27분, 평소 한 주 16시간 46분 계획 미달성계획의 40% ›
+[1600 light] 장수빈 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 장수빈 일간 TITLES 공부 시간 감소 7시간 27분, 평소 한 주 16시간 46분 | 날짜별 공부 시간 · 같은 요일 평소와 | 계획 미달성 계획의 40% | 날짜별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 다른 지표 1개
+[1600 light] 장수빈 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 장수빈 주간 TITLES 공부 시간 감소 7시간 27분, 평소 한 주 16시간 46분 | 주별 공부 시간 · 지난 4주 평균과 | 계획 미달성 계획의 40% | 주별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 다른 지표 3개
+[1600 light] ROWTEXT 권하린 권하린 고3 A반 등원 시간 늦어짐평균 1시간 43분 늦게 ›
+[1600 light] 권하린 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 권하린 일간 TITLES 등원 시간 늦어짐 평균 1시간 43분 늦게 | 날짜별 입실 시각 · 같은 요일 평소와 | 다른 지표 3개
+[1600 light] 권하린 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 권하린 주간 TITLES 등원 시간 늦어짐 평균 1시간 43분 늦게 | 주별 평균 입실 시각 · 평소와 | 다른 지표 5개
+[1600 light] ROWTEXT 강도현 강도현
+[1600 light] 강도현 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 강도현 일간 TITLES 지표 4개
+[1600 light] 강도현 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1600 light] 강도현 주간 TITLES 지표 6개
+[1600 light] kbd open 1 after esc 0 focus z-row-demo_s306
+[1600 light] BRANCH {"o":[],"c":[],"low":[],"m":[" line.z-base 1.23:1"," line.z-grid 1.23:1"," rect.z-bar 2.01:1"," path.z-band 1.18:1"]}
+[1600 light] errs 
+[1280 dark] ROSTER {"o":0,"c":[],"low":["\"미입실\" 3.03:1 14px fg=rgb(200, 38, 44)","\"계획 미제출\" 3.03:1 14px fg=rgb(200, 38, 44)","\"미입실\" 3.03:1 14px fg=rgb(200, 38, 44)","\"계획 미제출\" 3.03:1 14px fg=rgb(200, 38, 44)","\"미입실\" 3.03:1 14px fg=rgb(200, 38, 44)","\"계획 미제출\" 3.03:1 14px fg=rgb(200, 38, 44)","\"미입실\" 3.03:1 14px fg=rgb(200, 38, 44)","\"계획 미제출\" 3.03:1 14px fg=rgb(200, 38, 44)"]}
+[1280 dark] sw 1280
+[1280 dark] ROWTEXT 문가영 문가영 고3 A반 미입실2일 연속 계획 미제출4일 ›
+[1280 dark] 문가영 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 문가영 일간 TITLES 미입실 2일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 4일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1280 dark] 문가영 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"," line.zz-axis 2.23:1"]}
+[1280 dark] 문가영 주간 TITLES 미입실 2일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 4일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1280 dark] ROWTEXT 배준서 배준서
+[1280 dark] 배준서 일간 AUDIT {"overlaps":["\"예정 없음\" × \"평소\" (23×8)","\"예정 없음\" × \"계획\" (24×8)"],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 배준서 일간 TITLES 지표 4개
+[1280 dark] 배준서 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 배준서 주간 TITLES 지표 6개
+[1280 dark] ROWTEXT 성하윤 성하윤
+[1280 dark] 성하윤 일간 AUDIT {"overlaps":["\"기록 없음\" × \"기록 없음\" (12×16)","\"기록 없음\" × \"기록 없음\" (12×16)","\"기록 없음\" × \"기록 없음\" (12×16)","\"기록 없음\" × \"기록 없음\" (12×16)","\"기록 없음\" × \"기록 없음\" (12×16)","\"기록 없음\" × \"기록 없음\" (12×16)"],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 성하윤 일간 TITLES 지표 4개
+[1280 dark] 성하윤 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 성하윤 주간 TITLES 지표 6개
+[1280 dark] ROWTEXT 탁예린 탁예린 고3 A반 공부 시간 감소3시간 45분, 평소 한 주 18시간 30분 계획 미달성계획의 19% 등원 시간 늦어짐평균 4시간 41분 늦게 ›
+[1280 dark] 탁예린 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 탁예린 일간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 날짜별 공부 시간 · 같은 요일 평소와 | 계획 미달성 계획의 19% | 날짜별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 날짜별 입실 시각 · 같은 요일 평소와
+[1280 dark] 탁예린 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 탁예린 주간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 주별 공부 시간 · 지난 4주 평균과 | 계획 미달성 계획의 19% | 주별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 주별 평균 입실 시각 · 평소와 | 다른 지표 2개
+[1280 dark] ROWTEXT 구서아 구서아 고2 B반 미입실6일 연속 계획 미제출6일 ›
+[1280 dark] 구서아 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"]}
+[1280 dark] 구서아 일간 TITLES 미입실 6일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 6일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1280 dark] 구서아 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.2:1"," line.zz-axis 2.23:1"]}
+[1280 dark] 구서아 주간 TITLES 미입실 6일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 6일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1280 dark] kbd open 1 after esc 0 focus z-row-demo_s306
+[1280 dark] BRANCH {"o":[],"c":[],"low":[],"m":[" line.z-base 1.43:1"," line.z-grid 1.43:1"," rect.z-bar 2.86:1"," path.z-band 1.27:1"]}
+[1280 dark] errs 
+[1024 light] ROSTER {"o":0,"c":[],"low":[]}
+[1024 light] sw 1024
+[1024 light] ROWTEXT 문가영 문가영 고3 A반 미입실2일 연속 계획 미제출4일 ›
+[1024 light] 문가영 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 문가영 일간 TITLES 미입실 2일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 4일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1024 light] 문가영 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1024 light] 문가영 주간 TITLES 미입실 2일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 4일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1024 light] ROWTEXT 배준서 배준서
+[1024 light] 배준서 일간 AUDIT {"overlaps":["\"예정 없음\" × \"평소\" (24×8)","\"예정 없음\" × \"계획\" (24×8)"],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 배준서 일간 TITLES 지표 4개
+[1024 light] 배준서 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 배준서 주간 TITLES 지표 6개
+[1024 light] ROWTEXT 성하윤 성하윤
+[1024 light] 성하윤 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 성하윤 일간 TITLES 지표 4개
+[1024 light] 성하윤 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 성하윤 주간 TITLES 지표 6개
+[1024 light] ROWTEXT 탁예린 탁예린 고3 A반 공부 시간 감소3시간 45분, 평소 한 주 18시간 30분 계획 미달성계획의 19% 등원 시간 늦어짐평균 4시간 41분 늦게 ›
+[1024 light] 탁예린 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 탁예린 일간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 날짜별 공부 시간 · 같은 요일 평소와 | 계획 미달성 계획의 19% | 날짜별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 날짜별 입실 시각 · 같은 요일 평소와
+[1024 light] 탁예린 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 탁예린 주간 TITLES 공부 시간 감소 3시간 45분, 평소 한 주 18시간 30분 | 주별 공부 시간 · 지난 4주 평균과 | 계획 미달성 계획의 19% | 주별 계획과 실제 | 과목별 계획과 실제 · 최근 7일 | 등원 시간 늦어짐 평균 4시간 41분 늦게 | 주별 평균 입실 시각 · 평소와 | 다른 지표 2개
+[1024 light] ROWTEXT 구서아 구서아 고2 B반 미입실6일 연속 계획 미제출6일 ›
+[1024 light] 구서아 일간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"]}
+[1024 light] 구서아 일간 TITLES 미입실 6일 연속 | 날짜별 출결 · 최근 7일 | 계획 미제출 6일 | 날짜별 계획 제출 · 최근 7일 | 다른 지표 4개
+[1024 light] 구서아 주간 AUDIT {"overlaps":[],"clipped":[],"lowContrast":[],"marks":[" line.zz-grid 1.13:1"," line.zz-axis 1.65:1"]}
+[1024 light] 구서아 주간 TITLES 미입실 6일 연속 | 주별 결석 일수 · 최근 5주 | 계획 미제출 6일 | 주별 계획 미제출 일수 · 최근 5주 | 다른 지표 4개
+[1024 light] kbd open 1 after esc 0 focus z-row-demo_s306
+[1024 light] BRANCH {"o":[],"c":[],"low":[],"m":[" line.z-base 1.23:1"," line.z-grid 1.23:1"," rect.z-bar 2.01:1"," path.z-band 1.18:1"]}
+[1024 light] errs 

@@ -59,3 +59,5 @@
 /* 그림 감싸개는 칸 폭을 넘지 않는다(안쪽 그림 폭이 칸을 밀어 늘리지 않게) */
 .pc-wrap, .vs { min-width: 0; width: 100%; }
 .vs > * { min-width: 0; }
+.pc-tick-base { fill: var(--n2-old-2); }
+.x-pair { align-items: stretch; }

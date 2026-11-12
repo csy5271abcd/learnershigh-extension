@@ -33,11 +33,13 @@ import {
   TodayBoardRoute,
 } from './features/student-management/routes/StudentManagementRoutes.tsx'
 import { StudentCareRoute } from './app/StudentCareRoute.tsx'
-import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath, studentCareZPath, studentCareNotationPath, studentCareYPath, studentCareXPath, studentCareZ2Path } from './app/studentCarePaths.ts'
+import { studentCarePath, isStudentCarePath, studentCareOpsPath, studentCareVariantOf, studentCareVariantPath, studentCareZPath, studentCareNotationPath, studentCareYPath, studentCareXPath, studentCareZ2Path, studentCareX2Path, parentReportPath } from './app/studentCarePaths.ts'
 import { StudentCareVariantPage } from './features/student-care/variants/StudentCareVariantPage.tsx'
 import { VariantZ } from './features/student-care/variants/z/VariantZ.tsx'
 import { NotationLab } from './features/student-care/variants/notation/NotationLab.tsx'
 import { VariantZ2 } from './features/student-care/variants/z2/VariantZ2.tsx'
+import { VariantX2 } from './features/student-care/variants/x2/VariantX2.tsx'
+import { ParentReportFrame } from './features/student-care/variants/x2/ParentReportFrame.tsx'
 import { VariantY } from './features/student-care/variants/y/VariantY.tsx'
 import { VariantX } from './features/student-care/variants/x/VariantX.tsx'
 import { StudentCareOpsPage } from './features/student-care/ops/StudentCareOpsPage.tsx'
@@ -59,6 +61,8 @@ const entryPaths: Record<AdminExtensionEntryId, string> = {
   'student-care-y': studentCareYPath,
   'student-care-x': studentCareXPath,
   'student-care-z2': studentCareZ2Path,
+  'student-care-x2': studentCareX2Path,
+  'parent-report': parentReportPath,
   'feedback-dashboard': feedbackDashboardPath,
   'mentor-cases': mentorContentPath,
   connections: connectionsPath,
@@ -136,6 +140,14 @@ function App() {
     current = 'student-care-z'
     pageLabel = '학생 케어 Z'
     page = <div className={ui.page}><VariantZ /></div>
+  } else if (pathname === parentReportPath) {
+    current = 'parent-report'
+    pageLabel = '학부모 리포트'
+    page = <div className={ui.page}><ParentReportFrame /></div>
+  } else if (pathname === studentCareX2Path) {
+    current = 'student-care-x2'
+    pageLabel = '학생 케어 X′'
+    page = <div className={ui.page}><VariantX2 /></div>
   } else if (pathname === studentCareZ2Path) {
     current = 'student-care-z2'
     pageLabel = '학생 케어 Z′'

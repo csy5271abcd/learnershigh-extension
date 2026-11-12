@@ -1,0 +1,84 @@
+
+== 문가영 demo_s301 고3 A반 | needsCheck: 미입실(최근 7일 중 2일 미입실) | 계획 미제출(최근 7일 중 4일 미제출)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":4,"scheduledAbsenceDays":2,"submissionDays":2,"submissionRecordedDays":6,"studyMinutes":276,"minutesPerAttendance":69,"averageStartMinutes":1226,"startSamples":4,"plannedMinutes":744,"actualMinutes":134,"executionRate":18.010752688172044,"comparablePlanDays":2}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4344,"minutesPerAttendance":181,"averageStartMinutes":1116,"startSamples":24,"plannedMinutes":4704,"actualMinutes":4344,"executionRate":92.34693877551021,"comparablePlanDays":24}
+ days: 10-21:UNS/SUB/0m/-/p372 10-22:PRE/MIS/69m/20:26/pnull 10-23:PRE/SUB/65m/20:26/p372 10-24:PRE/MIS/73m/20:26/pnull 10-25:PRE/SUB/69m/20:26/p372 10-26:ABS/MIS/0m/-/pnull 10-27:ABS/MIS/0m/-/pnull
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 배준서 demo_s302 고2 B반 | 정상
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":2281,"minutesPerAttendance":380.1666666666667,"averageStartMinutes":1114.8333333333333,"startSamples":6,"plannedMinutes":1169,"actualMinutes":2281,"executionRate":195.1240376390077,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4446,"minutesPerAttendance":185.25,"averageStartMinutes":1114.8333333333333,"startSamples":24,"plannedMinutes":4676,"actualMinutes":4446,"executionRate":95.08126603934987,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/179m/18:34/p194 10-23:PRE/SUB/172m/18:37/p197 10-24:PRE/SUB/195m/18:40/p200 10-25:PRE/SUB/1380m/18:43/p203 10-26:PRE/SUB/181m/18:26/p186 10-27:PRE/SUB/174m/18:29/p189
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 성하윤 demo_s303 고3 A반 | deferred: 
+ cur {"calendarDays":7,"recordedDays":0,"attendanceDays":0,"scheduledAbsenceDays":0,"submissionDays":0,"submissionRecordedDays":0,"studyMinutes":null,"minutesPerAttendance":null,"averageStartMinutes":null,"startSamples":0,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4488,"minutesPerAttendance":187,"averageStartMinutes":1114.5,"startSamples":24,"plannedMinutes":4668,"actualMinutes":4488,"executionRate":96.1439588688946,"comparablePlanDays":24}
+ days: 10-21:UNK/UNK/nullm/-/pnull 10-22:UNK/UNK/nullm/-/pnull 10-23:UNK/UNK/nullm/-/pnull 10-24:UNK/UNK/nullm/-/pnull 10-25:UNK/UNK/nullm/-/pnull 10-26:UNK/UNK/nullm/-/pnull 10-27:UNK/UNK/nullm/-/pnull
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 노은우 demo_s304 고2 B반 | 정상
+ cur {"calendarDays":7,"recordedDays":5,"attendanceDays":5,"scheduledAbsenceDays":0,"submissionDays":5,"submissionRecordedDays":5,"studyMinutes":860,"minutesPerAttendance":172,"averageStartMinutes":1113,"startSamples":5,"plannedMinutes":965,"actualMinutes":860,"executionRate":89.11917098445596,"comparablePlanDays":5}
+ base {"calendarDays":28,"recordedDays":0,"attendanceDays":0,"scheduledAbsenceDays":0,"submissionDays":0,"submissionRecordedDays":0,"studyMinutes":null,"minutesPerAttendance":null,"averageStartMinutes":null,"startSamples":0,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ days: 10-21:UNK/UNK/nullm/-/pnull 10-22:UNK/UNK/nullm/-/pnull 10-23:PRE/SUB/174m/18:39/p199 10-24:PRE/SUB/173m/18:28/p188 10-25:PRE/SUB/172m/18:37/p197 10-26:PRE/SUB/171m/18:26/p186 10-27:PRE/SUB/170m/18:35/p195
+ baseAtt {"UNKNOWN":28} baseDays n 28 firstRec 2026-09-23
+
+== 차민재 demo_s305 고3 A반 | deferred: 
+ cur {"calendarDays":7,"recordedDays":1,"attendanceDays":1,"scheduledAbsenceDays":0,"submissionDays":1,"submissionRecordedDays":1,"studyMinutes":183,"minutesPerAttendance":183,"averageStartMinutes":1108,"startSamples":1,"plannedMinutes":188,"actualMinutes":183,"executionRate":97.34042553191489,"comparablePlanDays":1}
+ base {"calendarDays":28,"recordedDays":0,"attendanceDays":0,"scheduledAbsenceDays":0,"submissionDays":0,"submissionRecordedDays":0,"studyMinutes":null,"minutesPerAttendance":null,"averageStartMinutes":null,"startSamples":0,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ days: 10-21:UNK/UNK/nullm/-/pnull 10-22:UNK/UNK/nullm/-/pnull 10-23:UNK/UNK/nullm/-/pnull 10-24:UNK/UNK/nullm/-/pnull 10-25:UNK/UNK/nullm/-/pnull 10-26:UNK/UNK/nullm/-/pnull 10-27:PRE/SUB/183m/18:28/p188
+ baseAtt {"UNKNOWN":28} baseDays n 28 firstRec 2026-09-23
+
+== 구서아 demo_s306 고2 B반 | needsCheck: 미입실(최근 7일 중 6일 미입실) | 계획 미제출(최근 7일 중 6일 미제출)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":0,"scheduledAbsenceDays":6,"submissionDays":0,"submissionRecordedDays":6,"studyMinutes":0,"minutesPerAttendance":null,"averageStartMinutes":null,"startSamples":0,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":0,"scheduledAbsenceDays":24,"submissionDays":0,"submissionRecordedDays":24,"studyMinutes":0,"minutesPerAttendance":null,"averageStartMinutes":null,"startSamples":0,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:ABS/MIS/0m/-/pnull 10-23:ABS/MIS/0m/-/pnull 10-24:ABS/MIS/0m/-/pnull 10-25:ABS/MIS/0m/-/pnull 10-26:ABS/MIS/0m/-/pnull 10-27:ABS/MIS/0m/-/pnull
+ baseAtt {"UNSCHEDULED":4,"ABSENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 변지호 demo_s307 고3 A반 | 정상
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":4344,"minutesPerAttendance":724,"averageStartMinutes":496.5,"startSamples":6,"plannedMinutes":4320,"actualMinutes":4344,"executionRate":100.55555555555556,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":17296,"minutesPerAttendance":720.6666666666666,"averageStartMinutes":496.5,"startSamples":24,"plannedMinutes":17280,"actualMinutes":17296,"executionRate":100.0925925925926,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/739m/08:24/p720 10-23:PRE/SUB/717m/08:17/p720 10-24:PRE/SUB/735m/08:10/p720 10-25:PRE/SUB/713m/08:18/p720 10-26:PRE/SUB/731m/08:11/p720 10-27:PRE/SUB/709m/08:19/p720
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 염태윤 demo_s308 고2 B반 | needsCheck: 계획 미제출(최근 7일 중 6일 미제출)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":0,"submissionRecordedDays":6,"studyMinutes":1107,"minutesPerAttendance":184.5,"averageStartMinutes":1114.5,"startSamples":6,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":0,"submissionRecordedDays":24,"studyMinutes":4398,"minutesPerAttendance":183.25,"averageStartMinutes":1115.3333333333333,"startSamples":24,"plannedMinutes":null,"actualMinutes":null,"executionRate":null,"comparablePlanDays":0}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/MIS/197m/18:42/pnull 10-23:PRE/MIS/178m/18:43/pnull 10-24:PRE/MIS/189m/18:44/pnull 10-25:PRE/MIS/170m/18:25/pnull 10-26:PRE/MIS/181m/18:26/pnull 10-27:PRE/MIS/192m/18:27/pnull
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 탁예린 demo_s309 고3 A반 | needsCheck: 공부 시간 감소(최근 7일 3시간 50분 · 평소 18시간 30분) | 계획 미달성(최근 7일 계획 달성률 19%) | 등원 시간 늦어짐(평소보다 281분 늦게 입실)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":225,"minutesPerAttendance":37.5,"averageStartMinutes":1396.6666666666667,"startSamples":6,"plannedMinutes":1180,"actualMinutes":225,"executionRate":19.06779661016949,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4440,"minutesPerAttendance":185,"averageStartMinutes":1115.8333333333333,"startSamples":24,"plannedMinutes":4700,"actualMinutes":4440,"executionRate":94.46808510638297,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/40m/23:20/p200 10-23:PRE/SUB/39m/23:24/p204 10-24:PRE/SUB/38m/23:08/p188 10-25:PRE/SUB/37m/23:12/p192 10-26:PRE/SUB/36m/23:16/p196 10-27:PRE/SUB/35m/23:20/p200
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 방시우 demo_s310 고2 B반 | deferred: 
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":2,"scheduledAbsenceDays":0,"submissionDays":2,"submissionRecordedDays":2,"studyMinutes":364,"minutesPerAttendance":182,"averageStartMinutes":1112,"startSamples":2,"plannedMinutes":384,"actualMinutes":364,"executionRate":94.79166666666667,"comparablePlanDays":2}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":8,"scheduledAbsenceDays":0,"submissionDays":8,"submissionRecordedDays":8,"studyMinutes":1476,"minutesPerAttendance":184.5,"averageStartMinutes":1114.5,"startSamples":8,"plannedMinutes":1556,"actualMinutes":1476,"executionRate":94.8586118251928,"comparablePlanDays":8}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/193m/18:38/p198 10-23:UNS/MIS/0m/-/pnull 10-24:UNS/MIS/0m/-/pnull 10-25:UNS/MIS/0m/-/pnull 10-26:PRE/SUB/171m/18:26/p186 10-27:UNS/MIS/0m/-/pnull
+ baseAtt {"UNSCHEDULED":20,"PRESENT":8} baseDays n 28 firstRec 2026-09-24
+
+== 권유진 demo_s147 고2 B반 | needsCheck: 미입실(최근 7일 중 4일 미입실) | 계획 미제출(최근 7일 중 4일 미제출)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":2,"scheduledAbsenceDays":4,"submissionDays":2,"submissionRecordedDays":6,"studyMinutes":367,"minutesPerAttendance":183.5,"averageStartMinutes":1114.5,"startSamples":2,"plannedMinutes":416,"actualMinutes":367,"executionRate":88.22115384615384,"comparablePlanDays":2}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4740,"minutesPerAttendance":197.5,"averageStartMinutes":1091.7083333333333,"startSamples":24,"plannedMinutes":5104,"actualMinutes":4740,"executionRate":92.86833855799372,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/188m/18:39/p209 10-23:PRE/SUB/179m/18:30/p207 10-24:ABS/MIS/0m/-/pnull 10-25:ABS/MIS/0m/-/pnull 10-26:ABS/MIS/0m/-/pnull 10-27:ABS/MIS/0m/-/pnull
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 장수빈 demo_s089 고3 A반 | needsCheck: 공부 시간 감소(최근 7일 7시간 30분 · 평소 16시간 50분) | 계획 미달성(최근 7일 계획 달성률 40%)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":447,"minutesPerAttendance":74.5,"averageStartMinutes":1124.6666666666667,"startSamples":6,"plannedMinutes":1108,"actualMinutes":447,"executionRate":40.34296028880866,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4022,"minutesPerAttendance":167.58333333333334,"averageStartMinutes":1122.5833333333333,"startSamples":24,"plannedMinutes":4432,"actualMinutes":4022,"executionRate":90.74909747292419,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/73m/19:23/p176 10-23:PRE/SUB/70m/19:08/p176 10-24:PRE/SUB/78m/17:48/p202 10-25:PRE/SUB/76m/17:33/p202 10-26:PRE/SUB/76m/19:13/p176 10-27:PRE/SUB/74m/19:23/p176
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24
+
+== 권하린 demo_s146 고3 A반 | needsCheck: 등원 시간 늦어짐(평소보다 103분 늦게 입실)
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":1074,"minutesPerAttendance":179,"averageStartMinutes":1193.5,"startSamples":6,"plannedMinutes":1144,"actualMinutes":1074,"executionRate":93.88111888111888,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":4310,"minutesPerAttendance":179.58333333333334,"averageStartMinutes":1090.1666666666667,"startSamples":24,"plannedMinutes":4588,"actualMinutes":4310,"executionRate":93.94071490845684,"comparablePlanDays":24}
+ days: 10-21:PRE/SUB/170m/20:08/p187 10-22:PRE/SUB/179m/20:17/p193 10-23:PRE/SUB/187m/20:01/p179 10-24:PRE/SUB/191m/18:40/p211 10-25:UNS/MIS/0m/-/pnull 10-26:PRE/SUB/184m/20:03/p194 10-27:PRE/SUB/163m/20:12/p180
+ baseAtt {"PRESENT":24,"UNSCHEDULED":4} baseDays n 28 firstRec 2026-09-23
+
+== 강도현 demo_s053 고3 A반 | 정상
+ cur {"calendarDays":7,"recordedDays":7,"attendanceDays":6,"scheduledAbsenceDays":0,"submissionDays":6,"submissionRecordedDays":6,"studyMinutes":926,"minutesPerAttendance":154.33333333333334,"averageStartMinutes":1107.6666666666667,"startSamples":6,"plannedMinutes":1079,"actualMinutes":926,"executionRate":85.82020389249305,"comparablePlanDays":6}
+ base {"calendarDays":28,"recordedDays":28,"attendanceDays":24,"scheduledAbsenceDays":0,"submissionDays":24,"submissionRecordedDays":24,"studyMinutes":3704,"minutesPerAttendance":154.33333333333334,"averageStartMinutes":1107.25,"startSamples":24,"plannedMinutes":4309,"actualMinutes":3704,"executionRate":85.95961940125319,"comparablePlanDays":24}
+ days: 10-21:UNS/MIS/0m/-/pnull 10-22:PRE/SUB/147m/18:46/p176 10-23:PRE/SUB/147m/18:54/p178 10-24:PRE/SUB/169m/17:32/p206 10-25:PRE/SUB/169m/17:40/p188 10-26:PRE/SUB/147m/18:53/p165 10-27:PRE/SUB/147m/19:01/p166
+ baseAtt {"UNSCHEDULED":4,"PRESENT":24} baseDays n 28 firstRec 2026-09-24

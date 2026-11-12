@@ -2,7 +2,8 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
-export const AS_OF = '2026-10-27';
+// 2026-11-12: 화면의 오늘을 실제 오늘(11-12)로 옮김. 자료는 어제까지(35일 창 = 10-08..11-11). 날짜는 AS_OF에서 거꾸로 센다.
+export const AS_OF = '2026-11-11';
 export const BRANCHES = [
   { id: 'demo_large', name: '강남점', count: 150 },
   { id: 'demo_medium', name: '분당점', count: 50 },
@@ -20,7 +21,7 @@ const cohorts = [
 const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임', '한', '오', '서', '신', '권', '황', '안', '송', '류', '전', '홍'];
 const firstNames = ['서준', '서윤', '도현', '지우', '하준', '하린', '유진', '예준', '수빈', '시윤'];
 const subjects = ['국어', '수학', '영어', '탐구'];
-const dateAt = index => new Date(Date.UTC(2026, 8, 23 + index)).toISOString().slice(0, 10);
+const dateAt = index => new Date(Date.parse(`${AS_OF}T00:00:00Z`) + (index - 34) * 86400000).toISOString().slice(0, 10);
 const noise = (student, day, salt, range) => ((student * 83 + day * 37 + salt * 19 + student * day * 7) % range);
 const split = (total, shares) => {
   if (total === 0) return {};

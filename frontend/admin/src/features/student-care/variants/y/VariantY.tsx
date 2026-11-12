@@ -1,59 +1,54 @@
-// 학생 케어 Y(최종 시안): 데이터 중심형. 학습관 학생 전원을 한 표에 두고, 지표마다 열 하나·단위가 붙은 값·같은 눈금 막대로 비교한다.
-// 열 제목을 누르면 그 지표로 정렬하고, 줄을 누르면 그 아래에 그 학생의 35일 그림(2차 표시법)과 비몰입 기록이 펼쳐진다.
-// 지표: 결석(최근 7일 일수) · 공부 시간(평소 한 주와 최근 7일) · 입실(평소보다 늦은 평균) · 계획 대비 실제(%) · 비몰입(최근 7일 건수와 평소 한 주 평균).
+// 학생 케어 Y(최종 시안): 데이터 분석 화면. 학습관 전체 흐름(맨 위) → 학생 전원 표 → 줄을 펼치면 그 학생의 최근 5주.
+// - 학습관 흐름: 지표마다 한 줄, 날짜(최근 7일)·주(최근 5주) 칸마다 해당 학생 수(비몰입은 건수). 칸을 누르면 아래 표가 그 학생들로 좁혀진다.
+// - 학생 표: 기준은 학습관 평균이 아니라 그 학생의 평소(G48·G49). 칸 = 평소 대비 막대(가운데 = 평소) + 이번 값. 결석·미제출은 날짜별 점 + 일수.
+// - 빨강·거르기 건수는 학생 케어 서버 사유 그대로(S09). 용어는 서버 사유 이름(S08). 그림 코드는 Y 전용(yCharts·yMetrics).
 import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { SettingsDialog } from '../../components/SettingsDialog.tsx'
 import { monthDay } from '../../model/format.ts'
-import { careApi, matchQuery, useCareData, type CareRow } from '../shared/useCareData.ts'
+import { careApi, matchQuery, md, useCareData, type CareRow } from '../shared/useCareData.ts'
 import { TipHost } from '../z/Tip.tsx'
-import { absentDays, GROUP_LABEL, missingDays, startLate } from '../z/zModel.ts'
+import { GROUP_LABEL } from '../z/zModel.ts'
 import { eventDate, supLoadingText, useSupervisorEvents, type SupEvent } from '../supervisor/supervisorClient.ts'
-import { hm, hourTicks, type NotationProps } from '../notation/kit.tsx'
-import { AttendanceChips } from '../notation/AttendanceChips.tsx'
 import { CareCounsel } from '../notation/CareCounsel.tsx'
-import { PlanSubjectPairs } from '../notation2/Plan.tsx'
-import { VisionDayBars, VisionWeekBars } from '../notation2/Vision.tsx'
-import { ViewSwitch, type Period } from '../final/ViewSwitch.tsx'
-import { PlanPair, StartPair, StudyPair } from '../final/PairCharts.tsx'
-import { EvidenceLog } from '../final/EvidenceLog.tsx'
+import { DAY_METRICS, METRICS, weekLabel, weeksOf, type Day, type Key, type Th } from './yMetrics.ts'
+import { DayDots, Diverge, Trend5, YPhotos } from './yCharts.tsx'
 import '../../student-care.css'
-import '../notation/notation.css'
-import '../notation2/notation2.css'
-import '../final/final.css'
 import './y.css'
 
 const ORDER = { recheck: 0, check: 1, managed: 2, normal: 3, deferred: 4 } as const
-type Col = 'status' | 'absent' | 'missing' | 'study' | 'late' | 'plan' | 'vision'
-type Flag = 'all' | 'absent' | 'missing' | 'study' | 'late' | 'plan' | 'vision'
-const BAR = 132
+type Col = 'status' | Key
+// 거르기 = 서버 사유(type)별. 이름은 서버 사유 이름 그대로
+const SIG_TYPES: Record<string, string[]> = { absent: ['CONSECUTIVE_ABSENCE', 'WEEKDAY_ABSENCE'], missing: ['PLAN_MISSING'], study: ['STUDY_DROP'], late: ['START_TIME_SHIFT'], plan: ['EXECUTION_GAP'], subject: ['SUBJECT_SHARE'] }
 
-interface Metrics { absent: number; missing: number; now: number | null; usual: number | null; late: number | null; plan: number | null; evNow: number; evUsual: number }
-function metricsOf(r: CareRow, ev: SupEvent[]): Metrics {
-  const recent = new Set(r.days.map((d) => d.date)), past = new Set(r.history35.slice(0, 28).map((d) => d.date))
-  return {
-    absent: absentDays(r), missing: missingDays(r), now: r.week.minutes, usual: r.week.usualWeek, late: startLate(r), plan: r.week.executionRate,
-    evNow: ev.filter((e) => recent.has(eventDate(e))).length, evUsual: ev.filter((e) => past.has(eventDate(e))).length / 4,
-  }
-}
-const SORT: Record<Col, (m: Metrics, r: CareRow) => number> = {
-  status: (_m, r) => -ORDER[r.status],
-  absent: (m) => m.absent,
-  missing: (m) => m.missing,
-  study: (m) => (m.usual ? 1 - (m.now ?? 0) / m.usual : -1),
-  late: (m) => m.late ?? -999,
-  plan: (m) => (m.plan === null ? -1 : 100 - m.plan),
-  vision: (m) => m.evNow - m.evUsual,
-}
-const count = (v: number) => `${Number.isInteger(v) ? v : v.toFixed(1)}건`
+interface TrendRow { key: string; name: string; unit: string; test: (r: CareRow, ds: Day[], ev: SupEvent[] | null) => number }
 
-function Pair({ a, b, top, flag }: { a: number | null; b: number | null; top: number; flag: boolean }) {
-  const x = (v: number) => Math.max(v ? 3 : 0, (Math.min(v, top) / top) * BAR)
+/** 학습관 흐름 표: 지표 × 날짜(주). 칸 = 작은 막대 + 수. 누르면 그 칸의 학생으로 표를 좁힌다 */
+function BranchTrend({ rows, evOf, th, period, setPeriod, picked, onPick }: { rows: CareRow[]; evOf: (r: CareRow) => SupEvent[] | null; th: Th; period: 'd' | 'w'; setPeriod: (p: 'd' | 'w') => void; picked: string | null; onPick: (key: string | null, label: string, ids: Set<string>) => void }) {
+  const ready = rows.length > 0 && evOf(rows[0]) !== null
+  const TR: TrendRow[] = [
+    { key: 'absent', name: '미입실', unit: '명', test: (_r, ds) => ds.some((d) => d.attendance === 'absent') ? 1 : 0 },
+    { key: 'missing', name: '계획 미제출', unit: '명', test: (_r, ds) => ds.some((d) => d.submission === 'missing') ? 1 : 0 },
+    { key: 'study', name: '공부 시간 감소', unit: '명', test: (_r, ds) => ds.some((d) => d.attendance === 'present' && d.minutes !== null && d.usualMinutes && 100 - (d.minutes / d.usualMinutes) * 100 >= th.drop) ? 1 : 0 },
+    { key: 'late', name: '등원 시간 늦어짐', unit: '명', test: (_r, ds) => ds.some((d) => d.attendance === 'present' && d.start !== null && d.usualStart !== null && d.start - d.usualStart >= th.shift) ? 1 : 0 },
+    { key: 'plan', name: '계획 미달성', unit: '명', test: (_r, ds) => ds.some((d) => (d.planned ?? 0) > 0 && ((d.actual ?? 0) / d.planned!) * 100 < th.rate) ? 1 : 0 },
+    ...(ready ? [{ key: 'vision', name: '비몰입', unit: '건', test: (_r: CareRow, ds: Day[], ev: SupEvent[] | null) => { const set = new Set(ds.map((d) => d.date)); return (ev ?? []).filter((e) => set.has(eventDate(e))).length } }] : []),
+  ]
+  const first = rows[0]
+  const buckets = !first ? [] : period === 'd' ? first.days.map((d, i) => ({ key: d.date, label: md(d.date), sub: d.dow, pick: (r: CareRow) => [r.days[i]].filter(Boolean) as Day[] }))
+    : weeksOf(first).map((wk, g) => ({ key: wk[0].date, label: weekLabel(first, g), sub: '', pick: (r: CareRow) => weeksOf(r)[g] ?? [] }))
+  const table = TR.map((t) => ({ t, cells: buckets.map((b) => { const per = rows.map((r) => ({ r, v: t.test(r, b.pick(r), evOf(r)) })).filter((x) => x.v > 0); return { b, total: per.reduce((a, x) => a + x.v, 0), ids: new Set(per.map((x) => x.r.student.studentId)) } }) }))
   return (
-    <svg width={BAR} height={14} viewBox={`0 0 ${BAR} 14`} preserveAspectRatio="none" className="y-pair" aria-hidden="true">
-      {a !== null && <rect x={0} y={0} width={x(a)} height={6} rx={3} className="y-bar-usual" />}
-      {b !== null && <rect x={0} y={8} width={x(b)} height={6} rx={3} className={flag ? 'y-bar-flag' : 'y-bar-now'} />}
-      {[a, b].map((v, k) => v !== null && v > top ? <path key={k} d={`M${BAR - 6} ${k ? 8 : 0} l3 3 l-3 3`} className="y-clip" /> : null)}
-    </svg>
+    <section className="yb" aria-label="학습관 흐름">
+      <header className="yb-head"><h2>학습관 흐름</h2><span className="y-muted">{period === 'd' ? '날짜별 해당 학생 수 · 최근 7일' : '주별 한 번 이상 해당한 학생 수 · 최근 5주'} · 칸을 누르면 아래 표가 그 학생들로 좁혀집니다</span>
+        <div className="y-seg" role="group" aria-label="기간"><button type="button" aria-pressed={period === 'd'} onClick={() => setPeriod('d')}>일간</button><button type="button" aria-pressed={period === 'w'} onClick={() => setPeriod('w')}>주간</button></div></header>
+      <table className="yb-table">
+        <thead><tr><th scope="col" /><>{buckets.map((b) => <th key={b.key} scope="col"><b>{b.label}</b>{b.sub && <span>{b.sub}</span>}</th>)}</></tr></thead>
+        <tbody>{table.map(({ t, cells }) => { const top = Math.max(1, ...cells.map((c) => c.total))
+          return <tr key={t.key}><th scope="row">{t.name}<small>({t.unit})</small></th>{cells.map((c) => { const k = `${t.key}:${c.b.key}`, on = picked === k, label = `${c.b.label}${c.b.sub ? ` ${c.b.sub}` : ''} ${t.name}`
+            return <td key={c.b.key}><button type="button" disabled={!c.total} aria-pressed={on} onClick={() => onPick(on ? null : k, label, c.ids)} data-tip={`${label} · ${c.total}${t.unit}${t.key === 'vision' ? ` · ${c.ids.size}명` : ''}`}>
+              <span className="yb-n">{c.total}</span><span className="yb-bar"><i style={{ width: `${(c.total / top) * 100}%` }} /></span></button></td> })}</tr> })}</tbody>
+      </table>
+    </section>
   )
 }
 
@@ -64,94 +59,93 @@ export function VariantY() {
   const sup = useSupervisorEvents(ids)
   const [openId, setOpenId] = useState<string | null>(new URLSearchParams(window.location.search).get('student'))
   const [sort, setSort] = useState<Col>('status')
-  const [flag, setFlag] = useState<Flag>('all')
-  // 펼친 상세의 일간·주간은 그림끼리 같이 바뀐다
-  const [period, setPeriod] = useState<Period>('d')
+  const [flag, setFlag] = useState<string>('all')
   const [query, setQuery] = useState('')
+  const [period, setPeriod] = useState<'d' | 'w'>('d')
+  const [cellPick, setCellPick] = useState<{ key: string; label: string; ids: Set<string> } | null>(null)
+  const [visionWeek, setVisionWeek] = useState<number | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [, setDirty] = useState(false)
-  const evAll = useMemo(() => sup.status === 'ready' ? sup.byStudent : new Map<string, SupEvent[]>(), [sup])
-  const table = useMemo(() => rows.map((r) => ({ r, m: metricsOf(r, evAll.get(r.student.studentId) ?? []) })), [rows, evAll])
-  const th0 = { drop: data.studyDropPercent, shift: data.startShiftMinutes, rate: data.executionRate }
-  // 기준을 넘었는지는 학생 케어 서버 사유(signals)를 그대로 쓴다(표의 빨강·거르기 건수·관리 사유가 같은 판정). 비몰입만 이미지 인식 기록에서 센다
-  const flagsOf = (m: Metrics, r: CareRow): Record<Exclude<Flag, 'all'>, boolean> => {
-    const has = (t: string) => r.signals.some((x) => x.type === t)
-    // 서버 사유가 있고, 지금 값도 같은 기준을 넘을 때만(관리 중 학생의 지난 사유로 기준 아래 값이 빨강이 되지 않게). 비몰입은 서버 판정이 없어 칠하지 않는다
-    return { absent: has('CONSECUTIVE_ABSENCE') && m.absent > 0, missing: has('PLAN_MISSING') && m.missing > 0, study: has('STUDY_DROP') && m.now !== null && !!m.usual && 100 - (m.now / m.usual) * 100 >= th0.drop, late: has('START_TIME_SHIFT') && m.late !== null && m.late >= th0.shift, plan: has('EXECUTION_GAP') && m.plan !== null && m.plan < th0.rate, vision: false }
+  const th: Th = { drop: data.studyDropPercent, shift: data.startShiftMinutes, rate: data.executionRate }
+  const ready = sup.status === 'ready'
+  const evOf = (r: CareRow) => sup.status === 'ready' ? sup.byStudent.get(r.student.studentId) ?? [] : null
+  const sigLabel = (k: string) => rows.flatMap((r) => r.signals).find((x) => SIG_TYPES[k].includes(x.type))?.label
+  const sigCount = (k: string) => rows.filter((r) => r.signals.some((x) => SIG_TYPES[k].includes(x.type))).length
+  const lines = useMemo(() => rows.map((r) => ({ r, cells: Object.fromEntries(METRICS.map((m) => [m.key, m.cell(r, evOf(r), th)])) as Record<string, ReturnType<typeof METRICS[number]['cell']>>, counts: Object.fromEntries(DAY_METRICS.map((m) => [m.key, m.count(r)])) as Record<string, number | null> })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rows, sup, th.drop, th.shift, th.rate])
+  // 정렬: 관리 사유 순, 또는 그 지표의 나쁜 쪽부터(값 없음은 맨 뒤)
+  const score = (l: (typeof lines)[number], c: Col) => {
+    if (c === 'status') return -ORDER[l.r.status] * 100 + l.r.signals.length
+    if (c === 'absent' || c === 'missing') return l.counts[c] ?? -Infinity
+    const m = METRICS.find((x) => x.key === c)!, d = l.cells[c].dev
+    return d === null ? -Infinity : m.rightIsBad ? d : -d
   }
-  // 거르기 이름은 서버 사유 이름을 그대로 쓴다(관리 사유 칸·Z′ 명부와 같은 말)
-  const SIG: Record<Exclude<Flag, 'all' | 'vision'>, string> = { absent: 'CONSECUTIVE_ABSENCE', missing: 'PLAN_MISSING', study: 'STUDY_DROP', late: 'START_TIME_SHIFT', plan: 'EXECUTION_GAP' }
-  const sigLabel = (f: Exclude<Flag, 'all' | 'vision'>, fallback: string) => rows.flatMap((r) => r.signals).find((x) => x.type === SIG[f])?.label ?? fallback
-  const flagCount = (f: Exclude<Flag, 'all'>) => table.filter(({ m, r }) => flagsOf(m, r)[f]).length
-  const shown = table.filter(({ r, m }) => matchQuery(query)(r) && (flag === 'all' || flagsOf(m, r)[flag])).sort((a, b) => SORT[sort](b.m, b.r) - SORT[sort](a.m, a.r) || a.r.student.studentName.localeCompare(b.r.student.studentName, 'ko'))
-  const weekVals = table.flatMap(({ m }) => [m.now ?? 0, m.usual ?? 0]).sort((a, b) => a - b)
-  // 눈금 끝 = 학습관 한 주 공부 시간 상위 25% 지점의 1.5배(대부분이 막대 길이로 읽히게). 그보다 긴 소수는 막대 끝을 잘라 표시한다
-  const study = hourTicks(Math.max(600, (weekVals[Math.floor(weekVals.length * 0.75)] ?? 0) * 1.5), 3)
-  const evTop = Math.max(4, ...table.flatMap(({ m }) => [m.evNow, m.evUsual]))
-  const th = th0
-
-  const head = (k: Col, label: ReactNode, name: string, cls = '') => (
-    <th scope="col" className={cls} aria-sort={sort === k ? 'descending' : 'none'}>
-      <button type="button" onClick={() => setSort(k)} className={sort === k ? 'y-on' : undefined} aria-label={`${name} 순으로 정렬`}>{label}{sort === k && <span className="y-sortdir" aria-hidden="true"> ↓</span>}</button>
+  const shown = lines.filter((l) => matchQuery(query)(l.r) && (flag === 'all' || l.r.signals.some((x) => SIG_TYPES[flag].includes(x.type))) && (!cellPick || cellPick.ids.has(l.r.student.studentId)))
+    .sort((a, b) => score(b, sort) - score(a, sort) || a.r.student.studentName.localeCompare(b.r.student.studentName, 'ko'))
+  const head = (k: Col, label: ReactNode, name: string, extra?: ReactNode) => (
+    <th scope="col" aria-sort={sort === k ? 'descending' : 'none'}>
+      <button type="button" onClick={() => setSort(k)} className={sort === k ? 'y-on' : undefined} aria-label={`${name} 순으로 정렬`}>{label}</button>{extra}
     </th>
   )
+  const center = <span className="y-center" aria-hidden="true">평소</span>
 
   let body: ReactNode
   if (data.failed) body = <div className="sc-state" role="alert"><p>학생 기록을 불러오지 못했습니다.</p><button type="button" className="sc-button" onClick={data.failed.reload}>다시 시도</button></div>
   else if (!data.rows) body = <p className="sc-state" role="status">불러오는 중</p>
-  else body = (
+  else body = <>
+    <BranchTrend rows={rows} evOf={evOf} th={th} period={period} setPeriod={(p) => { setPeriod(p); setCellPick(null) }} picked={cellPick?.key ?? null} onPick={(key, label, set) => setCellPick(key ? { key, label, ids: set } : null)} />
     <section className="y-card" aria-label="학생 표">
       <div className="y-toolbar">
         <span className="y-period">최근 7일 {monthDay(rows[0].days[0].date)}–{monthDay(rows[0].days[6].date)}</span>
-        <div className="y-flags" role="group" aria-label="기준을 넘은 학생만 보기">
-          {([['all', '전체', table.length], ['absent', sigLabel('absent', '미입실'), flagCount('absent')], ['missing', sigLabel('missing', '계획 미제출'), flagCount('missing')], ['study', sigLabel('study', '공부 시간 감소'), flagCount('study')], ['late', sigLabel('late', '등원 시간 늦어짐'), flagCount('late')], ['plan', sigLabel('plan', '계획 미달성'), flagCount('plan')]] as [Flag, string, number][]).map(([k, l, n]) => <button key={k} type="button" aria-pressed={flag === k} onClick={() => setFlag(k)}>{l} <b>{n}</b></button>)}
+        <div className="y-flags" role="group" aria-label="관리 사유로 거르기">
+          <button type="button" aria-pressed={flag === 'all'} onClick={() => setFlag('all')}>전체 <b>{rows.length}</b></button>
+          {Object.keys(SIG_TYPES).filter((k) => sigLabel(k)).map((k) => <button key={k} type="button" aria-pressed={flag === k} onClick={() => setFlag(k)}>{sigLabel(k)} <b>{sigCount(k)}</b></button>)}
         </div>
-        {sup.status !== 'ready' && <span className={sup.status === 'error' ? 'y-error' : 'y-muted'} role={sup.status === 'error' ? 'alert' : 'status'}>{sup.status === 'error' ? '사진 관찰 서버에 연결하지 못했습니다' : supLoadingText(sup)}</span>}
+        {!ready && <span className={sup.status === 'error' ? 'y-error' : 'y-muted'} role={sup.status === 'error' ? 'alert' : 'status'}>{sup.status === 'error' ? '사진 관찰 서버에 연결하지 못했습니다' : supLoadingText(sup)}</span>}
         <input className="y-search" type="search" aria-label="학생 검색" placeholder="이름 또는 반 검색" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
-      {/* 학생 상세를 펼친 동안은 머리줄을 고정하지 않는다(상세 그림 위에 표 눈금이 떠 있지 않게) */}
+      {cellPick && <p className="y-picked"><b>{cellPick.label}</b> {cellPick.ids.size}명만 보는 중 <button type="button" onClick={() => setCellPick(null)}>전체 보기</button></p>}
       <table className={`y-table${openId ? ' y-has-open' : ''}`}>
-        <colgroup><col className="y-c-who" /><col /><col className="y-c-num" /><col className="y-c-num" /><col className="y-c-bar" /><col className="y-c-late" /><col className="y-c-num" /><col className="y-c-bar" /></colgroup>
+        <colgroup><col className="y-c-who" /><col className="y-c-d" /><col className="y-c-d" />{METRICS.map((m) => <col key={m.key} className="y-c-m" />)}</colgroup>
         <thead>
           <tr>
-            <th scope="col">학생</th>
-            {head('status', '관리 사유', '관리 사유')}
-            {head('absent', '결석', '결석 일수', 'y-num')}
-            {head('missing', <>계획<small>미제출</small></>, '계획 미제출 일수', 'y-num')}
-            {head('study', <>공부 시간<small>위 평소 한 주 · 아래 최근 7일</small><span className="y-pairrow y-scale" aria-hidden="true"><svg height={14} className="y-scale-svg">{[0, study.top].map((t) => <text key={t} x={`${(t / study.top) * 100}%`} y={11} textAnchor={t ? 'end' : 'start'}>{t ? `${Math.round(t / 60)}시간` : '0'}</text>)}</svg><span className="y-vals" /></span></>, '공부 시간 감소', 'y-barcol')}
-            {head('late', <>입실<small>평소보다</small></>, '입실 늦음', 'y-num')}
-            {head('plan', <>계획 대비<small>실제</small></>, '계획 대비 실제', 'y-num')}
-            {head('vision', <>비몰입<small>위 지난 4주 한 주 평균 · 아래 최근 7일</small><span className="y-pairrow y-scale" aria-hidden="true"><svg height={14} className="y-scale-svg">{[0, evTop].map((t) => <text key={t} x={`${(t / evTop) * 100}%`} y={11} textAnchor={t ? 'end' : 'start'}>{t ? count(t) : '0'}</text>)}</svg><span className="y-vals" /></span></>, '비몰입 건수', 'y-barcol')}
+            {head('status', <>학생<small>관리 사유</small></>, '관리 사유')}
+            {DAY_METRICS.map((m) => <Fragment key={m.key}>{head(m.key, <>{m.name}<small>날짜별 · 일</small></>, m.name)}</Fragment>)}
+            {METRICS.map((m) => <Fragment key={m.key}>{head(m.key, <>{m.name}<small>{m.unit}</small></>, m.name, center)}</Fragment>)}
           </tr>
         </thead>
         <tbody>
-          {shown.map(({ r, m }) => {
-            const s = r.student, open = s.studentId === openId
-            const f = flagsOf(m, r), fell = f.study, late = f.late, under = f.plan, evMore = f.vision
-            const reasons = r.signals.map((x) => x.label).join(' · ')
-            const p: NotationProps = { s: r, rows, ev: evAll.get(s.studentId) ?? [], evAll, th }
+          {shown.map((l) => {
+            const { r } = l, s = r.student, open = s.studentId === openId
+            const reasons = r.signals.map((x) => x.label)
+            const toggle = () => { setOpenId(open ? null : s.studentId); setVisionWeek(null) }
             return (
               <Fragment key={s.studentId}>
-                <tr className={open ? 'y-open' : undefined} tabIndex={0} aria-expanded={open} onClick={() => setOpenId(open ? null : s.studentId)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpenId(open ? null : s.studentId) } }}>
-                  <th scope="row"><b>{s.studentName}</b><span>{s.className}</span></th>
-                  <td className="y-status" data-tip={reasons || undefined}>{reasons ? <b>{reasons}</b> : <span className={`y-st-${r.status}`}>{GROUP_LABEL[r.status]}</span>}{(r.status === 'managed' || r.status === 'recheck') && <span className="y-st-managed">{GROUP_LABEL[r.status]}</span>}</td>
-                  <td className={`y-num${f.absent ? ' y-flag' : ''}`}>{m.absent ? `${m.absent}일` : '–'}</td>
-                  <td className={`y-num${f.missing ? ' y-flag' : ''}`}>{m.missing ? `${m.missing}일` : '–'}</td>
-                  <td className="y-barcol" data-tip={`공부 시간 · 평소 한 주 ${m.usual ? hm(m.usual) : '없음'} · 최근 7일 ${m.now !== null ? hm(m.now) : '기록 없음'}`}><div className="y-pairrow"><Pair a={m.usual} b={m.now} top={study.top} flag={fell} /><span className="y-vals"><small>{m.usual ? `평소 ${hm(m.usual)}` : '평소 없음'}</small><b className={fell ? 'y-flag' : undefined}>{m.now !== null ? hm(m.now) : '기록 없음'}</b></span></div></td>
-                  <td className={`y-num${late ? ' y-flag' : ''}`}>{m.late === null ? '–' : Math.round(m.late) <= 0 ? '늦지 않음' : `${hm(m.late)} 늦음`}</td>
-                  <td className={`y-num${under ? ' y-flag' : ''}`}>{m.plan === null ? '–' : `${Math.round(m.plan)}%`}</td>
-                  <td className="y-barcol" data-tip={sup.status === 'ready' ? `비몰입 · 지난 4주 한 주 평균 ${count(m.evUsual)} · 최근 7일 ${count(m.evNow)}` : undefined}>{sup.status === 'ready' ? <div className="y-pairrow"><Pair a={m.evUsual} b={m.evNow} top={evTop} flag={evMore} /><span className="y-vals"><small>평소 {count(m.evUsual)}</small><b className={evMore ? 'y-flag' : undefined}>{count(m.evNow)}</b></span></div> : <span className="y-muted">–</span>}</td>
+                <tr className={open ? 'y-open' : undefined} tabIndex={0} aria-expanded={open} onClick={toggle} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle() } }}>
+                  <th scope="row"><span className="y-who"><b>{s.studentName}</b><span>{s.className}</span></span>
+                    {reasons.length ? <span className="y-why">{reasons.map((x) => <span key={x}>{x}</span>)}</span> : <span className="y-why y-why-none">{GROUP_LABEL[r.status]}</span>}</th>
+                  {DAY_METRICS.map((m) => { const n = l.counts[m.key], f = m.flag(r) && !!n
+                    return <td key={m.key} className="y-d" data-tip={`${m.name} · 최근 7일 ${n === null ? '기록 없음' : `${n}일`}`}><span className="yc"><DayDots days={r.days} bad={m.bad} flag={m.flag(r)} /><b className={f ? 'y-flag' : n === null ? 'yc-none' : undefined}>{n === null ? '–' : n}</b></span></td> })}
+                  {METRICS.map((m) => { const c = l.cells[m.key]
+                    return <td key={m.key} className="y-m" data-tip={c.tip} aria-label={c.tip}><span className="yc"><Diverge cell={c} span={m.span} rightIsBad={m.rightIsBad} /><b className={c.flag ? 'y-flag' : c.now === null ? 'yc-none' : undefined}>{c.text}</b></span></td> })}
                 </tr>
-                {open && <tr className="y-detail"><td colSpan={8}>
-                  <div className="y-detail-grid">
-                    <section className="y-panel y-wide"><h3>출결 · 계획 제출</h3><AttendanceChips s={r} /></section>
-                    <section className="y-panel"><ViewSwitch value={period} onChange={setPeriod} title="날짜별 공부 시간 · 같은 요일 평소와" titleW="주별 공부 시간 · 지난 4주 평균과" daily={<StudyPair {...p} period="d" />} weekly={<StudyPair {...p} period="w" />} /></section>
-                    <section className="y-panel"><ViewSwitch value={period} onChange={setPeriod} title="날짜별 입실 시각 · 같은 요일 평소와" titleW="주별 평균 입실 시각 · 평소와" daily={<StartPair {...p} period="d" />} weekly={<StartPair {...p} period="w" />} /></section>
-                    <section className="y-panel"><ViewSwitch value={period} onChange={setPeriod} title="날짜별 계획과 실제" titleW="주별 계획과 실제" daily={<PlanPair {...p} period="d" />} weekly={<PlanPair {...p} period="w" />} /></section>
-                    <section className="y-panel"><h3>과목별 계획과 실제 · 최근 7일</h3><PlanSubjectPairs {...p} /></section>
-                    <section className="y-panel y-wide">{sup.status === 'ready' ? <ViewSwitch value={period} onChange={setPeriod} title="날짜별 비몰입 건수" titleW="주별 비몰입 건수" daily={<VisionDayBars {...p} />} weekly={<VisionWeekBars {...p} />} /> : <p className="y-muted">{supLoadingText(sup)}</p>}</section>
-                    <section className="y-panel y-wide"><h3>비몰입 기록</h3>{sup.status === 'ready' ? <EvidenceLog s={r} ev={p.ev} period={period} /> : <p className="y-muted">{supLoadingText(sup)}</p>}</section>
-                    <section className="y-panel y-wide"><CareCounsel s={r} version={data.version} prefix="y" onSaved={data.saved} onDirty={setDirty} className="y-counsel" /></section>
+                {open && <tr className="y-detail"><td colSpan={2 + DAY_METRICS.length + METRICS.length}>
+                  <div className="y-detail-in">
+                    <section className="y-panel" aria-label="최근 5주">
+                      <h3>최근 5주 · {s.studentName}</h3>
+                      <div className="y-weeks">
+                        {DAY_METRICS.map((m) => <div key={m.key} className="y-week"><h4 className={m.flag(r) ? 'y-flag' : undefined}>{m.name}<small>일</small></h4><Trend5 r={r} vals={m.weeks(r)} text={(v) => `${v}`} flag={m.flag(r)} unit="일" /></div>)}
+                        {METRICS.map((m) => { const f = l.cells[m.key].flag, isV = m.key === 'vision'
+                          return <div key={m.key} className="y-week"><h4 className={f ? 'y-flag' : undefined}>{m.name}<small>{m.key === 'study' ? '시간' : m.key === 'plan' ? '%' : m.key === 'late' ? '분' : '건'}</small></h4>
+                            <Trend5 r={r} vals={m.weeks(r, evOf(r))} text={m.weekText} flag={f} unit={m.unit} picked={isV ? visionWeek : undefined} onPick={isV && ready ? (w) => setVisionWeek(visionWeek === w ? null : w) : undefined} /></div> })}
+                      </div>
+                    </section>
+                    <section className="y-panel" aria-label="비몰입 사진">
+                      <h3>비몰입 사진 {visionWeek !== null ? <span className="y-muted">· {weekLabel(r, visionWeek)} <button type="button" className="y-link" onClick={() => setVisionWeek(null)}>전체</button></span> : <span className="y-muted">· 최근 35일 중 최근 6건 · 위 비몰입 주를 누르면 그 주의 사진</span>}</h3>
+                      {ready ? <YPhotos r={r} ev={evOf(r) ?? []} dates={visionWeek !== null ? weeksOf(r)[visionWeek].map((d) => d.date) : null} label={visionWeek !== null ? weekLabel(r, visionWeek) : undefined} /> : <p className="y-muted">{supLoadingText(sup)}</p>}
+                    </section>
+                    <section className="y-panel"><CareCounsel s={r} version={data.version} prefix="y" onSaved={data.saved} onDirty={setDirty} className="y-counsel" /></section>
                   </div>
                 </td></tr>}
               </Fragment>
@@ -159,13 +153,13 @@ export function VariantY() {
           })}
         </tbody>
       </table>
-      {!shown.length && <p className="y-muted">검색 결과가 없습니다.</p>}
+      {!shown.length && <p className="y-muted">{query ? '검색 결과가 없습니다.' : '이 조건에 맞는 학생이 없습니다.'}</p>}
     </section>
-  )
+  </>
 
   return (
     <TipHost>
-      <div className="sc-page y-page nt-scope n2-scope">
+      <div className="sc-page y-page">
         <header className="sc-top">
           <h1 className="sc-top__title">학생 케어 Y</h1>
           <div className="sc-top__controls">

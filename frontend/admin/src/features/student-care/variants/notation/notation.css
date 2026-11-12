@@ -163,3 +163,4 @@
   .ac-row > span:first-child { font-size: 13px; }
   .ac-chip { padding: 3px 2px; font-size: 12px; white-space: normal; word-break: keep-all; line-height: 1.2; }
 }
+@container (max-width: 560px) { .ac-head > span { line-height: 1.4; gap: 1px; } }

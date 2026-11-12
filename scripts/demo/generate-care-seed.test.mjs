@@ -14,8 +14,8 @@ test('210 distinct neutral identities have 35 persisted dates and branch sizes 1
     const days = data.days.filter(day => day.studentId === student.id);
     assert.equal(days.length, 35);
     assert.equal(new Set(days.map(day => day.date)).size, 35);
-    assert.equal(days[0].date, '2026-09-23');
-    assert.equal(days.at(-1).date, '2026-10-27');
+    assert.equal(days[0].date, '2026-10-08');
+    assert.equal(days.at(-1).date, '2026-11-11');
     assert.ok(!student.name.includes(student.scenario));
   }
 });
@@ -59,12 +59,12 @@ test('88 routine students have six actual attended days, one off day and no miss
   const healthy = data.students.filter(student => student.scenario.startsWith('healthy_'));
   assert.equal(healthy.length, 88);
   for (const student of healthy) {
-    const recent = data.days.filter(day => day.studentId === student.id && day.date >= '2026-10-21');
+    const recent = data.days.filter(day => day.studentId === student.id && day.date >= '2026-11-05');
     assert.equal(recent.filter(day => day.checkedIn).length, 6);
     assert.equal(recent.filter(day => !day.planSubmitted).length, 1);
     assert.ok(recent.every(day => day.recordAvailable));
     assert.ok(recent.filter(day => day.checkedIn).every(day => total(day.study) / total(day.planned) >= 0.8));
-    const baseline = data.days.filter(day => day.studentId === student.id && day.date < '2026-10-21');
+    const baseline = data.days.filter(day => day.studentId === student.id && day.date < '2026-11-05');
     assert.ok(total(Object.fromEntries(recent.map(day => [day.date, total(day.study)]))) /
       (baseline.reduce((sum, day) => sum + total(day.study), 0) / 4) > 0.9);
   }

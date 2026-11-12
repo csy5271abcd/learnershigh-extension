@@ -6,7 +6,7 @@ import { AllHistory } from '../../components/AllHistory.tsx'
 import { SettingsDialog } from '../../components/SettingsDialog.tsx'
 import { monthDay } from '../../model/format.ts'
 import { careApi, useCareData, type CareRow } from '../shared/useCareData.ts'
-import { Branch, type BranchPick } from '../z/Branch.tsx'
+import { BranchZ2, type BranchPickZ2 } from './BranchZ2.tsx'
 import { TipHost } from '../z/Tip.tsx'
 import type { VisionWeek } from '../z/vision/useVisionWeek.ts'
 import type { VisionSummary } from '../z/zModel.ts'
@@ -30,7 +30,7 @@ export function VariantZ2() {
   const data = useCareData('z2')
   const [tab, setTab] = useState<Tab>('today')
   const [open, setOpen] = useState<Open | null>(null)
-  const [pick, setPick] = useState<BranchPick>(null)
+  const [pick, setPick] = useState<BranchPickZ2>(null)
   const [query, setQuery] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dirty, setDirty] = useState(false)
@@ -87,7 +87,7 @@ export function VariantZ2() {
       </nav>} />
   )
   if (body) { /* 상태 메시지 */ } else if (tab === 'history' && rows && data.branchId) body = <AllHistory api={careApi} branchId={data.branchId} version={data.version} onOpenStudent={(id) => { const r = rows.find((x) => x.student.studentId === id); if (r) openStudent(r, [r], 'history') }} />
-  else if (tab === 'branch' && rows && data.branchId) body = <Branch rows={rows} week={week} thresholds={data.thresholds} pick={pick} onPick={setPick} onOpen={(r, list) => openStudent(r, list, 'branch')} visionSlot={<VisionBranchZ2 rows={rows} sup={sup} onOpen={(r, list) => openStudent(r, list, 'branch')} />} />
+  else if (tab === 'branch' && rows && data.branchId) body = <BranchZ2 rows={rows} week={week} thresholds={data.thresholds} pick={pick} onPick={setPick} onOpen={(r, list) => openStudent(r, list, 'branch')} visionSlot={<VisionBranchZ2 rows={rows} sup={sup} onOpen={(r, list) => openStudent(r, list, 'branch')} />} />
   else if (rows) body = <RosterZ2 rows={rows} vision={vision} query={query} th={{ shift: data.startShiftMinutes, rate: data.executionRate }} onQuery={setQuery} onOpen={(r, list) => openStudent(r, list, 'today')} />
 
   const leave = pending && <div className="z-leave" role="alert">

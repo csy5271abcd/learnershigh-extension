@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>학부모 리포트 생활 탭 · 시안 A</title>
+<link rel="stylesheet" href="life.css">
+<style>
+  /* 시안 A: 문장 먼저. 맨 위 '한눈에' 네 줄(지표마다 한 문장), 그 아래 지표마다 작은 그림 하나 */
+  .glance { display: grid; gap: 10px; }
+  .glance li { list-style: none; display: grid; grid-template-columns: 22px 64px minmax(0, 1fr); gap: 8px; align-items: start; font-size: 14px; line-height: 1.45; }
+  .glance ul { margin: 0; padding: 0; display: grid; gap: 10px; }
+  .glance .m { width: 14px; height: 14px; border-radius: 50%; margin-top: 3px; background: var(--r-cyan); }
+  .glance .m.warn { background: var(--r-yellow); }
+  .glance .k { color: var(--r-sub); font-weight: 700; }
+  .cmp { display: grid; gap: 8px; }
+  .cmp .row { display: grid; grid-template-columns: 58px minmax(0, 1fr) 86px; gap: 8px; align-items: center; font-size: 13px; color: var(--r-sub); }
+  .cmp .track { height: 14px; border-radius: 7px; background: #24262a; overflow: hidden; }
+  .cmp .fill { height: 100%; border-radius: 7px; background: var(--r-cyan); }
+  .cmp .fill.old { background: #6b7079; }
+  .cmp b { color: var(--r-ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .kinds { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .kinds li { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 14px; }
+  .kinds .dots { display: flex; gap: 3px; flex-wrap: wrap; }
+  .kinds .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--r-cyan); }
+  .kinds .dots i.warn { background: var(--r-yellow); }
+  .kinds em { font-style: normal; font-size: 12px; color: var(--r-sub); white-space: nowrap; }
+  .kinds em b { color: var(--r-yellow); }
+  .teacher { border: 1px solid var(--r-cyan); }
+  .teacher h4::before { background: var(--r-yellow) !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="page-title"><h1>학부모 리포트 · 생활 탭</h1><p>시안 A · 문장 먼저, 지표마다 작은 그림 하나</p><nav><a href="a.html" aria-current="page">시안 A</a><a href="b.html">시안 B</a></nav></header>
+  <section class="admin" id="admin" aria-label="관리자 레포트 전송"></section>
+  <div class="phone"><div class="screen" id="screen" aria-label="학부모가 받는 화면"></div></div>
+</div>
+<script src="life.js"></script>
+<script src="admin.js"></script>
+<script>
+(function () {
+  var hm = LifeReport.hm, clock = LifeReport.clock, md = LifeReport.md, KIND = LifeReport.KIND
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] }) }
+
+  function startChart(L) {
+    var ds = L.days, W = 360, H = 170, Lp = 52, T = 14, B = 34, cw = (W - Lp - 8) / 7
+    var vals = []; ds.forEach(function (d) { if (d.start !== null && d.state === 'present') vals.push(d.start); if (d.usualStart !== null) vals.push(d.usualStart) })
+    // 이번 주 입실한 날이 없으면 그림을 그리지 않는다(문장만)
+    if (!L.known.recent || !L.attend.present || !vals.length) return ''
+    var lo = Math.floor((Math.min.apply(null, vals) - 30) / 60) * 60, hi = Math.ceil((Math.max.apply(null, vals) + 30) / 60) * 60; if (hi - lo < 120) hi = lo + 120
+    var X = function (i) { return Lp + cw * (i + .5) }, Y = function (m) { return T + (1 - (m - lo) / (hi - lo)) * (H - T - B) }
+    var step = hi - lo > 300 ? 120 : 60, g = ''
+    for (var t = lo; t <= hi; t += step) g += '<line x1="' + Lp + '" x2="' + (W - 8) + '" y1="' + Y(t) + '" y2="' + Y(t) + '" class="r-grid"/><text x="' + (Lp - 6) + '" y="' + (Y(t) + 4) + '" text-anchor="end" class="r-axis">' + (t % 1440 === 0 ? '자정' : clock(t).replace(':00', '시')) + '</text>'
+    var path = function (key, cond) { var s = ''; ds.forEach(function (d, i) { var v = d[key]; if (v === null || !cond(d)) return; s += (s && ds[i - 1] && ds[i - 1][key] !== null && cond(ds[i - 1]) ? 'L' : 'M') + X(i) + ',' + Y(v) }); return s }
+    var pres = function (d) { return d.state === 'present' }, any = function (d) { return d.state !== 'off' }
+    g += '<path d="' + path('usualStart', any) + '" class="r-ref"/><path d="' + path('start', pres) + '" class="r-line"/>'
+    ds.forEach(function (d, i) {
+      if (d.usualStart !== null && any(d)) g += '<circle cx="' + X(i) + '" cy="' + Y(d.usualStart) + '" r="4" class="r-rdot"/>'
+      if (d.start !== null && pres(d)) g += '<circle cx="' + X(i) + '" cy="' + Y(d.start) + '" r="5" class="r-dot"/>'
+      g += '<text x="' + X(i) + '" y="' + (H - 14) + '" text-anchor="middle" class="r-x">' + d.dow + '</text>'
+    })
+    return '<div class="r-plot"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="날짜별 입실 시각과 평소">' + g + '</svg></div><p class="r-legend"><span><i class="k-bar" style="border-radius:50%"></i>입실 시각</span><span><i class="k-ref"></i>평소 입실 시각</span></p>'
+  }
+
+  function render(L, attached) {
+    var S = LifeReport.sentences(L)
+    var warnStart = L.lateAvg !== null && L.lateAvg >= 30, warnStudy = L.week.usual && L.week.minutes < L.week.usual * .7, warnFocus = S.focusUp && S.focusUp.length > 0, warnAttend = L.attend.absent > 0
+    var max = Math.max(L.week.minutes, L.week.usual || 0, 1)
+    var stamps = L.days.map(function (d, i) {
+      return '<div><div class="d' + (i === L.days.length - 1 ? ' today' : '') + '">' + d.dow + '</div><div class="stamp ' + d.state + '">' + (d.state === 'present' ? '출' : d.state === 'absent' ? '결' : d.state === 'off' ? '쉼' : L.newbie && L.newbie.first && d.date < L.newbie.first ? '전' : '–') + '</div><div class="t">' + (d.state === 'present' && d.start !== null ? (Math.floor(d.start / 60) % 24) + ':' + String(Math.round(d.start) % 60).padStart(2, '0') : '') + '</div><div class="p' + (d.state === 'present' && !d.submitted ? ' miss' : '') + '">' + (d.state === 'present' ? (d.submitted ? '계획 ✓' : '계획 ✕') : '') + '</div></div>'
+    }).join('')
+    var kinds = Object.keys(KIND).map(function (k) {
+      var n = L.focus.recent[k], p = Math.round(L.focus.prior[k] * 10) / 10, up = S.focusUp && S.focusUp.indexOf(k) >= 0
+      return '<li><span>' + KIND[k] + '</span><span class="dots">' + Array.from({ length: n }, function () { return '<i' + (up ? ' class="warn"' : '') + '></i>' }).join('') + (n ? '' : '<em>없음</em>') + '</span><em>' + (up ? '<b>' + n + '회</b>' : n + '회') + (L.known.base ? ' · 평소 ' + p + '회' : '') + '</em></li>'
+    }).join('')
+    return '<div class="r-body">' +
+        '<section class="r-sec glance"><h4>이번 주 생활 한눈에</h4><div class="r-card"><ul>' +
+          '<li><i class="m' + (warnAttend ? ' warn' : '') + '"></i><span class="k">출결</span><span>' + S.attend + '</span></li>' +
+          '<li><i class="m' + (warnStart ? ' warn' : '') + '"></i><span class="k">입실</span><span>' + S.start + '</span></li>' +
+          '<li><i class="m' + (warnStudy ? ' warn' : '') + '"></i><span class="k">공부 시간</span><span>' + S.study + '</span></li>' +
+          '<li><i class="m' + (warnFocus ? ' warn' : '') + '"></i><span class="k">집중</span><span>' + S.focus + '</span></li>' +
+        '</ul></div></section>' +
+        (attached.length ? '<section class="r-sec"><h4>선생님이 전하는 이야기</h4><div class="r-card teacher">' + attached.map(function (a) { return '<p class="r-note">' + esc(a.text) + '</p>' }).join('<hr style="border:0;border-top:1px solid var(--r-line);margin:10px 0">') + '</div></section>' : '') +
+        '<section class="r-sec"><h4>출결</h4><div class="r-card dark"><div class="stamps">' + stamps + '</div>' + (L.known.recent ? '<p class="r-muted" style="margin-top:10px">도장 밑은 입실 시각과 그날 계획 제출 여부예요.</p>' : '') + '</div></section>' +
+        '<section class="r-sec"><h4>입실 시각</h4><div class="r-card"><p class="r-sent">' + S.start.replace(/(평균 [^ ]+(?: [^ ]+분)? (?:늦게|일찍))/, '<b class="' + (warnStart ? 'warn' : '') + '">$1</b>') + '</p>' + startChart(L) + '</div></section>' +
+        '<section class="r-sec"><h4>공부 시간 변화</h4><div class="r-card"><p class="r-sent">' + S.study + '</p>' + (L.attend.present ? '<div class="cmp">' +
+          '<div class="row"><span>이번 주</span><span class="track"><span class="fill" style="display:block;width:' + (L.week.minutes / max * 100) + '%"></span></span><b>' + hm(L.week.minutes) + '</b></div>' +
+          (L.week.usual ? '<div class="row"><span>평소 한 주</span><span class="track"><span class="fill old" style="display:block;width:' + (L.week.usual / max * 100) + '%"></span></span><b>' + hm(L.week.usual) + '</b></div>' : '') +
+        '</div>' : '') + (L.week.usual && L.attend.present ? '<p class="r-muted" style="margin-top:8px">평소는 지난 4주의 한 주 평균이에요.</p>' : '') + '</div></section>' +
+        '<section class="r-sec"><h4>공부 중 흐트러진 횟수</h4><div class="r-card">' + (L.focus.hasData && L.attend.present ? '<p class="r-sent">' + S.focus + '</p><ul class="kinds">' + kinds + '</ul><p class="r-muted" style="margin-top:10px">공부 중 3분 넘게 이어진 행동만 셉니다(자리 비움은 5분). 평소는 지난 4주의 한 주 평균이에요.</p>' : '<p class="r-sent">' + S.focus + '</p>') + '</div></section>' +
+      '</div>'
+  }
+  mountMock(render)
+})()
+</script>
+</body>
+</html>

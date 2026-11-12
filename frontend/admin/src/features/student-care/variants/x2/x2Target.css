@@ -1,0 +1,103 @@
+/* X′ 공부 시간·계획과 실제 그림(참고 그림 꼴). 색은 x2.css의 변수를 쓴다 */
+.x2h { display: grid; gap: 14px; }
+.x2h-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 32px; }
+.x2h-row > div { display: grid; gap: 4px; align-content: start; }
+.x2h-right { border-left: 1px solid var(--line); padding-left: 32px; }
+.x2h-label { margin: 0; font-size: 14px; color: var(--sub); }
+.x2h-big { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 32px; font-weight: 800; letter-spacing: -.02em; color: var(--ink); font-variant-numeric: tabular-nums; }
+.x2h-big span { font-size: 16px; font-weight: 500; color: var(--sub); letter-spacing: 0; }
+.x2h-rate { color: var(--bar); }
+.x2h-big.x2h-bad { color: var(--danger); }
+.x2h-badge { align-self: center; font-style: normal; font-size: 14px; font-weight: 700; letter-spacing: 0; padding: 6px 12px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); }
+.x2h-badge-bad { background: var(--danger-soft); color: var(--danger); }
+.x2h-track { height: 10px; border-radius: 999px; background: var(--band); overflow: hidden; }
+.x2h-fill { display: block; height: 100%; border-radius: 999px; background: var(--bar); }
+.x2h-bad-fill { background: var(--danger); }
+
+.x2t { display: grid; gap: 6px; }
+.x2t-grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 5; }
+.x2t-base { stroke: var(--line); stroke-width: 1.5; }
+.x2t-axis { font-size: 13px; fill: var(--sub); }
+.x2t-x { font-size: 15px; font-weight: 700; fill: var(--ink); }
+.x2t-x2 { font-size: 13px; fill: var(--sub); }
+.x2t-bad { fill: var(--danger); font-weight: 700; }
+.x2t-band { fill: transparent; }
+.x2t-col { outline: none; }
+.x2t-col:hover .x2t-band { fill: var(--band); }
+.x2t-col:focus-visible .x2t-band { fill: var(--band); stroke: var(--primary); stroke-width: 2; }
+.x2t-bar { fill: var(--bar); }
+/* 점선이 막대·바탕 위에서 묻히지 않게: 바탕색 테두리(케이싱) 위에 굵은 점선, 점은 크게 */
+.x2t-casing { fill: none; stroke: var(--card); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; opacity: .9; pointer-events: none; }
+.x2t-line { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-dasharray: 2 6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.x2t-dot { fill: var(--card); stroke: var(--ink); stroke-width: 2.6; pointer-events: none; }
+.x2t-tip { font-size: 13px; font-weight: 700; fill: var(--ink); opacity: 0; paint-order: stroke; stroke: var(--band); stroke-width: 5px; stroke-linejoin: round; pointer-events: none; }
+.x2t-col:hover .x2t-tip, .x2t-col:focus-visible .x2t-tip { opacity: 1; }
+.x2t-legend { margin: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 28px; font-size: 14px; color: var(--sub); }
+.x2t-legend span { display: inline-flex; gap: 8px; align-items: center; }
+.x2t-k-bar { width: 14px; height: 14px; border-radius: 4px; background: var(--bar); }
+.x2t-k-line { width: 30px; height: 0; border-top: 3px dotted var(--ink); position: relative; }
+.x2t-k-line::after { content: ''; position: absolute; left: 10px; top: -6px; width: 8px; height: 8px; border-radius: 50%; background: var(--card); border: 2px solid var(--ink); }
+
+.x2st { margin: 4px 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+.x2st > div { padding: 14px 18px; display: grid; gap: 4px; }
+.x2st > div + div { border-left: 1px solid var(--line); }
+.x2st dt { font-size: 13px; color: var(--sub); }
+.x2st dd { margin: 0; font-size: 20px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+.x2st dd span { font-size: 13px; font-weight: 400; color: var(--sub); }
+@media (max-width: 1100px) { .x2st { grid-template-columns: repeat(2, minmax(0, 1fr)); } .x2st > div:nth-child(3) { border-left: 0; } }
+.x2t-vline { fill: none; stroke: var(--bar); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.x2t-vdot { fill: var(--bar); stroke: var(--card); stroke-width: 2.5; pointer-events: none; }
+.x2t-k-vline { width: 30px; height: 3px; border-radius: 2px; background: var(--bar); position: relative; }
+.x2t-k-vline::after { content: ''; position: absolute; left: 10px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--bar); }
+/* 2026-11-12: 마우스 올림 바탕·말풍선 없앰(선을 가림). 값은 칸 밑에 두 줄로 늘 보인다 */
+.x2t-v1 { font-size: 14px; font-weight: 700; fill: var(--bar); font-variant-numeric: tabular-nums; }
+.x2t-v2 { font-size: 13px; fill: var(--sub); font-variant-numeric: tabular-nums; }
+.x2t-rowname { font-weight: 600; }
+.x2t-col:hover .x2t-bar { filter: brightness(1.12); }
+
+/* 값 상자: 올린 막대 바로 위, 아래 꼬리가 막대를 가리킴(참고 그림 꼴) */
+.x2t .x2c-plot { position: relative; }
+.x2tip { position: absolute; z-index: 2; transform: translateY(-100%); box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); box-shadow: 0 10px 28px rgba(0, 0, 0, .28); pointer-events: none; display: grid; gap: 6px; font-size: 13px; color: var(--sub); }
+.x2tip::after { content: ''; position: absolute; left: calc(var(--tail) - 7px); bottom: -7px; width: 12px; height: 12px; background: var(--card); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(45deg); }
+.x2tip header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 8px; margin-bottom: 2px; border-bottom: 1px solid var(--line-2); }
+.x2tip header b { font-size: 15px; color: var(--ink); }
+.x2tip-badge { font-style: normal; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); white-space: nowrap; }
+.x2tip-badge.x2tip-bad { background: var(--danger-soft); color: var(--danger); }
+.x2tip p { margin: 0; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.x2tip p > i { justify-self: center; }
+.x2tip p strong { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.x2tip .x2tip-rate { color: var(--bar); }
+.x2tip .x2tip-bad-text { color: var(--danger); }
+.x2tip-k-rate { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bar); box-sizing: border-box; }
+.x2t-bar-on { stroke: var(--ink); stroke-width: 2; filter: brightness(1.12); }
+.x2t-col { cursor: default; }
+
+.x2t-col.x2t-can { cursor: pointer; }
+
+/* 과목별 불릿 그래프: 실제 = 가로 막대, 계획 = 막대보다 조금 긴 세로선, 같은 눈금 */
+.x2hb { display: grid; gap: 12px; padding: 6px 0 2px; }
+.x2hb-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 230px; gap: 16px; align-items: center; }
+.x2hb-name { font-size: 15px; color: var(--ink); }
+.x2hb-track { position: relative; height: 30px; }
+.x2hb-bar { position: absolute; left: 0; top: 7px; height: 16px; border-radius: 0 5px 5px 0; background: var(--bar); }
+.x2hb-bar-bad { background: var(--danger); }
+.x2hb-target { position: absolute; top: 1px; height: 28px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); }
+.x2hb-val { display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.x2hb-val strong { font-size: 16px; color: var(--ink); }
+.x2hb-val span { font-size: 13px; color: var(--sub); }
+.x2hb-val em { margin-left: auto; font-style: normal; font-weight: 800; font-size: 15px; color: var(--bar); }
+.x2hb-val em.x2hb-bad { color: var(--danger); }
+.x2hb-axis { margin-top: -4px; }
+.x2hb-ticks { position: relative; height: 18px; border-top: 1px solid var(--line); }
+.x2hb-ticks i { position: absolute; top: 4px; transform: translateX(-50%); font-style: normal; font-size: 12px; color: var(--sub); white-space: nowrap; }
+.x2hb-ticks i:first-child { transform: none; }
+.x2hb-k-target { width: 3px; height: 14px; border-radius: 2px; background: var(--ink); }
+.x2hb-k-bad { width: 14px; height: 10px; border-radius: 3px; background: var(--danger); }
+@media (max-width: 1100px) { .x2hb-row { grid-template-columns: 48px minmax(0, 1fr); } .x2hb-val { grid-column: 2; } }
+/* 2026-11-12: 줄 사이가 붙어 보임 → 줄 간격·높이 넓힘, 진행 막대와 첫 줄 사이·눈금 줄 위아래 여백 */
+.x2hb { gap: 22px; padding: 14px 0 4px; }
+.x2hb-track { height: 36px; }
+.x2hb-bar { top: 9px; height: 18px; }
+.x2hb-target { top: 2px; height: 32px; }
+.x2hb-axis { margin-top: 0; }
+.x2hb + .x2st, .x2hb .x2t-legend { margin-top: 6px; }

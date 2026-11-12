@@ -18,8 +18,9 @@ export const evidenceSrc = (url: string) => url.replace(/^\/api\/supervisor/, '/
 
 const KST = 9 * 60
 const minutesKst = (iso: string) => { const t = new Date(iso).getTime() / 60000 + KST; return t }
-/** 이벤트가 속한 날짜(한국 시각) */
-export const eventDate = (e: SupEvent) => new Date((minutesKst(e.startedAt)) * 60000).toISOString().slice(0, 10)
+/** 이벤트가 속한 학습일(한국 시각). 학습관은 자정을 넘겨 운영하므로 새벽 5시 전 이벤트는 전날 학습일로 센다(밤 11시 입실 학생의 0시 이후 비몰입이 다음 날로 넘어가지 않게) */
+const DAY_START = 5 * 60
+export const eventDate = (e: SupEvent) => new Date((minutesKst(e.startedAt) - DAY_START) * 60000).toISOString().slice(0, 10)
 /** 하루 안의 시작 분(한국 시각, 0–1439) */
 export const eventStartMinute = (e: SupEvent) => Math.floor(minutesKst(e.startedAt) % 1440)
 /** 비몰입이 이어진 시간(초). 끝나지 않았으면 확정 시각까지 */

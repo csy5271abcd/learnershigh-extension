@@ -1,0 +1,16 @@
+import { chromium } from 'file:///D:/univ/capstone/learnershigh-extension/e2e/node_modules/playwright-core/index.mjs'
+const OUT = 'D:/univ/capstone/learnershigh-extension/docs/design/ops-redesign/reviews/agent-review/round-0/PM/'
+const b = await chromium.launch({ executablePath: 'C:/Users/green/AppData/Local/ms-playwright/chromium-1208/chrome-win64/chrome.exe' })
+let p = await b.newPage({ viewport: { width: 1600, height: 1000 } })
+await p.goto('http://localhost:5174/student-care/x'); await p.addStyleTag({ content: 'header[class*=header]{position:static!important}' }); await p.waitForTimeout(2500)
+await p.fill('.x-search', '권하린'); await p.locator('tr', { hasText: '권하린' }).first().click(); await p.waitForTimeout(500)
+await p.getByRole('tab', { name: '입실 시각' }).click(); await p.waitForTimeout(800)
+console.log('X start polyline/path:', await p.locator('.x-tab-body svg polyline, .x-tab-body svg path').count())
+await p.locator('.x-tab-body').screenshot({ path: OUT + 'x-kwonharin-start.png' }); await p.close()
+p = await b.newPage({ viewport: { width: 1600, height: 1000 } })
+await p.goto('http://localhost:5174/student-care/z2'); await p.waitForTimeout(2500)
+await p.locator('button', { hasText: '권하린' }).first().click(); await p.waitForTimeout(1200)
+await p.addStyleTag({ content: '.z-overlay{position:static!important}.z-dialog{max-height:none!important;overflow:visible!important}.z-detail-nav{position:static!important}' })
+console.log('Z2 cards:', await p.$$eval('.zz-card h3', (h) => h.map((x) => x.textContent)), 'toggles', await p.locator('.zz-card button').count())
+await p.locator('.zz-reasons').screenshot({ path: OUT + 'z2-kwonharin-reasons.png' }); await p.close()
+await b.close()

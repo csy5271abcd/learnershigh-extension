@@ -1,0 +1,58 @@
+// 그림 요소 대비 검사(WCAG 1.4.11: 뜻을 읽는 데 필요한 그림 요소는 바탕과 3:1 이상).
+// 격자·축·바탕 띠·마우스 영역은 뺀다. node cchk.mjs [schemes=light,dark]
+import { chromium } from 'file:///D:/univ/capstone/learnershigh-extension/e2e/node_modules/playwright-core/index.mjs'
+const schemes = (process.argv[2] ?? 'light,dark').split(',')
+const b = await chromium.launch({ executablePath: 'C:/Users/green/AppData/Local/ms-playwright/chromium-1208/chrome-win64/chrome.exe' })
+const SKIP = /(^|[\s-])(grid|axis|hit|track|band|daytick)(\s|$)|xn-hit/
+async function check(page) {
+  return page.evaluate(() => {
+    const rgb = (s) => { const m = s.match(/rgba?\(([^)]+)\)/); if (!m) return null; const [r, g, bb, a = 1] = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [r, g, bb, a] }
+    const lum = ([r, g, bb]) => { const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(bb) }
+    const ratio = (a, c) => { const x = lum(a), y = lum(c); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05) }
+    const bgOf = (el) => { for (let a = el; a; a = a.parentElement) { const c = rgb(getComputedStyle(a).backgroundColor); if (c && c[3] > 0.5) return c } return [255, 255, 255, 1] }
+    const root = document.querySelector('.x-page, .y-page, .z2-detail') ?? document.body
+    const out = {}
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      const t = n.textContent.trim(); if (!t) continue
+      const el = n.parentElement; if (el.closest('select,option,[hidden],input,textarea,button[disabled]')) continue
+      const r = el.getBoundingClientRect(); if (!r.width) continue
+      const cs = getComputedStyle(el)
+      const inSvg = !!el.closest('svg')
+      const c = rgb(inSvg ? cs.fill : cs.color); if (!c) continue
+      let op = Number(cs.opacity) * c[3]
+      for (let a = el.parentElement; a && a !== root; a = a.parentElement) op *= Number(getComputedStyle(a).opacity)
+      const bg = bgOf(inSvg ? el.closest('svg') : el)
+      const mix = c.slice(0, 3).map((v, i) => v * op + bg[i] * (1 - op))
+      const size = parseFloat(cs.fontSize), bold = Number(cs.fontWeight) >= 700
+      const need = size >= 24 || (bold && size >= 18.66) ? 3 : 4.5
+      const v = Math.round(ratio(mix, bg) * 100) / 100
+      const k = (el.getAttribute('class') ?? el.tagName.toLowerCase()).split(/\s+/).slice(0, 2).join('.') + (inSvg ? '(svg)' : '')
+      if (v < need && (!out[k] || out[k].ratio > v)) out[k] = { ratio: v, need, color: inSvg ? cs.fill : cs.color, bg: `rgb(${bg.slice(0, 3).join(',')})`, text: t.slice(0, 14), size }
+    }
+    return out
+  })
+}
+const pages = [
+  ['x', 'http://localhost:5174/student-care/x', async (p) => { await p.waitForSelector('.x-list tbody tr'); await p.fill('.x-search', process.env.XS ?? '권하린'); await p.waitForTimeout(300); await p.locator('.x-list tbody tr').first().click(); await p.waitForTimeout(800) }, [['공부 시간'], ['입실 시각'], ['계획'], ['사진 관찰']]],
+  ['y', 'http://localhost:5174/student-care/y', async (p) => { await p.waitForSelector('.y-table tbody tr'); await p.waitForFunction(() => !document.querySelector('.y-toolbar [role=status]'), null, { timeout: 120000 }).catch(() => {}); await p.locator('.y-table tbody tr', { hasText: '공부 시간 감소' }).first().click(); await p.waitForTimeout(1500) }, [[null]]],
+  ['z2', 'http://localhost:5174/student-care/z2', async (p) => { await p.waitForSelector('[id^="z-row-"]'); await p.locator('[id^="z-row-"]', { hasText: process.env.ZS ?? '늦어짐' }).first().click(); await p.waitForTimeout(1500); await p.evaluate(() => document.querySelectorAll('.z2-detail details').forEach((d) => { d.open = true })); await p.waitForTimeout(500) }, [[null]]],
+]
+const all = []
+for (const scheme of schemes) {
+  const page = await b.newPage({ viewport: { width: 1600, height: 1000 }, colorScheme: scheme })
+  for (const [v, url, setup, tabs] of pages) {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 180000 }); await setup(page)
+    const merged = {}
+    for (const [tab] of tabs) {
+      if (tab) { await page.getByRole('tab', { name: tab, exact: true }).click(); await page.waitForTimeout(500)
+        for (const per of ['일간', '주간']) { const btn = page.locator('.x-panel .xs-seg button', { hasText: per }).first(); if (await btn.count()) { await btn.click({ force: true }); await page.waitForTimeout(300) } Object.assign(merged, ...Object.entries(await check(page)).map(([k, o]) => (!merged[k] || merged[k].ratio > o.ratio ? { [k]: o } : {}))) } }
+      else Object.assign(merged, await check(page))
+    }
+    for (const [k, o] of Object.entries(merged)) all.push({ scheme, v, k, ...o })
+  }
+  await page.close()
+}
+await b.close()
+all.sort((a, c) => a.ratio - c.ratio)
+for (const r of all) console.log(`${r.ratio < r.need ? 'FAIL' : 'ok  '} ${r.ratio.toFixed(2).padStart(5)} ${r.scheme.padEnd(5)} ${r.v.padEnd(3)} ${r.k.padEnd(16)} ${r.color} on ${r.bg} need ${r.need} '${r.text}' ${r.size}px`)

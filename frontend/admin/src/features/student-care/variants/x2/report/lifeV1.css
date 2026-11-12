@@ -1,0 +1,12 @@
+/* 시안 1 · 변화 카드(원본 '이번주 나의 공부티어' 칸 꼴) */
+.l1-card { display: grid; gap: 10px; }
+.l1-box { background: #26282c; border: 1px solid #4a4d53; border-radius: 22px; padding: 22px 18px; display: grid; justify-items: center; gap: 14px; text-align: center; }
+.l1-box strong { font-size: 21px; line-height: 1.35; color: #fff; }
+.l1-bad .l1-box strong, .l1-y { color: #FBE15A !important; }
+.l1-good .l1-box strong { color: #4ef0ff; }
+.l1-ft { display: flex; gap: 10px; align-items: baseline; font-size: 14px; color: #b9bcc4; }
+.l1-ft b { color: #fff; font-size: 16px; }
+.l1-ft i { font-style: normal; color: #8a8e98; }
+.l1-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.l1-chips em { font-style: normal; padding: 5px 12px; border-radius: 999px; background: #ff6b81; color: #fff; font-weight: 700; font-size: 14px; }
+

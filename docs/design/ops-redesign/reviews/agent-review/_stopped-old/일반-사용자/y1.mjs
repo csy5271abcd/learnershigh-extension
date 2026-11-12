@@ -1,0 +1,12 @@
+import { open, shot } from './common.mjs'
+const { b, p } = await open('y')
+await p.screenshot({ path: 'y/top-1600.png', clip: { x: 220, y: 60, width: 1380, height: 900 } })
+await p.fill('.y-search', '권유진')
+await p.waitForTimeout(300)
+const row = p.locator('.y-table tbody tr').first()
+console.log('rows', await p.locator('.y-table tbody tr').count())
+await row.click(); await p.waitForTimeout(800)
+console.log(await p.evaluate(() => { const d = document.querySelector('dialog[open], [role=dialog], .y-detail, .y-drawer'); return d ? d.className + '\n' + d.innerText.slice(0, 3000) : 'NODIALOG ' + location.href }))
+await p.screenshot({ path: 'y/권유진-after-click.png' })
+console.log('H', await p.evaluate(() => document.documentElement.scrollHeight))
+await b.close()
