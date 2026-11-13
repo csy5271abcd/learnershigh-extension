@@ -40,7 +40,7 @@ import tools.jackson.databind.node.ObjectNode;
  * HWP는 서명 검사용 합성 바이트뿐이다(실제 한글 문서 아님).
  */
 @Tag("integration")
-@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.multiformat.experimental=true"})
+@SpringBootTest(properties = {"assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage", "assessment.analysis-import.enabled=true", "assessment.multiformat.experimental=true"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -126,7 +126,8 @@ class MultiformatExperimentalApiTest {
         assertThat(row.get("content_type")).isEqualTo("application/hwp+zip");
         assertThat(row.get("page_count")).isNull();
         assertThat(row.get("sha256")).isEqualTo(HWPX_SHA);
-        assertThat(row.get("file_ref")).isNull();
+        // S-4 (2026-11-13): HWPX 원문도 Storage에 그대로 보관한다
+        assertThat((String) row.get("file_ref")).matches("[0-9a-f-]{36}");
         mvc.perform(asAdmin(get(PLANS + "/" + hwpx.planId()), OPERATOR))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.revisions[0].documentFormat").value("HWPX"))
@@ -157,10 +158,9 @@ class MultiformatExperimentalApiTest {
         JsonNode stored = json.readTree(jdbc.queryForObject("select result_json from assessment_plan_analysis_run", String.class));
         assertThat(stored.toString()).contains("documentLocator").doesNotContain("pdfPageNumber\":1");
 
-        // 학생: 후보 미노출, 미확정 문서 참조 불가
+        // 학생: 미확정 문서는 보이지 않음(2026-11-13 OD-A08 → 404), 후보 미노출, 미확정 문서 참조 불가
         String students = mvc.perform(asStudent(get("/api/student/assessment/evaluation-plans/" + hwpx.planId()), "stu_001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reviewStatus").value("UNREVIEWED"))
+                .andExpect(status().isNotFound())
                 .andReturn().getResponse().getContentAsString();
         assertThat(students).doesNotContain("탐구 보고서", "documentLocator");
         mvc.perform(asStudent(post("/api/student/assessment/school-assessments"), "stu_001").contentType(MediaType.APPLICATION_JSON)

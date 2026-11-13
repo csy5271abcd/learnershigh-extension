@@ -23,6 +23,7 @@ public enum AssessmentErrorCode implements ErrorCode {
     ARTIFACT_VERSION_NOT_FOUND(HttpStatus.NOT_FOUND, "결과물 버전을 찾을 수 없습니다."),
     PREVIEW_UNAVAILABLE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "이 형식은 앱 안 미리보기를 지원하지 않아요. 원본을 내려받아 확인해 주세요."),
     FILE_INTEGRITY_FAILED(HttpStatus.CONFLICT, "저장된 파일이 등록 당시와 달라 열 수 없어요."),
+    PLAN_FILE_DUPLICATE(HttpStatus.CONFLICT, "같은 파일이 이미 이 평가계획서의 개정본으로 등록되어 있어요."),
     FILE_VERSION_MISMATCH(HttpStatus.CONFLICT, "다른 버전이 먼저 올라왔어요. 버전 목록을 확인한 뒤 다시 올려 주세요."),
     FEEDBACK_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "피드백 요청을 찾을 수 없습니다."),
     FEEDBACK_ALREADY_DELIVERED(HttpStatus.CONFLICT, "이미 전달된 피드백이에요. 전달 후에는 바꿀 수 없어요."),

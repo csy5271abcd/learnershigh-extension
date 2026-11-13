@@ -22,9 +22,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-/** 다중 형식 실험 기능이 꺼진 기본 상태: HWP·HWPX 등록과 새 수신 필드는 지금까지와 같이 거절된다. */
+/**
+ * 다중 형식 실험 기능이 꺼진 기본 상태.
+ * 2026-11-13 S-4·S-5: HWP·HWPX 원문 등록·보관은 기본으로 받는다. 분석 결과 수신의 새 필드(format·documentLocator)는 계속 거절한다.
+ */
 @Tag("integration")
-@SpringBootTest(properties = "assessment.analysis-import.enabled=true")
+@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -37,16 +40,24 @@ class MultiformatDisabledApiTest {
     JdbcTemplate jdbc;
 
     @Test
-    void 실험_기능이_꺼져_있으면_HWPX는_415이고_format_documentLocator는_unknown_field다() throws Exception {
+    void 실험_기능이_꺼져도_HWPX_원문은_보관하고_format_documentLocator는_unknown_field다() throws Exception {
         long revisions = jdbc.queryForObject("select count(*) from assessment_plan_revision", Long.class);
         mvc.perform(asAdmin(multipart("/api/admin/assessment/evaluation-plans")
                                 .file(new MockMultipartFile("file", "plan.hwpx", "application/octet-stream",
                                         MultiformatExperimentalApiTest.resource("/assessment/multiformat/synthetic-plan.hwpx"))),
                         "adm_plan_operator")
                         .param("schoolId", "school_001").param("academicYear", "2026").param("grade", "1").param("semester", "1"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.fileRef").exists());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_revision", Long.class)).isEqualTo(revisions + 1);
+        // 지원하지 않는 형식은 계속 415
+        mvc.perform(asAdmin(multipart("/api/admin/assessment/evaluation-plans")
+                                .file(new MockMultipartFile("file", "plan.txt", "text/plain", "hello".getBytes(StandardCharsets.UTF_8))),
+                        "adm_plan_operator")
+                        .param("schoolId", "school_001").param("academicYear", "2026").param("grade", "1").param("semester", "1"))
                 .andExpect(status().isUnsupportedMediaType())
                 .andExpect(jsonPath("$.code").value("UNSUPPORTED_FILE_TYPE"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_revision", Long.class)).isEqualTo(revisions);
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_revision", Long.class)).isEqualTo(revisions + 1);
 
         String created = mvc.perform(asAdmin(multipart("/api/admin/assessment/evaluation-plans")
                                 .file(new MockMultipartFile("file", "plan.pdf", "application/pdf",

@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /** 기본 설정(assessment.analysis-import.enabled 미지정 = false)에서는 외부 분석 결과 수신 Endpoint가 등록되지 않는다. */
 @Tag("integration")
-@SpringBootTest
+@SpringBootTest(properties = "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage")
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)

@@ -33,16 +33,23 @@ public class MockHeaderAssessmentActorProvider implements AssessmentActorProvide
     public static final String ADMIN_HEADER = "X-Assessment-Admin-Id";
 
     /**
-     * Mock 관리자. 학생 기록 조회 지점과 평가계획서 운영 학교를 분리한다.
-     * 평가계획서 운영 권한은 OD-A08 미결이라 시연용 운영자 한 명에게만 school_001을 준다(모든 관리자에게 주지 않는다).
+     * 평가계획서 운영 권한 (OD-A08, 2026-11-13 사용자 승인): 정상 인증된 관리자는 모두 모든 학교의 평가계획서를 운영한다.
+     * 이 권한은 평가계획서에만 적용한다. 학생 기록 조회 지점(branchIds)·Student Care 권한은 그대로다.
      */
+    private static final boolean EVERY_ADMIN_OPERATES_PLANS = true;
+
+    /** Mock 관리자. 학생 기록 조회 지점은 관리자마다 다르다. */
     private static final Map<String, AdminActor> ADMINS = Map.of(
-            "adm_gangnam", new AdminActor("adm_gangnam", Set.of("br_gangnam"), Set.of()),
-            "adm_bundang", new AdminActor("adm_bundang", Set.of("br_bundang"), Set.of()),
-            "adm_plan_operator", new AdminActor("adm_plan_operator", Set.of(), Set.of("school_001")),
-            // 2026-11-11 시연용: 학생 기록(강남 지점) 열람·피드백과 평가계획서 운영(school_001)을 한 화면에서 보여 주기 위한 개발용 Mock 관리자.
-            // 운영 권한 모델(OD-A08)을 확정한 것이 아니다. 기존 Mock 관리자 3명의 범위는 바꾸지 않았다.
-            "adm_demo_gangnam", new AdminActor("adm_demo_gangnam", Set.of("br_gangnam"), Set.of("school_001")));
+            "adm_gangnam", admin("adm_gangnam", Set.of("br_gangnam")),
+            "adm_bundang", admin("adm_bundang", Set.of("br_bundang")),
+            // 학생 기록 지점이 없는 평가계획서 운영 전용 Mock 관리자 (지점 학생은 볼 수 없다)
+            "adm_plan_operator", admin("adm_plan_operator", Set.of()),
+            // 2026-11-11 시연용: 학생 기록(강남 지점) 열람·피드백과 평가계획서 운영을 한 화면에서 보여 주기 위한 개발용 Mock 관리자.
+            "adm_demo_gangnam", admin("adm_demo_gangnam", Set.of("br_gangnam")));
+
+    private static AdminActor admin(String adminId, Set<String> branchIds) {
+        return new AdminActor(adminId, branchIds, EVERY_ADMIN_OPERATES_PLANS);
+    }
 
     private final AssessmentStudentDirectory students;
     private final Map<String, AdminActor> admins;
@@ -53,8 +60,8 @@ public class MockHeaderAssessmentActorProvider implements AssessmentActorProvide
         DemoRoster demo = roster.getIfAvailable();
         if (demo != null) {
             demo.admins().values().forEach(admin -> {
-                // 시연 관리자는 학생 기록 열람 지점만 가진다. 평가계획서 운영 권한(OD-A08 미결)은 주지 않는다.
-                if (all.putIfAbsent(admin.adminId(), new AdminActor(admin.adminId(), admin.branchIds(), Set.of())) != null) {
+                // 시연 관리자: 학생 기록은 담당 시연 지점만, 평가계획서는 다른 관리자와 같이 모든 학교 (OD-A08 2026-11-13)
+                if (all.putIfAbsent(admin.adminId(), admin(admin.adminId(), admin.branchIds())) != null) {
                     throw new IllegalStateException("시연 관리자 ID가 기존 Mock 관리자와 겹칩니다: " + admin.adminId());
                 }
             });

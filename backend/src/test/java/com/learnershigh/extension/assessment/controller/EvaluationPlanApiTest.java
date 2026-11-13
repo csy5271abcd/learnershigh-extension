@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * 분석 결과는 테스트용 합성 데이터이며 실제 학교 평가계획서가 아니다.
  */
 @Tag("integration")
-@SpringBootTest(properties = "assessment.analysis-import.enabled=true")
+@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -86,7 +86,7 @@ class EvaluationPlanApiTest {
                         .param("schoolId", "school_001").param("academicYear", "2026")
                         .param("grade", "1").param("semester", "2"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.fileRef").doesNotExist())
+                .andExpect(jsonPath("$.fileRef").value(org.hamcrest.Matchers.startsWith("plan_file_")))
                 .andExpect(jsonPath("$.analysisStatus").value("NOT_REQUESTED"))
                 .andExpect(jsonPath("$.reviewStatus").value("UNREVIEWED"))
                 .andReturn().getResponse().getContentAsString();
@@ -141,14 +141,25 @@ class EvaluationPlanApiTest {
     }
 
     @Test
-    void 운영권한_있는_관리자만_등록하고_PDF가_아니면_415() throws Exception {
+    void 인증된_관리자만_등록하고_지원하지_않는_형식은_415() throws Exception {
         byte[] bytes = pdf(3, "a");
-        mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", "plan.pdf", "application/pdf", bytes)),
-                        "adm_gangnam")
+        // 인증 없음 → 401 (평가계획서 권한 정책이 인증을 대신하지 않는다)
+        mvc.perform(multipart(PLANS).file(new MockMultipartFile("file", "plan.pdf", "application/pdf", bytes))
                         .param("schoolId", "school_001").param("academicYear", "2026")
                         .param("grade", "1").param("semester", "2"))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpect(status().isUnauthorized());
+        // 알 수 없는 관리자 ID → 401, 학생 Header로 관리자 API → 401
+        mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", "plan.pdf", "application/pdf", bytes)),
+                        "adm_unknown")
+                        .param("schoolId", "school_001").param("academicYear", "2026")
+                        .param("grade", "1").param("semester", "2"))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(asStudent(multipart(PLANS).file(new MockMultipartFile("file", "plan.pdf", "application/pdf", bytes)),
+                        "stu_001")
+                        .param("schoolId", "school_001").param("academicYear", "2026")
+                        .param("grade", "1").param("semester", "2"))
+                .andExpect(status().isUnauthorized());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_evaluation_plan", Integer.class)).isZero();
         mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", "plan.pdf", "application/pdf",
                                 "not a pdf".getBytes())), OPERATOR)
                         .param("schoolId", "school_001").param("academicYear", "2026")
@@ -184,10 +195,13 @@ class EvaluationPlanApiTest {
 
         mvc.perform(asAdmin(get(PLANS), OPERATOR).param("schoolId", "school_001"))
                 .andExpect(jsonPath("$.items.length()").value(1));
+        // 2026-11-13 OD-A08: 모든 관리자가 모든 학교 평가계획서를 운영한다 (학생 기록 지점과 무관)
         mvc.perform(asAdmin(get(PLANS), "adm_gangnam").param("schoolId", "school_001"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1));
         mvc.perform(asAdmin(get(PLANS + "/" + uploaded.planId()), "adm_gangnam"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.revisions.length()").value(2));
     }
 
     @Test
@@ -372,12 +386,13 @@ class EvaluationPlanApiTest {
         Uploaded uploaded = register(bytes);
         String studentPlans = "/api/student/assessment/evaluation-plans";
 
+        // 확정 전: 학생에게 보이지 않는다 (2026-11-13 OD-A08 — 업로드·분석만으로 공개하지 않음)
         mvc.perform(asStudent(get(studentPlans), "stu_001").param("schoolId", "school_001")
                         .param("academicYear", "2026").param("grade", "1").param("semester", "2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[0].planId").value(uploaded.planId()))
-                .andExpect(jsonPath("$.items[0].reviewStatus").value("UNREVIEWED"))
-                .andExpect(jsonPath("$.items[0].subjects").doesNotExist());
+                .andExpect(jsonPath("$.items.length()").value(0));
+        mvc.perform(asStudent(get(studentPlans + "/" + uploaded.planId()), "stu_001"))
+                .andExpect(status().isNotFound());
         mvc.perform(asStudent(get(studentPlans), "stu_001").param("schoolId", "school_999")
                         .param("academicYear", "2026").param("grade", "1").param("semester", "2"))
                 .andExpect(status().isForbidden());
@@ -392,6 +407,13 @@ class EvaluationPlanApiTest {
                 .andExpect(jsonPath("$.details.fields[0].reason").value("not_confirmed"));
 
         confirm(uploaded, importAnalysis(uploaded, analysis(sha256(bytes), 3)));
+        mvc.perform(asStudent(get(studentPlans), "stu_001").param("schoolId", "school_001")
+                        .param("academicYear", "2026").param("grade", "1").param("semester", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].planId").value(uploaded.planId()))
+                .andExpect(jsonPath("$.items[0].reviewStatus").value("CONFIRMED"))
+                .andExpect(jsonPath("$.items[0].file.available").value(true))
+                .andExpect(jsonPath("$.items[0].subjects").doesNotExist());
 
         for (int i = 0; i < 2; i++) {
             mvc.perform(asStudent(post("/api/student/assessment/school-assessments"), "stu_001")

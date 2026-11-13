@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.ResultActions;
  * 과목 매핑(가상과학탐구 → subj_14)은 시험용 가정이다.
  */
 @Tag("integration")
-@SpringBootTest(properties = "assessment.analysis-import.enabled=true")
+@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -159,9 +159,9 @@ class AnalyzerV211ImportAndItemKeyApiTest {
                 .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[1].conditions.length()").value(1))
                 .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[1].rubric.length()").value(1));
 
+        // 2026-11-13 OD-A08: 관리자 확정 전 문서는 학생에게 공개하지 않는다 (존재도 드러내지 않음 → 404)
         String student = mvc.perform(asStudent(get("/api/student/assessment/evaluation-plans/" + revision.planId()), "stu_001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.reviewStatus").value("UNREVIEWED"))
+                .andExpect(status().isNotFound())
                 .andReturn().getResponse().getContentAsString();
         assertThat(student).doesNotContain("탐구 보고서", "가상과학탐구", "subjects");
     }

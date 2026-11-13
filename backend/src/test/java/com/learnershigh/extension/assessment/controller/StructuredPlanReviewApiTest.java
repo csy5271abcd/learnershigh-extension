@@ -38,7 +38,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * HWPX: 합성 HWPX + 초안 수신 JSON. HWP: 서명 검사용 합성 바이트(실제 한글 문서 아님) + 같은 초안을 HWP Locator로 바꾼 JSON.
  */
 @Tag("integration")
-@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.multiformat.experimental=true",
+@SpringBootTest(properties = {"assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage", "assessment.analysis-import.enabled=true", "assessment.multiformat.experimental=true",
         "assessment.plan-review.structured-confirm-dev=true"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")

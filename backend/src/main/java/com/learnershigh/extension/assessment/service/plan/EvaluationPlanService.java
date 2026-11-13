@@ -10,9 +10,11 @@ import com.learnershigh.extension.assessment.entity.PlanAnalysisStatus;
 import com.learnershigh.extension.assessment.entity.PlanReview;
 import com.learnershigh.extension.assessment.entity.PlanDocumentFormat;
 import com.learnershigh.extension.assessment.entity.PlanRevision;
+import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
 import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.integration.context.AcademicContextProvider;
 import com.learnershigh.extension.assessment.integration.context.AcademicContextRecord;
+import com.learnershigh.extension.assessment.integration.storage.PlanDocumentStorage;
 import com.learnershigh.extension.assessment.repository.EvaluationPlanRepository;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewRepository;
@@ -35,6 +37,8 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -62,13 +66,14 @@ public class EvaluationPlanService {
     private final AssessmentTimes times;
     private final JsonMapper mapper;
     private final AcademicContextProvider contexts;
+    private final PlanDocumentStorage storage;
     /** HWP·HWPX 공식 확정 허용(통제된 개발·합성 시험 전용). 기본 false — 실제 관리자 인증 연동 전 운영에서 켜지 않는다. */
     private final boolean structuredConfirmEnabled;
 
     public EvaluationPlanService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
             PlanAnalysisRunRepository runs, PlanReviewRepository reviews, PlanAccess access, PlanViews views,
             DocumentFormatInspector formatInspector, AnalysisImportValidator importValidator, AssessmentTimes times,
-            JsonMapper mapper, AcademicContextProvider contexts,
+            JsonMapper mapper, AcademicContextProvider contexts, PlanDocumentStorage storage,
             @Value("${assessment.plan-review.structured-confirm-dev:false}") boolean structuredConfirmEnabled) {
         this.plans = plans;
         this.revisions = revisions;
@@ -81,6 +86,7 @@ public class EvaluationPlanService {
         this.times = times;
         this.mapper = mapper;
         this.contexts = contexts;
+        this.storage = storage;
         this.structuredConfirmEnabled = structuredConfirmEnabled;
     }
 
@@ -91,7 +97,7 @@ public class EvaluationPlanService {
     /** §38 POST: 슬롯에 새 문서 + 첫 Revision. */
     public PlanUploadResponse register(AdminActor admin, String schoolId, int academicYear, int grade, int semester,
             UploadedPdf file) {
-        access.requireSchool(admin, schoolId);
+        access.requireOperator(admin);
         DocumentFormatInspector.Inspection inspection = formatInspector.inspect(file.bytes());
         Instant now = times.now();
         EvaluationPlan plan = plans.save(EvaluationPlan.register(schoolId, academicYear, grade, semester,
@@ -106,15 +112,37 @@ public class EvaluationPlanService {
         return upload(admin, plan, file, inspection, times.now());
     }
 
+    /**
+     * 원문 바이트를 Storage에 먼저 저장하고 Revision에 저장 키를 남긴다(S-4·S-5 승인). DB 저장이 실패(Rollback)하면 방금 쓴 파일을
+     * 지운다(결과물 업로드와 같은 보상 방식). 같은 문서(Plan)에 같은 SHA-256 파일을 다시 올리면 409 — 슬롯(학교·학년도·학년·학기)에
+     * 여러 문서를 두는 것은 계약 §38대로 허용하므로 슬롯 단위 Unique는 두지 않는다.
+     */
     private PlanUploadResponse upload(AdminActor admin, EvaluationPlan plan, UploadedPdf file,
             DocumentFormatInspector.Inspection inspection, Instant now) {
+        if (revisions.existsByPlanIdAndSha256(plan.id(), inspection.sha256())) {
+            throw BusinessException.withFields(AssessmentErrorCode.PLAN_FILE_DUPLICATE,
+                    new FieldViolation("file", "duplicate_revision"));
+        }
         int number = plan.reserveNextRevisionNumber();
+        String storageKey = storage.store(file.bytes());
+        deleteOnRollback(storageKey);
         PlanRevision revision = revisions.save(PlanRevision.upload(plan.id(), number, file.fileName(),
                 inspection.format().contentType(), inspection.sizeBytes(), inspection.sha256(), inspection.pageCount(),
-                file.sourceUrl(), admin.adminId(), now));
+                storageKey, file.sourceUrl(), admin.adminId(), now));
         plans.flush();
         return new PlanUploadResponse(plan.id(), revision.id(), plan.schoolId(), plan.academicYear(), plan.grade(),
-                plan.semester(), revision.fileRef(), PlanViews.NOT_REQUESTED, revision.reviewStatus().name());
+                plan.semester(), PlanViews.fileRef(revision), PlanViews.NOT_REQUESTED, revision.reviewStatus().name());
+    }
+
+    private void deleteOnRollback(String storageKey) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status != STATUS_COMMITTED) {
+                    storage.deleteQuietly(storageKey);
+                }
+            }
+        });
     }
 
     /** 분석 수신 결과. created=false면 같은 Revision에 같은 내용이 이미 저장되어 있었다(재시도). */

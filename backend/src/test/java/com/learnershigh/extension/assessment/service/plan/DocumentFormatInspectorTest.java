@@ -77,11 +77,14 @@ public class DocumentFormatInspectorTest {
     }
 
     @Test
-    void 실험_기능이_꺼져_있으면_기존처럼_PDF만_받는다() throws IOException {
-        byte[] hwpx = fixture();
-        assertThatThrownBy(() -> off.inspect(hwpx)).isInstanceOf(BusinessException.class)
-                .satisfies(error -> assertThat(reason(() -> off.inspect(hwpx))).isEqualTo("UNSUPPORTED_FILE_TYPE"));
-        assertThat(reason(() -> off.inspect(hwpSignatureBytes(5, 0)))).isEqualTo("UNSUPPORTED_FILE_TYPE");
+    void 실험_기능과_무관하게_HWP_HWPX_원문은_판별해_받는다_분석_필드_허용만_실험_기능이다() throws IOException {
+        // 2026-11-13 S-4·S-5: 원문 등록·보관은 PDF·HWP·HWPX 모두. 실험 Flag는 분석 결과 수신 필드 허용에만 쓴다.
+        assertThat(off.inspect(fixture()).format()).isEqualTo(PlanDocumentFormat.HWPX);
+        assertThat(off.inspect(hwpSignatureBytes(5, 0)).format()).isEqualTo(PlanDocumentFormat.HWP);
+        assertThat(off.experimentalEnabled()).isFalse();
+        assertThat(on.experimentalEnabled()).isTrue();
+        // 검사 규칙(암호·배포용 등)은 Flag와 무관하게 같다
+        assertThat(reason(() -> off.inspect(hwpSignatureBytes(5, 0x2)))).contains("encrypted");
     }
 
     @Test
@@ -122,7 +125,7 @@ public class DocumentFormatInspectorTest {
     void 알수없는_형식과_빈_파일은_거절하고_PDF는_기존과_같다() {
         assertThat(reason(() -> on.inspect("plain text".getBytes(StandardCharsets.UTF_8)))).contains("not_supported_format");
         assertThat(reason(() -> on.inspect(new byte[0]))).contains("not_supported_format");
-        assertThat(reason(() -> off.inspect(new byte[0]))).isEqualTo("UNSUPPORTED_FILE_TYPE");
+        assertThat(reason(() -> off.inspect(new byte[0]))).contains("UNSUPPORTED_FILE_TYPE").contains("not_supported_format");
         assertThat(reason(() -> on.inspect("%PDF-1.4 broken".getBytes(StandardCharsets.US_ASCII)))).isEqualTo("PDF_EXTRACTION_FAILED");
     }
 

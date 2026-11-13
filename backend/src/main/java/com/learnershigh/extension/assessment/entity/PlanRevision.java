@@ -11,7 +11,8 @@ import java.util.UUID;
 
 /**
  * 평가계획서 문서의 한 Revision (원본 파일 메타데이터). 등록 뒤 파일 정보는 바뀌지 않는다.
- * 원본 바이트 저장은 File Storage 미결(API-OD-A03)이라 하지 않는다: fileRef는 null이고 SHA-256·크기·쪽수만 남긴다.
+ * fileRef: 원문 바이트의 Storage 저장 키(2026-11-13 S-4·S-5 승인 이후 등록분). 그 이전 등록분은 원문을 보관하지 않아 null이며,
+ * 다른 파일을 만들어 연결하지 않는다(원문 없음으로 응답). 저장 키는 API 응답에 그대로 내보내지 않는다.
  */
 @Entity
 @Table(name = "assessment_plan_revision")
@@ -62,7 +63,8 @@ public class PlanRevision {
     }
 
     public static PlanRevision upload(String planId, int revisionNumber, String fileName, String contentType,
-            long sizeBytes, String sha256, Integer pageCount, String sourceUrl, String adminId, Instant now) {
+            long sizeBytes, String sha256, Integer pageCount, String storageKey, String sourceUrl, String adminId,
+            Instant now) {
         PlanRevision revision = new PlanRevision();
         revision.id = "plan_rev_" + UUID.randomUUID();
         revision.planId = planId;
@@ -72,7 +74,7 @@ public class PlanRevision {
         revision.sizeBytes = sizeBytes;
         revision.sha256 = sha256;
         revision.pageCount = pageCount;
-        revision.fileRef = null;
+        revision.fileRef = storageKey;
         revision.sourceUrl = sourceUrl;
         revision.reviewStatus = PlanReviewStatus.UNREVIEWED;
         revision.uploadedBy = adminId;
@@ -122,8 +124,18 @@ public class PlanRevision {
         return pageCount;
     }
 
+    /** Storage 저장 키 (원문이 없으면 null). 응답에는 내보내지 않는다. */
     public String fileRef() {
         return fileRef;
+    }
+
+    /** 원문 바이트를 보관하고 있는가 (S-4 이전 등록분은 false). */
+    public boolean hasStoredFile() {
+        return fileRef != null;
+    }
+
+    public String contentType() {
+        return contentType;
     }
 
     public String sourceUrl() {

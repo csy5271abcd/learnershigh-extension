@@ -17,8 +17,9 @@ import org.springframework.stereotype.Component;
 /**
  * 평가계획서 원본 형식 판별·검사 (PDF / HWP / HWPX). 확장자·Content-Type 헤더가 아니라 실제 바이트로 판별한다.
  *
- * <p>HWP·HWPX는 실험 기능이다: {@code assessment.multiformat.experimental=true}일 때만 받는다(기본 false).
- * 꺼져 있으면 PDF가 아닌 파일은 지금과 같이 415다. 형식을 확인했다는 것은 "등록 가능"일 뿐 "분석 가능"을 뜻하지 않는다.
+ * <p>원문 등록·보관은 PDF·HWP·HWPX 모두 받는다(2026-11-13 S-4·S-5 승인: 평가계획서 원문 저장). 형식을 확인했다는 것은
+ * "등록·보관 가능"일 뿐 "분석·확정 가능"을 뜻하지 않는다. HWP·HWPX 분석 결과 수신 필드(source.format·documentLocator)와
+ * 공식 확정은 계속 실험 기능({@code assessment.multiformat.experimental}, 기본 false)·별도 Flag 뒤에 있다(S-8 미결).
  *
  * <ul>
  *   <li>HWP: OLE 복합 문서 서명 + 한글 5.x FileHeader 서명("HWP Document File")·버전·속성(암호·배포용)을 확인한다.
@@ -53,6 +54,7 @@ public class DocumentFormatInspector {
     public record Inspection(PlanDocumentFormat format, String sha256, Integer pageCount, long sizeBytes) {
     }
 
+    /** 분석 결과 수신의 HWP·HWPX 필드 허용 여부 (등록·보관 허용과 별개). */
     public boolean experimentalEnabled() {
         return experimental;
     }
@@ -61,8 +63,8 @@ public class DocumentFormatInspector {
         if (bytes.length > PdfInspector.MAX_BYTES) {
             throw new BusinessException(AssessmentErrorCode.FILE_TOO_LARGE);
         }
-        if (startsWith(bytes, PDF_MAGIC) || !experimental) {
-            // PDF 경로와 실험 기능이 꺼진 경우는 기존 PdfInspector와 완전히 같은 동작이다.
+        if (startsWith(bytes, PDF_MAGIC)) {
+            // PDF 경로는 기존 PdfInspector와 완전히 같은 동작이다.
             PdfInspector.Inspection pdf = pdfInspector.inspect(bytes);
             return new Inspection(PlanDocumentFormat.PDF, pdf.sha256(), pdf.pageCount(), pdf.sizeBytes());
         }

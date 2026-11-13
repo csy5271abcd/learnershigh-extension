@@ -93,7 +93,8 @@ class DemoRosterTest {
         expected.forEach((id, branches) -> {
             AdminActor actor = auth.currentAdmin(admin(id)).orElseThrow();
             assertThat(actor.branchIds()).isEqualTo(branches);
-            assertThat(actor.planOperationSchoolIds()).isEmpty();
+            // 2026-11-13 OD-A08: 시연 관리자도 모든 학교 평가계획서를 운영한다 (학생 기록 지점은 그대로 한 곳)
+            assertThat(actor.canOperateEvaluationPlans()).isTrue();
         });
         assertThat(roster.admins().values()).allSatisfy(a -> assertThat(a.branchIds()).hasSize(1));
         // 기존 Mock 관리자 범위는 그대로

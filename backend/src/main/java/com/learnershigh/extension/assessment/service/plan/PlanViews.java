@@ -4,8 +4,10 @@ import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanRespons
 import com.learnershigh.extension.assessment.dto.plan.ConfirmedFieldView;
 import com.learnershigh.extension.assessment.dto.plan.SourceReviewView;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanFileView;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisRun;
+import com.learnershigh.extension.assessment.entity.PlanDocumentFormat;
 import com.learnershigh.extension.assessment.entity.PlanReview;
 import com.learnershigh.extension.assessment.entity.PlanRevision;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
@@ -27,6 +29,7 @@ import tools.jackson.databind.json.JsonMapper;
 public class PlanViews {
 
     public static final String NOT_REQUESTED = "NOT_REQUESTED";
+    private static final String FILE_REF_PREFIX = "plan_file_";
 
     private final PlanRevisionRepository revisions;
     private final PlanAnalysisRunRepository runs;
@@ -94,10 +97,27 @@ public class PlanViews {
     private AdminEvaluationPlanResponse.Revision revision(PlanRevision revision, PlanAnalysisRun run,
             PlanReview review) {
         return new AdminEvaluationPlanResponse.Revision(revision.id(), revision.revisionNumber(), revision.fileName(),
-                revision.fileRef(), revision.sizeBytes(), revision.pageCount(), revision.sourceUrl(),
+                fileRef(revision), revision.sizeBytes(), revision.pageCount(), revision.sourceUrl(),
                 times.toOffset(revision.uploadedAt()), run == null ? NOT_REQUESTED : run.status().name(),
                 revision.reviewStatus().name(), review == null ? List.of() : confirmedFields(review),
-                revision.sha256(), revision.format().name(), review == null ? null : sourceReview(review));
+                revision.sha256(), revision.format().name(), review == null ? null : sourceReview(review),
+                file(revision));
+    }
+
+    /** 불투명 파일 참조 (저장 키를 내보내지 않는다). 원문이 없으면 null. */
+    public static String fileRef(PlanRevision revision) {
+        return revision.hasStoredFile() ? FILE_REF_PREFIX + revision.id() : null;
+    }
+
+    /** 원문 미리보기 가능 여부: 보관된 PDF 원문만. HWP·HWPX 변환 Rendition은 아직 없다(검증된 엔진 없음). */
+    public static boolean previewAvailable(PlanRevision revision) {
+        return revision.hasStoredFile() && revision.format() == PlanDocumentFormat.PDF;
+    }
+
+    public static PlanFileView file(PlanRevision revision) {
+        return new PlanFileView(fileRef(revision), revision.fileName(), revision.contentType(), revision.sizeBytes(),
+                revision.sha256(), revision.format().name(), revision.pageCount(), revision.hasStoredFile(),
+                previewAvailable(revision));
     }
 
     /** HWP·HWPX 검토 기록. PDF 검토(원문 확인 기록 없음)는 null → 응답에서 빠진다. */

@@ -11,4 +11,7 @@ public interface PlanRevisionRepository extends JpaRepository<PlanRevision, Stri
 
     @Query("select r from PlanRevision r where r.planId in :planIds order by r.planId, r.revisionNumber asc")
     List<PlanRevision> findByPlanIds(@Param("planIds") Collection<String> planIds);
+
+    /** 같은 문서(Plan)에 같은 원문(SHA-256)이 이미 개정본으로 있는가. */
+    boolean existsByPlanIdAndSha256(String planId, String sha256);
 }

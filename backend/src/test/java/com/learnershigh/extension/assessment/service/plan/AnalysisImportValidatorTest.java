@@ -21,7 +21,7 @@ class AnalysisImportValidatorTest {
 
     static final String SHA = "a".repeat(64);
     final AnalysisImportValidator validator = new AnalysisImportValidator();
-    final PlanRevision revision = PlanRevision.upload("plan_1", 1, "p.pdf", "application/pdf", 10, SHA, 5, null,
+    final PlanRevision revision = PlanRevision.upload("plan_1", 1, "p.pdf", "application/pdf", 10, SHA, 5, null, null,
             "adm", Instant.parse("2026-11-09T00:00:00Z"));
 
     static List<Locator> page(int page) {

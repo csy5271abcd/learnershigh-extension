@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * 검토 확정은 합성 데이터 기반 API 시험이며 실제 사람 검토가 아니다.
  */
 @Tag("integration")
-@SpringBootTest(properties = "assessment.analysis-import.enabled=true")
+@SpringBootTest(properties = {"assessment.analysis-import.enabled=true", "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
@@ -98,7 +98,8 @@ class AnalyzerV21SyntheticImportApiTest {
                 "select sha256, page_count, file_ref from assessment_plan_revision where id = ?", revisionId);
         assertThat(revision.get("sha256")).isEqualTo(sha);
         assertThat(revision.get("page_count")).isEqualTo(2);
-        assertThat(revision.get("file_ref")).isNull();
+        // S-4 (2026-11-13): 원문을 Storage에 보관하고 저장 키(UUID)를 남긴다
+        assertThat((String) revision.get("file_ref")).matches("[0-9a-f-]{36}");
 
         String base = PLANS + "/" + planId + "/revisions/" + revisionId;
         String imported = mvc.perform(asAdmin(post(base + "/analysis-imports"), OPERATOR)
@@ -131,19 +132,16 @@ class AnalyzerV21SyntheticImportApiTest {
                 .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[1].content").doesNotExist())
                 .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[1].rubric").isEmpty());
 
-        // 학생: 문서는 보이지만 AI 후보는 없음, 미확정 항목 참조 불가
+        // 학생: 관리자 확정 전 문서는 목록·상세 모두 보이지 않는다(2026-11-13 OD-A08), AI 후보 없음, 미확정 항목 참조 불가
         String studentList = mvc.perform(asStudent(get("/api/student/assessment/evaluation-plans")
                         .param("schoolId", "school_001").param("academicYear", "2026")
                         .param("grade", "1").param("semester", "1"), "stu_001"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[0].reviewStatus").value("UNREVIEWED"))
+                .andExpect(jsonPath("$.items.length()").value(0))
                 .andReturn().getResponse().getContentAsString();
         assertThat(studentList).doesNotContain("탐구 보고서", "extractedText", "subjects");
         mvc.perform(asStudent(get("/api/student/assessment/evaluation-plans/" + planId), "stu_001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.planId").value(planId))
-                .andExpect(jsonPath("$.reviewStatus").value("UNREVIEWED"))
-                .andExpect(jsonPath("$.subjects").doesNotExist());
+                .andExpect(status().isNotFound());
         String reference = """
                 {"title":"탐구 보고서","subjectId":"subj_12","academicYear":2026,"semester":1,
                  "evaluationItemRef":{"documentRevisionId":"%s","subjectId":"subj_12","itemKey":"P01"}}""".formatted(revisionId);

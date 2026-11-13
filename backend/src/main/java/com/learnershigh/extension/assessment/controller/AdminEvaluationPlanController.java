@@ -19,8 +19,10 @@ import jakarta.validation.constraints.Size;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -85,6 +87,20 @@ public class AdminEvaluationPlanController {
         return service.addRevision(admin, planId, uploaded(file, sourceUrl));
     }
 
+    /** S-4: Revision 원문 내려받기(형식 그대로, attachment). 크기·SHA-256 재확인 후 내보낸다. */
+    @GetMapping(path = "/{planId}/revisions/{revisionId}/file", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> file(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return FileResponses.attachment(queryService.adminFile(admin, planId, revisionId, false));
+    }
+
+    /** S-4: 서비스 안 미리보기(inline). 현재 PDF 원문만, HWP·HWPX는 415 PREVIEW_UNAVAILABLE(변환 Rendition 없음). */
+    @GetMapping(path = "/{planId}/revisions/{revisionId}/preview", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> preview(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return FileResponses.inline(queryService.adminFile(admin, planId, revisionId, true));
+    }
+
     @GetMapping("/{planId}/revisions/{revisionId}/analysis")
     public PlanAnalysisResponse analysis(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId) {
@@ -115,6 +131,8 @@ public class AdminEvaluationPlanController {
                 : file.getOriginalFilename();
         name = name.replace('\\', '/');
         name = name.substring(name.lastIndexOf('/') + 1);
+        // 제어 문자(줄바꿈 등)는 Content-Disposition·로그에 섞이지 않게 바꾼다
+        name = name.replaceAll("\\p{Cntrl}", "_");
         return name.length() > 200 ? name.substring(0, 200) : name;
     }
 }
