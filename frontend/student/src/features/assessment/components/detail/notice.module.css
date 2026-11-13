@@ -135,7 +135,7 @@
   color: var(--as-color-text-tertiary);
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

@@ -2,7 +2,6 @@ import { Link } from 'react-router'
 import type { UniversityExamDocument, UniversityExamFileState } from '../../api/types.ts'
 import { documentHighlights, examCategoryLabels } from '../../model/universityExamView.ts'
 import { universityExamDocumentPath } from '../../routes/paths.ts'
-import { PlusIcon } from '../AssessmentIcons.tsx'
 import styles from './university.module.css'
 
 interface UniversityExamRowProps {
@@ -10,7 +9,6 @@ interface UniversityExamRowProps {
   fileState: UniversityExamFileState
   /** 목록 조건 (원문 보기에서 돌아올 때 그대로) */
   listSearch: string
-  onStartTask: (document: UniversityExamDocument) => void
 }
 
 const fileStateLabels: Partial<Record<UniversityExamFileState, string>> = {
@@ -26,7 +24,7 @@ function subjectSummary(subjects: string[]): string {
 
 // 대학별 기출 PDF 목록 한 줄 (Daglo 전체 보드 목록의 정보 위계 참고: 제목 중심, 부가 정보는 작은 회색 글씨, 열 정렬).
 // 제목을 누르면 원문이 열린다. PDF 보기·탐구 시작은 같은 무게의 보조 동작이다.
-export function UniversityExamRow({ document, fileState, listSearch, onStartTask }: UniversityExamRowProps) {
+export function UniversityExamRow({ document, fileState, listSearch }: UniversityExamRowProps) {
   const highlights = documentHighlights(document, 6)
   const fileLabel = fileStateLabels[fileState]
   const viewerPath = universityExamDocumentPath(document.documentId)
@@ -60,10 +58,6 @@ export function UniversityExamRow({ document, fileState, listSearch, onStartTask
         <Link className={styles.quietButton} to={viewerPath} state={{ listSearch }} aria-label={`${document.title} PDF 보기`}>
           PDF 보기
         </Link>
-        <button type="button" className={styles.quietButton} aria-label={`${document.title}로 탐구 시작`} onClick={() => onStartTask(document)}>
-          <PlusIcon size={13} />
-          탐구 시작
-        </button>
       </div>
     </li>
   )

@@ -1,4 +1,6 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { useNavigate } from 'react-router'
 import { toApiError } from '../../api/apiError.ts'
 import { listEvaluationPlans, requestEvaluationPlanAnalysis, uploadEvaluationPlan } from '../../api/evaluationPlansApi.ts'
@@ -13,6 +15,7 @@ import formStyles from '../AddSchoolAssessmentModal.module.css'
 import { AlertIcon, CheckIcon, FileIcon, InfoIcon, UploadIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
 import { ErrorState, LoadingRows } from '../StateViews.tsx'
+import { AnalysisPreviewModal } from './AnalysisPreviewModal.tsx'
 import styles from './pdfImport.module.css'
 
 type Selection = { kind: 'plan'; plan: EvaluationPlan } | { kind: 'file'; file: File }
@@ -34,7 +37,7 @@ interface PdfImportModalProps {
 // 왼쪽: 내 PDF 선택(끌어 놓기·선택) + 학교 공통 평가계획서(§10-1, 시연 데이터). 오른쪽: 가져오기 안내.
 // 공통 문서는 분석 요청(§11 POST) 뒤 결과 검토 화면으로 간다. 내 PDF는 업로드(§10-2, Mock: 메타데이터만) 후
 // 분석 요청을 보내지만 분석 엔진이 없어 실패로 끝난다 — 임의 결과를 내 PDF의 추출값처럼 보여주지 않는다.
-export function PdfImportModal({ onClose, onManualAdd }: PdfImportModalProps) {
+function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
   const { selectedContext } = useAssessmentWorkspace()
   const navigate = useNavigate()
   const inputId = useId()
@@ -355,4 +358,20 @@ export function PdfImportModal({ onClose, onManualAdd }: PdfImportModalProps) {
       )}
     </Modal>
   )
+}
+
+/**
+ * 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다.
+ * 개발 Flag(`VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW=true`, 개발 서버 전용)일 때만 로컬 분석기 미리보기 Modal을 연다.
+ * Flag가 없으면(기본 시연 환경·Production) 기존 Modal 그대로다.
+ */
+export function PdfImportModal(props: Parameters<typeof PdfImportModalForm>[0]) {
+  if (isAssessmentReadOnlyView()) return <ReadOnlyBlockedModal onClose={props.onClose} />
+  return import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true' ? <PreviewOrOfficial {...props} /> : <PdfImportModalForm {...props} />
+}
+
+/** 개발 Flag: 내 파일 분석(미리보기)을 먼저 보여 주고, 학교 공통 평가계획서(공식)는 기존 화면으로 바꿔 고른다 */
+function PreviewOrOfficial(props: Parameters<typeof PdfImportModalForm>[0]) {
+  const [official, setOfficial] = useState(false)
+  return official ? <PdfImportModalForm {...props} /> : <AnalysisPreviewModal {...props} onUseOfficialPlans={() => setOfficial(true)} />
 }

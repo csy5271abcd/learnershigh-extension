@@ -200,7 +200,7 @@
 }
 
 /* 오른쪽 패널을 둘 폭이 없으면 한 열로 쌓고, 페이지 전체가 스크롤된다. */
-@media (max-width: 1279px) {
+@container assessment (max-width: 1279px) {
   .body {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -221,7 +221,7 @@
   }
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .propRow {
     grid-template-columns: 104px minmax(0, 1fr);
   }
@@ -233,7 +233,7 @@
 }
 
 /* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
-@media (max-width: 820px) {
+@container assessment (max-width: 820px) {
   .editInfoButton {
     min-height: 24px;
   }

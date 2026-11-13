@@ -10,10 +10,12 @@ interface StatusSelectProps {
   assessmentTitle: string
   pending: boolean
   onChange: (next: SchoolAssessmentStatus) => void
+  /** 관리자 읽기 전용 보기(P-28): 같은 자리·같은 모양으로 두되 바꿀 수 없다 */
+  disabled?: boolean
 }
 
 // 학생 자기 관리 상태 선택 (§13). 되돌리기 선택지는 정책 확정 전이라 비활성 + 사유 표시 (MM-01).
-export function StatusSelect({ status, assessmentTitle, pending, onChange }: StatusSelectProps) {
+export function StatusSelect({ status, assessmentTitle, pending, onChange, disabled = false }: StatusSelectProps) {
   const hintId = useId()
   const hasLockedOption = schoolAssessmentStatuses.some((option) => !isStatusTransitionAllowed(status, option))
   return (
@@ -22,7 +24,8 @@ export function StatusSelect({ status, assessmentTitle, pending, onChange }: Sta
       <select
         className={styles.select}
         value={status}
-        disabled={pending}
+        disabled={pending || disabled}
+        title={disabled ? '관리자 읽기 전용 보기에서는 상태를 바꿀 수 없어요' : undefined}
         aria-label={`${assessmentTitle} 진행 상태`}
         aria-describedby={hasLockedOption ? hintId : undefined}
         aria-busy={pending}

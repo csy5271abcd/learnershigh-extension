@@ -1,9 +1,11 @@
+import { isMockDataSource } from '../api/dataSource.ts'
 import { useCallback, useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { Link, useBlocker, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { listArtifacts } from '../api/assessmentDetailApi.ts'
 import { getEnrichmentTask, listEnrichmentTasks } from '../api/enrichmentApi.ts'
-import { createGrowthRecord, getGrowthRecord, updateGrowthRecord } from '../api/growthArchiveApi.ts'
+import { createGrowthRecord, getGrowthRecord, trashGrowthRecord, updateGrowthRecord } from '../api/growthArchiveApi.ts'
 import { getSchoolAssessment } from '../api/schoolAssessmentApi.ts'
 import type { AssessmentSourceType, CreateGrowthRecordRequest, GrowthRecord, UpdateGrowthRecordRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
@@ -75,7 +77,7 @@ function Frame({ children, toast, onDismissToast }: { children: ReactNode; toast
 }
 
 /** /assessment/growth/new?sourceType=&sourceId= (상세 더보기 "성장 기록에 남기기"에서 관련 활동을 채워 연다) */
-export function GrowthRecordNewRoute() {
+function GrowthRecordNewForm() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { notifyDataChanged } = useAssessmentWorkspace()
@@ -127,6 +129,7 @@ export function GrowthRecordNewRoute() {
 export function GrowthRecordDetailRoute() {
   const { recordId = '' } = useParams()
   const location = useLocation()
+  const navigate = useNavigate()
   const { terms, notifyDataChanged } = useAssessmentWorkspace()
   const [version, setVersion] = useState(0)
   const detail = useApiQuery(`gr-detail|${recordId}|${version}`, () => getGrowthRecord(recordId))
@@ -195,10 +198,29 @@ export function GrowthRecordDetailRoute() {
         ) : (
           <>
             <div className={styles.detailActions}>
-              <button type="button" className={enrichmentStyles.outlineButton} onClick={() => setEditing(true)}>
+              <button type="button" className={enrichmentStyles.outlineButton} disabled={isAssessmentReadOnlyView()} onClick={() => setEditing(true)}>
                 <PencilIcon size={14} />
                 수정
               </button>
+              {!isAssessmentReadOnlyView() && !isMockDataSource && (
+                <button
+                  type="button"
+                  className={enrichmentStyles.outlineButton}
+                  data-testid="trash-growth"
+                  onClick={() => {
+                    if (!window.confirm(`'${record.title}' 성장 기록을 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                    trashGrowthRecord(record.recordId).then(
+                      () => {
+                        notifyDataChanged()
+                        navigate(growthPath)
+                      },
+                      (error: Error) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone: 'error', text: `옮기지 못했어요. ${error.message}` })),
+                    )
+                  }}
+                >
+                  휴지통으로 이동
+                </button>
+              )}
               {related && (
                 <Link to={related} className={enrichmentStyles.outlineButton}>
                   <LinkIcon size={14} />
@@ -612,5 +634,15 @@ function GrowthRecordForm({ initial, submitLabel, onCancel, onSubmit }: GrowthRe
         </Modal>
       )}
     </form>
+  )
+}
+
+/** 새 성장 기록 쓰기. 관리자 읽기 전용 보기(P-28)에서는 주소로 직접 들어와도 입력 폼을 그리지 않는다 */
+export function GrowthRecordNewRoute() {
+  if (!isAssessmentReadOnlyView()) return <GrowthRecordNewForm />
+  return (
+    <main className={enrichmentStyles.page}>
+      <EmptyState title="읽기 전용 보기예요" description="성장 기록 작성은 학생 본인 화면에서만 할 수 있어요." action={<Link to={growthPath}>성장 기록 목록으로</Link>} />
+    </main>
   )
 }

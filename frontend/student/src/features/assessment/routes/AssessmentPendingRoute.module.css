@@ -23,7 +23,7 @@
   text-decoration: none;
 }
 
-@media (max-width: 959px) {
+@container assessment (max-width: 959px) {
   .page {
     padding: 18px 16px 48px;
   }

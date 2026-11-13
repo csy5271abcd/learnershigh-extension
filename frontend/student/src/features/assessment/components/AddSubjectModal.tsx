@@ -1,4 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from './ReadOnlyBlockedModal.tsx'
 import { createStudentSubject, updateAcademicContext } from '../api/academicContextApi.ts'
 import { toApiError } from '../api/apiError.ts'
 import type { AcademicContext, SubjectRef } from '../api/types.ts'
@@ -29,7 +31,7 @@ interface AddSubjectModalProps {
 // - 다른 학기에서 쓰던 과목 고르기 → §9-2 PUT subjectIds (계약 범위, 같은 subjectId 재사용)
 // - 이름 직접 입력 → createStudentSubject (P-26 PROPOSED, Mock 전용·이 브라우저에 저장)
 // 학교 공식 개설 과목 목록이 없으므로 추천 과목을 만들어 보여주지 않는다.
-export function AddSubjectModal({ context, candidates, onClose, onAdded }: AddSubjectModalProps) {
+function AddSubjectModalForm({ context, candidates, onClose, onAdded }: AddSubjectModalProps) {
   const ids = { name: useId(), hint: useId(), error: useId() }
   const inputRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
@@ -184,4 +186,9 @@ export function AddSubjectModal({ context, candidates, onClose, onAdded }: AddSu
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function AddSubjectModal(props: Parameters<typeof AddSubjectModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <AddSubjectModalForm {...props} />
 }

@@ -54,6 +54,9 @@ import {
   schoolAssessmentDetailPath,
 } from './paths.ts'
 
+/** 개발 분석 미리보기 Flag일 때만 이름이 바뀐다 (기본 시연은 그대로 "PDF 가져오기") */
+const pdfActionLabel = (import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true') ? '평가계획서 가져오기' : 'PDF 가져오기'
+
 type QuickAction = {
   label: string
   icon: ComponentType<{ size?: number }>
@@ -88,8 +91,8 @@ export function AssessmentHomeRoute() {
 
   const quickActions: QuickAction[] = [
     selectedContext
-      ? { label: 'PDF 가져오기', icon: PdfImportArt, onClick: () => setPdfOpen(true) }
-      : { label: 'PDF 가져오기', icon: PdfImportArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
+      ? { label: pdfActionLabel, icon: PdfImportArt, onClick: () => setPdfOpen(true) }
+      : { label: pdfActionLabel, icon: PdfImportArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
     selectedContext
       ? { label: '수행평가 추가', icon: AddAssessmentArt, onClick: () => setAddOpen(true) }
       : { label: '수행평가 추가', icon: AddAssessmentArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },

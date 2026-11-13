@@ -117,3 +117,13 @@
 .lh-assessment ::placeholder {
   color: var(--as-color-placeholder);
 }
+
+/*
+ * Assessment 화면 본체 = 반응형 기준 Container (2026-10-29).
+ * 폭에 따른 배치(@container assessment)는 브라우저 창이 아니라 이 본체의 실제 폭을 따른다.
+ * 학생 앱에서는 본체 폭이 곧 화면 폭이라 배치가 같고, Admin "학생 화면 보기"처럼 다른 화면 안에 들어가도 같은 폭의 학생 화면과 똑같이 배치된다.
+ * 화면 전체를 덮는 Modal과 화면 왼쪽에 고정되는 Sidebar Drawer는 창 기준(@media)을 유지한다.
+ */
+.lh-assessment {
+  container: assessment / inline-size;
+}

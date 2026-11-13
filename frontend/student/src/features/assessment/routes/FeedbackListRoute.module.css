@@ -109,7 +109,7 @@
   color: var(--as-color-text-tertiary);
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .page {
     padding: 20px 16px 48px;
   }

@@ -458,7 +458,7 @@
   margin-top: 40px;
 }
 
-@media (max-width: 820px) {
+@container assessment (max-width: 820px) {
   .page {
     padding: 0 16px 48px;
   }
@@ -476,7 +476,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@container assessment (max-width: 480px) {
   .title {
     font-size: 22px;
     line-height: 30px;

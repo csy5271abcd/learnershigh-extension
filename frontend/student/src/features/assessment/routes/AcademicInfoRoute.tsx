@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { useNavigate } from 'react-router'
 import { updateAcademicContext } from '../api/academicContextApi.ts'
 import { toApiError, type ApiError } from '../api/apiError.ts'
@@ -298,7 +299,7 @@ function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable, onAdd
           </>
         ) : (
           <>
-            <button type="button" className={styles.softButton} onClick={() => setEditing(true)}>
+            <button type="button" className={styles.softButton} disabled={isAssessmentReadOnlyView()} onClick={() => setEditing(true)}>
               정보 수정
             </button>
             <button

@@ -486,7 +486,7 @@
 }
 
 /* Tablet 이하 */
-@media (max-width: 959px) {
+@container assessment (max-width: 959px) {
   .toolbar {
     padding: 12px 20px 0;
   }
@@ -559,7 +559,7 @@
 }
 
 /* Mobile: 표를 카드형 행으로 바꾼다 (frontend-student.md §16). Mockup이 없어 Daglo 목록 밀도를 따른다. */
-@media (max-width: 719px) {
+@container assessment (max-width: 719px) {
   .toolbar {
     flex-wrap: wrap;
     padding: 12px 16px 0;
@@ -637,7 +637,7 @@
 }
 
 /* AUD-042 (2026-10-27 승인): 모바일에서 실제 누를 수 있는 영역을 24px 이상으로 둔다. 보이는 글자 크기는 그대로. */
-@media (max-width: 820px) {
+@container assessment (max-width: 820px) {
   .rowLink {
     display: inline-block;
     min-height: 24px;

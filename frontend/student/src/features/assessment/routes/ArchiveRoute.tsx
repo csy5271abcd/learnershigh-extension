@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
-import { listArchive, setArchiveFavorite } from '../api/growthArchiveApi.ts'
+import { listArchive, restoreArchiveItem, setArchiveFavorite } from '../api/growthArchiveApi.ts'
+import { isMockDataSource } from '../api/dataSource.ts'
 import type { ArchiveItem, ArchiveTab } from '../api/types.ts'
 import { BookIcon, BulbIcon, ClipboardIcon, DownloadIcon, FolderIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
@@ -24,7 +25,7 @@ const emptyTexts: Record<ArchiveTab, { title: string; description: string }> = {
   favorites: { title: '즐겨찾기한 기록이 없어요', description: '자주 보는 수행평가·심화 탐구·탐구 라이브러리에 별표를 눌러 두면 여기에 모여요.' },
   completed: { title: '완료한 기록이 없어요', description: '완료로 바꾼 학교 수행평가와 심화 탐구가 여기에 모여요.' },
   'previous-semesters': { title: '이전 학기 기록이 없어요', description: '지난 학기의 학교 수행평가가 여기에 모여요.' },
-  trash: { title: '휴지통이 비어 있어요', description: '삭제 기능은 정책이 정해진 뒤 제공돼요.' },
+  trash: { title: '휴지통이 비어 있어요', description: '수행평가·결과물·자료·성장 기록을 휴지통으로 옮기면 여기에서 복구할 수 있어요.' },
 }
 
 const itemPath = (item: ArchiveItem) => archiveSourcePath(item.sourceType, item.sourceId)
@@ -33,7 +34,7 @@ const itemPath = (item: ArchiveItem) => archiveSourcePath(item.sourceType, item.
 // 원본(학교 수행평가·심화 탐구)을 다시 조회하는 Projection이다. 보관함 사본을 만들지 않고, 행은 원본 상세로 이동한다.
 // 즐겨찾기 표시는 모든 유형을 보여주지만, 여기서 바꿀 수 있는 것은 §30 예시 유형(SCHOOL_ASSESSMENT)뿐이다 (MM-40).
 // 심화 탐구·라이브러리(Mock 전용 P-22)는 내 탐구·탐구 라이브러리 목록에서 바꾼다. 새 폴더·내보내기·사용자 폴더는 계약이 없어 비활성 (MM-41).
-// 휴지통 복구·영구 삭제는 정책 미정(API-OD-A08, OD-A11)이라 실행하지 않는다. "30일 뒤 삭제" 안내는 정책이 아니라 표시하지 않는다.
+// 휴지통(2026-11-11): 소프트 삭제 항목을 원래 자리로 복구한다(같은 ID·노트 이력·파일 버전). 영구 삭제·자동 삭제·보존 기간은 OD-A11 미결이라 없다.
 // Mockup 최근 기록의 피드백 행은 §30 sourceType에 없어 넣지 않는다 (MM-39).
 export function ArchiveRoute() {
   const { terms, dataVersion, notifyDataChanged } = useAssessmentWorkspace()
@@ -48,6 +49,7 @@ export function ArchiveRoute() {
     if (searchInput.trim() !== query) setSearchInput(query)
   }
   const [pendingFavorite, setPendingFavorite] = useState<string>()
+  const [restoring, setRestoring] = useState<string>()
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const notify = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
@@ -98,6 +100,28 @@ export function ArchiveRoute() {
   }
 
   const unavailable = (text: string) => notify('info', text)
+
+  const restore = async (item: ArchiveItem) => {
+    const key = `${item.sourceType}:${item.sourceId}`
+    if (isMockDataSource) {
+      notify('info', '시연(Mock) 데이터에서는 휴지통을 제공하지 않아요.')
+      return
+    }
+    if (restoring) return
+    setRestoring(key)
+    try {
+      await restoreArchiveItem({ sourceType: item.sourceType, sourceId: item.sourceId })
+      notify('success', `'${item.title}'을(를) 원래 자리로 복구했어요.`)
+      archive.retry()
+      notifyDataChanged()
+    } catch (error) {
+      const apiError = toApiError(error)
+      const parent = apiError.fieldReasons()['sourceId'] === 'parent_in_trash'
+      notify('error', parent ? '이 결과물이 속한 수행평가가 휴지통에 있어요. 수행평가를 먼저 복구해 주세요.' : `복구하지 못했어요. ${apiError.message}`)
+    } finally {
+      setRestoring(undefined)
+    }
+  }
   const hasFilter = Boolean(query || subjectId)
 
   return (
@@ -152,7 +176,11 @@ export function ArchiveRoute() {
           </nav>
 
           {tab === 'trash' ? (
-            <p className={styles.trashNote}>삭제·복구 정책이 정해지기 전이라 휴지통 항목을 복구하거나 영구 삭제할 수 없어요.</p>
+            <p className={styles.trashNote}>
+              {isMockDataSource
+                ? '시연(Mock) 데이터에서는 휴지통을 제공하지 않아요.'
+                : '휴지통 항목은 자동으로 영구 삭제되지 않아요. 복구하면 노트 이력·파일 버전 그대로 원래 자리로 돌아가요.'}
+            </p>
           ) : (
             folders.length > 0 && (
               <div className={styles.folderChips} role="group" aria-label="과목 폴더">
@@ -215,7 +243,7 @@ export function ArchiveRoute() {
                       <Icon size={18} className={styles.rowIcon} />
                       <span className={styles.rowText}>
                         {tab === 'trash' ? (
-                          <span className={styles.rowTitle}>{item.title}</span>
+                          <span className={styles.rowTitle} data-testid="trash-item-title">{item.title}</span>
                         ) : (
                           <Link to={itemPath(item)} className={styles.rowTitle}>
                             {item.title}
@@ -223,7 +251,7 @@ export function ArchiveRoute() {
                         )}
                         <span className={styles.rowMeta}>
                           {tab === 'trash' && item.deletedAt
-                            ? `${archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab, terms.data?.currentTerm)} · ${formatDateTime(item.deletedAt)} 삭제`
+                            ? `${item.origin ?? archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab, terms.data?.currentTerm)} · ${formatDateTime(item.deletedAt)} 삭제`
                             : archiveMetaLine(item, subjectNameIn(contexts, item.subjectId), tab, terms.data?.currentTerm)}
                         </span>
                       </span>
@@ -232,10 +260,12 @@ export function ArchiveRoute() {
                           <button
                             type="button"
                             className={styles.smallButton}
-                            aria-disabled="true"
-                            onClick={() => unavailable('복구 정책이 정해지기 전이라 아직 복구할 수 없어요.')}
+                            data-testid="trash-restore"
+                            aria-disabled={isMockDataSource || restoring === key ? 'true' : undefined}
+                            aria-busy={restoring === key}
+                            onClick={() => void restore(item)}
                           >
-                            복구
+                            {restoring === key ? '복구 중…' : '복구'}
                           </button>
                         ) : (
                           <>

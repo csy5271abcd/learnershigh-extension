@@ -354,7 +354,7 @@
   text-decoration: none;
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .comments {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 2px;

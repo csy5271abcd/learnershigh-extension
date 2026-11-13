@@ -1,4 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { toApiError } from '../../api/apiError.ts'
 import { createPersonalMockExamMaterial } from '../../api/enrichmentApi.ts'
 import type { PersonalMockExamMaterial } from '../../api/types.ts'
@@ -25,7 +27,7 @@ const toNumberOrNull = (value: string) => (value.trim() === '' ? null : Number(v
 // 파일 업로드(sourceFileRef)는 저장소가 정해지지 않아 서버에 보내지 않는다. 스크린샷·PDF는 이 화면에서만 미리보고 영역을 표시하며,
 // 출처 확인을 위해 원문 링크는 그대로 필수다 (2026-10-27 사용자 요청 B). 입력한 링크가 실제로 열리는지는 확인하지 않는다.
 // 등록한 자료는 본인만 보는 개인 자료이며 공개 탐구 카드로 바뀌지 않는다.
-export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialModalProps) {
+function PersonalMaterialModalForm({ onClose, onCreated }: PersonalMaterialModalProps) {
   const ids = { year: useId(), month: useId(), grade: useId(), subject: useId(), question: useId(), url: useId(), note: useId(), file: useId() }
   const urlRef = useRef<HTMLInputElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -237,4 +239,9 @@ export function PersonalMaterialModal({ onClose, onCreated }: PersonalMaterialMo
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function PersonalMaterialModal(props: Parameters<typeof PersonalMaterialModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <PersonalMaterialModalForm {...props} />
 }

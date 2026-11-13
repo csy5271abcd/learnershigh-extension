@@ -1,9 +1,12 @@
 import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
+import { getAcademicContextHttp } from './http/academicContextHttp.ts'
+import { guardWrite } from './viewMode.ts'
 import { createStudentSubjectMock, getAcademicContextMock, updateAcademicContextMock } from './mock/academicContextMock.ts'
 import type { AcademicContext, AcademicTermQuery, CreateStudentSubjectRequest, SubjectRef, UpdateAcademicContextRequest } from './types.ts'
 
 // 화면이 호출하는 학업 정보 API (api-contract.md §9). Mock과 Stage 2 http는 같은 시그니처를 가진다.
+// Stage 2 (2026-11-09): GET만 http 연결(Backend 원천은 Mock). PUT(§9-2, Write Owner 미정)·과목 직접 추가(P-26)는 http에서 "연결 전".
 
 function httpNotConnected(): Promise<never> {
   return Promise.reject(
@@ -13,12 +16,12 @@ function httpNotConnected(): Promise<never> {
 
 /** §9-1 GET /api/student/assessment/academic-context */
 export function getAcademicContext(term?: AcademicTermQuery): Promise<AcademicContext> {
-  return isMockDataSource ? getAcademicContextMock(term) : httpNotConnected()
+  return isMockDataSource ? getAcademicContextMock(term) : getAcademicContextHttp(term)
 }
 
 /** §9-2 PUT /api/student/assessment/academic-context */
 export function updateAcademicContext(request: UpdateAcademicContextRequest): Promise<void> {
-  return isMockDataSource ? updateAcademicContextMock(request) : httpNotConnected()
+  return guardWrite('updateAcademicContext', () => (isMockDataSource ? updateAcademicContextMock(request) : httpNotConnected()))
 }
 
 /**
@@ -27,5 +30,5 @@ export function updateAcademicContext(request: UpdateAcademicContextRequest): Pr
  * 다른 학기에서 쓰던 기존 과목을 고를 때는 계약 범위인 updateAcademicContext(subjectIds)를 쓴다.
  */
 export function createStudentSubject(request: CreateStudentSubjectRequest): Promise<SubjectRef> {
-  return isMockDataSource ? createStudentSubjectMock(request) : httpNotConnected()
+  return guardWrite('createStudentSubject', () => (isMockDataSource ? createStudentSubjectMock(request) : httpNotConnected()))
 }

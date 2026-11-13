@@ -3,15 +3,11 @@ import { useLocation, useSearchParams } from 'react-router'
 import type { UniversityExamCategory, UniversityExamDocument } from '../api/types.ts'
 import { getUniversityExamFileStates, listUniversityExamDocuments } from '../api/universityExamApi.ts'
 import { ChevronDownIcon, CloseIcon, InfoIcon, SlidersIcon } from '../components/AssessmentIcons.tsx'
-import type { CreateEnrichmentPrefill } from '../components/enrichment/CreateEnrichmentModal.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
-import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
-import { examTaskPrefill } from '../components/university/examTaskPrefill.ts'
 import { UniversityExamRow } from '../components/university/UniversityExamRow.tsx'
 import styles from '../components/university/university.module.css'
-import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { examCategoryLabels, examCategoryOrder, matchesExamSearch } from '../model/universityExamView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
 
@@ -44,17 +40,16 @@ function sortDocuments(documents: UniversityExamDocument[], sort: SortKey): Univ
 // 대학별 자료 (screen-map S20, 2026-10-28 목록형으로 간소화, P-25 PROPOSED). SNU·KAIST 실제 기출·예시 PDF를 한 줄씩 보여주고
 // 원문은 앱 안 PDF 화면에서 연다. 검색은 위 검색창(문서 목록 검색, PDF 본문 검색 아님), 대학은 칩, 학년도·과목·유형은 "필터"에서 고른다.
 // 조건은 URL Query(university, year, subject, type, sort, q)에 둔다.
+// 2026-11-11: 정적 참고자료(Manifest)로 읽는다(dataSource 무관). "탐구 시작"을 없앴다(읽기 전용).
 export function UniversityResourcesRoute() {
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { selectedContext } = useAssessmentWorkspace()
   const query = searchParams.get('q') ?? ''
   const university = parseUniversity(searchParams.get('university'))
   const yearParam = Number(searchParams.get('year')) || undefined
   const subjectParam = searchParams.get('subject') ?? ''
   const typeParam = (examCategoryOrder as string[]).includes(searchParams.get('type') ?? '') ? (searchParams.get('type') as UniversityExamCategory) : undefined
   const sort: SortKey = sortOptions.find((option) => option.value === searchParams.get('sort'))?.value ?? 'recent'
-  const [createRequest, setCreateRequest] = useState<CreateEnrichmentPrefill | null>(null)
   const activeFilterCount = [yearParam, subjectParam, typeParam].filter(Boolean).length
   // 조건이 걸린 채로 들어오면(뒤로 가기 등) 필터를 펼쳐 둔다.
   const [filterOpen, setFilterOpen] = useState(activeFilterCount > 0)
@@ -103,11 +98,7 @@ export function UniversityResourcesRoute() {
   ].filter((item): item is { key: string; label: string } => item !== null)
 
   return (
-    <EnrichmentFrame
-      createRequest={createRequest}
-      onCreateRequestHandled={() => setCreateRequest(null)}
-      searchPlaceholder="자료 제목, 과목, 핵심 개념으로 찾기"
-    >
+    <EnrichmentFrame searchPlaceholder="자료 제목, 과목, 핵심 개념으로 찾기">
       <div className={styles.listArea}>
         <header className={styles.intro}>
           <h2 className={styles.introTitle}>대학별 자료</h2>
@@ -257,7 +248,6 @@ export function UniversityResourcesRoute() {
                       document={document}
                       fileState={fileStates.data?.[document.documentId] ?? 'UNKNOWN'}
                       listSearch={location.search}
-                      onStartTask={(target) => setCreateRequest(examTaskPrefill(target, null, null, selectedContext?.subjects ?? []))}
                     />
                   ))}
                 </ul>
@@ -273,9 +263,6 @@ export function UniversityResourcesRoute() {
             상업적 이용과 문서의 변형·발췌를 금지하는 안내가 있어요. 앱의 탐구 방향 예시는 LearnersHigh가 쓴 학습용 제안이며 대학 공식 자료가 아니에요.
           </span>
         </p>
-        <div className={enrichmentStyles.notices}>
-          <MockDataNotice />
-        </div>
       </div>
     </EnrichmentFrame>
   )

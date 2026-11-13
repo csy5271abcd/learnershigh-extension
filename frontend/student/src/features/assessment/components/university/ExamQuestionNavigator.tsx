@@ -9,12 +9,15 @@ interface ExamQuestionNavigatorProps {
   currentQuestionId: string | null
   currentPage: number
   onGoTo: (page: number, questionId: string) => void
-  onStartTask: (question: UniversityExamQuestion) => void
+  /** 없으면 문항별 동작 버튼을 그리지 않는다 (대학별 자료 열람 화면은 2026-11-11부터 읽기 전용) */
+  onStartTask?: (question: UniversityExamQuestion) => void
+  /** 문항 버튼 문구. Admin Assessment는 같은 목차에서 "심화 Task에 연결"을 쓴다 (기본값은 학생 문구 그대로) */
+  actionLabel?: string
 }
 
 // 문항 목차·문항 학습 (원문에서 확인된 문항·구획만). 문제를 먼저 읽도록 해설·채점 기준·예시 답안·총평은 접어 둔다.
 // 해설·답을 앱이 새로 쓰지 않고 원본 PDF의 그 쪽으로만 이동한다.
-export function ExamQuestionNavigator({ document, currentQuestionId, currentPage, onGoTo, onStartTask }: ExamQuestionNavigatorProps) {
+export function ExamQuestionNavigator({ document, currentQuestionId, currentPage, onGoTo, onStartTask, actionLabel = '이 문항으로 심화 탐구 시작' }: ExamQuestionNavigatorProps) {
   const [openAnswers, setOpenAnswers] = useState<Record<string, boolean>>({})
 
   if (document.indexStatus !== 'INDEXED') {
@@ -99,9 +102,11 @@ export function ExamQuestionNavigator({ document, currentQuestionId, currentPage
                 <span className={styles.exampleHint}>LearnersHigh가 쓴 학습용 예시예요. 대학 공식 출제 의도나 추천 주제가 아니에요.</span>
               </div>
             )}
-            <button type="button" className={styles.outlineButton} onClick={() => onStartTask(question)}>
-              이 문항으로 심화 탐구 시작
-            </button>
+            {onStartTask && (
+              <button type="button" className={styles.outlineButton} onClick={() => onStartTask(question)}>
+                {actionLabel}
+              </button>
+            )}
           </li>
         )
       })}

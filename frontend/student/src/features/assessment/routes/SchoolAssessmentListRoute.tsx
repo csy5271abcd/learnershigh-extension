@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { Link, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { assessmentToday } from '../api/runtimeInfo.ts'
@@ -192,10 +193,11 @@ export function SchoolAssessmentListRoute() {
             onChange={(event) => setSearchInput(event.target.value)}
           />
         </label>
+        {/* 관리자 읽기 전용 보기(P-28)에서도 같은 자리에 두고, 여는 Modal이 읽기 전용 안내로 바뀐다 */}
         <div className={styles.toolbarActions}>
           <button type="button" className={styles.secondaryButton} onClick={() => setPdfOpen(true)}>
             <FileIcon size={16} />
-            PDF로 가져오기
+            {(import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true') ? '평가계획서 가져오기' : 'PDF로 가져오기'}
           </button>
           <button type="button" className={styles.primaryButton} onClick={() => setModalOpen(true)}>
             <PlusIcon size={16} />
@@ -441,7 +443,7 @@ function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange, f
         </span>
       </div>
       <div className={styles.cellStatus}>
-        <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} />
+        <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={isAssessmentReadOnlyView()} />
       </div>
       <div className={styles.cellTrail}>
         <RecordCell assessment={item} records={records} />

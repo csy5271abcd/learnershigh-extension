@@ -1,3 +1,4 @@
+import { isMockDataSource } from '../api/dataSource.ts'
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
@@ -8,11 +9,12 @@ import {
   listFeedbackRequests,
   listNoteRevisions,
   listNotes,
+  trashArtifact,
+  trashSchoolAssessment,
 } from '../api/assessmentDetailApi.ts'
 import { assessmentToday } from '../api/runtimeInfo.ts'
-import { listEnrichmentTasks } from '../api/enrichmentApi.ts'
 import { changeSchoolAssessmentStatus, getSchoolAssessment } from '../api/schoolAssessmentApi.ts'
-import type { Artifact, ArtifactVersion, AssessmentNote, EnrichmentTask, FeedbackRequest, SchoolAssessmentStatus } from '../api/types.ts'
+import type { Artifact, ArtifactVersion, AssessmentNote, FeedbackRequest, SchoolAssessmentStatus } from '../api/types.ts'
 import {
   BookIcon,
   BulbIcon,
@@ -32,6 +34,7 @@ import { ArtifactSection, type ArtifactWithVersions } from '../components/detail
 import { CriteriaTab } from '../components/detail/CriteriaTab.tsx'
 import { DetailPanel, type DetailPanelTab } from '../components/detail/DetailPanel.tsx'
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
+import { EditSchoolAssessmentModal } from '../components/EditSchoolAssessmentModal.tsx'
 import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
@@ -41,8 +44,9 @@ import { TipsModal } from '../components/tips/TipsBrowser.tsx'
 import { UploadArtifactModal } from '../components/detail/UploadArtifactModal.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { NoticeAttachments } from '../components/detail/NoticeAttachments.tsx'
-import { LinkedTasks } from '../components/notes/NoteContextPanel.tsx'
 import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState, type NoteInsertRequest } from '../components/notes/NoteEditor.tsx'
+import { NoteReadOnlyView } from '../components/notes/NoteReadOnlyView.tsx'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -60,7 +64,7 @@ import {
 } from '../model/schoolAssessmentView.ts'
 import type { EvaluationItemLookup } from '../model/evaluationItemCandidate.ts'
 import { useApiQuery, type QueryResult } from '../model/useApiQuery.ts'
-import { enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
+import { archivePath, enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
 type ModalState =
@@ -68,12 +72,7 @@ type ModalState =
   | { kind: 'topic' }
   | { kind: 'tips' }
   | { kind: 'sent'; request: FeedbackRequest }
-
-/** 이 수행평가에 연결된 심화 탐구 (AUD-013). §18 목록에 연결 필터가 없어 받은 목록에서 relatedAssessmentId로 고른다. */
-async function loadLinkedTasks(assessmentId: string): Promise<EnrichmentTask[]> {
-  const { items } = await listEnrichmentTasks({ page: 0, size: 100 })
-  return items.filter((task) => task.relatedAssessmentId === assessmentId)
-}
+  | { kind: 'edit' }
 
 async function loadArtifacts(assessmentId: string): Promise<ArtifactWithVersions[]> {
   const { items } = await listArtifacts('SCHOOL_ASSESSMENT', assessmentId)
@@ -116,7 +115,6 @@ export function SchoolAssessmentDetailRoute() {
   const notes = useApiQuery(`sa-notes|${assessmentId}|${detailVersion}`, () => listNotes('SCHOOL_ASSESSMENT', assessmentId))
   const artifacts = useApiQuery(`sa-artifacts|${assessmentId}|${detailVersion}`, () => loadArtifacts(assessmentId))
   const note = notes.data?.items[0]
-  const linkedTasks = useApiQuery(`sa-linked-tasks|${assessmentId}|${dataVersion}`, () => loadLinkedTasks(assessmentId))
   const history = useApiQuery(
     notes.data ? `sa-feedback|${assessmentId}|${note?.noteId ?? 'none'}|${detailVersion}` : 'sa-feedback|pending',
     () => (notes.data ? loadFeedbackHistory(note) : new Promise<FeedbackHistory>(() => {})),
@@ -187,6 +185,10 @@ export function SchoolAssessmentDetailRoute() {
     [artifacts.data],
   )
 
+  // 관리자 읽기 전용 보기(P-28): 학생 화면과 같은 자리·같은 모양을 유지한다. 즉시 바뀌는 동작(상태·주제 적용)은 비활성,
+  // 등록·업로드 Modal은 Modal이 읽기 전용 안내로 바뀐다. 노트는 저장본을 같은 틀로 보여준다. 쓰기 API는 viewMode Guard가 막는다.
+  const readOnly = isAssessmentReadOnlyView()
+
   const openFeedback = () => {
     setPanelTab('feedback')
     panelRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
@@ -199,7 +201,7 @@ export function SchoolAssessmentDetailRoute() {
       subjectName={item ? subjectName(item.subjectId) : ''}
       noteId={editorState?.noteId ?? note?.noteId}
       onBack={goBack}
-      onRequestFeedback={openFeedback}
+      onRequestFeedback={readOnly ? undefined : openFeedback}
       onUnavailable={(message) => showToast('info', message)}
       menuItems={schoolAssessmentMenuItems(assessmentId)}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
@@ -216,7 +218,7 @@ export function SchoolAssessmentDetailRoute() {
         <div className={styles.main}>
           <article className={styles.column}>{content}</article>
         </div>
-        <div ref={panelRef} className={styles.panelArea}>
+        <div ref={panelRef} id="detail-side-panel" className={styles.panelArea}>
           {panel}
         </div>
       </div>
@@ -277,7 +279,7 @@ export function SchoolAssessmentDetailRoute() {
           subjectId={item.subjectId}
           subjectName={subjectName(item.subjectId)}
           topic={item.title}
-          canInsert={editorState !== undefined}
+          canInsert={!readOnly && editorState !== undefined}
           onInsert={(resource) => {
             setInsertRequest((previous) => ({ nonce: (previous?.nonce ?? 0) + 1, resource }))
             showToast('success', `'${resource.title}'을(를) 노트에 출처 카드로 넣었어요.`)
@@ -305,6 +307,35 @@ export function SchoolAssessmentDetailRoute() {
     />
   )
 
+  const artifactSection = (
+    <ArtifactSection
+      artifacts={artifacts}
+      selectedVersions={selectedVersions}
+      onSelectVersion={(artifactId, versionId) =>
+        setSelectedVersions((previous) => ({ ...previous, [artifactId]: versionId }))
+      }
+      onRegister={readOnly ? undefined : () => setModal({ kind: 'upload' })}
+      onNewVersion={readOnly ? undefined : (artifact, latest) => setModal({ kind: 'upload', target: { artifact, latest } })}
+      onTrash={
+        readOnly || isMockDataSource
+          ? undefined
+          : (artifact) => {
+              // 소프트 삭제: 버전·파일·피드백 요청 당시 기록은 지우지 않는다. 보관함 휴지통에서 복구할 수 있다.
+              if (!window.confirm(`'${artifact.title}' 결과물을 휴지통으로 옮길까요? 버전과 파일은 지워지지 않고, 보관함 휴지통에서 복구할 수 있어요.`)) return
+              trashArtifact(artifact.artifactId).then(
+                () => {
+                  showToast('success', '휴지통으로 옮겼어요. 보관함 › 휴지통에서 복구할 수 있어요.')
+                  refreshDetail()
+                  notifyDataChanged()
+                },
+                (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
+              )
+            }
+      }
+      onUnavailable={(message) => showToast('info', message)}
+    />
+  )
+
   return (
     <>
       {frame(
@@ -316,7 +347,13 @@ export function SchoolAssessmentDetailRoute() {
           </p>
           <h1 className={styles.title}>{item.title}</h1>
           <div className={styles.chipRow}>
-            <button type="button" className={styles.chipButton} onClick={() => setModal({ kind: 'topic' })}>
+            <button
+              type="button"
+              className={styles.chipButton}
+              disabled={readOnly}
+              title={readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요' : undefined}
+              onClick={() => setModal({ kind: 'topic' })}
+            >
               <SparkleIcon size={14} className={styles.chipIconBlue} />
               주제명 추천받기
             </button>
@@ -330,7 +367,7 @@ export function SchoolAssessmentDetailRoute() {
           <dl className={styles.props}>
             <PropertyRow icon={<StatusIcon size={15} />} label="진행 상태">
               <span className={styles.statusValue}>
-                <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} />
+                <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={readOnly} />
                 <span className={styles.hint}>내가 관리하는 상태예요. 되돌리기는 정책 확정 전이라 아직 안 돼요.</span>
               </span>
             </PropertyRow>
@@ -383,34 +420,47 @@ export function SchoolAssessmentDetailRoute() {
               {/* 학교 담당 선생님. 계약 필드가 없어 학원·관리자 정보로 대체하지 않는다 (MM-49). */}
               <span className={styles.unknown}>미등록 · 확인 필요</span>
             </PropertyRow>
-            <PropertyRow icon={<BulbIcon size={15} />} label="연결된 심화 탐구">
-              <LinkedTasks linkedTasks={linkedTasks} />
-            </PropertyRow>
           </dl>
           <button
             type="button"
             className={styles.editInfoButton}
-            aria-disabled="true"
-            onClick={() => showToast('info', '평가 정보 수정은 수정 가능한 항목이 계약으로 정해진 뒤 제공돼요.')}
+            disabled={readOnly}
+            title={readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요' : '이름·마감일·설명을 바꿀 수 있어요'}
+            data-testid="edit-assessment-open"
+            onClick={() => setModal({ kind: 'edit' })}
           >
             <SlidersIcon size={13} />
             평가 정보 수정
           </button>
+          {!readOnly && !isMockDataSource && (
+            <button
+              type="button"
+              className={styles.editInfoButton}
+              data-testid="trash-assessment"
+              title="노트·결과물·피드백 기록은 지우지 않고 함께 휴지통에 들어가요"
+              onClick={() => {
+                if (!window.confirm(`'${item.title}' 수행평가를 휴지통으로 옮길까요? 노트·결과물·피드백 기록은 그대로 보관되고, 보관함 휴지통에서 복구할 수 있어요.`)) return
+                trashSchoolAssessment(item.assessmentId).then(
+                  () => {
+                    notifyDataChanged()
+                    navigate(archivePath + '?tab=trash')
+                  },
+                  (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
+                )
+              }}
+            >
+              휴지통으로 이동
+            </button>
+          )}
 
           <NoticeAttachments assessmentId={item.assessmentId} assessmentTitle={item.title} />
 
-          <ArtifactSection
-            artifacts={artifacts}
-            selectedVersions={selectedVersions}
-            onSelectVersion={(artifactId, versionId) =>
-              setSelectedVersions((previous) => ({ ...previous, [artifactId]: versionId }))
-            }
-            onRegister={() => setModal({ kind: 'upload' })}
-            onNewVersion={(artifact, latest) => setModal({ kind: 'upload', target: { artifact, latest } })}
-            onUnavailable={(message) => showToast('info', message)}
-          />
+          {artifactSection}
 
           {/* 과제 정보는 위 속성 목록에서 보여준다. 노트 위에 같은 정보를 다시 두지 않는다 (2026-10-28 사용자 요청). */}
+          {readOnly ? (
+            <NoteReadOnlyView notes={notes} />
+          ) : (
           <NoteEditor
             key={item.assessmentId}
             sourceType="SCHOOL_ASSESSMENT"
@@ -420,6 +470,7 @@ export function SchoolAssessmentDetailRoute() {
             onStateChange={setEditorState}
             insertRequest={insertRequest}
           />
+          )}
         </>,
         panel,
       )}
@@ -438,6 +489,18 @@ export function SchoolAssessmentDetailRoute() {
             setSelectedVersions((previous) => ({ ...previous, [artifact.artifactId]: version.versionId }))
             refreshDetail()
             showToast('success', `'${artifact.title}' v${version.versionNumber}을(를) 올렸어요.`)
+          }}
+        />
+      )}
+      {modal?.kind === 'edit' && (
+        <EditSchoolAssessmentModal
+          assessment={item}
+          onClose={() => setModal(undefined)}
+          onSaved={() => {
+            setModal(undefined)
+            showToast('success', '평가 정보를 저장했어요.')
+            // 저장 응답을 그대로 쓰지 않고 상세·목록을 서버에서 다시 읽는다.
+            notifyDataChanged()
           }}
         />
       )}

@@ -122,6 +122,44 @@
   opacity: 0.6;
 }
 
+.catalog {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.catalogGroup {
+  display: grid;
+  gap: 6px;
+}
+
+.catalogGroupLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--as-color-text-secondary);
+}
+
+.catalog .chips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 수강하지 않는 공통 후보: 선택 Chip과 구분되는 비활성 표시 (선택 불가) */
+.chipMuted {
+  display: inline-flex;
+  align-items: center;
+  height: 29px;
+  padding: 0 11px;
+  border: 1px dashed var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
 .moreToggle {
   display: inline-flex;
   align-items: center;

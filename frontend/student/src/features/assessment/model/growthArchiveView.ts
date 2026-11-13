@@ -8,6 +8,9 @@ export const relatedSourceLabels: Record<ArchiveSourceType, string> = {
   ENRICHMENT_TASK: '심화 탐구',
   // 탐구 라이브러리 공개 콘텐츠 즐겨찾기 (Mock 전용 제안 P-22)
   ENRICHMENT_CATALOG: '심화 탐구 라이브러리',
+  ARTIFACT: '결과물',
+  RESOURCE: '자료함',
+  GROWTH_RECORD: '성장 기록',
 }
 
 /** §29 요청 필드의 화면 이름. 목록 카드는 Mockup GR-LIST-01의 네 항목만, 상세는 입력한 항목 전부를 보여준다. */

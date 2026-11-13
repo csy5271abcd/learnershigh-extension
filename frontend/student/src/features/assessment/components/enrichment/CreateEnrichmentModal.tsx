@@ -1,4 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { toApiError, type ApiError } from '../../api/apiError.ts'
 import { createEnrichmentTask } from '../../api/enrichmentApi.ts'
 import type { EnrichmentSourceReference, EnrichmentTask, SchoolAssessment, SubjectRef } from '../../api/types.ts'
@@ -46,7 +48,7 @@ const reasonMessages: Record<string, Record<string, string>> = {
 
 // 나만의 심화 탐구 만들기 (Mockup AE-LIST-02, inquiry §3 직접 생성, api-contract.md §18 POST).
 // 학교 수행평가 연결은 선택이다. 관리자 승인·마감 입력을 요구하지 않는다. 만들면 진행 중 상태로 시작한다.
-export function CreateEnrichmentModal({ subjects, assessments, prefill, onClose, onCreated }: CreateEnrichmentModalProps) {
+function CreateEnrichmentModalForm({ subjects, assessments, prefill, onClose, onCreated }: CreateEnrichmentModalProps) {
   const ids = { title: useId(), goal: useId(), subject: useId(), related: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
@@ -306,4 +308,9 @@ export function CreateEnrichmentModal({ subjects, assessments, prefill, onClose,
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function CreateEnrichmentModal(props: Parameters<typeof CreateEnrichmentModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <CreateEnrichmentModalForm {...props} />
 }

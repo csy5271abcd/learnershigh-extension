@@ -1,8 +1,7 @@
-import { useCallback, useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState, type ComponentType, type ReactNode } from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router'
 import { getAcademicContext } from '../api/academicContextApi.ts'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
-import { listEnrichmentTasks } from '../api/enrichmentApi.ts'
 import { listResources } from '../api/resourcesApi.ts'
 import { listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
@@ -35,6 +34,11 @@ import { subjectCandidates } from '../model/subjectName.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
 import '../styles/assessmentTheme.css'
 import styles from './AssessmentLayout.module.css'
+import { isMockDataSource } from '../api/dataSource.ts'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+
+// 개발 서버(http 모드) 전용 시연 학생 전환 패널. Production 번들에서는 import.meta.env.DEV=false라 모듈째 빠진다.
+const DevContextSwitcher = import.meta.env.DEV ? lazy(() => import('../dev/DevContextSwitcher.tsx')) : null
 import {
   academicInfoPath,
   archiveSection,
@@ -96,17 +100,13 @@ export function AssessmentLayout() {
     listFeedbackRequests({ status: 'PENDING', page: 0, size: 1 }).then((response) => response.page.totalElements),
   )
 
-  // 심화 탐구 메뉴 건수 = 진행 중인 학생 심화 Task 수 (domain.md "Enrichment Active Count"). §18 목록 totalElements에서 계산한다.
-  const activeEnrichment = useApiQuery(`enrichment-active:${dataVersion}`, () =>
-    listEnrichmentTasks({ status: 'IN_PROGRESS', page: 0, size: 1 }).then((response) => response.page.totalElements),
-  )
+  // 심화 탐구 메뉴 건수는 2026-11-11 범위 축소로 없앴다(학생 Task가 없는 읽기 전용 참고자료).
   // 자료함 메뉴 건수 = 내 자료 수 (§22 목록 totalElements)
   const myResources = useApiQuery(`resources-count:${dataVersion}`, () =>
     listResources({ page: 0, size: 1 }).then((response) => response.page.totalElements),
   )
   const menuCounts: Record<string, { count: number | undefined; label?: string }> = {
     [resourcesSection.path]: { count: myResources.data },
-    [enrichmentSection.path]: { count: activeEnrichment.data },
     [feedbackSection.path]: { count: pendingFeedback.data, label: '대기' },
   }
 
@@ -257,6 +257,11 @@ export function AssessmentLayout() {
           />
         )}
         <Toast message={toast} onDismiss={dismissToast} />
+        {DevContextSwitcher && !isMockDataSource && !isAssessmentReadOnlyView() && (
+          <Suspense fallback={null}>
+            <DevContextSwitcher kind="student" landingPath="/assessment" />
+          </Suspense>
+        )}
       </div>
     </AssessmentWorkspaceContext.Provider>
   )

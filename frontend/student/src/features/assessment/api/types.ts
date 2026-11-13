@@ -45,6 +45,27 @@ export interface AcademicContext {
   subjects: SubjectRef[]
   /** 원천 출처 메타데이터 후보 (§9-1, 기존 시스템 확인 후 확정) */
   source: string
+  /** 학교 반 (§9-1 DRAFT 2026-11-12). 학원 반과 다르다. 모르면 null. DRAFT라 이전 응답·Mock에는 없을 수 있다. */
+  schoolClassNumber?: number | null
+  /** 학교 번호 (§9-1 DRAFT 2026-11-12). 모르면 null. */
+  schoolStudentNumber?: number | null
+  /**
+   * 같은 학년도·학년·학기의 공통 과목 후보 (§9-1 DRAFT 2026-11-12). 학교별 후보가 아니고 공식 개설 과목 목록도 아니다.
+   * 수행평가 등록은 subjects(수강 과목) 기준이며 enrolled=false 후보는 서버가 거절한다.
+   */
+  catalogSubjects?: CatalogSubjectRef[]
+}
+
+/** §9-1 DRAFT catalogSubjects 항목 */
+export interface CatalogSubjectRef {
+  subjectId: string
+  name: string
+  /** 교과군 표시값 (예: 국어, 과학). 고정 Enum이 아니다. */
+  subjectGroup: string
+  /** 적용 교육과정 표시값 (예: "2022", "2015"). 고정 Enum이 아니다. */
+  curriculumVersion: string
+  /** 이 학생의 수강 과목(subjects)에 있는지 */
+  enrolled: boolean
 }
 
 /** §9-1 Query. 둘 다 생략하면 현재 학기를 조회한다 (계약 보완 필요: 생략 시 의미가 계약에 명시되지 않음). */
@@ -108,6 +129,16 @@ export interface CreateSchoolAssessmentRequest {
   description: string | null
   status: SchoolAssessmentStatus
   evaluationItemRef: EvaluationItemRef | null
+}
+
+/**
+ * §12 PATCH 학생 편집 필드 (계약은 "학생이 편집 가능한 필드만"이라고만 적음 — C-3, Backend 구현 기준 3개).
+ * 보내지 않은 필드는 유지, null은 비움(설명·마감일). 과목·상태·evaluationItemRef는 이 요청으로 바꾸지 않는다.
+ */
+export interface UpdateSchoolAssessmentRequest {
+  title?: string
+  description?: string | null
+  deadlineDate?: string | null
 }
 
 /**
@@ -648,7 +679,7 @@ export type ArchiveTab = 'recent' | 'favorites' | 'completed' | 'previous-semest
  * `ENRICHMENT_TASK`(내 탐구)·`ENRICHMENT_CATALOG`(탐구 라이브러리 공개 콘텐츠, Mockup AR-TAB-02) 즐겨찾기는
  * **Mock 전용 제안(P-22, PROPOSED)**이며 승인된 계약 값이 아니다 (MM-40).
  */
-export type ArchiveSourceType = AssessmentSourceType | 'ENRICHMENT_CATALOG'
+export type ArchiveSourceType = AssessmentSourceType | 'ENRICHMENT_CATALOG' | 'ARTIFACT' | 'RESOURCE' | 'GROWTH_RECORD'
 
 /**
  * §30 GET 항목. 계약은 "조회용 Projection"이라는 설명뿐이라 원본 참조 + 표시 정보로 가정한다 (MM-39).
@@ -666,8 +697,19 @@ export interface ArchiveItem {
   lastActivityAt: string
   noteBlockCount: number | null
   favorite: boolean
-  /** 휴지통 항목만 (삭제 정책 미정) */
+  /** 휴지통 항목만 */
   deletedAt: string | null
+  /** 휴지통 항목의 원래 소속 (예: "수행평가 'X'의 결과물") */
+  origin?: string | null
+}
+
+/** §25-1·§37 두 버전 비교. 구조 비교기가 없어 METADATA_ONLY만 온다 */
+export interface ArtifactComparison {
+  artifactId: string
+  fromVersionId: string
+  toVersionId: string
+  comparison: { mode: 'METADATA_ONLY' | 'STRUCTURED_DIFF'; changes: { field: string; from: unknown; to: unknown }[]; reason: string | null }
+  versions: (ArtifactVersion & { previewSupported: boolean })[]
 }
 
 /** §30 PUT archive/favorites 요청 (계약 예시 그대로) */

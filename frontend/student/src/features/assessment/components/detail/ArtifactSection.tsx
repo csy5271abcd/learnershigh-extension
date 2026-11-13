@@ -1,4 +1,8 @@
 import { useId, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { artifactViewerPath } from '../../routes/paths.ts'
+import { downloadArtifactVersion } from '../../api/assessmentDetailApi.ts'
+import { isMockDataSource } from '../../api/dataSource.ts'
 import type { Artifact, ArtifactVersion } from '../../api/types.ts'
 import { fileTypeLabel, formatBytes, formatDateTime, latestVersion } from '../../model/assessmentDetailView.ts'
 import type { QueryResult } from '../../model/useApiQuery.ts'
@@ -17,8 +21,11 @@ interface ArtifactSectionProps {
   /** artifactId → 피드백에 보낼 versionId (UI 선택 상태. 기본은 최신) */
   selectedVersions: Record<string, string>
   onSelectVersion: (artifactId: string, versionId: string) => void
-  onRegister: () => void
-  onNewVersion: (artifact: Artifact, latest: ArtifactVersion | undefined) => void
+  /** 없으면 등록 버튼을 그리지 않는다 (관리자 읽기 전용 보기, P-28) */
+  onRegister?: () => void
+  onNewVersion?: (artifact: Artifact, latest: ArtifactVersion | undefined) => void
+  /** 없으면 휴지통 버튼을 그리지 않는다 (관리자 읽기 전용 보기) */
+  onTrash?: (artifact: Artifact) => void
   onUnavailable: (message: string) => void
 }
 
@@ -30,6 +37,7 @@ export function ArtifactSection({
   onSelectVersion,
   onRegister,
   onNewVersion,
+  onTrash,
   onUnavailable,
 }: ArtifactSectionProps) {
   const count = artifacts.data?.length
@@ -46,10 +54,12 @@ export function ArtifactSection({
             탐구 노트와 별도로, 학교에 낼 파일을 버전별로 보관해요. 이전 버전은 지워지지 않아요.
           </p>
         </div>
-        <button type="button" className={styles.outlineButton} onClick={onRegister}>
-          <UploadIcon size={15} />
-          결과 파일 등록
-        </button>
+        {onRegister && (
+          <button type="button" className={styles.outlineButton} onClick={onRegister}>
+            <UploadIcon size={15} />
+            결과 파일 등록
+          </button>
+        )}
       </div>
 
       {artifacts.status === 'loading' && <LoadingRows rows={1} label="결과물을 불러오는 중" />}
@@ -68,7 +78,8 @@ export function ArtifactSection({
               versions={versions}
               selectedVersionId={selectedVersions[artifact.artifactId]}
               onSelectVersion={(versionId) => onSelectVersion(artifact.artifactId, versionId)}
-              onNewVersion={() => onNewVersion(artifact, latestVersion(versions))}
+              onNewVersion={onNewVersion ? () => onNewVersion(artifact, latestVersion(versions)) : undefined}
+              onTrash={onTrash ? () => onTrash(artifact) : undefined}
               onUnavailable={onUnavailable}
             />
           ))}
@@ -83,12 +94,15 @@ interface ArtifactCardProps {
   versions: ArtifactVersion[]
   selectedVersionId: string | undefined
   onSelectVersion: (versionId: string) => void
-  onNewVersion: () => void
+  onNewVersion?: () => void
+  onTrash?: () => void
   onUnavailable: (message: string) => void
 }
 
-function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, onNewVersion, onUnavailable }: ArtifactCardProps) {
+function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, onNewVersion, onTrash, onUnavailable }: ArtifactCardProps) {
+  const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
+  const [downloading, setDownloading] = useState(false)
   const historyId = useId()
   const latest = latestVersion(versions)
   const selected = versions.find((version) => version.versionId === selectedVersionId) ?? latest
@@ -128,8 +142,15 @@ function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, 
             type="button"
             className={styles.iconButton}
             aria-label={`${artifact.title} 미리보기`}
-            aria-disabled="true"
-            onClick={() => onUnavailable('파일 미리보기는 파일 저장소가 연결된 뒤 제공돼요. (시연 데이터에는 실제 파일이 없어요)')}
+            aria-disabled={isMockDataSource || !shown ? 'true' : undefined}
+            data-testid="artifact-preview"
+            onClick={() => {
+              if (isMockDataSource || !shown) {
+                onUnavailable('파일 미리보기는 파일 저장소가 연결된 뒤 제공돼요. (시연 데이터에는 실제 파일이 없어요)')
+                return
+              }
+              navigate(artifactViewerPath(artifact.artifactId, { versionId: shown.versionId }))
+            }}
           >
             <EyeIcon size={17} />
           </button>
@@ -137,14 +158,54 @@ function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, 
             type="button"
             className={styles.iconButton}
             aria-label={`${artifact.title} 내려받기`}
-            aria-disabled="true"
-            onClick={() => onUnavailable('원본 내려받기는 파일 저장소가 연결된 뒤 제공돼요.')}
+            aria-disabled={isMockDataSource || !shown || downloading ? 'true' : undefined}
+            aria-busy={downloading}
+            onClick={() => {
+              if (isMockDataSource || !shown) {
+                onUnavailable('원본 내려받기는 파일 저장소가 연결된 뒤 제공돼요.')
+                return
+              }
+              if (downloading) return
+              setDownloading(true)
+              // 서버가 소유권을 확인한 원본 바이트를 받아 원래 파일명으로 저장한다 (개발용 로컬 Storage).
+              downloadArtifactVersion(artifact.artifactId, shown.versionId)
+                .then((blob) => {
+                  const url = URL.createObjectURL(blob)
+                  const anchor = document.createElement('a')
+                  anchor.href = url
+                  anchor.download = shown.file.fileName
+                  anchor.click()
+                  window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
+                })
+                .catch((error: Error) => onUnavailable(`파일을 내려받지 못했어요. ${error.message}`))
+                .finally(() => setDownloading(false))
+            }}
           >
             <DownloadIcon size={17} />
           </button>
-          <button type="button" className={styles.smallOutlineButton} onClick={onNewVersion}>
-            새 버전
-          </button>
+          {!isMockDataSource && versions.length >= 2 && latest && (
+            <button
+              type="button"
+              className={styles.smallOutlineButton}
+              data-testid="artifact-compare"
+              onClick={() => {
+                const previous = [...versions].sort((a, b) => b.versionNumber - a.versionNumber)[1]
+                navigate(artifactViewerPath(artifact.artifactId, { versionId: latest.versionId, compareVersionId: previous?.versionId }))
+              }}
+            >
+              버전 비교
+            </button>
+          )}
+          {onNewVersion && (
+            <button type="button" className={styles.smallOutlineButton} onClick={onNewVersion}>
+              새 버전
+            </button>
+          )}
+          {onTrash && (
+            <button type="button" className={styles.smallOutlineButton} data-testid="artifact-trash" onClick={onTrash}>
+              휴지통
+            </button>
+          )}
         </div>
       </div>
       <button

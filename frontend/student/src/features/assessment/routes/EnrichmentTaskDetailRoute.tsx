@@ -25,6 +25,8 @@ import { EnrichmentPanel, type EnrichmentPanelTab } from '../components/enrichme
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { NoteContextPanel } from '../components/notes/NoteContextPanel.tsx'
 import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState, type NoteInsertRequest } from '../components/notes/NoteEditor.tsx'
+import { NoteReadOnlyView } from '../components/notes/NoteReadOnlyView.tsx'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import type { ExamSourceInsertState } from '../components/university/ExamSourcePickerModal.tsx'
 import { Modal } from '../components/Modal.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
@@ -65,6 +67,8 @@ export function EnrichmentTaskDetailRoute() {
   const [notesVersion, setNotesVersion] = useState(0)
   const notes = useApiQuery(`ae-notes|${taskId}|${notesVersion}`, () => listNotes('ENRICHMENT_TASK', taskId))
   const [editorState, setEditorState] = useState<NoteEditorState>()
+  // 관리자 읽기 전용 보기(P-28): 학생 화면과 같은 자리에 두되 상태·연결 변경은 비활성, 노트는 저장본을 같은 틀로 보여준다
+  const readOnly = isAssessmentReadOnlyView()
   const [insertRequest, setInsertRequest] = useState<NoteInsertRequest>()
   const item = task.data?.taskId === taskId ? task.data : undefined
   const related = useApiQuery(item?.relatedAssessmentId ? `ae-related|${item.relatedAssessmentId}` : 'ae-related|none', () =>
@@ -118,7 +122,7 @@ export function EnrichmentTaskDetailRoute() {
         <div className={styles.main}>
           <article className={styles.column}>{content}</article>
         </div>
-        <div className={styles.panelArea}>{panel}</div>
+        <div id="detail-side-panel" className={styles.panelArea}>{panel}</div>
       </div>
       <Toast message={toast} onDismiss={dismissToast} />
     </main>
@@ -180,7 +184,7 @@ export function EnrichmentTaskDetailRoute() {
               </dt>
               <dd>
                 <span className={styles.statusValue}>
-                  <StatusSelect status={item.status} assessmentTitle={item.title} pending={pendingStatus} onChange={onStatusChange} />
+                  <StatusSelect status={item.status} assessmentTitle={item.title} pending={pendingStatus} onChange={onStatusChange} disabled={readOnly} />
                   <span className={styles.hint}>내가 관리하는 상태예요. 되돌리기는 정책 확정 전이라 아직 안 돼요.</span>
                 </span>
               </dd>
@@ -216,12 +220,12 @@ export function EnrichmentTaskDetailRoute() {
                     ) : (
                       <span className={styles.unknown}>불러오는 중…</span>
                     )}
-                    <button type="button" className={enrichmentStyles.textLink} onClick={() => setLinking(true)}>
+                    <button type="button" className={enrichmentStyles.textLink} disabled={readOnly} onClick={() => setLinking(true)}>
                       변경
                     </button>
                   </>
                 ) : (
-                  <button type="button" className={enrichmentStyles.textLink} onClick={() => setLinking(true)}>
+                  <button type="button" className={enrichmentStyles.textLink} disabled={readOnly} onClick={() => setLinking(true)}>
                     <PlusIcon size={13} /> 학교 수행평가와 연결하기
                   </button>
                 )}
@@ -250,6 +254,9 @@ export function EnrichmentTaskDetailRoute() {
                     : { status: 'loading' }
             }
           />
+          {readOnly ? (
+            <NoteReadOnlyView notes={notes} />
+          ) : (
           <NoteEditor
             key={item.taskId}
             sourceType="ENRICHMENT_TASK"
@@ -259,6 +266,7 @@ export function EnrichmentTaskDetailRoute() {
             onStateChange={setEditorState}
             insertRequest={insertRequest}
           />
+          )}
           <MockDataNotice />
         </>,
         <EnrichmentPanel

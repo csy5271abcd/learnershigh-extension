@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { listRecommendedSources, listResources } from '../api/resourcesApi.ts'
+import { listRecommendedSources, listResources, listSharedResources } from '../api/resourcesApi.ts'
 import type { StudentResource } from '../api/types.ts'
 import { CheckIcon, ChevronDownIcon, InfoIcon, PlusIcon, SearchIcon, SparkleIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
@@ -73,10 +73,19 @@ export function ResourceLibraryRoute() {
   const resources = useApiQuery(`rl-list|${query}|${type ?? ''}|${dataVersion}`, () =>
     listResources({ query: query || undefined, type, page: 0, size: pageSize }),
   )
-  const recommendations = useApiQuery(subjectId ? `rl-reco|${subjectId}` : 'rl-reco|none', () =>
-    subjectId ? listRecommendedSources({ subjectId }) : Promise.resolve({ items: [] }),
-  )
   const subjects = selectedContext?.subjects ?? []
+  const subjectName = subjects.find((subject) => subject.subjectId === subjectId)?.name ?? null
+  const recommendations = useApiQuery(subjectId ? `rl-reco|${subjectId}|${subjectName ?? ''}` : 'rl-reco|none', () =>
+    subjectId ? listRecommendedSources({ subjectId, subjectName }) : Promise.resolve({ items: [] }),
+  )
+  const [recoCategory, setRecoCategory] = useState<string>()
+  const [recoQuery, setRecoQuery] = useState('')
+  const recoItems = (recommendations.data?.items ?? []).filter(
+    (source) =>
+      (!recoCategory || source.category === recoCategory) &&
+      (!recoQuery.trim() || [source.sourceName, source.category, source.description].some((text) => text.toLocaleLowerCase('ko').includes(recoQuery.trim().toLocaleLowerCase('ko')))),
+  )
+  const recoCategories = [...new Set((recommendations.data?.items ?? []).map((source) => source.category))]
 
   const onCreated = (resource: StudentResource) => {
     setAddPrefill(null)
@@ -123,6 +132,8 @@ export function ResourceLibraryRoute() {
                   value={subjectId}
                   onChange={(event) => {
                     setOpenSource(undefined)
+                    setRecoCategory(undefined)
+                    setRecoQuery('')
                     updateParams({ subject: event.target.value || undefined })
                   }}
                 >
@@ -143,11 +154,31 @@ export function ResourceLibraryRoute() {
             ) : !recommendations.data ? (
               <LoadingRows rows={1} label="추천 자료원을 불러오는 중" />
             ) : recommendations.data.items.length === 0 ? (
-              <p className={styles.recoHint}>이 과목에 준비된 추천 자료원이 아직 없어요.</p>
+              <p className={styles.recoHint} data-testid="reco-empty">이 과목에 준비된 추천 자료원이 아직 없어요.</p>
             ) : (
               <>
+                <p className={styles.recoHint} data-testid="reco-basis">
+                  {'basis' in recommendations.data && recommendations.data.basis === 'general'
+                    ? `'${subjectName ?? '이 과목'}'에 맞춘 추천 영역이 없어 어느 과목에나 쓰는 일반 자료원(도서관·논문·통계)을 보여줘요.`
+                    : `${'areaLabel' in recommendations.data && recommendations.data.areaLabel ? `${recommendations.data.areaLabel} 영역 · ` : ''}검토한 자료원 목록이에요(AI 추천 아님). 실제로 열람했는지는 표시하지 않아요.`}
+                </p>
+                <div className={enrichmentStyles.chips} role="group" aria-label="추천 자료원 유형">
+                  <button type="button" className={enrichmentStyles.chip} aria-pressed={!recoCategory} onClick={() => setRecoCategory(undefined)}>
+                    전체
+                  </button>
+                  {recoCategories.map((category) => (
+                    <button key={category} type="button" className={enrichmentStyles.chip} aria-pressed={recoCategory === category} onClick={() => setRecoCategory(category)}>
+                      {category}
+                    </button>
+                  ))}
+                  <label className={enrichmentStyles.search} style={{ maxWidth: 220 }}>
+                    <span className="lh-visually-hidden">추천 자료원 검색</span>
+                    <input type="search" value={recoQuery} placeholder="자료원 찾기" data-testid="reco-search" onChange={(event) => setRecoQuery(event.target.value)} />
+                  </label>
+                </div>
+                {recoItems.length === 0 && <p className={styles.recoHint}>조건에 맞는 자료원이 없어요.</p>}
                 <ul className={styles.sourceChips} aria-label="추천 자료원">
-                  {recommendations.data.items.map((source) => (
+                  {recoItems.map((source) => (
                     <li key={source.sourceName}>
                       <button
                         type="button"
@@ -162,7 +193,7 @@ export function ResourceLibraryRoute() {
                     </li>
                   ))}
                 </ul>
-                {recommendations.data.items
+                {recoItems
                   .filter((source) => source.sourceName === openSource)
                   .map((source) => (
                     <div key={source.sourceName} id="reco-source-detail" className={styles.sourceDetail}>
@@ -170,10 +201,18 @@ export function ResourceLibraryRoute() {
                         <strong>{source.sourceName}</strong> · {source.description}
                       </p>
                       {source.searchKeywords.length > 0 && <p>추천 검색어: {source.searchKeywords.join(', ')}</p>}
+                      {source.homepageUrl && (
+                        <p>
+                          출처:{' '}
+                          <a href={source.homepageUrl} target="_blank" rel="noopener noreferrer" data-testid="reco-link">
+                            {source.homepageUrl}
+                          </a>
+                        </p>
+                      )}
                       <p className={styles.recoHint}>
                         탐색 후보 출처예요. 이 서비스에서 직접 찾아본 뒤, 찾은 자료를 내 자료로 추가해 주세요. 유료·로그인이 필요한 자료가 있을 수 있어요.
                       </p>
-                      <button type="button" className={enrichmentStyles.textLink} onClick={() => setAddPrefill({ sourceName: source.sourceName })}>
+                      <button type="button" className={enrichmentStyles.textLink} data-testid="reco-add" onClick={() => setAddPrefill({ sourceName: source.sourceName })}>
                         이 자료원에서 찾은 자료 추가
                       </button>
                     </div>
@@ -270,6 +309,8 @@ export function ResourceLibraryRoute() {
             )}
           </section>
 
+          <SharedResources />
+
           <div className={enrichmentStyles.notices}>
             <MockDataNotice />
           </div>
@@ -279,5 +320,48 @@ export function ResourceLibraryRoute() {
       {addPrefill && <AddResourceModal prefill={addPrefill} onClose={() => setAddPrefill(null)} onCreated={onCreated} />}
       <Toast message={toast} onDismiss={dismissToast} />
     </main>
+  )
+}
+
+/** 선생님(관리자)이 학생에게 공개한 참고자료 (2026-11-11, 읽기 전용). 내 자료함(비공개)과 별개다. */
+function SharedResources() {
+  const shared = useApiQuery('rl-shared', () => listSharedResources())
+  if (shared.status === 'error' && shared.error) {
+    return (
+      <section aria-labelledby="shared-resources-heading">
+        <h2 id="shared-resources-heading" className={enrichmentStyles.sectionHeading}>선생님이 공개한 자료</h2>
+        <ErrorState title="공개 자료를 불러오지 못했어요" error={shared.error} onRetry={shared.retry} />
+      </section>
+    )
+  }
+  return (
+    <section aria-labelledby="shared-resources-heading" data-testid="shared-resources">
+      <h2 id="shared-resources-heading" className={enrichmentStyles.sectionHeading}>선생님이 공개한 자료</h2>
+      {!shared.data ? (
+        <LoadingRows rows={1} label="공개 자료를 불러오는 중" />
+      ) : shared.data.items.length === 0 ? (
+        <p className={enrichmentStyles.previewHint}>아직 선생님이 공개한 자료가 없어요.</p>
+      ) : (
+        <ul className={enrichmentStyles.resourceList}>
+          {shared.data.items.map((item) => (
+            <li key={item.resourceId} className={enrichmentStyles.resourceRow}>
+              <div className={enrichmentStyles.resourceMain}>
+                <span className={enrichmentStyles.rowText}>
+                  <span className={enrichmentStyles.rowTitle}>{item.title}</span>
+                  <span className={enrichmentStyles.resourceMeta}>
+                    {[item.sourceName, item.author, item.description].filter(Boolean).join(' · ') || '설명 없음'}
+                  </span>
+                </span>
+                {item.sourceUrl && (
+                  <a className={enrichmentStyles.outlineButton} href={item.sourceUrl} target="_blank" rel="noopener noreferrer">
+                    원문 열기
+                  </a>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }

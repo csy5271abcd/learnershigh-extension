@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { createFeedbackRequest } from '../../api/assessmentDetailApi.ts'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
 import { toApiError } from '../../api/apiError.ts'
 import type { Artifact, ArtifactVersion, AssessmentNote, FeedbackReplyResponse, FeedbackRequest } from '../../api/types.ts'
 import { formatDateTime, isSameSnapshot } from '../../model/assessmentDetailView.ts'
@@ -53,7 +54,11 @@ export function FeedbackTab({ assessmentId, note, noteBlockedReason, selections,
   const duplicatePending =
     snapshot && history.data?.items.some((item) => item.request.status === 'PENDING' && isSameSnapshot(item.request.snapshot, snapshot))
 
-  const disabledReason = !note
+  // 관리자 읽기 전용 보기(P-28)는 요청 버튼을 같은 자리에 비활성으로 두고 사유를 보여준다
+  const readOnly = isAssessmentReadOnlyView()
+  const disabledReason = readOnly
+    ? '관리자 읽기 전용 보기예요. 피드백 요청은 학생 본인만 할 수 있어요.'
+    : !note
     ? '저장된 탐구 노트가 있어야 요청할 수 있어요.'
     : noteBlockedReason
       ? noteBlockedReason

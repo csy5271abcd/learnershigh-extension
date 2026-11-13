@@ -7,7 +7,8 @@ import styles from './university.module.css'
 type LoadState =
   | { kind: 'loading' }
   | { kind: 'ready'; pdf: PDFDocumentProxy }
-  | { kind: 'error'; reason: 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE' }
+  /** detail: 진단용 원인 (HTTP 상태·PDF 엔진 오류 이름). 화면에 작게 보여 원인을 바로 구분한다 */
+  | { kind: 'error'; reason: 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE'; detail?: string }
 
 const zoomSteps = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3]
 /** 폭 맞춤의 최대 배율 (넓은 화면에서 글자가 지나치게 커지지 않게) */
@@ -17,7 +18,7 @@ interface PdfViewerProps {
   url: string
   /** 화면 낭독용 문서 이름 */
   title: string
-  /** Manifest의 쪽 수 (실제 파일과 다르면 안내한다) */
+  /** Manifest의 쪽 수 (실제 파일과 다르면 안내한다). 0이면 비교하지 않는다 (쪽 수를 모르는 로컬 파일) */
   expectedPageCount: number
   /** 현재 쪽 (PDF 물리 쪽, 1부터). 상위가 URL에 둔다 */
   page: number
@@ -58,16 +59,19 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
     let pdf: PDFDocumentProxy | undefined
     let task: Awaited<ReturnType<typeof openPdfDocument>> | undefined
     const run = async () => {
-      let head: Response
-      try {
-        head = await fetch(url, { method: 'HEAD', cache: 'no-store' })
-      } catch {
-        if (!cancelled) setLoad({ kind: 'error', reason: 'UNAVAILABLE' })
-        return
-      }
-      if (!head.ok) {
-        if (!cancelled) setLoad({ kind: 'error', reason: head.status === 404 ? 'MISSING' : head.status === 409 ? 'CHANGED' : 'UNAVAILABLE' })
-        return
+      // 관리자가 고른 로컬 파일(blob: 주소, Admin AI 분석 화면)은 서버 상태 확인 없이 바로 연다 (blob은 HEAD를 지원하지 않는다)
+      if (!url.startsWith('blob:')) {
+        let head: Response
+        try {
+          head = await fetch(url, { method: 'HEAD', cache: 'no-store' })
+        } catch {
+          if (!cancelled) setLoad({ kind: 'error', reason: 'UNAVAILABLE', detail: 'PDF 서버에 연결하지 못함' })
+          return
+        }
+        if (!head.ok) {
+          if (!cancelled) setLoad({ kind: 'error', reason: head.status === 404 ? 'MISSING' : head.status === 409 ? 'CHANGED' : 'UNAVAILABLE', detail: `PDF 서버 응답 ${head.status}` })
+          return
+        }
       }
       try {
         task = await openPdfDocument(url)
@@ -80,7 +84,7 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
       } catch (error) {
         if (cancelled) return
         const name = error instanceof Error ? error.name : ''
-        setLoad({ kind: 'error', reason: name === 'InvalidPDFException' ? 'CORRUPT' : name === 'MissingPDFException' ? 'MISSING' : 'UNAVAILABLE' })
+        setLoad({ kind: 'error', reason: name === 'InvalidPDFException' ? 'CORRUPT' : name === 'MissingPDFException' ? 'MISSING' : 'UNAVAILABLE', detail: `PDF 엔진 오류 ${name || 'unknown'}` })
       }
     }
     void run()
@@ -180,6 +184,11 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
         <AlertIcon size={20} />
         <p className={styles.viewerStateTitle}>{text.title}</p>
         <p className={styles.viewerStateBody}>{text.body}</p>
+        {load.detail && (
+          <p className={styles.viewerStateBody} data-testid="pdf-error-detail">
+            원인: {load.detail}
+          </p>
+        )}
         {load.reason === 'UNAVAILABLE' && (
           <button
             type="button"
@@ -244,7 +253,7 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
         </a>
       </div>
 
-      {pdf && pdf.numPages !== expectedPageCount && (
+      {pdf && expectedPageCount > 0 && pdf.numPages !== expectedPageCount && (
         <p className={styles.viewerNotice} role="status">
           <AlertIcon size={13} /> 파일의 쪽 수({pdf.numPages}쪽)가 자료 목록({expectedPageCount}쪽)과 달라요. 문항 위치가 맞지 않을 수 있어요.
         </p>

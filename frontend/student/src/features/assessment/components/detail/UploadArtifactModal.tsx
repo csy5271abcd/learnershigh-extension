@@ -1,4 +1,6 @@
 import { useId, useRef, useState, type DragEvent, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { createArtifact, uploadArtifactVersion } from '../../api/assessmentDetailApi.ts'
 import { toApiError } from '../../api/apiError.ts'
 import { isMockDataSource } from '../../api/dataSource.ts'
@@ -22,7 +24,7 @@ const acceptedTypes = '.pdf,.hwp,.hwpx,.doc,.docx,.ppt,.pptx,.xlsx,image/*'
 
 // 결과 파일 등록 / 새 버전 (Mockup SA-DETAIL-07, api-contract.md §24 POST + §25 POST).
 // 새 결과물은 Artifact 생성 후 v1을 올린다. 업로드가 실패하면 Version을 만들지 않고, 재시도 때 같은 Artifact에 올린다.
-export function UploadArtifactModal({ sourceId, target, onClose, onUploaded }: UploadArtifactModalProps) {
+function UploadArtifactModalForm({ sourceId, target, onClose, onUploaded }: UploadArtifactModalProps) {
   const ids = { title: useId(), file: useId(), note: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -196,4 +198,9 @@ export function UploadArtifactModal({ sourceId, target, onClose, onUploaded }: U
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function UploadArtifactModal(props: Parameters<typeof UploadArtifactModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <UploadArtifactModalForm {...props} />
 }

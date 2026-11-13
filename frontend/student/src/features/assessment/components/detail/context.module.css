@@ -10,13 +10,11 @@
 }
 
 .reviewBadge {
+  /* 분석 후보·확인 필요는 강조 배지가 아니라 회색 보조 글로 둔다 (2026-10-29 시연 피드백: 노란 배경·갈색 글 제거) */
   justify-self: start;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--as-color-warning-soft);
-  color: var(--as-color-warning-text);
+  color: var(--as-color-text-secondary);
   font-size: var(--as-text-caption);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .reviewBadge[data-status='COMPLETED'] {
@@ -405,11 +403,9 @@
 }
 
 .candidateTag {
-  padding: 0 5px;
-  border-radius: 4px;
-  background: var(--as-color-warning-soft);
-  color: var(--as-color-warning-text);
+  /* 수행평가 상세의 후보 표시와 같은 회색 보조 글 (2026-10-29 시연 피드백) */
   font-size: var(--as-text-caption);
+  color: var(--as-color-text-secondary);
   white-space: nowrap;
 }
 
@@ -447,7 +443,7 @@
   margin-top: 2px;
 }
 
-@media (max-width: 719px) {
+@container assessment (max-width: 719px) {
   .contextGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -458,7 +454,7 @@
 }
 
 /* AUD-042: 모바일 누름 영역 24px 이상 */
-@media (max-width: 820px) {
+@container assessment (max-width: 820px) {
   .inlineLink {
     display: inline-block;
     min-height: 24px;

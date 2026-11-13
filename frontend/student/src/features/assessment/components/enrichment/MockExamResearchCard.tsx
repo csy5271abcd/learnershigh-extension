@@ -2,12 +2,13 @@ import { Link, useLocation } from 'react-router'
 import type { MockExamMaterial } from '../../api/types.ts'
 import { examLine, subjectBadge } from '../../model/mockExamResearchView.ts'
 import { mockExamMaterialDetailPath } from '../../routes/paths.ts'
-import { ArrowRightIcon, PlusIcon } from '../AssessmentIcons.tsx'
+import { ArrowRightIcon } from '../AssessmentIcons.tsx'
 import styles from './mockExam.module.css'
 
 // 모의고사 60선 카드. 원문은 싣지 않고 출처·소재·추천 주제·계열만 보인다 (원문은 상세에서).
-// 제목 링크로 상세에 가고, "심화 탐구 시작"은 기존 만들기 Modal을 연다.
-export function MockExamResearchCard({ item, onStart }: { item: MockExamMaterial; onStart: () => void }) {
+// 제목 링크로 상세에 간다. 2026-11-11 "심화 탐구 시작" 버튼은 범위 축소로 없앴다(읽기 전용).
+// 원문이 이 환경에 없으면 "원문 미포함"을 카드에 표시한다(메타데이터는 그대로 보인다).
+export function MockExamResearchCard({ item }: { item: MockExamMaterial }) {
   const isEnglish = item.subjectId === 'mock_eng'
   // 상세의 "모의고사 목록"이 지금 탐색 조건(과목·검색·필터·더 보기)으로 돌아오도록 넘긴다.
   const { search } = useLocation()
@@ -40,10 +41,7 @@ export function MockExamResearchCard({ item, onStart }: { item: MockExamMaterial
           지문 상세 보기
           <ArrowRightIcon size={14} />
         </Link>
-        <button type="button" className={styles.startButton} aria-label={`${item.idea.coreMaterial}로 심화 탐구 시작`} onClick={onStart}>
-          <PlusIcon size={14} />
-          심화 탐구 시작
-        </button>
+        {!item.research?.passage && <span className={styles.cardId}>원문 미포함</span>}
       </div>
     </article>
   )

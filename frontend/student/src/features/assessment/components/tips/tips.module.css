@@ -181,7 +181,7 @@
   border-radius: var(--as-radius-lg);
 }
 
-@media (max-width: 720px) {
+@container assessment (max-width: 720px) {
   .browser {
     grid-template-columns: minmax(0, 1fr);
   }

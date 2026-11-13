@@ -1,21 +1,13 @@
 import { useState, type ReactNode } from 'react'
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
-import type { EnrichmentTask, UniversityExamQuestion } from '../api/types.ts'
+import { Link, useLocation, useParams, useSearchParams } from 'react-router'
 import { getUniversityExamDocument, universityExamFileUrl } from '../api/universityExamApi.ts'
-import { AlertIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, InfoIcon, NoteIcon, PlusIcon } from '../components/AssessmentIcons.tsx'
-import { CreateEnrichmentModal, type CreateEnrichmentPrefill } from '../components/enrichment/CreateEnrichmentModal.tsx'
-import { MockDataNotice } from '../components/MockDataNotice.tsx'
+import { AlertIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon } from '../components/AssessmentIcons.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { ExamQuestionNavigator } from '../components/university/ExamQuestionNavigator.tsx'
-import { type ExamSourceInsertState } from '../components/university/ExamSourcePickerModal.tsx'
-import { examTaskPrefill } from '../components/university/examTaskPrefill.ts'
-import { NoteTargetModal } from '../components/university/NoteTargetModal.tsx'
 import { PdfViewer } from '../components/university/PdfViewer.tsx'
 import styles from '../components/university/university.module.css'
-import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import {
   examCategoryLabels,
-  examSourceLine,
   formatFileSize,
   questionAtPage,
   questionDisplayLabel,
@@ -23,22 +15,19 @@ import {
   universityLine,
 } from '../model/universityExamView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
-import { enrichmentTaskDetailPath, universityResourcesPath } from './paths.ts'
+import { universityResourcesPath } from './paths.ts'
 
 // 대학별 기출 PDF 원문 보기 (2026-10-28, P-25 PROPOSED). 왼쪽 PDF(앱 안 pdf.js), 오른쪽 자료 정보·현재 쪽·문항 목차.
-// 쪽은 URL `?page=`(PDF 물리 쪽)에 두어 새로고침·공유해도 같은 쪽이 열린다. `?task=`면 그 탐구 노트로 돌아가기·노트에 추가가 된다.
-// 새 노트 편집기를 만들지 않는다. 노트에 넣기는 기존 심화 탐구 상세의 편집기가 카드를 넣고 자동 저장한다.
+// 쪽은 URL `?page=`(PDF 물리 쪽)에 두어 새로고침·공유해도 같은 쪽이 열린다.
+// 2026-11-11: 읽기 전용 참고자료로 축소했다. 심화 탐구 시작·탐구 노트에 추가·`?task=` 복귀를 없앴다(명세 §3).
+// 학교 수행평가 노트의 출처 카드(EXAM_SOURCE, ExamSourcePickerModal)는 이 화면과 별개로 유지된다.
+// 메타데이터는 정적 참고자료라 http 모드에서도 열린다. 원문 PDF는 개발 서버 전용 경로뿐이다.
 export function UniversityExamDocumentRoute() {
   const { documentId = '' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const location = useLocation()
-  const navigate = useNavigate()
-  const { selectedContext, termAssessments, notifyDataChanged } = useAssessmentWorkspace()
   const documentQuery = useApiQuery(`ae-uni-exam|${documentId}`, () => getUniversityExamDocument(documentId))
   const item = documentQuery.data?.documentId === documentId ? documentQuery.data : undefined
-  const taskId = searchParams.get('task')
-  const [createRequest, setCreateRequest] = useState<CreateEnrichmentPrefill | null>(null)
-  const [notePicker, setNotePicker] = useState(false)
   const [tocOpen, setTocOpen] = useState(() => window.matchMedia('(min-width: 821px)').matches)
 
   const listSearch = (location.state as { listSearch?: unknown } | null)?.listSearch
@@ -82,14 +71,6 @@ export function UniversityExamDocumentRoute() {
     <main className={styles.docPage}>
       <div className={styles.docTopBar}>
         {backLinks}
-        {taskId && (
-          <div className={styles.topBarActions}>
-            <Link className={styles.outlineButton} to={enrichmentTaskDetailPath(taskId)}>
-              <NoteIcon size={14} />
-              탐구 노트로 돌아가기
-            </Link>
-          </div>
-        )}
       </div>
       <div className={styles.docBody}>
         <section className={styles.viewerArea} aria-label="PDF 원문">
@@ -116,28 +97,7 @@ export function UniversityExamDocumentRoute() {
   if (!item) return frame(<LoadingRows rows={4} label="자료를 불러오는 중" />, <LoadingRows rows={3} label="자료 정보를 불러오는 중" />)
 
   const fileUrl = universityExamFileUrl(item.documentId)
-  const subjects = selectedContext?.subjects ?? []
   const pageSections = sectionsAtPage(question, page)
-  const startTask = (target: UniversityExamQuestion | null, targetPage: number) => setCreateRequest(examTaskPrefill(item, target, targetPage, subjects))
-
-  const sourceForNote = (): ExamSourceInsertState['examSourceInsert'] => ({
-    documentId: item.documentId,
-    questionId: question?.questionId ?? null,
-    pageStart: page,
-    pageEnd: null,
-    label: examSourceLine(item, question, page),
-    title: item.title,
-  })
-  const insertIntoNote = (targetTaskId: string) => {
-    const state: ExamSourceInsertState = { examSourceInsert: sourceForNote() }
-    navigate(enrichmentTaskDetailPath(targetTaskId), { state })
-  }
-
-  const onCreated = (task: EnrichmentTask) => {
-    setCreateRequest(null)
-    notifyDataChanged()
-    navigate(enrichmentTaskDetailPath(task.taskId))
-  }
 
   return (
     <>
@@ -207,27 +167,6 @@ export function UniversityExamDocumentRoute() {
                 ))}
               </ul>
             )}
-            <div className={styles.actionColumn}>
-              {/* 위치·배치는 간소화 전 그대로, 파란 배경 강조만 빼고 보조 버튼 모양 (2026-10-28 사용자 요청) */}
-              <button type="button" className={styles.outlineButton} onClick={() => startTask(question, page)}>
-                <PlusIcon size={14} />
-                {question ? '이 문항으로 심화 탐구 시작' : '이 쪽으로 심화 탐구 시작'}
-              </button>
-              <button
-                type="button"
-                className={styles.outlineButton}
-                onClick={() => (taskId ? insertIntoNote(taskId) : setNotePicker(true))}
-              >
-                <NoteIcon size={14} />
-                현재 쪽을 노트에 추가
-              </button>
-              {taskId && (
-                <Link className={styles.textButton} to={enrichmentTaskDetailPath(taskId)}>
-                  탐구 노트로 돌아가기
-                  <ChevronRightIcon size={13} />
-                </Link>
-              )}
-            </div>
           </section>
 
           <section className={styles.infoSection} aria-label="문항 목차">
@@ -242,7 +181,6 @@ export function UniversityExamDocumentRoute() {
                   currentQuestionId={question?.questionId ?? null}
                   currentPage={page}
                   onGoTo={(targetPage) => goToPage(targetPage)}
-                  onStartTask={(target) => startTask(target, target.pageStart)}
                 />
               )}
             </div>
@@ -255,28 +193,7 @@ export function UniversityExamDocumentRoute() {
               시연용이며, 공개 배포 전 대학의 이용 허락 확인이 필요해요.
             </span>
           </p>
-          <MockDataNotice />
         </>,
-      )}
-
-      {createRequest && selectedContext && (
-        <CreateEnrichmentModal
-          subjects={selectedContext.subjects}
-          assessments={termAssessments.data?.items ?? []}
-          prefill={createRequest}
-          onClose={() => setCreateRequest(null)}
-          onCreated={onCreated}
-        />
-      )}
-      {notePicker && (
-        <NoteTargetModal
-          sourceLine={examSourceLine(item, question, page)}
-          onClose={() => setNotePicker(false)}
-          onPick={(targetTaskId) => {
-            setNotePicker(false)
-            insertIntoNote(targetTaskId)
-          }}
-        />
       )}
     </>
   )

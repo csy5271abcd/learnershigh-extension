@@ -1,7 +1,9 @@
+import { isMockDataSource } from '../api/dataSource.ts'
 import { useCallback, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
-import { getResource, updateResource } from '../api/resourcesApi.ts'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { getResource, trashResource, updateResource } from '../api/resourcesApi.ts'
 import type { StudentResource, UpdateResourceRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
 import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon, SparkleIcon } from '../components/AssessmentIcons.tsx'
@@ -105,7 +107,7 @@ export function ResourceDetailRoute() {
       ) : (
         <>
           <div className={styles.detailActions}>
-            <button type="button" className={enrichmentStyles.outlineButton} onClick={() => setEditing(true)}>
+            <button type="button" className={enrichmentStyles.outlineButton} disabled={isAssessmentReadOnlyView()} onClick={() => setEditing(true)}>
               <PencilIcon size={14} />
               수정
             </button>
@@ -127,6 +129,22 @@ export function ResourceDetailRoute() {
               <SparkleIcon size={14} />
               AI 요약
             </button>
+            {!isAssessmentReadOnlyView() && !isMockDataSource && (
+              <button
+                type="button"
+                className={enrichmentStyles.outlineButton}
+                data-testid="trash-resource"
+                onClick={() => {
+                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                  trashResource(resource.resourceId).then(
+                    () => navigate(resourcesPath),
+                    (error: Error) => notify('error', `옮기지 못했어요. ${error.message}`),
+                  )
+                }}
+              >
+                휴지통으로 이동
+              </button>
+            )}
           </div>
 
           <dl className={styles.props}>

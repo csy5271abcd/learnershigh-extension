@@ -295,13 +295,13 @@
   font-size: var(--as-text-meta);
 }
 
-@media (max-width: 959px) {
+@container assessment (max-width: 959px) {
   .page {
     padding: 18px 16px 48px;
   }
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .fields {
     grid-template-columns: minmax(0, 1fr);
   }

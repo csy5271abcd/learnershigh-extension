@@ -1030,7 +1030,7 @@
 }
 
 /* ---------- 반응형 ---------- */
-@media (max-width: 1279px) {
+@container assessment (max-width: 1279px) {
   /* 태블릿: 대학·과목·분량 열을 제목 아래 요약 한 줄로 옮긴다 (자료명 | 작업) */
   .examTable {
     --exam-columns: minmax(0, 1fr) auto;
@@ -1075,7 +1075,7 @@
   }
 }
 
-@media (max-width: 820px) {
+@container assessment (max-width: 820px) {
   /* 모바일·작은 태블릿: 가로 스크롤 표 대신 제목 + 한 줄 요약 + 동작 */
   .examHead {
     display: none;
@@ -1110,7 +1110,7 @@
   }
 }
 
-@media (max-width: 559px) {
+@container assessment (max-width: 559px) {
   .listToolbar {
     align-items: flex-start;
   }

@@ -49,6 +49,15 @@ export function listEvaluationPlansMock(query: { schoolId: string; academicYear:
   })
 }
 
+/** §10-1 GET .../evaluation-plans/{planId}: 목록과 같은 Store에서 찾는다. 없으면 404 (학생 범위 밖 문서와 구분하지 않는다). */
+export function getEvaluationPlanMock(planId: string): Promise<EvaluationPlan> {
+  return respond(() => {
+    const plan = mockStore.evaluationPlans.find((item) => item.planId === planId)
+    if (!plan) fail(404, { code: 'NOT_FOUND', message: '평가계획서를 찾을 수 없어요.', details: {} })
+    return plan
+  })
+}
+
 export function uploadEvaluationPlanMock(request: UploadEvaluationPlanRequest): Promise<EvaluationPlanUpload> {
   return respond(() => {
     if (scenarioActive('evaluationPlanUploadError')) fail(500, { code: 'INTERNAL_ERROR', message: '일시적인 서버 오류로 파일을 올리지 못했어요.', details: {} })

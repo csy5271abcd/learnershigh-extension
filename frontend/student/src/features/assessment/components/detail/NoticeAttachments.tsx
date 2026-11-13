@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
 import { addNotice, noticeAccept, noticeFileProblem, removeNotice, useNotices } from '../../model/assessmentNoticeStore.ts'
 import { formatFileSize } from '../../model/noteEditorModel.ts'
 import { AlertIcon, CloseIcon, FileIcon, ImageIcon } from '../AssessmentIcons.tsx'
@@ -12,6 +13,8 @@ export function NoticeAttachments({ assessmentId, assessmentTitle }: { assessmen
   const inputRef = useRef<HTMLInputElement>(null)
   const headingId = useId()
   const [error, setError] = useState<string>()
+  // 관리자 읽기 전용 보기(P-28): 같은 자리에 두되 추가·빼기는 비활성 (학생 브라우저 임시 파일이라 관리자에게는 원본이 없다)
+  const readOnly = isAssessmentReadOnlyView()
 
   return (
     <section className={styles.section} aria-labelledby={headingId}>
@@ -25,6 +28,7 @@ export function NoticeAttachments({ assessmentId, assessmentTitle }: { assessmen
         className="lh-visually-hidden"
         tabIndex={-1}
         aria-hidden="true"
+        disabled={readOnly}
         onChange={(event) => {
           const file = event.target.files?.[0]
           event.target.value = ''
@@ -47,14 +51,20 @@ export function NoticeAttachments({ assessmentId, assessmentTitle }: { assessmen
                 {notice.name}
               </span>
               <span className={styles.meta}>{formatFileSize(notice.size)} · 이 화면에서만 보여요</span>
-              <button type="button" className={styles.remove} aria-label={`${notice.name} 빼기`} onClick={() => removeNotice(assessmentId, notice.attachmentId)}>
+              <button type="button" className={styles.remove} aria-label={`${notice.name} 빼기`} disabled={readOnly} onClick={() => removeNotice(assessmentId, notice.attachmentId)}>
                 <CloseIcon size={13} />
               </button>
             </li>
           )
         })}
         <li>
-          <button type="button" className={styles.add} onClick={() => inputRef.current?.click()}>
+          <button
+            type="button"
+            className={styles.add}
+            disabled={readOnly}
+            title={readOnly ? '관리자 읽기 전용 보기에서는 안내문을 추가할 수 없어요' : undefined}
+            onClick={() => inputRef.current?.click()}
+          >
             <ImageIcon size={18} />
             안내문 사진·PDF 추가
           </button>

@@ -1,14 +1,10 @@
-import { useCallback, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { getMockExamMaterial } from '../api/enrichmentApi.ts'
-import { ChevronDownIcon, ChevronLeftIcon, InfoIcon, PlusIcon } from '../components/AssessmentIcons.tsx'
-import type { CreateEnrichmentPrefill } from '../components/enrichment/CreateEnrichmentModal.tsx'
+import { ChevronLeftIcon, InfoIcon } from '../components/AssessmentIcons.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
 import styles from '../components/enrichment/enrichment.module.css'
-import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
-import { Toast, type ToastMessage } from '../components/Toast.tsx'
-import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { mockExamSourceLabel, mockExamSubjectName } from '../model/enrichmentView.ts'
 import { examLine } from '../model/mockExamResearchView.ts'
 import mockStyles from '../components/enrichment/mockExam.module.css'
@@ -19,28 +15,18 @@ import { mockExamMaterialsPath } from './paths.ts'
 // 원문 정보(출처)와 LearnersHigh가 쓴 탐구 아이디어를 따로 보여준다.
 // 모의고사 60선(2026-10-28)은 원본 Markdown의 원문 지문을 그대로 보여준다 — 공개 배포 권한은 미확인 (API-OD-A11, P-24).
 // 원문은 Git에 넣지 않고 로컬 파일이 있을 때만 붙는다(api/mock/mockExamPassages.ts). 없으면 "원문 미포함" 안내만 보여준다.
-// 심화 Task 만들기는 §18 sourceReference(제안 계약)로 출발 자료를 남긴다.
+// 2026-11-11: 읽기 전용 정적 참고자료(content/enrichmentContent.ts). "이 주제로 심화 탐구 시작"·수행평가 아이디어 연결을 없앴다(명세 §1).
 // Mockup의 영문 주제·해시태그·LearnersHigh 코멘트·관련 자율 심화 Task·즐겨찾기는 계약/Spec 항목에 없어 보류한다 (MM-28).
 export function MockExamMaterialDetailRoute() {
   const { materialId = '' } = useParams()
   const location = useLocation()
-  const { termAssessments } = useAssessmentWorkspace()
   const material = useApiQuery(`ae-material|${materialId}`, () => getMockExamMaterial(materialId))
-  const [createRequest, setCreateRequest] = useState<CreateEnrichmentPrefill | null>(null)
-  const [ideaTarget, setIdeaTarget] = useState('')
   const [passageOpen, setPassageOpen] = useState(false)
-  const [toast, setToast] = useState<ToastMessage | null>(null)
-  const dismissToast = useCallback(() => setToast(null), [])
   const item = material.data?.materialId === materialId ? material.data : undefined
 
   const frame = (content: ReactNode) => (
-    <EnrichmentFrame
-      searchTarget={mockExamMaterialsPath}
-      createRequest={createRequest}
-      onCreateRequestHandled={() => setCreateRequest(null)}
-    >
+    <EnrichmentFrame searchTarget={mockExamMaterialsPath}>
       <article className={styles.article}>{content}</article>
-      <Toast message={toast} onDismiss={dismissToast} />
     </EnrichmentFrame>
   )
 
@@ -57,7 +43,7 @@ export function MockExamMaterialDetailRoute() {
       <>
         {back}
         {material.error.code === 'MOCK_EXAM_MATERIAL_NOT_FOUND' ? (
-          <EmptyState title="탐구 소재를 찾을 수 없어요" description="공개가 끝났거나 없는 소재예요." />
+          <EmptyState title="모의고사 자료를 찾을 수 없어요" description="목록에 없는 자료예요." action={<Link to={mockExamMaterialsPath}>모의고사 목록으로 가기</Link>} />
         ) : (
           <ErrorState title="탐구 소재를 불러오지 못했어요" error={material.error} onRetry={material.retry} />
         )}
@@ -69,22 +55,10 @@ export function MockExamMaterialDetailRoute() {
   const subjectName = mockExamSubjectName(item.subjectId)
   const sourceLabel = mockExamSourceLabel(item.source, subjectName)
   const research = item.research
-  const startTask = () =>
-    setCreateRequest({
-      title: item.idea.topicTitle,
-      goal: item.idea.goal,
-      sourceReference: { type: 'MOCK_EXAM_MATERIAL', sourceId: item.materialId },
-      sourceTitle: `${item.materialId} ${item.idea.coreMaterial}`,
-    })
-
   return frame(
     <>
       <div className={styles.articleTop}>
         {back}
-        <button type="button" className={styles.primaryButton} onClick={startTask}>
-          <PlusIcon size={15} />
-          이 주제로 심화 탐구 시작
-        </button>
       </div>
 
       <header className={mockStyles.detailHeader}>
@@ -121,7 +95,7 @@ export function MockExamMaterialDetailRoute() {
           ) : (
             <p className={mockStyles.passageMissing}>
               <InfoIcon size={14} />
-              원문 지문은 배포 권한을 확인하기 전이라 저장소에 포함하지 않았어요. 아래 시험·문항·쪽 정보로 원본 시험지를 확인해 주세요.
+              원문 미포함 · 원문 지문은 배포 권한을 확인하기 전이라 이 환경에 포함되지 않았어요. 아래 시험·문항·쪽 정보로 원본 시험지를 확인해 주세요.
             </p>
           )}
           <dl className={mockStyles.sourceTable} aria-label="시험 출처">
@@ -200,60 +174,6 @@ export function MockExamMaterialDetailRoute() {
         </section>
       )}
 
-      <div className={mockStyles.startBar}>
-        <p className={mockStyles.startHint}>탐구 제목과 목표는 시작할 때 내 말로 바꿀 수 있어요. 학교 수행평가로 등록되지 않는 개인 심화 탐구예요.</p>
-        <button type="button" className={styles.primaryButton} onClick={startTask}>
-          <PlusIcon size={15} />
-          이 주제로 심화 탐구 시작
-        </button>
-      </div>
-
-      <div className={styles.connectBox}>
-        <p className={styles.boxTitle}>학교 수행평가에 아이디어로 연결</p>
-        <div className={styles.connectRow}>
-          <span className={styles.selectWrap}>
-            <label className="lh-visually-hidden" htmlFor="mock-connect-target">
-              연결할 수행평가
-            </label>
-            <select
-              id="mock-connect-target"
-              className={styles.select}
-              value={ideaTarget}
-              onChange={(event) => setIdeaTarget(event.target.value)}
-            >
-              <option value="">수행평가 선택</option>
-              {(termAssessments.data?.items ?? []).map((assessment) => (
-                <option key={assessment.assessmentId} value={assessment.assessmentId}>
-                  {assessment.title}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon size={16} className={styles.selectChevron} />
-          </span>
-          <button
-            type="button"
-            className={styles.primaryButton}
-            aria-disabled="true"
-            aria-describedby="mock-connect-reason"
-            onClick={() =>
-              setToast((previous) => ({
-                id: (previous?.id ?? 0) + 1,
-                tone: 'info',
-                text: '노트에 아이디어를 넣는 기능은 탐구 노트 편집기와 함께 제공돼요.',
-              }))
-            }
-          >
-            탐구 주제로 사용하기
-          </button>
-        </div>
-        <p id="mock-connect-reason" className={styles.previewHint}>
-          노트에 아이디어만 추가되는 기능이에요. 노트 편집기가 준비되면 쓸 수 있고, 수행평가 주제명은 바뀌지 않아요.
-        </p>
-      </div>
-
-      <div className={styles.notices}>
-        <MockDataNotice />
-      </div>
     </>,
   )
 }

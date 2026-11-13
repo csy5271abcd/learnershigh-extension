@@ -5,6 +5,7 @@ import type {
   PageResponse,
   SchoolAssessment,
   SchoolAssessmentStatus,
+  UpdateSchoolAssessmentRequest,
 } from '../types.ts'
 import type { SchoolAssessmentRecord } from './assessmentFixture.ts'
 import { fail, mockNow, nextMockId, respond, scenarioActive } from './mockRuntime.ts'
@@ -127,6 +128,24 @@ export function createSchoolAssessmentMock(request: CreateSchoolAssessmentReques
       description: request.description?.trim() || null,
     }
     mockStore.schoolAssessments.push(record)
+    return toResponse(record)
+  })
+}
+
+/** §12 PATCH: 학생 편집 필드(제목·설명·마감일)만 바꾼다. 과목·상태·참조는 바꾸지 않는다. */
+export function updateSchoolAssessmentMock(assessmentId: string, request: UpdateSchoolAssessmentRequest): Promise<SchoolAssessment> {
+  return respond(() => {
+    const record = findRecord(assessmentId)
+    const fields: { field: string; reason: string }[] = []
+    const title = request.title === undefined ? record.title : request.title.trim()
+    if (title === '') fields.push({ field: 'title', reason: 'required' })
+    if (request.deadlineDate !== undefined && request.deadlineDate !== null && !datePattern.test(request.deadlineDate)) {
+      fields.push({ field: 'deadlineDate', reason: 'format' })
+    }
+    if (fields.length > 0) fail(400, { code: 'VALIDATION_ERROR', message: '입력값을 확인해주세요.', details: { fields } })
+    record.title = title
+    if (request.description !== undefined) record.description = request.description?.trim() || null
+    if (request.deadlineDate !== undefined) record.deadlineDate = request.deadlineDate
     return toResponse(record)
   })
 }

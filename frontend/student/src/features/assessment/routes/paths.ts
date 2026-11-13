@@ -7,6 +7,14 @@ export const assessmentRoutePattern = 'assessment'
 export const schoolAssessmentsPath = '/assessment/school-assessments'
 export const schoolAssessmentDetailPath = (assessmentId: string) =>
   `${schoolAssessmentsPath}/${encodeURIComponent(assessmentId)}`
+/** 결과물 앱 안 미리보기·버전 비교 (전체 페이지) */
+export const artifactViewerPath = (artifactId: string, options: { versionId?: string; compareVersionId?: string } = {}) => {
+  const query = new URLSearchParams()
+  if (options.versionId) query.set('v', options.versionId)
+  if (options.compareVersionId) query.set('compare', options.compareVersionId)
+  const search = query.toString()
+  return `/assessment/artifacts/${encodeURIComponent(artifactId)}/viewer${search ? `?${search}` : ''}`
+}
 export const academicInfoPath = '/assessment/academic-info'
 
 /** 과목별 목록은 같은 목록에 과목 필터를 적용한 것이다 (assessment-student.md §6). */
@@ -16,6 +24,13 @@ export const subjectAssessmentsPath = (subjectId: string) =>
 /** 평가계획서 분석 결과 검토·가져오기 (screen-map S5). 가져오기 Modal에서 분석을 요청한 뒤 이동한다. */
 export const pdfImportReviewPath = (documentRevisionId: string) =>
   `${schoolAssessmentsPath}/pdf-import/${encodeURIComponent(documentRevisionId)}`
+
+/**
+ * 평가계획서 분석 미리보기 결과 전체 페이지 (2026-11-11, 개발 Flag 전용). 결과는 이 탭 메모리에만 있어 새로고침하면 다시 분석해야 한다.
+ * 공식 분석 결과(`pdfImportReviewPath`, §11)와 데이터 원천이 다르므로 Route를 나눈다.
+ */
+export const analysisPreviewResultPath = (previewId: string) =>
+  `${schoolAssessmentsPath}/analysis-preview/${encodeURIComponent(previewId)}`
 
 /** 상세를 피드백 탭이 열린 상태로 연다 (선생님 피드백 목록 → 과제 복귀) */
 export const schoolAssessmentFeedbackPath = (assessmentId: string) =>

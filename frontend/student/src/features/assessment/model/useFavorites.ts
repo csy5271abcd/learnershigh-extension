@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { toApiError } from '../api/apiError.ts'
 import { listArchive, setArchiveFavorite } from '../api/growthArchiveApi.ts'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import type { ArchiveSourceType } from '../api/types.ts'
 import { useAssessmentWorkspace } from './assessmentWorkspace.ts'
 import { useApiQuery } from './useApiQuery.ts'
@@ -57,5 +58,6 @@ export function useFavorites(): FavoritesState {
     [keys, notifyDataChanged],
   )
 
-  return { isFavorite, pendingKey, toggle, ready: Boolean(keys) }
+  // 관리자 읽기 전용 보기에서는 별표를 누를 수 없다 (P-28). 쓰기 API Guard와 별개로 UI에서도 막는다
+  return { isFavorite, pendingKey, toggle, ready: Boolean(keys) && !isAssessmentReadOnlyView() }
 }

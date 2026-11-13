@@ -201,6 +201,7 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
     setModal(null)
   }
 
+  const saveHintId = useId()
   const numbers = listNumbers(blocks)
   const blank = isBlankNote(blocks)
 
@@ -221,6 +222,21 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
             <TemplateIcon size={14} />
             템플릿 선택
           </button>
+          {/* 지금 저장: 자동 저장(입력 멈춤 1.5초)을 기다리지 않고 같은 저장 흐름(useNoteDraft.save)을 바로 실행한다.
+              저장 중·저장할 내용 없음·충돌 상태에서는 누를 수 없다(중복 저장 방지). 저장마다 새 Revision이 생긴다. */}
+          <button
+            type="button"
+            className={detailStyles.smallOutlineButton}
+            data-testid="note-save-now"
+            disabled={draft.status === 'saving' || draft.status === 'conflict' || !(draft.status === 'dirty' || draft.status === 'error')}
+            aria-describedby={saveHintId}
+            onClick={draft.save}
+          >
+            {draft.status === 'saving' ? '저장 중…' : '지금 저장'}
+          </button>
+          <span id={saveHintId} className="lh-visually-hidden">
+            {draft.status === 'dirty' ? '저장하지 않은 변경이 있어요' : draft.status === 'saving' ? '저장하고 있어요' : '저장할 변경이 없어요'}
+          </span>
         </div>
       </div>
 
@@ -270,7 +286,7 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
       {hasProvisionalBlocks(blocks) && (
         <p className={styles.banner} data-tone="info">
           <span>
-            <InfoIcon size={12} /> 제목 단계·목록·표·체크리스트·토글·코드·수식·카드·미디어 블록은 저장 형식이 확정되기 전이라 시연용(Mock) 형식으로 저장돼요. 파일·이미지 본문은 저장되지 않아요.
+            <InfoIcon size={12} /> 제목 단계·목록·표·체크리스트·토글·코드·수식·카드·미디어 블록은 Editor 저장 형식이 확정되기 전(OD-A05)의 임시 형식으로 저장돼요. 파일·이미지 본문은 노트에 저장되지 않아요(파일은 결과물로 올려 주세요).
           </span>
         </p>
       )}

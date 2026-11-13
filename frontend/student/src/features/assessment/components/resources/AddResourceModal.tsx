@@ -1,4 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { toApiError, type ApiError } from '../../api/apiError.ts'
 import { createResource } from '../../api/resourcesApi.ts'
 import type { StudentResource } from '../../api/types.ts'
@@ -33,7 +35,7 @@ const reasonMessages: Record<Field, Record<string, string>> = {
 // 계약 예시에서 값이 있는 type·title만 필수로 본다. 나머지는 선택이다.
 // 링크는 형식만 확인하고 실제로 열리는지는 확인하지 않는다. 파일 첨부는 저장소가 정해지지 않아 받지 않는다 (API-OD-A03).
 // 메모·태그는 Mockup 등록 화면에 없어 자료 상세에서 고친다.
-export function AddResourceModal({ prefill, onClose, onCreated }: AddResourceModalProps) {
+function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalProps) {
   const ids = { title: useId(), author: useId(), source: useId(), date: useId(), url: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
@@ -261,4 +263,9 @@ export function AddResourceModal({ prefill, onClose, onCreated }: AddResourceMod
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function AddResourceModal(props: Parameters<typeof AddResourceModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <AddResourceModalForm {...props} />
 }

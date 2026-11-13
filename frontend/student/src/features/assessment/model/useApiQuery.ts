@@ -23,6 +23,11 @@ interface Settled<T> {
 // 화면에는 바로 보여주되 항상 다시 조회한다 (Source of Truth는 API 응답).
 const lastResults = new Map<string, unknown>()
 
+/** 화면에 먼저 보여줄 이전 결과를 모두 버린다. Admin 읽기 전용 보기에서 다른 학생으로 바꿀 때만 쓴다 (학생 간 결과 섞임 방지, P-28) */
+export function clearApiQueryCache() {
+  lastResults.clear()
+}
+
 /**
  * Assessment 화면용 조회 Hook. `key`가 바뀌거나 retry하면 다시 조회한다.
  * - `key`는 조회 조건 전체를 담고 Feature 안에서 유일해야 한다.

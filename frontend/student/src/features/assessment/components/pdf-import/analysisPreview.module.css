@@ -1,0 +1,193 @@
+/* 평가계획서 분석 미리보기 (개발 Flag 전용). Assessment Token(--as-*)만 쓴다. */
+.devBanner {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-meta);
+  line-height: 1.5;
+}
+
+.devBanner svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.progress {
+  margin: 12px 0 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-body);
+}
+
+.result {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.resultHead {
+  display: grid;
+  gap: 6px;
+}
+
+.candidateBadge {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-caption);
+  font-weight: 600;
+}
+
+.resultTitle {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: var(--as-text-section);
+  font-weight: 700;
+}
+
+.resultMeta,
+.summary,
+.weights,
+.footnote {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.experimental {
+  margin: 0;
+  color: var(--as-color-warning-text);
+  font-size: var(--as-text-meta);
+}
+
+.subject {
+  display: grid;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.subjectName {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: var(--as-text-row);
+  font-weight: 700;
+}
+
+.itemList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-fill);
+}
+
+.item[data-kind='written'] {
+  background: var(--as-color-subtle);
+}
+
+.itemTitle {
+  color: var(--as-color-text);
+  font-size: var(--as-text-body);
+  font-weight: 600;
+}
+
+.itemBody {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.itemSource {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+/* ---- 결과 전체 페이지 (AnalysisPreviewResultRoute) ---- */
+.candidateInline {
+  margin-right: 4px;
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px 20px;
+  margin: 8px 0 0;
+}
+
+.fact {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fact dt {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.fact dd {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: var(--as-text-body);
+  overflow-wrap: anywhere;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summaryCard {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.summaryCard[data-tone='warn'] {
+  border-color: transparent;
+  background: var(--as-color-warning-soft);
+}
+
+.summaryValue {
+  color: var(--as-color-text);
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+}
+
+.summaryLabel {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+}
+
+.preLine {
+  white-space: pre-line;
+}

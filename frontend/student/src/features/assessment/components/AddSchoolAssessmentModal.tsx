@@ -1,7 +1,9 @@
 import { useId, useRef, useState, type FormEvent } from 'react'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { ReadOnlyBlockedModal } from './ReadOnlyBlockedModal.tsx'
 import { toApiError, type ApiError } from '../api/apiError.ts'
 import { createSchoolAssessment } from '../api/schoolAssessmentApi.ts'
-import type { AcademicContext, SchoolAssessment } from '../api/types.ts'
+import type { AcademicContext, CatalogSubjectRef, SchoolAssessment } from '../api/types.ts'
 import { termLabel } from '../model/academicTerm.ts'
 import { AlertIcon, ChevronDownIcon } from './AssessmentIcons.tsx'
 import styles from './AddSchoolAssessmentModal.module.css'
@@ -25,6 +27,16 @@ const reasonMessages: Record<string, Record<string, string>> = {
   deadlineDate: { format: '날짜 형식을 확인해 주세요.' },
 }
 
+/** 교과군 순서는 카탈로그 순서를 따른다 */
+function groupBySubjectGroup(items: CatalogSubjectRef[]): [string, CatalogSubjectRef[]][] {
+  const groups = new Map<string, CatalogSubjectRef[]>()
+  for (const item of items) {
+    const key = item.subjectGroup || '기타'
+    groups.set(key, [...(groups.get(key) ?? []), item])
+  }
+  return [...groups.entries()]
+}
+
 function normalizeTitle(title: string): string {
   return title.trim().replace(/\s+/g, ' ').toLocaleLowerCase('ko')
 }
@@ -32,14 +44,14 @@ function normalizeTitle(title: string): string {
 // ST-03 등록 B — 직접 입력 (assessment-student.md §6, api-contract.md §12 POST).
 // 제목·과목만 필수다. 마감일·설명은 선택이며, 학교가 공개하지 않은 값을 채워 넣지 않는다.
 // Mockup의 평가 유형·반영비율·평가일·평가기준·안내문 첨부·개인 메모는 §12 계약에 없어 보류한다 (screen-map MM-03).
-export function AddSchoolAssessmentModal({
+function AddSchoolAssessmentModalForm({
   context,
   initialSubjectId,
   existingTitles,
   onClose,
   onCreated,
 }: AddSchoolAssessmentModalProps) {
-  const ids = { title: useId(), subject: useId(), deadline: useId(), description: useId(), more: useId() }
+  const ids = { title: useId(), subject: useId(), deadline: useId(), description: useId(), more: useId(), catalog: useId(), catalogHint: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
 
@@ -50,12 +62,17 @@ export function AddSchoolAssessmentModal({
   const [deadlineDate, setDeadlineDate] = useState('')
   const [description, setDescription] = useState('')
   const [moreOpen, setMoreOpen] = useState(false)
+  const [catalogOpen, setCatalogOpen] = useState(false)
   const [titleTouched, setTitleTouched] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [confirmingClose, setConfirmingClose] = useState(false)
 
   const trimmedTitle = title.trim()
+  // §9-1 DRAFT catalogSubjects: 같은 학년·학기 공통 후보(학교별 아님). 수강하지 않는 후보는 보여 주되 고를 수 없다(서버도 subjects 기준으로 검증).
+  const catalog = context.catalogSubjects ?? []
+  const notEnrolled = catalog.filter((candidate) => !candidate.enrolled)
+  const notEnrolledGroups = groupBySubjectGroup(notEnrolled)
   const canSubmit = trimmedTitle !== '' && subjectId !== '' && !submitting
   const isDirty = title !== '' || subjectId !== (initialSubjectId ?? '') || deadlineDate !== '' || description !== ''
   const duplicate = trimmedTitle !== '' && existingTitles.some((existing) => normalizeTitle(existing) === normalizeTitle(title))
@@ -205,11 +222,19 @@ export function AddSchoolAssessmentModal({
           )}
         </div>
 
-        <fieldset className={styles.field} aria-describedby={errors.subjectId ? `${ids.subject}-error` : undefined}>
+        <fieldset
+          className={styles.field}
+          aria-describedby={[errors.subjectId ? `${ids.subject}-error` : '', catalog.length > 0 ? ids.catalogHint : ''].filter(Boolean).join(' ') || undefined}
+        >
           <legend className={styles.label}>
             과목 <span className={styles.required} aria-hidden="true">*</span>
             <span className="lh-visually-hidden">(필수)</span>
           </legend>
+          {catalog.length > 0 && (
+            <p id={ids.catalogHint} className={styles.hint}>
+              {context.grade}학년 {context.semester}학기 공통 과목 {catalog.length}개 중 내 수강 과목 {context.subjects.length}개를 고를 수 있어요.
+            </p>
+          )}
           {context.subjects.length === 0 ? (
             <p className={styles.fieldWarning}>이 학기에 등록된 과목이 없어요. 학교·학업 정보에서 과목을 확인해 주세요.</p>
           ) : (
@@ -236,6 +261,38 @@ export function AddSchoolAssessmentModal({
             <p id={`${ids.subject}-error`} className={styles.fieldError}>
               {errors.subjectId}
             </p>
+          )}
+          {notEnrolled.length > 0 && (
+            <>
+              <button
+                type="button"
+                className={styles.moreToggle}
+                aria-expanded={catalogOpen}
+                aria-controls={ids.catalog}
+                onClick={() => setCatalogOpen((value) => !value)}
+              >
+                <ChevronDownIcon size={16} className={catalogOpen ? styles.chevronOpen : undefined} />
+                수강하지 않는 이 학기 공통 과목 {notEnrolled.length}개 보기
+              </button>
+              <div id={ids.catalog} hidden={!catalogOpen} className={styles.catalog}>
+                <p className={styles.hint}>
+                  수강 과목이 아니라서 수행평가를 추가할 수 없어요. 수강 과목이 다르면 학교·학업 정보에서 확인해 주세요.
+                </p>
+                {notEnrolledGroups.map(([group, items]) => (
+                  <div key={group} className={styles.catalogGroup}>
+                    <span className={styles.catalogGroupLabel}>{group}</span>
+                    <ul className={styles.chips} aria-label={`${group} · 수강하지 않는 과목`}>
+                      {items.map((candidate) => (
+                        <li key={candidate.subjectId} className={styles.chipMuted}>
+                          {candidate.name}
+                          <span className="lh-visually-hidden"> (수강하지 않는 과목, 선택 불가)</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </fieldset>
 
@@ -287,4 +344,9 @@ export function AddSchoolAssessmentModal({
       </form>
     </Modal>
   )
+}
+
+/** 관리자 읽기 전용 보기(P-28)에서는 입력 폼 대신 안내만 연다 */
+export function AddSchoolAssessmentModal(props: Parameters<typeof AddSchoolAssessmentModalForm>[0]) {
+  return isAssessmentReadOnlyView() ? <ReadOnlyBlockedModal onClose={props.onClose} /> : <AddSchoolAssessmentModalForm {...props} />
 }

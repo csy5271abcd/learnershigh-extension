@@ -41,6 +41,7 @@ export function GrowthRecordsRoute() {
       <div className={enrichmentStyles.mainArea}>
         <div className={enrichmentStyles.toolbar}>
           <div className={styles.toolbarEnd}>
+            {/* 읽기 전용 보기에서는 새 기록 화면이 안내만 보여준다 (GrowthRecordNewRoute) */}
             <Link to={growthRecordNewPath()} className={enrichmentStyles.primaryButton}>
               <PlusIcon size={15} />
               성장 기록 쓰기
