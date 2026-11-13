@@ -59,17 +59,26 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
     replaceSearch(next.toString())
   }
 
+  // http: 서버가 원문을 분석기로 보내 결과를 저장한다(A3). 분석 중인 개정본을 표시하고, 끝나면 서버에 저장된 목록을 다시 읽는다.
+  const [analyzingRevisionId, setAnalyzingRevisionId] = useState<string | null>(null)
   const analyze = async (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => {
+    setAnalyzingRevisionId(revision.documentRevisionId)
     const outcome = await run(() => requestPlanAnalysis(plan.planId, revision.documentRevisionId))
+    setAnalyzingRevisionId(null)
     if (!outcome) return
+    plans.reload()
     if (outcome.ok) {
-      plans.reload()
+      const failed = outcome.value.analysisStatus === 'FAILED'
       setToast({
         id: nextToastId(),
-        tone: outcome.value.analysisStatus === 'FAILED' ? 'error' : 'success',
-        text: outcome.value.analysisStatus === 'FAILED' ? '분석하지 못했어요. 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.' : '분석 결과가 준비됐어요. 원문과 대조해 확인해 주세요.',
+        tone: failed ? 'error' : 'success',
+        text: failed
+          ? isAdminMockDataSource
+            ? '분석하지 못했어요. 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.'
+            : '분석기가 이 문서에서 평가 정보를 찾지 못했어요(분석 실패로 저장). 원문을 직접 확인해 주세요.'
+          : '분석 결과를 저장했어요. "분석 결과 열기"에서 원문과 대조해 확인해 주세요.',
       })
-    } else setToast({ id: nextToastId(), tone: 'error', text: `${outcome.error.message} (${outcome.error.code})` })
+    } else setToast({ id: nextToastId(), tone: 'error', text: `${outcome.error.message} (${outcome.error.code}${analysisReason(outcome.error)})` })
   }
 
   return (
@@ -165,7 +174,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
                         ) : (
                           <div className={styles.stack}>
                             {selectedPlans.map((plan) => (
-                              <PlanCard key={plan.planId} plan={plan} pending={pending} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} />
+                              <PlanCard key={plan.planId} plan={plan} pending={pending} analyzingRevisionId={analyzingRevisionId} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} />
                             ))}
                           </div>
                         )}
@@ -246,7 +255,14 @@ function SlotRow({ grade, slot, selected, onSelect }: { grade: number; slot: (gr
   )
 }
 
-function PlanCard({ plan, pending, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
+/** 서버 분석 오류 사유(details.fields[0].reason: busy·timeout·partial_result·format_contract_pending 등)를 짧게 덧붙인다 */
+function analysisReason(error: { details?: unknown }): string {
+  const fields = (error.details as { fields?: { reason?: string }[] } | undefined)?.fields
+  const reason = fields?.[0]?.reason
+  return reason ? ` · ${reason}` : ''
+}
+
+function PlanCard({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; analyzingRevisionId: string | null; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
   const latest = plan.revisions[plan.revisions.length - 1]
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const original = latest.file
@@ -292,8 +308,8 @@ function PlanCard({ plan, pending, onAnalyze, onRevision }: { plan: AdminEvaluat
       </p>
       <div className={styles.actions} style={{ marginTop: 10 }}>
         {latest.analysisStatus === 'NOT_REQUESTED' || latest.analysisStatus === 'FAILED' ? (
-          <button type="button" className={`${styles.primaryButton} ${styles.smallButton}`} onClick={() => onAnalyze(plan, latest)} disabled={pending}>
-            {latest.analysisStatus === 'FAILED' ? '분석 다시 요청' : '분석 요청'}
+          <button type="button" className={`${styles.primaryButton} ${styles.smallButton}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzingRevisionId === latest.documentRevisionId} data-testid="plan-analyze-button">
+            {analyzingRevisionId === latest.documentRevisionId ? '분석 중… (최대 2분)' : latest.analysisStatus === 'FAILED' ? '분석 다시 요청' : '분석 요청'}
           </button>
         ) : (
           <button type="button" className={`${styles.primaryButton} ${styles.smallButton}`} onClick={() => navigate(paths.planReview(plan.planId, latest.documentRevisionId))}>

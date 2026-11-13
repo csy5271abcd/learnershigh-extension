@@ -215,8 +215,17 @@ export async function addPlanRevisionHttp(planId: string, request: { file: File;
 }
 
 /** §39 POST 서버 분석 실행: Backend 미구현(원본 PDF 미보관, File Storage API-OD-A03). 호출하지 않는다. */
-export function requestPlanAnalysisHttp(_planId: string, _revisionId: string): Promise<AdminEvaluationPlanRevision> {
-  return notConnected('서버 분석 실행은 아직 없어요. 원본 PDF를 서버에 보관하지 않아요(File Storage 결정 대기). 분석 결과는 외부 분석기 수신으로만 들어와요.')
+/**
+ * §39 POST .../analysis (A3, 2026-11-13): Backend가 보관한 원문을 분석기로 보내 결과를 저장한다(브라우저·개발 Proxy를 거치지 않음).
+ * 분석은 최대 약 2분 걸릴 수 있다. 응답을 그대로 쓰지 않고 문서를 다시 읽어 서버에 저장된 상태를 돌려준다.
+ * 오류(분석기 미설정·연결 실패·BUSY·Timeout·부분 결과·HWP/HWPX 계약 대기·응답 오류)는 서버 Error Body 그대로 던진다.
+ */
+export async function requestPlanAnalysisHttp(planId: string, revisionId: string): Promise<AdminEvaluationPlanRevision> {
+  await adminHttp<unknown>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/analysis`, { method: 'POST' })
+  const plan = await getPlan(planId)
+  const revision = plan.revisions.find((item) => item.documentRevisionId === revisionId)
+  if (!revision) throw new ApiError(404, { code: 'NOT_FOUND', message: '분석한 개정본을 다시 찾지 못했어요.', details: {} })
+  return revision
 }
 
 /**

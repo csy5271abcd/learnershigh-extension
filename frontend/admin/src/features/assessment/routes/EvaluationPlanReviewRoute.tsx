@@ -102,7 +102,7 @@ function ReviewWorkspace({
           ) : (
             <div className={styles.mockNotice} style={{ marginBottom: 10 }} data-testid="analysis-candidate-notice">
               <p style={{ margin: 0 }}>
-                <InfoIcon size={14} /> 외부 분석기가 보낸 <strong>후보</strong>예요. 공식 평가기준이 아니고 학생에게 보이지 않아요. 빈 칸·&lsquo;미확인&rsquo;은 원문에 없다는 뜻이 아니라 확인이 필요하다는 뜻이에요.
+                <InfoIcon size={14} /> 분석기가 만든 <strong>후보</strong>예요. 공식 평가기준이 아니고 학생에게 보이지 않아요. 빈 칸·&lsquo;미확인&rsquo;은 원문에 없다는 뜻이 아니라 확인이 필요하다는 뜻이에요.
               </p>
               {data.analyzer && (
                 <p style={{ margin: '4px 0 0' }}>
