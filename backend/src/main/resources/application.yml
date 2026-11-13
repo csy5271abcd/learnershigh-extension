@@ -33,9 +33,41 @@ spring:
         # Enum 자리에 숫자(0, 1 …)가 오면 순서로 바꿔 넣지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
         fail-on-numbers-for-enums: true
 
+  servlet:
+    multipart:
+      # Assessment AI PDF 분석 업로드 (P-31 PROPOSED). 20MB 초과는 Service가 413 FILE_TOO_LARGE로 거절한다 (Container 한도는 그보다 넉넉히).
+      max-file-size: 100MB
+      max-request-size: 101MB
+
 app:
   # 기준일 계산 Timezone (shared-conventions.md §13)
   zone: Asia/Seoul
+
+assessment:
+  ai:
+    # AI Provider (P-31 PROPOSED, API-OD-A10 미결). 기본 none = 미연결(분석 API 503).
+    # 실제 분석: ASSESSMENT_AI_PROVIDER=anthropic + 환경 변수 ANTHROPIC_API_KEY. Key는 이 파일에 쓰지 않는다.
+    # 주의: Admin 인증 연동 전이므로 운영 환경에서 켜지 않는다.
+    provider: ${ASSESSMENT_AI_PROVIDER:none}
+    model: ${ASSESSMENT_AI_MODEL:claude-opus-5-5}
+  storage:
+    # 결과물 파일 개발용 로컬 격리 Storage (2026-11-11 사용자 승인). Git 저장소·웹 공개 경로 밖. 운영 Provider는 별도 결정.
+    root: ${ASSESSMENT_STORAGE_ROOT:${user.home}/.learnershigh-extension/dev-artifact-storage}
+    # 결과물 한 파일 최대 크기
+    max-file-bytes: ${ASSESSMENT_STORAGE_MAX_FILE_BYTES:52428800}
+  plan-review:
+    # HWP·HWPX 공식 확정(Phase B). 기본 false = 거절(verified_auth_required).
+    # 실제 관리자 인증·인가가 없으므로 격리 개발·합성 시험 환경에서만 true로 켠다. 이때 기록은 reviewer_auth=MOCK_HEADER(운영 검토 실적 아님).
+    structured-confirm-dev: ${ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV:false}
+  demo-roster:
+    # 개발용 다지점 시연 명단 (2026-11-12 사용자 결정). 기본 OFF. learnershigh.integration.mode=mock 일 때만 의미가 있다.
+    # 켜면 시연 지점 3개(br_demo_a/b/c)·합성 학생 60명·지점 관리자 Mock 4개(adm_demo_a01/a02/b01/c01)가 Assessment에서만 보인다.
+    # Student Care·Shared MockExistingStudentClient에는 영향이 없다. 운영 환경에서 켜지 않는다.
+    enabled: ${ASSESSMENT_DEMO_ROSTER_ENABLED:false}
+  analysis-import:
+    # 외부 평가계획서 분석기 결과 수신 Endpoint (PROPOSED, api-contract.md 미반영). 기본 off → 404.
+    # 로컬 연동 시험에서만 ASSESSMENT_ANALYSIS_IMPORT_ENABLED=true로 켠다.
+    enabled: ${ASSESSMENT_ANALYSIS_IMPORT_ENABLED:false}
 
 learnershigh:
   integration:
