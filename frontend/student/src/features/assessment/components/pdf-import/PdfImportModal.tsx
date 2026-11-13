@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from 'react'
 import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
 import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { toApiError } from '../../api/apiError.ts'
 import { listEvaluationPlans, requestEvaluationPlanAnalysis, uploadEvaluationPlan } from '../../api/evaluationPlansApi.ts'
 import type { EvaluationPlan, EvaluationPlanUpload } from '../../api/types.ts'
@@ -10,7 +10,7 @@ import { useAssessmentWorkspace } from '../../model/assessmentWorkspace.ts'
 import { mockPdfPolicy } from '../../model/pdfImportPolicy.ts'
 import { planContextIssue, planTermLabel, reviewStatusLabel, validatePdfFile } from '../../model/pdfImportView.ts'
 import { useApiQuery } from '../../model/useApiQuery.ts'
-import { pdfImportReviewPath } from '../../routes/paths.ts'
+import { evaluationPlanOriginalPath, pdfImportReviewPath } from '../../routes/paths.ts'
 import formStyles from '../AddSchoolAssessmentModal.module.css'
 import { AlertIcon, CheckIcon, FileIcon, InfoIcon, UploadIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
@@ -183,6 +183,12 @@ function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
           </span>
           {selected && <CheckIcon size={16} className={styles.planCheck} />}
         </button>
+        {/* S-4: 서버가 보관한 원문(관리자 확정 문서)만 열 수 있다. Mock에는 원문 정보가 없다 */}
+        {plan.file?.available && (
+          <Link className={styles.planOriginalLink} to={evaluationPlanOriginalPath(plan.planId)} onClick={onClose} data-testid="plan-original-link">
+            원문 보기{plan.file.previewAvailable ? '' : ` (${plan.file.documentFormat} 내려받기)`}
+          </Link>
+        )}
       </li>
     )
   }

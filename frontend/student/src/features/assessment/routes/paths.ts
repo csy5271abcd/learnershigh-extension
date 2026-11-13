@@ -21,6 +21,10 @@ export const academicInfoPath = '/assessment/academic-info'
 export const subjectAssessmentsPath = (subjectId: string) =>
   `${schoolAssessmentsPath}?subject=${encodeURIComponent(subjectId)}`
 
+/** 학교 공통 평가계획서 원문 보기 (S-4, 2026-11-13). page: PDF 물리 쪽(근거 쪽 이동) */
+export const evaluationPlanOriginalPath = (planId: string, page?: number) =>
+  `/assessment/evaluation-plans/${encodeURIComponent(planId)}/original${page ? `?page=${page}` : ''}`
+
 /** 평가계획서 분석 결과 검토·가져오기 (screen-map S5). 가져오기 Modal에서 분석을 요청한 뒤 이동한다. */
 export const pdfImportReviewPath = (documentRevisionId: string) =>
   `${schoolAssessmentsPath}/pdf-import/${encodeURIComponent(documentRevisionId)}`

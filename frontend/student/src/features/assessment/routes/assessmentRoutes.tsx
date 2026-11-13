@@ -1,4 +1,5 @@
 import { ArtifactViewerRoute } from './ArtifactViewerRoute.tsx'
+import { EvaluationPlanOriginalRoute } from './EvaluationPlanOriginalRoute.tsx'
 import { Navigate, type RouteObject } from 'react-router'
 import { AcademicInfoRoute } from './AcademicInfoRoute.tsx'
 import { AnalysisPreviewResultRoute } from './AnalysisPreviewResultRoute.tsx'
@@ -36,6 +37,7 @@ export const assessmentRoute: RouteObject = {
       ? [{ path: 'school-assessments/analysis-preview/:previewId', element: <AnalysisPreviewResultRoute /> }]
       : []),
     { path: 'artifacts/:artifactId/viewer', element: <ArtifactViewerRoute /> },
+    { path: 'evaluation-plans/:planId/original', element: <EvaluationPlanOriginalRoute /> },
     { path: 'academic-info', element: <AcademicInfoRoute /> },
     { path: 'feedback', element: <FeedbackListRoute /> },
     { path: 'enrichment', element: <EnrichmentLibraryRoute /> },

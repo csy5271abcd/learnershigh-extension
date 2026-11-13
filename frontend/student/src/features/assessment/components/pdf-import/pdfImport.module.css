@@ -109,6 +109,19 @@
   list-style: none;
 }
 
+.planOriginalLink {
+  display: inline-block;
+  margin: 4px 0 0 40px;
+  color: var(--as-color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.planOriginalLink:hover {
+  text-decoration: underline;
+}
+
 .planRow {
   display: flex;
   align-items: flex-start;

@@ -723,6 +723,22 @@ export interface ArchiveFavoriteRequest {
 // 계약은 예시 JSON뿐이라 아래 Shape 중 예시에 없는 필드는 가정이다 (MM-45~47). Backend 연결 전 api-contract.md에서 확정한다.
 
 /** §10-1 공통 평가계획서 (관리자 등록, 학생에게 공개된 것만) */
+/**
+ * 평가계획서 원문 파일 (§48 모양, S-4 2026-11-13). available: 서버가 원문을 보관함.
+ * previewAvailable: 앱 안 미리보기 가능(현재 PDF만 — HWP·HWPX는 검증된 변환 엔진이 없어 내려받기만).
+ */
+export interface PlanFileMeta {
+  fileRef: string | null
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  checksum: string
+  documentFormat: 'PDF' | 'HWP' | 'HWPX'
+  pageCount: number | null
+  available: boolean
+  previewAvailable: boolean
+}
+
 export interface EvaluationPlan {
   planId: string
   documentRevisionId: string
@@ -732,9 +748,11 @@ export interface EvaluationPlan {
   semester: number
   fileName: string
   sourceUrl: string | null
-  /** 예시는 `CONFIRMED`뿐. Enum 미정 (MM-45) */
+  /** http는 관리자가 확정한 문서만 준다(CONFIRMED). Enum 미정 (MM-45) */
   reviewStatus: string
   uploadedAt: string
+  /** 원문 열람 정보 (http). Mock에는 없다(실제 파일 없음) */
+  file?: PlanFileMeta | null
 }
 
 /** §10-2 개인 업로드 요청 (multipart Part). 파일 자체는 화면이 File로 들고 있다. */
