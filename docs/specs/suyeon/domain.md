@@ -795,7 +795,7 @@ JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확
 | OD-A05 | Note Editor 포맷·자동 저장·수정 이력 전략 | Frontend/DB |
 | OD-A06 | 피드백 요청 Snapshot 생성·보존·취소 정책 | API/DB/Privacy |
 | OD-A07 | 파일 저장·미리보기·HWP/PPT 변환 및 포맷별 Version Compare | File Storage |
-| OD-A08 | 관리자 학생·기관 Scope 인가 및 **학교 PDF·참고자료 운영·확정 권한(전체/기관/지점)** (심화 콘텐츠 운영은 2026-11-03 폐기) | Auth / Shared |
+| OD-A08 | 관리자 학생·기관 Scope 인가 및 **학교 PDF·참고자료 운영·확정 권한(전체/기관/지점)** (심화 콘텐츠 운영은 2026-11-03 폐기). **평가계획서 부분 결정(2026-11-13 사용자)**: 정상 인증된 관리자는 모두 모든 학교 평가계획서를 운영·확정하고, 학생에게는 확정된 Revision만 공개한다(api-contract §38-2·§10-1). 참고자료 운영 범위·학생 기록 Scope는 그대로 미결/기존 정책 | Auth / Shared |
 | OD-A09 | **문서상 ADR-0009로 결정:** 기존 ADR-0003 대체, Assessment 공용 요청함·자동 Staff/과목 배정 없음(API-OD-A09에도 동일 반영). **남은 것: 실제 팀 승인 여부, 기존 Queue 코드/데이터의 물리적 재사용 여부** | ADR-0009 / Shared API / 팀 확인 |
 | OD-A10 | 구형 Mentor Surface Scaffold / ADR-0001, Parent ADR-0004 정리 | Shared Architecture |
 | OD-A11 | 아카이브·휴지통 삭제/복원/보존 정책 | Persistence/Privacy |
