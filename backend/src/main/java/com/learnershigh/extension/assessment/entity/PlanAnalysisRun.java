@@ -18,6 +18,8 @@ import java.util.UUID;
 public class PlanAnalysisRun {
 
     public static final String ORIGIN_EXTERNAL_IMPORT = "EXTERNAL_IMPORT";
+    /** Backend가 원문을 읽어 분석기를 직접 호출한 결과 (A3, 2026-11-13). Frontend를 거치지 않는다. */
+    public static final String ORIGIN_SERVER_ANALYZER = "SERVER_ANALYZER";
 
     @Id
     @Column(name = "id", length = 64)
@@ -60,11 +62,26 @@ public class PlanAnalysisRun {
     public static PlanAnalysisRun importExternal(String revisionId, PlanAnalysisStatus status, String analyzerName,
             String analyzerVersion, String payloadSha256, String resultJson, String warningsJson, String adminId,
             Instant now) {
+        return create(ORIGIN_EXTERNAL_IMPORT, revisionId, status, analyzerName, analyzerVersion, payloadSha256,
+                resultJson, warningsJson, adminId, now);
+    }
+
+    /** 서버 분석 실행 결과. requestedBy = 분석을 요청한 관리자. */
+    public static PlanAnalysisRun serverAnalyzer(String revisionId, PlanAnalysisStatus status, String analyzerName,
+            String analyzerVersion, String payloadSha256, String resultJson, String warningsJson, String requestedBy,
+            Instant now) {
+        return create(ORIGIN_SERVER_ANALYZER, revisionId, status, analyzerName, analyzerVersion, payloadSha256,
+                resultJson, warningsJson, requestedBy, now);
+    }
+
+    private static PlanAnalysisRun create(String origin, String revisionId, PlanAnalysisStatus status,
+            String analyzerName, String analyzerVersion, String payloadSha256, String resultJson, String warningsJson,
+            String adminId, Instant now) {
         PlanAnalysisRun run = new PlanAnalysisRun();
         run.id = "analysis_" + UUID.randomUUID();
         run.revisionId = revisionId;
         run.status = status;
-        run.origin = ORIGIN_EXTERNAL_IMPORT;
+        run.origin = origin;
         run.analyzerName = analyzerName;
         run.analyzerVersion = analyzerVersion;
         run.payloadSha256 = payloadSha256;

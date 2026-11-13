@@ -9,6 +9,7 @@ import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.service.plan.EvaluationPlanQueryService;
 import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
 import com.learnershigh.extension.assessment.service.plan.PdfInspector;
+import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
 import com.learnershigh.extension.common.error.BusinessException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -47,10 +48,13 @@ public class AdminEvaluationPlanController {
 
     private final EvaluationPlanQueryService queryService;
     private final EvaluationPlanService service;
+    private final PlanAnalysisService analysisService;
 
-    public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service) {
+    public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service,
+            PlanAnalysisService analysisService) {
         this.queryService = queryService;
         this.service = service;
+        this.analysisService = analysisService;
     }
 
     @GetMapping
@@ -99,6 +103,17 @@ public class AdminEvaluationPlanController {
     public ResponseEntity<InputStreamResource> preview(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId) {
         return FileResponses.inline(queryService.adminFile(admin, planId, revisionId, true));
+    }
+
+    /**
+     * §39 POST 분석 실행 (A3): Backend가 보관한 원문을 분석기로 보내고 결과를 AnalysisRun으로 저장한다.
+     * 새 Run이면 201, 같은 결과가 이미 있으면 200(새 Run 없음). 응답은 GET .../analysis와 같은 모양.
+     */
+    @PostMapping("/{planId}/revisions/{revisionId}/analysis")
+    public ResponseEntity<PlanAnalysisResponse> runAnalysis(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        EvaluationPlanService.ImportResult result = analysisService.analyze(admin, planId, revisionId);
+        return ResponseEntity.status(result.created() ? HttpStatus.CREATED : HttpStatus.OK).body(result.analysis());
     }
 
     @GetMapping("/{planId}/revisions/{revisionId}/analysis")

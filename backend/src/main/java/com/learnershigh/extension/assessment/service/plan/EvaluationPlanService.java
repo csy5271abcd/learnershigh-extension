@@ -163,6 +163,35 @@ public class EvaluationPlanService {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR,
                     result.violations().toArray(FieldViolation[]::new));
         }
+        return persistRun(admin, plan, revision, request, PlanAnalysisStatus.valueOf(request.status()),
+                PlanAnalysisRun.ORIGIN_EXTERNAL_IMPORT, List.of(), result.serverWarnings());
+    }
+
+    /**
+     * 서버 분석 실행 결과 저장 (A3, 2026-11-13). 분석기 payload를 외부 수신과 같은 검증기로 검사한다. 검증 실패는 분석기 쪽 문제이므로
+     * 502 PLAN_ANALYZER_BAD_RESPONSE(관리자 요청 오류 400과 구분). runStatus는 분석기 판정(PARTIAL 포함)을 Service가 정해 넘긴다.
+     * 같은 Revision에 같은 내용이면 새 Run을 만들지 않는다(created=false). 기존 Run·검토·Revision은 바꾸지 않는다.
+     */
+    public ImportResult recordServerAnalysis(AdminActor admin, String planId, String revisionId,
+            AnalysisImportRequest request, PlanAnalysisStatus runStatus, List<String> analyzerWarnings,
+            List<String> serverWarnings) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        AnalysisImportValidator.Result result = importValidator.validate(request, revision,
+                formatInspector.experimentalEnabled());
+        if (!result.valid()) {
+            throw BusinessException.withFields(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE,
+                    result.violations().toArray(FieldViolation[]::new));
+        }
+        List<String> warnings = new ArrayList<>(serverWarnings);
+        warnings.addAll(result.serverWarnings());
+        return persistRun(admin, plan, revision, request, runStatus, PlanAnalysisRun.ORIGIN_SERVER_ANALYZER,
+                analyzerWarnings, warnings);
+    }
+
+    private ImportResult persistRun(AdminActor admin, EvaluationPlan plan, PlanRevision revision,
+            AnalysisImportRequest request, PlanAnalysisStatus status, String origin, List<String> analyzerWarnings,
+            List<String> serverWarnings) {
         String canonical = mapper.writeValueAsString(request);
         String payloadSha = PdfInspector.sha256(canonical.getBytes(StandardCharsets.UTF_8));
         Optional<PlanAnalysisRun> same = runs.findSamePayload(revision.id(), payloadSha);
@@ -173,11 +202,16 @@ public class EvaluationPlanService {
         if (request.warnings() != null) {
             request.warnings().forEach(message -> warnings.add(warning("ANALYZER", message)));
         }
-        result.serverWarnings().forEach(message -> warnings.add(warning("SERVER", message)));
-        PlanAnalysisRun saved = runs.saveAndFlush(PlanAnalysisRun.importExternal(revision.id(), PlanAnalysisStatus.valueOf(request.status()),
-                request.analyzer().name(), request.analyzer().version(), payloadSha,
-                mapper.writeValueAsString(request.subjects()), mapper.writeValueAsString(warnings), admin.adminId(),
-                times.now()));
+        analyzerWarnings.forEach(message -> warnings.add(warning("ANALYZER", message)));
+        serverWarnings.forEach(message -> warnings.add(warning("SERVER", message)));
+        String subjectsJson = mapper.writeValueAsString(request.subjects());
+        String warningsJson = mapper.writeValueAsString(warnings);
+        PlanAnalysisRun run = PlanAnalysisRun.ORIGIN_SERVER_ANALYZER.equals(origin)
+                ? PlanAnalysisRun.serverAnalyzer(revision.id(), status, request.analyzer().name(),
+                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now())
+                : PlanAnalysisRun.importExternal(revision.id(), status, request.analyzer().name(),
+                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now());
+        PlanAnalysisRun saved = runs.saveAndFlush(run);
         return new ImportResult(true, views.analysis(plan, revision, Optional.of(saved)));
     }
 

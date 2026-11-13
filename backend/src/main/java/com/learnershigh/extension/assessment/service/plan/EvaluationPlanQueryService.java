@@ -153,6 +153,15 @@ public class EvaluationPlanQueryService {
         if (preview && !PlanViews.previewAvailable(revision)) {
             throw new BusinessException(AssessmentErrorCode.PREVIEW_UNAVAILABLE);
         }
+        return new FileDownload(revision.fileName(), revision.contentType(), revision.sizeBytes(),
+                new ByteArrayInputStream(verifiedBytes(revision)));
+    }
+
+    /**
+     * 보관된 원문 바이트 (크기·SHA-256이 등록 당시와 같을 때만). 원문을 보관한 Revision에만 부른다.
+     * 다르거나 읽을 수 없으면 409 FILE_INTEGRITY_FAILED. 서버 분석 실행(A3)도 이 값만 분석기로 보낸다.
+     */
+    public byte[] verifiedBytes(PlanRevision revision) {
         byte[] bytes;
         try (InputStream in = storage.open(revision.fileRef())) {
             bytes = in.readAllBytes();
@@ -162,7 +171,6 @@ public class EvaluationPlanQueryService {
         if (bytes.length != revision.sizeBytes() || !PdfInspector.sha256(bytes).equals(revision.sha256())) {
             throw new BusinessException(AssessmentErrorCode.FILE_INTEGRITY_FAILED);
         }
-        return new FileDownload(revision.fileName(), revision.contentType(), revision.sizeBytes(),
-                new ByteArrayInputStream(bytes));
+        return bytes;
     }
 }
