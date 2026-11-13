@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
-import { addPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
+import { addPlanRevision, downloadPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
 import { AnalysisPreviewError, requestAnalysisPreview } from '../api/canonicalSource.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, PlanAnalysisStatus } from '../api/types.ts'
 import { FieldError, RemoteView } from '../components/AdminParts.tsx'
@@ -12,9 +12,9 @@ import { devCurrentTerm } from '../api/http/adminRecordsHttp.ts'
 import { PlanAnalysisPreviewPanel } from './PlanAnalysisPreviewPanel.tsx'
 import { paths } from './paths.ts'
 
-// HWP·HWPX 업로드(다중 형식 실험): http 개발 서버에서 VITE_ASSESSMENT_DEV_MULTIFORMAT=true일 때만 파일 선택에 연다.
-// 실제 허용 여부는 Backend 실험 기능(assessment.multiformat.experimental)이 정한다(꺼져 있으면 415).
-const multiformatUpload = import.meta.env.DEV && !isAdminMockDataSource && import.meta.env.VITE_ASSESSMENT_DEV_MULTIFORMAT === 'true'
+// PDF·HWP·HWPX 원문 등록 (S-4·S-5, 2026-11-13): http에서는 세 형식 모두 서버가 원문 그대로 보관한다.
+// HWP·HWPX 분석 결과 수신·공식 확정은 계속 Backend 실험 기능 뒤에 있다(S-8 미결). Mock(시연)은 PDF만.
+const multiformatUpload = !isAdminMockDataSource
 // 로컬 분석기 자동 분석 (2026-11-11, 개발 Flag 전용). 등록한 같은 바이트를 분석기에 보내고 결과 payload를 PROPOSED 수신 Endpoint로 저장한다.
 // 토큰은 개발 서버 Proxy에서만 붙는다(scripts/vite.admin-analyzer.config.ts). 운영 Build에서는 이 분기가 빠진다.
 const analyzerUpload = import.meta.env.DEV && !isAdminMockDataSource && import.meta.env.VITE_ASSESSMENT_DEV_ANALYZER === 'true'
@@ -199,7 +199,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
             plans.reload()
             schools.reload()
             const analysisText = !isAdminMockDataSource
-              ? '서버는 원본 PDF를 보관하지 않고(파일 메타데이터·SHA-256·쪽 수만) 서버 분석도 아직 없어요. 분석 결과는 외부 분석기 수신으로만 들어와요.'
+              ? '원문은 서버에 그대로 보관했어요(SHA-256 확인). 서버 분석 실행은 아직 없어 분석 결과는 외부 분석기 수신으로만 들어와요.'
               : analysis === 'FAILED' || analysis === null ? '분석하지 못했어요 — 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.' : '분석 결과가 준비됐어요.'
             setToast({ id: nextToastId(), tone: analysis === 'FAILED' || analysis === null ? 'info' : 'success', text: `${revision ? `개정본 v${revision}을 올렸어요 (기존 버전 보존).` : 'PDF를 등록했어요.'} ${analysisText}` })
           }}
@@ -248,6 +248,24 @@ function SlotRow({ grade, slot, selected, onSelect }: { grade: number; slot: (gr
 
 function PlanCard({ plan, pending, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
   const latest = plan.revisions[plan.revisions.length - 1]
+  const [downloadError, setDownloadError] = useState<string | null>(null)
+  const original = latest.file
+  // 원문 내려받기 (형식 그대로). 서버가 크기·SHA-256을 다시 확인해 다르면 409로 막는다.
+  const downloadOriginal = () => {
+    if (!original?.available) return
+    setDownloadError(null)
+    downloadPlanRevision(plan.planId, latest.documentRevisionId).then(
+      (blob) => {
+        const href = URL.createObjectURL(blob)
+        const anchor = document.createElement('a')
+        anchor.href = href
+        anchor.download = original.fileName
+        anchor.click()
+        window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
+      },
+      (cause: Error) => setDownloadError(`원문을 내려받지 못했어요. ${cause.message}`),
+    )
+  }
   const status = analysisLabels[latest.analysisStatus]
   return (
     <section className={styles.box} aria-label={latest.fileName}>
@@ -257,7 +275,7 @@ function PlanCard({ plan, pending, onAnalyze, onRevision }: { plan: AdminEvaluat
         </strong>
         <span className={styles.actions}>
           {latest.documentFormat && latest.documentFormat !== 'PDF' && (
-            <span className={styles.badge} data-tone="warning" data-testid="plan-format-badge" title="HWP·HWPX는 다중 형식 실험 기능이에요 (검토 확정 불가)">
+            <span className={styles.badge} data-tone="warning" data-testid="plan-format-badge" title="HWP·HWPX 원문은 보관·내려받기가 돼요. 서비스 안 미리보기(변환 엔진 검증 중)와 공식 확정(실험 기능)은 아직이에요">
               {latest.documentFormat} · 실험
             </span>
           )}
@@ -282,13 +300,25 @@ function PlanCard({ plan, pending, onAnalyze, onRevision }: { plan: AdminEvaluat
             분석 결과 열기
           </button>
         )}
-        <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} disabled title="파일 Storage 연동 전이라 원본을 열 수 없어요 (API-OD-A03)">
-          원본 PDF
+        <button
+          type="button"
+          className={`${styles.secondaryButton} ${styles.smallButton}`}
+          onClick={downloadOriginal}
+          disabled={!original?.available}
+          title={original?.available ? `${original.documentFormat} 원문 내려받기 (SHA-256 ${original.checksum.slice(0, 12)}…)` : '이 개정본은 원문 파일을 보관하지 않았어요 (2026-11-13 이전 등록)'}
+          data-testid="plan-original-download-button"
+        >
+          원본 {latest.documentFormat ?? 'PDF'}
         </button>
         <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={onRevision}>
           개정본 추가
         </button>
       </div>
+      {downloadError && (
+        <p className={styles.formError} role="alert" style={{ marginTop: 8 }}>
+          <AlertIcon size={15} /> {downloadError}
+        </p>
+      )}
       {plan.revisions.length > 1 && (
         <ul className={styles.listPlain} style={{ marginTop: 10 }} aria-label="개정 이력">
           {[...plan.revisions].reverse().map((revision) => (
@@ -507,7 +537,7 @@ function UploadPlanModal({
             type="file"
             accept={multiformatUpload ? 'application/pdf,.pdf,.hwp,.hwpx' : 'application/pdf,.pdf'}
             className="lh-visually-hidden"
-            aria-label="평가계획서 PDF 파일"
+            aria-label="평가계획서 원문 파일 (PDF·HWP·HWPX)"
             aria-invalid={fileError ? true : undefined}
             aria-describedby={fileError ? 'plan-file-error' : undefined}
             onChange={(event) => pick(event.target.files?.[0])}
@@ -520,7 +550,7 @@ function UploadPlanModal({
         </label>
         <p className={styles.hint}>
           {analyzerUpload
-            ? '개발 환경: 등록한 같은 파일을 이 PC의 로컬 분석기(규칙 기반, AI 호출 없음)로 자동 분석해 후보로 저장하고 결과 페이지로 이동해요. 원본 파일은 서버에 보관하지 않아요(메타데이터·SHA-256만). 기존 파일은 덮어쓰지 않고 새 버전으로 쌓여요.'
+            ? '개발 환경: 등록한 같은 파일을 이 PC의 로컬 분석기(규칙 기반, AI 호출 없음)로 자동 분석해 후보로 저장하고 결과 페이지로 이동해요. 원문 파일은 서버에 그대로 보관해요(SHA-256 확인). 기존 파일은 덮어쓰지 않고 새 버전으로 쌓여요.'
             : '시연용 화면이에요. 파일은 서버에 저장되지 않아요. 기존 파일은 덮어쓰지 않고 새 버전으로 쌓여요.'}
         </p>
       </div>

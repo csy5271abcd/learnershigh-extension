@@ -174,12 +174,30 @@ export interface AdminFeedbackDetail extends AdminFeedbackRequest {
 export type PlanAnalysisStatus = 'NOT_REQUESTED' | 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED'
 export type PlanReviewStatus = 'UNREVIEWED' | 'CONFIRMED'
 
+/**
+ * 평가계획서 Revision 원문 파일 (§48 모양, S-4 2026-11-13). Backend가 원문을 보관하면 available=true.
+ * previewAvailable: 서비스 안 미리보기 가능(현재 PDF만). HWP·HWPX는 검증된 변환 엔진이 없어 false.
+ */
+export interface PlanFileMeta {
+  fileRef: string | null
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  checksum: string
+  documentFormat: 'PDF' | 'HWP' | 'HWPX'
+  pageCount: number | null
+  available: boolean
+  previewAvailable: boolean
+}
+
 export interface AdminEvaluationPlanRevision {
   documentRevisionId: string
   revisionNumber: number
   fileName: string
-  /** 원본 Storage Key. Backend는 원본을 보관하지 않아 null (C-11). Mock은 시연용 문자열 */
+  /** 불투명 파일 참조(plan_file_…, http). 원문을 보관하지 않은 이전 등록분은 null. Mock은 시연용 문자열 */
   fileRef: string | null
+  /** 원문 보관·미리보기 상태 (http). Mock에는 없다(실제 파일 없음) */
+  file?: PlanFileMeta | null
   sizeBytes: number | null
   /** Backend가 계산한 PDF 쪽 수 (http). Mock에는 없다 */
   pageCount?: number | null
@@ -224,7 +242,7 @@ export interface EvaluationPlanAnalysisView {
   /** 분석기 경고(ANALYZER)와 서버 검사 경고(SERVER). 값을 고치지 않고 경고만 남긴다 */
   warnings?: { source: string; message: string }[]
   /** 이 Revision 파일 정보 (http). 원본 대조에 쓴다 */
-  revisionFile?: { fileName: string; pageCount: number | null; checksum: string | null; documentFormat: 'PDF' | 'HWP' | 'HWPX' }
+  revisionFile?: { fileName: string; pageCount: number | null; checksum: string | null; documentFormat: 'PDF' | 'HWP' | 'HWPX'; file?: PlanFileMeta | null }
   /** HWP·HWPX 검토 기록 (http, 확정 뒤) */
   sourceReview?: PlanSourceReview | null
   /** 검토 확정에 쓸 수 있는 후보 필드 (http). Backend fieldPath 규칙 안의 단일 값만 */

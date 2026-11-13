@@ -10,9 +10,10 @@ import type {
   ReviewFieldCandidate,
   SchoolAssessment,
   PlanSourceReview,
+  PlanFileMeta,
 } from '../types.ts'
 import { ApiError } from '../canonicalSource.ts'
-import { adminHttp, notConnected } from './adminHttpClient.ts'
+import { adminFile, adminHttp, notConnected } from './adminHttpClient.ts'
 import { getStudentFilterOptionsHttp } from './adminRecordsHttp.ts'
 
 // Admin Assessment HTTP Adapter (Stage 2, 2026-11-09). 화면 함수 시그니처는 Mock과 같고, Backend 응답 Shape 차이는 여기서만 변환한다.
@@ -54,6 +55,7 @@ interface BackendRevision {
   revisionNumber: number
   fileName: string
   fileRef: string | null
+  file?: PlanFileMeta | null
   sizeBytes: number | null
   pageCount: number | null
   sourceUrl: string | null
@@ -101,7 +103,8 @@ function toRevision(revision: BackendRevision): AdminEvaluationPlanRevision {
     documentRevisionId: revision.documentRevisionId,
     revisionNumber: revision.revisionNumber,
     fileName: revision.fileName,
-    fileRef: revision.fileRef, // 원본 미보관: null (C-11)
+    fileRef: revision.fileRef, // 불투명 참조. 원문 미보관 이전 등록분은 null
+    file: revision.file ?? null,
     sizeBytes: revision.sizeBytes,
     pageCount: revision.pageCount,
     sourceUrl: revision.sourceUrl,
@@ -407,6 +410,12 @@ function reviewFieldsOf(subjects: BackendSubject[]): ReviewFieldCandidate[] {
   return fields
 }
 
+/** S-4: Revision 원문 미리보기(inline, PDF만)·내려받기(형식 그대로). 서버가 크기·SHA-256을 다시 확인한다. */
+export const previewPlanRevisionHttp = (planId: string, revisionId: string) =>
+  adminFile(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/preview`)
+export const downloadPlanRevisionHttp = (planId: string, revisionId: string) =>
+  adminFile(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/file`)
+
 export async function getPlanAnalysisHttp(planId: string, revisionId: string): Promise<EvaluationPlanAnalysisView> {
   const [body, plan] = await Promise.all([
     adminHttp<BackendAnalysis>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/analysis`),
@@ -416,7 +425,7 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
   const subjects = body.subjects ?? []
   return {
     revisionFile: revision
-      ? { fileName: revision.fileName, pageCount: revision.pageCount, checksum: revision.checksum ?? null, documentFormat: revision.documentFormat ?? 'PDF' }
+      ? { fileName: revision.fileName, pageCount: revision.pageCount, checksum: revision.checksum ?? null, documentFormat: revision.documentFormat ?? 'PDF', file: revision.file ?? null }
       : undefined,
     reviewFields: reviewFieldsOf(subjects),
     subjectPages: subjects.map((subject) => ({ subjectName: subject.subjectName, from: subject.pageRange?.from ?? null, to: subject.pageRange?.to ?? null })),

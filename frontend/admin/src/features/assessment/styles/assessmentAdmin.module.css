@@ -684,6 +684,25 @@
   padding: 20px 24px;
 }
 
+/* 평가계획서 검토: 왼쪽 원문 Viewer / 오른쪽 분석 결과 (S-4, 2026-11-13) */
+.reviewSplit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr));
+  /* 각 열이 따로 스크롤한다. 좁은 화면에서 두 줄이 되면 위·아래로 나눠 각각 스크롤 */
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.originalPane {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 0 20px 24px;
+  border-right: 1px solid var(--as-color-line);
+}
+
 .side {
   display: flex;
   flex-direction: column;

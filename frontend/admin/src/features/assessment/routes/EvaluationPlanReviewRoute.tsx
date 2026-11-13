@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { getPlanAnalysis, isAdminMockDataSource, savePlanReview } from '../api/assessmentAdminApi.ts'
 import type { AdminEvaluationPlanRevision, AnalysisSubject, EvaluationPlanAnalysisView } from '../api/types.ts'
 import { DetailHead, RemoteView } from '../components/AdminParts.tsx'
+import { PlanOriginalViewer } from '../components/PlanOriginalViewer.tsx'
 import { PlanReviewConfirmPanel } from '../components/PlanReviewConfirmPanel.tsx'
 import { AlertIcon, InfoIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
 import { analysisLabels, nextToastId } from '../model/adminFormat.ts'
@@ -46,6 +47,10 @@ function ReviewWorkspace({
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const { run, pending } = useCommand()
+  // 원문 Viewer 쪽 (근거 쪽 버튼으로 이동). 원문이 없거나 HWP·HWPX면 Viewer가 안내만 한다.
+  const [viewerPage, setViewerPage] = useState(1)
+  const originalFile = data.revisionFile?.file
+  const jumpTo = originalFile?.previewAvailable ? (page: number) => setViewerPage(page) : undefined
   const status = analysisLabels[data.analysisStatus]
   const reviewable = data.analysisStatus === 'COMPLETED' || data.analysisStatus === 'REVIEW_REQUIRED'
 
@@ -82,6 +87,12 @@ function ReviewWorkspace({
           </>
         )}
       </DetailHead>
+      <div className={styles.reviewSplit}>
+      {!isAdminMockDataSource && (
+        <div className={styles.originalPane}>
+          <PlanOriginalViewer planId={data.planId} revisionId={data.documentRevisionId} file={originalFile} page={viewerPage} onPageChange={setViewerPage} />
+        </div>
+      )}
       <div className={styles.pane}>
         <div className={styles.paneInnerWide}>
           {isAdminMockDataSource ? (
@@ -98,7 +109,13 @@ function ReviewWorkspace({
                   분석기 {data.analyzer.name} · {data.analyzer.version} ({data.analyzer.origin}){data.receivedAt ? ` · 수신 ${data.receivedAt.slice(0, 16).replace('T', ' ')}` : ''}
                 </p>
               )}
-              <p style={{ margin: '4px 0 0' }}>서버는 원본 파일을 보관하지 않아요. 원문 대조는 아래 근거(PDF 쪽 또는 HWP·HWPX 위치)로 학교 원본에서 확인해 주세요.</p>
+              <p style={{ margin: '4px 0 0' }}>
+                {originalFile?.available
+                  ? originalFile.previewAvailable
+                    ? '왼쪽 원문과 대조해 주세요. 근거 쪽 버튼을 누르면 그 쪽으로 이동해요.'
+                    : '원문은 서버에 보관되어 있어요. HWP·HWPX는 아직 서비스 안 미리보기가 없어 원본을 내려받아 근거 위치로 대조해 주세요.'
+                  : '이 개정본은 원문 파일을 보관하지 않았어요. 원문 대조는 아래 근거(PDF 쪽 또는 HWP·HWPX 위치)로 학교 원본에서 확인해 주세요.'}
+              </p>
             </div>
           )}
           {!isAdminMockDataSource && (
@@ -183,11 +200,12 @@ function ReviewWorkspace({
                 </section>
               )}
               {data.subjects.map((subject) => (
-                <SubjectReview key={subject.subjectName} subject={subject} fields={fields} onField={setField} documentFormat={data.revisionFile?.documentFormat ?? 'PDF'} />
+                <SubjectReview key={subject.subjectName} subject={subject} fields={fields} onField={setField} documentFormat={data.revisionFile?.documentFormat ?? 'PDF'} onJump={jumpTo} />
               ))}
             </div>
           )}
         </div>
+      </div>
       </div>
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </>
@@ -199,11 +217,14 @@ function SubjectReview({
   fields,
   onField,
   documentFormat,
+  onJump,
 }: {
   subject: AnalysisSubject
   fields: Record<string, Confirmed>
   onField: (subjectName: string, fieldPath: string, value: number | null, page: number | null) => void
   documentFormat: 'PDF' | 'HWP' | 'HWPX'
+  /** 원문 Viewer의 그 쪽으로 이동 (PDF 원문 미리보기가 있을 때만) */
+  onJump?: (page: number) => void
 }) {
   const weight = (path: string, original: number | null) => {
     const confirmed = fields[fieldKey(subject.subjectName, path)]
@@ -268,7 +289,7 @@ function SubjectReview({
                     ) : item.sourcePdfPageNumber === null ? (
                       <span className={styles.danger}>근거 쪽 없음</span>
                     ) : (
-                      `PDF ${item.sourcePdfPageNumber}쪽`
+                      <PageLink page={item.sourcePdfPageNumber} onJump={onJump} />
                     )}
                   </td>
                 </tr>
@@ -297,9 +318,8 @@ function SubjectReview({
             {subject.sources.map((source) => (
               <li key={`${source.pdfPageNumber}-${source.extractedText}`} className={styles.listRow}>
                 <span>
-                  <span className={styles.badge}>
-                    PDF {source.pdfPageNumber}쪽{source.printedPageLabel ? ` · 인쇄 ${source.printedPageLabel}쪽` : ''}
-                  </span>{' '}
+                  {source.pdfPageNumber ? <PageLink page={source.pdfPageNumber} onJump={onJump} /> : <span className={styles.badge}>쪽 없음</span>}
+                  {source.printedPageLabel ? <span className={styles.cellSub}> 인쇄 {source.printedPageLabel}쪽</span> : null}{' '}
                   {source.extractedText}
                 </span>
               </li>
@@ -308,6 +328,16 @@ function SubjectReview({
         </details>
       )}
     </section>
+  )
+}
+
+/** 근거 쪽: 원문 Viewer가 있으면 그 쪽으로 이동하는 버튼, 없으면 표시만 */
+function PageLink({ page, onJump }: { page: number; onJump?: (page: number) => void }) {
+  if (!onJump) return <span className={styles.badge}>PDF {page}쪽</span>
+  return (
+    <button type="button" className={styles.badge} style={{ cursor: 'pointer', border: 0 }} onClick={() => onJump(page)} aria-label={`원문 ${page}쪽으로 이동`} data-testid="evidence-page-link">
+      PDF {page}쪽 ↗
+    </button>
   )
 }
 

@@ -8,7 +8,7 @@ import { MultiformatReviewReadiness } from './MultiformatReviewReadiness.tsx'
 // AD-04·05 검토 확정 (http 전용, §39 PUT review).
 // 확정 버튼은 아래가 모두 갖춰질 때만 켜진다. 페이지를 열거나 AI 값이 있다는 이유만으로 확정하지 않는다.
 //  1) 분석 결과(analysisId)가 있고 상태가 REVIEW_REQUIRED
-//  2) 관리자가 가진 원본 PDF의 SHA-256 = 서버가 저장한 checksum (서버는 원본을 보관하지 않아 원문은 관리자 파일로만 본다)
+//  2) 관리자가 가진 원본 PDF의 SHA-256 = 서버가 저장한 checksum (2026-11-13부터 서버도 원문을 보관하지만, 이 확정 단계의 원본 대조 절차는 A4 검토 개편 전까지 그대로 둔다)
 //  3) 확인할 필드를 하나 이상 고르고, 값이 있으면 근거 PDF 쪽(1~쪽 수)을 적음
 //  4) 그 필드의 분석 과목마다 학업 과목 ID를 직접 입력 (과목명으로 추측·자동 선택하지 않는다. 서버가 문서 슬롯 과목인지 검증)
 //  5) 관리자가 "원본과 대조했다"를 직접 체크
@@ -198,7 +198,7 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
           onChange={(event) => pickFile(event.target.files?.[0])}
         />
         <p className={styles.hint} data-testid="review-hash-status">
-          {hash.status === 'none' && '서버는 원본 PDF를 보관하지 않아요. 갖고 있는 원본을 고르면 이 브라우저에서만 SHA-256을 계산해 비교해요(파일을 보내지 않아요).'}
+          {hash.status === 'none' && '왼쪽에서 서버 원문을 볼 수 있어요. 확정 전에 갖고 있는 원본(또는 서버에서 내려받은 원본)을 고르면 이 브라우저에서만 SHA-256을 계산해 서버 checksum과 비교해요(파일을 보내지 않아요).'}
           {hash.status === 'computing' && '계산 중…'}
           {hash.status === 'match' &&
             (isPdf
