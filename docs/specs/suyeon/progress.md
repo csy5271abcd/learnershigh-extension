@@ -46,20 +46,24 @@ progress.md
 # 3. Current Snapshot
 
 ```text
-Date: 2026-10-26
+Date: 2026-11-03 (Claude Code 확인 — git status·코드 조사·typecheck/lint/backend test 실행 근거)
 Owner: Suyeon
 Project: learnershigh-extension
-Current Phase: 1차 하네스 정비 완료(Suyeon 범위) → Shared 제안 승인 대기 → Stage 1 Frontend 착수 준비 (코드 구현 전)
+Branch: feature/assessment-student-integration-enhancement (최신 Commit 1790cb4)
+Current Phase: 개발 범위 변경 반영 문서 정비 (2026-11-03) → Shared 문서 승인 대기 → PDF 분석 Stage 2 착수 준비
 Workflow: 설계 게이트 + 구현 Stage(Frontend Mock → Backend → AI), 기준 CLAUDE.md §18
-Document Scope: README.md / domain.md / progress.md + Assessment Feature Spec 4종
-Repository Files: 로컬 저장소(C:\learnershigh-extension)에 7개 문서·API Contract 존재 확인 (2026-10-26 Claude Code 3차 검증)
-Git State: 최신 Commit d5be566(2026-10-14) 이후 미커밋. README/domain/progress = Modified, Feature Spec 4종 = Untracked
-Assessment API Contract: DRAFTED (계약 초안 작성됨. 학생 비교·출처 연결 포함, 휴지통·권한·형식별 비교는 Open Decision)
-Assessment Frontend / Backend / DB / Test: NOT_IMPLEMENTED (신규 Assessment 코드 없음)
-Wangyu Student Care/Counseling: 보존 대상
+Scope (2026-11-03 결정): 학교 평가계획서 PDF 분석 = 실제 Backend·AI 구현 핵심 / 심화 탐구 = 읽기 전용 정적 콘텐츠 / 개인 심화 Task·콘텐츠 CRUD·대학·모의고사 AI 분석 = 폐기
+Assessment API Contract: DRAFTED. 평가계획서 분석 Schema 이중(§11·39 vs §47-A), 심화 계약 DEPRECATED 제안 — Shared 승인 대기(P-35)
+Student Assessment Frontend: STAGE1_MOCK, Commit됨(9cdedbc..1790cb4). 전 화면 Mock, http 모드는 503 "서버 연결 전"
+Admin Assessment Frontend: STAGE1_MOCK, Untracked. AI 분석 3화면만 실제 Backend 호출, 평가계획서 등록 Mock과 AI 화면은 분리
+Backend Assessment: PARTIAL, Untracked — AI 분석 API(PDFBox + Provider Interface + 근거 검증), 인증·저장·Job·OCR 없음, Provider 기본 미연결
+Assessment DB / Migration: NOT_IMPLEMENTED (database/migrations에 Student Care 2개뿐)
+Assessment E2E: NOT_IMPLEMENTED (e2e/tests는 student-care.spec.ts뿐)
+Shared 미커밋 변경 (승인 기록 없음): Admin App.tsx·AdminShell.tsx·AdminShell.module.css(P-06), application.yml·build.gradle.kts(P-31), 공통 문서·rules 다수
+Wangyu Student Care/Counseling: 보존 대상 (이번 문서 작업에서 변경 없음)
 ```
 
-위 저장소 상태는 **로컬 파일과 `git status`로 확인한 사실**이다. 파일 내용 작성 ≠ Git Commit/Push ≠ 팀 승인 ≠ 빌드·테스트 검증이며, Commit·Push·팀 승인·테스트 성공은 확인되지 않았다. 과거 구현 이력(2026-10-14 이전)은 새 Assessment의 구현 근거가 아니다.
+위 저장소 상태는 **로컬 파일·`git status`·실행한 검증 명령으로 확인한 사실**이다(2026-11-03). 파일 내용 작성 ≠ Git Commit/Push ≠ 팀 승인 ≠ 빌드·테스트 검증이며, Commit·Push·팀 승인·테스트 성공은 확인되지 않았다. 과거 구현 이력(2026-10-14 이전)은 새 Assessment의 구현 근거가 아니다.
 
 현재 핵심 목표:
 
@@ -76,16 +80,15 @@ Wangyu Student Care/Counseling: 보존 대상
 
 # 4. Current
 
-현재 작업 순서:
+현재 작업 순서 (2026-11-03 범위 변경 이후):
 
-1. 작성된 7개 Assessment 문서의 상태 표현·Open Decision·Domain 정합성 보완.
-2. 학생 버전 비교(API §25-1)·Task 출처(`sourceReference`, §18)는 API 초안에 반영됨. 휴지통 대상별 정책은 API §30 표·API-OD-A08에서 미확정으로 추적.
-3. ADR-0009의 문서상 결정과 실제 팀 승인·구형 Queue 재사용을 구분.
-4. 공통 문서·API·Claude Rules와 교차 검증.
-5. 실제 Source Code 제거·보존 대상은 공유 참조 분석 후 정리.
-6. 문서 정합성 확보 이후 Assessment 신규 구현 착수.
+1. Suyeon 소유 문서에 새 범위 반영 — **완료(문서)**, 2026-11-03 Recent Log 참고.
+2. Shared 문서 변경안(P-33~P-40) 팀 승인: `.gitignore` 원문 보호, 범위 변경 ADR-0011, api-contract 개정, 공통 문서 문구, `frontend/shared` 콘텐츠 위치, 미커밋 Shared 변경 승인.
+3. PDF 분석: Golden Corpus 확보 → 분석 아키텍처 ADR(P-39) → Stage 2 Backend(저장·Job·인증) → Admin 한 흐름 → Student 연결.
+4. 심화 탐구 코드 축소(쓰기·Task 제거, 정적 콘텐츠 이전) — 학교 수행평가 노트·결과물·피드백 회귀 확인과 함께.
+5. 콘텐츠 품질 보강(`assessment-enrichment-content.md` §8).
 
-이번 작업에는 **구형 Source Code 삭제·신규 Feature 구현이 포함되지 않는다.**
+이번 작업에는 **Source Code 수정·삭제·신규 Feature 구현·DB Migration이 포함되지 않았다.**
 
 ---
 
@@ -264,7 +267,9 @@ Claude Design Mockup과 Daglo Reference의 존재를 신규 기능 구현 완료
 | OD-A09 | **공용 피드백 방식은 ADR-0009로 문서상 결정**(API-OD-A09 반영 완료). 남은 것: 실제 팀 승인, 기존 Queue 코드/데이터 물리적 재사용 여부 | ADR/팀 검토 |
 | OD-A10 | Mentor Surface Scaffold·Parent 범위 구형 코드 정리 | Shared Architecture |
 | OD-A11 | 아카이브·휴지통 삭제/복원/보존 | Persistence/Privacy |
-| OD-A12 | 외부 참조자료 이용·저작권·공개 콘텐츠 검수 | External Providers/Copyright |
+| OD-A12 | 외부 참조자료 이용·저작권·정적 콘텐츠 검수·원문 재배포 | External Providers/Copyright |
+| OD-A13 | 학생 개인 PDF 외부 AI 전송 선결 조건 (2026-11-03 조건부 허용, 해결 전 전송 금지) | Privacy/AI/Auth |
+| OD-A14 | 연도별 비교 과목 Identity·항목 대응 (후속) | Domain/후속 Spec |
 
 예전 `ParentReport Status`, `Mentor Q&A reassign`, `Topic Approval` 등은 **신규 Assessment의 Open Decision이 아니다**. 과거 기록에는 남더라도 새 개발을 막는 필수 요구사항으로 취급하지 않는다.
 
@@ -326,8 +331,8 @@ Claude Design Mockup과 Daglo Reference의 존재를 신규 기능 구현 완료
 | P1 | 학교 수행평가·탐구 노트·결과 파일 | 생성/조회/저장/버전 유지 |
 | P2 | Student–Admin 피드백 | 요청 Snapshot, 파일 열람, 답변/위치별 의견 |
 | P3 | 수행평가 준비 및 자료 조사 | 꿀팁, 주제 추천, 템플릿 10종, 자료 삽입 |
-| P4 | 학교 PDF·평가정보 | 지필/수행 분석, 원본 비교, Admin 수정 |
-| P5 | 심화 콘텐츠·성장 기록 | Task, 모의고사 소재, 대학 자료, Archive |
+| P4 → **P1로 상향 (2026-11-03)** | 학교 PDF·평가정보 | 교수학습/지필/수행/채점기준 분석, 원본 근거·검증, Admin 확정, 학생 반영 — 실제 Backend·AI |
+| P5 | 심화 콘텐츠(읽기 전용)·성장 기록 | 쓰기 기능 제거, 정적 콘텐츠 단일 원본, 품질 보강, Archive |
 
 이는 **개발 우선순위**이며 학생에게 강제하는 단계가 아니다.
 
@@ -367,17 +372,22 @@ Backend/API/DB 연동: NOT_IMPLEMENTED
 학생 기록 열람 / 피드백 / 문서 Viewer: NOT_IMPLEMENTED
 ```
 
-## Phase 4 — 학교 PDF / AI 지원
+## Phase 4 — 학교 PDF / AI 지원 (2026-11-03 최우선)
 
 ```text
-학교별 PDF 등록·지필/수행평가 분석·검토: NOT_IMPLEMENTED
-AI Provider 및 원본 근거 확인: OPEN_DECISION / NOT_IMPLEMENTED
+Student PDF 가져오기·결과 검토 화면: STAGE1_MOCK (Fixture 문서만 결과, 개인 업로드는 503)
+Admin 평가계획서 등록·검토 화면: STAGE1_MOCK (새 PDF는 FAILED, AI 화면과 미연결)
+Backend AI 분석 (§47-A, P-31): PARTIAL, Untracked — PDFBox 쪽별 추출·구조화 출력·근거 검증·Fake 테스트. 저장·Job·인증·OCR·과목 분할 없음
+AI Provider: OPEN_DECISION (기본 미연결, 실제 호출 미실행)
+학생 개인 PDF 외부 전송: BLOCKED (OD-A13 선결 조건)
+Golden Corpus: BLOCKED (샘플 PDF 0건)
 ```
 
-## Phase 5 — 심화 탐구 / Reference / Archive
+## Phase 5 — 심화 콘텐츠(읽기 전용) / Reference / Archive
 
 ```text
-심화 Task·모의고사 카드·대학 자료·성장 기록·개인 보관함: NOT_IMPLEMENTED
+심화 탐구·모의고사·대학 자료 화면: STAGE1_MOCK — 쓰기 기능 포함 상태, 2026-11-03 범위에 맞게 축소 필요
+성장 기록·개인 보관함: STAGE1_MOCK
 ```
 
 ## Phase 6 — Integration / E2E / Visual QA
@@ -1011,17 +1021,373 @@ Branch `feature/assessment-student-integration-enhancement` (Stage 7 체크포�
 - 대학별 기출 PDF 27개와 `references/` 원본(모의고사 Markdown·참고자료 링크 Markdown·Daglo·Mockup 이미지)은 Commit하지 않는다. Manifest에는 파일명·쪽·개념어 같은 색인 정보만 있다.
 - 탐구 주제·방법·질문(LearnersHigh 제안)과 시험·문항·쪽 출처는 Fixture에 그대로 둔다.
 
+## 2026-10-29 — Admin Assessment AD-01~17 Frontend (Stage 1 Mock, PARTIAL)
+
+같은 Branch(HEAD `1790cb4`, **미커밋**). 최신 `origin/main`(`80fd25c`, Student Care 변경)은 Merge하지 않았다 — 이 작업 트리의 Admin Shell은 main 이전 버전이다.
+
+### Done (Mock 화면)
+
+- **진입 (AD-01)**: Admin Shell 학습관리 Extension Entry 마지막에 `Assessment 관리` 1개 추가, `App.tsx`는 `/assessment` 접두어만 Feature로 넘긴다 (Shell 변경 12줄, 기존 Entry·Student Care Route 그대로). Feature 내부 상단 탭 6개(AM-01): 전체 현황·학생 Assessment·피드백 관리(대기 건수 Badge)·학교별 평가계획서·심화 탐구 콘텐츠·관리자 참고자료실. Router Library 없음(`adminLocation.ts` 그대로).
+- **AD-01·17 현황**: KPI 3개(평가계획서 학교·PDF 수, 피드백 대기·전달, 공개 모의고사 소재·스크랩)와 담당 학생 표(학교·학년 Filter) — 모두 Mock Store Entity에서 계산. Student Care 지표와 섞지 않음.
+- **AD-02·11~13 학생 기록**: 학생 목록·검색 → 학생별 학기 선택·수강 과목(학생 추가 과목 구분 표시)·활동 현황 → 학교 수행평가/심화 탐구/성장 기록 탭 → 기록 상세(AM-03): 과제 정보·노트 Revision 선택(읽기 전용 렌더러)·결과물별 버전 목록·두 버전 비교(§37 METADATA_ONLY, 없는 본문 차이를 만들지 않음)·미리보기 미지원 형식 표시·원본 열기 비활성(Storage 전). 오른쪽 피드백 요청/이전 피드백. 열람만으로 요청이 생기지 않는다.
+- **AD-14~16 피드백**: 공용 요청함(상태 Filter·검색, 자동 배정 없음) → 작성 화면(AM-06): 요청 당시 Snapshot 노트·파일만 표시(최신과 다르면 안내), 전체 의견·항목 Chip·노트 블록별/PDF 쪽별/파일 전체 의견, 스크랩·공개 Task·모의고사 소재 추천, 임시 저장(요청은 PENDING 유지)·확인 Modal 후 전달(DELIVERED, 이후 수정 불가 = 409). Snapshot 밖 버전·Revision 의견은 거절.
+- **AD-03~05 평가계획서**: 학교 목록(담당 학생 학교만, 학교 신규 등록은 기존 LearnersHigh 소관이라 비활성) → 학년도 → 고1~3×1·2학기 칸(AM-07) → 칸별 PDF·개정 이력. PDF 등록·개정본 추가(PDF만, 기존 버전 보존), 분석 요청(실제 AI 없음: 시연 결과가 있는 문서만, 새 PDF는 분석 실패), 추출 결과 검토(원본 쪽·인쇄 쪽·원문 대조, 미확인 값 0 치환 없음, 지필+수행 합계 불일치 경고·자동 재배분 없음, 관리자 정정 표시, 공통 평가정보 확정).
+- **AD-09 공통 심화 Task**: 목록(검색·공개 상태) → 등록·수정(AM-10·11): 필수 검증(제목·과목·목표), 임시 저장/공개, 과목은 학교 개설 과목만, 참고자료원 24곳·모의고사 소재·대학 문항 연결, 오른쪽 학생 라이브러리 미리보기.
+- **AD-06 모의고사 60선**: Student와 같은 60개(국어 30·영어 30, 같은 ID·주제·출처) 목록(과목·학년도·학년·공개 Filter, 정렬, 검색) → 상세(소재·주제·방법·질문·원문 또는 "원문 미포함" 안내·참고자료·내부 메모·Task 연결·학생 미리보기) → 수정·신규 등록(새 소재는 비공개, 원문 지문 입력 없음).
+- **AD-10 대학별 자료**: Student와 같은 Manifest 27개(서울대 9·KAIST 18, 문항 123) 목록(AM-17 + Student 목록형) → 원문 상세: Student `PdfViewer`·`ExamQuestionNavigator` 그대로(쪽 이동·확대·폭 맞춤·문항 목차·출제 의도/근거·해설 접기), 지금 보는 쪽, '심화 Task에 연결', 예시 문항 "실제 기출 아님", 메타데이터 수정(문항 위치·쪽·해시는 원본 고정), 공식 주소·확인일 없으면 공개 차단.
+- **AD-07·08 참고자료실**: 추천 사이트 = Student 참고자료원 24곳(같은 ID·이름·주소, 과목 영역·자료 성격 Filter), 자료 저장·링크 직접 저장(중복 주소 거절)·스크랩 수정·삭제 확인, 관리자 메모 비공개. 피드백 추천에는 제목·주소만 전달.
+- **권한 Mock**: 담당 범위(branch_001) 밖 학생은 목록에 없고 주소 직접 입력 시 403, 다른 학생 ID로 남의 기록 ID를 열면 404. 실제 인가는 Stage 2.
+
+### 공통 데이터 재사용 (P-27 PROPOSED)
+
+- Admin은 `frontend/admin/src/features/assessment/api/canonicalSource.ts` **한 곳에서만** Student Canonical Fixture·Type·표시 규칙을 import한다(assessment-frontend-mock.md §4-2 B안, 임시). UI 재사용은 `components/canonicalUi.ts` 한 곳(Assessment Token CSS·Modal·StateViews·Toast·Icons·PdfViewer·ExamQuestionNavigator·ReferenceCategoryIcon). 콘텐츠를 Admin에 복제하지 않는다.
+- Admin Mock Store는 Canonical의 structuredClone 사본 + Admin 전용 값(담당 학생 명단, 답변 초안, 공개 상태·내부 메모, 스크랩, 관리자 개정본·검토)만 가진다. 새로고침하면 초기화. 두 앱 런타임 동기화 없음(Stage 2).
+- Student Fixture에는 studentId가 없어 Admin Mock이 로그인 학생을 `student_001`(표시명 '최하은')로 연결. `student_002`(같은 학교, 기록 없음)·`student_003`(범위 밖)은 Admin 명단 전용 시연 학생.
+- Student 코드 변경은 `ExamQuestionNavigator`의 선택 Prop `actionLabel` 1개(기본값 = 기존 학생 문구).
+- 대학 PDF: Admin 개발 서버가 `/__dev/university-exams`를 Student 개발 서버(5173)로 Proxy(`admin/vite.config.ts` 1줄, dev 전용). Student 서버가 꺼져 있으면 PDF는 "불러오지 못했어요", 문서 정보·목차는 그대로.
+
+### Open / Blocked
+
+- Contract 가정(P-27): §34 학생 목록 행·단건 기록 조회, §36 previewSupported 판정 규칙, §38 analysis/review Enum, §41 유형·난이도·문제 상황·대학 문항·자료원 연결 필드, §42 발행 기관·확인일 Shape, §43 referenceSourceId, §46 스크랩 추천 Projection(title·url) — 현재 `note` 문장으로만 전달.
+- 공유 Fixture 위치(frontend/shared/assessment) 승인, AdminShell Entry 추가 Wangyu 리뷰, 최신 main AdminShell(학생 케어 1·2·3·5)과의 Merge 충돌 정리.
+- Backend·Storage(원본 열기·다운로드)·AI 분석·실제 인가 미구현. 학생 추가 과목은 Student 브라우저에만 있어 Admin에 안 보임(P-26).
+
+### Verification
+
+- frontend typecheck / lint / build PASS (3 workspace, 순차). Build 결과물에 대학 기출 PDF 없음 (admin dist의 PDF 1개는 기존 구형 Fixture 샘플 `antibiotic-v1-feedback.sample.pdf`).
+- Scratchpad Playwright(Chrome) `admin-smoke` 72/72: 23개 Route, 권한 4, Shell·Student Care 메뉴 보존 3, 피드백 임시 저장→전달→재전달 불가·대기 0, 버전 비교·Revision, 평가계획서 등록(비 PDF 거절)·분석 실패·근거 쪽·합계 경고·확정, Task 필수 검증·공개, PDF 렌더링·쪽 이동·확대·지금 보는 쪽·Task 연결·공개 차단, 스크랩 저장·중복·삭제, 오류≠Empty·학생 추가 과목·없는 주소, 가로 Overflow 없음 @1920·1440·1280·1024·820·390, 상세 독립 스크롤.
+- `consistency` 22/22: Admin 화면 DOM ↔ 독립 원본 대조 — 모의고사 60(원본 Markdown ID·Student Fixture 주제·소재·출처·문항·분야 60건 전부, 상세 3건 방법·질문), 대학 27·문항 123(제목·쪽 수·문항 수 27건, 문항 있는 문서 전부의 목차 수·문제 쪽), 자료원 24(Fixture 주소 = 원본 Markdown, Admin 이름·주소 24곳), 피드백 Snapshot ID, Student 화면 교차 표본.
+- Student 회귀 smoke 31/31 (작업 트리 5173, 로컬 원문·PDF 있음). 학생 문구 기본값 유지 확인. 기존 Admin Route(/, /today, /mentor-cases, /connections, /interview, /operations, /student-care) 진입·오류 없음 — Student Care는 Backend 꺼짐으로 기존 오류 상태.
+- Student Care E2E(`e2e/`): **NOT RUN** — Docker 데몬 미실행(Backend·MySQL 필요). Shell 변경이 있어 PR 전 필수. `scripts/verify*.ps1`·Backend: NOT RUN.
+
+## 2026-10-29 — Admin Shell·Assessment UI를 Claude Design Admin 목업(AM-01~20) 기준으로 재구성 (Mock 화면)
+
+같은 Branch(HEAD `1790cb4`, **미커밋**). 기능·Mock API·데이터는 바꾸지 않았다 (계약 가정 필드 `startedStudentCount` 1개만 추가, P-27).
+
+- **원인**: Admin Shell(`app/AdminShell.module.css`)·전역 `index.css`가 TDS 지침 기반 `--lh-*` Token(흰 Sidebar, 강조 `#3182f6`)을 썼다. TDS 패키지는 없다. Assessment 본문은 이미 목업 실측 `--as-*` Token이었고, 차이는 화면 구조(학생 목록 표, 모의고사 표, 상단 Mock 안내 띠, 밑줄 하위 탭, 공개 토글 없음 등)였다.
+- **Shell (Shared, Wangyu 리뷰 필요)**: 목업 실측 — Sidebar 213px `#262936`, 그룹 아이콘·펼침, 학습관리 하위 기존 메뉴 7개(표시만) + Extension Entry, 선택 Pill `#12a5f4` + `NEW`, 하단 콘솔 매뉴얼·학습타이머앱(표시만), Header 페이지 제목·Breadcrumb·문자잔고·알림·설정·계정(동작·수치 없음). 기존 Entry·Route·Props 유지. 회색 Canvas(`#f6fafb`)는 `surface='canvas'`(Assessment)에서만 — 학생 케어 등 다른 화면 본문 배경은 그대로. 상위 메뉴명은 기존 화면 분석 기준 '학습조정' 유지(목업은 '학습코칭').
+- **Assessment**: 프레임(여백 15·14px, Radius 12, 테두리 없음)·탭 줄 46px, Mock 표시는 탭 줄 오른쪽 작은 문구로. 학생 Assessment master-detail(AM-02), 피드백 목록 툴바·안내 줄·전달 자료 열(AM-05), 결과 파일 카드(AM-04), 성장·성찰 기록 섹션, 평가계획서 등록 Modal 학교·학년도·학년·학기 + PDF 끌어다 놓기 + '등록하고 분석'(AM-08), 하위 탭 Segmented, 심화 Task 표 열(유형·난이도·출처·시작 학생)·공개 중단 버튼(AM-09~11), 모의고사 카드 Grid·편집 3열 기본정보·학생 카드 미리보기(AM-12~16), 대학별 자료 대학 Chip·공개 토글 표(AM-17)·정보 수정 Modal 2열(AM-18), 참고자료 Quiet 필터·Ink 저장 버튼·저장 Modal 순서(AM-19·20).
+- 목업에 있으나 데이터·계약이 없어 넣지 않은 것: 피드백 '요청 취소'(API-OD-A06), Task·소재 '보관', 대학 공식 자료 페이지 줄(확인된 주소 없음), 모의고사 '공식 출처 확인' 체크(저장 필드 없음), 참고자료 발행일·작성자·후속 아이디어·연결 체크(§43 필드 없음), 지점 전체 전환. '자료 등록'은 Manifest 도구 정책으로 비활성.
+
+### Verification
+
+- frontend typecheck / lint / build PASS. Build 결과물의 PDF는 기존 구형 Fixture 샘플 1개뿐.
+- Scratchpad `admin-smoke` 72/72(문구 변경만 기대값 갱신: 답변 완료·버전 비교·등록하고 분석·내 스크랩에 저장·새 탐구 소재), `consistency` 22/22(모의고사는 카드 DOM으로 60건 주제·소재·출처·분야·추천 이유 대조), Student 회귀 31/31.
+- Shell 영향: /student-care·/·/today·/operations·/assessment @1920·1024·390 페이지 오류 0, 학생 케어 메뉴 유지. 390px `/` 가로 넘침 106px는 변경 전 커밋에서도 같음(구형 Feedback Dashboard 필터).
+- 목업 20장 대비 화면 캡처 비교 (Scratchpad `design/`).
+- Student Care E2E: **NOT RUN** (Docker 데몬 미실행).
+
+## 2026-10-29 — Admin 후속 9개 요청 (Stage 1 Mock + AI Backend 골격, PARTIAL)
+
+### Done
+- ① 본문 최대 너비 1200px(넓은 화면 1480px), Shell 크기 불변
+- ② 다학교 시연 데이터(P-29): 6개 학교·42명(담당 37명), 학년도·학기·과목·상태 필터, 학교 변경 시 선택 학생 초기화
+- ③ 모의고사 원문 관리자 입력·수정(P-30, 메모리 저장), ⑥ 내부 소재 ID 화면 미노출
+- ④ 서울대·KAIST 공식 자료실 링크(자료실 / 개별 원본 URL / 로컬 PDF 구분)
+- ⑤ 참고자료실 자료원 1 : 개별 자료 N(P-32), 자료 저장 버튼 밝은 테두리
+- ⑦⑧ 학생 화면 그대로 보기(P-28): Student Route Tree 읽기 전용 렌더링, 쓰기 API Guard 19개(공통 평가계획서 분석 요청은 제외)·쓰기 Modal 7종 차단
+- ⑨ AI 분석 3종: Backend `assessment` AI 모듈(P-31, §47-A PROPOSED) + Admin 검토 화면. Provider 기본 미연결
+
+### Not Done / Blocked
+- 실제 AI Provider 호출: API Key·Provider 승인(API-OD-A10) 없음 → **실제 AI 분석 미실행**
+- Admin 인증·권한 검증(Backend) 없음 → AI API 운영 사용 금지
+- OCR 미연결, 분석 결과 서버 저장·공식 반영 없음, 원문·검토 기록은 메모리 저장(새로고침 시 사라짐)
+- Student Care E2E·Backend 통합 테스트: Docker 미실행으로 NOT RUN
+
+### Verification
+- frontend typecheck·lint·build PASS, backend 단위 테스트 237건 PASS(AI 15건 포함)
+- Admin 브라우저 검증 67항목 PASS, Student 회귀 20항목 PASS (System Edge, Mock)
+
+---
+
+## 2026-11-03 — 개발 범위 변경 반영 (문서 정비, Suyeon 소유 문서만)
+
+### Current
+- 범위 결정: 학교 평가계획서 PDF 분석 = 실구현 핵심, 심화 탐구 = 읽기 전용 정적 콘텐츠, 개인 심화 Task·콘텐츠 CRUD·콘텐츠 즐겨찾기·심화 KPI·대학/모의고사 AI 분석 = 폐기. 학생 개인 PDF 외부 AI 전송 = 조건부 허용(선결 조건 전 금지).
+
+### Done (문서만)
+- 신설: `features/assessment-enrichment-content.md`(ST-07·16·17, AD-06·09·10 재정의, 콘텐츠 Schema·품질 기준), `assessment-pdf-analysis-plan.md`(데이터 5계층, 목표 결과 구조, 파이프라인, 기존 코드 재사용·한계, Golden Corpus, 외부 전송 선결 조건)
+- 수정: `features/assessment-student.md`·`assessment-admin.md`·`assessment-inquiry.md`·`assessment-feedback.md`, `domain.md`(§9 확장, §11·§18·§23 폐기 표시, OD-A13·A14 추가, Invariant 2 재작성), `assessment-frontend-mock.md`(§4-3), `assessment-screen-map.md`(§0), `assessment-frontend-quality.md`(§5), `README.md`, 이 문서
+- 기능 ID: 번호 변경 없음. ST-07·16·17, AD-06·09·10은 "열람"으로 의미만 바꿈(코드 주석이 ID를 참조)
+- Shared 변경안: `harness-change-proposals.md` P-33~P-40 (적용 안 함)
+
+### Not Done / Blocked
+- Shared 문서(`api-contract.md`, ADR, architecture, 최상위 문서, `.claude/rules`, `.gitignore`) 미수정 — 승인 대기. 그 때문에 Spec ↔ API 차이가 남아 있음(`domain.md` §30 표)
+- 코드 수정·삭제 없음: 심화 Task 코드, Admin 콘텐츠 CRUD, 대학·모의고사 AI 분석 코드 모두 그대로
+- `references/mock-exam/`·`references/previous-exam-questions/` Git 미보호 상태 그대로 (P-33)
+
+### Verification
+- 문서 정합성 점검(링크·ID·용어 grep)만 실행. 코드 테스트는 이번 문서 작업 대상 아님 — 결과는 이 항목 아래 "검증 명령" 참고
+
+---
+
+## 2026-11-09 — Assessment Backend P0 실구현 (Stage 2 일부)
+
+### Done
+- SchoolAssessment §12·§13 (목록·등록·상세·개인정보 수정·상태 변경), 학업 Context §9-1, 관리자 학생별 수행평가 §34, 평가계획서 §38·§39(GET·PUT review), 학생 공통 평가계획서 §10-1, 외부 AI 분석 결과 수신(PROPOSED, 기본 off)
+- 신규 Migration 2개(사용자 승인), Mock 인증 Adapter(사용자 승인, mock 모드 전용)
+- 보고서: `backend-run-2026-11/` (IMPLEMENTATION-REPORT, API-STATUS, DB-STATUS, TEST-RESULT, NEXT-STEPS), 인계서 `assessment-ai-integration-handoff.md`
+
+### Not Done / Blocked
+- §12 DELETE(OD-A11), §9-2(API-OD-A01), §34 학생 목록·상세(Shape 없음), §39 POST·§10-2·§11(File Storage·OD-A13), P1 노트·파일·피드백 미착수
+- 인증·학업 Context·평가계획서 운영 권한은 Mock (API-OD-A01, OD-A04, OD-A08)
+- Frontend Adapter Real 교체 안 함 → Cross-Surface 화면 검증 미실행
+
+### Verification
+- `scripts/verify-backend.ps1` PASS, `test` 246/246, `integrationTest` 117/117 (Student Care 회귀 포함)
+- 실제 서버(bootRun + Docker MySQL) HTTP 저장·재조회 확인. 상세: `backend-run-2026-11/TEST-RESULT.md`
+- 위 항목은 서버 API 단위 검증이며 Frontend 연결·E2E 검증이 아니다 (`VERIFIED` 아님)
+
+## 2026-11-09 (2) — AI 분석기 v21 × Backend 통합 검증 (합성 PDF, 수준 2)
+
+### Done
+- 합성 PDF → 계정 B v21 실제 파이프라인(계정 B 폴더 무수정) → Adapter → 실제 서버 HTTP 수신 → MySQL 후보 저장 → 관리자 조회 → `UNREVIEWED` 유지 확인
+- 합성 데이터 기반 검토 API 시험 → 학생 참조 등록 → 관리자 같은 ID·상태 확인
+- 통합 테스트 3건 추가(`AnalyzerV21SyntheticImportApiTest`, `AnalysisImportDisabledApiTest`), Main 코드 변경 없음
+- 보고서: `backend-run-2026-11/AI-BACKEND-{E2E-RESULT, CONTRACT-GAPS, REGRESSION, NEXT-STEPS}.md`
+
+### Not Done / Blocked
+- 실제 학교 PDF(수준 3): 반입 승인 없음
+- 분석에 없는 `itemKey` 참조 허용(G-7), presence·과목 구간·특수 규정: 계약 결정 대기
+
+### Verification
+- `scripts/verify-backend.ps1` PASS, `test` 246/246, `integrationTest` 120/120 (Student Care 포함)
+- 실제 서버 HTTP·DB 검사 77개 중 76개 PASS, 1건은 기대값 오류(문서 경로 권한 없음 = 404가 기존 설계)
+
+## 2026-11-10 — v21.1 수신 + itemKey 검증 + Student/Admin HTTP Adapter (Stage 2 일부)
+
+### Done
+- v21.1 합성 PDF·분석기 JSON 실제 서버 수신 33/33 (`frontend-backend-integration-202611/V211-E2E-RESULT.md`)
+- itemKey 검증(G-7 A안): 검토에 쓰인 Run의 수행 항목만 참조 가능, 없음 `unknown`·지필 `not_allowed`
+- Backend 결함 수정: 수신 응답 `analysisId`가 방금 저장한 Run을 가리키게 함
+- Resource별 http 전환: Student `schoolAssessment`(목록·상세·등록·상태, PATCH는 Adapter만)·`academicContext`(GET)·`evaluationPlans`(목록·상세) / Admin 학생 수행평가·평가계획서 목록·등록·개정·분석 조회 (`HTTP-ADAPTER-STATUS.md`)
+- 브라우저 검증 32/32(Chrome + Playwright 라이브러리, 공용 e2e 미변경), Mock 모드 회귀 확인
+
+### Not Done / Blocked
+- Admin 검토 확정 화면(C-7 과목 ID 매핑 UI), Student 수정 화면, Admin 업로드 브라우저 검증
+- Student 개발 서버 `/api` Proxy(Shared `vite.config.ts`) — 변경안만
+- 인증·학업 Context·학교·학생 정보 Mock
+
+### Verification
+- `verify-backend.ps1` PASS, 단위 246, 통합 122(신규 2, Student Care 77)
+- `verify-frontend.ps1` PARTIAL PASS(typecheck·lint·build, Frontend 테스트 미구성)
+
+## 2026-11-10 (2) — 1차 마감 핵심 화면 완성 (Stage 2 일부)
+
+### Done
+- Student 수행평가 수정 UI(`EditSchoolAssessmentModal`) → PATCH → MySQL → 새로고침 유지 (브라우저 14건)
+- Admin 검토 확정 패널: 원본 PDF SHA-256 브라우저 대조(서버 `checksum`), 과목 ID 직접 입력 + 서버 슬롯 과목 검증(신규), 필드·근거 쪽·명시적 확인 → PUT review(합성 데이터 시험만)
+- Admin PDF 등록·개정·오류 6종 브라우저 검증
+- http 개발 서버 화면에 "Mock 인증·Mock 학업 정보" 표시
+- 보고서: `assessment-final-integration-202611/`
+
+### Not Done / Blocked
+- 관리자 과목 목록 API·재검토 정책·Student Proxy Shared 변경(승인 대기), 목록 값 확정 규칙
+- 실제 인증·학업 정보 연동
+
+### Verification
+- `verify-backend.ps1` PASS, 단위 246, 통합 123(Student Care 77) / `verify-frontend.ps1` PARTIAL PASS
+- 브라우저 43/43 + 회귀 33/33, v21.1 HTTP 33/33, Mock 모드 확인
+
+## 2026-11-10 (3) — HWP·HWPX 다중 형식 실험 (Stage 2·3 일부, 운영 불가)
+
+### Done
+- PDF 전용 가정 조사, 계정 B와 공유할 Locator 초안(`assessment-multiformat-integration-draft.md`)
+- `DocumentFormatInspector`(PDF·HWP·HWPX 바이트 판별, HWPX 압축 폭탄·경로 이탈 차단), 형식은 기존 `content_type`, HWP·HWPX 쪽 수 NULL
+- 수신 DTO 선택 필드(`source.format`, `documentLocator`) + 형식별 Validator, 새 필드 NON_NULL(PDF 저장 JSON·재전송 해시 동일)
+- HWP·HWPX 검토 확정 서버·화면 차단(`review_not_supported`)
+- Admin: 형식 배지, 개발 Flag 업로드, 위치 근거 표시, 해시 대조
+- 보고서: `assessment-multiformat-202611/`
+
+### Not Done / Blocked
+- 계정 B Adapter의 HWP·HWPX 출력(현재 계정 A 임시 변환기), 실제 HWP 파일 E2E
+- 확정값 근거 Migration(D-1), 원문 위치 대조 수단, 공식 계약(M-1~M-5)
+
+### Verification
+- `verify-backend.ps1` PASS, 단위 251, 통합 128(Student Care 77) / `verify-frontend.ps1` PARTIAL PASS
+- HWPX 실서버·브라우저 18/18, PDF 브라우저 43/43 + 회귀 33/33(실험 켬), v21.1 HTTP 33/33(실험 끔), 재전송 해시 변경 전과 동일
+
+## 2026-11-10 (4) — 계정 B HWP·HWPX Adapter 실제 E2E
+
+### Done
+- 계정 B 합성 HWP(`581cc33d…`)·HWPX(`37fc6eb8…`) 원본 + `multiformat_adapter.py` 출력 JSON을 수정 없이 실제 Backend로: 등록 → 수신 201 → 재전송 200 → MySQL 후보(UNREVIEWED, Review 0) → Admin 화면(후보·활동·제출물·조건·채점·위치·해시 대조·확정 비활성)
+- `*_TABLE_CELL` 좌표 = path 마지막 `r행c열` 검사(`path_mismatch`), 계정 B 출력 568개 오탐 0
+- Admin 검토 화면에 수행 활동·제출물·조건(AI 후보) 표
+- 보고서: `assessment-multiformat-adapter-e2e-202611/`
+
+### Not Done / Blocked
+- HWP·HWPX 검토 확정(D-1 Migration·원문 대조 수단), 공식 계약(M-1~M-8)
+- 개인 메타데이터 없는 합성 HWP·HWPX Fixture(계정 B 협조)
+
+### Verification
+- `verify-backend.ps1` PASS(3회차, 1·2회차 Docker·메모리 환경 장애), 단위 251, 통합 129(Student Care 77) / `verify-frontend.ps1` PARTIAL PASS
+- Adapter E2E 83/83, 실험 OFF 9/9, PDF 43/43 + 33/33(ON), v21.1 HTTP 33/33(OFF), 해시 변경 전과 동일
+
 ---
 
 # 24. 핵심 요약
 
 ```text
-Current: Assessment 문서 7종 작성됨(DRAFTED); Domain·API 정합성 보완
+Current (2026-11-03): 범위 변경 반영 문서 정비 완료(Suyeon 소유 문서). Shared 승인 대기. PDF 분석이 최우선 구현 대상
 Legacy Suyeon Specs: 4종 Git 삭제 보고, 과거 구현 코드 제거는 별개
 Wangyu Student Care / Counseling: 유지
 Shared Shell / API / Database: 공유 영향 확인 후 작업
-Assessment Feature Implementation: Student 일부 Stage 1 Mock (Backend·Admin 미구현)
+Assessment Feature Implementation: Student·Admin Stage 1 Mock (Admin은 미커밋)
+Assessment Backend (2026-11-09): SchoolAssessment·평가계획서·관리자 조회·AI 결과 수신 P0 구현 (인증/Context Mock, Frontend 미연결)
+AI × Backend (2026-11-09): v21 실제 분석기 출력(합성 PDF) 수신·저장·미승인 유지 검증. 실제 학교 PDF 미반입
+Frontend HTTP (2026-11-10): Student 수행평가·학업 Context·평가계획서 목록, Admin 학생 수행평가·평가계획서·분석 조회 http 연결(브라우저 검증). 인증 Mock, 검토 확정·수정 화면 미연결
+1차 마감 통합 (2026-11-10): Student 수정 UI·Admin 검토 확정(원본 SHA-256 대조·과목 ID 서버 검증)·PDF 등록·개정 브라우저 검증. Student Proxy는 Shared 무수정(실행 스크립트)
+다중 형식 (2026-11-10): HWP·HWPX 등록·수신 실험 기능(기본 off) 구현, 합성 HWPX 실서버·브라우저 검증, HWP·HWPX 검토 확정은 Migration 승인 전 차단
+계정 B Adapter E2E (2026-11-10): 계정 B 합성 HWP·HWPX + multiformat_adapter JSON(무수정) 실서버·MySQL·Admin 83/83, path·좌표 일치 검사 추가
 
 Progress = 실제 작업·검증 이력
 Requirement = 최신 Feature Spec / Domain / API Contract
 ```
+
+## 2026-11-10 (5) — HWP·HWPX 공식 계약·검토 확정 준비 (Phase A, 승인 대기)
+
+### Done
+
+- 계약 변경안 M-1~M-8 (`assessment-multiformat-review-next/API-CONTRACT-PROPOSAL.md`): `source.format`·`documentLocator` 유지, M-8 보류, review 근거 Shape(`sourceCheck`, 필드별 `documentLocator`, `evidence_not_in_analysis`) 제안
+- D-1 Migration 변경안(`MIGRATION-D1-PROPOSAL.md`): 실측 결과 `JSON` Column 권장, CHECK로 HWP·HWPX 가짜 쪽 번호 차단. SQL 초안만 작성(파일·적용 없음)
+- 원본 대조 방식 A/B/C 비교(`SOURCE-REVIEW-DESIGN.md`): 단기 A안(관리자 수동 확인 기록), 장기 B안
+- Admin 읽기 전용 "확정 준비 상태" 점검표(`MultiformatReviewReadiness.tsx`). 확정은 켜지 않음
+
+### Not Done / Blocked
+
+- Phase B 전체: Shared 계약, D-1, 원문 검토 절차 승인 대기. HWP·HWPX는 `review_not_supported` 유지
+- 정책 미결: 재검토 대체, 최신 미확정 Revision이 있을 때 확정 Revision 공개, 재분석 때 itemKey 참조
+
+### Verification
+
+- verify-backend PASS(단위 251, 통합 129), verify-frontend PARTIAL PASS(Frontend 단위 테스트 미구성)
+- Adapter E2E 83/83, 점검표 6/6, PDF 43/43, 회귀 33/33, Flag OFF 9/9, v21.1 HTTP 33/33, Mock 모드 확인
+- 보호 파일 해시: 작업 시작과 동일
+
+## 2026-11-11 — 심화 탐구 정적 참고자료 복구 · 평가계획서 분석 미리보기(개발 전용) 연결
+
+### Done
+
+- 심화 탐구(탐구 라이브러리·모의고사 60선·대학별 자료)와 참고자료 카탈로그를 정적 콘텐츠(`content/enrichmentContent.ts`)로 전환. http 모드 "서버 연결 전(Stage 2)" 오류 해결
+- 직접 만들기·내 탐구·탐구 시작·내 지문 등록·노트에 추가를 화면에서 제거, 폐기 Route Redirect. 데이터·코드 파일 삭제 없음(정리 제안은 보고서 §4)
+- 개발 Flag 전용 "평가계획서 분석하기"(PDF·HWP·HWPX) → 계정 B 로컬 분석기(127.0.0.1:8765) 실제 연결. 결과 저장·확정 없음
+- 보고서: `assessment-ui-analysis-connection-202611/REPORT.md`
+
+### Not Done / Blocked
+
+- 학생 업로드·분석 공식 API, File Storage, HWP·HWPX 확정: 승인 대기(보고서 §10)
+- Backend 단위/통합·기존 브라우저 회귀 8종 재실행: 시연 Schema 보호·root 권한·`clean` 위험으로 미실행(보고서 §9)
+
+### Verification
+
+- 심화 탐구 브라우저 36/36(Backend 정상)·37/37(Backend 없음), 분석 미리보기 36/36(합성 PDF·HWP·HWPX, 실패 4종, Flag OFF)
+- verify-frontend PARTIAL PASS(Frontend 단위 테스트 미구성), Production 번들 개발 문자열 0건
+- 보호 파일: `api-contract.md` 해시·Migration 4개 동일, Backend·Admin·Shared vite.config 변경 없음
+
+## 2026-11-11 (저녁) — Admin 5174 복구 · 분석 결과 전체 페이지 · Admin 자동 분석 연결
+
+### Done
+
+- Admin 5174 미표시 원인(오래 떠 있던 Admin Vite가 바뀐 Student 모듈을 이전 import와 섞어 제공 → SyntaxError) 확인, Admin Vite만 재시작
+- Student 분석 결과를 Modal → 전체 페이지(`/assessment/school-assessments/analysis-preview/:id`, 탭 메모리 전용)로 이동
+- Admin 등록 → 같은 바이트 로컬 분석 → PROPOSED 수신 Endpoint 저장 → 기존 검토 전체 페이지 이동(개발 Flag)
+- 보고서: `assessment-full-integration-202611/`
+
+### Not Done / Blocked
+
+- 노트·Revision·결과물·피드백·성장 기록·자료함·즐겨찾기 실데이터: Shared Migration(Wangyu)·File Storage 승인 대기
+- 브라우저·HTTP 기준선 6종: 새 Schema(root) 필요
+
+### Verification
+
+- Backend 단위 261·통합 129 재실행 통과(clean 없이, 시연 jar 불변), verify-frontend PARTIAL PASS
+- Student 분석 페이지 30/30, Admin 분석 페이지 PDF 13/13·HWPX 15/15·HWP 15/15(격리 환경), 심화 탐구 36/36, 운영 번들 개발 문자열 0
+
+## 2026-11-11 (밤) — 학생 기록 실데이터 통합 (사용자 전달 승인 기반)
+
+### Done
+
+- Migration `V202611110506` (노트·Revision·결과물·버전·피드백 요청/Snapshot/답변·성장 기록·자료·중요 표시) — 빈 Schema·기존 PDF Schema·시연 Schema 적용, 기존 데이터 보존
+- Backend 학생·관리자 API(계약 §20~§45 Shape), 개발용 로컬 격리 파일 저장소, Student·Admin http Adapter 연결
+- 교차 E2E 19/19 + 11/11, `api-contract.md` §62-1 추가
+- 보고서: `assessment-db-integration-202611/`
+
+### Not Done / Blocked
+
+- HWP·HWPX Phase B(D-1·M-1~M-7·A안) 미구현, 관리자 "학생 화면 보기" http 미연결, 결과물 미리보기·비교, 삭제
+- 승인: 사용자 전달(Wangyu 포함), 저장소 서명 기록 없음 — PR 공동 Review 필요
+
+### Verification
+
+- Backend 단위 261·통합 136(신규 7) 통과, verify-frontend PARTIAL PASS, 분석 페이지 30/30·심화 36/36, 운영 번들 개발 문자열 0
+
+## 2026-11-12 (새벽) — Phase B·학생 화면 보기·미리보기/비교·휴지통·과목별 추천 자료원
+
+### Done
+
+- Migration `V202611111600`(D-1), `V202611111610`(확정값 UNIQUE·수동 대조·검토자 인증), `V202611111620`(소프트 삭제) — 빈 Schema·PDF 사본·시연 Schema 적용, 기존 데이터 보존
+- HWP·HWPX 검토 API(M-1~M-7 검증)·Admin 원문 대조 UI, 운영 보호(`structured-confirm-dev` 기본 false)
+- 관리자 학생 화면 보기 읽기 전용 API·iframe http 연결, 결과물 미리보기·비교, 휴지통·복원, 과목별 추천 자료원(정적)
+- 교차 E2E 44/44, 이전 19/19·11/11, 분석 30/30, 심화 36/36, 보고서 `assessment-phase-b-and-ux-completion-202611/`
+
+### Not Done / Blocked
+
+- HWP·HWPX 운영 확정(실제 인증 없음), HWP 실문서 E2E, 빈 Schema 기준선 4종·Admin 분석 13·15×2 미실행, 낡은 브라우저 기준선 2종 갱신 필요
+
+### Verification
+
+- Backend 단위 261·통합 144(신규 8) 통과, verify-frontend PARTIAL PASS, 운영 번들 개발 문자열·토큰 0
+
+## 2026-11-12 (오전) — [DEMO-1112] 실데이터 Seed·화면 검증, Admin 심화 탐구 정적 전환
+
+### Done
+
+- Admin 심화 탐구 콘텐츠(AD-06·09·10)를 Student 정적 원천(`enrichmentContent.ts`, `canonicalSource.ts` 경유)으로 전환: 탐구 라이브러리 8·모의고사 60·대학 27(PDF)·참고자료원 24. Task 생성·편집·공개·AI 진입 제거(이전 주소 안내), 참고자료실 DB 기능 유지. http 모드 503 해소
+- 시연 Schema에 기존 API로 [DEMO-1112] 합성 데이터 등록(재실행 안전 Seed), Student·Admin 화면 검증
+- 학생 화면 보기 숨은 안내문 파일 입력 `disabled` 보강(1줄)
+- 보고서: `assessment-seed-and-ui-verification-202611/`
+
+### Blocked / Open
+
+- MySQL SQL 직접 대조(자격증명 필요, `verify-seed.sql` 사용자 실행 대기), Admin 피드백 추천·스크랩 Modal의 이전 심화 Task 연결 UI 정리(P-32·P-35), 이전 편집 코드 삭제 범위, "원문 미포함" 실화면 확인
+
+### Verification
+
+- Admin 정적 E2E 38/38(Backend 꺼짐)·36/36(켜짐), Seed 30/30(재실행 생성 0), Seed 화면 E2E 38/38, Student 심화 36/36, 시연 읽기 점검 13/13, verify-frontend PARTIAL PASS, 번들 개발 문자열 0. Backend 테스트(코드 변경 없음)·쓰기형 E2E·분석기 관련 미실행
+
+## 2026-11-12 (낮) — 15개교·60명 합성 학생 Seed · 학년·학기 과목 카탈로그 · 다지점 관리자 시연 (IMPLEMENTED, 계약 DRAFT 승인 대기)
+
+### Done
+
+- 15개교 2026 평가계획서 219개(PDF·HWP·HWPX) 읽기 전용 추출·조사 → 학년·학기 공통 과목 카탈로그 6슬롯 162과목(1·2학년 2022 개정, 3학년 2015 개정, 학교별 아님)
+- 개발용 다지점 시연 명단(기본 OFF `ASSESSMENT_DEMO_ROSTER_ENABLED`): 시연 지점 3개 × 합성 학생 20명(15개교 × 4명, 학년별 20명), 지점 관리자 Mock 4개(A01·A02/B01/C01). Shared 학생 Client·Student Care 변경 없음(Assessment 내부 Directory)
+- §9-1 DRAFT: `catalogSubjects`·학교 반·번호 → Backend 응답·Student 모달(수강 과목만 선택, 미수강 비활성)·Admin 학생 상세
+- 실제 API로 수행평가 360·노트 60(v2 48)·결과물 49(버전 67, 36명)·피드백 36(전달 24/초안 6/요청만 6)·성장 기록 60·중요 표시 20 생성(재실행 생성 0)
+- 결함 수정: 플래그 ON 시 Backend 시작 실패(DemoRoster 생성자), Admin 학생 상세 `과목 없음`
+- 보고서: `assessment-15schools-60students-seed-202611/`
+
+### Blocked / Open
+
+- §9-1 DRAFT·§62-1-3 Shared 계약 승인, 실제 로그인/로그아웃(API-OD-A01), OD-A04 학적 원천, 담당 범위 밖 학생 URL 안내 UX(D-3), Student Care Playwright E2E 미실행, 현재 Backend 8080 → 18080 재시작 필요
+
+### Verification
+
+- Backend 단위 272/272(신규 11·ArchUnit 8 포함) · Integration 144/144(Testcontainers), Frontend typecheck·lint·build PASS, Seed 검사 1333/1333, 데이터 검증 833/833(지점 간 접근 80건 차단), 관리자 화면 4×11/11, 학생 화면 6명 77/77, 기존 화면 회귀 38/38·36/36, Student Care API(시연 지점 미노출) 확인. Student Care Playwright E2E 미실행
+
+## 2026-11-12 (오후) — 시연 환경 최종 통합: 실제 학교명 표시·마감일/제목·노트 작성·PDF/HWP 분석 검증 (IMPLEMENTED, 서버 재시작 없이)
+
+### Done
+
+- '예시고등학교' 원인 확인(5173 기본 학생 `stu_001` 고정) → 개발 전용 시연 학생·관리자 전환 패널 + 시연 링크(`?devStudent=`·`?devAdmin=`), 운영 번들 개발 문자열 0
+- 수행평가 361건 마감일 291건 미래로·제목 159건 정리(기존 PATCH, ID 유지, 상태 불변, 멱등)
+- 노트 "지금 저장" 버튼, Admin 범위 밖 학생 안내, Admin 학교·학년·상태 필터(서버 목록 기반)·학생 기록 학기·과목명 결함 수정
+- 한글 결과물 새 버전 8개, 합성 PDF·HWP 등록→분석→후보 수신(5174 검토 화면), 실제 학교 문서 8건 분석 미리보기 + 표본 원문 대조
+- 보고서: `assessment-demo-final-integration-20261112/`
+
+### Blocked / Open
+
+- 화면 업로드 분석(5173 토큰·5174 분석기 Proxy) → Vite 재시작 필요, 분석기 품질(계정 B), Shared 계약·실제 로그인·실제 문서 반입·HWP 공식 확정 승인 대기
+
+### Verification
+
+- 실제 5173·5174: Student 76/76, 노트 18/18, Admin 21/21, 평가계획서 12/12, 결과물 2/2 · verify-seed 833/833 · 학교 매핑 불일치 0 · typecheck·lint·build PASS · Backend 변경 없음(테스트 미실행)

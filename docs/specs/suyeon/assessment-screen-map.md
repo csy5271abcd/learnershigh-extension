@@ -6,6 +6,35 @@
 > **정정 (2026-10-26, 첫 구현 중 실측):** 글자·간격을 실제 구현과 비교한 결과 **CSS 1920×약 972 @ DPR 1.5**로 보는 것이 맞다 (본문 14px, 페이지 제목 22px, Sidebar 약 212px). 이전 문구의 "1440 @ DPR 2"는 틀렸다. 시각 비교 캡처는 1920×972 @1.5로 한다.
 > **Route:** S1~S4·S6·S7(기본 정보) Student Route는 첫 구현에서 아래 경로로 **확정**했다 (`frontend/student/src/features/assessment/routes/paths.ts`). 나머지는 제안이다. Admin Route는 Admin Shell 협의 후 정한다.
 
+## 0. 범위 변경 반영 (2026-11-03)
+
+기준: `features/assessment-enrichment-content.md`, `features/assessment-admin.md` §7·§9·§10. 아래 행은 지우지 않고 상태만 표시한다(§4 갱신 규칙). 코드는 아직 바뀌지 않았다.
+
+| 화면 | 새 상태 | 남길 것 / 없앨 것 |
+|---|---|---|
+| S5 PDF 가져오기·결과 검토 | **유지·실구현 대상** | 근거·검증·값 출처 표시 추가 (`assessment-pdf-analysis-plan.md`) |
+| S7·S18 노트의 `EXAM_SOURCE` 출처 카드 | **유지 (학교 수행평가)** | S18 쪽은 폐기, S7 노트에서 유지 |
+| S16 심화 탐구 목록 | **열람 전용으로 축소** | 목록·검색·필터·미리보기 유지 / 생성 Modal·시작·즐겨찾기 제거 |
+| S17 내 심화 탐구 | **폐기** | Route `/assessment/enrichment/my` 제거 대상 |
+| S18 심화 탐구 상세(개인 Task) | **폐기** | Route `/assessment/enrichment/tasks/:taskId` 제거 대상. 콘텐츠 상세는 S16 안에서 새로 정의 |
+| S19 모의고사 60선 | **열람 전용으로 축소** | 목록·상세·로컬 원문 유지 / 개인 지문·스크린샷 영역·탐구 시작·즐겨찾기 제거 |
+| S20 대학별 자료 | **유지 (열람)** | |
+| S26 대학별 기출 PDF 원문 | **유지 (열람)** | `?task=` Query·Task 시작 제거 |
+| S1 Sidebar "진행 중 탐구" 수 | **폐기** | |
+| S7 연결된 심화 탐구 | **폐기** | |
+| S22 성장 기록의 `ENRICHMENT_TASK` 관련 활동 | **폐기** | 학교 수행평가·독립 활동만 |
+| S23 보관함의 심화 탐구·콘텐츠 즐겨찾기 | **폐기** | 학교 수행평가 즐겨찾기는 유지 |
+| A1 전체 현황의 심화 활동 | **폐기** | |
+| A2 학생 상세 "심화 탐구" 탭·`kind=enrichment` 기록 | **폐기** | |
+| A3 피드백 추천 "심화 Task" | **변경** | 심화 콘텐츠 상세 링크 (`features/assessment-feedback.md` §7) |
+| A4 평가계획서 | **유지·실구현 대상** | 등록 Mock 화면과 AI 분석 화면을 한 흐름으로 |
+| A5 심화 Task 목록/생성/편집 | **열람 전용으로 축소** | 목록·상세만 |
+| A6 모의고사 소재 목록/등록/편집 | **열람 전용으로 축소** | 목록·상세만, 관리자 원문 입력(P-30) 제거 |
+| A7 대학 공개 자료 목록/등록 | **열람 전용으로 축소** | 목록·PDF 뷰어만 |
+| (Mockup 없음) Admin 대학 기출·모의고사 AI 분석 | **범위 제외** | 메뉴 비노출 → 사용처 확인 후 제거 |
+
+MM 결정: MM-26·27·28(쓰기·즐겨찾기 부분)·29·51(심화 콘텐츠 부분)·53·62는 **"결정: 범위 변경으로 종결 (2026-11-03, assessment-enrichment-content.md)"**로 본다. MM-45~48은 PDF 분석 실구현에서 계약으로 해결한다(`assessment-pdf-analysis-plan.md` §4·§6). MM-63(`EXAM_SOURCE`)은 유지한다.
+
 ## 1. Student
 
 | # | 화면 / 변형 | Mockup | Spec | Contract | Route (제안) | 비고 |
@@ -25,10 +54,10 @@
 | S13 | 피드백 요청 완료 모달 | `SA-DETAIL-13` | feedback §4 (ST-14) | §31 | (모달) | "받는 분 OOO 선생님", 시연 버튼 포함 (이미지 확인) **구현: §31 응답 Snapshot 표시** |
 | S14 | 수행평가 꿀팁 6종 | `SA-Tips/SA-TIPS-01~06` | student §8 (ST-05) | §15 | 상세 안 Modal, `/assessment/tips?tip=TIP01` (제안 `/tips/:tipId`에서 변경) | **구현(2026-10-27, Stage 6 Mock):** 6장은 수행평가 상세 "수행평가 꿀팁" Modal의 선택 상태(별도 Route 아님). 같은 `TipsBrowser`를 좌측 메뉴 꿀팁 화면에서도 사용. 콘텐츠는 §15가 허용한 코드 정적 콘텐츠(`model/tipsContent.ts`, Endpoint 없음). 설명·예시(표/질문)·관련 기능: 상세 안에서는 주제명 추천 Modal·노트로 스크롤·자료함·심화 탐구·모의고사 지문, 꿀팁 화면에서는 노트 → 과제 목록, 주제명 추천 → 비활성+사유. 이번에 본 팁 ✓(저장 안 함). "추천" 배지·추천 순서는 규칙 없음으로 제외. MM-44 |
 | S15 | 선생님 피드백 목록 (전체 / 대기 / 완료) | `Teacher-Feedback/TF-List/TF-LIST-01~03` | feedback §8 (ST-15) | §31·32 | `/assessment/feedback` | **구현(2026-10-26, Stage 1 Mock):** `?status=` 필터·건수, 요청 카드(상태·요청 시각·보낸 자료 Snapshot), 답변(전체 의견·위치별 의견·후속 추천), 요청 당시 자료 Modal(§21 Revision 본문·파일 Metadata, 지금 최신 버전과 구분), 제목 → 상세 `?panel=feedback`, Sidebar `대기 N`. 과제 매칭은 MM-19 조합, 계약 밖 표현은 MM-24 |
-| S16 | 심화 탐구 목록 / 생성 모달 / 선택 Preview | `Advanced-Exploration/AE-List/AE-LIST-01~03` | inquiry §3 (ST-16) | §16·18 | `/assessment/enrichment` (`?subject=&q=&selected=`) | **구현(2026-10-26, Stage 1 Mock):** 과목·검색·카드 선택(URL 보존), 선택 ID와 같은 §16 상세만 Preview, 이 탐구 시작하기(§18 POST, 새 taskId·중복 클릭 방지·실패 재시도), 이미 시작한 콘텐츠는 진행 중 Badge·내 탐구 열기, 직접 만들기 Modal(제목·과목 필수, 목표·연결 수행평가 선택). 분야 필터·난이도·즐겨찾기·문제 상황 등은 MM-26 |
-| S17 | 내 심화 탐구 | `AE-My-Explorations/AE-MY-01` | inquiry §3 | §18 | `/assessment/enrichment/my` (제안 `/mine`에서 변경) | **구현:** 시작일·연결 수행평가(§12 상세로 제목 확인)·상태, 검색은 받은 목록 안 화면 필터(§18 Query 없음), Empty/Error |
-| S18 | 심화 탐구 상세 (자기 점검·AI·자료·이력·더보기) | `AE-Detail/AE-DETAIL-01~05` | inquiry §3·§5·§10 | §18·20·21·28 | `/assessment/enrichment/tasks/:taskId` (`mock-exams` 등 탭 경로와 겹치지 않게 변경) | **구현:** S7 상세 틀·노트·이력·더보기 재사용(피드백 버튼 없음), 상태 변경(§18 PATCH status, 되돌리기 막음), 수행평가 연결(§18 PATCH), 자기 점검 탭 = 출발 공개 콘텐츠의 수행 안내·출발 자료(원본 비공개 시 안내), AI·자료 탭 준비 중 |
-| S19 | 모의고사 지문 목록 / 상세 | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams`, `/mock-exams/:materialId` | **구현:** 시연용 자체 제작 카드(실제 지문 없음), 과목 필터·검색, 상세(원문 정보와 탐구 아이디어 분리, 원문 링크 없음 표시), 심화 Task 만들기(§18 sourceReference DRAFT), 내 지문 등록(§17 POST, 링크만·확인 안 함)·내 지문 목록, 수행평가 아이디어 연결은 Editor 전 비활성. MM-28 |
+| S16 | 심화 탐구 목록 / ~~생성 모달~~ / 선택 Preview **(열람 전용 2026-11-03, §0)** | `Advanced-Exploration/AE-List/AE-LIST-01~03` | inquiry §3 (ST-16) | §16·18 | `/assessment/enrichment` (`?subject=&q=&selected=`) | **구현(2026-10-26, Stage 1 Mock):** 과목·검색·카드 선택(URL 보존), 선택 ID와 같은 §16 상세만 Preview, 이 탐구 시작하기(§18 POST, 새 taskId·중복 클릭 방지·실패 재시도), 이미 시작한 콘텐츠는 진행 중 Badge·내 탐구 열기, 직접 만들기 Modal(제목·과목 필수, 목표·연결 수행평가 선택). 분야 필터·난이도·즐겨찾기·문제 상황 등은 MM-26 |
+| S17 | ~~내 심화 탐구~~ **(폐기 2026-11-03, §0)** | `AE-My-Explorations/AE-MY-01` | inquiry §3 | §18 | `/assessment/enrichment/my` (제안 `/mine`에서 변경) | **구현:** 시작일·연결 수행평가(§12 상세로 제목 확인)·상태, 검색은 받은 목록 안 화면 필터(§18 Query 없음), Empty/Error |
+| S18 | ~~심화 탐구 상세 (자기 점검·AI·자료·이력·더보기)~~ **(폐기 2026-11-03, §0)** | `AE-Detail/AE-DETAIL-01~05` | inquiry §3·§5·§10 | §18·20·21·28 | `/assessment/enrichment/tasks/:taskId` (`mock-exams` 등 탭 경로와 겹치지 않게 변경) | **구현:** S7 상세 틀·노트·이력·더보기 재사용(피드백 버튼 없음), 상태 변경(§18 PATCH status, 되돌리기 막음), 수행평가 연결(§18 PATCH), 자기 점검 탭 = 출발 공개 콘텐츠의 수행 안내·출발 자료(원본 비공개 시 안내), AI·자료 탭 준비 중 |
+| S19 | 모의고사 지문 목록 / 상세 **(열람 전용 2026-11-03, §0)** | `AE-Mock-Exam/AE-MOCK-01~03` | inquiry §4 (ST-07) | §17 | `/assessment/enrichment/mock-exams`, `/mock-exams/:materialId` | **구현:** 시연용 자체 제작 카드(실제 지문 없음), 과목 필터·검색, 상세(원문 정보와 탐구 아이디어 분리, 원문 링크 없음 표시), 심화 Task 만들기(§18 sourceReference DRAFT), 내 지문 등록(§17 POST, 링크만·확인 안 함)·내 지문 목록, 수행평가 아이디어 연결은 Editor 전 비활성. MM-28 |
 | S20 | 대학별 자료 (2026-10-28 확장, 탭 이름 "대학 공개 자료" → "대학별 자료") | `AE-University-Resources/AE-UNI-01` (구조 참고) | inquiry §9 (ST-17) | §27 + P-25 제안 | `/assessment/enrichment/universities` (`?university=snu·kaist&year=&subject=&type=&q=`) | **구현:** `references/previous-exam-questions`의 SNU 9·KAIST 18 PDF 전부를 문서 카드로(가상 대학 시연 자료 제거). **2026-10-28 목록형으로 간소화(Daglo 전체 보드 목록 위계 참고)**: 대학 칩(전체·서울대·KAIST) + "필터" 버튼으로 펼치는 학년도·과목/영역·유형(실제 기출/예시 문항/기타)·적용된 조건(개별 지우기·초기화)·정렬(학년도 최신/오래된·자료명)·위 검색창(문서 목록 검색, PDF 본문 검색 아님). 한 줄 = 자료명(링크, 최대 2줄)+원문 개념 회색 줄 / 대학·학년도·유형 / 과목·영역(대표 2개) / 쪽·문항 수 / PDF 보기·탐구 시작(같은 무게의 보조 버튼, 파란 배경 없음). 1279px 이하는 제목 아래 요약 한 줄, 820px 이하 한 열. 대학 소개 카드·카드 그리드 제거. MM-60~63 |
 | S21 | 자료함 / 과목별 추천 / 자료 추가 모달 | `Resource-Library/RL-LIST-01~02`, `RL-Add-Resource/RL-ADD-01` | inquiry §7 | §22·23 | `/assessment/resources` (`?q=&type=&subject=`), `/resources/:resourceId` | **구현(2026-10-27, Stage 1 Mock):** 과목별 추천 자료원(탐색 후보, 펼침 → 그 자료원으로 자료 추가), 유형 필터(Mockup 5종), 검색(§22 query, Mockup에 없지만 다른 목록과 같은 위치), 내 자료 목록·출처 정보 표시, 자료 추가 Modal(유형 7종·자료명 필수·URL/발행일 형식 검사·닫기 확인), 자료 상세(Mockup 없음, 최소 구성)·수정(§22 PATCH, 메모·태그 포함), Sidebar 건수. 노트에 추가·AI 요약 비활성, 삭제 없음(§22에 없음). MM-30~32 |
 | S22 | 성장 기록 | `Growth-Records/GR-LIST-01` | inquiry §11 | §29 | `/assessment/growth` (`?subject=`), `/growth/new?sourceType=&sourceId=`, `/growth/:recordId` | **구현(2026-10-27, Stage 5 Mock):** 개인 기록 안내(세특과 별개·자동 생성 없음), 과목 Chip, 학기별 묶음(과목이 속한 학기로 계산, MM-37), 카드(출처 배지·과목·제목·내 역할/해결한 문제/배운 점/추가 탐구, 빈 항목 숨김), 관련 활동 링크. 작성(§29 POST, 제목 필수, 관련 활동·과목·시작일·9개 서술 항목·관련 활동의 결과물 선택)·상세·수정(§29 PATCH 바뀐 항목만)·실패 시 입력 유지·이동 보호. 학교 수행평가·심화 탐구 상세 더보기 "성장 기록에 남기기" → 관련 활동을 채운 작성 화면. 내보내기 비활성. 작성·상세 Mockup 없음. AI 생성 없음. MM-37·38 |
@@ -48,9 +77,9 @@
 | A2 | 학생 Assessment 목록 / 상세 / 스크롤 | `AM-Student-Assessment/AM-02~04` | admin §4·§11~13 | §34~37 | 읽기 전용. 노트 Renderer는 Student와 공유 대상 |
 | A3 | 피드백 목록 / 상세 편집기 | `AM-Feedback-Management/AM-05~06` | feedback §5~7 | §44~46 | 06 이미지 확인: **위치별(쪽·슬라이드) 의견 UI 없음**, 시연 버튼 포함 |
 | A4 | 학교별 평가계획서 / 업로드 모달 | `AM-School-Evaluation-Plans/AM-07~08` | admin §5·§6 | §38·39 | 07 이미지 확인: 학년×학기 6슬롯, 개정본 추가 |
-| A5 | 심화 Task 목록 / 생성 / 편집 | `AM-Enrichment-Content/Enrichment-Tasks/AM-09~11` | admin §9 | §41 | 공개 상태 Enum 미정 |
-| A6 | 모의고사 소재 목록 / 등록 / 편집 (+스크롤) | `AM-Enrichment-Content/Mock-Exam-Materials/AM-12~16` | admin §7 | §40 | |
-| A7 | 대학 공개 자료 목록 / 등록 모달 | `AM-Enrichment-Content/University-Public-Resources/AM-17~18` | admin §10 | §42 | |
+| A5 | 심화 Task 목록 / ~~생성 / 편집~~ **(열람 전용 2026-11-03, §0)** | `AM-Enrichment-Content/Enrichment-Tasks/AM-09` (10·11 참고 안 함) | admin §9, enrichment-content §4 | 없음 (정적 콘텐츠, §41 DEPRECATED 제안) | ~~공개 상태 Enum 미정~~ 종결 |
+| A6 | 모의고사 소재 목록 / ~~등록 / 편집~~ **(열람 전용 2026-11-03, §0)** | `AM-Enrichment-Content/Mock-Exam-Materials/AM-12` (13~16 참고 안 함) | admin §7, enrichment-content §4 | 없음 (§40 DEPRECATED 제안) | |
+| A7 | 대학 공개 자료 목록 / ~~등록 모달~~ **(열람 전용 2026-11-03, §0)** | `AM-Enrichment-Content/University-Public-Resources/AM-17` (18 참고 안 함) | admin §10, enrichment-content §4 | 없음 (§42 DEPRECATED 제안) | |
 | A8 | 관리자 참고자료실 / 저장 모달 | `AM-Reference-Library/AM-19~20` | admin §8 | §43 | 내부 스크랩은 비공개 |
 
 ## 3. Mockup ↔ 계약 불일치 (결정 대기)

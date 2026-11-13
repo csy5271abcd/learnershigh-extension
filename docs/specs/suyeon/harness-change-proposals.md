@@ -27,6 +27,14 @@
 | P-16 | `docs/api/api-contract.md` §16·17·18·27·30 | 심화 탐구 화면의 응답 Shape·필터 보완 (MM-26~29) | 없음 (Assessment 전용) | 필요 |
 | P-17 | `docs/api/api-contract.md` §22·23 | 자료함 응답 Shape·유형 Enum·자료 연결 보완 (MM-21·30~32) | 없음 (Assessment 전용) | 필요 |
 | P-18 | 신규 ADR 제안 + `api-contract.md` §19~21·23 | 탐구 노트 Editor 라이브러리·블록 Schema·자동 저장·충돌 정책 결정 (OD-A05, API-OD-A04, MM-18·25·33~36) | 없음 (Assessment 전용) | 필요 (라이브러리 설치 승인 포함) |
+| P-33 | `.gitignore` | 저작권 미확인 원문(`references/mock-exam/`, `references/previous-exam-questions/`) 보호 + P-09 `backend/bin/` (2026-11-03) | 없음 | 경미 (Shared) |
+| P-34 | `docs/adr/0011-…` (신규) + ADR-0008·0009 상태 줄 | 심화 탐구를 읽기 전용 정적 콘텐츠로 축소 (ADR-0008 Decision 3·4 부분 대체) | 간접 (문구) | 필요 |
+| P-35 | `docs/api/api-contract.md` §10·11·16~18·20·24·27·30·31·38~42·46·47·47-A·53·61·62 | PDF 분석 Schema 통합, 심화 계약 DEPRECATED, `sourceType` 축소, 추천 링크 | 없음 (Assessment 전용, §65 무변경) | 필요 |
+| P-36 | `docs/architecture/overview.md`·`integration-boundary.md`·`shared-conventions.md` | EnrichmentTask 제거, PDF 분석 파이프라인·파일 저장·외부 전송 경계 | 문구 | 필요 |
+| P-37 | `CLAUDE.md`·`AGENTS.md`·`README.md`·`ARCHITECTURE.md`·`SOURCE_OF_TRUTH.md`·`OWNERSHIP.md`·`.claude/rules/*` | 심화 탐구 문구 최소 수정, `EnrichmentTask` 예시 교체 | 문구 (Wangyu 항목 무변경) | 필요 |
+| P-38 | `frontend/shared/assessment/content/` (신규) | 정적 심화 콘텐츠 단일 원본 위치 (P-07 확장) | 간접 (workspace) | 필요 |
+| P-39 | `docs/adr/0012-…` (신규, 결정 후) | 평가계획서 PDF 분석 아키텍처 (Provider·Job·저장·표/스캔 처리) | 간접 (`common/`·DB·설정) | 팀 |
+| P-40 | 이미 적용된 미커밋 Shared 변경 | Admin `App.tsx`·`AdminShell.*`(P-06), `application.yml`·`build.gradle.kts`(P-31) 승인 기록 | **있음** | **Wangyu 확인 필수** |
 
 ---
 
@@ -491,3 +499,281 @@ React 19.3.0, TypeScript 6.0.3, Vite 8.3.4, npm workspaces. Repository에 Editor
 | MM-65 | SubjectRef 출처 필드(학교 개설 / 학생 추가) | 평가계획서 PDF 분석 과목 매칭(§11)과 같은 과목 ID 공간인지 |
 | MM-66 | 과목 이름 변경·삭제 정책 — 연결된 수행평가·심화 탐구·노트·성장 기록이 있는 과목의 처리(보관·병합·숨김) | domain.md OD (학업 정보 변경 시 기록 보존) |
 | 운영 | 학생 추가 과목이 관리자 화면(Assessment 현황·피드백)에 어떻게 보이는지 | Admin Assessment (assessment-admin.md) |
+
+## P-27. Admin Assessment Stage 1 공통 데이터·계약 보완 (2026-10-29, Admin 구현 중 확인)
+
+상태: **PROPOSED — 적용하지 않음.** P-22~P-26 상태는 바꾸지 않는다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| 공유 위치 | Student Canonical Fixture·Type을 `frontend/shared/assessment/`로 옮기고 Admin·Student가 같은 곳을 import (assessment-frontend-mock.md §4-2 A안). 그전까지 Admin은 `api/canonicalSource.ts`·`components/canonicalUi.ts` 두 파일에서만 Student 경로를 import (B안, 임시) | OWNERSHIP §10-4 Shared 승격 기준, Wangyu 리뷰 |
+| 학생 식별 | Student Fixture에 studentId가 없어 Admin Mock이 `student_001`로 연결. 공유 Fixture로 옮길 때 학생·지점 ID를 Fixture에 넣을지 | domain.md §25, API-OD-A01 |
+| §34 | 학생 목록 행 Shape(학교·학년·활동 요약·다가오는 마감·최근 기록)와 기록 단건 조회(`GET .../students/{id}/school-assessments/{assessmentId}` 등) | MM-55 |
+| §36 | `previewSupported` 판정 규칙 (Stage 1은 PDF·이미지만 true) | API-OD-A03 |
+| §38·39 | `analysisStatus`(NOT_REQUESTED·PROCESSING·REVIEW_REQUIRED·COMPLETED·FAILED)·`reviewStatus`(UNREVIEWED·CONFIRMED) Enum, 검토 저장(SAVE)과 확정(CONFIRM) 구분 | MM-45, API-OD-A02 |
+| §41 | 탐구 유형·난이도·문제 상황, 대학 문항(`relatedExamQuestionIds`)·참고자료원(`referenceSourceIds`) 연결 필드, 공개 DTO(§16)에 어디까지 노출할지 | API-OD-A12, P-25 |
+| §42 | 발행 기관·공식 주소·확인일·이용 조건 필드와 "주소·확인일 없으면 공개 불가" 규칙 | API-OD-A11 |
+| §43·46 | 스크랩 `referenceSourceId`, 추천 전달 Projection(`title`·`url`) — Stage 1은 `note` 문장에 제목·주소만 담는다 (scrapId·관리자 메모 비노출) | §46 |
+| Shell | AdminShell Extension Entry `assessment` 1개 + `App.tsx` `/assessment` 접두어 분기 (Wangyu 리뷰 필요, 최신 main의 학생 케어 1·2·3·5 Entry와 Merge 시 같은 배열 수정) | frontend-admin §20 |
+| Dev | `admin/vite.config.ts` dev Proxy `/__dev/university-exams` → Student 개발 서버 (Build 영향 없음) | P-25 |
+
+## P-28. Admin "학생 화면 그대로 보기"(읽기 전용) 구조 (2026-10-29, 요청 ⑦·⑧ 구현 중 확인)
+
+상태: **PROPOSED — 팀 승인 전.** P-22~P-27 상태는 바꾸지 않는다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| 요청 ⑧ | Student Assessment Route Tree를 Admin에서 `createMemoryRouter`로 그대로 렌더링 (`student/.../routes/AssessmentReadOnlyViewer.tsx`). Admin 주소 관리(adminLocation)는 바꾸지 않고 Router는 Viewer 안에서만 산다. Admin 주소 `/assessment/students/{id}/view?path=` | frontend-admin §20 Router 교체 금지와 충돌 여부 (교체 아님, Wangyu 리뷰 필요) |
+| 쓰기 차단 | `api/viewMode.ts`: 모드 `student`(기본)·`admin-readonly`. Student의 모든 쓰기 API 함수(19개)가 `guardWrite`를 먼저 지나 읽기 전용이면 403 `READ_ONLY_VIEW`로 거절 (Mock Store·서버 호출 없음). 쓰기 진입 버튼·Modal(7종)은 읽기 전용에서 그리지 않거나 안내 Modal로 바꾼다 | Stage 2 서버 인가가 별도로 필요 (화면 차단 ≠ 권한 검증) |
+| 데이터 | Admin Read-only Adapter(`getStudentViewSnapshot`)가 담당 범위 검사(403/404) 뒤 한 학생 기록만 Admin 번들의 Student Mock Store 사본에 넣는다 (`readOnlyViewStore.ts`). 학생 Session 생성·위조 없음. 학생 전환 시 조회 Cache(`clearApiQueryCache`) 비움 | 계약: Admin이 학생 화면용 Student DTO를 받는 Endpoint 형태 (§34~36 확장 또는 별도) |
+| 노트 | 읽기 전용 노트는 Student 블록 렌더러(`NoteBlocksView`) + Revision 선택(§21 GET) (`NoteReadOnlyView.tsx`) | OD-A05 블록 Schema |
+| PdfViewer | `blob:` 주소는 HEAD 확인을 건너뛰고, `expectedPageCount=0`이면 쪽 수 비교 안내를 끈다 (Admin AI 분석 화면의 로컬 PDF 미리보기용) | Student 대학별 자료 화면 동작 변화 없음 |
+
+## P-29. Admin 다학교 시연 데이터 (2026-10-29, 요청 ② 구현)
+
+상태: **PROPOSED (Stage 1 Mock 전용).** 합성 데이터이며 실존 학교·학생·평가정보가 아니다.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| 요청 ② | `admin/.../api/mock/adminDemoFixture.ts`: 6개 학교(1곳은 다른 지점 → 403 확인용) × 7명 = 42명, 학년 1~3, 2025·2026 학년도 학기별 4~6과목, 수행평가·노트 Revision·결과물 버전·피드백·심화 탐구·성장 기록. 고정 시드, `demo_` 접두 ID | Student Canonical(student_001) ID·값 불변, Student 앱 데이터와 동기화 없음 |
+| §34 | 학생 목록 필터 `term`(학년도·학기)·`subjectName`·`status`와 필터 선택지 Endpoint(가칭 `GET .../students/filter-options`) | §34 Query 확정 필요 |
+
+## P-30. 모의고사 지문 원문 관리 (2026-10-29, 요청 ③ 구현)
+
+상태: **PROPOSED.** API-OD-A11(저작권) 미결.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| 요청 ③ | 관리자 Record에 `adminPassage {text, origin(NONE·LOCAL_FILE·ADMIN_INPUT), updatedAt, aiTransferAllowed}` (최대 20,000자). 학생 공개 Shape(`material.research.passage`)과 분리해 자동 공개하지 않음 | §40 필드 추가, 저장소(서버) 미정 |
+| 저장 | Stage 1은 Admin 메모리에만 (Git Fixture·브라우저 저장소에 쓰지 않음). 기존 `*.local.json` 원문은 시작값으로만 읽음 | P-24 로컬 원문 정책 유지 |
+| UI | 내부 소재 ID(EN-06 등)는 목록·상세·폼·미리보기에 표시하지 않음 (검색·수정·연결에는 그대로 사용) | — |
+
+## P-31. Assessment AI 분석 3종 Backend·계약 (2026-10-29, 요청 ⑨ 구현)
+
+상태: **PROPOSED — API-OD-A10(AI Provider·비용·재시도), Existing Authentication 미결.** 기본값은 Provider 미연결.
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| Endpoint | api-contract.md §47-A (PROPOSED) 4개: status, evaluation-plan-analyses, university-exam-analyses, mock-exam-analyses | §38·39 기존 평가계획서 분석 계약과의 관계(같은 Job으로 합칠지) |
+| Package | AI Provider Interface 위치를 `assessment/integration/ai/`로 제안 (overview.md §6 "Interface Package 위치 미확정") | overview.md 갱신은 팀 승인 후 |
+| Provider | `com.anthropic:anthropic-java:3.2.0`(공식 SDK), 모델 `claude-opus-5-5`, Structured Output. `assessment.ai.provider=anthropic` + `ANTHROPIC_API_KEY`일 때만 켜짐 | 비용·재시도·학생 자료 외부 전송 정책 (API-OD-A10) |
+| PDF | PDFBox 3.0.5로 쪽별 텍스트 추출, OCR 없음(이미지형 PDF는 422 `PDF_TEXT_NOT_FOUND`), 20MB·120쪽 제한 | API-OD-A03 Storage와 무관(파일 저장 안 함) |
+| 검증 | AI 결과는 원문 텍스트와 서버에서 다시 대조(근거 문장·쪽 범위·숫자), 합계 불일치 자동 보정 없음, 성공 응답은 항상 `REVIEW_REQUIRED` | — |
+| 중복 | `Idempotency-Key` 메모리 보관(재시작 시 사라짐) | §51 Idempotency |
+| 인증 | Admin 인증·권한 검증 없음 → **운영 환경에서 켜지 말 것** | common/auth 미구현 |
+| 설정 | `application.yml` multipart 한도(100MB, 20MB 초과는 Service가 413) | 공통 설정 변경 — Wangyu 리뷰 |
+
+## P-32. 참고자료실 자료원 1 : 개별 참고자료 N (2026-10-29, 요청 ⑤ 구현)
+
+상태: **PROPOSED.**
+
+| 근거 | 제안 | 겹침 확인 |
+|---|---|---|
+| 요청 ⑤ | 스크랩 = 개별 참고자료(ReferenceItem, `scrapId`). 자료원(`referenceSourceId`)당 여러 개 저장. 같은 주소만 409 중복 | §43 |
+| 필드 | `authorOrOrg`·`publishedDate`·`relatedCatalogTaskIds`·`relatedMaterialIds` | §43 필드 추가 |
+
+---
+
+# 2026-11-03 범위 변경에 따른 Shared 변경안 (P-33~P-40)
+
+> 상태: **PROPOSED — 적용하지 않음.** 근거 결정: 2026-11-03 사용자 결정(① PDF Schema 통합 방향, ② 대학·모의고사 AI 분석 제외, ③ 콘텐츠 즐겨찾기 제외, ④ 추천은 콘텐츠 링크, ⑤ 학생 PDF 외부 전송 조건부). Suyeon 소유 문서는 이미 반영했다(`progress.md` 2026-11-03).
+> 기존 제안 상태 변경: **P-16**(심화 응답 Shape)·**P-25**의 Task 연계 부분·**P-30**(관리자 원문 입력)은 `WITHDRAWN (2026-11-03 범위 변경)`으로 본다. **P-24**의 60선 열람·**P-25**의 PDF 열람 부분은 정적 콘텐츠로 유지한다. **P-31**은 평가계획서 부분만 P-35·P-39로 통합하고 대학·모의고사 분석은 범위 제외. **P-32**의 `relatedCatalogTaskIds`는 제거 또는 `relatedContentIds`로 교체 결정 필요.
+
+## P-33. `.gitignore` — 원문 보호 (P-09 포함)
+
+**현재 (2026-11-03 확인):** `references/mock-exam/`(236KB, 모의고사 원문 지문 전체 포함)와 `references/previous-exam-questions/`(PDF 27개, 13MB)는 Untracked이고 `git check-ignore` 결과 **ignore되지 않는다.** `git add references/`나 `git add -A` 한 번으로 공개 Repository에 들어갈 수 있다. 또 `.gitignore` §14 주석은 `references/**`를 "version-controlled 유지"로 적고 있어 이 제안과 충돌한다.
+
+**Patch**
+
+```diff
+@@ 7. Backend — Spring Boot / Java
+ # Compiled Java
+ *.class
++
++# IDE(Eclipse/VS Code Java) output
++backend/bin/
+@@ 13. Misc temporary / backup files
+ *.bak
+ *.backup
++
++# ------------------------------------------------------------
++# 13-1. Copyright-unverified source materials (local only)
++# ------------------------------------------------------------
++# 재배포 권한이 확인되지 않은 원문. Manifest·생성 Fixture(원문 제외)만 추적한다.
++references/mock-exam/
++references/previous-exam-questions/
++references/evaluation-plans/
+@@ 14. Keep important project artifacts tracked
+ # docs/**
+-# references/**
++# references/** (13-1의 원문 폴더 제외)
+ # database/migrations/**
+```
+
+- `references/evaluation-plans/`는 PDF 분석 Golden Corpus 로컬 폴더 제안(`assessment-pdf-analysis-plan.md` §8-1). 아직 없음.
+- `references/claude-design-mockup/LearnersHighAssessment/`(25MB)·`references/design/`(7.7MB)·`references/reference-link/`도 Untracked다. 이것들을 추적할지(팀 공유 Mockup)는 별도 결정이며 이 Patch에 넣지 않았다.
+- 확인: 적용 후 `git check-ignore -v references/mock-exam/LearnersHigh_Mock_Exam_60_Research_Materials.md`와 대학 PDF 하나가 규칙을 출력해야 한다. `universityExamManifest.json`·`npm run exam-manifest`는 로컬 파일을 읽기만 하므로 영향 없음.
+
+## P-34. ADR-0011 초안 — 심화 탐구를 읽기 전용 정적 콘텐츠로 축소
+
+번호: ADR-0001~0009는 파일이 있고, **ADR-0010은 P-05(Frontend Routing, Proposed)가 예약**했다. 따라서 이 ADR은 **0011**, PDF 분석 아키텍처(P-39)는 **0012**를 제안한다. `docs/adr/README.md`의 "Superseded by ADR-0010"은 형식 예시라 실제 예약이 아니다.
+
+```markdown
+# ADR-0011: Reduce Enrichment to Read-only Static Content; Prioritize Evaluation-plan Analysis
+
+- Status: Proposed
+- Date: 2026-11-03
+- Amends: ADR-0008 Decision 3·4 (심화 탐구 / 심화 Task·모의고사 탐구 소재·대학 공개 자료 운영 부분만)
+- Related: ADR-0009 (피드백 대상 범위 축소에 따른 주석)
+
+## Context
+- ADR-0008은 학생 심화 탐구(개인 Task)와 Admin 심화 콘텐츠 운영을 Assessment 범위에 넣었다.
+- 2026-11-03 범위 결정: 학교 평가계획서 PDF 분석을 실제 Backend·AI 구현의 핵심으로 삼고, 심화 탐구는 교육용 예시 콘텐츠로 축소한다.
+- 현재 심화 기능은 전부 Frontend Mock이며 Backend·DB·Migration이 없다(지울 저장 데이터 없음).
+
+## Decision
+1. 심화 탐구(탐구 콘텐츠·모의고사 60선·대학 공개자료)는 Frontend 정적 콘텐츠다. Backend·DB·API를 만들지 않는다. Student·Admin 모두 읽기 전용이며 같은 데이터를 쓴다.
+2. 개인 EnrichmentTask(생성·시작·상태·전용 노트/결과물/피드백), 개인 모의고사 지문 등록, 자료 → Task 생성, 콘텐츠 즐겨찾기, 심화 KPI, Admin 콘텐츠 CRUD·공개 상태는 폐기한다.
+3. 대학 기출·모의고사 AI 분석은 신규 범위에서 제외한다. 원문을 외부 AI에 보내지 않는다.
+4. 노트·NoteRevision·ArtifactVersion·FeedbackSnapshot은 학교 수행평가 기능으로 그대로 유지한다. 노트 EXAM_SOURCE 출처 블록과 대학 PDF 뷰어도 유지한다.
+5. 피드백 추천의 심화 항목은 정적 콘텐츠 상세 링크로 바꾼다(새 Entity 없음).
+6. 학교 평가계획서 분석의 데이터 계층(원본·AI 후보·근거/검증·관리자 확정·학생 개인)을 분리한다. 기술 구조는 ADR-0012에서 정한다.
+
+## Consequences
+- 기능 ID(ST-07·16·17, AD-06·09·10)는 유지하고 의미를 "열람"으로 바꾼다.
+- api-contract.md §16~18·27·40~42 DEPRECATED, sourceType에서 ENRICHMENT_TASK 제거(P-35).
+- Frontend 코드에서 Task 관련 화면·Mock·타입 값을 정리해야 한다(features/assessment-enrichment-content.md §10).
+- 콘텐츠 수정은 코드 PR로만 한다.
+```
+
+ADR-0008·0009 본문은 고치지 않고 상태 줄만 추가한다.
+
+```diff
+ # docs/adr/0008-rebuild-suyeon-features-as-assessment.md
+ - Status: Accepted
++- Amended by: ADR-0011 (심화 탐구 범위 — Decision 3·4의 해당 부분)
+ # docs/adr/0009-snapshot-based-assessment-feedback.md
+ - Status: Accepted
++- Note: ADR-0011 이후 피드백 요청 대상은 학교 수행평가만이다(심화 탐구 Task 폐기). 공용 요청함·Snapshot 결정은 그대로다.
+```
+
+`docs/adr/README.md` 목록에 0011(Proposed) 행 추가. ADR-0008·0009의 실제 팀 승인 여부는 계속 확인 필요.
+
+## P-35. `api-contract.md` 개정안
+
+**① 평가계획서 분석 Schema 통합 (§11·§39 ← §47-A)**
+
+```diff
+ # 11. Student — 평가계획서 분석·개인 검토 (ST-02)
+-완료된 결과 형식의 최소 예(일부만 예시; 원본의 없는 값은 `null`):
++완료된 결과 형식 (§11·§39 공통 결과 Schema, 2026-11-03 통합안 — §47-A의 근거·검증 개념 흡수):
++
++모든 값 필드는 Field<T> = { "value": T|null, "presence": "FOUND|NOT_IN_DOCUMENT|UNREADABLE",
++  "evidence": { "pdfPage": 9, "printedPage": "7", "quote": "…(≤80자)" } | null,
++  "verification": { "verified": true, "reason": null } }
++
++subjects[]: subjectName, pageRange{from,to}, segmentStatus(SUCCEEDED|FAILED),
++  teachingPlan[]{ period, unit, standards[], activities, assessmentMethod },
++  writtenEvaluation{ totalWeight, exams[]{ round, format[], weight, maxScore, timing } },
++  performanceEvaluation{ totalWeight, items[]{ itemKey, name, area, type, timing, weight, maxScore,
++     content, standards[], criteria[], rubric{ elements[]{ name, levels[]{label,description,score} }, cautions[] } } },
++  achievement{ system, levels[], thresholds[] }, warnings[]
++분석 응답 최상위: analysisId, documentRevisionId, status, provider, model, sourceSha256, startedAt, completedAt, subjects[]
+```
+
+- `status` 후보: `NOT_REQUESTED | QUEUED | PROCESSING | REVIEW_REQUIRED | PARTIAL | FAILED` (API-OD-A02에서 확정)
+- §39 `review`: `confirmedFields[]`에 `candidateRef`(근거 후보) 추가, `decision=CONFIRM`은 그대로. 개정본 확정 시 이전 확정본 `SUPERSEDED` 표시 문장 추가.
+- 과목 단위 재시도: `POST …/analysis/subjects/{subjectSegmentId}/retry` 후보 (Idempotency-Key §51).
+- §10-2: 학생 개인 PDF 분석 요청은 API-OD-A13(신설) 해결 전 `422 AI_TRANSFER_NOT_ALLOWED`(기존 §47-A 오류 코드 재사용) 반환 문장 추가.
+- §47-A: `/evaluation-plan-analyses`는 "§38·39로 이관 예정", `/university-exam-analyses`·`/mock-exam-analyses`는 `OUT_OF_SCOPE (2026-11-03)`로 표기. `/status`는 유지 검토.
+- 필드명은 이 Patch 승인 시 확정. 현행 Student Mock `types.ts`와 Backend `AiSchemas.java`는 그 다음 구현 단계에서 맞춘다.
+
+**② 심화 계약 DEPRECATED (삭제하지 않음)**
+
+```diff
+-# 16. Student — 심화 탐구 공개 콘텐츠 (ST-16)
++# 16. (DEPRECATED 2026-11-03, ADR-0011) Student — 심화 탐구 공개 콘텐츠 (ST-16)
++> 정적 Frontend 콘텐츠로 대체. Endpoint를 구현하지 않는다. 기준: features/assessment-enrichment-content.md
+```
+
+같은 방식: §17(개인 자료 포함 전체), §18, §27, §40, §41, §42. §53의 `ENRICHMENT_TASK_NOT_FOUND`는 DEPRECATED 표기. §62 Inventory 해당 행에 `DEPRECATED`.
+
+**③ `sourceType` 축소** — §20·§24·§29·§30·§31 예시와 설명에서 `ENRICHMENT_TASK`를 제거하고 `SCHOOL_ASSESSMENT`만 남긴다. §30 즐겨찾기 대상 = `SCHOOL_ASSESSMENT`만(심화 콘텐츠 즐겨찾기 제외 결정).
+
+**④ §46 추천**
+
+```diff
+-    { "type": "ENRICHMENT_TASK", "catalogTaskId": "catalog_001", "note": "추가 조사를 해볼 수 있어요." }
++    { "type": "ENRICHMENT_CONTENT", "contentId": "catalog_001", "note": "관련 탐구 사례를 읽어보세요." }
+```
+
+`contentId`는 정적 콘텐츠 ID 문자열. 서버는 형식(길이·문자)만 검사하고 존재는 검증하지 않는다(정적 데이터는 Frontend에만 있음). 새 Entity 없음.
+
+**⑤ §47 KPI** — 심화 활동 카운트 제거. **⑥ §61** — API-OD-A02에 "§9-0 5계층·Schema 통합 방향은 결정(2026-11-03)" 추가, API-OD-A11은 "정적 콘텐츠 원문 제공 방식"만 남김, API-OD-A12의 콘텐츠 공개 Enum·`sourceReference` 부분 종결 표시, **API-OD-A13 신설**(학생 PDF 외부 전송 선결 조건 = domain OD-A13). §65 Student Care는 변경 없음.
+
+## P-36. `docs/architecture/**`
+
+| 파일:줄 | 현재 | 변경안 |
+|---|---|---|
+| `overview.md:94`·`:121` | 심화 탐구 / 심화 탐구 콘텐츠·모의고사 탐구 소재·대학 공개 자료 (운영) | "심화 탐구 콘텐츠 (읽기 전용)" |
+| `overview.md:338`·`:347~350`·`:390~393`·`:415`·`:653` | `EnrichmentTask`, `EnrichmentContent` 개념·Publish 흐름 | 개념 제거, "정적 콘텐츠는 Domain 밖" 1문장 |
+| `overview.md` §6 | AI Interface Package 위치 미확정 | `assessment/integration/ai/`(P-31) + 평가계획서 분석 구성 요소(PageMap·Segment·Extract·Verify·Job) — ADR-0012 승인 후 |
+| `integration-boundary.md:18`·`:168`·`:296`·`:403`·`:549`·`:874` | 자율 심화 탐구 / EnrichmentTask / Admin Enrichment Content | 제거·"읽기 전용 정적 콘텐츠"로 교체 |
+| `integration-boundary.md` (File Storage·AI 절) | 미정 | 평가계획서 원본 저장 경계, **학생 개인 PDF 외부 전송은 OD-A13 해결 전 금지** 명시 |
+| `shared-conventions.md:609`·`:1331` | `Enrichment Task List`, `publishedEnrichmentTaskCount` 예시 | 다른 예시로 교체 또는 삭제 |
+
+## P-37. 최상위 문서·`.claude/rules` 문구 (최소 수정)
+
+| 파일:줄 | 현재 | 변경안 |
+|---|---|---|
+| `CLAUDE.md:150` | `├─ 심화 탐구 / 자료함 / 성장 기록 / 보관함` | `├─ 심화 탐구 콘텐츠 열람(읽기 전용) / 자료함 / 성장 기록 / 보관함` |
+| `CLAUDE.md:157` | `├─ 심화 탐구 콘텐츠 관리` | `├─ 심화 탐구 콘텐츠 열람(읽기 전용)` |
+| `CLAUDE.md:267`·`:276` (§10) | `SchoolAssessment / EnrichmentTask (서로 다른 업무 개념)`, "학교 수행평가와 자율 심화 탐구도 … 강제 병합하지 않는다" | `SchoolAssessment / FeedbackRequest` 예시로 교체, 두 번째 문장 삭제 |
+| `CLAUDE.md` §5 문서 목록 | Feature Spec 4종 | `features/assessment-enrichment-content.md`, `assessment-pdf-analysis-plan.md` 추가 |
+| `CLAUDE.md` §17 표 | ADR-0009까지 | `ADR-0011 심화 탐구 축소 — Proposed` 행 추가 |
+| `AGENTS.md`·`README.md`(9곳)·`ARCHITECTURE.md:132` | 같은 표현 | 같은 원칙으로 교체 |
+| `docs/SOURCE_OF_TRUTH.md:423`·`:428` | 심화 탐구 / 심화 탐구 콘텐츠 / 참고자료 관리 | "심화 탐구 콘텐츠(열람)", "참고자료 관리" |
+| `docs/OWNERSHIP.md:80`·`:86`·`:108~120`·`:296`·`:797` | 자율 심화 탐구 Task, `EnrichmentTask / AssessmentNote` | "읽기 전용 심화 콘텐츠", `AssessmentNote`만. §3-2 관련 Spec에 enrichment-content 추가 |
+| `.claude/rules/backend.md:68`·`:162`·`:189` | `SchoolAssessment / EnrichmentTask` | `SchoolAssessment` |
+| `.claude/rules/common.md:148` | `SchoolAssessment·EnrichmentTask·파일 버전의 임의 중복` | `SchoolAssessment·파일 버전의 임의 중복` |
+| `.claude/rules/database.md:113`·`:201` | 자율 심화 탐구 상태, `EnrichmentTask` | 제거, 평가계획서 계층(domain §9-0) 테이블 후보 언급 |
+| `.claude/rules/frontend-admin.md:59~61`·`:92`·`:125`·§14(`:131~`) | 심화 Task 유형·콘텐츠 관리 | 학교 수행평가만, §14 → "심화 콘텐츠 열람(읽기 전용)" |
+| `.claude/rules/frontend-student.md:18`·`:72`·`:78`·§8(`:105~110`)·`:146`·§13(`:148~150`) | EnrichmentTask 상태·시작·출처 | 정적 콘텐츠 열람 규칙으로 교체, `EXAM_SOURCE`·PDF 뷰어 보호 명시 |
+| `.claude/rules/testing.md:113`·`:139~140`·`:208` | `SchoolAssessment / EnrichmentTask 구분`, 심화 Task 공개 → 개인 Task 시작 E2E | "평가계획서 원본·후보·확정·학생 정정 분리", E2E Flow를 "Admin 평가계획서 확정 → Student 반영·중복 확인"으로 교체, PDF 정확도 회귀(Golden Corpus, 로컬) 추가 |
+| `scripts/verify.ps1` (P-01과 함께) | 필수 Spec 4종 | `assessment-enrichment-content.md` 추가 |
+
+Wangyu 관련 문장(Student Care·상담)은 바꾸지 않는다.
+
+## P-38. 정적 심화 콘텐츠 단일 원본 위치
+
+P-07(`frontend/shared/assessment/`) 승인 시 하위에 `content/`를 둔다.
+
+```text
+frontend/shared/assessment/content/
+├─ types.ts                        # EnrichmentArticle (features/assessment-enrichment-content.md §5)
+├─ topics.ts                       # 탐구 콘텐츠 (현 enrichmentFixture.ts fixtureCatalog에서 이전)
+├─ mockExam/research.generated.ts  # 현 mockExamResearchFixture.ts (생성 Script 유지, 원문 없음)
+├─ mockExam/articles.ts            # LH 보강 설명 (생성 파일과 분리)
+├─ university/manifest.json        # 현 universityExamManifest.json
+└─ index.ts                        # 읽기 함수만 export
+```
+
+- 승인 전 임시: `frontend/student/src/features/assessment/content/` + Admin은 기존 `canonicalSource.ts` 상대 경로(현행 4-2 B, 새 복제 금지).
+- `universityExamPdfDevServer.ts`(Student tools, Admin `vite.config.ts`가 사용)는 Manifest 경로만 바뀐다.
+- workspace/alias 설정 변경은 Shared(Wangyu 리뷰).
+
+## P-39. ADR-0012 (결정 후 작성) — 평가계획서 PDF 분석 아키텍처
+
+결정할 항목: Provider·모델·비용 상한(API-OD-A10), 표·스캔 처리(텍스트 / 페이지 이미지 입력 / OCR / 외부 서비스 / Python 분리), 비동기 Job 방식, 파일 저장소(API-OD-A03), 결과 저장 테이블(DB Migration — Shared), Idempotency 저장, 인증 연결. 근거 자료: `assessment-pdf-analysis-plan.md` §6~§8, Golden Corpus 측정 결과. **측정 전에 쓰지 않는다.**
+
+## P-40. 이미 적용된 미커밋 Shared 변경의 승인 확인
+
+| 변경 (git status `M`) | 관련 제안 | 승인 기록 | 필요한 조치 |
+|---|---|---|---|
+| `frontend/admin/src/App.tsx`, `app/AdminShell.tsx`(+206줄), `app/AdminShell.module.css` | P-06 (Wangyu 동의 필수) | **없음** | Wangyu 확인 + Student Care E2E 7개 실행 후 커밋 |
+| `frontend/admin/vite.config.ts` (dev PDF 서버) | P-25 | 없음 | 확인 |
+| `backend/src/main/resources/application.yml` (multipart 전역 100MB, `assessment.ai.*`) | P-31 | 없음 | Wangyu 리뷰 — 전역 한도가 Student Care 업로드에도 적용됨 |
+| `backend/build.gradle.kts` (pdfbox 3.0.5, anthropic-java 3.2.0) | P-31 | 없음 | 의존성 추가 승인. Provider 미결(API-OD-A10)과 함께 판단 |
+| 공통 문서·`.claude/rules`·ADR 0001~0005·README 등 다수 `M` | 1차 하네스 정비 | 이 문서의 P-01~P-14 | 기존 절차대로 |
+
+이 변경들은 이번 작업에서 **건드리지 않았다.**

@@ -11,15 +11,18 @@
 현재 Suyeon의 신규 영역은 **Student Assessment + Admin Assessment 관리**다.
 
 ```text
-School Assessment  ──┐
-                     ├─ Assessment Note / Resources / Artifact
-Enrichment Task   ───┘                    │
+School Assessment ──── Assessment Note / Resources / Artifact
+                                         │
                                          ├─ Feedback Request / Reply
                                          └─ Growth Record / Archive
 
-School Evaluation Plan ──> Subject Evaluation Facts
-Admin Content Catalog ───> Enrichment / Passage / University Resources
+School Evaluation Plan ──> Document Revision ──> Analysis Candidate ──> Confirmed Value
+                                                                  └──> Student Correction / Applied Item
+
+(Domain 밖) 정적 심화 콘텐츠: 탐구 콘텐츠 / 모의고사 60선 / 대학 공개자료 — Frontend 읽기 전용
 ```
+
+> **범위 변경 (2026-11-03):** `EnrichmentTask`(개인 심화 Task)와 관리자 콘텐츠 Publishing은 Domain에서 **폐기**했다. 심화 탐구는 Domain Entity가 아닌 Frontend 정적 콘텐츠다(`features/assessment-enrichment-content.md`). 폐기한 절(§11·§18·§23)은 Historical 표시와 함께 남긴다. 학교 평가계획서 분석(§9)이 실제 구현 핵심 대상이다. 범위 변경 ADR은 Shared 승인 대기(`harness-change-proposals.md` P-34).
 
 원칙:
 
@@ -44,7 +47,7 @@ docs/architecture/shared-conventions.md
 docs/api/api-contract.md
 ```
 
-신규 Assessment Feature Spec 4종(`features/assessment-student.md`, `features/assessment-inquiry.md`, `features/assessment-feedback.md`, `features/assessment-admin.md`)은 **현재 저장소의 작성본**으로 존재한다. 상세 행동은 각 Feature Spec을 참고하되 Open Decision 및 `docs/api/api-contract.md`의 미확정 계약을 실제 구현 확정으로 해석하지 않는다.
+신규 Assessment Feature Spec 4종(`features/assessment-student.md`, `features/assessment-inquiry.md`, `features/assessment-feedback.md`, `features/assessment-admin.md`)과 읽기 전용 심화 콘텐츠 명세(`features/assessment-enrichment-content.md`, 2026-11-03 신설), PDF 분석 계획(`assessment-pdf-analysis-plan.md`)은 **현재 저장소의 작성본**으로 존재한다. 상세 행동은 각 Feature Spec을 참고하되 Open Decision 및 `docs/api/api-contract.md`의 미확정 계약을 실제 구현 확정으로 해석하지 않는다.
 
 ```text
 Entity / Relationship / State  → domain.md
@@ -60,7 +63,7 @@ Ownership / Permission 경계  → OWNERSHIP.md + 인증·인가 계약
 
 | 구분 | 책임 |
 |---|---|
-| Suyeon | Assessment 수행평가 확장기록, 심화 탐구, 노트, 자료, 파일 버전, 선택형 피드백, 콘텐츠 관리 |
+| Suyeon | Assessment 수행평가 확장기록, 학교 평가계획서 분석, 노트, 자료, 파일 버전, 선택형 피드백, 읽기 전용 심화 콘텐츠 |
 | Wangyu | Student Care, 상담, 관련 케어 신호·상담 메모와 API·DB |
 | Existing LearnersHigh | 기존 Student / Admin 인증·공통 관리, 기존 학교 수행평가·학습 자료 등 실제 확인된 원본 |
 | Shared | API 계약, 공통 Identity / 인가, DB Migration, Shell/Router, 공용 파일 연동 등 다영역 영향 변경 |
@@ -78,18 +81,19 @@ Admin이 피드백 없이 학생 기록을 열람할 수 있는 범위는 역할
 | 개념 | 책임 | 주요 연결 |
 |---|---|---|
 | `Student` / `SchoolContext` | 학업 소속·학년·학기·수강과목 Context | 학교 평가계획, 학생 수행평가 |
-| `SchoolEvaluationPlan` | 학교별 공식 PDF 원본·개정본 | 학교·학년도·학년·학기 |
-| `SubjectEvaluation` | 지필/수행 평가 비율·세부 기준 | 계획서, 과목, 원본 페이지 |
+| `SchoolEvaluationPlan` | 학교별 공식 PDF 슬롯·문서·개정본 | 학교·학년도·학년·학기 |
+| `PlanAnalysis` (제안) | 분석 실행·과목 분할·추출 후보·근거·검증 | Document Revision |
+| `SubjectEvaluation` | 지필/수행 평가 비율·세부 기준 (관리자 확정값) | 계획서, 과목, 원본 페이지 |
+| `PersonalPlanCorrection` (제안) | 학생 개인 정정·반영 | Student, Revision, SchoolAssessment |
 | `SchoolAssessment` | 학생 개인의 실제 학교 수행평가 | Student, Subject, Note, Artifact |
-| `EnrichmentTask` | 자율 심화 탐구 | 학생 작성 또는 Admin 공통 Task, 선택적 출처(모의고사·대학 자료) 참조 |
-| `AssessmentNote` / `NoteRevision` | 학생 과정 기록·블록·수정 이력 | Assessment 또는 Enrichment Task |
+| ~~`EnrichmentTask`~~ | **폐기 (2026-11-03)** — §11 | — |
+| `AssessmentNote` / `NoteRevision` | 학생 과정 기록·블록·수정 이력 | SchoolAssessment |
 | `NoteTemplate` | 선택형 초기 문서 본문 | Note 생성 또는 본문 추가 |
-| `ResourceReference` / `Scrap` | URL·출처·메모·추천 관계 | Student, Admin, Note, Task |
-| `Artifact` / `ArtifactVersion` | 실제 결과물 종류와 파일별 버전 | Assessment/Task, Feedback |
+| `ResourceReference` / `Scrap` | URL·출처·메모·추천 관계 | Student, Admin, Note |
+| `Artifact` / `ArtifactVersion` | 실제 결과물 종류와 파일별 버전 | SchoolAssessment, Feedback |
 | `FeedbackRequest` / `FeedbackSnapshot` | 피드백 요청 및 당시 고정된 자료 | Note Revision, Artifact Version |
 | `FeedbackReply` / `FeedbackComment` | 관리자 답변·문서 내 위치별 의견 | Request, 대상 버전 |
-| `EnrichmentContent` | 관리자 제공 심화 Task / 모의고사 탐구 카드 | 과목, 출처, 공개 상태 |
-| `UniversityPublicResource` | 대학 공개자료 메타데이터·원문 링크 | 대학, 문서/학년도, Task |
+| ~~`EnrichmentContent`~~ / ~~`UniversityPublicResource`~~ | **Domain Entity 아님 (2026-11-03)** — Frontend 정적 콘텐츠 `EnrichmentArticle` (`assessment-enrichment-content.md` §5) | — |
 | `GrowthRecord` / `ArchiveView` | 활동·기여·성찰, 보관 목록 | 학생, 노트·파일·피드백 |
 
 같은 외부 Reference(학교, 학생, Staff 등)를 새로운 내부 기본정보 원본으로 복제하지 않는다.
@@ -113,8 +117,9 @@ Existing Library / Plan / Study Time / Learning History
 학생의 Assessment별 개인 메모 / 공식 기준의 확인·수정 내역
 과정 노트·수정 이력, 결과물 파일별 버전
 선택형 Feedback Request Snapshot / Reply
-관리자 콘텐츠 카탈로그 및 Reference Scrap
-심화 Task와 성장·성찰 기록
+학교 평가계획서 원본·분석 후보·관리자 확정값·학생 개인 정정
+관리자 Reference Scrap
+성장·성찰 기록
 ```
 
 실제 기존 Performance Task와의 매핑, `existingTaskId` 유무, Write Owner, DB Schema는 **기존 API/DB 확인 전 미확정**이다. 기존 데이터의 존재를 추정하여 신규 Task를 무조건 생성하거나 자동 연결하지 않는다.
@@ -136,8 +141,7 @@ Student S001
 │     ├─ Note Snapshot
 │     ├─ 선택된 ArtifactVersion Snapshot
 │     └─ FeedbackReply
-└─ EnrichmentTask E001
-   └─ AssessmentNote / Resource / Artifact / GrowthRecord
+└─ GrowthRecord G001 (학교 수행평가 또는 독립 활동)
 ```
 
 위 ID는 **설명용 샘플**이다. Surface 별로 `StudentAssessmentTask`와 `AdminAssessmentTask`처럼 같은 실체를 분리된 Domain Entity로 만들지 않는다.
@@ -169,8 +173,9 @@ SchoolAssessment 진행 상태
 FeedbackRequest 답변 상태
 ArtifactVersion 보관 이력
 SchoolEvaluationPlan 분석·검토 상태
-EnrichmentContent 공개 상태
 ```
+
+(2026-11-03: `EnrichmentContent 공개 상태`는 폐기. 정적 콘텐츠에는 Domain 상태가 없다.)
 
 단순 탭 이동이나 모달 열기 때문에 DB Status를 새로 만들지 않는다.
 
@@ -207,27 +212,53 @@ Student
 
 파일 원본과 AI 추출 결과는 서로 다른 데이터다. AI 값은 원문 페이지와 연결하고 사람이 비교·수정할 수 있어야 한다. 학생 개인 수정정보가 학교 전체 공식 평가정보를 자동 덮어쓰지 않는다.
 
+### 9-0. 데이터 계층 (2026-11-03 결정)
+
+다섯 계층을 **서로 다른 데이터**로 둔다. 개념 이름은 제안이며 테이블·Enum으로 확정하지 않는다. 상세: `assessment-pdf-analysis-plan.md` §2.
+
+```text
+① 원본         EvaluationPlanSlot(학교·학년도·학년·학기)
+               └─ PlanDocument[] └─ DocumentRevision[] (파일 참조·SHA-256·PageMap)
+② AI 결과      DocumentRevision └─ AnalysisRun[] └─ SubjectSegment[] (과목·쪽 범위)
+                                                  └─ ExtractedCandidate[] (fieldPath·값·presence)
+③ 근거·검증    ExtractedCandidate → Evidence {pdfPage, printedPage, quote} + VerificationResult
+④ 관리자 확정  ReviewDecision / ConfirmedValue (작성 관리자·시각·근거 후보 참조)  → SubjectEvaluation
+⑤ 학생 개인    PersonalPlanCorrection (학생 본인) + AppliedItem → SchoolAssessment.evaluationItemRef
+```
+
+- 학생 개인 PDF는 ①~③을 **학생 소유 비공개** 데이터로 가진다. ④는 공통 문서에만 있다.
+- 재분석은 새 `AnalysisRun`을 만들고 이전 Run을 보존한다. 새 Revision 확정은 이전 확정본을 대체 표시할 뿐 지우지 않는다.
+- ⑤는 ①~④를 바꾸지 않는다. ④가 바뀌어도 ⑤와 학생 `SchoolAssessment`·노트·파일·Snapshot은 자동으로 바뀌지 않는다.
+
 ### 9-1. 지필·수행평가 데이터
 
 | 영역 | 필요한 정보 |
 |---|---|
-| 교수·학습 계획 | 단원, 성취기준, 교수·학습 방법, 평가 방법 |
-| 총괄 | 지필·수행 반영비율, 학기·학년·과목 |
-| 지필평가 | 차수(1·2차), 선택형/논술형, 배점·반영비율 |
-| 수행평가 | 영역/과제명, 유형·시기, 만점·반영비율 |
-| 세부 채점기준 | 평가요소, 수준별 기준, 배점 |
-| 성취수준 | 성취기준, 성취도 체계, 기준 성취율 |
-| 근거 | 원본 PDF 페이지 + 문서 인쇄 쪽 번호(가능한 경우) |
+| 기본정보 | 학교, 학년도, 학년, 학기, 과목, 문서 제목·개정 표시 |
+| 교수·학습 계획 | 월/주차, 단원, 성취기준(코드·문장), 교수·학습 활동, 평가 방법 |
+| 총괄 | 지필·수행 반영비율 |
+| 지필평가 | 차수(1·2차), 선택형/서술형·논술형, 만점·배점·반영비율, 시기 |
+| 수행평가 | 평가명, 영역, 유형, 시기, 반영비율, 만점, 내용, 성취기준·평가기준 |
+| 세부 채점기준 | 평가요소, 수준별 기준 문장과 점수, 유의사항 |
+| 성취수준 | 성취도 체계, 기준 성취율 |
+| 근거 | PDF 쪽(1-based) + 문서 인쇄 쪽 번호(가능한 경우, 2-up은 2개), 위치·인용, 검증 결과, 판독 불가 항목 |
 
-숫자 합산의 검증이 가능하더라도 실제 학교 문서와 다른 비율을 자동 수정하지 않는다. 자료를 찾지 못했을 때는 `미확인`과 `0`을 구분한다.
+숫자 합산의 검증이 가능하더라도 실제 학교 문서와 다른 비율을 자동 수정하지 않는다. 값마다 `원본에 있음 / 원본에 없음 / 판독 불가`를 구분하고, 없음·판독 불가를 `0`으로 바꾸지 않는다.
 
 ### 9-2. PDF 분석 상태
 
 ```text
-분석 중 → 완료 / 확인 필요 / 실패
+사용자 표시: 분석 대기 → 분석 중 → 확인 필요 / 일부 성공 / 실패
+검토 표시:   미검토 → 검토 중 → 확정 (개정본 확정 시 이전 것은 대체됨)
 ```
 
-위는 사용자 표시 상태이며 실제 Enum/재처리 전략은 API 계약에서 확정한다. 실패를 빈 평가정보로 표시하지 않는다.
+위는 사용자 표시 상태이며 실제 Enum·재처리 전략은 API 계약에서 확정한다(후보: `assessment-pdf-analysis-plan.md` §6). 실패·일부 실패를 빈 평가정보로 표시하지 않는다. AI 성공 결과도 확정 전까지는 "확인 필요"다.
+
+### 9-3. 중복·연도 비교
+
+- 학생이 같은 `evaluationItemRef`로 수행평가를 다시 반영하면 중복을 알리고 자동 병합하지 않는다.
+- 기존 LearnersHigh 수행평가와의 중복 판단은 OD-A01 해결 전 정의하지 않는다.
+- 연도별 비교·3개년 변화는 **확정값끼리만** 비교하는 후속 기능이다. 과목 Identity 대응 규칙(OD-A14) 전에는 Entity를 만들지 않는다.
 
 ---
 
@@ -264,7 +295,13 @@ Note[] / Artifact[] / ResourceReference[] / FeedbackRequest[]
 
 ---
 
-# 11. EnrichmentTask (ST-07, ST-16~18, AD-06, AD-09~10)
+# 11. (폐기 — Historical) EnrichmentTask (ST-07, ST-16~18, AD-06, AD-09~10)
+
+> **2026-11-03 범위 변경으로 폐기.** 개인 심화 Task, 관리자 공통 Task, `catalogTaskId`·`sourceReference` 출처 연결은 현행 Domain 개념이 아니다. 심화 탐구는 **Frontend 정적 콘텐츠**(`EnrichmentArticle`, `features/assessment-enrichment-content.md` §5)이고 Identity·상태·학생 소유 데이터가 없다. 아래 내용은 결정 이력으로만 남기며 구현 근거로 쓰지 않는다.
+>
+> 현재 Assessment DB에는 Migration이 없어(`database/migrations`는 Student Care 2개뿐) 폐기로 지울 실제 데이터는 없다. Frontend 코드의 `AssessmentSourceType = 'ENRICHMENT_TASK'` 값은 소비자 정리 후 마지막에 제거한다(`assessment-enrichment-content.md` §10).
+>
+> 원문/자체 작성 구분(§11-1)과 대학 자료의 면접 기능 제외(§11-2) 원칙은 정적 콘텐츠에도 그대로 적용한다.
 
 자율 심화 탐구는 학교 수행평가와 별개다.
 
@@ -349,7 +386,7 @@ Note N001
 ResourceReference
 ├─ 원본 URL / 제목 / 게시처·채널 / 작성자·발행일(확인 가능 시)
 ├─ 유형: 뉴스·영상·논문·통계·공공데이터·공식자료
-└─ 활용 관계: Note Block / Assessment / EnrichmentTask
+└─ 활용 관계: Note Block / SchoolAssessment
 
 Scrap
 └─ Student 또는 Admin의 개인 메모·보관 Context
@@ -427,7 +464,7 @@ Student Request
 - 모든 첨부 버전을 자동으로 최신본으로 교체하지 않는다.
 - 파일은 선택된 Version별 권한 확인·미리보기/다운로드를 따른다.
 - 원본 노트와 Snapshot 저장 방식(복사, Revision Reference, 파일 해시 등)은 기술 설계에서 확정한다.
-- 요청은 학교 수행평가뿐 아니라 명세된 심화 Task에도 연결될 수 있다.
+- 요청은 학교 수행평가에 연결된다(2026-11-03: 심화 Task 연결 폐기).
 
 ---
 
@@ -444,8 +481,10 @@ FeedbackRequest
    │  ├─ PDF page
    │  ├─ PPT slide
    │  └─ 지원 가능한 문서 section
-   └─ Recommendation[] (자료·후속 심화 Task)
+   └─ Recommendation[] (자료·심화 콘텐츠 링크)
 ```
+
+심화 콘텐츠 추천은 Entity 참조가 아니라 정적 콘텐츠 ID(`contentId`) 링크다. 새 Entity를 만들지 않고 `recommendations[]` 구조를 재사용한다(`features/assessment-feedback.md` §7, 계약 개정은 Shared 승인 대기).
 
 Location Comment는 대상 Document ID와 **대상 Version**에 고정되어야 한다. 지원하지 않는 문서 형식은 전체 의견을 제공한다. Admin은 학생 Note/Artifact 원본을 직접 수정하지 않는다.
 
@@ -478,7 +517,7 @@ FeedbackRequest = 답변 대기
 Authorized Admin
 → Organization / Student Access Check
 → Student Assessment List / Detail
-   ├─ SchoolAssessment / EnrichmentTask
+   ├─ SchoolAssessment
    ├─ AssessmentNote (read-only)
    ├─ ArtifactVersion / Preview
    ├─ Resource / GrowthRecord
@@ -491,9 +530,18 @@ Authorized Admin
 
 ---
 
-# 18. Admin Content Publishing (AD-06~10)
+# 18. Admin 운영 대상 (AD-03~10)
 
-관리자는 다음을 운영한다.
+> **2026-11-03 변경:** 관리자가 **쓰기 운영**하는 대상은 아래 두 가지뿐이다.
+>
+> ```text
+> SchoolEvaluationPlan Registry (등록·개정·분석·검토·확정)
+> Admin Reference Library / Scrap
+> ```
+>
+> 심화 Task·모의고사·대학 공개자료 Catalog의 등록·공개 운영은 폐기했고, 관리자는 정적 콘텐츠를 읽기만 한다(AD-06·09·10). 아래 문단은 Historical이다. 단, 운영 권한(OD-A08)을 학생 기록 조회 권한과 분리한다는 원칙은 평가계획서·참고자료에 계속 적용한다.
+
+(Historical) 관리자는 다음을 운영한다.
 
 ```text
 EnrichmentTask Catalog
@@ -515,8 +563,8 @@ SchoolEvaluationPlan Registry
 
 ```text
 Student
-├─ SchoolAssessment / EnrichmentTask
-├─ GrowthRecord (과정 / 역할 / 결과 / Reflection / Evidence Reference)
+├─ SchoolAssessment
+├─ GrowthRecord (과정 / 역할 / 결과 / Reflection / Evidence Reference; 학교 수행평가 또는 독립 활동)
 └─ ArchiveView
    ├─ 최근
    ├─ 즐겨찾기
@@ -532,9 +580,9 @@ Archive는 **조회/보관 관점**이다. 별도 테이블인지 Source Record�
 | 후보 대상 | 현재 `api-contract.md`의 관련 명령 | 문서 단계 판단 |
 |---|---|---|
 | `SchoolAssessment` | §12 `DELETE` 후보, §30 복원(유형 예시) | Soft Delete/복원 의미는 미확정. 연쇄 삭제 금지 |
-| `EnrichmentTask` / `AssessmentNote` | 등록·수정·조회 중심, 삭제/복원 없음 | 삭제·보관 API 보완 필요 |
+| `AssessmentNote` | 등록·수정·조회 중심, 삭제/복원 없음 | 삭제·보관 API 보완 필요 (`EnrichmentTask`는 2026-11-03 폐기로 대상 아님) |
 | `Artifact` / `ArtifactVersion` | 업로드·열람·버전 이력, 삭제/복원 없음 | 과거 버전·FeedbackSnapshot 보존 우선. 삭제 정책 미정 |
-| `ResourceReference` / 개인 모의고사 자료 | 저장·조회 중심, 삭제/복원 없음 | 자료 삭제·보관 범위 결정 필요 |
+| `ResourceReference` | 저장·조회 중심, 삭제/복원 없음 | 자료 삭제·보관 범위 결정 필요 (개인 모의고사 자료는 2026-11-03 폐기) |
 | `GrowthRecord` | 생성·조회 중심, 삭제/복원 없음 | 삭제·복원 계약 보완 필요 |
 
 현행 §30은 **보관함 5개 탭 조회와 일부 복원 동작을 제안할 뿐**, 모든 대상의 삭제·복원 기능을 완성하지 않는다. 각 대상의 휴지통 진입 방식, 복원 권한·기간, 영구 삭제·개인정보 삭제 의무, 피드백 불변 참조 보존은 OD-A11 및 API-OD-A08에서 확정한다. 결정 전 모든 유형의 삭제/복구를 구현 가능하다고 표기하지 않는다.
@@ -557,6 +605,8 @@ Analysis / Explanation / Suggestion / Draft / Candidate
 - AI는 학생의 원문·성찰을 동의 없이 자동 교체하지 않는다.
 - 실패 시 Retry 가능 범위와 상태를 정의하되, AI 실패가 학생의 모든 수동 작성 기능을 막지 않게 한다.
 - 외부 제공자·호출 방식·비용·개인정보 전송 정책은 아직 확인되지 않았다.
+- **학생 개인 PDF 외부 전송 (2026-11-03 결정: 조건부 허용):** OD-A13의 선결 조건이 해결되기 전에는 보내지 않는다.
+- 대학 기출·모의고사 원문 AI 분석은 신규 범위에서 제외했다. 원문을 외부 AI에 보내지 않는다.
 
 ---
 
@@ -564,12 +614,15 @@ Analysis / Explanation / Suggestion / Draft / Candidate
 
 ```text
 Admin 공식 PDF Upload
-→ SchoolEvaluationPlan Revision 생성
-→ AI Extract Candidate
-→ Admin 원본 대조·수정
+→ SchoolEvaluationPlan Slot / Document / Revision 생성
+→ AnalysisRun (과목 분할 → 과목별 추출 → 서버 근거 검증)
+→ Admin 원본 대조·수정 → 확정 (ConfirmedValue)
 → SubjectEvaluation 공개/활용
 → 권한·학교 Context가 일치하는 Student에게 노출
-→ Student가 자신의 수행평가 정보로 확인·선택·보완
+→ Student가 원본과 비교·개인 정정 → 중복 확인 → 자신의 수행평가에 반영
+
+Student 개인 PDF Upload (비공개)
+→ 개인 Revision → (OD-A13 해결 후) AnalysisRun → 학생 본인 검토·정정 → 반영
 ```
 
 개인 정보 수정은 공유 학교 공식 원본을 조용히 변경하지 않는다.
@@ -593,18 +646,16 @@ Student Note 작성 / Artifact Upload
 
 ---
 
-# 23. Cross-Surface Flow — 심화 콘텐츠
+# 23. 심화 콘텐츠 (2026-11-03 변경)
 
 ```text
-Admin EnrichmentTask / Mock-exam Card / University Resource 등록
-→ 권한 및 출처 확인 / 공개
-→ Student 소재 탐색
-→ Student 개인 EnrichmentTask 시작
-→ Note / Resource / Artifact 작성
-→ 선택형 Feedback / GrowthRecord / Archive
+Repository의 정적 콘텐츠 (단일 원본)
+├─ Student: 목록·검색·필터·상세 열람
+└─ Admin:   같은 콘텐츠를 읽기 전용 열람
+(선택) Admin 피드백 추천 → 콘텐츠 상세 링크 → Student 열람
 ```
 
-Content 원본과 Student 작성 기록의 Identity를 분리한다.
+Cross-Surface 상태 전파가 없다. 학생 기록을 만들지 않는다. 이전 흐름(Admin 등록·공개 → Student 개인 Task 시작)은 폐기했다.
 
 ---
 
@@ -615,9 +666,11 @@ Content 원본과 Student 작성 기록의 Identity를 분리한다.
 ```text
 Feedback Pending Count = 접근 가능한 미답변 FeedbackRequest 수
 Assessment Complete Count = 해당 Context의 완료 SchoolAssessment 수
-Enrichment Active Count = 해당 학생의 진행 중 EnrichmentTask 수
 Recent Upload = 실제 ArtifactVersion Upload Event 기준
+Plan Review Pending Count = 접근 가능한 미확정 분석 결과 수 (제안)
 ```
+
+(2026-11-03: `Enrichment Active Count`는 폐기 — 심화 Task가 없다.)
 
 Dashboard 표시값을 수동 Fixture Counter를 영구 Source로 삼아 유지하지 않는다. **자료가 없다는 상태와 API 오류 상태를 구분**한다.
 
@@ -630,7 +683,7 @@ Dashboard 표시값을 수동 Fixture Counter를 영구 Source로 삼아 유지�
 1. Student와 Admin이 동일 Student / Assessment / Note / ArtifactVersion ID를 참조한다.
 2. 요청 Snapshot은 요청 시점 Revision/Version에 고정된다.
 3. 학교 평가계획서 학교·학년·학기·과목이 학생 Context와 일치한다.
-4. 관리자 공통 콘텐츠와 학생 개인 Task를 구분한다.
+4. 정적 심화 콘텐츠는 Contract Fixture가 아니며 Student·Admin이 같은 데이터를 읽는다(`assessment-frontend-mock.md` §4-3).
 5. 현재 등록되지 않은 공식 PDF·논문·뉴스 항목을 실제 확인된 자료처럼 만들지 않는다.
 6. 완규 Student Care Fixture나 상담 데이터는 변경·재사용하지 않는다.
 7. 예전 Mentor/Parent/School Fixture가 신규 Assessment의 근거 데이터로 유입되지 않는다.
@@ -646,7 +699,8 @@ Fixture의 위치·Mock Adapter·지속성·시나리오 제어는 `assessment-f
 | 본인 수행평가·노트·결과물 편집 | 가능 | 원본 편집 금지 |
 | 본인 피드백 요청·답변 확인 | 가능 | 요청 열람·의견 작성 |
 | 다른 학생 기록 열람 | 불가 | 담당·기관 권한에 한해 가능 |
-| 공통 PDF·심화 콘텐츠 등록 | 개인 자료/Task 생성 범위 | 운영 권한 범위 |
+| 공통 평가계획서 등록·확정 | 개인 PDF 업로드·개인 정정 범위 | 운영 권한 범위 |
+| 심화 콘텐츠 | 열람만 | 열람만 |
 | Wangyu Student Care / 상담 | Assessment 범위 아님 | 기존 Wangyu 기능·정책을 따름 |
 
 첨부 파일 원본의 저장 위치·서명 URL·다운로드 권한은 서버 측에서 확인한다. 학생 원문과 피드백 스냅샷의 보관·삭제 정책은 기존 개인정보 관리 체계와 충돌 없이 정의한다.
@@ -658,13 +712,15 @@ Fixture의 위치·Mock Adapter·지속성·시나리오 제어는 `assessment-f
 아래는 업무 유스케이스의 예시이며 **API Endpoint 또는 구현 Class 명칭이 아니다.**
 
 ```text
-RegisterSchoolEvaluationPlan / ReviewExtractedEvaluation
+RegisterSchoolEvaluationPlan / AddDocumentRevision / RequestPlanAnalysis / RetrySubjectAnalysis
+ReviewExtractedEvaluation / ConfirmSubjectEvaluation
+UploadPersonalPlan / CorrectPersonalPlanValue / ApplyPlanItemToAssessment
 CreateSchoolAssessment / ChangeAssessmentStatus
-CreateEnrichmentTask / StartCatalogTask
 CreateNote / ApplyTemplate / SaveNoteRevision
 AttachResource / UploadArtifactVersion / CompareArtifactVersions
 RequestFeedback / CancelFeedbackRequest / DeliverFeedback
-PublishEnrichmentContent / ScrapReference
+ScrapReference
+(폐기 2026-11-03: CreateEnrichmentTask / StartCatalogTask / PublishEnrichmentContent)
 WriteGrowthRecord / ArchivePersonalRecord
 ```
 
@@ -683,6 +739,9 @@ FeedbackReply 전달
 
 ArtifactVersion 추가
 → 파일 저장 결과 + 해당 Artifact의 Version 이력 일관성 유지
+
+평가계획서 Revision 추가 / 분석 결과 저장 / 확정
+→ 파일 저장 + Revision, AnalysisRun 결과 일괄 저장(과목 단위 부분 실패 허용), 확정 기록과 이전 확정본 대체 표시
 ```
 
 파일 스토리지와 DB가 완전한 단일 Transaction을 보장하는지는 확인 전 가정하지 않는다. 실패·재시도·중복 제출·정리 작업 정책이 필요하다.
@@ -709,7 +768,19 @@ FeedbackRequest Domain  → Student Request View / Admin Inbox Item
 ArtifactVersion Domain  → 권한별 File Metadata / Preview DTO
 ```
 
-JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확정하지 않는다. 현재 `docs/api/api-contract.md`는 신규 Assessment 계약 **초안**을 담고 있으며, 기존 Mentor/Parent/School API는 활성 Assessment 계약으로 자동 승계하지 않는다. 학생 비교(§37), Task 출처(§18), 삭제·복원(§12·30), 상태 전이(§31·32·45)와의 차이는 수정 전까지 명시된 계약 공백으로 관리한다.
+JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확정하지 않는다. 현재 `docs/api/api-contract.md`는 신규 Assessment 계약 **초안**을 담고 있으며, 기존 Mentor/Parent/School API는 활성 Assessment 계약으로 자동 승계하지 않는다. 학생 비교(§37), 삭제·복원(§12·30), 상태 전이(§31·32·45)와의 차이는 수정 전까지 명시된 계약 공백으로 관리한다.
+
+**2026-11-03 범위 변경에 따른 계약 차이 (Shared 승인 대기, `harness-change-proposals.md` P-35):**
+
+| 계약 | 현재 | 이 문서 기준 |
+|---|---|---|
+| §11·§39 vs §47-A | 평가계획서 분석 결과 Schema 2개 | §11 Resource 모델로 통합 + §47-A 근거·검증 필드 흡수 (`assessment-pdf-analysis-plan.md` §4) |
+| §16·§17(개인 자료)·§18·§27·§40~42 | 심화 Task·개인 자료·콘텐츠 CRUD Endpoint | 폐기 → DEPRECATED 표기 제안 |
+| §20·§24·§31의 `sourceType` | `SCHOOL_ASSESSMENT`·`ENRICHMENT_TASK` | `SCHOOL_ASSESSMENT`만 |
+| §30 즐겨찾기 | 예시는 `SCHOOL_ASSESSMENT` (Mock은 `ENRICHMENT_*` 추가) | `SCHOOL_ASSESSMENT`만 |
+| §46 추천 | `ENRICHMENT_TASK {catalogTaskId}` | `ENRICHMENT_CONTENT {contentId}` 제안 |
+| §47 KPI | 심화 활동 포함 | 제외 |
+| §47-A 대학·모의고사 분석 | PROPOSED | 범위 제외 |
 
 ---
 
@@ -718,17 +789,19 @@ JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확
 | ID | 내용 | 확인 대상 |
 |---|---|---|
 | OD-A01 | 기존 수행평가 원본과 신규 SchoolAssessment 매핑 / Write Owner | Existing API/DB·ADR-0002 |
-| OD-A02 | 학교·학년도·학년·학기 PDF Revision·승인 정보의 저장 구조 | API/DB |
-| OD-A03 | PDF 추출 분석 Provider·원본 페이지 매핑·정정 정책 | AI/File Storage |
+| OD-A02 | 학교·학년도·학년·학기 PDF 슬롯·문서·Revision·분석 실행·확정 정보의 저장 구조 (§9-0 계층은 결정, 물리 구조는 미정) | API/DB |
+| OD-A03 | PDF 추출 분석 Provider·표/스캔 처리 방식·원본 페이지 매핑·정정 정책, 쪽 수·크기·호출 단위 제한 | AI/File Storage (`assessment-pdf-analysis-plan.md` §10) |
 | OD-A04 | 학생 학교/학년/과목 Context의 실제 소유 원본 | Existing Integration |
 | OD-A05 | Note Editor 포맷·자동 저장·수정 이력 전략 | Frontend/DB |
 | OD-A06 | 피드백 요청 Snapshot 생성·보존·취소 정책 | API/DB/Privacy |
 | OD-A07 | 파일 저장·미리보기·HWP/PPT 변환 및 포맷별 Version Compare | File Storage |
-| OD-A08 | 관리자 학생·기관 Scope 인가 및 **학교 PDF·심화 Task·모의고사·대학/참고자료 운영 권한(전체/기관/지점)** | Auth / Shared / 콘텐츠 공개 |
+| OD-A08 | 관리자 학생·기관 Scope 인가 및 **학교 PDF·참고자료 운영·확정 권한(전체/기관/지점)** (심화 콘텐츠 운영은 2026-11-03 폐기) | Auth / Shared |
 | OD-A09 | **문서상 ADR-0009로 결정:** 기존 ADR-0003 대체, Assessment 공용 요청함·자동 Staff/과목 배정 없음(API-OD-A09에도 동일 반영). **남은 것: 실제 팀 승인 여부, 기존 Queue 코드/데이터의 물리적 재사용 여부** | ADR-0009 / Shared API / 팀 확인 |
 | OD-A10 | 구형 Mentor Surface Scaffold / ADR-0001, Parent ADR-0004 정리 | Shared Architecture |
 | OD-A11 | 아카이브·휴지통 삭제/복원/보존 정책 | Persistence/Privacy |
-| OD-A12 | 참조자료 검색·외부 출처 사용 정책과 공개 콘텐츠 검수 | External Providers / Copyright |
+| OD-A12 | 참조자료 검색·외부 출처 사용 정책과 정적 심화 콘텐츠 검수·원문 재배포 | External Providers / Copyright |
+| OD-A13 | **학생 개인 PDF 외부 AI 전송 선결 조건** (2026-11-03 결정: 조건부 허용) — 개인정보, Provider 처리·보관 정책, 고지·동의, 인증·인가, 원본 보관·삭제, 전송 실패·재시도. 해결 전 전송 금지 | Privacy / AI / Auth (`assessment-pdf-analysis-plan.md` §9) |
+| OD-A14 | 연도별 비교·3개년 변화의 과목 Identity 대응(과목명 변경·교육과정 개정)과 항목 대응 키 | Domain / 후속 Spec |
 
 **OD-A09는 더 이상 피드백 Queue 방식 자체가 미결정이라는 의미가 아니다.** 신규 Assessment 문서 기준은 ADR-0009이고(API-OD-A09 표기 정리 완료), 남은 것은 팀 승인 확인과 기존 Queue 코드/데이터의 물리적 재사용 여부다. 다른 OD는 확정되지 않은 세부 정책이며, `progress.md`는 이 ID 목록을 그대로 참조한다.
 
@@ -740,8 +813,8 @@ Open Decision은 개발 편의로 임의 종결하지 않는다. 구형 기능�
 
 ```text
 1. Student/Admin은 동일 Assessment·Note·ArtifactVersion Identity를 사용한다.
-2. SchoolAssessment와 EnrichmentTask는 서로 다른 업무 객체다.
-3. 공식 평가계획서 원본, AI 추출 후보, 관리자 검토값, 학생 개인 수정정보를 구분한다.
+2. 노트·결과물·피드백은 SchoolAssessment에 연결된다. 심화 콘텐츠는 학생 기록을 만들지 않는 읽기 자료다. (2026-11-03 재작성 — 이전: "SchoolAssessment와 EnrichmentTask는 서로 다른 업무 객체다")
+3. 공식 평가계획서 원본·Revision, AI 추출 후보, 근거·검증 결과, 관리자 확정값, 학생 개인 수정·반영정보를 구분한다.
 4. 수행평가 단계는 시작 전 / 진행 중 / 완료이고 필수 8단계가 아니다.
 5. NoteRevision과 ArtifactVersion은 과거 기록을 덮어쓰지 않는다.
 6. FeedbackRequest는 요청 당시 Note·파일 Version을 고정한다.
@@ -767,7 +840,8 @@ Open Decision은 개발 편의로 임의 종결하지 않는다. 구형 기능�
 | 결과 파일 v3 추가 | 새 Version 열람 | 전체 이력·비교 | v2 피드백 위치 불변 |
 | 피드백 요청 | 답변 대기 표시 | 요청 목록 진입 | Assessment 강제 상태 전이 없음 |
 | 관리자 답변 전달 | 의견·추천 표시 | 답변 완료 표시 | 학생 본문은 변경되지 않음 |
-| 심화 콘텐츠 공개 | 학생 탐구 소재에서 노출 | 콘텐츠 공개 상태 갱신 | 기존 학생 개인 기록 자동 변경 없음 |
+| 평가계획서 개정본 확정 | 새 확정값 조회 (이전 반영 기록 유지) | 이전 확정본 대체 표시 | 학생 개인 정정·수행평가 자동 변경 없음 |
+| (심화 콘텐츠) | Repository 변경으로만 갱신 | 같은 데이터 열람 | 상태 전파 없음 |
 | 성장 기록 작성 | 본인 아카이브 갱신 | 권한 내 학생 기록 열람 | 공식 세특 자동 생성 없음 |
 
 ---
@@ -776,9 +850,10 @@ Open Decision은 개발 편의로 임의 종결하지 않는다. 구형 기능�
 
 | 기능 영역 | 주요 개념 |
 |---|---|
-| 학교·학업정보 | SchoolContext, SchoolEvaluationPlan, SubjectEvaluation |
+| 학교·학업정보 | SchoolContext, SchoolEvaluationPlan, PlanAnalysis, SubjectEvaluation, PersonalPlanCorrection |
 | 학교 수행평가 | SchoolAssessment, AI Explanation Candidate |
-| 심화 탐구 / 참고자료 | EnrichmentTask, EnrichmentContent, ResourceReference, Scrap, UniversityPublicResource |
+| 참고자료 | ResourceReference, Scrap |
+| 심화 탐구 | (Domain 없음 — 정적 콘텐츠) |
 | 노트·결과물 | AssessmentNote, NoteRevision, Artifact, ArtifactVersion, NoteTemplate |
 | 피드백 | FeedbackRequest, FeedbackSnapshot, FeedbackReply, FeedbackComment |
 | 성장·보관 | GrowthRecord, ArchiveView |
@@ -825,11 +900,13 @@ Feature Requirement / Ownership
 # 37. 핵심 요약
 
 ```text
-SchoolEvaluationPlan → SubjectEvaluation → SchoolAssessment
-SchoolAssessment / EnrichmentTask → Note + ArtifactVersion
+SchoolEvaluationPlan → Revision → AnalysisRun(후보·근거·검증) → 관리자 확정 SubjectEvaluation
+→ 학생 개인 정정·반영 → SchoolAssessment
+SchoolAssessment → Note + ArtifactVersion
 NoteRevision + 선택된 ArtifactVersion → FeedbackSnapshot
 FeedbackSnapshot → Admin FeedbackReply → Student 확인
-Resource / EnrichmentTask / GrowthRecord → Archive
+Resource / GrowthRecord → Archive
+심화 탐구 = 읽기 전용 정적 콘텐츠 (Domain 밖)
 
 기존 LearnersHigh의 Source System을 존중한다.
 Wangyu Student Care / Counseling은 별도 Domain이다.

@@ -13,19 +13,22 @@ Suyeon의 현재 신규 개발 범위는 기존 LearnersHigh에 추가되는 **A
 ```text
 LearnersHigh Assessment
 ├─ Student
-│  ├─ 학교·학업 정보 / 학교 평가계획서 활용
+│  ├─ 학교·학업 정보 / 학교 평가계획서 PDF 분석·활용 (실제 Backend·AI 구현 핵심)
 │  ├─ 학교 수행평가 등록·상태·평가기준
-│  ├─ 심화 탐구 Task / 탐구 과정 노트
+│  ├─ 탐구 과정 노트
+│  ├─ 심화 탐구 콘텐츠 열람 (읽기 전용 정적 콘텐츠)
 │  ├─ 결과 파일 / 버전 / 자료함
 │  ├─ 관리자 피드백 요청·확인
 │  └─ 성장 기록 / 개인 아카이브
 └─ Admin (기존 Admin Shell 안에 추가)
    ├─ 전체 현황 / 학생 Assessment 열람
    ├─ 피드백 요청·답변 관리
-   ├─ 학교별 평가계획서·지필/수행평가 분석
-   ├─ 심화 탐구 Task / 모의고사 소재 / 대학 공개 자료 운영
+   ├─ 학교별 평가계획서·교수학습/지필/수행/채점기준 분석·검토·확정
+   ├─ 심화 탐구 콘텐츠 / 모의고사 / 대학 공개 자료 열람 (읽기 전용)
    └─ 관리자 참고자료실
 ```
+
+> **범위 변경 (2026-11-03):** 개인 심화 Task·Task 전용 노트/결과물/피드백·개인 지문 등록·콘텐츠 즐겨찾기·심화 KPI·관리자 콘텐츠 CRUD·대학 기출/모의고사 AI 분석을 폐기했다. 심화 탐구는 Frontend 정적 콘텐츠다(`features/assessment-enrichment-content.md`). 학교 평가계획서 분석이 실구현 핵심이다(`assessment-pdf-analysis-plan.md`). 범위 변경 ADR·계약 개정은 Shared 승인 대기(`harness-change-proposals.md` P-33~P-40).
 
 코드는 사람 이름이 아니라 Feature / Domain 기준으로 둔다. 경로는 **목표 예시**이며 실제 생성 여부는 Repository에서 확인한다.
 
@@ -66,16 +69,18 @@ docs/specs/suyeon/
 ├─ assessment-screen-map.md         # 화면 ↔ Mockup ↔ Spec ↔ Contract, Mockup 불일치(MM-xx)
 ├─ assessment-frontend-mock.md      # Contract 기반 Mock Adapter / Fixture / Open Decision 처리
 ├─ assessment-frontend-quality.md   # Stage 1 완료 기준 L1~L6, 시각 비교 절차
+├─ assessment-pdf-analysis-plan.md  # 평가계획서 PDF 분석 목표 구조·파이프라인·Golden Corpus (2026-11-03)
 ├─ legacy-cleanup-plan.md           # 구형 Suyeon Frontend 코드 참조 조사 · 정리 순서
 └─ harness-change-proposals.md      # Shared 영역 변경 제안 (미적용, 팀 승인 대기)
 ```
 
-기능 상세 명세는 아래 **작성된 4개 파일**로 나뉜다. 파일의 존재는 확인된 문서 작업이며, 설계 보완 사항과 실제 API/코드 구현 완료를 뜻하지 않는다.
+기능 상세 명세는 아래 **작성된 5개 파일**로 나뉜다. 파일의 존재는 확인된 문서 작업이며, 설계 보완 사항과 실제 API/코드 구현 완료를 뜻하지 않는다.
 
 ```text
-docs/specs/suyeon/features/             # 현재 작성된 Feature Spec 4종
-├─ assessment-student.md                # 학교 수행평가 / 학교·학업 정보
-├─ assessment-inquiry.md                # 심화 탐구 / 노트 / 파일 / 자료 / 성장·아카이브
+docs/specs/suyeon/features/             # 현재 작성된 Feature Spec 4종 + 1 (2026-11-03)
+├─ assessment-student.md                # 학교 수행평가 / 학교·학업 정보 / PDF 분석
+├─ assessment-inquiry.md                # 노트 / 파일 / 자료 / 성장·아카이브
+├─ assessment-enrichment-content.md     # 읽기 전용 심화 탐구 콘텐츠 (ST-07·16·17, AD-06·09·10)
 ├─ assessment-feedback.md               # Student ↔ Admin 피드백
 └─ assessment-admin.md                  # 관리자 Assessment 운영
 ```
@@ -142,28 +147,30 @@ docs/specs/suyeon/features/             # 현재 작성된 Feature Spec 4종
 | 영역 | 학생 기능 | 관리자 기능 |
 |---|---|---|
 | 학교·평가정보 | ST-01 학업정보, ST-02 PDF 분석, ST-03 수행평가 관리, ST-04 AI 평가기준 설명 | AD-03 학교별 PDF, AD-04 지필·수행 통합 분석, AD-05 추출 검토 |
-| 탐구 준비·자료 | ST-05 꿀팁, ST-06 주제명 추천, ST-07 모의고사 카드, ST-10 자료 추천, ST-11 자료 수집 | AD-06 모의고사 소재, AD-07 참고자료실, AD-08 스크랩·메모 |
-| 탐구·노트·산출물 | ST-08 노트, ST-09 템플릿 10종, ST-12 결과 파일, ST-13 파일 버전, ST-16 심화 Task | AD-09 심화 Task 운영, AD-11 노트 열람, AD-12 파일 열람, AD-13 버전 비교 |
-| 피드백 | ST-14 요청, ST-15 확인·반영 | AD-14 요청 관리, AD-15 문서·부분별 피드백, AD-16 후속 추천 |
-| 확장·기록 | ST-17 대학 공개 PDF, ST-18 AI 도우미, ST-19 성장 기록, ST-20 아카이브 | AD-10 대학 자료 관리, AD-17 활동 현황 |
+| 탐구 준비·자료 | ST-05 꿀팁, ST-06 주제명 추천, ST-10 자료 추천, ST-11 자료 수집 | AD-07 참고자료실, AD-08 스크랩·메모 |
+| 탐구·노트·산출물 | ST-08 노트, ST-09 템플릿 10종, ST-12 결과 파일, ST-13 파일 버전 | AD-11 노트 열람, AD-12 파일 열람, AD-13 버전 비교 |
+| 심화 콘텐츠 (읽기 전용) | ST-07 모의고사 60선, ST-16 탐구 콘텐츠, ST-17 대학 공개자료 | AD-06 모의고사, AD-09 탐구 콘텐츠, AD-10 대학 자료 (모두 열람만) |
+| 피드백 | ST-14 요청, ST-15 확인·반영 | AD-14 요청 관리, AD-15 문서·부분별 피드백, AD-16 후속 추천(자료·콘텐츠 링크) |
+| 확장·기록 | ST-18 AI 도우미, ST-19 성장 기록, ST-20 아카이브 | AD-17 활동 현황 |
 | 관리자 진입·학생 조회 | — | AD-01 통합 관리자 화면, AD-02 학생 Assessment 관리 |
 
-### 학교 수행평가와 심화 탐구
+### 학교 수행평가와 심화 탐구 (2026-11-03 갱신)
 
 ```text
 SchoolAssessment
 → 학교가 실제로 부여한 평가 / 학교 공식 채점기준·일정
+→ 노트·결과물·피드백·성장 기록이 연결되는 학생 업무 객체
 
-EnrichmentTask
-→ 학생이 선택하거나 작성하는 자율 심화 탐구
-→ 학교 성적에 자동 반영되지 않음
+심화 탐구 콘텐츠
+→ 학생·관리자가 읽기만 하는 정적 예시 콘텐츠 (Domain Entity 아님)
+→ 학생 데이터를 만들지 않음 (이전 EnrichmentTask는 폐기)
 ```
 
-두 기능은 관련 탐구 기록을 연결할 수 있지만 별개의 업무 객체다. **강제 8단계 수행평가, 주제 승인·반려, 필수 재제출, 대학 면접 모듈**은 신규 범위에 없다.
+ **강제 8단계 수행평가, 주제 승인·반려, 필수 재제출, 대학 면접 모듈**은 신규 범위에 없다.
 
 ### 학생 화면
 
-기존 LearnersHigh Student Navigation을 보존하고 Assessment 진입점을 추가한다. 수행평가 관리, 심화 탐구, 피드백, 자료함, 성장 기록, 보관함 등 내부 화면은 최신 Mockup에 맞춘다.
+기존 LearnersHigh Student Navigation을 보존하고 Assessment 진입점을 추가한다. 수행평가 관리, 심화 탐구(열람), 피드백, 자료함, 성장 기록, 보관함 등 내부 화면은 최신 Mockup에 맞춘다.
 
 ### 관리자 화면
 
@@ -226,7 +233,7 @@ Frontend ↔ Backend 공통 Contract:
 docs/api/api-contract.md
 ```
 
-현재 API Contract에는 **신규 Student/Admin Assessment 계약 초안(DRAFT)**이 작성되어 있다(§9~47). 학생 두 버전 비교(§25-1)와 심화 Task 출처 연결 `sourceReference`(§18)도 초안에 포함되어 있다. 휴지통 대상별 삭제·복원은 §30 표와 API-OD-A08에서 **미확정 범위로 추적**하며, 형식별 비교 지원·출처 검증 세부는 API-OD-A12에 남아 있다. 기존 Student Care 계약(§65)은 유지한다.
+현재 API Contract에는 **신규 Student/Admin Assessment 계약 초안(DRAFT)**이 작성되어 있다(§9~47). 학생 두 버전 비교(§25-1)도 초안에 포함되어 있다. 2026-11-03 범위 변경으로 심화 콘텐츠 계약(§16~18·27·40~42)은 DEPRECATED, 평가계획서 분석 Schema(§11·39 ↔ §47-A)는 통합 대상이며, 개정안은 Shared 승인 대기다(`harness-change-proposals.md` P-35). 휴지통 대상별 삭제·복원은 §30 표와 API-OD-A08에서 **미확정 범위로 추적**하며, 형식별 비교 지원·출처 검증 세부는 API-OD-A12에 남아 있다. 기존 Student Care 계약(§65)은 유지한다.
 
 ```text
 Feature Spec / Domain 작성됨 · API Contract 초안 작성됨
@@ -270,9 +277,10 @@ Daglo 브랜드·로고·기능을 그대로 복제하지 않는다. 화면의 �
 - Artifact 파일 버전 비교의 포맷별 구현 범위
 - 노트 자동 저장·수정 이력 저장 방식과 피드백 Snapshot 구조
 - ADR-0008·0009의 실제 팀 승인 확인(문서상 Accepted, 기존 0001·0003·0004 대체) 및 구형 코드 정리 범위
-- 학생 두 Version 비교 Endpoint, 모의고사·대학 자료 → Task 출처 연결 필드, 휴지통·삭제·복원 API 보완
+- 학생 두 Version 비교 Endpoint, 휴지통·삭제·복원 API 보완 (Task 출처 연결은 2026-11-03 폐기로 종결)
+- 학생 개인 PDF 외부 AI 전송 선결 조건(OD-A13), 연도 비교 과목 Identity(OD-A14)
 - FeedbackRequest/Reply 상태와 API 초안 정합성(세부 취소/재요청은 미확정)
-- 관리자 공통 콘텐츠의 기관·지점별 운영·공개 권한(OD-A08)
+- 평가계획서·참고자료의 기관·지점별 운영·확정 권한(OD-A08)
 
 ---
 

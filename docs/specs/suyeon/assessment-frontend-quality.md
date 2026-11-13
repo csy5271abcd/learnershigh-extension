@@ -63,6 +63,13 @@ Stage 1 완료 = 대상 화면이 L1~L5를 충족하고, Admin Shell을 바꾼 �
 | L5 | 수동 가능 | |
 | L6 | 가능 (환경 필요) | Docker MySQL / Backend e2e Profile |
 
+## 5. 범위 변경 후 기준 (2026-11-03)
+
+- 폐기 화면(S17·S18, 생성·등록·편집 Modal, Admin A5~A7 편집)은 L1~L6 대상에서 뺀다. 아래 부록의 해당 기록은 **Historical**이며 현행 화면의 통과 근거가 아니다.
+- 열람 전용으로 바뀐 S16·S19·S20·S26, A5~A7은 다음 구현 단계에서 L2(상태)·L3(목록 → 상세 → 뒤로)·L5를 다시 확인한다. 쓰기 진입점이 남아 있지 않은지도 확인한다.
+- 회귀 필수: 학교 수행평가 노트(S8)·`EXAM_SOURCE` 블록·결과물(S10)·피드백(S13·S15)·보관함 즐겨찾기(S23, 학교 수행평가)는 심화 Task 코드 제거 뒤 다시 검증한다.
+- PDF 분석(S5·A4)은 Stage 2 실구현 대상이라 Stage 1 기준에 더해 `.claude/rules/testing.md` §5~§7 Backend·Contract 검증과 `assessment-pdf-analysis-plan.md` §8 정확도 측정을 따른다.
+
 ## 부록. 화면별 검증 기록
 
 | 날짜 | 화면 | 시각 비교 (1920×972 @1.5) | Interaction | 비고 |

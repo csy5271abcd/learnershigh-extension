@@ -71,6 +71,22 @@ Student와 Admin은 별개의 Vite 앱이므로 단일 정의를 공유할 위�
 | B. Student에 두고 Admin이 상대 경로로 import | 설정 최소 | workspace 경계 침범, 의존 방향 불명확 | 비권장 |
 | C. Surface별 복제 | 독립적 | One Entity 위반 | **금지** |
 
+### 4-3. 정적 심화 콘텐츠 (Contract Mock 아님, 2026-11-03)
+
+심화 탐구 콘텐츠·모의고사 60선·대학 공개자료는 **Backend·API가 없는 Frontend 정적 데이터**다(`features/assessment-enrichment-content.md` §6). 이 문서의 Contract Mock 규칙과 다음이 다르다.
+
+| 구분 | Contract Mock (§1~§3) | 정적 콘텐츠 |
+|---|---|---|
+| 근거 | `api-contract.md` Endpoint Shape | 콘텐츠 명세 §5 Schema |
+| Stage 2 | http Adapter로 교체 | 교체 없음 (계속 정적) |
+| `dataSource` 스위치 | 따름 (http는 Stage 2 전 503) | **따르지 않음** (http 모드에서도 표시) |
+| 위치 | `api/mock/` | 승인 전: `features/assessment/content/` (Student), 승인 후: `frontend/shared/assessment/content/` (P-38) |
+| 쓰기 | Contract 범위 내 | 없음 |
+
+- 화면은 정적 콘텐츠 모듈의 읽기 함수만 쓴다. `api/mock/`의 Fixture를 직접 import하는 금지 규칙(§2)은 정적 콘텐츠 모듈에는 적용하지 않지만, 화면이 Fixture 파일 내부 구조에 의존하지 않도록 읽기 함수를 둔다.
+- 원문 지문은 §5 "로컬 전용 원문 데이터" 규칙 그대로다.
+- **현재 코드 상태(2026-11-03):** 콘텐츠가 아직 `api/mock/enrichmentFixture.ts`·`mockExamResearchFixture.ts`·`universityExamManifest.json`에 있고 `enrichmentApi.ts`(Contract Mock, http 503)를 거친다. 이전은 다음 구현 단계 작업이다.
+
 **승인 전 진행 방법:** 먼저 Student 화면만 구현한다. Type과 Fixture는 `frontend/student/src/features/assessment/api/mock/`에 두되, **Admin 화면에서 사용하기 시작하기 전에** 승인된 공유 위치로 옮긴다. 복제본을 만들어 Admin을 먼저 진행하지 않는다.
 
 ## 5. 저장 범위와 지속성
@@ -124,6 +140,8 @@ Student와 Admin은 별개의 Vite 앱이므로 단일 정의를 공유할 위�
 | Home 요약·알림 (계약 없음) | 다른 목록 API의 Mock 결과를 조합해서만 표시. 알림 발송·읽음 상태는 구현하지 않음 |
 | 계약에 없는 상세 필드 (평가 유형·평가일 텍스트·반영비율·정보 출처·담당 선생님·안내문 첨부 등) | 계약 개정 전 구현 보류. 화면 매핑표에 "계약 없음"으로 기록 |
 | 담당 선생님 표기·AI 제한 배지 | 명세상 시연 표현. 새 Actor / 정책을 만들지 않음. 표시 여부는 계약 개정과 함께 결정 |
+| 심화 Task 생성·시작·상태, 개인 지문 등록, 콘텐츠 즐겨찾기 (2026-11-03 폐기) | 다음 구현 단계에서 진입점·Mock 함수 제거. 제거 전까지 새 기능을 덧붙이지 않음 |
+| 학생 개인 PDF 외부 AI 분석 (OD-A13) | 선결 조건 해결 전 분석 요청 비활성 + 사유. 현행 Mock의 개인 업로드 503 동작은 유지 가능 |
 
 ## 10. Backend Mock과의 구분
 
@@ -141,6 +159,7 @@ Frontend Mock은 Backend Mock을 대신하지 않고, Backend Mock은 Frontend �
 | 날짜 | 내용 |
 |---|---|
 | 2026-10-26 | 최초 DRAFT (1차 하네스 정비) |
+| 2026-11-03 | 범위 변경: §4-3 정적 심화 콘텐츠(Contract Mock 아님) 절 신설, §9에 폐기 기능·학생 PDF 외부 전송 처리 추가. 아래 2026-10-27~29 기록 중 심화 Task·개인 지문·콘텐츠 즐겨찾기·관리자 원문 입력(P-30) 관련 내용은 **Historical** |
 | 2026-10-29 | 공개 저장소 Push 전 원문 분리: 모의고사 60선 원문 지문을 Fixture에서 빼 로컬 전용 `mockExamPassages.local.json`(Git 제외)으로 옮김. 없으면 "원문 미포함" 안내 (P-24, API-OD-A11) |
 | 2026-10-28 | 학생 과목 추가 (P-26 PROPOSED): ① 이름 직접 입력은 Mock 전용 `createStudentSubject`(계약 없음), 다른 학기에서 쓰던 과목 고르기는 §9-2 PUT subjectIds(같은 ID 재사용)로 처리, ② 새 ID `subj_custom_…`(기존 `subj_NN`·`subj_scn_NN`과 겹치지 않음), ③ 위 §5 브라우저 저장소 예외, ④ `subjectsN` 시나리오는 원래 과목에만 적용하고 학생 추가 과목은 뒤에 붙임, ⑤ 시나리오 `subjectCreateError`(저장 실패) |
 | 2026-10-28 | 대학별 기출 PDF (P-25 PROPOSED): ① §27 목록 Mock과 문서 상세는 저장소 PDF 27개의 Manifest(`api/mock/universityExamManifest.json`, `npm run exam-manifest`로 폴더 대조)에서 만든다 — 가상 대학 시연 자료 5건 제거, ② 원문 PDF는 Mock 응답이 아니라 Vite 개발 서버 전용 경로 `/__dev/university-exams/files/{documentId}.pdf`(Manifest 허용 목록, 크기·SHA-256 불일치 409, 없음 404, GET/HEAD만)로 열고 Build에는 들어가지 않는다(배포 환경 = "제공하지 않음"), ③ `sourceReference.locator`·노트 `EXAM_SOURCE` 블록은 Mock 전용 형식 |

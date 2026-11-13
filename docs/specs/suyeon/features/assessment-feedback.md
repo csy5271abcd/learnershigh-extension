@@ -4,7 +4,8 @@
 > 대상 Surface: 기존 LearnersHigh **Student / Admin Assessment**  
 > 담당 기능: **ST-14, ST-15, AD-14, AD-15, AD-16**  
 > 목적: 학생 요청 당시 노트·결과 파일의 고정 Snapshot, 관리자 읽기·의견 작성·전송, 학생 확인·선택적 반영을 정의한다.  
-> 상태: **Feature Spec 작성본(DRAFT)**. 신규 Assessment API 초안이 존재하지만, 실제 구현 완료와 구형 Queue API 재사용 확정을 의미하지 않는다.
+> 상태: **Feature Spec 작성본(DRAFT)**. 신규 Assessment API 초안이 존재하지만, 실제 구현 완료와 구형 Queue API 재사용 확정을 의미하지 않는다.  
+> **범위 변경 (2026-11-03):** 피드백 요청 대상은 **학교 수행평가(`SchoolAssessment`)만**이다(심화 Task 폐기). AD-16의 "심화 Task 추천"은 **정적 심화 콘텐츠 상세 링크 추천**으로 바꾼다(§7). Snapshot·Reply·위치별 의견 원칙은 그대로다.
 
 ## 1. Scope / 역할 구분
 
@@ -16,7 +17,7 @@
 | ST-15 | Student | 답변·문서별 위치별 의견·추천 내용 열람, 선택적 수정·재요청 |
 | AD-14 | Admin | 담당 학생의 피드백 요청 목록·상태·요청 시점 자료 확인 |
 | AD-15 | Admin | 노트/문서 전체, 노트 블록·페이지·슬라이드·섹션별 피드백 작성 |
-| AD-16 | Admin | 자료·교과 보완 방향·관련 심화 Task 추천 |
+| AD-16 | Admin | 자료·교과 보완 방향·관련 심화 콘텐츠 링크 추천 |
 
 **제외:** 학생 질문 입력 필수, 주제 승인/반려, 관리자 검수 완료 후에만 과제 완료, AI 동의/제외/수정후전달의 구형 강제 검토 절차, 필수 재제출, 상담 CRM, 별도 Teacher 계정·앱.
 
@@ -25,7 +26,8 @@
 - `docs/SOURCE_OF_TRUTH.md`, `docs/OWNERSHIP.md`
 - `docs/specs/suyeon/domain.md` — `FeedbackRequest`, `FeedbackSnapshot`, `FeedbackReply`, `FeedbackComment`, `NoteRevision`, `ArtifactVersion`
 - `docs/specs/suyeon/features/assessment-student.md` — 학교 과제 상태 및 평가기준
-- `docs/specs/suyeon/features/assessment-inquiry.md` — 노트·파일·자료·Task
+- `docs/specs/suyeon/features/assessment-inquiry.md` — 노트·파일·자료
+- `docs/specs/suyeon/features/assessment-enrichment-content.md` — 추천 링크 대상인 읽기 전용 심화 콘텐츠
 - `docs/api/api-contract.md` — 신규 Assessment 피드백 API **초안** §31·32·44~46. 상태·오류·재요청 정책의 미결정 항목은 계약 변경 전 임의 구현하지 않는다.
 - `docs/adr/0009-snapshot-based-assessment-feedback.md` — **현재 문서상 기준**(ADR-0003 대체). 기존 Queue의 물리적 재사용 여부와 실제 팀 승인 여부는 별도 확인한다.
 
@@ -45,7 +47,7 @@
 ## 3. Domain 관계와 반드시 유지할 불변조건
 
 ```text
-Student / SchoolAssessment 또는 EnrichmentTask
+Student / SchoolAssessment
   ├─ AssessmentNote ── NoteRevision r1, r2, r3 ...
   └─ Artifact A ── ArtifactVersion v1, v2 ...
 
@@ -58,10 +60,10 @@ FeedbackRequest F001 (요청 시각·작성 학생)
   └─ FeedbackReply
      ├─ 전체 의견
      ├─ 대상 버전·위치별 FeedbackComment[]
-     └─ 추천 Resource / EnrichmentTask[]
+     └─ 추천 Resource / 심화 콘텐츠 링크[]
 ```
 
-- `FeedbackRequest`는 특정 학교 수행평가나 심화 Task에 연결된다. 해당 과제가 어떤 유형인지에 따라 공식 기준의 유무가 달라도 같은 선택형 피드백 원칙을 사용한다.
+- `FeedbackRequest`는 특정 학교 수행평가에 연결된다(2026-11-03: 심화 Task 연결 폐기). 선택형 피드백 원칙은 그대로다.
 - **요청 당시 읽기 가능한 Note 본문·선택 ArtifactVersion**이 고정되어야 한다. 이후 학생이 노트를 편집하거나 v3를 올려도 요청 F001이 가리키는 r2/v2가 변경되면 안 된다.
 - `FeedbackComment`는 대상 노트/문서 식별자뿐 아니라 **요청 Snapshot 내의 특정 버전**에 연결된다. 같은 파일명의 새 업로드에 피드백을 자동 옮기지 않는다.
 - 노트가 없어서는 안 되는지 여부는 요청 모달에서 안내하고, 최소한 **결과 파일이 없는 노트만으로 요청**할 수 있다. 질문은 **필수 입력이 아니다.**
@@ -73,7 +75,7 @@ FeedbackRequest F001 (요청 시각·작성 학생)
 ### 사용자 흐름
 
 ```text
-학교 수행평가 또는 심화 Task 상세 → 노트 편집
+학교 수행평가 상세 → 노트 편집
 → 선생님께 피드백 요청 클릭
 → 노트 자동 저장 완료 및 요청 기준 Revision 확정
 → (선택) 검토받을 결과 파일/각 파일 버전 선택
@@ -85,7 +87,7 @@ FeedbackRequest F001 (요청 시각·작성 학생)
 
 | 구분 | 필수/선택 및 의미 |
 |---|---|
-| 학생·과제 정보 | 학생·과목·수행평가 제목/심화 Task, 요청 시각, 이용 가능한 평가기준 |
+| 학생·과제 정보 | 학생·과목·수행평가 제목, 요청 시각, 이용 가능한 평가기준 |
 | 과정 노트 | 요청 기준 NoteRevision 또는 저장된 본문 Snapshot, 출처·표·체크리스트·이미지 포함 |
 | 결과물 | **선택 사항**. 학생이 체크한 결과물과 **특정 버전** 목록 |
 | 참고자료 | 요청 범위의 출처 링크/노트 내 링크 카드 |
@@ -112,7 +114,7 @@ FeedbackRequest F001 (요청 시각·작성 학생)
 → 요청 선택 → 요청 당시 노트·결과 파일 목록 및 버전 열람
 ```
 
-목록: 학생 식별정보(허가된 범위), 과목, 과제/심화 Task, 요청 시각, 결과 파일 수, 요청 대상 파일 버전, 답변 상태, 마지막 응답 시각(있는 경우). 업무 현황 수치는 실제 `FeedbackRequest` 상태에서 파생한다.
+목록: 학생 식별정보(허가된 범위), 과목, 수행평가, 요청 시각, 결과 파일 수, 요청 대상 파일 버전, 답변 상태, 마지막 응답 시각(있는 경우). 업무 현황 수치는 실제 `FeedbackRequest` 상태에서 파생한다.
 
 - **담당 기관·학생 권한 확인은 서버에서 수행**한다. 다른 관리자/지점 학생 정보를 화면에서만 숨겨 접근 차단한 것으로 취급하지 않는다.
 - 목록은 피드백 요청 중인 학생의 Snapshot으로 이동한다. 학생의 **최신 문서**와 **요청 당시 문서**를 혼동하지 않도록 상단에 고정 표시를 둔다.
@@ -163,17 +165,24 @@ FeedbackRequest F001 (요청 시각·작성 학생)
 | 근거 보완 | 공식 통계·관련 논문 확인 | 관리자 참고자료실의 실제 링크 |
 | 교과 복습 | 연관 개념·단원 복습 | 확인된 과목·교과 정보 |
 | 후속 조사 | 관찰·비교·설문·추가 실험 제안 | 관리자 자유 의견 |
-| 심화 Task | 공개된 관리자 공통 Task 또는 학생에게 개별 제안 | 공개 Task/관리자 메시지 |
-| 모의고사 소재 | 관련 교과 개념의 탐구 카드 | 실제 공개·허용된 카드 |
+| 심화 콘텐츠 읽기 | 관련 탐구 콘텐츠·모의고사·대학 자료의 **상세 페이지 링크** | 정적 심화 콘텐츠 (`assessment-enrichment-content.md`) |
 
-관리자 개인 참고자료/메모가 학생에게 **자동 공개되어서는 안 된다**. 전달하려는 링크·Task만 명시적으로 선택한다. 추천을 수락하지 않아도 수행평가·피드백은 정상적으로 완료/열람 가능하다.
+관리자 개인 참고자료/메모가 학생에게 **자동 공개되어서는 안 된다**. 전달하려는 링크만 명시적으로 선택한다. 추천을 수락하지 않아도 수행평가·피드백은 정상적으로 완료/열람 가능하다.
+
+**심화 콘텐츠 링크 추천 (2026-11-03 결정 반영):**
+
+- 개인 `EnrichmentTask` 생성·연결은 하지 않는다. 학생은 링크를 눌러 콘텐츠 상세를 **읽기만** 한다.
+- 새 Backend Entity는 만들지 않는다. 기존 `FeedbackReply.recommendations[]` 구조(API §45·46)를 그대로 쓰고, 항목 유형만 바꾸는 방향을 제안한다(Shared 승인 대기, `harness-change-proposals.md` P-35):
+  - 제안 A (권장): `{ type: "ENRICHMENT_CONTENT", contentId, note }` — `contentId`는 정적 콘텐츠 ID(문자열). 서버는 형식만 검사하고 그대로 저장한다.
+  - 제안 B: 기존 `RESOURCE` 유형에 앱 내부 경로를 넣기 — 외부 참고자료와 섞여 구분이 어려워 비권장.
+- 정적 콘텐츠는 Frontend에만 있으므로 서버가 `contentId` 존재를 확인할 수 없다. 관리자 화면은 선택 목록에서만 고르게 하고, 학생 화면은 없는 ID를 "콘텐츠를 찾을 수 없음"으로 표시한다. 콘텐츠 ID는 지우거나 다시 쓰지 않는다(전달된 피드백의 링크 보존).
 
 ## 8. ST-15 — 학생의 답변 확인·선택적 반영
 
 ```text
 Assessment → 선생님 피드백 → 전체 / 답변 대기 / 답변 완료
 → 요청 상세 → 당시 노트·파일 버전과 관리자 의견 확인
-→ 전체 의견·부분별 의견·참고자료·후속 Task 열람
+→ 전체 의견·부분별 의견·참고자료·추천 심화 콘텐츠 링크 열람
 → 필요 시 학생 스스로 노트 수정 또는 새 파일 v3 업로드
 → 필요 시 새 Snapshot으로 피드백 재요청
 ```
@@ -188,7 +197,7 @@ Assessment → 선생님 피드백 → 전체 / 답변 대기 / 답변 완료
 | 대상 | 상태/표시 | 독립성 |
 |---|---|---|
 | `FeedbackRequest` | `PENDING`(답변 대기) → `DELIVERED`(답변 완료); 취소 정책 미확정 | 수행평가 진행 상태와 분리 |
-| `SchoolAssessment` / `EnrichmentTask` | 시작 전 / 진행 중 / 완료 | 요청 생성·답변 전달로 강제 변경하지 않음 |
+| `SchoolAssessment` | 시작 전 / 진행 중 / 완료 | 요청 생성·답변 전달로 강제 변경하지 않음 |
 | `NoteRevision` | 학생의 저장된 Revision | 요청 당시 Revision을 보존 |
 | `ArtifactVersion` | 결과물별 v1/v2/v3 | 전송 후 새 Version으로 자동 교체하지 않음 |
 | `FeedbackReply` 임시 작성 | `DRAFT_SAVED`(관리자 내부) → `DELIVERED`(학생 공개); 실패 시 대기 유지 | 학생에게 보이는 `답변 완료`와 혼동하지 않음 |
@@ -242,5 +251,6 @@ Assessment → 선생님 피드백 → 전체 / 답변 대기 / 답변 완료
 - **공용 피드백 요청함은 ADR-0009로 문서상 결정(ADR-0003 대체)**. 남은 확인 사항은 실제 팀 승인 여부, 기존 Queue 코드/데이터 재사용 여부, API-OD-A09 문구 정리
 - 기존 인증/기관별 접근 권한, AI/알림/파일 저장·원본 다운로드 제공 방식
 - Endpoint·Request/Response·Error Code·Status Enum (반드시 `docs/api/api-contract.md`에 명시 후 구현)
+- 추천 항목의 심화 콘텐츠 링크 형식 (`ENRICHMENT_CONTENT {contentId}` 제안, API §46 개정 — P-35)
 
 **이 문서의 항목은 신규 Assessment의 요구 동작**이다. 실제 코드/테스트 완료 여부는 `docs/specs/suyeon/progress.md`로 확인한다.
