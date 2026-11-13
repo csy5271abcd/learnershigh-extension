@@ -1,0 +1,2157 @@
+{
+  "rosterVersion": "2026-11-12.1",
+  "branches": [
+    {
+      "branchId": "br_demo_a",
+      "name": "러너스하이 시연 A지점"
+    },
+    {
+      "branchId": "br_demo_b",
+      "name": "러너스하이 시연 B지점"
+    },
+    {
+      "branchId": "br_demo_c",
+      "name": "러너스하이 시연 C지점"
+    }
+  ],
+  "admins": [
+    {
+      "adminId": "adm_demo_a01",
+      "displayName": "시연 A지점 관리자 01",
+      "branchIds": [
+        "br_demo_a"
+      ]
+    },
+    {
+      "adminId": "adm_demo_a02",
+      "displayName": "시연 A지점 관리자 02",
+      "branchIds": [
+        "br_demo_a"
+      ]
+    },
+    {
+      "adminId": "adm_demo_b01",
+      "displayName": "시연 B지점 관리자 01",
+      "branchIds": [
+        "br_demo_b"
+      ]
+    },
+    {
+      "adminId": "adm_demo_c01",
+      "displayName": "시연 C지점 관리자 01",
+      "branchIds": [
+        "br_demo_c"
+      ]
+    }
+  ],
+  "students": [
+    {
+      "studentId": "stu_demo_001",
+      "branchId": "br_demo_a",
+      "displayName": "김민서",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_unjeong",
+        "name": "운정고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_002",
+      "branchId": "br_demo_a",
+      "displayName": "이준호",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_unjeong",
+        "name": "운정고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 16,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_003",
+      "branchId": "br_demo_a",
+      "displayName": "박서연",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_unjeong",
+        "name": "운정고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 26,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_004",
+      "branchId": "br_demo_a",
+      "displayName": "최지우",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_unjeong",
+        "name": "운정고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_005",
+      "branchId": "br_demo_a",
+      "displayName": "정하윤",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_munhyeon",
+        "name": "문현고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 6,
+      "schoolStudentNumber": 6,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_08",
+          "subj26_g1s1_12"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_08",
+          "subj26_g1s2_12"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_006",
+      "branchId": "br_demo_a",
+      "displayName": "강도윤",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_munhyeon",
+        "name": "문현고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 9,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_17",
+          "subj26_g2s1_18",
+          "subj26_g2s1_16",
+          "subj26_g2s1_10"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_20",
+          "subj26_g2s2_21",
+          "subj26_g2s2_22",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_007",
+      "branchId": "br_demo_a",
+      "displayName": "한서진",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_munhyeon",
+        "name": "문현고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_03",
+          "subj26_g3s1_12",
+          "subj26_g3s1_17",
+          "subj26_g3s1_18",
+          "subj26_g3s1_19",
+          "subj26_g3s1_40"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_04",
+          "subj26_g3s2_15",
+          "subj26_g3s2_17",
+          "subj26_g3s2_20",
+          "subj26_g3s2_21",
+          "subj26_g3s2_39"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_008",
+      "branchId": "br_demo_a",
+      "displayName": "윤지호",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_munhyeon",
+        "name": "문현고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_02",
+          "subj26_g2s1_06",
+          "subj26_g2s1_07",
+          "subj26_g2s1_23",
+          "subj26_g2s1_24",
+          "subj26_g2s1_22"
+        ],
+        "2": [
+          "subj26_g2s2_03",
+          "subj26_g2s2_09",
+          "subj26_g2s2_10",
+          "subj26_g2s2_28",
+          "subj26_g2s2_29",
+          "subj26_g2s2_15",
+          "subj26_g2s2_26"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_009",
+      "branchId": "br_demo_a",
+      "displayName": "오유진",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hoseo",
+        "name": "호서고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 20,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_010",
+      "branchId": "br_demo_a",
+      "displayName": "임현우",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hoseo",
+        "name": "호서고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 11,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_02",
+          "subj26_g2s1_06",
+          "subj26_g2s1_07",
+          "subj26_g2s1_23",
+          "subj26_g2s1_24",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_03",
+          "subj26_g2s2_09",
+          "subj26_g2s2_10",
+          "subj26_g2s2_28",
+          "subj26_g2s2_29",
+          "subj26_g2s2_15",
+          "subj26_g2s2_12"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_011",
+      "branchId": "br_demo_a",
+      "displayName": "송채원",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hoseo",
+        "name": "호서고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 18,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_02",
+          "subj26_g3s1_07",
+          "subj26_g3s1_08",
+          "subj26_g3s1_26",
+          "subj26_g3s1_27",
+          "subj26_g3s1_13",
+          "subj26_g3s1_23"
+        ],
+        "2": [
+          "subj26_g3s2_01",
+          "subj26_g3s2_07",
+          "subj26_g3s2_08",
+          "subj26_g3s2_24",
+          "subj26_g3s2_25",
+          "subj26_g3s2_13",
+          "subj26_g3s2_34"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_012",
+      "branchId": "br_demo_a",
+      "displayName": "배시윤",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hoseo",
+        "name": "호서고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 1,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_03",
+          "subj26_g3s1_12",
+          "subj26_g3s1_17",
+          "subj26_g3s1_18",
+          "subj26_g3s1_19",
+          "subj26_g3s1_40"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_04",
+          "subj26_g3s2_15",
+          "subj26_g3s2_17",
+          "subj26_g3s2_20",
+          "subj26_g3s2_21",
+          "subj26_g3s2_29"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_013",
+      "branchId": "br_demo_a",
+      "displayName": "권유나",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_haneul",
+        "name": "인천하늘고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 22,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_11",
+          "subj26_g1s1_08"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_11",
+          "subj26_g1s2_08"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_014",
+      "branchId": "br_demo_a",
+      "displayName": "신도현",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_haneul",
+        "name": "인천하늘고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 1,
+      "schoolStudentNumber": 11,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_15",
+          "subj26_g2s1_16",
+          "subj26_g2s1_17",
+          "subj26_g2s1_22"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_04",
+          "subj26_g2s2_08",
+          "subj26_g2s2_18",
+          "subj26_g2s2_19",
+          "subj26_g2s2_20",
+          "subj26_g2s2_12"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_015",
+      "branchId": "br_demo_a",
+      "displayName": "장서아",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_haneul",
+        "name": "인천하늘고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 28,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_06",
+          "subj26_g3s1_14",
+          "subj26_g3s1_28",
+          "subj26_g3s1_27",
+          "subj26_g3s1_09",
+          "subj26_g3s1_41"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_06",
+          "subj26_g3s2_12",
+          "subj26_g3s2_26",
+          "subj26_g3s2_30",
+          "subj26_g3s2_31",
+          "subj26_g3s2_29"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_016",
+      "branchId": "br_demo_a",
+      "displayName": "문지훈",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_haneul",
+        "name": "인천하늘고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 18,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_13",
+          "subj26_g1s1_11"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_13",
+          "subj26_g1s2_11"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_017",
+      "branchId": "br_demo_a",
+      "displayName": "남수빈",
+      "academyClassName": "시연 A지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_09",
+          "subj26_g1s1_10"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_09",
+          "subj26_g1s2_10"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_018",
+      "branchId": "br_demo_a",
+      "displayName": "유시현",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 7,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_08",
+          "subj26_g2s1_11",
+          "subj26_g2s1_09",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_02",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_13",
+          "subj26_g2s2_11",
+          "subj26_g2s2_14",
+          "subj26_g2s2_17"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_019",
+      "branchId": "br_demo_a",
+      "displayName": "조하린",
+      "academyClassName": "시연 A지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 19,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_06",
+          "subj26_g3s1_10",
+          "subj26_g3s1_11",
+          "subj26_g3s1_34",
+          "subj26_g3s1_33",
+          "subj26_g3s1_12",
+          "subj26_g3s1_35"
+        ],
+        "2": [
+          "subj26_g3s2_09",
+          "subj26_g3s2_10",
+          "subj26_g3s2_32",
+          "subj26_g3s2_33",
+          "subj26_g3s2_14",
+          "subj26_g3s2_06",
+          "subj26_g3s2_22"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_020",
+      "branchId": "br_demo_a",
+      "displayName": "백서준",
+      "academyClassName": "시연 A지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 28,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_17"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_021",
+      "branchId": "br_demo_b",
+      "displayName": "서예린",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_daeshin",
+        "name": "대신고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 17,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_13",
+          "subj26_g1s1_11"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_13",
+          "subj26_g1s2_11"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_022",
+      "branchId": "br_demo_b",
+      "displayName": "황준서",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_daeshin",
+        "name": "대신고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 28,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_17"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_023",
+      "branchId": "br_demo_b",
+      "displayName": "안지민",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_daeshin",
+        "name": "대신고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 8,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_37"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_22"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_024",
+      "branchId": "br_demo_b",
+      "displayName": "전태윤",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_daeshin",
+        "name": "대신고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 5,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_06",
+          "subj26_g3s1_10",
+          "subj26_g3s1_11",
+          "subj26_g3s1_34",
+          "subj26_g3s1_33",
+          "subj26_g3s1_12",
+          "subj26_g3s1_30"
+        ],
+        "2": [
+          "subj26_g3s2_09",
+          "subj26_g3s2_10",
+          "subj26_g3s2_32",
+          "subj26_g3s2_33",
+          "subj26_g3s2_14",
+          "subj26_g3s2_06",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_025",
+      "branchId": "br_demo_b",
+      "displayName": "홍다인",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hanlim",
+        "name": "한림고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 7,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_026",
+      "branchId": "br_demo_b",
+      "displayName": "고은호",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hanlim",
+        "name": "한림고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 23,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_17",
+          "subj26_g2s1_18",
+          "subj26_g2s1_16",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_20",
+          "subj26_g2s2_21",
+          "subj26_g2s2_22",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_027",
+      "branchId": "br_demo_b",
+      "displayName": "양소율",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hanlim",
+        "name": "한림고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_03",
+          "subj26_g3s1_12",
+          "subj26_g3s1_17",
+          "subj26_g3s1_18",
+          "subj26_g3s1_19",
+          "subj26_g3s1_30"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_04",
+          "subj26_g3s2_15",
+          "subj26_g3s2_17",
+          "subj26_g3s2_20",
+          "subj26_g3s2_21",
+          "subj26_g3s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_028",
+      "branchId": "br_demo_b",
+      "displayName": "손건우",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hanlim",
+        "name": "한림고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_029",
+      "branchId": "br_demo_b",
+      "displayName": "노하은",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_jinyang",
+        "name": "진양고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 17,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_08",
+          "subj26_g1s1_12"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_08",
+          "subj26_g1s2_12"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_030",
+      "branchId": "br_demo_b",
+      "displayName": "구민재",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_jinyang",
+        "name": "진양고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 19,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_02",
+          "subj26_g2s1_06",
+          "subj26_g2s1_07",
+          "subj26_g2s1_23",
+          "subj26_g2s1_24",
+          "subj26_g2s1_22"
+        ],
+        "2": [
+          "subj26_g2s2_03",
+          "subj26_g2s2_09",
+          "subj26_g2s2_10",
+          "subj26_g2s2_28",
+          "subj26_g2s2_29",
+          "subj26_g2s2_15",
+          "subj26_g2s2_16"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_031",
+      "branchId": "br_demo_b",
+      "displayName": "류채아",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_jinyang",
+        "name": "진양고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_02",
+          "subj26_g3s1_07",
+          "subj26_g3s1_08",
+          "subj26_g3s1_26",
+          "subj26_g3s1_27",
+          "subj26_g3s1_13",
+          "subj26_g3s1_23"
+        ],
+        "2": [
+          "subj26_g3s2_01",
+          "subj26_g3s2_07",
+          "subj26_g3s2_08",
+          "subj26_g3s2_24",
+          "subj26_g3s2_25",
+          "subj26_g3s2_13",
+          "subj26_g3s2_35"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_032",
+      "branchId": "br_demo_b",
+      "displayName": "차승민",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_jinyang",
+        "name": "진양고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 12,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_15",
+          "subj26_g2s1_16",
+          "subj26_g2s1_17",
+          "subj26_g2s1_13"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_04",
+          "subj26_g2s2_08",
+          "subj26_g2s2_18",
+          "subj26_g2s2_19",
+          "subj26_g2s2_20",
+          "subj26_g2s2_16"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_033",
+      "branchId": "br_demo_b",
+      "displayName": "주예서",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_samgaksan",
+        "name": "삼각산고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_034",
+      "branchId": "br_demo_b",
+      "displayName": "우진혁",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_samgaksan",
+        "name": "삼각산고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 6,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_15",
+          "subj26_g2s1_16",
+          "subj26_g2s1_17",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_04",
+          "subj26_g2s2_08",
+          "subj26_g2s2_18",
+          "subj26_g2s2_19",
+          "subj26_g2s2_20",
+          "subj26_g2s2_07"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_035",
+      "branchId": "br_demo_b",
+      "displayName": "진가온",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_samgaksan",
+        "name": "삼각산고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 18,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_06",
+          "subj26_g3s1_14",
+          "subj26_g3s1_28",
+          "subj26_g3s1_27",
+          "subj26_g3s1_09",
+          "subj26_g3s1_30"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_06",
+          "subj26_g3s2_12",
+          "subj26_g3s2_26",
+          "subj26_g3s2_30",
+          "subj26_g3s2_31",
+          "subj26_g3s2_39"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_036",
+      "branchId": "br_demo_b",
+      "displayName": "표하람",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_samgaksan",
+        "name": "삼각산고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 6,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_02",
+          "subj26_g3s1_07",
+          "subj26_g3s1_08",
+          "subj26_g3s1_26",
+          "subj26_g3s1_27",
+          "subj26_g3s1_13",
+          "subj26_g3s1_29"
+        ],
+        "2": [
+          "subj26_g3s2_01",
+          "subj26_g3s2_07",
+          "subj26_g3s2_08",
+          "subj26_g3s2_24",
+          "subj26_g3s2_25",
+          "subj26_g3s2_13",
+          "subj26_g3s2_36"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_037",
+      "branchId": "br_demo_b",
+      "displayName": "곽태린",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gajwa",
+        "name": "가좌고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 21,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_11",
+          "subj26_g1s1_08"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_11",
+          "subj26_g1s2_08"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_038",
+      "branchId": "br_demo_b",
+      "displayName": "탁서율",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gajwa",
+        "name": "가좌고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_08",
+          "subj26_g2s1_11",
+          "subj26_g2s1_09",
+          "subj26_g2s1_22"
+        ],
+        "2": [
+          "subj26_g2s2_02",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_13",
+          "subj26_g2s2_11",
+          "subj26_g2s2_14",
+          "subj26_g2s2_26"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_039",
+      "branchId": "br_demo_b",
+      "displayName": "나윤재",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gajwa",
+        "name": "가좌고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 25,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_06",
+          "subj26_g3s1_10",
+          "subj26_g3s1_11",
+          "subj26_g3s1_34",
+          "subj26_g3s1_33",
+          "subj26_g3s1_12",
+          "subj26_g3s1_37"
+        ],
+        "2": [
+          "subj26_g3s2_09",
+          "subj26_g3s2_10",
+          "subj26_g3s2_32",
+          "subj26_g3s2_33",
+          "subj26_g3s2_14",
+          "subj26_g3s2_06",
+          "subj26_g3s2_29"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_040",
+      "branchId": "br_demo_b",
+      "displayName": "엄지안",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gajwa",
+        "name": "가좌고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 24,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_13",
+          "subj26_g1s1_11"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_13",
+          "subj26_g1s2_11"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_041",
+      "branchId": "br_demo_c",
+      "displayName": "변주원",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_chungmu",
+        "name": "충무고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 6,
+      "schoolStudentNumber": 25,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_09",
+          "subj26_g1s1_10"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_09",
+          "subj26_g1s2_10"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_042",
+      "branchId": "br_demo_c",
+      "displayName": "성하준",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_chungmu",
+        "name": "충무고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_043",
+      "branchId": "br_demo_c",
+      "displayName": "석다연",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_chungmu",
+        "name": "충무고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 28,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_30"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_044",
+      "branchId": "br_demo_c",
+      "displayName": "하은찬",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_chungmu",
+        "name": "충무고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 17,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_17",
+          "subj26_g2s1_18",
+          "subj26_g2s1_16",
+          "subj26_g2s1_21"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_20",
+          "subj26_g2s2_21",
+          "subj26_g2s2_22",
+          "subj26_g2s2_30"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_045",
+      "branchId": "br_demo_c",
+      "displayName": "도서윤",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 11,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_13",
+          "subj26_g1s1_11"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_13",
+          "subj26_g1s2_11"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_046",
+      "branchId": "br_demo_c",
+      "displayName": "마지성",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_17",
+          "subj26_g2s1_18",
+          "subj26_g2s1_16",
+          "subj26_g2s1_22"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_20",
+          "subj26_g2s2_21",
+          "subj26_g2s2_22",
+          "subj26_g2s2_30"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_047",
+      "branchId": "br_demo_c",
+      "displayName": "제윤서",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 4,
+      "schoolStudentNumber": 25,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_03",
+          "subj26_g3s1_12",
+          "subj26_g3s1_17",
+          "subj26_g3s1_18",
+          "subj26_g3s1_19",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_04",
+          "subj26_g3s2_15",
+          "subj26_g3s2_17",
+          "subj26_g3s2_20",
+          "subj26_g3s2_21",
+          "subj26_g3s2_35"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_048",
+      "branchId": "br_demo_c",
+      "displayName": "길현서",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 14,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_41"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_40"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_049",
+      "branchId": "br_demo_c",
+      "displayName": "천소민",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sejong",
+        "name": "세종고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 11,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_050",
+      "branchId": "br_demo_c",
+      "displayName": "방재윤",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_sejong",
+        "name": "세종고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 1,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_02",
+          "subj26_g2s1_06",
+          "subj26_g2s1_07",
+          "subj26_g2s1_23",
+          "subj26_g2s1_24",
+          "subj26_g2s1_12"
+        ],
+        "2": [
+          "subj26_g2s2_03",
+          "subj26_g2s2_09",
+          "subj26_g2s2_10",
+          "subj26_g2s2_28",
+          "subj26_g2s2_29",
+          "subj26_g2s2_15",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_051",
+      "branchId": "br_demo_c",
+      "displayName": "민도하",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_sejong",
+        "name": "세종고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 13,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_02",
+          "subj26_g3s1_07",
+          "subj26_g3s1_08",
+          "subj26_g3s1_26",
+          "subj26_g3s1_27",
+          "subj26_g3s1_13",
+          "subj26_g3s1_30"
+        ],
+        "2": [
+          "subj26_g3s2_01",
+          "subj26_g3s2_07",
+          "subj26_g3s2_08",
+          "subj26_g3s2_24",
+          "subj26_g3s2_25",
+          "subj26_g3s2_13",
+          "subj26_g3s2_39"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_052",
+      "branchId": "br_demo_c",
+      "displayName": "육예준",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sejong",
+        "name": "세종고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 2,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_053",
+      "branchId": "br_demo_c",
+      "displayName": "라시온",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hansol",
+        "name": "한솔고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 13,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_08",
+          "subj26_g1s1_12"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_08",
+          "subj26_g1s2_12"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_054",
+      "branchId": "br_demo_c",
+      "displayName": "편하진",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hansol",
+        "name": "한솔고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 9,
+      "schoolStudentNumber": 9,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_15",
+          "subj26_g2s1_16",
+          "subj26_g2s1_17",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_04",
+          "subj26_g2s2_08",
+          "subj26_g2s2_18",
+          "subj26_g2s2_19",
+          "subj26_g2s2_20",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_055",
+      "branchId": "br_demo_c",
+      "displayName": "봉수아",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hansol",
+        "name": "한솔고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 9,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_06",
+          "subj26_g3s1_14",
+          "subj26_g3s1_28",
+          "subj26_g3s1_27",
+          "subj26_g3s1_09",
+          "subj26_g3s1_29"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_06",
+          "subj26_g3s2_12",
+          "subj26_g3s2_26",
+          "subj26_g3s2_30",
+          "subj26_g3s2_31",
+          "subj26_g3s2_40"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_056",
+      "branchId": "br_demo_c",
+      "displayName": "옥지환",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hansol",
+        "name": "한솔고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_08",
+          "subj26_g2s1_11",
+          "subj26_g2s1_09",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_02",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_13",
+          "subj26_g2s2_11",
+          "subj26_g2s2_14",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_057",
+      "branchId": "br_demo_c",
+      "displayName": "채은서",
+      "academyClassName": "시연 C지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 3,
+      "schoolStudentNumber": 15,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14",
+          "subj26_g1s1_10",
+          "subj26_g1s1_13"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04",
+          "subj26_g1s2_10",
+          "subj26_g1s2_13"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_058",
+      "branchId": "br_demo_c",
+      "displayName": "인태경",
+      "academyClassName": "시연 C지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 20,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_08",
+          "subj26_g2s1_11",
+          "subj26_g2s1_09",
+          "subj26_g2s1_21"
+        ],
+        "2": [
+          "subj26_g2s2_02",
+          "subj26_g2s2_05",
+          "subj26_g2s2_08",
+          "subj26_g2s2_13",
+          "subj26_g2s2_11",
+          "subj26_g2s2_14",
+          "subj26_g2s2_07"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_059",
+      "branchId": "br_demo_c",
+      "displayName": "설아린",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 8,
+      "schoolStudentNumber": 7,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_06",
+          "subj26_g3s1_10",
+          "subj26_g3s1_11",
+          "subj26_g3s1_34",
+          "subj26_g3s1_33",
+          "subj26_g3s1_12",
+          "subj26_g3s1_41"
+        ],
+        "2": [
+          "subj26_g3s2_09",
+          "subj26_g3s2_10",
+          "subj26_g3s2_32",
+          "subj26_g3s2_33",
+          "subj26_g3s2_14",
+          "subj26_g3s2_06",
+          "subj26_g3s2_40"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_060",
+      "branchId": "br_demo_c",
+      "displayName": "명준우",
+      "academyClassName": "시연 C지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 5,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_01",
+          "subj26_g3s1_06",
+          "subj26_g3s1_14",
+          "subj26_g3s1_28",
+          "subj26_g3s1_27",
+          "subj26_g3s1_09",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_02",
+          "subj26_g3s2_06",
+          "subj26_g3s2_12",
+          "subj26_g3s2_26",
+          "subj26_g3s2_30",
+          "subj26_g3s2_31",
+          "subj26_g3s2_39"
+        ]
+      }
+    }
+  ]
+}

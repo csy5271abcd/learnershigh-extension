@@ -1,0 +1,120 @@
+package com.learnershigh.extension.assessment.controller;
+
+import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanReviewRequest;
+import com.learnershigh.extension.assessment.dto.plan.PlanUploadResponse;
+import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
+import com.learnershigh.extension.assessment.integration.auth.AdminActor;
+import com.learnershigh.extension.assessment.service.plan.EvaluationPlanQueryService;
+import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
+import com.learnershigh.extension.assessment.service.plan.PdfInspector;
+import com.learnershigh.extension.common.error.BusinessException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * Admin 학교 평가계획서 (api-contract.md §38·§39). Actor: 평가계획서 운영 권한이 있는 ADMIN (OD-A08 미결 → 학교별 명시 권한만).
+ * §39 POST .../analysis(서버 분석 실행)는 원본 파일 보관(File Storage, API-OD-A03)이 없어 아직 제공하지 않는다.
+ */
+@RestController
+@RequestMapping(path = "/api/admin/assessment/evaluation-plans", produces = MediaType.APPLICATION_JSON_VALUE)
+public class AdminEvaluationPlanController {
+
+    private static final String URL_PATTERN = "https?://\\S{1,990}";
+
+    private final EvaluationPlanQueryService queryService;
+    private final EvaluationPlanService service;
+
+    public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service) {
+        this.queryService = queryService;
+        this.service = service;
+    }
+
+    @GetMapping
+    public Map<String, List<AdminEvaluationPlanResponse>> list(AdminActor admin,
+            @RequestParam @NotBlank @Size(max = 64) String schoolId,
+            @RequestParam(required = false) @Min(2000) @Max(2100) Integer academicYear,
+            @RequestParam(required = false) @Min(1) @Max(3) Integer grade,
+            @RequestParam(required = false) @Min(1) @Max(2) Integer semester) {
+        return queryService.adminList(admin, schoolId, academicYear, grade, semester);
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlanUploadResponse register(AdminActor admin,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam @NotBlank @Size(max = 64) String schoolId,
+            @RequestParam @Min(2000) @Max(2100) int academicYear,
+            @RequestParam @Min(1) @Max(3) int grade,
+            @RequestParam @Min(1) @Max(2) int semester,
+            @RequestParam(required = false) @Pattern(regexp = URL_PATTERN) String sourceUrl) {
+        return service.register(admin, schoolId, academicYear, grade, semester, uploaded(file, sourceUrl));
+    }
+
+    @GetMapping("/{planId}")
+    public AdminEvaluationPlanResponse get(AdminActor admin, @PathVariable String planId) {
+        return queryService.adminGet(admin, planId);
+    }
+
+    @PostMapping(path = "/{planId}/revisions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlanUploadResponse addRevision(AdminActor admin, @PathVariable String planId,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(required = false) @Pattern(regexp = URL_PATTERN) String sourceUrl) {
+        return service.addRevision(admin, planId, uploaded(file, sourceUrl));
+    }
+
+    @GetMapping("/{planId}/revisions/{revisionId}/analysis")
+    public PlanAnalysisResponse analysis(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return queryService.adminAnalysis(admin, planId, revisionId);
+    }
+
+    @PutMapping(path = "/{planId}/revisions/{revisionId}/review", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PlanAnalysisResponse review(AdminActor admin, @PathVariable String planId, @PathVariable String revisionId,
+            @Valid @RequestBody PlanReviewRequest request) {
+        return service.review(admin, planId, revisionId, request);
+    }
+
+    private static EvaluationPlanService.UploadedPdf uploaded(MultipartFile file, String sourceUrl) {
+        if (file.getSize() > PdfInspector.MAX_BYTES) {
+            throw new BusinessException(AssessmentErrorCode.FILE_TOO_LARGE);
+        }
+        try {
+            return new EvaluationPlanService.UploadedPdf(safeName(file), file.getContentType(), file.getBytes(),
+                    sourceUrl);
+        } catch (IOException exception) {
+            throw new BusinessException(AssessmentErrorCode.PDF_EXTRACTION_FAILED);
+        }
+    }
+
+    /** 경로 제거·길이 제한한 파일 이름 */
+    private static String safeName(MultipartFile file) {
+        String name = file.getOriginalFilename() == null || file.getOriginalFilename().isBlank() ? "plan.pdf"
+                : file.getOriginalFilename();
+        name = name.replace('\\', '/');
+        name = name.substring(name.lastIndexOf('/') + 1);
+        return name.length() > 200 ? name.substring(0, 200) : name;
+    }
+}

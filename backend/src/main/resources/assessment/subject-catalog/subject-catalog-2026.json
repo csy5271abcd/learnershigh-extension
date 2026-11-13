@@ -1,0 +1,858 @@
+{
+  "catalogVersion": "2026-11-12.1",
+  "academicYear": 2026,
+  "slots": [
+    {
+      "grade": 1,
+      "semester": 1,
+      "curriculumVersion": "2022",
+      "subjects": [
+        {
+          "subjectId": "subj_11",
+          "name": "공통국어1",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g1s1_02",
+          "name": "공통수학1",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g1s1_03",
+          "name": "공통영어1",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g1s1_04",
+          "name": "한국사1",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj_13",
+          "name": "통합사회1",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj_12",
+          "name": "통합과학1",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj_14",
+          "name": "과학탐구실험1",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g1s1_08",
+          "name": "정보",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g1s1_09",
+          "name": "체육1",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g1s1_10",
+          "name": "음악",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g1s1_11",
+          "name": "미술",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g1s1_12",
+          "name": "기술·가정",
+          "subjectGroup": "기술·가정"
+        },
+        {
+          "subjectId": "subj26_g1s1_13",
+          "name": "진로와 직업",
+          "subjectGroup": "교양"
+        }
+      ]
+    },
+    {
+      "grade": 1,
+      "semester": 2,
+      "curriculumVersion": "2022",
+      "subjects": [
+        {
+          "subjectId": "subj_01",
+          "name": "공통국어2",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g1s2_02",
+          "name": "공통수학2",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g1s2_03",
+          "name": "공통영어2",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g1s2_04",
+          "name": "한국사2",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj_03",
+          "name": "통합사회2",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj_02",
+          "name": "통합과학2",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj_04",
+          "name": "과학탐구실험2",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g1s2_08",
+          "name": "정보",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g1s2_09",
+          "name": "체육2",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g1s2_10",
+          "name": "음악",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g1s2_11",
+          "name": "미술",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g1s2_12",
+          "name": "기술·가정",
+          "subjectGroup": "기술·가정"
+        },
+        {
+          "subjectId": "subj26_g1s2_13",
+          "name": "진로와 직업",
+          "subjectGroup": "교양"
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "semester": 1,
+      "curriculumVersion": "2022",
+      "subjects": [
+        {
+          "subjectId": "subj26_g2s1_01",
+          "name": "문학",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g2s1_02",
+          "name": "주제 탐구 독서",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g2s1_03",
+          "name": "대수",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s1_04",
+          "name": "미적분Ⅰ",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s1_05",
+          "name": "인공지능 수학",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s1_06",
+          "name": "영어Ⅰ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g2s1_07",
+          "name": "영미 문학 읽기",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g2s1_08",
+          "name": "사회와 문화",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_09",
+          "name": "현대사회와 윤리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_10",
+          "name": "세계시민과 지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_11",
+          "name": "세계사",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_12",
+          "name": "윤리와 사상",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_13",
+          "name": "동아시아 역사 기행",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_14",
+          "name": "한국지리 탐구",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s1_15",
+          "name": "물리학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s1_16",
+          "name": "화학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s1_17",
+          "name": "생명과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s1_18",
+          "name": "지구과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s1_19",
+          "name": "정보",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g2s1_20",
+          "name": "인공지능 기초",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g2s1_21",
+          "name": "운동과 건강",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g2s1_22",
+          "name": "음악 연주와 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g2s1_23",
+          "name": "미술 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g2s1_24",
+          "name": "일본어",
+          "subjectGroup": "제2외국어"
+        },
+        {
+          "subjectId": "subj26_g2s1_25",
+          "name": "중국어",
+          "subjectGroup": "제2외국어"
+        }
+      ]
+    },
+    {
+      "grade": 2,
+      "semester": 2,
+      "curriculumVersion": "2022",
+      "subjects": [
+        {
+          "subjectId": "subj26_g2s2_01",
+          "name": "화법과 언어",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g2s2_02",
+          "name": "독서와 작문",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g2s2_03",
+          "name": "문학과 영상",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g2s2_04",
+          "name": "미적분Ⅰ",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s2_05",
+          "name": "확률과 통계",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s2_06",
+          "name": "기하",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s2_07",
+          "name": "경제 수학",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g2s2_08",
+          "name": "영어Ⅱ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g2s2_09",
+          "name": "영어 발표와 토론",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g2s2_10",
+          "name": "영어 독해와 작문",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g2s2_11",
+          "name": "법과 사회",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_12",
+          "name": "정치",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_13",
+          "name": "경제",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_14",
+          "name": "윤리와 사상",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_15",
+          "name": "도시의 미래 탐구",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_16",
+          "name": "윤리문제 탐구",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_17",
+          "name": "동아시아 역사 기행",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g2s2_18",
+          "name": "역학과 에너지",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_19",
+          "name": "물질과 에너지",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_20",
+          "name": "세포와 물질대사",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_21",
+          "name": "지구시스템과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_22",
+          "name": "화학 반응의 세계",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_23",
+          "name": "전자기와 양자",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g2s2_24",
+          "name": "데이터 과학",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g2s2_25",
+          "name": "인공지능 기초",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g2s2_26",
+          "name": "스포츠 과학",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g2s2_27",
+          "name": "음악 연주와 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g2s2_28",
+          "name": "미술 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g2s2_29",
+          "name": "일본어 회화",
+          "subjectGroup": "제2외국어"
+        },
+        {
+          "subjectId": "subj26_g2s2_30",
+          "name": "중국어 회화",
+          "subjectGroup": "제2외국어"
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "semester": 1,
+      "curriculumVersion": "2015",
+      "subjects": [
+        {
+          "subjectId": "subj26_g3s1_01",
+          "name": "화법과 작문",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s1_02",
+          "name": "언어와 매체",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s1_03",
+          "name": "심화 국어",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s1_04",
+          "name": "고전 읽기",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s1_05",
+          "name": "문학",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s1_06",
+          "name": "확률과 통계",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_07",
+          "name": "미적분",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_08",
+          "name": "기하",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_09",
+          "name": "수학과제 탐구",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_10",
+          "name": "경제 수학",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_11",
+          "name": "고급 수학Ⅰ",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s1_12",
+          "name": "영어 독해와 작문",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s1_13",
+          "name": "영어Ⅱ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s1_14",
+          "name": "심화 영어 독해Ⅰ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s1_15",
+          "name": "영어권 문화",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s1_16",
+          "name": "영미 문학 읽기",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s1_17",
+          "name": "사회·문화",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_18",
+          "name": "사회문제 탐구",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_19",
+          "name": "생활과 윤리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_20",
+          "name": "윤리와 사상",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_21",
+          "name": "여행지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_22",
+          "name": "한국지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_23",
+          "name": "세계지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_24",
+          "name": "정치와 법",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_25",
+          "name": "동아시아사",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s1_26",
+          "name": "물리학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_27",
+          "name": "화학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_28",
+          "name": "생명과학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_29",
+          "name": "지구과학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_30",
+          "name": "생활과 과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_31",
+          "name": "융합과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_32",
+          "name": "고급 물리학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s1_33",
+          "name": "정보",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g3s1_34",
+          "name": "프로그래밍",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g3s1_35",
+          "name": "스포츠 생활",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g3s1_36",
+          "name": "운동과 건강",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g3s1_37",
+          "name": "미술 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g3s1_38",
+          "name": "교육학",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s1_39",
+          "name": "심리학",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s1_40",
+          "name": "환경",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s1_41",
+          "name": "논술",
+          "subjectGroup": "교양"
+        }
+      ]
+    },
+    {
+      "grade": 3,
+      "semester": 2,
+      "curriculumVersion": "2015",
+      "subjects": [
+        {
+          "subjectId": "subj26_g3s2_01",
+          "name": "화법과 작문",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s2_02",
+          "name": "언어와 매체",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s2_03",
+          "name": "심화 국어",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s2_04",
+          "name": "고전 읽기",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s2_05",
+          "name": "문학",
+          "subjectGroup": "국어"
+        },
+        {
+          "subjectId": "subj26_g3s2_06",
+          "name": "확률과 통계",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s2_07",
+          "name": "미적분",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s2_08",
+          "name": "기하",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s2_09",
+          "name": "수학과제 탐구",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s2_10",
+          "name": "경제 수학",
+          "subjectGroup": "수학"
+        },
+        {
+          "subjectId": "subj26_g3s2_11",
+          "name": "영어 독해와 작문",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s2_12",
+          "name": "심화 영어 독해Ⅰ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s2_13",
+          "name": "영어권 문화",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s2_14",
+          "name": "진로 영어",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s2_15",
+          "name": "심화 영어Ⅰ",
+          "subjectGroup": "영어"
+        },
+        {
+          "subjectId": "subj26_g3s2_16",
+          "name": "사회·문화",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_17",
+          "name": "사회문제 탐구",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_18",
+          "name": "생활과 윤리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_19",
+          "name": "여행지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_20",
+          "name": "고전과 윤리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_21",
+          "name": "정치와 법",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_22",
+          "name": "동아시아사",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_23",
+          "name": "세계지리",
+          "subjectGroup": "사회"
+        },
+        {
+          "subjectId": "subj26_g3s2_24",
+          "name": "물리학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_25",
+          "name": "화학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_26",
+          "name": "생명과학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_27",
+          "name": "지구과학Ⅱ",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_28",
+          "name": "생활과 과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_29",
+          "name": "융합과학",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_30",
+          "name": "화학 실험",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_31",
+          "name": "생명과학 실험",
+          "subjectGroup": "과학"
+        },
+        {
+          "subjectId": "subj26_g3s2_32",
+          "name": "정보",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g3s2_33",
+          "name": "인공지능 기초",
+          "subjectGroup": "정보"
+        },
+        {
+          "subjectId": "subj26_g3s2_34",
+          "name": "스포츠 생활",
+          "subjectGroup": "체육"
+        },
+        {
+          "subjectId": "subj26_g3s2_35",
+          "name": "음악 연주",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g3s2_36",
+          "name": "미술 창작",
+          "subjectGroup": "예술"
+        },
+        {
+          "subjectId": "subj26_g3s2_37",
+          "name": "교육학",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s2_38",
+          "name": "심리학",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s2_39",
+          "name": "환경",
+          "subjectGroup": "교양"
+        },
+        {
+          "subjectId": "subj26_g3s2_40",
+          "name": "논술",
+          "subjectGroup": "교양"
+        }
+      ]
+    }
+  ]
+}
