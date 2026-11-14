@@ -67,13 +67,14 @@ public class EvaluationPlanService {
     private final JsonMapper mapper;
     private final AcademicContextProvider contexts;
     private final PlanDocumentStorage storage;
+    private final PlanReviewDraftService drafts;
     /** HWP·HWPX 공식 확정 허용(통제된 개발·합성 시험 전용). 기본 false — 실제 관리자 인증 연동 전 운영에서 켜지 않는다. */
     private final boolean structuredConfirmEnabled;
 
     public EvaluationPlanService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
             PlanAnalysisRunRepository runs, PlanReviewRepository reviews, PlanAccess access, PlanViews views,
             DocumentFormatInspector formatInspector, AnalysisImportValidator importValidator, AssessmentTimes times,
-            JsonMapper mapper, AcademicContextProvider contexts, PlanDocumentStorage storage,
+            JsonMapper mapper, AcademicContextProvider contexts, PlanDocumentStorage storage, PlanReviewDraftService drafts,
             @Value("${assessment.plan-review.structured-confirm-dev:false}") boolean structuredConfirmEnabled) {
         this.plans = plans;
         this.revisions = revisions;
@@ -87,6 +88,7 @@ public class EvaluationPlanService {
         this.mapper = mapper;
         this.contexts = contexts;
         this.storage = storage;
+        this.drafts = drafts;
         this.structuredConfirmEnabled = structuredConfirmEnabled;
     }
 
@@ -311,6 +313,8 @@ public class EvaluationPlanService {
         }
         reviews.save(review);
         revision.markConfirmed();
+        // A5: 확정과 같은 Transaction에서 그 분석 결과의 공유 초안을 닫는다(초안 ≠ 확정값, 이후 초안 저장 불가)
+        drafts.closeOnConfirm(request.analysisId(), admin.adminId(), review.reviewedAt());
         revisions.flush();
         return views.analysis(plan, revision);
     }

@@ -2,6 +2,8 @@ package com.learnershigh.extension.assessment.controller;
 
 import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
+import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanUploadResponse;
 import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
@@ -10,6 +12,7 @@ import com.learnershigh.extension.assessment.service.plan.EvaluationPlanQuerySer
 import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
 import com.learnershigh.extension.assessment.service.plan.PdfInspector;
 import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
+import com.learnershigh.extension.assessment.service.plan.PlanReviewDraftService;
 import com.learnershigh.extension.common.error.BusinessException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -49,12 +52,14 @@ public class AdminEvaluationPlanController {
     private final EvaluationPlanQueryService queryService;
     private final EvaluationPlanService service;
     private final PlanAnalysisService analysisService;
+    private final PlanReviewDraftService draftService;
 
     public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service,
-            PlanAnalysisService analysisService) {
+            PlanAnalysisService analysisService, PlanReviewDraftService draftService) {
         this.queryService = queryService;
         this.service = service;
         this.analysisService = analysisService;
+        this.draftService = draftService;
     }
 
     @GetMapping
@@ -126,6 +131,20 @@ public class AdminEvaluationPlanController {
     public PlanAnalysisResponse review(AdminActor admin, @PathVariable String planId, @PathVariable String revisionId,
             @Valid @RequestBody PlanReviewRequest request) {
         return service.review(admin, planId, revisionId, request);
+    }
+
+    /** A5 공유 검토 초안 조회 (DRAFT §39-4). 학생 공개 아님. 최신 분석 결과의 초안 + 예전 결과의 보존 초안 + 저장 기록. */
+    @GetMapping("/{planId}/revisions/{revisionId}/review-draft")
+    public PlanReviewDraftResponse reviewDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return draftService.get(admin, planId, revisionId);
+    }
+
+    /** A5 공유 검토 초안 저장 (DRAFT §39-4). baseVersion 불일치·다른 결과 → 409. 확정은 PUT .../review만 한다. */
+    @PutMapping(path = "/{planId}/revisions/{revisionId}/review-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PlanReviewDraftResponse saveReviewDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId, @Valid @RequestBody PlanReviewDraftRequest request) {
+        return draftService.save(admin, planId, revisionId, request);
     }
 
     private static EvaluationPlanService.UploadedPdf uploaded(MultipartFile file, String sourceUrl) {

@@ -28,6 +28,9 @@ public enum AssessmentErrorCode implements ErrorCode {
     PLAN_ANALYZER_BAD_RESPONSE(HttpStatus.BAD_GATEWAY, "분석기 결과를 저장할 수 없어요. 결과 형식이 계약과 맞지 않아요."),
     PLAN_ANALYSIS_IN_PROGRESS(HttpStatus.CONFLICT, "이 개정본을 이미 분석하고 있어요. 끝난 뒤 결과를 확인해 주세요."),
     PLAN_ANALYSIS_UNSUPPORTED(HttpStatus.UNPROCESSABLE_CONTENT, "이 개정본은 지금 서버 분석을 실행할 수 없어요."),
+    // A5 공유 검토 초안 (DRAFT 계약 §39-4)
+    PLAN_REVIEW_DRAFT_CONFLICT(HttpStatus.CONFLICT, "다른 관리자가 먼저 검토 초안을 저장했어요. 최신 초안을 확인한 뒤 다시 저장해 주세요."),
+    PLAN_REVIEW_DRAFT_STALE(HttpStatus.CONFLICT, "분석 결과가 새로 바뀌었어요. 이전 초안은 보존되어 있고, 새 결과를 다시 검토해야 해요."),
     PLAN_FILE_DUPLICATE(HttpStatus.CONFLICT, "같은 파일이 이미 이 평가계획서의 개정본으로 등록되어 있어요."),
     FILE_VERSION_MISMATCH(HttpStatus.CONFLICT, "다른 버전이 먼저 올라왔어요. 버전 목록을 확인한 뒤 다시 올려 주세요."),
     FEEDBACK_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "피드백 요청을 찾을 수 없습니다."),
