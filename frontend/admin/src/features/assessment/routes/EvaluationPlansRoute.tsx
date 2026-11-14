@@ -8,6 +8,7 @@ import { AlertIcon, CapIcon, EmptyState, FileIcon, Modal, PlusIcon, Toast, Uploa
 import { analysisLabels, dateLabel, fileSizeLabel, nextToastId } from '../model/adminFormat.ts'
 import { useCommand, useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
+import review from '../review/review.module.css'
 import { devCurrentTerm } from '../api/http/adminRecordsHttp.ts'
 import { PlanAnalysisPreviewPanel } from './PlanAnalysisPreviewPanel.tsx'
 import { paths } from './paths.ts'
@@ -200,20 +201,28 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
           years={yearList.length ? yearList : [year]}
           initial={upload}
           onClose={() => setUpload(null)}
-          onDone={(plan, { revision, analysis, analyzer }) => {
+          onDone={(plan, { revision, analysis, analysisError, analyzer }) => {
             setUpload(null)
             if (analyzer?.kind === 'imported') {
               // 분석 결과는 DB(Revision·분석 후보)에 저장됐다 → 전체 페이지 검토 화면으로 이동 (새로고침해도 다시 조회됨)
               navigate(paths.planReview(analyzer.planId, analyzer.revisionId))
               return
             }
+            const latest = plan.revisions[plan.revisions.length - 1]
+            if (!isAdminMockDataSource && latest && (analysis === 'REVIEW_REQUIRED' || analysis === 'PARTIAL')) {
+              // 서버 분석 결과가 저장됐다 → 검토 Workspace의 '분석 요약'부터 보여 준다 (2026-11-14 UI 재설계)
+              navigate(paths.planReview(plan.planId, latest.documentRevisionId))
+              return
+            }
             setParams({ year: String(plan.academicYear), slot: `${plan.grade}-${plan.semester}` })
             plans.reload()
             schools.reload()
             const analysisText = !isAdminMockDataSource
-              ? '원문은 서버에 그대로 보관했어요(SHA-256 확인). 서버 분석 실행은 아직 없어 분석 결과는 외부 분석기 수신으로만 들어와요.'
+              ? analysis === 'FAILED'
+                ? '분석기가 평가 정보를 찾지 못했어요(분석 실패로 저장). 원문을 직접 확인해 주세요.'
+                : `원문은 서버에 보관했어요. 분석은 실행하지 못했어요${analysisError ? ` — ${analysisError}` : ''}. 목록에서 다시 분석할 수 있어요.`
               : analysis === 'FAILED' || analysis === null ? '분석하지 못했어요 — 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.' : '분석 결과가 준비됐어요.'
-            setToast({ id: nextToastId(), tone: analysis === 'FAILED' || analysis === null ? 'info' : 'success', text: `${revision ? `개정본 v${revision}을 올렸어요 (기존 버전 보존).` : 'PDF를 등록했어요.'} ${analysisText}` })
+            setToast({ id: nextToastId(), tone: analysis === 'FAILED' || analysis === null ? 'info' : 'success', text: `${revision ? `개정본 v${revision}을 올렸어요 (기존 버전 보존).` : '평가계획서를 등록했어요.'} ${analysisText}` })
           }}
         />
       )}
@@ -370,7 +379,7 @@ function UploadPlanModal({
   years: number[]
   initial: { grade: number; semester: number; planId?: string }
   onClose: () => void
-  onDone: (plan: AdminEvaluationPlan, result: { revision?: number; analysis: PlanAnalysisStatus | null; analyzer?: AnalyzerOutcome }) => void
+  onDone: (plan: AdminEvaluationPlan, result: { revision?: number; analysis: PlanAnalysisStatus | null; analysisError?: string | null; analyzer?: AnalyzerOutcome }) => void
 }) {
   const [year, setYear] = useState(academicYear)
   const [grade, setGrade] = useState(initial.grade)
@@ -442,12 +451,14 @@ function UploadPlanModal({
         return { plan, analysis: null as PlanAnalysisStatus | null, analyzer }
       }
       let analysis: PlanAnalysisStatus | null = null
+      let analysisError: string | null = null
       try {
         analysis = (await requestPlanAnalysis(plan.planId, latest.documentRevisionId)).analysisStatus
-      } catch {
-        analysis = null
+      } catch (caught) {
+        // 등록은 끝났다. 분석 실패 사유를 숨기지 않고 알린다(빈 결과로 바꾸지 않음)
+        analysisError = (caught as { message?: string }).message ?? '분석을 실행하지 못했어요.'
       }
-      return { plan, analysis, analyzer: undefined as AnalyzerOutcome | undefined }
+      return { plan, analysis, analysisError, analyzer: undefined as AnalyzerOutcome | undefined }
     })
     if (!outcome) return
     if (outcome.ok) {
@@ -459,7 +470,7 @@ function UploadPlanModal({
         setAnalyzerError(analyzer.message)
         return
       }
-      onDone(outcome.value.plan, { revision, analysis: outcome.value.analysis, analyzer })
+      onDone(outcome.value.plan, { revision, analysis: outcome.value.analysis, analysisError: 'analysisError' in outcome.value ? outcome.value.analysisError : null, analyzer })
     }
     else if (outcome.error.code === 'UNSUPPORTED_FILE_TYPE' || outcome.error.code === 'FILE_TOO_LARGE') setFileError(outcome.error.message)
     else setFormError(`${outcome.error.message} (${outcome.error.code})`)
@@ -467,6 +478,7 @@ function UploadPlanModal({
 
   return (
     <Modal
+      wide
       title={isRevision ? '개정본 추가' : '평가계획서 등록'}
       initialFocusRef={inputRef}
       onRequestClose={() => !pending && onClose()}
@@ -486,55 +498,10 @@ function UploadPlanModal({
         </>
       }
     >
-      <div className={styles.form}>
-        {formError && (
-          <p className={styles.formError} role="alert">
-            <AlertIcon size={15} /> {formError}
-          </p>
-        )}
-        {analyzerError && savedPlan && (
-          <p className={styles.formError} role="alert" data-testid="plan-analyzer-error">
-            <AlertIcon size={15} /> 평가계획서는 등록됐어요(v{savedPlan.plan.revisions.length}). 자동 분석은 실패했어요 — {analyzerError}. 같은 파일로 &quot;분석 다시 시도&quot;를 누르면 새 버전을 만들지 않고 분석만 다시 해요.
-          </p>
-        )}
-        {!isRevision && (
-          <div className={styles.uploadGrid}>
-            <label className={styles.field}>
-              <span className={styles.label}>학교</span>
-              <input className={styles.input} value={schoolName} readOnly />
-            </label>
-            <label className={styles.field}>
-              <span className={styles.label}>학년도</span>
-              <select className={styles.select} style={{ height: 38 }} value={year} onChange={(event) => setYear(Number(event.target.value))}>
-                {years.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.field}>
-              <span className={styles.label}>학년</span>
-              <select className={styles.select} style={{ height: 38 }} value={grade} onChange={(event) => setGrade(Number(event.target.value))}>
-                {[1, 2, 3].map((value) => (
-                  <option key={value} value={value}>
-                    고{value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className={styles.field}>
-              <span className={styles.label}>학기</span>
-              <select className={styles.select} style={{ height: 38 }} value={semester} onChange={(event) => setSemester(Number(event.target.value))}>
-                <option value={1}>1학기</option>
-                <option value={2}>2학기</option>
-              </select>
-            </label>
-          </div>
-        )}
-        <label
-          className={styles.dropzone}
-          data-active={dragging || undefined}
+      <div className={review.dialogBody} style={{ padding: 0 }} data-testid="plan-upload-dialog">
+        <div
+          className={review.dropArea}
+          data-over={dragging || undefined}
           onDragOver={(event) => {
             event.preventDefault()
             setDragging(true)
@@ -546,31 +513,116 @@ function UploadPlanModal({
             pick(event.dataTransfer.files[0])
           }}
         >
-          <FileIcon size={22} />
-          <span className={styles.dropzoneTitle}>{file ? file.name : 'PDF를 끌어다 놓거나 선택해 주세요'}</span>
-          <span className={styles.hint}>{file ? `${(file.size / 1024).toFixed(0)}KB · 다른 파일을 고르려면 다시 눌러 주세요` : '과목별 PDF · 전체 과목 합본 모두 가능'}</span>
-          <input
-            id="plan-file"
-            ref={inputRef}
-            type="file"
-            accept={multiformatUpload ? 'application/pdf,.pdf,.hwp,.hwpx' : 'application/pdf,.pdf'}
-            className="lh-visually-hidden"
-            aria-label="평가계획서 원문 파일 (PDF·HWP·HWPX)"
-            aria-invalid={fileError ? true : undefined}
-            aria-describedby={fileError ? 'plan-file-error' : undefined}
-            onChange={(event) => pick(event.target.files?.[0])}
-          />
-        </label>
-        <FieldError id="plan-file-error" message={fileError} />
-        <label className={styles.field}>
-          <span className={styles.label}>원본 출처 주소 (선택)</span>
-          <input className={styles.input} type="url" value={sourceUrl} placeholder="학교 홈페이지·학교알리미 게시 주소" onChange={(event) => setSourceUrl(event.target.value)} />
-        </label>
-        <p className={styles.hint}>
-          {analyzerUpload
-            ? '개발 환경: 등록한 같은 파일을 이 PC의 로컬 분석기(규칙 기반, AI 호출 없음)로 자동 분석해 후보로 저장하고 결과 페이지로 이동해요. 원문 파일은 서버에 그대로 보관해요(SHA-256 확인). 기존 파일은 덮어쓰지 않고 새 버전으로 쌓여요.'
-            : '시연용 화면이에요. 파일은 서버에 저장되지 않아요. 기존 파일은 덮어쓰지 않고 새 버전으로 쌓여요.'}
-        </p>
+          {file ? (
+            <div className={review.fileCard} data-testid="plan-upload-file-card">
+              <span className={review.fileIcon} aria-hidden="true">
+                {(file.name.toLowerCase().endsWith('.hwpx') ? 'HWPX' : file.name.toLowerCase().endsWith('.hwp') ? 'HWP' : 'PDF')}
+              </span>
+              <span style={{ minWidth: 0, flex: 1 }}>
+                <strong title={file.name}>{file.name}</strong>
+                <span className={review.tiny}>
+                  {(file.name.toLowerCase().endsWith('.hwpx') ? 'HWPX' : file.name.toLowerCase().endsWith('.hwp') ? 'HWP' : 'PDF')} · {file.size < 1024 * 1024 ? `${(file.size / 1024).toFixed(0)}KB` : `${(file.size / 1024 / 1024).toFixed(1)}MB`}
+                  {savedPlan ? ' · 등록 완료' : pending ? (stage === 'analyze' ? ' · 분석 중…' : ' · 올리는 중…') : ' · 올릴 준비가 됐어요'}
+                </span>
+                {/* 서버가 단계별 진행률을 주지 않으므로 숫자 없이 진행 중 표시만 한다 */}
+                {pending && <span className={review.indeterminate} role="progressbar" aria-label={stage === 'analyze' ? '분석 중' : '올리는 중'} style={{ display: 'block' }} />}
+              </span>
+              {!pending && !savedPlan && (
+                <button type="button" className={review.chipButton} onClick={() => pick(null)} aria-label="고른 파일 지우기">
+                  지우기
+                </button>
+              )}
+            </div>
+          ) : (
+            <label className={review.dropPrompt}>
+              <FileIcon size={28} />
+              <strong style={{ color: 'var(--as-color-text)', fontSize: 15 }}>평가계획서 파일을 끌어다 놓으세요</strong>
+              <span>또는 눌러서 고르기 · PDF{multiformatUpload ? '·HWP·HWPX' : ''} · 20MB까지</span>
+              <input
+                id="plan-file"
+                ref={inputRef}
+                type="file"
+                accept={multiformatUpload ? 'application/pdf,.pdf,.hwp,.hwpx' : 'application/pdf,.pdf'}
+                className="lh-visually-hidden"
+                aria-label="평가계획서 원문 파일 (PDF·HWP·HWPX)"
+                aria-invalid={fileError ? true : undefined}
+                aria-describedby={fileError ? 'plan-file-error' : undefined}
+                onChange={(event) => pick(event.target.files?.[0])}
+              />
+            </label>
+          )}
+          <FieldError id="plan-file-error" message={fileError} />
+          {formError && (
+            <p className={styles.formError} role="alert">
+              <AlertIcon size={15} /> {formError}
+            </p>
+          )}
+          {analyzerError && savedPlan && (
+            <p className={styles.formError} role="alert" data-testid="plan-analyzer-error">
+              <AlertIcon size={15} /> 평가계획서는 등록됐어요(v{savedPlan.plan.revisions.length}). 자동 분석은 실패했어요 — {analyzerError}. 같은 파일로 &quot;분석 다시 시도&quot;를 누르면 새 버전을 만들지 않고 분석만 다시 해요.
+            </p>
+          )}
+        </div>
+
+        <div style={{ display: 'grid', alignContent: 'start', gap: 16 }}>
+          {!isRevision ? (
+            <div className={review.formGrid}>
+              <label className={review.formField} style={{ gridColumn: '1 / -1' }}>
+                학교
+                <input className={review.input} value={schoolName} readOnly />
+              </label>
+              <label className={review.formField}>
+                학년도
+                <select className={review.input} value={year} onChange={(event) => setYear(Number(event.target.value))}>
+                  {years.map((value) => (
+                    <option key={value} value={value}>
+                      {value}학년도
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={review.formField}>
+                학년
+                <select className={review.input} value={grade} onChange={(event) => setGrade(Number(event.target.value))}>
+                  {[1, 2, 3].map((value) => (
+                    <option key={value} value={value}>
+                      고{value}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={review.formField}>
+                학기
+                <select className={review.input} value={semester} onChange={(event) => setSemester(Number(event.target.value))}>
+                  <option value={1}>1학기</option>
+                  <option value={2}>2학기</option>
+                </select>
+              </label>
+            </div>
+          ) : (
+            <p className={review.muted}>같은 문서에 새 개정본을 올려요. 이전 버전과 검토 기록은 그대로 남아요.</p>
+          )}
+          <label className={review.formField}>
+            원본 출처 주소 (선택)
+            <input className={review.input} type="url" value={sourceUrl} placeholder="학교 홈페이지·학교알리미 게시 주소" onChange={(event) => setSourceUrl(event.target.value)} />
+          </label>
+          <div className={review.guide}>
+            <strong style={{ fontSize: 14 }}>등록 안내</strong>
+            <ul>
+              {isAdminMockDataSource ? (
+                <li>시연용 화면이에요. 파일은 서버에 저장되지 않아요.</li>
+              ) : (
+                <>
+                  <li>원문은 서버에 형식 그대로 보관하고, 서버가 분석기로 분석해요.</li>
+                  <li>분석은 최대 2분 걸릴 수 있어요. 끝나면 검토 화면으로 이동해요.</li>
+                </>
+              )}
+              <li>같은 학년·학기에 여러 문서를 올릴 수 있고, 기존 파일은 덮어쓰지 않아요.</li>
+              <li>분석 결과는 후보예요. 관리자가 원문과 대조해 확정한 값만 학생에게 공개돼요.</li>
+              {analyzerUpload && <li>개발 환경: 이 PC의 로컬 분석기로 분석해 후보로 저장해요.</li>}
+            </ul>
+          </div>
+        </div>
       </div>
     </Modal>
   )

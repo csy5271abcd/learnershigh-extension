@@ -251,7 +251,12 @@ export interface EvaluationPlanAnalysisView {
   /** 과목별 원문 쪽 범위 (http) */
   subjectPages?: { subjectName: string; from: number | null; to: number | null }[]
   /** 수행 항목의 활동·제출물·조건 (http). 화면 AnalysisSubject Type에 없는 후보 값을 그대로 보여주기 위해 따로 둔다 */
+  /** 문서 슬롯 (http): 학교·학년도·학년·학기. 검토 화면 머리글에 쓴다 */
+  slot?: { schoolId: string; academicYear: number; grade: number; semester: number }
   itemDetails?: {
+    /** 분석 결과 안 순번 (subjects[subjectIndex].performanceEvaluation.items[itemIndex]) — 확정 fieldPath와 같은 기준 */
+    subjectIndex?: number
+    itemIndex?: number
     subjectName: string
     itemKey: string
     label: string

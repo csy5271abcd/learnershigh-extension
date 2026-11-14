@@ -439,8 +439,11 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
       : undefined,
     reviewFields: reviewFieldsOf(subjects),
     subjectPages: subjects.map((subject) => ({ subjectName: subject.subjectName, from: subject.pageRange?.from ?? null, to: subject.pageRange?.to ?? null })),
-    itemDetails: subjects.flatMap((subject) =>
-      (subject.performanceEvaluation?.items ?? []).map((item) => ({
+    slot: { schoolId: plan.schoolId, academicYear: plan.academicYear, grade: plan.grade, semester: plan.semester },
+    itemDetails: subjects.flatMap((subject, subjectIndex) =>
+      (subject.performanceEvaluation?.items ?? []).map((item, itemIndex) => ({
+        subjectIndex,
+        itemIndex,
         subjectName: subject.subjectName,
         itemKey: item.itemKey,
         label: item.label,

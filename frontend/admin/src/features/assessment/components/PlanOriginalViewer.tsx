@@ -20,14 +20,18 @@ export function PlanOriginalViewer({
   file,
   page,
   onPageChange,
+  bare = false,
 }: {
   planId: string
   revisionId: string
   file: PlanFileMeta | null | undefined
   page: number
   onPageChange: (page: number) => void
+  /** 검토 Workspace(2026-11-14): 바깥 카드·머리글 없이 Viewer와 상태 안내만 그린다(머리글은 Workspace가 그린다) */
+  bare?: boolean
 }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
+  const [attempt, setAttempt] = useState(0)
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const canPreview = Boolean(file?.available && file.previewAvailable)
   const key = `${planId}/${revisionId}`
@@ -51,7 +55,12 @@ export function PlanOriginalViewer({
       cancelled = true
       if (created) URL.revokeObjectURL(created)
     }
-  }, [planId, revisionId, canPreview])
+  }, [planId, revisionId, canPreview, attempt])
+
+  const retry = () => {
+    setLoaded(null)
+    setAttempt((value) => value + 1)
+  }
 
   const download = () => {
     if (!file) return
@@ -70,7 +79,8 @@ export function PlanOriginalViewer({
   }
 
   return (
-    <section className={styles.box} aria-label="평가계획서 원문" data-testid="plan-original-viewer">
+    <section className={bare ? undefined : styles.box} aria-label="평가계획서 원문" data-testid="plan-original-viewer">
+      {!bare && (
       <div className={styles.studentLine}>
         <span className={styles.label} style={{ margin: 0 }}>
           원문 {file ? `· ${file.documentFormat}` : ''}
@@ -81,7 +91,8 @@ export function PlanOriginalViewer({
           </button>
         )}
       </div>
-      {file?.available && (
+      )}
+      {!bare && file?.available && (
         <p className={styles.muted} style={{ margin: '4px 0 8px' }} data-testid="plan-original-meta">
           {file.fileName} · {formatBytes(file.sizeBytes)}
           {file.pageCount ? ` · ${file.pageCount}쪽` : ''} · SHA-256 {file.checksum.slice(0, 12)}…
@@ -108,11 +119,20 @@ export function PlanOriginalViewer({
       ) : preview?.kind === 'ready' ? (
         <PdfViewer url={preview.url} title={file.fileName} expectedPageCount={file.pageCount ?? 0} page={page} onPageChange={onPageChange} />
       ) : preview?.kind === 'error' ? (
-        <p className={styles.formError} role="alert" data-testid="plan-original-error">
-          <AlertIcon size={15} /> 원문을 불러오지 못했어요. {preview.message}
-        </p>
+        <div role="alert" data-testid="plan-original-error">
+          <p className={styles.formError}>
+            <AlertIcon size={15} /> 원문을 불러오지 못했어요. {preview.message}
+          </p>
+          <button type="button" className={styles.secondaryButton} onClick={retry} data-testid="plan-original-retry">
+            다시 시도
+          </button>
+        </div>
       ) : (
-        <p className={styles.muted}>원문을 불러오는 중…</p>
+        <div aria-busy="true" data-testid="plan-original-loading">
+          <p className={styles.muted}>원문을 불러오는 중…</p>
+          {/* 문서 Skeleton: 쪽 비율(A4)의 빈 면 */}
+          <div style={{ aspectRatio: '1 / 1.414', maxWidth: 720, margin: '8px auto 0', borderRadius: 8, background: 'var(--as-color-skeleton)' }} />
+        </div>
       )}
     </section>
   )
