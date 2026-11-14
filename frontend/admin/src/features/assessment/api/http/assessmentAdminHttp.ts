@@ -275,6 +275,7 @@ function describeLocator(source: BackendLocator): string | null {
 interface BackendRubric {
   element: string
   levels: { description: string; score: number | null }[] | null
+  sources?: BackendLocator[] | null
 }
 
 interface BackendSubject {
@@ -446,6 +447,11 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
         content: item.content ?? null,
         submissions: item.submissions ?? [],
         conditions: item.conditions ?? [],
+        rubric: (item.rubric ?? []).map((criterion) => ({
+          element: criterion.element,
+          levels: (criterion.levels ?? []).map((level) => ({ description: level.description, score: level.score })),
+          sourcePages: pagesOf(criterion.sources),
+        })),
       })),
     ),
     planId: body.planId,

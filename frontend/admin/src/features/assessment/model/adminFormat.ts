@@ -64,6 +64,7 @@ export const analysisLabels: Record<PlanAnalysisStatus, { label: string; tone?: 
   NOT_REQUESTED: { label: '분석 전' },
   PROCESSING: { label: '분석 중', tone: 'primary' },
   REVIEW_REQUIRED: { label: '검토 필요', tone: 'warning' },
+  PARTIAL: { label: '부분 분석 · 검토 필요', tone: 'warning' },
   COMPLETED: { label: '분석 완료', tone: 'success' },
   FAILED: { label: '분석 실패', tone: 'danger' },
 }

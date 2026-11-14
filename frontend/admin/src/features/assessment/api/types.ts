@@ -171,7 +171,8 @@ export interface AdminFeedbackDetail extends AdminFeedbackRequest {
 }
 
 /** §38 응답 + 개정 이력. analysisStatus / reviewStatus Enum은 미정 (MM-45, API-OD-A02) — 화면은 아래 값만 가정 */
-export type PlanAnalysisStatus = 'NOT_REQUESTED' | 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED'
+// PARTIAL(A3.5, 2026-11-14): 분석기가 부분 결과로 판정해 저장된 Run. 성공(REVIEW_REQUIRED)과 구분해서 보여 준다
+export type PlanAnalysisStatus = 'NOT_REQUESTED' | 'PROCESSING' | 'REVIEW_REQUIRED' | 'PARTIAL' | 'COMPLETED' | 'FAILED'
 export type PlanReviewStatus = 'UNREVIEWED' | 'CONFIRMED'
 
 /**
@@ -250,7 +251,16 @@ export interface EvaluationPlanAnalysisView {
   /** 과목별 원문 쪽 범위 (http) */
   subjectPages?: { subjectName: string; from: number | null; to: number | null }[]
   /** 수행 항목의 활동·제출물·조건 (http). 화면 AnalysisSubject Type에 없는 후보 값을 그대로 보여주기 위해 따로 둔다 */
-  itemDetails?: { subjectName: string; itemKey: string; label: string; content: string | null; submissions: string[]; conditions: string[] }[]
+  itemDetails?: {
+    subjectName: string
+    itemKey: string
+    label: string
+    content: string | null
+    submissions: string[]
+    conditions: string[]
+    /** 채점기준표 후보 (A4): 평가 요소 → 수행 수준(문장·배점). 배점이 없으면 null(0 아님). sourcePages는 PDF 근거 쪽 */
+    rubric: { element: string; levels: { description: string; score: number | null }[]; sourcePages: number[] }[]
+  }[]
 }
 
 /** 검토 확정 후보 필드 하나 (http Adapter가 분석 후보에서 만든다. 값은 바꾸지 않는다) */

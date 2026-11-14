@@ -52,7 +52,10 @@ function ReviewWorkspace({
   const originalFile = data.revisionFile?.file
   const jumpTo = originalFile?.previewAvailable ? (page: number) => setViewerPage(page) : undefined
   const status = analysisLabels[data.analysisStatus]
-  const reviewable = data.analysisStatus === 'COMPLETED' || data.analysisStatus === 'REVIEW_REQUIRED'
+  const reviewable = data.analysisStatus === 'COMPLETED' || data.analysisStatus === 'REVIEW_REQUIRED' || data.analysisStatus === 'PARTIAL'
+  const analyzerErrors = (data.warnings ?? []).filter((warning) => warning.source === 'ANALYZER_ERROR')
+  // 오른쪽 결과 영역 탭: 수행평가 세부 기준 / 월별 교수·학습 운영 계획 (서로 다른 데이터, 서로 섞지 않는다)
+  const [resultTab, setResultTab] = useState<'performance' | 'teachingPlan'>('performance')
 
   const save = async (decision: 'CONFIRM' | 'SAVE') => {
     setError(null)
@@ -118,6 +121,20 @@ function ReviewWorkspace({
               </p>
             </div>
           )}
+          {data.analysisStatus === 'PARTIAL' && (
+            <div className={styles.box} style={{ marginBottom: 12 }} role="status" data-testid="analysis-partial-notice">
+              <span className={styles.badge} data-tone="warning">부분 분석</span>{' '}
+              <strong>분석기가 문서의 일부만 읽었어요.</strong>
+              <p className={styles.muted} style={{ margin: '6px 0 0' }}>
+                아래 후보는 읽어 낸 부분이에요. 목록에 없는 과목·항목은 &lsquo;원문에 없음&rsquo;이 아니라 &lsquo;분석되지 않음&rsquo;이에요. 원문과 대조해 확인한 값만 확정해 주세요.
+              </p>
+              {analyzerErrors.length > 0 && (
+                <p className={styles.muted} style={{ margin: '4px 0 0' }} data-testid="analysis-partial-errors">
+                  분석기 오류 코드: {analyzerErrors.map((warning) => warning.message).join(', ')}
+                </p>
+              )}
+            </div>
+          )}
           {!isAdminMockDataSource && (
             <section className={styles.box} style={{ marginBottom: 12 }} aria-label="확인된 값과 경고">
               <span className={styles.label}>관리자가 확인한 값 ({data.confirmedFields.length})</span>
@@ -140,7 +157,10 @@ function ReviewWorkspace({
                 <ul className={styles.listPlain} data-testid="analysis-warnings">
                   {(data.warnings ?? []).map((warning, index) => (
                     <li key={index} className={styles.listRow}>
-                      <span className={styles.badge} data-tone="warning">{warning.source === 'SERVER' ? '서버 검사' : '분석기'}</span> {warning.message}
+                      <span className={styles.badge} data-tone={warning.source === 'ANALYZER_ERROR' ? 'danger' : 'warning'}>
+                        {warning.source === 'SERVER' ? '서버 검사' : warning.source === 'ANALYZER_ERROR' ? '분석기 오류' : '분석기'}
+                      </span>{' '}
+                      {warning.message}
                     </li>
                   ))}
                 </ul>
@@ -162,7 +182,23 @@ function ReviewWorkspace({
               <AlertIcon size={15} /> {error}
             </p>
           )}
-          {!reviewable ? (
+          <div className={styles.subTabs} role="tablist" aria-label="분석 결과 종류" style={{ padding: 0, marginBottom: 12 }}>
+            <button type="button" role="tab" aria-selected={resultTab === 'performance'} aria-current={resultTab === 'performance' ? 'page' : undefined} className={styles.subTab} onClick={() => setResultTab('performance')} data-testid="result-tab-performance">
+              수행평가 세부 기준
+            </button>
+            <button type="button" role="tab" aria-selected={resultTab === 'teachingPlan'} aria-current={resultTab === 'teachingPlan' ? 'page' : undefined} className={styles.subTab} onClick={() => setResultTab('teachingPlan')} data-testid="result-tab-teaching-plan">
+              월별 교수·학습 운영 계획
+            </button>
+          </div>
+          {resultTab === 'teachingPlan' ? (
+            <section className={styles.box} data-testid="teaching-plan-pending" aria-label="월별 교수·학습 운영 계획">
+              <span className={styles.label}>월별 교수·학습 운영 계획</span>
+              <p className={styles.muted} style={{ marginTop: 6 }}>
+                아직 분석기가 운영 계획(teachingPlan)을 내보내지 않아 보여 줄 후보가 없어요. &lsquo;원문에 운영 계획이 없음&rsquo;이 아니라 &lsquo;분석 계약 대기&rsquo;예요.
+                원문의 해당 쪽을 직접 확인해 주세요. 수행평가 항목과 섞어 저장하지 않아요.
+              </p>
+            </section>
+          ) : !reviewable ? (
             <p className={styles.muted}>분석 결과가 없어요. 목록에서 분석을 다시 요청하거나 원본 PDF를 직접 확인해 주세요.</p>
           ) : data.subjects.length === 0 ? (
             <p className={styles.muted}>추출된 과목이 없어요.</p>
@@ -194,6 +230,52 @@ function ReviewWorkspace({
                             <td>{item.conditions.length ? item.conditions.join(' / ') : '추출되지 않음 · 확인 필요'}</td>
                           </tr>
                         ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
+              {!isAdminMockDataSource && (data.itemDetails ?? []).some((item) => item.rubric.length > 0) && (
+                <section className={styles.box} aria-label="채점기준표 (AI 후보)" data-testid="analysis-rubric-details">
+                  <span className={styles.label}>채점기준표 (AI 후보 · 미확인)</span>
+                  <div className={styles.tableWrap}>
+                    <table className={styles.table} style={{ minWidth: 640 }}>
+                      <thead>
+                        <tr>
+                          <th scope="col">수행평가</th>
+                          <th scope="col">평가 요소</th>
+                          <th scope="col">수행 수준</th>
+                          <th scope="col">배점</th>
+                          <th scope="col">원본 쪽</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(data.itemDetails ?? []).flatMap((item) =>
+                          item.rubric.flatMap((criterion, criterionIndex) => {
+                            const levels = criterion.levels.length ? criterion.levels : [null]
+                            return levels.map((level, levelIndex) => (
+                              <tr key={`${item.subjectName}-${item.itemKey}-${criterionIndex}-${levelIndex}`} data-testid="rubric-level-row">
+                                {levelIndex === 0 && (
+                                  <>
+                                    <td rowSpan={levels.length}>
+                                      {item.label}
+                                      <span className={styles.cellSub}>{item.subjectName} · {item.itemKey}</span>
+                                    </td>
+                                    <td rowSpan={levels.length}>{criterion.element}</td>
+                                  </>
+                                )}
+                                {/* 수준·배점이 없으면 "추출되지 않음"이다. 0점으로 바꾸지 않는다 */}
+                                <td>{level ? level.description : '수준 추출되지 않음 · 확인 필요'}</td>
+                                <td>{level && level.score !== null ? `${level.score}점` : '미확인'}</td>
+                                {levelIndex === 0 && (
+                                  <td rowSpan={levels.length}>
+                                    {criterion.sourcePages.length ? criterion.sourcePages.map((page) => <PageLink key={page} page={page} onJump={jumpTo} />) : <span className={styles.danger}>근거 쪽 없음</span>}
+                                  </td>
+                                )}
+                              </tr>
+                            ))
+                          }),
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -315,8 +397,9 @@ function SubjectReview({
             원문 대조 ({subject.sources.length}곳)
           </summary>
           <ul className={styles.listPlain}>
-            {subject.sources.map((source) => (
-              <li key={`${source.pdfPageNumber}-${source.extractedText}`} className={styles.listRow}>
+            {subject.sources.map((source, index) => (
+              // 같은 쪽·같은 문장 근거가 여러 항목에서 반복될 수 있어 순번을 key에 넣는다
+              <li key={`${index}-${source.pdfPageNumber}-${source.extractedText}`} className={styles.listRow}>
                 <span>
                   {source.pdfPageNumber ? <PageLink page={source.pdfPageNumber} onJump={onJump} /> : <span className={styles.badge}>쪽 없음</span>}
                   {source.printedPageLabel ? <span className={styles.cellSub}> 인쇄 {source.printedPageLabel}쪽</span> : null}{' '}

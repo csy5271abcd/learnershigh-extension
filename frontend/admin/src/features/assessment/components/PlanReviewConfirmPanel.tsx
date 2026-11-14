@@ -7,7 +7,7 @@ import { MultiformatReviewReadiness } from './MultiformatReviewReadiness.tsx'
 
 // AD-04·05 검토 확정 (http 전용, §39 PUT review).
 // 확정 버튼은 아래가 모두 갖춰질 때만 켜진다. 페이지를 열거나 AI 값이 있다는 이유만으로 확정하지 않는다.
-//  1) 분석 결과(analysisId)가 있고 상태가 REVIEW_REQUIRED
+//  1) 분석 결과(analysisId)가 있고 상태가 REVIEW_REQUIRED 또는 PARTIAL(부분 분석 — 6번 확인이 더 필요)
 //  2) 관리자가 가진 원본 PDF의 SHA-256 = 서버가 저장한 checksum (2026-11-13부터 서버도 원문을 보관하지만, 이 확정 단계의 원본 대조 절차는 A4 검토 개편 전까지 그대로 둔다)
 //  3) 확인할 필드를 하나 이상 고르고, 값이 있으면 근거 PDF 쪽(1~쪽 수)을 적음
 //  4) 그 필드의 분석 과목마다 학업 과목 ID를 직접 입력 (과목명으로 추측·자동 선택하지 않는다. 서버가 문서 슬롯 과목인지 검증)
@@ -15,6 +15,7 @@ import { MultiformatReviewReadiness } from './MultiformatReviewReadiness.tsx'
 // HWP·HWPX(Phase B, 2026-11-11): 브라우저는 원본을 열지 못한다. 관리자가 한글 프로그램에서 아래 구조 위치(구역·표·행·열)를 직접 대조하고
 // 필드마다 확인한 위치를 고른 뒤 명시적으로 체크한다. 서버는 SHA·Run·과목·근거 노드 Locator를 다시 검사하고,
 // 실제 관리자 인증이 없으면(운영 기본) verified_auth_required로 거절한다 — Mock 관리자에게 운영 확정 권한이 없다.
+//  6) PARTIAL이면 '일부만 분석됐고 빠진 부분은 확정하지 않는다'를 관리자가 직접 체크 (서버 검사 아님 · 화면 안전장치)
 // 이미 확인 완료(CONFIRMED)된 Revision은 재검토 정책(이전 검토 대체 여부)이 미확정이라 이 화면에서 추가 확정하지 않는다.
 
 type HashState = { status: 'none' } | { status: 'computing' } | { status: 'match' | 'mismatch'; hash: string } | { status: 'error'; message: string }
@@ -59,6 +60,8 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
     Object.fromEntries(fields.map((field) => [fieldKey(field), { checked: false, value: field.candidate === null ? '' : String(field.candidate), page: field.sourcePages[0] ? String(field.sourcePages[0]) : '', locator: 0 }])),
   )
   const [attested, setAttested] = useState(false)
+  const isPartial = data.analysisStatus === 'PARTIAL'
+  const [partialAcknowledged, setPartialAcknowledged] = useState(false)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pendingRef = useRef(false)
@@ -93,7 +96,8 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
 
   const blockers: string[] = []
   if (!data.analysisId) blockers.push('받은 분석 결과가 없어요.')
-  if (data.analysisStatus !== 'REVIEW_REQUIRED') blockers.push(`검토할 수 있는 분석 상태가 아니에요 (${data.analysisStatus}).`)
+  if (data.analysisStatus !== 'REVIEW_REQUIRED' && !isPartial) blockers.push(`검토할 수 있는 분석 상태가 아니에요 (${data.analysisStatus}).`)
+  if (isPartial && !partialAcknowledged) blockers.push('부분 분석 결과예요. 빠진 과목·항목은 확정하지 않는다는 확인 체크가 필요해요.')
   if (data.reviewStatus === 'CONFIRMED') blockers.push('이미 확인 완료된 문서예요. 재검토(이전 확정 대체) 정책이 정해지지 않아 이 화면에서 추가 확정하지 않아요.')
   if (!checksum) blockers.push('서버에 원본 checksum이 없어 원본 대조를 할 수 없어요.')
   else if (hash.status !== 'match') blockers.push(`원본 ${documentFormat} 대조가 필요해요: 갖고 있는 학교 원본 파일을 골라 서버 checksum과 같은지 확인해 주세요.`)
@@ -311,6 +315,13 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
           ? '4. 원본 PDF의 해당 쪽과 직접 대조했고, 고른 값을 공통 평가정보로 확정합니다.'
           : `4. 한글 프로그램에서 원본 ${documentFormat}를 열어 고른 위치의 원문과 값을 직접 대조했고, 고른 값을 공통 평가정보로 확정합니다.`}
       </label>
+
+      {isPartial && (
+        <label className={styles.listRow} style={{ marginTop: 6, gap: 8, justifyContent: 'flex-start', textAlign: 'left' }}>
+          <input type="checkbox" checked={partialAcknowledged} data-testid="review-partial-ack" onChange={(event) => setPartialAcknowledged(event.target.checked)} />
+          5. 부분 분석 결과임을 확인했어요. 고른 값만 원문과 대조해 확정하고, 분석되지 않은 과목·항목은 확정하지 않아요.
+        </label>
+      )}
 
       {!isPdf && (
         <MultiformatReviewReadiness

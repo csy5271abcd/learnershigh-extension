@@ -69,14 +69,17 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
     plans.reload()
     if (outcome.ok) {
       const failed = outcome.value.analysisStatus === 'FAILED'
+      const partial = outcome.value.analysisStatus === 'PARTIAL'
       setToast({
         id: nextToastId(),
-        tone: failed ? 'error' : 'success',
+        tone: failed ? 'error' : partial ? 'info' : 'success',
         text: failed
           ? isAdminMockDataSource
             ? '분석하지 못했어요. 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.'
             : '분석기가 이 문서에서 평가 정보를 찾지 못했어요(분석 실패로 저장). 원문을 직접 확인해 주세요.'
-          : '분석 결과를 저장했어요. "분석 결과 열기"에서 원문과 대조해 확인해 주세요.',
+          : partial
+            ? '일부만 분석된 결과(부분 분석)를 저장했어요. "분석 결과 열기"에서 빠진 부분을 원문과 대조해 주세요.'
+            : '분석 결과를 저장했어요. "분석 결과 열기"에서 원문과 대조해 확인해 주세요.',
       })
     } else setToast({ id: nextToastId(), tone: 'error', text: `${outcome.error.message} (${outcome.error.code}${analysisReason(outcome.error)})` })
   }
@@ -233,9 +236,8 @@ function SlotRow({ grade, slot, selected, onSelect }: { grade: number; slot: (gr
         const plans = slot(grade, semester)
         const revisions = plans.flatMap((plan) => plan.revisions)
         const latest = plans.map((plan) => plan.revisions[plan.revisions.length - 1])
-        const status = latest.some((revision) => revision.analysisStatus === 'REVIEW_REQUIRED' || revision.analysisStatus === 'FAILED')
-          ? latest.find((revision) => revision.analysisStatus === 'REVIEW_REQUIRED' || revision.analysisStatus === 'FAILED')?.analysisStatus
-          : latest[0]?.analysisStatus
+        const needsAttention = (revision: AdminEvaluationPlanRevision) => revision.analysisStatus === 'REVIEW_REQUIRED' || revision.analysisStatus === 'PARTIAL' || revision.analysisStatus === 'FAILED'
+        const status = latest.find(needsAttention)?.analysisStatus ?? latest[0]?.analysisStatus
         const key = `${grade}-${semester}`
         return (
           <button key={semester} type="button" className={styles.slot} data-empty={plans.length === 0 ? 'true' : undefined} aria-pressed={selected === key} onClick={() => onSelect(key)}>
@@ -255,7 +257,7 @@ function SlotRow({ grade, slot, selected, onSelect }: { grade: number; slot: (gr
   )
 }
 
-/** 서버 분석 오류 사유(details.fields[0].reason: busy·timeout·partial_result·format_contract_pending 등)를 짧게 덧붙인다 */
+/** 서버 분석 오류 사유(details.fields[0].reason: busy·timeout·status_conflict·format_contract_pending 등)를 짧게 덧붙인다 */
 function analysisReason(error: { details?: unknown }): string {
   const fields = (error.details as { fields?: { reason?: string }[] } | undefined)?.fields
   const reason = fields?.[0]?.reason
