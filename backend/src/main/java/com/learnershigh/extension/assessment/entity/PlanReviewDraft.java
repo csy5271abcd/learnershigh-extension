@@ -41,6 +41,10 @@ public class PlanReviewDraft implements Persistable<String> {
     @Column(name = "analyzer_version", nullable = false, length = 50, updatable = false)
     private String analyzerVersion;
 
+    /** EVALUATION(평가 정보) · TEACHING_PLAN(월별 운영계획). 범위마다 확정 시점이 달라 초안을 따로 둔다 (V202611150200). */
+    @Column(name = "scope", nullable = false, length = 20, updatable = false)
+    private String scope;
+
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
@@ -75,10 +79,20 @@ public class PlanReviewDraft implements Persistable<String> {
     protected PlanReviewDraft() {
     }
 
+    public static final String SCOPE_EVALUATION = "EVALUATION";
+    public static final String SCOPE_TEACHING_PLAN = "TEACHING_PLAN";
+
     public static PlanReviewDraft start(String revisionId, String analysisId, String sourceSha256, String analyzerVersion,
             String payloadJson, int decisionCount, String adminId, Instant now) {
+        return start(SCOPE_EVALUATION, revisionId, analysisId, sourceSha256, analyzerVersion, payloadJson, decisionCount,
+                adminId, now);
+    }
+
+    public static PlanReviewDraft start(String scope, String revisionId, String analysisId, String sourceSha256,
+            String analyzerVersion, String payloadJson, int decisionCount, String adminId, Instant now) {
         PlanReviewDraft draft = new PlanReviewDraft();
         draft.id = "plan_draft_" + UUID.randomUUID();
+        draft.scope = scope;
         draft.revisionId = revisionId;
         draft.analysisId = analysisId;
         draft.sourceSha256 = sourceSha256;
@@ -92,6 +106,10 @@ public class PlanReviewDraft implements Persistable<String> {
         draft.updatedAt = now;
         draft.isNew = true;
         return draft;
+    }
+
+    public String scope() {
+        return scope;
     }
 
     /** 내용 교체. 닫힌 초안은 바꾸지 않는다(호출 전 Service가 확인). version은 JPA가 올린다. */

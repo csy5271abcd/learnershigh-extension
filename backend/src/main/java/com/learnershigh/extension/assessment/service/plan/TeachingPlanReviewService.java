@@ -54,12 +54,14 @@ public class TeachingPlanReviewService {
     private final TeachingPlanReviewRepository reviews;
     private final AcademicContextProvider contexts;
     private final TeachingPlanQueryService queries;
+    private final PlanReviewDraftService drafts;
     private final AssessmentTimes times;
     private final JsonMapper mapper;
 
     public TeachingPlanReviewService(PlanAccess access, PlanAnalysisRunRepository runs,
             TeachingPlanReviewRepository reviews, AcademicContextProvider contexts, TeachingPlanQueryService queries,
-            AssessmentTimes times, JsonMapper mapper) {
+            PlanReviewDraftService drafts, AssessmentTimes times, JsonMapper mapper) {
+        this.drafts = drafts;
         this.access = access;
         this.runs = runs;
         this.reviews = reviews;
@@ -151,6 +153,8 @@ public class TeachingPlanReviewService {
         } catch (DataIntegrityViolationException raced) {
             throw alreadyConfirmed();
         }
+        // 같은 Transaction에서 운영계획 초안만 닫는다 (평가 정보 초안·확정값은 건드리지 않음, A7)
+        drafts.closeTeachingPlanOnConfirm(run.get().id(), admin.adminId(), review.reviewedAt());
         return queries.view(plan, revision, Optional.of(review), latest);
     }
 

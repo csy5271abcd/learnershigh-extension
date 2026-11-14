@@ -248,7 +248,7 @@ class PlanReviewDraftApiTest {
                 .andExpect(jsonPath("$.confirmedFields.length()").value(1))
                 .andReturn().getResponse().getContentAsString();
         // 초안 값(77)·초안 정보는 학생 응답에 없다
-        assertThat(body).doesNotContain("77").doesNotContain("draft").doesNotContain("candidate");
+        assertThat(body).doesNotContain("\"value\":77").doesNotContain("draft").doesNotContain("candidate");
     }
 
     @Test

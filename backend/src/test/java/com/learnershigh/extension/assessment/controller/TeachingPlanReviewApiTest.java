@@ -238,26 +238,96 @@ class TeachingPlanReviewApiTest {
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
     }
 
+    String draftBody(Long baseVersion, String decisions) {
+        return """
+                {"analysisId":"%s","baseVersion":%s,"decisions":[%s],"subjectLinks":[{"subjectIndex":0,"subjectId":"subj_02"}]}"""
+                .formatted(analysisId, baseVersion == null ? "null" : baseVersion.toString(), decisions);
+    }
+
+    static final String EDIT_T03 = """
+            {"subjectIndex":0,"fieldPath":"teachingPlan[2]","decision":"EDITED","value":"{\\"unit\\":\\"초안 단원 77\\"}","pdfPageNumber":1}""";
+    static final String EXCLUDE_T08 = """
+            {"subjectIndex":0,"fieldPath":"teachingPlan[7]","decision":"ABSENT","value":null,"pdfPageNumber":null}""";
+
     @Test
-    void 운영계획_검토_결정은_공유_초안에_저장되고_학생에게_새지_않는다() throws Exception {
-        // 평가 정보 확정 전, 같은 검토 Workspace에서 운영계획 결정도 공유 초안에 둔다
-        mvc.perform(asAdmin(put(revisionPath() + "/review-draft"), "adm_plan_operator")
-                        .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"analysisId":"%s","baseVersion":null,"decisions":[
-                                  {"subjectIndex":0,"fieldPath":"teachingPlan[2]","decision":"EDITED","value":"{\\"unit\\":\\"초안 단원 77\\"}","pdfPageNumber":1},
-                                  {"subjectIndex":0,"fieldPath":"teachingPlan[7]","decision":"ABSENT","value":null,"pdfPageNumber":null}],
-                                 "subjectLinks":[{"subjectIndex":0,"subjectId":"subj_02"}]}""".formatted(analysisId)))
+    void 운영계획_초안은_평가_정보_확정_전후_모두_저장되고_다른_관리자가_이어서_보며_충돌은_409() throws Exception {
+        String draft = revisionPath() + "/teaching-plan-draft";
+        // 1) 평가 정보 확정 전 저장
+        mvc.perform(asAdmin(put(draft), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(null, EDIT_T03)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft.version").value(0))
                 .andExpect(jsonPath("$.draft.decisions[0].candidate.rowKey").value("T03"));
-        confirmEvaluation();
-        // 현재 제약(A5 규칙): 평가 정보 확정 뒤에는 공유 초안이 닫혀 운영계획 초안도 저장되지 않는다(결정 대기 D-A6-5)
+        // 평가 정보 초안에는 운영계획 경로를 받지 않는다 (범위 분리)
         mvc.perform(asAdmin(put(revisionPath() + "/review-draft"), "adm_plan_operator")
-                        .contentType(MediaType.APPLICATION_JSON).content("""
-                                {"analysisId":"%s","baseVersion":0,"decisions":[],"subjectLinks":[]}""".formatted(analysisId)))
-                .andExpect(status().isConflict());
-        String student =mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
-                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertThat(student).doesNotContain("초안 단원 77");
+                        .contentType(MediaType.APPLICATION_JSON).content(draftBody(null, EDIT_T03)))
+                .andExpect(status().isBadRequest());
+        // 운영계획 초안에는 평가 정보 경로를 받지 않는다
+        mvc.perform(asAdmin(put(draft), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(0L, """
+                                {"subjectIndex":0,"fieldPath":"performanceEvaluation.weightPercent","decision":"CONFIRMED","value":"60","pdfPageNumber":1}""")))
+                .andExpect(status().isBadRequest());
+
+        // 2) 평가 정보 확정 → 평가 정보 초안만 닫히고 운영계획 초안은 그대로 열려 있다
+        confirmEvaluation();
+        String confirmedBefore = jdbc.queryForObject(
+                "select group_concat(concat(field_path,'=',coalesce(value_json,'null')) order by field_path) from assessment_plan_confirmed_value",
+                String.class);
+        String candidateBefore = jdbc.queryForObject("select result_json from assessment_plan_analysis_run", String.class);
+        mvc.perform(asAdmin(get(draft), "adm_gangnam"))
+                .andExpect(jsonPath("$.draft.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.draft.decisions.length()").value(1));
+
+        // 3) 평가 정보 확정 뒤에도 저장 (다른 관리자가 이어서)
+        mvc.perform(asAdmin(put(draft), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(0L, EDIT_T03 + "," + EXCLUDE_T08)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft.version").value(1))
+                .andExpect(jsonPath("$.draft.updatedBy").value("adm_gangnam"));
+        // 4) 다시 읽기(새로고침·다른 세션)에서 복원된다
+        mvc.perform(asAdmin(get(draft), "adm_plan_operator"))
+                .andExpect(jsonPath("$.draft.version").value(1))
+                .andExpect(jsonPath("$.draft.decisions.length()").value(2))
+                .andExpect(jsonPath("$.history.length()").value(2));
+        // 5) 오래된 version으로 저장 → 409 (덮어쓰지 않음)
+        mvc.perform(asAdmin(put(draft), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(0L, "")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.currentVersion").value(1))
+                .andExpect(jsonPath("$.details.updatedBy").value("adm_gangnam"));
+
+        // 6) 운영계획 확정 전: 학생에게 초안이 보이지 않는다
+        String before = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.status").value("NOT_CONFIRMED"))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(before).doesNotContain("초안 단원 77");
+
+        // 7) 운영계획 확정 → 운영계획 초안 닫힘 → 이후 초안 저장 409
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"EDITED\",\"edits\":{\"unit\":\"초안 단원 77\"}}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T08\",\"subjectId\":\"subj_02\",\"decision\":\"EXCLUDED\"}")))
+                .andExpect(status().isOk());
+        mvc.perform(asAdmin(get(draft), "adm_plan_operator"))
+                .andExpect(jsonPath("$.draft.status").value("CLOSED"))
+                .andExpect(jsonPath("$.draft.closedReason").value("CONFIRMED"));
+        mvc.perform(asAdmin(put(draft), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(1L, "")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("teaching_plan_already_confirmed"));
+
+        // 8) 확정 후 학생 Planner 반영 (제외 행 없음)
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.rows.length()").value(1))
+                .andExpect(jsonPath("$.rows[0].unit").value("초안 단원 77"));
+
+        // 9) 평가 확정값·분석 후보는 그대로다
+        assertThat(jdbc.queryForObject(
+                "select group_concat(concat(field_path,'=',coalesce(value_json,'null')) order by field_path) from assessment_plan_confirmed_value",
+                String.class)).isEqualTo(confirmedBefore);
+        assertThat(jdbc.queryForObject("select result_json from assessment_plan_analysis_run", String.class))
+                .isEqualTo(candidateBefore);
     }
 
     @Test

@@ -13,6 +13,7 @@ import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftEventRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository;
+import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
 import com.learnershigh.extension.assessment.service.AssessmentTimes;
 import com.learnershigh.extension.common.error.BusinessException;
 import com.learnershigh.extension.common.error.CommonErrorCode;
@@ -43,6 +44,8 @@ import tools.jackson.databind.json.JsonMapper;
  *   <li>초안은 이 Revision의 <b>가장 최근 분석 결과</b>에만 저장한다. 예전 결과에 묶인 초안은 보존하지만 새 결과에 적용하지 않는다(409 STALE).</li>
  *   <li>동시 저장: 요청 baseVersion ≠ 현재 version이면 409 CONFLICT(현재 version·저장자 안내). 같은 순간 두 저장은 @Version이 막는다.</li>
  *   <li>확정된 Revision에는 초안을 저장하지 않는다(재검토 정책 미결 — 기존 동작 유지). 확정되면 초안을 닫는다({@link #closeOnConfirm}).</li>
+ *   <li>범위(scope, A7 2026-11-15): 평가 정보 초안(EVALUATION)과 월별 운영계획 초안(TEACHING_PLAN)은 분석 결과마다 하나씩 따로 둔다.
+ *       평가 정보 확정은 EVALUATION만 닫고, 운영계획 초안은 운영계획 확정(§39-6) 때 닫는다. fieldPath도 범위별로 나눈다.</li>
  *   <li>초안은 학생 응답 어디에도 들어가지 않는다. 학생 공개는 확정값(Review)뿐이다.</li>
  *   <li>후보값(candidate)은 서버가 분석 결과에서 직접 읽어 저장한다(화면이 보낸 값을 믿지 않는다).</li>
  * </ul>
@@ -58,16 +61,21 @@ public class PlanReviewDraftService {
     private final PlanAccess access;
     private final PlanAnalysisRunRepository runs;
     private final PlanReviewDraftRepository drafts;
+    private static final Pattern TEACHING_PLAN_ROW = Pattern.compile("teachingPlan\\[(0|[1-9]\\d{0,2})]");
+
     private final PlanReviewDraftEventRepository events;
+    private final TeachingPlanReviewRepository teachingPlanReviews;
     private final AssessmentTimes times;
     private final JsonMapper mapper;
 
     public PlanReviewDraftService(PlanAccess access, PlanAnalysisRunRepository runs, PlanReviewDraftRepository drafts,
-            PlanReviewDraftEventRepository events, AssessmentTimes times, JsonMapper mapper) {
+            PlanReviewDraftEventRepository events, TeachingPlanReviewRepository teachingPlanReviews,
+            AssessmentTimes times, JsonMapper mapper) {
         this.access = access;
         this.runs = runs;
         this.drafts = drafts;
         this.events = events;
+        this.teachingPlanReviews = teachingPlanReviews;
         this.times = times;
         this.mapper = mapper;
     }
@@ -79,16 +87,45 @@ public class PlanReviewDraftService {
 
     @Transactional(readOnly = true)
     public PlanReviewDraftResponse get(AdminActor admin, String planId, String revisionId) {
+        return get(admin, planId, revisionId, PlanReviewDraft.SCOPE_EVALUATION);
+    }
+
+    /** §39-6 운영계획 초안 조회 (A7). 평가 정보 확정 여부와 무관하다. */
+    @Transactional(readOnly = true)
+    public PlanReviewDraftResponse getTeachingPlan(AdminActor admin, String planId, String revisionId) {
+        return get(admin, planId, revisionId, PlanReviewDraft.SCOPE_TEACHING_PLAN);
+    }
+
+    private PlanReviewDraftResponse get(AdminActor admin, String planId, String revisionId, String scope) {
         EvaluationPlan plan = access.plan(admin, planId);
         PlanRevision revision = access.revision(plan, revisionId);
-        return view(plan, revision, latestRun(revision));
+        return view(plan, revision, latestRun(revision), scope);
     }
 
     public PlanReviewDraftResponse save(AdminActor admin, String planId, String revisionId,
             PlanReviewDraftRequest request) {
+        return save(admin, planId, revisionId, request, PlanReviewDraft.SCOPE_EVALUATION);
+    }
+
+    /**
+     * §39-6 운영계획 초안 저장 (A7). 평가 정보가 확정된 뒤에도 저장한다(평가 확정값은 건드리지 않음).
+     * 운영계획이 이미 확정된 Revision에는 저장하지 않는다(재확정 정책 미결).
+     */
+    public PlanReviewDraftResponse saveTeachingPlan(AdminActor admin, String planId, String revisionId,
+            PlanReviewDraftRequest request) {
+        return save(admin, planId, revisionId, request, PlanReviewDraft.SCOPE_TEACHING_PLAN);
+    }
+
+    private PlanReviewDraftResponse save(AdminActor admin, String planId, String revisionId,
+            PlanReviewDraftRequest request, String scope) {
         EvaluationPlan plan = access.plan(admin, planId);
         PlanRevision revision = access.revision(plan, revisionId);
-        if (revision.isConfirmed()) {
+        boolean teachingPlan = PlanReviewDraft.SCOPE_TEACHING_PLAN.equals(scope);
+        if (teachingPlan && teachingPlanReviews.findByRevisionId(revision.id()).isPresent()) {
+            throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                    new FieldViolation("revision", "teaching_plan_already_confirmed"));
+        }
+        if (!teachingPlan && revision.isConfirmed()) {
             // 확정 뒤 재검토(이전 확정 대체) 정책이 미결이라 초안을 받지 않는다
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
                     new FieldViolation("revision", "already_confirmed"));
@@ -105,11 +142,11 @@ public class PlanReviewDraftService {
         if (run.status() == PlanAnalysisStatus.FAILED) {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("analysisId", "analysis_failed"));
         }
-        Payload payload = validate(request, run, revision);
+        Payload payload = validate(request, run, revision, teachingPlan);
         String payloadJson = mapper.writeValueAsString(payload);
         Instant now = times.now();
 
-        Optional<PlanReviewDraft> existing = drafts.findByAnalysisId(run.id());
+        Optional<PlanReviewDraft> existing = drafts.findByAnalysisId(run.id(), scope);
         PlanReviewDraft draft;
         List<String> changed;
         if (existing.isEmpty()) {
@@ -117,7 +154,7 @@ public class PlanReviewDraftService {
                 // 화면은 초안이 있다고 알고 있지만 서버에는 없다 (예: 다른 결과에서 온 화면) — 새로 만들지 않고 다시 읽게 한다
                 throw conflict(null);
             }
-            draft = PlanReviewDraft.start(revision.id(), run.id(), revision.sha256(), run.analyzerVersion(), payloadJson,
+            draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(), payloadJson,
                     payload.decisions().size(), admin.adminId(), now);
             changed = changedPaths(new Payload(List.of(), List.of()), payload);
             try {
@@ -141,12 +178,20 @@ public class PlanReviewDraftService {
         }
         events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, changed.size(),
                 mapper.writeValueAsString(changed.stream().limit(CHANGED_PATHS_LIMIT).toList())));
-        return view(plan, revision, Optional.of(run));
+        return view(plan, revision, Optional.of(run), scope);
     }
 
     /** 최종 확정(PUT review)과 같은 Transaction에서 호출: 그 분석 결과의 초안을 닫는다. 초안이 없으면 아무것도 하지 않는다. */
     public void closeOnConfirm(String analysisId, String adminId, Instant now) {
-        drafts.findByAnalysisId(analysisId).ifPresent(draft -> draft.closeConfirmed(adminId, now));
+        // 평가 정보 초안만 닫는다. 운영계획 초안은 운영계획 확정 때 닫는다 (A7)
+        drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_EVALUATION)
+                .ifPresent(draft -> draft.closeConfirmed(adminId, now));
+    }
+
+    /** 운영계획 확정(§39-6)과 같은 Transaction에서 호출: 그 분석 결과의 운영계획 초안을 닫는다. */
+    public void closeTeachingPlanOnConfirm(String analysisId, String adminId, Instant now) {
+        drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_TEACHING_PLAN)
+                .ifPresent(draft -> draft.closeConfirmed(adminId, now));
     }
 
     private Optional<PlanAnalysisRun> latestRun(PlanRevision revision) {
@@ -154,7 +199,8 @@ public class PlanReviewDraftService {
         return list.isEmpty() ? Optional.empty() : Optional.of(list.getLast());
     }
 
-    private Payload validate(PlanReviewDraftRequest request, PlanAnalysisRun run, PlanRevision revision) {
+    private Payload validate(PlanReviewDraftRequest request, PlanAnalysisRun run, PlanRevision revision,
+            boolean teachingPlan) {
         List<FieldViolation> violations = new ArrayList<>();
         JsonNode subjects = mapper.readTree(run.resultJson());
         int subjectCount = subjects.isArray() ? subjects.size() : 0;
@@ -168,8 +214,12 @@ public class PlanReviewDraftService {
                 violations.add(new FieldViolation(path + ".subjectIndex", "out_of_range"));
                 continue;
             }
+            boolean rowPath = TEACHING_PLAN_ROW.matcher(decision.fieldPath()).matches();
             if (!EvaluationPlanService.FIELD_PATH.matcher(decision.fieldPath()).matches()
-                    || !ReviewFieldRules.canonicalIndexes(decision.fieldPath())) {
+                    || !ReviewFieldRules.canonicalIndexes(decision.fieldPath())
+                    // 범위별 경로: 운영계획 초안은 행 결정(teachingPlan[n])만, 평가 정보 초안은 운영계획 경로를 받지 않는다
+                    || (teachingPlan && !rowPath)
+                    || (!teachingPlan && decision.fieldPath().startsWith("teachingPlan"))) {
                 violations.add(new FieldViolation(path + ".fieldPath", "not_allowed"));
                 continue;
             }
@@ -245,8 +295,9 @@ public class PlanReviewDraftService {
         return new ArrayList<>(changed);
     }
 
-    private PlanReviewDraftResponse view(EvaluationPlan plan, PlanRevision revision, Optional<PlanAnalysisRun> latest) {
-        List<PlanReviewDraft> all = drafts.findByRevisionId(revision.id());
+    private PlanReviewDraftResponse view(EvaluationPlan plan, PlanRevision revision, Optional<PlanAnalysisRun> latest,
+            String scope) {
+        List<PlanReviewDraft> all = drafts.findByRevisionId(revision.id(), scope);
         Optional<PlanReviewDraft> current = latest.flatMap(run -> all.stream().filter(d -> d.analysisId().equals(run.id())).findFirst());
         PlanReviewDraftResponse.Draft draft = current.map(this::draftView).orElse(null);
         List<PlanReviewDraftResponse.HistoryEntry> history = current

@@ -157,6 +157,20 @@ public class AdminEvaluationPlanController {
         return draftService.save(admin, planId, revisionId, request);
     }
 
+    /** A7 §39-6 운영계획 공유 초안 조회. 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 쓴다. */
+    @GetMapping("/{planId}/revisions/{revisionId}/teaching-plan-draft")
+    public PlanReviewDraftResponse teachingPlanDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return draftService.getTeachingPlan(admin, planId, revisionId);
+    }
+
+    /** A7 §39-6 운영계획 공유 초안 저장. fieldPath는 teachingPlan[n]만. 운영계획 확정 뒤 409. */
+    @PutMapping(path = "/{planId}/revisions/{revisionId}/teaching-plan-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PlanReviewDraftResponse saveTeachingPlanDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId, @Valid @RequestBody PlanReviewDraftRequest request) {
+        return draftService.saveTeachingPlan(admin, planId, revisionId, request);
+    }
+
     /** A6 §38-4: 문서 슬롯의 학업 과목 (검토 화면 과목 선택용, 확정 검증과 같은 원천). */
     @GetMapping("/{planId}/subjects")
     public PlanSubjectsResponse subjects(AdminActor admin, @PathVariable String planId) {
