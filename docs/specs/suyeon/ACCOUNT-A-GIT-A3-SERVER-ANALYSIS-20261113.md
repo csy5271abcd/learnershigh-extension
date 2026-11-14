@@ -22,10 +22,10 @@
 
 ## 2. A3 Commit과 남은 미커밋 변경
 
-A3 Commit(이 보고서 작성 뒤 생성, 최종 응답에 Hash 기재):
-- `feat(assessment): run evaluation plan analysis on the server (A3)` — Backend
-- `feat(assessment): admin runs server analysis (A3)` — Admin
-- `docs(assessment): A3 server analysis report` — 이 보고서
+A3 Commit:
+- `a0a1fe4` `feat(assessment): run evaluation plan analysis on the server (A3)` — Backend 16 파일
+- `af804d9` `feat(assessment): admin runs server analysis (A3)` — Admin 3 파일
+- `c8bff4e` `docs(assessment): A3 server analysis report` — 이 보고서
 
 남는 미커밋(승인 범위 밖): C8 하네스·계약·ADR·rules·scripts(`api-contract.md`의 A2·A3 문단 포함), `backend/bin/`, `references/**`, `docs/specs/suyeon` 보류 바이너리·JSON(48개 + 이번 증거 스크린샷 폴더 2개). 보존: `refs/backup/a0-20261113`, `refs/backup/a2-20261113`, A3 뒤 `refs/backup/a3-20261113`.
 
@@ -219,3 +219,18 @@ Backend 쪽 준비: 엄격 Parser(`AnalysisImportParser`)가 모르는 필드를
 - 격리 Schema: `lh_a2_verify_20261113`(A2·A3 수동 검증), `lh_e2e_sc_20261113`(Student Care E2E). 합성 데이터 + 운정고 PDF 원문 1건(로컬 임시 Storage). **삭제 여부 사용자 결정.**
 - 실행한 Backend(18081·18082)·Vite(5174·4174)는 모두 종료했다.
 - 분석기 토큰은 분석기 로컬 파일에서 환경 변수로만 넘겼고 출력·기록하지 않았다.
+
+## 부록: 재검증 (2026-11-14) [직접]
+
+같은 지시서 재실행 요청에 따라 작업을 반복하지 않고 HEAD `c8bff4e` 상태만 다시 확인했다.
+
+| 항목 | 결과 |
+|---|---|
+| Backup ref | `refs/backup/a0-20261113`·`a2-20261113`·`a3-20261113` 존재 |
+| Tracked 코드(`backend`·`frontend`·`database`·`e2e`) 미커밋 변경 | 0건 (`backend/bin/` 미추적 산출물만) |
+| Frontend `typecheck` / `lint` / `build` (전체 workspace) | exit 0 / 0 / 0 |
+| Backend Unit (`gradlew test`) | **282 / 실패 0 / skip 0** (Student Care 145 포함) |
+| Backend Integration | **미실행** — Docker 데몬 꺼짐. 시연 컨테이너 기동 우려로 Docker를 임의로 켜지 않음. 마지막 PASS 기록은 §9(157/0) |
+| Push 상태 | 원격 브랜치 `1790cb4`, 미Push Commit 23개. 미Push 이력의 사용자 경로 문자열 24줄 → §12 처리 전 Push 금지 유지 |
+
+§15의 결정 대기 4건은 그대로 남아 있다.
