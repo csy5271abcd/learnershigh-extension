@@ -254,6 +254,8 @@ Student
 
 위는 사용자 표시 상태이며 실제 Enum·재처리 전략은 API 계약에서 확정한다(후보: `assessment-pdf-analysis-plan.md` §6). 실패·일부 실패를 빈 평가정보로 표시하지 않는다. AI 성공 결과도 확정 전까지는 "확인 필요"다.
 
+**저장 상태 (A3.5, 2026-11-14 사용자 승인)**: AnalysisRun `status` = `REVIEW_REQUIRED`(확인 필요) · `PARTIAL`(일부 성공) · `FAILED`(실패). `PARTIAL`은 분석기 Envelope 판정이 부분 결과일 때만 쓰며 `REVIEW_REQUIRED`로 바꾸지 않는다. `PARTIAL`도 관리자가 원문과 대조해 확정할 수 있다(`FAILED`만 확정 불가). 분석되지 않은 과목·항목은 "원문에 없음"이 아니라 "분석되지 않음"이다. 검토 표시의 "검토 중"·이전 확정 대체 표시는 아직 Enum이 없다.
+
 ### 9-3. 중복·연도 비교
 
 - 학생이 같은 `evaluationItemRef`로 수행평가를 다시 반영하면 중복을 알리고 자동 병합하지 않는다.
