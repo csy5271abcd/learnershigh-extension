@@ -287,27 +287,27 @@
   min-height: 0;
 }
 
-/* 단계: 밑줄 탭 (다글로 스크립트 화면) */
+/* 단계: 버튼형 Stepper (A5, 1차 UI의 둥근 버튼 단계 복원 · V2 색 규칙: 흰·회·검정 + 파랑 포인트) */
 .steps {
   display: flex;
-  gap: 4px;
-  height: 48px;
-  padding: 0 16px;
+  gap: 6px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--as-color-line);
   overflow-x: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .step {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: none;
-  padding: 0 10px;
-  border: 0;
-  background: none;
-  color: var(--as-color-text-tertiary);
+  height: 38px;
+  padding: 0 14px 0 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
   font: inherit;
   font-size: 14px;
   white-space: nowrap;
@@ -315,33 +315,65 @@
 }
 
 .step:hover {
+  background: var(--as-color-subtle);
   color: var(--as-color-text);
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
 }
 
 .step[aria-current='step'] {
-  color: var(--as-color-text);
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
   font-weight: 700;
 }
 
-.step[aria-current='step']::after {
-  content: '';
-  position: absolute;
-  right: 10px;
-  bottom: -1px;
-  left: 10px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--as-color-ink);
-}
-
 .stepNo {
-  color: inherit;
-  font-size: 12.5px;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
+.step[aria-current='step'] .stepNo {
+  background: rgb(255 255 255 / 0.18);
+  color: var(--as-color-on-ink);
+}
+
 .step[data-done='true'] .stepNo {
+  background: var(--as-color-primary-soft);
   color: var(--as-color-primary);
+}
+
+.step[aria-current='step'][data-done='true'] .stepNo {
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+/* 초안 충돌·선택 안내 한 줄 (회색 바탕, 색 경고 상자 아님) */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--as-color-line);
+  background: var(--as-color-subtle);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.banner span {
+  flex: 1 1 280px;
 }
 
 .reviewBody {

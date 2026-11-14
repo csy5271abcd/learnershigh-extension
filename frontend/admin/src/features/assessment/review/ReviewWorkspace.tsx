@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
-import { confirmPlanReview, getPlanAnalysis, listSchools } from '../api/assessmentAdminApi.ts'
+import { confirmPlanReview, getPlanAnalysis, listSchools, searchSchools } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { RemoteView } from '../components/AdminParts.tsx'
@@ -15,21 +15,15 @@ import { analysisStatusText, blockersOf, confirmRequestOf, fieldKey, steps, type
 import { SourcePane } from './SourcePane.tsx'
 import { SubjectStep } from './SubjectStep.tsx'
 import { TeachingPlanStep } from './TeachingPlanStep.tsx'
+import { useServerDraft, type SyncState } from './useServerDraft.ts'
 import styles from './review.module.css'
 
 // 평가계획서 검토 Workspace (2차 UI, 2026-11-14 · http 전용).
 // 왼쪽 원문 | 1px 선 | 오른쪽 단계(밑줄 탭). 두 영역은 따로 스크롤하고 폭을 조절할 수 있다.
-// 데이터: 기존 §39 GET analysis·GET plan·preview·PUT review. 서버 임시 저장 API는 없다 →
-//   검토 중 결정은 이 브라우저(localStorage)에만 임시 보관하고 '서버 저장 아님'을 표시한다. 최종 확정 때만 서버에 저장된다.
+// 데이터: §39 GET analysis·GET plan·preview·PUT review + A5 공유 검토 초안(GET/PUT review-draft, useServerDraft).
+//   검토 중 결정은 서버 공유 초안에 자동 저장한다('임시 저장됨'은 서버 성공 뒤에만). 초안은 학생 공개가 아니다 — 확정은 PUT review.
 
 const SPLIT_KEY = 'lh-assessment-review-split'
-const draftKey = (view: EvaluationPlanAnalysisView) => `lh-assessment-review-draft:${view.planId}:${view.documentRevisionId}:${view.analysisId ?? 'none'}`
-
-interface Draft {
-  decisions: Record<string, Decision>
-  subjectIds: Record<number, string>
-  savedAt: string
-}
 
 function readSplit(): number {
   try {
@@ -37,17 +31,6 @@ function readSplit(): number {
     return value >= 30 && value <= 70 ? value : 52
   } catch {
     return 52
-  }
-}
-
-function readDraft(key: string): Draft | null {
-  try {
-    const raw = window.localStorage.getItem(key)
-    if (!raw) return null
-    const draft = JSON.parse(raw) as Draft
-    return draft && typeof draft.decisions === 'object' ? draft : null
-  } catch {
-    return null
   }
 }
 
@@ -67,12 +50,10 @@ export function PlanReviewWorkspaceRoute({ planId, revisionId }: { planId: strin
 
 function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisView; onReplaced: (next: EvaluationPlanAnalysisView) => void }) {
   const confirmed = view.reviewStatus === 'CONFIRMED'
-  // 확정 전 문서만 브라우저 임시 보관본을 복원한다 (분석 결과가 바뀌면 key가 달라져 이전 보관본을 쓰지 않는다)
-  const [restored] = useState(() => (confirmed ? null : readDraft(draftKey(view))))
+  const draft = useServerDraft(view)
+  const { decisions, subjectIds, sync } = draft
   const [step, setStep] = useState<StepId>('overview')
   const [selection, setSelection] = useState<PerformanceSelection>({ subjectIndex: 0, item: 'common' })
-  const [decisions, setDecisions] = useState<Record<string, Decision>>(restored?.decisions ?? {})
-  const [subjectIds, setSubjectIds] = useState<Record<number, string>>(restored?.subjectIds ?? {})
   const [hash, setHash] = useState<HashState>({ status: 'none' })
   const [attested, setAttested] = useState(false)
   const [partialAcknowledged, setPartialAcknowledged] = useState(false)
@@ -89,7 +70,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const fields = view.reviewFields ?? []
   const decided = fields.filter((field) => decisions[fieldKey(field)]).length
   const isPdf = (view.revisionFile?.documentFormat ?? 'PDF') === 'PDF'
-  const hasDraft = !confirmed && (decided > 0 || Object.values(subjectIds).some((value) => value.trim() !== ''))
+  const editable = !confirmed && sync.kind !== 'closed' && sync.kind !== 'loading' && sync.kind !== 'load-error' && sync.kind !== 'stale' && !draft.choice
   const blockers = blockersOf({ view, decisions, subjectIds, hashMatches: hash.status === 'match', attested, partialAcknowledged })
   const stepIndex = steps.findIndex((item) => item.id === step)
 
@@ -98,42 +79,30 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   useEffect(() => {
     if (!schoolId) return
     let cancelled = false
-    listSchools().then(
-      (list) => {
-        if (!cancelled) setSchoolName(list.items.find((school) => school.schoolId === schoolId)?.name ?? null)
-      },
-      () => undefined,
-    )
+    // 등록 학교 검색(학업 Context로 확인된 이름) → 없으면 담당 학생 학교 목록. 둘 다 없으면 이름을 지어내지 않는다
+    searchSchools(schoolId)
+      .then((result) => result.items.find((school) => school.schoolId === schoolId)?.name ?? null)
+      .catch(() => null)
+      .then(async (name) => name ?? (await listSchools().then((list) => list.items.find((school) => school.schoolId === schoolId)?.name ?? null, () => null)))
+      .then((name) => {
+        if (!cancelled) setSchoolName(name)
+      })
     return () => {
       cancelled = true
     }
   }, [schoolId])
 
-  // 브라우저 임시 보관 (서버 저장 아님). 결정이 바뀔 때마다 이 브라우저에만 쓴다.
-  const storageKey = draftKey(view)
+  // 서버에 아직 저장되지 않은 변경이 있으면 페이지를 떠나기 전에 브라우저 경고를 띄운다
+  const unsaved = draft.unsaved
   useEffect(() => {
-    if (confirmed) return
-    try {
-      if (!hasDraft) {
-        window.localStorage.removeItem(storageKey)
-        return
-      }
-      window.localStorage.setItem(storageKey, JSON.stringify({ decisions, subjectIds, savedAt: new Date().toISOString() } satisfies Draft))
-    } catch {
-      // 저장소를 쓸 수 없는 브라우저: 임시 보관 없이 진행한다(안내 문구는 '서버 저장 아님' 그대로)
-    }
-  }, [decisions, subjectIds, confirmed, hasDraft, storageKey])
-
-  // 확정하지 않은 검토가 있으면 페이지를 떠나기 전에 브라우저 경고를 띄운다
-  useEffect(() => {
-    if (!hasDraft) return
+    if (!unsaved) return
     const warn = (event: BeforeUnloadEvent) => {
       event.preventDefault()
       event.returnValue = ''
     }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
-  }, [hasDraft])
+  }, [unsaved])
 
   const go = (next: StepId) => {
     setStep(next)
@@ -143,17 +112,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
     setViewerPage(page)
     if (window.matchMedia('(max-width: 1100px)').matches) setPane('source')
   }
-  const decide = (field: ReviewFieldCandidate, decision: Decision | null) =>
-    setDecisions((previous) => {
-      const next = { ...previous }
-      if (decision) next[fieldKey(field)] = decision
-      else delete next[fieldKey(field)]
-      return next
-    })
-  const discardDraft = () => {
-    setDecisions({})
-    setSubjectIds({})
-  }
+  const decide = (field: ReviewFieldCandidate, decision: Decision | null) => draft.setDecision(fieldKey(field), decision)
 
   const pickFile = async (file: File | undefined) => {
     setAttested(false)
@@ -177,13 +136,8 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
     setError(null)
     try {
       const next = await confirmPlanReview(view.planId, view.documentRevisionId, confirmRequestOf(view, decisions, subjectIds))
-      try {
-        window.localStorage.removeItem(storageKey)
-      } catch {
-        // 임시 보관본 삭제 실패는 무시 (확정 뒤에는 복원하지 않는다)
-      }
-      setDecisions({})
-      setSubjectIds({})
+      // 서버가 같은 Transaction에서 공유 초안을 닫았다. 이 브라우저 백업도 지운다
+      draft.forgetBackup()
       setToast({ id: nextToastId(), tone: 'success', text: '확정했어요. 확정한 값만 학생에게 공개돼요.' })
       onReplaced(next)
     } catch (cause) {
@@ -288,14 +242,15 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               </button>
             ))}
           </nav>
+          <DraftBanner state={draft} />
           <div className={styles.reviewBody} style={step === 'performance' ? { padding: 0 } : undefined}>
-            {step === 'overview' && <OverviewStep view={view} onNext={() => go('subjects')} />}
+            {step === 'overview' && <OverviewStep view={view} draft={draft.server} onNext={() => go('subjects')} />}
             {step === 'subjects' && (
               <SubjectStep
                 view={view}
                 subjectIds={subjectIds}
                 decisions={decisions}
-                onSubjectId={(index, value) => setSubjectIds((previous) => ({ ...previous, [index]: value }))}
+                onSubjectId={draft.setSubjectId}
                 onOpenSubject={(index) => {
                   setSelection({ subjectIndex: index, item: 'common' })
                   go('performance')
@@ -303,7 +258,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                 onJump={jump}
               />
             )}
-            {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onJump={jump} readOnly={confirmed || !isPdf} />}
+            {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onJump={jump} readOnly={!editable || !isPdf} />}
             {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} />}
             {step === 'confirm' && (
               <ConfirmStep
@@ -335,17 +290,15 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                   <span>
                     <strong>
                       검토 {decided}/{fields.length}
-                    </strong>
-                    {hasDraft ? (
-                      <span data-testid="review-draft-status">
-                        {' '}
-                        · 이 브라우저에만 임시 보관{restored ? '(이어서 검토 중)' : ''} · 서버 저장은 확정할 때{' '}
-                        <button type="button" className={styles.link} onClick={discardDraft} data-testid="review-draft-discard">
-                          비우기
+                    </strong>{' '}
+                    · <SyncText sync={sync} onRetry={() => void draft.retry()} />
+                    {editable && decided > 0 && (
+                      <>
+                        {' · '}
+                        <button type="button" className={styles.link} onClick={draft.clearAll} data-testid="review-draft-discard">
+                          모두 비우기
                         </button>
-                      </span>
-                    ) : (
-                      ' · 확정 전까지 서버에 저장되지 않아요'
+                      </>
                     )}
                   </span>
                   <div className={styles.progressTrack} aria-hidden="true">
@@ -380,4 +333,96 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
       <Toast message={toast} onDismiss={() => setToast(null)} />
     </div>
   )
+}
+
+const clock = (iso: string) => new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+
+/** 저장 상태: 서버 응답으로만 '임시 저장됨'을 표시한다 */
+function SyncText({ sync, onRetry }: { sync: SyncState; onRetry: () => void }) {
+  switch (sync.kind) {
+    case 'loading':
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">초안 불러오는 중…</span>
+    case 'load-error':
+      return <span className={styles.statusText} data-tone="danger" data-testid="review-draft-status">서버 초안을 불러오지 못했어요 · {sync.message}</span>
+    case 'idle':
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">바꾸면 서버에 자동으로 임시 저장돼요(학생 공개 아님)</span>
+    case 'dirty':
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">서버 저장 전 · 이 브라우저에만 백업</span>
+    case 'saving':
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">서버에 저장하는 중…</span>
+    case 'saved':
+      return (
+        <span className={styles.statusText} data-testid="review-draft-status">
+          서버에 임시 저장됨 {clock(sync.at)} · {sync.by} · 버전 {sync.version}
+        </span>
+      )
+    case 'error':
+      return (
+        <span className={styles.statusText} data-tone="danger" data-testid="review-draft-status">
+          서버 저장 실패 · {sync.message}{' '}
+          <button type="button" className={styles.link} onClick={onRetry}>
+            다시 시도
+          </button>
+        </span>
+      )
+    case 'conflict':
+      return <span className={styles.statusText} data-tone="danger" data-testid="review-draft-status">다른 관리자의 저장과 충돌 · 위 안내에서 선택해 주세요</span>
+    case 'stale':
+      return <span className={styles.statusText} data-tone="danger" data-testid="review-draft-status">분석 결과가 바뀌어 저장하지 않았어요</span>
+    case 'closed':
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">확정되어 초안이 닫혔어요</span>
+  }
+}
+
+/** 충돌·결과 바뀜·브라우저 백업 선택 안내 (검토 영역 맨 위 한 줄) */
+function DraftBanner({ state }: { state: ReturnType<typeof useServerDraft> }) {
+  const { sync, choice } = state
+  if (choice) {
+    return (
+      <div className={styles.banner} role="alert" data-testid="review-draft-choice">
+        <span>
+          {choice.kind === 'local-vs-server'
+            ? `이 브라우저에 서버 초안과 다른 검토 내용(${choice.localCount}개)이 남아 있어요. 서버 초안은 ${choice.serverBy}님이 저장한 ${choice.serverCount}개예요.`
+            : `이 브라우저에 서버에 저장되지 않은 검토 내용(${choice.localCount}개)이 남아 있어요.`}
+        </span>
+        <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => state.resolveChoice(false)} data-testid="review-draft-use-server">
+          {choice.kind === 'local-vs-server' ? '서버 초안 사용' : '버리기'}
+        </button>
+        <button type="button" className={`${styles.buttonDark} ${styles.small}`} onClick={() => state.resolveChoice(true)} data-testid="review-draft-use-local">
+          이 브라우저 내용으로 서버 저장
+        </button>
+      </div>
+    )
+  }
+  if (sync.kind === 'conflict') {
+    return (
+      <div className={styles.banner} role="alert" data-testid="review-draft-conflict">
+        <span>
+          {sync.updatedBy ? `${sync.updatedBy}님이` : '다른 관리자가'} 먼저 초안을 저장했어요{sync.currentVersion !== null ? ` (버전 ${sync.currentVersion})` : ''}. 내 변경은 아직 서버에 저장되지 않았어요. 다시 적용하면 다른 관리자가 바꾼 항목은 그대로 두고 내가 바꾼 항목만 더해요.
+        </span>
+        <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => void state.resolveConflict('reload')} data-testid="review-draft-reload">
+          최신 초안 불러오기
+        </button>
+        <button type="button" className={`${styles.buttonDark} ${styles.small}`} onClick={() => void state.resolveConflict('reapply')} data-testid="review-draft-overwrite">
+          최신 초안에 내 변경 다시 적용
+        </button>
+      </div>
+    )
+  }
+  if (sync.kind === 'stale' || (state.server && !state.server.draft && state.server.previousDrafts.length > 0)) {
+    const previous = state.server?.previousDrafts[0]
+    return (
+      <div className={styles.banner} role="status" data-testid="review-draft-stale">
+        <span>
+          분석 결과가 새로 바뀌었어요. {previous ? `이전 결과의 초안(${previous.decisionCount}개, ${previous.updatedBy})은 보존되어 있지만 ` : ''}새 결과에는 적용하지 않아요. 새 결과를 다시 검토해 주세요.
+        </span>
+        {sync.kind === 'stale' && (
+          <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => window.location.reload()}>
+            새 결과 열기
+          </button>
+        )}
+      </div>
+    )
+  }
+  return null
 }

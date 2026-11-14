@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
-import { addPlanRevision, downloadPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
+import { addPlanRevision, downloadPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, searchSchools, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
 import { AnalysisPreviewError, requestAnalysisPreview } from '../api/canonicalSource.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, PlanAnalysisStatus } from '../api/types.ts'
 import { FieldError, RemoteView } from '../components/AdminParts.tsx'
@@ -41,9 +41,15 @@ type AnalyzerOutcome =
 // 한 학년·학기에 여러 문서·개정본을 둘 수 있고 기존 파일을 덮어쓰지 않는다 (§38).
 export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const schools = useRemote(() => listSchools(), [])
+  // A5: 평가계획서가 등록된 학교 (전체 학교 Master 연결 전 — coverage로 표시)
+  const registered = useRemote(() => searchSchools(), [])
+  const registeredSchools = registered.state.status === 'success' ? registered.state.data.items : []
   const knownSchools = schools.state.status === 'success' ? schools.state.data.items : []
-  const schoolId = search.get('school') ?? knownSchools[0]?.schoolId ?? ''
+  const extraSchools = knownSchools.filter((school) => !registeredSchools.some((item) => item.schoolId === school.schoolId))
+  const schoolId = search.get('school') ?? registeredSchools[0]?.schoolId ?? knownSchools[0]?.schoolId ?? ''
   const selectedSchool = knownSchools.find((school) => school.schoolId === schoolId)
+  const registeredName = registeredSchools.find((school) => school.schoolId === schoolId)?.name ?? null
+  const schoolLabel = selectedSchool?.name ?? registeredName ?? `학교 코드 ${schoolId}`
   // 개발 전용: 운영 권한 없는 담당 학교의 자동 분석 미리보기 (2026-11-12). http 운영 정책(모든 학교 허용)에서는 쓰지 않는다
   const planOperable = (selectedSchool as { planOperable?: boolean } | undefined)?.planOperable !== false
   const years = useRemote(() => (schoolId && planOperable ? listPlanYears(schoolId) : Promise.resolve([])), [schoolId, planOperable])
@@ -113,13 +119,26 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
 
       <div className={review.toolbar}>
         <select className={review.select} aria-label="학교" value={schoolId} onChange={(event) => setParams({ school: event.target.value, year: null })} data-testid="plans-school">
-          {!selectedSchool && schoolId && <option value={schoolId}>학교 코드 {schoolId}</option>}
-          {knownSchools.map((school) => (
-            <option key={school.schoolId} value={school.schoolId}>
-              {school.name}
-            </option>
-          ))}
-          {knownSchools.length === 0 && !schoolId && <option value="">학교 없음</option>}
+          {schoolId && !knownSchools.some((school) => school.schoolId === schoolId) && !registeredSchools.some((school) => school.schoolId === schoolId) && <option value={schoolId}>학교 코드 {schoolId}</option>}
+          {registeredSchools.length > 0 && (
+            <optgroup label="평가계획서가 등록된 학교">
+              {registeredSchools.map((school) => (
+                <option key={school.schoolId} value={school.schoolId}>
+                  {school.name ?? `학교 코드 ${school.schoolId}`} · {school.planCount}건
+                </option>
+              ))}
+            </optgroup>
+          )}
+          {extraSchools.length > 0 && (
+            <optgroup label="담당 학생 학교 (개발 정보)">
+              {extraSchools.map((school) => (
+                <option key={school.schoolId} value={school.schoolId}>
+                  {school.name}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          {!schoolId && <option value="">학교 없음</option>}
         </select>
         <select className={review.select} aria-label="학년도" value={year ?? ''} onChange={(event) => setParams({ year: event.target.value })}>
           {yearList.map((value) => (
@@ -146,14 +165,17 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
         </div>
       </div>
       <p className={review.sourceNote}>
-        학교 목록은 담당 학생의 학교와 개발 설정이에요(전체 학교 목록 연결 전). 다른 학교는 학교 코드로 열 수 있어요{' '}
+        <span data-testid="plans-school-coverage">
+          학교 목록은 평가계획서가 등록된 학교와 담당 학생 학교예요. 전체 학교 목록(학교 Master)은 아직 연결되지 않았어요{registered.state.status === 'error' ? ' · 등록 학교를 불러오지 못했어요' : ''}.
+        </span>{' '}
+        다른 학교는 학교 코드로 열 수 있어요{' '}
         <input className={review.input} style={{ width: 150, height: 30, fontSize: 12.5, marginLeft: 4 }} value={schoolCode} placeholder="학교 코드" aria-label="학교 코드로 열기" onChange={(event) => setSchoolCode(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && openCode()} />{' '}
         <button type="button" className={review.link} onClick={openCode} disabled={!schoolCode.trim()}>
           열기
         </button>
       </p>
 
-      {schools.state.status === 'error' && knownSchools.length === 0 && !search.get('school') ? (
+      {schools.state.status === 'error' && registeredSchools.length === 0 && knownSchools.length === 0 && !search.get('school') ? (
         <div className={review.empty} role="alert">
           <strong>학교 목록을 불러오지 못했어요</strong>
           <span className={review.muted}>{schools.state.error.message} · 학교 코드로 직접 열 수 있어요.</span>
@@ -240,7 +262,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
       {upload && schoolId && year && (
         <UploadPlanModal
           schoolId={schoolId}
-          schoolName={selectedSchool?.name ?? `학교 코드 ${schoolId}`}
+          schoolName={schoolLabel}
           academicYear={year}
           years={yearList.length ? yearList : [year]}
           initial={upload}
@@ -260,6 +282,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
             setParams({ year: String(plan.academicYear) })
             plans.reload()
             schools.reload()
+            registered.reload()
             const analysisText = !isAdminMockDataSource
               ? analysis === 'FAILED'
                 ? '분석기가 평가 정보를 찾지 못했어요(분석 실패로 저장). 원문을 직접 확인해 주세요.'

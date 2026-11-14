@@ -11,6 +11,9 @@ import type {
   SchoolAssessment,
   PlanSourceReview,
   PlanFileMeta,
+  PlanReviewDraftSaveRequest,
+  PlanReviewDraftView,
+  SchoolSearchResult,
 } from '../types.ts'
 import { ApiError } from '../canonicalSource.ts'
 import { adminFile, adminHttp, notConnected } from './adminHttpClient.ts'
@@ -492,3 +495,12 @@ export function savePlanReviewHttp(
 ): Promise<AdminEvaluationPlanRevision> {
   return notConnected('검토 확정은 아직 화면에 연결하지 않았어요. 분석 과목을 학업 정보의 과목 ID와 맞추는 화면이 필요해요(C-7). 임시 저장은 서버에 없어요.')
 }
+
+/** A5 공유 검토 초안 조회·저장 (DRAFT §39-4). 409(충돌·결과 바뀜)는 그대로 던진다 — 화면이 사용자에게 선택을 묻는다 */
+const draftPath = (planId: string, revisionId: string) => `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/review-draft`
+export const getPlanReviewDraftHttp = (planId: string, revisionId: string) => adminHttp<PlanReviewDraftView>(draftPath(planId, revisionId))
+export const savePlanReviewDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
+  adminHttp<PlanReviewDraftView>(draftPath(planId, revisionId), { method: 'PUT', json: request })
+
+/** A5 학교 검색: 평가계획서가 등록된 학교 (전체 학교 Master 연결 전) */
+export const searchSchoolsHttp = (query?: string) => adminHttp<SchoolSearchResult>('/api/admin/assessment/schools', { query: { query, limit: 100 } })

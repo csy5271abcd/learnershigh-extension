@@ -456,3 +456,52 @@ export interface ScrapRequest {
   relatedCatalogTaskIds: string[]
   relatedMaterialIds: string[]
 }
+
+/** A5 공유 검토 초안 (DRAFT §39-4). 학생 공개 아님. 서버 저장이 끝난 값만 '저장됨'으로 표시한다 */
+export type PlanReviewDraftDecisionKind = 'CONFIRMED' | 'EDITED' | 'ABSENT'
+export interface PlanReviewDraftDecision {
+  subjectIndex: number
+  fieldPath: string
+  decision: PlanReviewDraftDecisionKind
+  value: string | null
+  pdfPageNumber: number | null
+  /** 응답에만: 저장 당시 서버가 분석 결과에서 읽은 후보값 */
+  candidate?: unknown
+}
+export interface PlanReviewDraftView {
+  planId: string
+  revisionId: string
+  latestAnalysisId: string | null
+  reviewStatus: PlanReviewStatus
+  draft: {
+    draftId: string
+    analysisId: string
+    status: 'ACTIVE' | 'CLOSED'
+    closedReason: string | null
+    version: number
+    decisions: PlanReviewDraftDecision[]
+    subjectLinks: { subjectIndex: number; subjectId: string }[]
+    decisionCount: number
+    analyzerVersion: string
+    createdBy: string
+    createdAt: string
+    updatedBy: string
+    updatedAt: string
+  } | null
+  history: { version: number; savedBy: string; savedAt: string; changedCount: number; changedFields: string[] }[]
+  previousDrafts: { draftId: string; analysisId: string; status: string; version: number; decisionCount: number; updatedBy: string; updatedAt: string }[]
+}
+export interface PlanReviewDraftSaveRequest {
+  analysisId: string
+  baseVersion: number | null
+  decisions: Omit<PlanReviewDraftDecision, 'candidate'>[]
+  subjectLinks: { subjectIndex: number; subjectId: string }[]
+}
+
+/** A5 학교 검색 (DRAFT §38-3). coverage=REGISTERED_PLANS_ONLY: 평가계획서가 등록된 학교만 — 전체 학교 목록이 아니다 */
+export interface SchoolSearchResult {
+  coverage: string
+  masterConnected: boolean
+  truncated: boolean
+  items: { schoolId: string; name: string | null; nameSource: string | null; planCount: number; latestAcademicYear: number | null }[]
+}

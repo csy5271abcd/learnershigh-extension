@@ -59,6 +59,11 @@ export const getPlanAnalysis = useMock ? mock.getPlanAnalysisMock : http.getPlan
 export const savePlanReview = useMock ? mock.savePlanReviewMock : http.savePlanReviewHttp
 /** §39 PUT review: 원본 대조·과목 ID·필드 확인을 거치는 http 전용 검토 화면에서만 쓴다(Mock 모드에는 이 화면이 없다) */
 export const confirmPlanReview = http.confirmPlanReviewHttp
+// A5 공유 검토 초안: 서버 전용(Mock 데이터 모드의 이전 검토 화면은 쓰지 않는다)
+export const getPlanReviewDraft = http.getPlanReviewDraftHttp
+export const savePlanReviewDraft = http.savePlanReviewDraftHttp
+// A5 학교 검색: Mock 데이터 모드에는 Backend가 없어 빈 결과(전체 학교 아님 표시 유지)
+export const searchSchools = useMock ? () => Promise.resolve({ coverage: 'REGISTERED_PLANS_ONLY', masterConnected: false, truncated: false, items: [] }) : http.searchSchoolsHttp
 /** S-4 (http만) 평가계획서 원문 미리보기·내려받기. Mock에는 실제 파일이 없다 */
 export const previewPlanRevision = useMock
   ? (_planId: string, _revisionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
