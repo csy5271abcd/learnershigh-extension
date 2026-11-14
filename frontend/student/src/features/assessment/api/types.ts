@@ -753,6 +753,16 @@ export interface EvaluationPlan {
   uploadedAt: string
   /** 원문 열람 정보 (http). Mock에는 없다(실제 파일 없음) */
   file?: PlanFileMeta | null
+  /** §10-1 상세에만 붙는 관리자 확정값 (A3.5 DRAFT). 목록·Mock에는 없다 → 확정 정보 없음으로 본다 */
+  confirmedFields?: ConfirmedPlanField[]
+}
+
+/** §10-1 학생 상세 확정값. value=null은 "원문에 없음을 관리자가 확인"(0이 아니다). pdfPageNumber: PDF 근거 쪽 */
+export interface ConfirmedPlanField {
+  subjectId: string
+  fieldPath: string
+  value: string | number | null
+  pdfPageNumber: number | null
 }
 
 /** §10-2 개인 업로드 요청 (multipart Part). 파일 자체는 화면이 File로 들고 있다. */

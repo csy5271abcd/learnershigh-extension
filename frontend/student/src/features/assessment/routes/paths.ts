@@ -16,6 +16,8 @@ export const artifactViewerPath = (artifactId: string, options: { versionId?: st
   return `/assessment/artifacts/${encodeURIComponent(artifactId)}/viewer${search ? `?${search}` : ''}`
 }
 export const academicInfoPath = '/assessment/academic-info'
+/** 학교 평가 정보: 관리자가 확정한 평가계획서 값 (§10-1 confirmedFields) */
+export const evaluationPlansPath = '/assessment/evaluation-plans'
 
 /** 과목별 목록은 같은 목록에 과목 필터를 적용한 것이다 (assessment-student.md §6). */
 export const subjectAssessmentsPath = (subjectId: string) =>

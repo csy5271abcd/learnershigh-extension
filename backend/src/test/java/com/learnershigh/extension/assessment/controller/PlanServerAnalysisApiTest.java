@@ -121,7 +121,9 @@ class PlanServerAnalysisApiTest {
                             if (mode == Mode.DELAYED_OK) {
                                 Thread.sleep(1000);
                             }
-                            yield envelope("OK_REVIEW_REQUIRED", pdfSha, true, payload);
+                            // 받은 원문의 SHA로 답한다(개정본 시험). 기본 원문이면 pdfSha와 같다.
+                            String sha = receivedFileSha.get() == null ? pdfSha : receivedFileSha.get();
+                            yield envelope("OK_REVIEW_REQUIRED", sha, true, payload.replace(pdfSha, sha));
                         }
                         case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload)
                                 .replace("\"errors\":[]", "\"errors\":[{\"code\":\"SUBJECT_SECTION_NOT_FOUND\"}]");
@@ -331,6 +333,49 @@ class PlanServerAnalysisApiTest {
         // 원래 분석 Run은 그대로다
         assertThat(jdbc.queryForObject("select status from assessment_plan_analysis_run", String.class))
                 .isEqualTo("PARTIAL");
+    }
+
+    @Test
+    void 새_개정본은_확정되기_전까지_학생에게_이전_확정값을_보이고_확정되면_새_값으로_바뀐다() throws Exception {
+        Uploaded first = register("adm_plan_operator", "synthetic-e2e.pdf", pdf, 2);
+        String firstAnalysis = JsonPath.read(mvc.perform(asAdmin(post(first.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.analysisId");
+        confirm(first, firstAnalysis, 55);
+        String student = "/api/student/assessment/evaluation-plans/" + first.planId();
+
+        // 개정본 업로드(원문 끝에 주석 1줄 → SHA가 다른 같은 PDF)
+        byte[] revised = (new String(pdf, StandardCharsets.ISO_8859_1) + "\n% revised\n").getBytes(StandardCharsets.ISO_8859_1);
+        String revisionBody = mvc.perform(asAdmin(multipart(PLANS + "/" + first.planId() + "/revisions")
+                        .file(new MockMultipartFile("file", "synthetic-e2e-v2.pdf", "application/octet-stream", revised)),
+                        "adm_plan_operator"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        Uploaded second = new Uploaded(first.planId(), JsonPath.read(revisionBody, "$.documentRevisionId"));
+        String secondAnalysis = JsonPath.read(mvc.perform(asAdmin(post(second.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.analysisId");
+        assertThat(receivedFileSha.get()).isEqualTo(sha256(revised));
+
+        // 개정본 분석만 됨 → 학생은 여전히 1차 확정 Revision과 그 값
+        mvc.perform(asStudent(get(student), "stu_001"))
+                .andExpect(jsonPath("$.documentRevisionId").value(first.revisionId()))
+                .andExpect(jsonPath("$.confirmedFields[0].value").value(55));
+
+        // 개정본 확정 → 새 Revision의 값만 (이전 값과 섞이지 않음)
+        confirm(second, secondAnalysis, 70);
+        String body = mvc.perform(asStudent(get(student), "stu_001"))
+                .andExpect(jsonPath("$.documentRevisionId").value(second.revisionId()))
+                .andExpect(jsonPath("$.confirmedFields.length()").value(1))
+                .andExpect(jsonPath("$.confirmedFields[0].value").value(70))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(body).doesNotContain("55");
+    }
+
+    void confirm(Uploaded uploaded, String analysisId, int weight) throws Exception {
+        String review = PLANS + "/" + uploaded.planId() + "/revisions/" + uploaded.revisionId() + "/review";
+        mvc.perform(asAdmin(put(review), "adm_gangnam").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"analysisId":"%s","decision":"CONFIRM","reviewedSubjects":[{"subjectId":"subj_02","confirmedFields":[
+                          {"fieldPath":"performanceEvaluation.weightPercent","value":%d,"pdfPageNumber":1}]}]}"""
+                        .formatted(analysisId, weight)))
+                .andExpect(status().isOk());
     }
 
     @Test

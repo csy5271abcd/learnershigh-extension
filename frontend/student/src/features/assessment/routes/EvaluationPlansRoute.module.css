@@ -1,0 +1,268 @@
+/* 학교 평가 정보 (학생). V2 색 규칙: 흰·회·검정 + 파랑 포인트 */
+.page {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  max-width: calc(880px + var(--as-content-inset) * 2);
+  padding: 24px var(--as-content-inset) 64px;
+}
+
+.header {
+  display: grid;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--as-text-page-title);
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.subtitle,
+.meta {
+  margin: 0;
+  font-size: var(--as-text-meta, 13px);
+  color: var(--as-color-text-secondary);
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta, 13px);
+  line-height: 19px;
+}
+
+.notice svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.plan {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.planHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.planTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--as-color-text);
+}
+
+.planName {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.linkButton {
+  margin-left: auto;
+  padding: 5px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
+  color: var(--as-color-text);
+  font-size: var(--as-text-meta, 13px);
+  text-decoration: none;
+}
+
+.linkButton:hover {
+  background: var(--as-color-subtle);
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+}
+
+.groupTitle {
+  margin: 0;
+  font-size: var(--as-text-section);
+  font-weight: 700;
+}
+
+.count {
+  color: var(--as-color-text-tertiary);
+  font-weight: 500;
+}
+
+.subjects {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.subject {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.subjectHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+
+.subjectName {
+  margin: 0;
+  font-size: var(--as-text-row, 15px);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pageLink,
+.sourcePage {
+  color: var(--as-color-primary);
+  font-size: var(--as-text-caption, 12px);
+  text-decoration: none;
+}
+
+.pageLink {
+  margin-left: auto;
+}
+
+.sourcePage {
+  margin-left: 4px;
+}
+
+.pageLink:hover,
+.sourcePage:hover {
+  text-decoration: underline;
+}
+
+.weights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
+}
+
+.weights > div {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-subtle);
+}
+
+.weights dt {
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption, 12px);
+}
+
+.weights dd {
+  margin: 0;
+}
+
+.items {
+  display: grid;
+  gap: 4px;
+}
+
+.itemsTitle {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption, 12px);
+  font-weight: 600;
+}
+
+.itemList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: grid;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.itemName {
+  font-size: var(--as-text-body, 14px);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.itemFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.fact {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: var(--as-text-meta, 13px);
+}
+
+.factLabel {
+  color: var(--as-color-text-tertiary);
+}
+
+.value {
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.missing,
+.muted {
+  color: var(--as-color-text-tertiary);
+  font-weight: 400;
+}
+
+.absent {
+  color: var(--as-color-text-secondary);
+}
+
+.empty,
+.emptySmall {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta, 13px);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 16px 48px;
+  }
+
+  .plan {
+    padding: 14px;
+  }
+
+  .subjects {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linkButton {
+    margin-left: 0;
+  }
+}

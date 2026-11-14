@@ -7,6 +7,7 @@ import { listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
 import {
   ArchiveIcon,
+  BookIcon,
   BooksIcon,
   OpenBookIcon,
   BulbIcon,
@@ -44,6 +45,7 @@ import {
   archiveSection,
   assessmentPath,
   enrichmentSection,
+  evaluationPlansPath,
   feedbackSection,
   growthSection,
   tipsSection,
@@ -164,6 +166,9 @@ export function AssessmentLayout() {
                 onNavigate={closeNav}
               >
                 학교 수행평가
+              </MenuLink>
+              <MenuLink to={evaluationPlansPath} icon={BookIcon} active={pathname.startsWith(evaluationPlansPath)} onNavigate={closeNav}>
+                학교 평가 정보
               </MenuLink>
               {pendingMenu.map((item) => (
                 <MenuLink
