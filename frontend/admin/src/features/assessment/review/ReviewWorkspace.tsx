@@ -66,6 +66,17 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const [schoolName, setSchoolName] = useState<string | null>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const stepsRef = useRef<HTMLElement>(null)
+  // 좁은 패널에서 Stepper가 가로 스크롤될 때 현재 단계가 보이게 한다 (Stepper 영역 안에서만 스크롤)
+  useEffect(() => {
+    const nav = stepsRef.current
+    const current = nav?.querySelector<HTMLElement>('[aria-current="step"]')
+    if (!nav || !current) return
+    const left = current.offsetLeft - nav.offsetLeft
+    if (left < nav.scrollLeft || left + current.offsetWidth > nav.scrollLeft + nav.clientWidth) {
+      nav.scrollTo({ left: Math.max(0, left - 16), behavior: 'smooth' })
+    }
+  }, [step])
 
   const fields = view.reviewFields ?? []
   const decided = fields.filter((field) => decisions[fieldKey(field)]).length
@@ -234,10 +245,19 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
           data-testid="review-splitter"
         />
         <section className={styles.review} aria-label="분석 결과 검토">
-          <nav className={styles.steps} aria-label="검토 단계">
+          <nav className={styles.steps} aria-label="검토 단계" ref={stepsRef}>
             {steps.map((item, index) => (
               <button key={item.id} type="button" className={styles.step} aria-current={item.id === step ? 'step' : undefined} data-done={stepDone[item.id] ? 'true' : undefined} onClick={() => go(item.id)} data-testid={`review-step-${item.id}-tab`}>
-                <span className={styles.stepNo}>{stepDone[item.id] ? '✓' : index + 1}</span>
+                <span className={styles.stepNo} aria-hidden="true">
+                  {stepDone[item.id] && item.id !== step ? (
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 7.4 5.8 10 11 4.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                {stepDone[item.id] && item.id !== step && <span className={styles.srOnly}>완료 · </span>}
                 {item.label}
               </button>
             ))}
@@ -259,7 +279,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               />
             )}
             {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onJump={jump} readOnly={!editable || !isPdf} />}
-            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} decisions={decisions} subjectIds={subjectIds} onDecide={draft.setDecision} draftEditable={editable} />}
+            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} subjectIds={subjectIds} />}
             {step === 'confirm' && (
               <ConfirmStep
                 view={view}
@@ -338,7 +358,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
 const clock = (iso: string) => new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
 
 /** 저장 상태: 서버 응답으로만 '임시 저장됨'을 표시한다 */
-function SyncText({ sync, onRetry }: { sync: SyncState; onRetry: () => void }) {
+export function SyncText({ sync, onRetry }: { sync: SyncState; onRetry: () => void }) {
   switch (sync.kind) {
     case 'loading':
       return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">초안 불러오는 중…</span>
@@ -375,7 +395,7 @@ function SyncText({ sync, onRetry }: { sync: SyncState; onRetry: () => void }) {
 }
 
 /** 충돌·결과 바뀜·브라우저 백업 선택 안내 (검토 영역 맨 위 한 줄) */
-function DraftBanner({ state }: { state: ReturnType<typeof useServerDraft> }) {
+export function DraftBanner({ state }: { state: ReturnType<typeof useServerDraft> }) {
   const { sync, choice } = state
   if (choice) {
     return (

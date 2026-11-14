@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
-import { confirmTeachingPlan, getTeachingPlanReview } from '../api/assessmentAdminApi.ts'
-import type { EvaluationPlanAnalysisView, TeachingPlanEdits, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
+import { confirmTeachingPlan, getPlanSubjects, getTeachingPlanReview } from '../api/assessmentAdminApi.ts'
+import type { EvaluationPlanAnalysisView, PlanSubjects, TeachingPlanEdits, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
 import type { Decision } from './reviewModel.ts'
+import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
+import { useServerDraft } from './useServerDraft.ts'
 import styles from './review.module.css'
 
 // 4단계 월별 교수·학습 운영 계획 (A6, api-contract.md §39-3 · §39-6 DRAFT).
 // - 0.3 분석 결과의 운영계획 후보 행을 과목별로 보여 주고, 행마다 확인 · 수정 · 제외를 정한 뒤 별도로 확정한다(평가 정보 확정과 별개).
-// - 결정은 공유 검토 초안(§39-4)에 `teachingPlan[n]`으로 저장한다(평가 정보 확정 전까지 — 확정 뒤에는 이 화면에만 유지, D-A6-5).
+// - 결정은 운영계획 전용 공유 초안(§39-6 teaching-plan-draft, A7)에 `teachingPlan[n]`으로 저장한다. 평가 정보 확정과 무관하게 저장·복원·충돌 처리된다.
 // - 시간 정밀도 8종을 그대로 보여 준다. 원문에 없는 날짜·연도를 만들지 않는다. 운영계획 행을 수행평가로 만들지 않는다.
 // - 0.2 결과에는 운영계획이 없다 → '원문에 없음'이 아니라 '형식상 전달되지 않음'으로 안내한다(가짜 계획 없음).
 
@@ -23,17 +25,12 @@ const severityText: Record<string, string> = { BLOCKING: '먼저 확인', REVIEW
 export function TeachingPlanStep({
   view,
   onJump,
-  decisions,
-  subjectIds,
-  onDecide,
-  draftEditable,
+  subjectIds: evaluationSubjectIds,
 }: {
   view: EvaluationPlanAnalysisView
   onJump: (page: number) => void
-  decisions: Record<string, Decision>
+  /** 평가 정보 초안의 과목 연결 (운영계획 초안에 연결이 없을 때 기본값으로 쓴다) */
   subjectIds: Record<number, string>
-  onDecide: (key: string, decision: Decision | null) => void
-  draftEditable: boolean
 }) {
   const slot = view.slot
   const candidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
@@ -43,8 +40,6 @@ export function TeachingPlanStep({
   )
   const contract03 = view.analyzer?.contractVersion === '0.3'
   const [server, setServer] = useState<{ state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; data: TeachingPlanReviewView }>({ state: 'loading' })
-  // 평가 정보 확정 뒤에는 공유 초안이 닫힌다 → 이 화면 안에서만 결정을 유지한다
-  const [local, setLocal] = useState<Record<string, Decision>>({})
   const [editing, setEditing] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -62,16 +57,29 @@ export function TeachingPlanStep({
   }, [view.planId, view.documentRevisionId, view.analysisId])
 
   const confirmedReview = server.state === 'ready' ? server.data.review : null
-  const decisionOf = (key: string): Decision | undefined => (draftEditable ? decisions[key] : (local[key] ?? decisions[key]))
+  // 운영계획 전용 공유 초안 (평가 정보 초안과 별도, 운영계획 확정 때 닫힌다)
+  const draft = useServerDraft(view, { scope: 'TEACHING_PLAN', closed: Boolean(confirmedReview) })
+  const [subjectOptions, setSubjectOptions] = useState<PlanSubjects | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    getPlanSubjects(view.planId).then(
+      (data) => !cancelled && setSubjectOptions(data),
+      () => !cancelled && setSubjectOptions(null),
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [view.planId])
+  const draftEditable = !confirmedReview && draft.sync.kind !== 'closed' && draft.sync.kind !== 'loading' && draft.sync.kind !== 'load-error' && draft.sync.kind !== 'stale' && !draft.choice
+  const decisions = draft.decisions
+  const subjectIds: Record<number, string> = { ...evaluationSubjectIds, ...Object.fromEntries(Object.entries(draft.subjectIds).filter(([, id]) => id.trim() !== '')) }
+  const decisionOf = (key: string): Decision | undefined => decisions[key]
   const decide = (key: string, decision: Decision | null) => {
-    if (draftEditable) onDecide(key, decision)
-    else
-      setLocal((previous) => {
-        const next = { ...previous }
-        if (decision) next[key] = decision
-        else delete next[key]
-        return next
-      })
+    if (!draftEditable) return
+    const subjectIndex = Number(key.slice(0, key.indexOf('|')))
+    // 평가 정보 쪽에서 연결한 과목은 운영계획 초안에도 함께 남긴다 (평가 정보 확정 뒤에도 운영계획 확정에 필요)
+    if (!draft.subjectIds[subjectIndex] && evaluationSubjectIds[subjectIndex]) draft.setSubjectId(subjectIndex, evaluationSubjectIds[subjectIndex])
+    draft.setDecision(key, decision)
   }
   const editsOf = (decision: Decision | undefined): TeachingPlanEdits => {
     if (!decision || decision.kind !== 'edited') return {}
@@ -100,7 +108,7 @@ export function TeachingPlanStep({
         return entryFromRow(row, { id: keyOf(ref), subjectName: ref.subjectName, status: 'CANDIDATE', academicYear: slot.academicYear, missingFields: missing })
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refs, confirmedReview, decisions, local, slot])
+  }, [refs, confirmedReview, decisions, slot])
 
   const decidedRefs = refs.filter((ref) => decisionOf(keyOf(ref)))
   const missingSubject = [...new Set(decidedRefs.map((ref) => ref.subjectIndex))].filter((index) => !(subjectIds[index] ?? '').trim())
@@ -161,11 +169,16 @@ export function TeachingPlanStep({
           ) : (
             <span>
               후보 {refs.length}행 · 결정 {decidedRefs.length}행(공개 {published} · 제외 {decidedRefs.length - published}) · 결정하지 않은 행은 공개되지 않아요
-              {!draftEditable && ' · 평가 정보 확정 뒤라 결정은 이 화면에만 유지돼요(서버 초안 저장 안 됨)'}
+            </span>
+          )}
+          {!confirmedReview && (
+            <span style={{ marginLeft: 'auto' }}>
+              <SyncText sync={draft.sync} onRetry={() => void draft.retry()} />
             </span>
           )}
         </div>
       )}
+      {refs.length > 0 && !confirmedReview && <DraftBanner state={draft} />}
       {server.state === 'error' && (
         <p className={styles.muted} role="alert">
           운영계획 확정 상태를 불러오지 못했어요. {server.message}
@@ -189,8 +202,26 @@ export function TeachingPlanStep({
                   <h4>{subject.subjectName}</h4>
                   <span className={styles.tiny}>
                     {subject.extractionStatus ? `추출 ${subject.extractionStatus === 'COMPLETE' ? '완료' : subject.extractionStatus === 'PARTIAL' ? '일부' : '구간 없음'} · ` : ''}
-                    {linked ? `과목 ${linked}` : '과목 미연결 — 과목 확인 단계에서 연결해 주세요'}
+                    {linked ? `과목 ${subjectOptions?.items.find((item) => item.subjectId === linked)?.name ?? linked}` : '과목 미연결'}
                   </span>
+                  {!confirmedReview && subjectOptions?.available && subjectOptions.items.length > 0 && (
+                    <select
+                      className={styles.select}
+                      style={{ maxWidth: 200, marginLeft: 'auto' }}
+                      value={linked}
+                      disabled={!draftEditable}
+                      aria-label={`${subject.subjectName} 운영계획 학업 과목`}
+                      onChange={(event) => draft.setSubjectId(subject.subjectIndex, event.target.value)}
+                      data-testid={`teaching-plan-subject-${subject.subjectIndex}`}
+                    >
+                      <option value="">과목 선택</option>
+                      {subjectOptions.items.map((item) => (
+                        <option key={item.subjectId} value={item.subjectId}>
+                          {item.name} · {item.subjectId}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 {subject.issues.length > 0 && (
                   <ul className={styles.tiny} style={{ margin: '6px 0', paddingLeft: 18 }} data-testid="teaching-plan-issues">
@@ -261,8 +292,12 @@ export function TeachingPlanStep({
                               )}
                             </td>
                             <td>
-                              {locked ? (
+                              {locked || !draftEditable ? (
+                                locked ? (
                                 <span className={styles.tiny}>{confirmedRow ? ({ CONFIRMED: '확정', EDITED: '수정 확정', EXCLUDED: '제외' } as const)[confirmedRow.decision] : '확정 대상 아님(비공개)'}</span>
+                                ) : (
+                                  <span className={styles.tiny}>{decision ? ({ confirmed: '확인', edited: '수정', absent: '제외' } as const)[decision.kind] : '미결정'} · 초안 대기</span>
+                                )
                               ) : (
                                 <div className={styles.rowButtons} role="group" aria-label="행 결정">
                                   <button type="button" className={`${styles.button} ${styles.small}`} aria-pressed={decision?.kind === 'confirmed'} onClick={() => decide(key, decision?.kind === 'confirmed' ? null : { kind: 'confirmed', value: '', page: pageText })}>

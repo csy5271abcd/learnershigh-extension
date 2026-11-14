@@ -288,11 +288,22 @@
 }
 
 /* 단계: 버튼형 Stepper (A5, 1차 UI의 둥근 버튼 단계 복원 · V2 색 규칙: 흰·회·검정 + 파랑 포인트) */
+/* 검토 단계 Stepper (2026-11-15 디자인 변경): 번호·단계명이 크게 구분되는 가로형. Stepper 안은 무채색만 쓴다(파랑·초록 없음).
+   현재 = 넓은 연회색 둥근 사각형 + 번호 상자, 완료 = 진회색 배경 흰 체크, 미진행 = 연회색 번호 + 회색 글씨. 좁으면 영역 안에서 가로 스크롤. */
 .steps {
+  --step-current-bg: #f1f2f4;
+  --step-current-text: #171717;
+  --step-current-no: #e5e7eb;
+  --step-idle-no: #f3f4f6;
+  --step-idle-text: #737373;
+  --step-done-no: #404040;
+  --step-line: #e5e5e5;
   display: flex;
-  gap: 6px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--as-color-line);
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--step-line);
+  background: #ffffff;
   overflow-x: auto;
   scrollbar-width: thin;
 }
@@ -300,63 +311,81 @@
 .step {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: none;
-  height: 38px;
-  padding: 0 14px 0 8px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 10px;
-  background: var(--as-color-surface);
-  color: var(--as-color-text-secondary);
+  min-height: 44px;
+  padding: 6px 14px 6px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--step-idle-text);
   font: inherit;
-  font-size: 14px;
+  font-size: 14.5px;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color 120ms ease;
 }
 
 .step:hover {
-  background: var(--as-color-subtle);
-  color: var(--as-color-text);
+  background: #f7f7f8;
 }
 
 .step:focus-visible {
-  outline: 2px solid var(--as-color-primary);
+  outline: 2px solid #171717;
   outline-offset: 2px;
 }
 
 .step[aria-current='step'] {
-  border-color: var(--as-color-ink);
-  background: var(--as-color-ink);
-  color: var(--as-color-on-ink);
+  padding: 8px 18px 8px 10px;
+  background: var(--step-current-bg);
+  color: var(--step-current-text);
+  font-size: 15px;
   font-weight: 700;
 }
 
 .stepNo {
   display: inline-grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  background: var(--as-color-fill);
-  color: var(--as-color-text-secondary);
-  font-size: 12px;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--step-idle-no);
+  color: var(--step-idle-text);
+  font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .step[aria-current='step'] .stepNo {
-  background: rgb(255 255 255 / 0.18);
-  color: var(--as-color-on-ink);
+  width: 28px;
+  height: 28px;
+  background: var(--step-current-no);
+  color: var(--step-current-text);
 }
 
-.step[data-done='true'] .stepNo {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+.step[data-done='true']:not([aria-current='step']) {
+  color: #525252;
 }
 
-.step[aria-current='step'][data-done='true'] .stepNo {
-  background: var(--as-color-primary);
-  color: var(--as-color-on-primary);
+.step[data-done='true']:not([aria-current='step']) .stepNo {
+  border-radius: 999px;
+  background: var(--step-done-no);
+  color: #ffffff;
+}
+
+.stepNo svg {
+  display: block;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* 초안 충돌·선택 안내 한 줄 (회색 바탕, 색 경고 상자 아님) */

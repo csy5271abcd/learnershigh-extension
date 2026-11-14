@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getPlanReviewDraft, savePlanReviewDraft } from '../api/assessmentAdminApi.ts'
+import { getPlanReviewDraft, getTeachingPlanDraft, savePlanReviewDraft, saveTeachingPlanDraft } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
 import type { EvaluationPlanAnalysisView, PlanReviewDraftDecision, PlanReviewDraftView } from '../api/types.ts'
 import type { Decision } from './reviewModel.ts'
@@ -10,7 +10,11 @@ import type { Decision } from './reviewModel.ts'
 // - 분석 결과가 바뀌면(409 STALE 또는 이전 결과의 초안만 있음) 이전 초안을 새 결과에 적용하지 않는다.
 
 const AUTOSAVE_DELAY = 1000
-const backupKey = (view: EvaluationPlanAnalysisView) => `lh-assessment-review-draft:${view.planId}:${view.documentRevisionId}:${view.analysisId ?? 'none'}`
+const backupKey = (view: EvaluationPlanAnalysisView, scope: DraftScope) =>
+  `lh-assessment-review-draft:${view.planId}:${view.documentRevisionId}:${view.analysisId ?? 'none'}${scope === 'TEACHING_PLAN' ? ':teaching-plan' : ''}`
+
+/** A7: 평가 정보 초안(EVALUATION)과 운영계획 초안(TEACHING_PLAN)은 서버에서 따로 저장·확정된다 */
+export type DraftScope = 'EVALUATION' | 'TEACHING_PLAN'
 
 type Decisions = Record<string, Decision>
 type SubjectIds = Record<number, string>
@@ -104,9 +108,13 @@ function reapply(server: Backup, base: Backup, mine: Backup): Backup {
   return { decisions, subjectIds }
 }
 
-export function useServerDraft(view: EvaluationPlanAnalysisView) {
-  const confirmed = view.reviewStatus === 'CONFIRMED'
-  const key = backupKey(view)
+export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scope?: DraftScope; closed?: boolean } = {}) {
+  const scope = options.scope ?? 'EVALUATION'
+  // 평가 정보 초안은 평가 정보 확정으로, 운영계획 초안은 운영계획 확정으로 닫힌다
+  const confirmed = scope === 'TEACHING_PLAN' ? Boolean(options.closed) : view.reviewStatus === 'CONFIRMED'
+  const key = backupKey(view, scope)
+  const loadDraft = scope === 'TEACHING_PLAN' ? getTeachingPlanDraft : getPlanReviewDraft
+  const saveDraft = scope === 'TEACHING_PLAN' ? saveTeachingPlanDraft : savePlanReviewDraft
   const [decisions, setDecisions] = useState<Decisions>({})
   const [subjectIds, setSubjectIds] = useState<SubjectIds>({})
   const [sync, setSync] = useState<SyncState>({ kind: 'loading' })
@@ -130,7 +138,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView) {
 
   /** 서버 초안을 읽어 화면 값을 서버 기준으로 맞춘다 (version 갱신) */
   const load = useCallback(async (mode: 'initial' | 'reload') => {
-    const result = await getPlanReviewDraft(view.planId, view.documentRevisionId)
+    const result = await loadDraft(view.planId, view.documentRevisionId)
     setServer(result)
     const draft = result.draft && result.draft.analysisId === view.analysisId ? result.draft : null
     version.current = draft ? draft.version : null
@@ -149,7 +157,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView) {
     setEdits(0)
     setSync(confirmed || draft?.status === 'CLOSED' ? { kind: 'closed' } : draft ? { kind: 'saved', at: draft.updatedAt, by: draft.updatedBy, version: draft.version } : { kind: 'idle' })
     return result
-  }, [view.planId, view.documentRevisionId, view.analysisId, confirmed, key, apply])
+  }, [view.planId, view.documentRevisionId, view.analysisId, confirmed, key, apply, loadDraft])
 
   useEffect(() => {
     let cancelled = false
@@ -170,7 +178,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView) {
     const values = latest.current
     setSync({ kind: 'saving' })
     try {
-      const result = await savePlanReviewDraft(view.planId, view.documentRevisionId, { analysisId: view.analysisId, baseVersion: version.current, ...toServer(values.decisions, values.subjectIds) })
+      const result = await saveDraft(view.planId, view.documentRevisionId, { analysisId: view.analysisId, baseVersion: version.current, ...toServer(values.decisions, values.subjectIds) })
       setServer(result)
       const draft = result.draft
       if (draft) version.current = draft.version
@@ -190,7 +198,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView) {
         setSync({ kind: 'error', message: `${error.message}${error.code ? ` (${error.code})` : ''}` })
       }
     }
-  }, [view.planId, view.documentRevisionId, view.analysisId, edits, key])
+  }, [view.planId, view.documentRevisionId, view.analysisId, edits, key, saveDraft])
 
   // 자동 저장: 마지막 변경 1초 뒤. 충돌·결과 바뀜·선택 대기 중에는 멈춘다(사용자가 고른다)
   useEffect(() => {

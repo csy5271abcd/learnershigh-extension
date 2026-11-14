@@ -524,6 +524,11 @@ export const confirmTeachingPlanHttp = (planId: string, revisionId: string, requ
 /** A5 공유 검토 초안 조회·저장 (DRAFT §39-4). 409(충돌·결과 바뀜)는 그대로 던진다 — 화면이 사용자에게 선택을 묻는다 */
 const draftPath = (planId: string, revisionId: string) => `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/review-draft`
 export const getPlanReviewDraftHttp = (planId: string, revisionId: string) => adminHttp<PlanReviewDraftView>(draftPath(planId, revisionId))
+/** A7 운영계획 초안 (§39-6): 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 저장된다 */
+const teachingDraftPath = (planId: string, revisionId: string) => `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/teaching-plan-draft`
+export const getTeachingPlanDraftHttp = (planId: string, revisionId: string) => adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId))
+export const saveTeachingPlanDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
+  adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId), { method: 'PUT', json: request })
 export const savePlanReviewDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
   adminHttp<PlanReviewDraftView>(draftPath(planId, revisionId), { method: 'PUT', json: request })
 
