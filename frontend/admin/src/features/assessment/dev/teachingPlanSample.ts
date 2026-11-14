@@ -1,0 +1,24 @@
+import type { TeachingPlanEntry } from '../components/canonicalUi.ts'
+
+// 개발 전용 합성 운영 계획 (Monthly Planner Preview 확인용). 실제 학교 문서가 아니다.
+// 운영 Build·학생 화면·DB에 연결하지 않는다 — 개발 서버의 Preview 화면만 동적 import로 불러온다.
+// 정밀도 5종(날짜·기간·주차·월·미확인), 같은 날 겹치는 일정, 긴 내용, 2월(연도 미확인), 후보/확정, 읽지 못한 칸을 모두 담는다.
+
+const base = { linkedAssessments: [] as string[], specialSchedule: null, missingFields: [] as string[], dateFrom: null, dateTo: null, weekFrom: null, weekTo: null }
+
+export const sampleAcademicYear = 2026
+export const sampleSemester = 2
+
+export const teachingPlanSample: TeachingPlanEntry[] = [
+  { ...base, rowKey: 's1', subjectName: '통합과학2', precision: 'WEEK_ONLY', month: 9, weekFrom: 1, weekTo: 1, asWritten: '9월 1주', unit: 'Ⅰ. 변화와 다양성 — 지구 환경 변화', content: '고기후 연구 방법(빙하 코어·나이테)을 조사하고 기후 변화의 증거를 모둠별로 정리한다.', achievementStandards: ['[10통과2-01-01] 지질 시대의 환경과 생물 변화를 화석 등의 자료로 해석할 수 있다.'], teachingMethods: ['모둠 탐구', '자료 해석'], assessmentMethods: ['관찰 평가'], sourcePdfPageNumber: 1, status: 'CONFIRMED' },
+  { ...base, rowKey: 's2', subjectName: '통합과학2', precision: 'WEEK_ONLY', month: 9, weekFrom: 3, weekTo: 4, asWritten: '9월 3~4주', unit: '탐구 보고서 작성', content: '가상 하천 수질 측정 실험을 설계하고 결과를 정리해 탐구 보고서를 작성한다. 변인 통제와 자료 해석을 중심으로 피드백한다.', achievementStandards: ['[10통과2-02-03] 실험을 설계하고 변인을 통제할 수 있다.'], teachingMethods: ['실험', '보고서 쓰기'], assessmentMethods: ['수행평가(보고서)'], linkedAssessments: ['탐구 보고서'], sourcePdfPageNumber: 2, status: 'CANDIDATE' },
+  { ...base, rowKey: 's3', subjectName: '공통국어2', precision: 'MONTH_ONLY', month: 9, asWritten: '9월', unit: '독서 단원 — 주제 통합적 읽기', content: '한 학기 한 권 읽기를 이어가며 독서 일지를 작성한다.', achievementStandards: [], teachingMethods: ['독서 토론'], assessmentMethods: [], sourcePdfPageNumber: 1, status: 'CONFIRMED', missingFields: ['achievementStandards'] },
+  { ...base, rowKey: 's4', subjectName: '공통국어2', precision: 'EXACT_DATE', month: 9, dateFrom: '2026-09-22', asWritten: '9. 22.(화)', unit: '토론 수행평가', content: '찬반 토론 — 근거의 타당성과 반론 대응을 평가한다.', achievementStandards: ['[10공국2-01-02] 쟁점과 논증을 분석하며 토론한다.'], teachingMethods: ['토론'], assessmentMethods: ['수행평가(토론)'], linkedAssessments: ['토론 활동'], sourcePdfPageNumber: 2, status: 'CANDIDATE' },
+  { ...base, rowKey: 's5', subjectName: '공통수학2', precision: 'EXACT_DATE', month: 9, dateFrom: '2026-09-22', asWritten: '9. 22.', unit: '집합과 명제 형성평가', content: '집합의 연산과 명제의 참·거짓 판별 형성평가', achievementStandards: [], teachingMethods: [], assessmentMethods: ['형성평가'], sourcePdfPageNumber: null, status: 'CANDIDATE', missingFields: ['achievementStandards', 'teachingMethods'] },
+  { ...base, rowKey: 's6', subjectName: '한국사2', precision: 'EXACT_DATE', month: 9, dateFrom: '2026-09-22', asWritten: '9월 22일', unit: '근대 국가 수립 운동', content: '개항 이후 근대 국가 수립을 위한 다양한 움직임을 사료로 비교한다.', achievementStandards: [], teachingMethods: ['사료 학습'], assessmentMethods: [], sourcePdfPageNumber: 1, status: 'CONFIRMED' },
+  { ...base, rowKey: 's7', subjectName: '공통수학2', precision: 'WEEK_ONLY', month: 9, weekFrom: 2, weekTo: 2, asWritten: '9월 2주', unit: '함수 — 합성함수와 역함수', content: '합성함수의 정의와 성질을 이해하고, 역함수가 존재할 조건을 그래프로 탐구한다. 실생활 예시(환율 변환, 온도 단위 변환)를 통해 역함수의 의미를 설명하는 활동을 포함하며, 마지막 차시에는 공학 도구로 그래프를 그려 대칭성을 확인한다.', achievementStandards: ['[10공수2-02-02] 합성함수와 역함수의 뜻을 알고, 구할 수 있다.'], teachingMethods: ['개념 학습', '공학 도구 활용'], assessmentMethods: ['서술형 평가'], sourcePdfPageNumber: 2, status: 'CANDIDATE' },
+  { ...base, rowKey: 's8', subjectName: '통합과학2', precision: 'DATE_RANGE', month: 10, dateFrom: '2026-10-12', dateTo: '2026-10-16', asWritten: '10. 12.~10. 16.', unit: '1차 지필평가 기간', content: '학교 일정 — 1차 지필평가', achievementStandards: [], teachingMethods: [], assessmentMethods: ['지필평가'], specialSchedule: '1차 지필평가', sourcePdfPageNumber: 1, status: 'CONFIRMED' },
+  { ...base, rowKey: 's9', subjectName: '한국사2', precision: 'WEEK_ONLY', month: 10, weekFrom: 3, weekTo: 3, asWritten: '10월 3주', unit: '일제 강점기 민족 운동', content: '국내외 민족 운동의 흐름을 연표로 정리한다.', achievementStandards: [], teachingMethods: ['연표 만들기'], assessmentMethods: [], sourcePdfPageNumber: 2, status: 'CANDIDATE' },
+  { ...base, rowKey: 's10', subjectName: '공통국어2', precision: 'UNKNOWN', month: 11, asWritten: '2학기 중(교과 협의 후 결정)', unit: '문학 감상문 쓰기', content: '시기는 교과 협의회에서 정한다.', achievementStandards: [], teachingMethods: [], assessmentMethods: ['수행평가(감상문)'], sourcePdfPageNumber: 2, status: 'CANDIDATE', missingFields: ['achievementStandards'] },
+  { ...base, rowKey: 's11', subjectName: '공통수학2', precision: 'MONTH_ONLY', month: 2, asWritten: '2월', unit: '학년말 정리', content: '학년말 복습과 진로 연계 수학 탐구 발표', achievementStandards: [], teachingMethods: ['발표'], assessmentMethods: [], sourcePdfPageNumber: 2, status: 'CANDIDATE' },
+]

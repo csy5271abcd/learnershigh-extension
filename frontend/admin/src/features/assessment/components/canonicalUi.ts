@@ -18,3 +18,6 @@ export { NoteBlocksView } from '../../../../../student/src/features/assessment/c
 export { ReferenceCategoryIcon } from '../../../../../student/src/features/assessment/components/reference-links/ReferenceSourceCard.tsx'
 // 평가계획서 분석 미리보기 결과 본문 (Student 결과 페이지와 같은 화면, Router 없음). 학교별 평가계획서의 자동 분석 미리보기에서 쓴다 (2026-11-12)
 export { AnalysisPreviewResult } from '../../../../../student/src/features/assessment/components/pdf-import/AnalysisPreviewResult.tsx'
+// 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용 렌더러, 2026-11-14)
+export { MonthlyPlanner } from '../../../../../student/src/features/assessment/components/teaching-plan/MonthlyPlanner.tsx'
+export type { TeachingPlanEntry } from '../../../../../student/src/features/assessment/components/teaching-plan/teachingPlanPlacement.ts'

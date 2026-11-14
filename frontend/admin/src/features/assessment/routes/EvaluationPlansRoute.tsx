@@ -4,8 +4,8 @@ import { addPlanRevision, downloadPlanRevision, importPlanAnalysis, isAdminMockD
 import { AnalysisPreviewError, requestAnalysisPreview } from '../api/canonicalSource.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, PlanAnalysisStatus } from '../api/types.ts'
 import { FieldError, RemoteView } from '../components/AdminParts.tsx'
-import { AlertIcon, CapIcon, EmptyState, FileIcon, Modal, PlusIcon, Toast, UploadIcon, type ToastMessage } from '../components/canonicalUi.ts'
-import { analysisLabels, dateLabel, fileSizeLabel, nextToastId } from '../model/adminFormat.ts'
+import { AlertIcon, FileIcon, Modal, Toast, UploadIcon, type ToastMessage } from '../components/canonicalUi.ts'
+import { dateLabel, fileSizeLabel, nextToastId } from '../model/adminFormat.ts'
 import { useCommand, useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
 import review from '../review/review.module.css'
@@ -34,19 +34,26 @@ type AnalyzerOutcome =
   | { kind: 'imported'; planId: string; revisionId: string }
   | { kind: 'failed'; planId: string; revisionId: string; message: string }
 
-// AD-03 학교별 평가계획서 (AM-07). 학교 → 학년도 → 학년×학기 칸. 한 칸에 여러 PDF·개정본을 둘 수 있고 기존 파일을 덮어쓰지 않는다 (§38).
-// 학교 정보 자체는 기존 LearnersHigh가 관리한다 (API-OD-A01) — 여기서 학교를 새로 만들지 않는다.
+// AD-03 학교별 평가계획서 (2차 UI, 2026-11-14 — 다글로 '내 PDF·전체 보드' 목록 참고).
+// 정책: 정상 인증된 관리자는 모든 학교의 평가계획서를 등록·분석·검토·확정한다(OD-A08). 학생 기록·Student Care 권한과는 별개다.
+// 학교 원천: 전체 학교 목록 API가 아직 없다(API-OD-A01). 아래 목록은 '담당 학생 학교 + 개발 설정'이라 전체 학교가 아니다 —
+//   목록에 없는 학교는 학교 코드로 직접 연다(서버가 모든 학교를 허용한다). 학교를 새로 만들거나 이름을 지어내지 않는다.
+// 한 학년·학기에 여러 문서·개정본을 둘 수 있고 기존 파일을 덮어쓰지 않는다 (§38).
 export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const schools = useRemote(() => listSchools(), [])
-  const schoolId = search.get('school') ?? (schools.state.status === 'success' ? schools.state.data.items[0]?.schoolId : undefined) ?? ''
-  const selectedSchool = schools.state.status === 'success' ? schools.state.data.items.find((school) => school.schoolId === schoolId) : undefined
-  // 공식 운영 권한(OD-A08)이 없는 담당 학교: 서버가 403을 주는 목록·학년도 조회를 하지 않고 자동 분석 미리보기만 연다 (2026-11-12)
+  const knownSchools = schools.state.status === 'success' ? schools.state.data.items : []
+  const schoolId = search.get('school') ?? knownSchools[0]?.schoolId ?? ''
+  const selectedSchool = knownSchools.find((school) => school.schoolId === schoolId)
+  // 개발 전용: 운영 권한 없는 담당 학교의 자동 분석 미리보기 (2026-11-12). http 운영 정책(모든 학교 허용)에서는 쓰지 않는다
   const planOperable = (selectedSchool as { planOperable?: boolean } | undefined)?.planOperable !== false
   const years = useRemote(() => (schoolId && planOperable ? listPlanYears(schoolId) : Promise.resolve([])), [schoolId, planOperable])
   const yearList = years.state.status === 'success' ? years.state.data : []
   const year = Number(search.get('year') ?? '') || yearList[0]
   const plans = useRemote(() => (schoolId && year && planOperable ? listEvaluationPlans({ schoolId, academicYear: year }) : Promise.resolve({ items: [] })), [schoolId, year, planOperable])
-  const selectedSlot = search.get('slot')
+  const gradeFilter = Number(search.get('grade') ?? '') || null
+  const semesterFilter = Number(search.get('semester') ?? '') || null
+  const [query, setQuery] = useState('')
+  const [schoolCode, setSchoolCode] = useState('')
   const [upload, setUpload] = useState<{ grade: number; semester: number; planId?: string } | null>(null)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const { run, pending } = useCommand()
@@ -79,124 +86,161 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
             ? '분석하지 못했어요. 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.'
             : '분석기가 이 문서에서 평가 정보를 찾지 못했어요(분석 실패로 저장). 원문을 직접 확인해 주세요.'
           : partial
-            ? '일부만 분석된 결과(부분 분석)를 저장했어요. "분석 결과 열기"에서 빠진 부분을 원문과 대조해 주세요.'
-            : '분석 결과를 저장했어요. "분석 결과 열기"에서 원문과 대조해 확인해 주세요.',
+            ? '일부만 분석된 결과를 저장했어요. "검토"에서 빠진 부분을 원문과 대조해 주세요.'
+            : '분석 결과를 저장했어요. "검토"에서 원문과 대조해 확인해 주세요.',
       })
     } else setToast({ id: nextToastId(), tone: 'error', text: `${outcome.error.message} (${outcome.error.code}${analysisReason(outcome.error)})` })
   }
 
+  const openCode = () => {
+    const code = schoolCode.trim()
+    if (code) setParams({ school: code, year: null, grade: null, semester: null })
+  }
+
   return (
-    <div className={styles.master}>
-      <div className={styles.masterList}>
-        <RemoteView state={schools.state} label="학교" onRetry={schools.reload}>
-          {(data) => (
-            <ul className={styles.listPlain} aria-label="학교 목록">
-              {data.items.map((school) => (
-                <li key={school.schoolId}>
-                  <button type="button" className={styles.masterItem} aria-current={school.schoolId === schoolId ? 'true' : undefined} onClick={() => setParams({ school: school.schoolId, year: null, slot: null })}>
-                    <span className={styles.sourceIcon}>
-                      <CapIcon size={16} />
-                    </span>
-                    <span>
-                      <span className={styles.cellTitle}>{school.name}</span>
-                      <span className={styles.cellSub}>{school.documentCount === null ? '자동 분석 미리보기' : `PDF ${school.documentCount}개`}</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </RemoteView>
-        <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} style={{ width: '100%', marginTop: 10 }} disabled title="학교 정보는 기존 LearnersHigh 학원·학생 관리에서 관리해요 (API-OD-A01)">
-          + 신규 학교 등록
+    <div className={review.listPage} data-testid="plans-page">
+      <div className={review.listHead}>
+        <h2>학교별 평가계획서</h2>
+        {!isAdminMockDataSource && import.meta.env.DEV && (
+          <button type="button" className={review.button} onClick={() => navigate(paths.planAi)} data-testid="open-plan-ai">
+            PDF AI 분석
+          </button>
+        )}
+        <button type="button" className={review.buttonPrimary} onClick={() => setUpload({ grade: gradeFilter ?? 1, semester: semesterFilter ?? 2 })} disabled={!schoolId || !year} data-testid="plan-upload-open">
+          <UploadIcon size={15} /> 평가계획서 등록
         </button>
-        <p className={styles.hint} style={{ marginTop: 6 }}>
-          학교는 담당 학생의 학교만 보여요. 학교 등록은 기존 LearnersHigh 관리 기능 소관이에요.
-        </p>
       </div>
 
-      <div className={styles.body}>
-        {!schoolId ? (
-          <EmptyState title="담당 학생의 학교가 없어요" />
-        ) : !planOperable ? (
-          analyzerUpload ? (
-            <PlanAnalysisPreviewPanel key={schoolId} schoolName={selectedSchool?.name ?? ''} academicYear={devCurrentTerm().academicYear} />
-          ) : (
-            <EmptyState title="이 학교의 평가계획서 운영 권한이 없어요" description="공식 등록·검토·확정은 운영 권한이 있는 관리자만 할 수 있어요 (OD-A08)." />
-          )
-        ) : (
-          <>
-            <div className={styles.toolbar}>
-              <h2 className={styles.sectionTitle} style={{ fontSize: 18 }}>
-                {selectedSchool?.name ?? ''}
-              </h2>
-              <select className={styles.select} aria-label="학년도" value={year ?? ''} onChange={(event) => setParams({ year: event.target.value, slot: null })}>
-                {yearList.map((value) => (
-                  <option key={value} value={value}>
-                    {value}학년도
-                  </option>
-                ))}
-              </select>
-              {/* 실제 AI 분석 (요청 ⑨-A): 원본 PDF를 서버로 보내 분석하고 관리자 검토 화면에서 비교한다 */}
-              <button type="button" className={`${styles.secondaryButton} ${styles.toolbarEnd}`} onClick={() => navigate(paths.planAi)} data-testid="open-plan-ai">
-                PDF AI 분석
-              </button>
-              <button type="button" className={styles.primaryButton} onClick={() => setUpload({ grade: 1, semester: 2 })}>
-                <UploadIcon size={15} /> 평가계획서 등록
-              </button>
-            </div>
-            <RemoteView state={plans.state} label="평가계획서" onRetry={plans.reload}>
-              {(data) => {
-                const slot = (grade: number, semester: number) => data.items.filter((plan) => plan.grade === grade && plan.semester === semester)
-                const [selGrade, selSemester] = (selectedSlot ?? '').split('-').map(Number)
-                const selectedPlans = selGrade ? slot(selGrade, selSemester) : []
-                return (
-                  <>
-                    <div className={styles.slotGrid} role="group" aria-label="학년·학기별 평가계획서">
-                      <span className={styles.slotHead} />
-                      <span className={styles.slotHead}>1학기</span>
-                      <span className={styles.slotHead}>2학기</span>
-                      {[1, 2, 3].map((grade) => (
-                        <SlotRow key={grade} grade={grade} slot={slot} selected={selectedSlot} onSelect={(key) => setParams({ slot: key })} />
-                      ))}
-                    </div>
-                    <p className={styles.hint} style={{ margin: '8px 0 20px' }}>
-                      학년·학기 칸마다 여러 PDF를 올릴 수 있어요 (과목별 PDF · 전체 합본 모두 가능). 없는 학기 자료는 만들지 않고 &lsquo;등록 필요&rsquo;로 둬요.
-                    </p>
-                    {selGrade ? (
-                      <>
-                        <div className={styles.sectionHead}>
-                          <h3 className={styles.sectionTitle}>
-                            {year}학년도 · 고{selGrade} {selSemester}학기
-                          </h3>
-                          <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={() => setUpload({ grade: selGrade, semester: selSemester })}>
-                            <PlusIcon size={14} /> 이 칸에 PDF 추가
-                          </button>
-                        </div>
-                        {selectedPlans.length === 0 ? (
-                          <EmptyState title="등록된 평가계획서가 없어요" description="학교 홈페이지·학교알리미의 원본 PDF를 등록해 주세요." />
-                        ) : (
-                          <div className={styles.stack}>
-                            {selectedPlans.map((plan) => (
-                              <PlanCard key={plan.planId} plan={plan} pending={pending} analyzingRevisionId={analyzingRevisionId} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} />
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <p className={styles.muted}>칸을 고르면 등록된 PDF와 개정 이력을 볼 수 있어요.</p>
-                    )}
-                  </>
-                )
-              }}
-            </RemoteView>
-          </>
-        )}
+      <div className={review.toolbar}>
+        <select className={review.select} aria-label="학교" value={schoolId} onChange={(event) => setParams({ school: event.target.value, year: null })} data-testid="plans-school">
+          {!selectedSchool && schoolId && <option value={schoolId}>학교 코드 {schoolId}</option>}
+          {knownSchools.map((school) => (
+            <option key={school.schoolId} value={school.schoolId}>
+              {school.name}
+            </option>
+          ))}
+          {knownSchools.length === 0 && !schoolId && <option value="">학교 없음</option>}
+        </select>
+        <select className={review.select} aria-label="학년도" value={year ?? ''} onChange={(event) => setParams({ year: event.target.value })}>
+          {yearList.map((value) => (
+            <option key={value} value={value}>
+              {value}학년도
+            </option>
+          ))}
+        </select>
+        <select className={review.select} aria-label="학년" value={gradeFilter ?? ''} onChange={(event) => setParams({ grade: event.target.value || null })}>
+          <option value="">전체 학년</option>
+          {[1, 2, 3].map((value) => (
+            <option key={value} value={value}>
+              고{value}
+            </option>
+          ))}
+        </select>
+        <select className={review.select} aria-label="학기" value={semesterFilter ?? ''} onChange={(event) => setParams({ semester: event.target.value || null })}>
+          <option value="">전체 학기</option>
+          <option value={1}>1학기</option>
+          <option value={2}>2학기</option>
+        </select>
+        <div className={review.search}>
+          <input className={review.input} type="search" value={query} placeholder="문서 이름 검색" aria-label="문서 이름 검색" onChange={(event) => setQuery(event.target.value)} />
+        </div>
       </div>
+      <p className={review.sourceNote}>
+        학교 목록은 담당 학생의 학교와 개발 설정이에요(전체 학교 목록 연결 전). 다른 학교는 학교 코드로 열 수 있어요{' '}
+        <input className={review.input} style={{ width: 150, height: 30, fontSize: 12.5, marginLeft: 4 }} value={schoolCode} placeholder="학교 코드" aria-label="학교 코드로 열기" onChange={(event) => setSchoolCode(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && openCode()} />{' '}
+        <button type="button" className={review.link} onClick={openCode} disabled={!schoolCode.trim()}>
+          열기
+        </button>
+      </p>
+
+      {schools.state.status === 'error' && knownSchools.length === 0 && !search.get('school') ? (
+        <div className={review.empty} role="alert">
+          <strong>학교 목록을 불러오지 못했어요</strong>
+          <span className={review.muted}>{schools.state.error.message} · 학교 코드로 직접 열 수 있어요.</span>
+          <button type="button" className={review.button} onClick={schools.reload}>
+            다시 시도
+          </button>
+        </div>
+      ) : !schoolId ? (
+        <div className={review.empty}>
+          <strong>학교를 골라 주세요</strong>
+          <span className={review.muted}>목록에 없는 학교는 위의 학교 코드로 열 수 있어요.</span>
+        </div>
+      ) : !planOperable ? (
+        analyzerUpload ? (
+          <PlanAnalysisPreviewPanel key={schoolId} schoolName={selectedSchool?.name ?? ''} academicYear={devCurrentTerm().academicYear} />
+        ) : (
+          <div className={review.empty}>
+            <strong>이 학교 평가계획서를 열 수 없어요</strong>
+            <span className={review.muted}>서버가 이 관리자 계정의 평가계획서 운영을 허용하지 않았어요.</span>
+          </div>
+        )
+      ) : (
+        <RemoteView state={plans.state} label="평가계획서" onRetry={plans.reload}>
+          {(data) => {
+            const filtered = data.items.filter(
+              (plan) =>
+                (!gradeFilter || plan.grade === gradeFilter) &&
+                (!semesterFilter || plan.semester === semesterFilter) &&
+                (!query.trim() || plan.revisions.some((revision) => revision.fileName.toLowerCase().includes(query.trim().toLowerCase()))),
+            )
+            const sorted = [...filtered].sort((a, b) => a.grade - b.grade || a.semester - b.semester)
+            if (data.items.length === 0) {
+              return (
+                <div className={review.empty} data-testid="plans-empty">
+                  <FileIcon size={28} />
+                  <strong>{year}학년도에 등록된 평가계획서가 없어요</strong>
+                  <span className={review.muted}>학교 홈페이지·학교알리미의 원본 파일(PDF·HWP·HWPX)을 등록해 주세요.</span>
+                  <button type="button" className={review.buttonPrimary} onClick={() => setUpload({ grade: 1, semester: 2 })}>
+                    평가계획서 등록
+                  </button>
+                </div>
+              )
+            }
+            if (sorted.length === 0) {
+              return (
+                <div className={review.empty}>
+                  <strong>조건에 맞는 문서가 없어요</strong>
+                  <button
+                    type="button"
+                    className={review.link}
+                    onClick={() => {
+                      setQuery('')
+                      setParams({ grade: null, semester: null })
+                    }}
+                  >
+                    필터 지우기
+                  </button>
+                </div>
+              )
+            }
+            return (
+              <table className={review.docTable} data-testid="plans-table">
+                <thead>
+                  <tr>
+                    <th scope="col">문서</th>
+                    <th scope="col">분석</th>
+                    <th scope="col">검토 · 학생 공개</th>
+                    <th scope="col">등록일</th>
+                    <th scope="col">
+                      <span className="lh-visually-hidden">동작</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((plan) => (
+                    <PlanRow key={plan.planId} plan={plan} pending={pending} analyzingRevisionId={analyzingRevisionId} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} />
+                  ))}
+                </tbody>
+              </table>
+            )
+          }}
+        </RemoteView>
+      )}
       {upload && schoolId && year && (
         <UploadPlanModal
           schoolId={schoolId}
-          schoolName={schools.state.status === 'success' ? schools.state.data.items.find((school) => school.schoolId === schoolId)?.name ?? '' : ''}
+          schoolName={selectedSchool?.name ?? `학교 코드 ${schoolId}`}
           academicYear={year}
           years={yearList.length ? yearList : [year]}
           initial={upload}
@@ -204,17 +248,16 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
           onDone={(plan, { revision, analysis, analysisError, analyzer }) => {
             setUpload(null)
             if (analyzer?.kind === 'imported') {
-              // 분석 결과는 DB(Revision·분석 후보)에 저장됐다 → 전체 페이지 검토 화면으로 이동 (새로고침해도 다시 조회됨)
               navigate(paths.planReview(analyzer.planId, analyzer.revisionId))
               return
             }
             const latest = plan.revisions[plan.revisions.length - 1]
             if (!isAdminMockDataSource && latest && (analysis === 'REVIEW_REQUIRED' || analysis === 'PARTIAL')) {
-              // 서버 분석 결과가 저장됐다 → 검토 Workspace의 '분석 요약'부터 보여 준다 (2026-11-14 UI 재설계)
+              // 서버 분석 결과가 저장됐다 → 검토 Workspace의 '분석 결과 확인'부터 보여 준다
               navigate(paths.planReview(plan.planId, latest.documentRevisionId))
               return
             }
-            setParams({ year: String(plan.academicYear), slot: `${plan.grade}-${plan.semester}` })
+            setParams({ year: String(plan.academicYear) })
             plans.reload()
             schools.reload()
             const analysisText = !isAdminMockDataSource
@@ -231,41 +274,6 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   )
 }
 
-/** 칸 문구: 최신 Revision의 실제 문서 형식으로 쓴다 (예: "HWP 1개 등록됨", 섞이면 "문서 2개 등록됨 (PDF·HWP)") */
-function registeredLabel(latest: AdminEvaluationPlanRevision[], count: number): string {
-  const formats = [...new Set(latest.map((revision) => revision.documentFormat ?? 'PDF'))]
-  return formats.length === 1 ? `${formats[0]} ${count}개 등록됨` : `문서 ${count}개 등록됨 (${formats.join('·')})`
-}
-
-function SlotRow({ grade, slot, selected, onSelect }: { grade: number; slot: (grade: number, semester: number) => AdminEvaluationPlan[]; selected: string | null; onSelect: (key: string) => void }) {
-  return (
-    <>
-      <span className={styles.slotGrade}>고{grade}</span>
-      {[1, 2].map((semester) => {
-        const plans = slot(grade, semester)
-        const revisions = plans.flatMap((plan) => plan.revisions)
-        const latest = plans.map((plan) => plan.revisions[plan.revisions.length - 1])
-        const needsAttention = (revision: AdminEvaluationPlanRevision) => revision.analysisStatus === 'REVIEW_REQUIRED' || revision.analysisStatus === 'PARTIAL' || revision.analysisStatus === 'FAILED'
-        const status = latest.find(needsAttention)?.analysisStatus ?? latest[0]?.analysisStatus
-        const key = `${grade}-${semester}`
-        return (
-          <button key={semester} type="button" className={styles.slot} data-empty={plans.length === 0 ? 'true' : undefined} aria-pressed={selected === key} onClick={() => onSelect(key)}>
-            <span>
-              <FileIcon size={15} /> {plans.length === 0 ? '등록 필요' : registeredLabel(latest, plans.length)}
-              {plans.length > 0 && <span className={styles.cellSub}>개정본 포함 {revisions.length}개 파일</span>}
-            </span>
-            {status && (
-              <span className={styles.badge} data-tone={analysisLabels[status].tone}>
-                {analysisLabels[status].label}
-              </span>
-            )}
-          </button>
-        )
-      })}
-    </>
-  )
-}
-
 /** 서버 분석 오류 사유(details.fields[0].reason: busy·timeout·status_conflict·format_contract_pending 등)를 짧게 덧붙인다 */
 function analysisReason(error: { details?: unknown }): string {
   const fields = (error.details as { fields?: { reason?: string }[] } | undefined)?.fields
@@ -273,11 +281,20 @@ function analysisReason(error: { details?: unknown }): string {
   return reason ? ` · ${reason}` : ''
 }
 
-function PlanCard({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; analyzingRevisionId: string | null; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
+// 상태 문구는 서버 값으로만: 분석 상태 / 검토(확정 여부) / 학생 공개 = 확정값만 (확정값 개수는 최신 개정본의 confirmedFields)
+const analysisText: Record<PlanAnalysisStatus, { text: string; tone?: 'neutral' | 'danger' }> = {
+  NOT_REQUESTED: { text: '분석 전', tone: 'neutral' },
+  PROCESSING: { text: '분석 중' },
+  REVIEW_REQUIRED: { text: '검토 필요' },
+  PARTIAL: { text: '일부 항목 확인 필요' },
+  COMPLETED: { text: '분석 완료', tone: 'neutral' },
+  FAILED: { text: '분석 실패', tone: 'danger' },
+}
+
+function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; analyzingRevisionId: string | null; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
   const latest = plan.revisions[plan.revisions.length - 1]
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const original = latest.file
-  // 원문 내려받기 (형식 그대로). 서버가 크기·SHA-256을 다시 확인해 다르면 409로 막는다.
   const downloadOriginal = () => {
     if (!original?.available) return
     setDownloadError(null)
@@ -293,74 +310,61 @@ function PlanCard({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }:
       (cause: Error) => setDownloadError(`원문을 내려받지 못했어요. ${cause.message}`),
     )
   }
-  const status = analysisLabels[latest.analysisStatus]
+  const analyzing = analyzingRevisionId === latest.documentRevisionId
+  const status = analysisText[latest.analysisStatus]
+  const confirmedCount = latest.confirmedFields.length
+  const format = latest.documentFormat ?? 'PDF'
+  const canAnalyze = latest.analysisStatus === 'NOT_REQUESTED' || latest.analysisStatus === 'FAILED'
   return (
-    <section className={styles.box} aria-label={latest.fileName}>
-      <div className={styles.studentLine} style={{ marginBottom: 4 }}>
-        <strong style={{ color: 'var(--as-color-text)' }}>
-          <FileIcon size={15} /> {latest.fileName}
-        </strong>
-        <span className={styles.actions}>
-          {latest.documentFormat && latest.documentFormat !== 'PDF' && (
-            <span className={styles.badge} data-tone="warning" data-testid="plan-format-badge" title="HWP·HWPX 원문은 보관·내려받기가 돼요. 서비스 안 미리보기(변환 엔진 검증 중)와 공식 확정(실험 기능)은 아직이에요">
-              {latest.documentFormat} · 실험
-            </span>
-          )}
-          <span className={styles.badge} data-tone={status.tone}>
-            {status.label}
-          </span>
-          <span className={styles.badge} data-tone={latest.reviewStatus === 'CONFIRMED' ? 'success' : undefined}>
-            {latest.reviewStatus === 'CONFIRMED' ? '관리자 확인 완료' : '미확인'}
-          </span>
+    <tr data-testid="plan-row">
+      <td data-col="name">
+        <span className={review.docName} title={latest.fileName}>
+          {latest.fileName}
         </span>
-      </div>
-      <p className={styles.muted}>
-        v{latest.revisionNumber} · {dateLabel(latest.uploadedAt)} 등록 · {fileSizeLabel(latest.sizeBytes)} · 출처 {latest.sourceUrl ?? '미기재'}
-      </p>
-      <div className={styles.actions} style={{ marginTop: 10 }}>
-        {latest.analysisStatus === 'NOT_REQUESTED' || latest.analysisStatus === 'FAILED' ? (
-          <button type="button" className={`${styles.primaryButton} ${styles.smallButton}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzingRevisionId === latest.documentRevisionId} data-testid="plan-analyze-button">
-            {analyzingRevisionId === latest.documentRevisionId ? '분석 중… (최대 2분)' : latest.analysisStatus === 'FAILED' ? '분석 다시 요청' : '분석 요청'}
-          </button>
-        ) : (
-          <button type="button" className={`${styles.primaryButton} ${styles.smallButton}`} onClick={() => navigate(paths.planReview(plan.planId, latest.documentRevisionId))}>
-            분석 결과 열기
-          </button>
+        <span className={review.docSub}>
+          고{plan.grade} · {plan.semester}학기 · {format}
+          {format !== 'PDF' ? ' (미리보기 준비 중)' : ''} · v{latest.revisionNumber}
+          {plan.revisions.length > 1 ? ` (개정 ${plan.revisions.length}회)` : ''} · {fileSizeLabel(latest.sizeBytes)}
+        </span>
+        {downloadError && (
+          <span className={review.statusText} data-tone="danger" role="alert">
+            {downloadError}
+          </span>
         )}
-        <button
-          type="button"
-          className={`${styles.secondaryButton} ${styles.smallButton}`}
-          onClick={downloadOriginal}
-          disabled={!original?.available}
-          title={original?.available ? `${original.documentFormat} 원문 내려받기 (SHA-256 ${original.checksum.slice(0, 12)}…)` : '이 개정본은 원문 파일을 보관하지 않았어요 (2026-11-13 이전 등록)'}
-          data-testid="plan-original-download-button"
-        >
-          원본 {latest.documentFormat ?? 'PDF'}
-        </button>
-        <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={onRevision}>
-          개정본 추가
-        </button>
-      </div>
-      {downloadError && (
-        <p className={styles.formError} role="alert" style={{ marginTop: 8 }}>
-          <AlertIcon size={15} /> {downloadError}
-        </p>
-      )}
-      {plan.revisions.length > 1 && (
-        <ul className={styles.listPlain} style={{ marginTop: 10 }} aria-label="개정 이력">
-          {[...plan.revisions].reverse().map((revision) => (
-            <li key={revision.documentRevisionId} className={styles.listRow}>
-              <span>
-                v{revision.revisionNumber} · {revision.fileName} · {dateLabel(revision.uploadedAt)}
-              </span>
-              <span className={styles.badge} data-tone={analysisLabels[revision.analysisStatus].tone}>
-                {analysisLabels[revision.analysisStatus].label}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+      </td>
+      <td>
+        <span className={review.statusText} data-tone={status.tone}>
+          {analyzing ? '분석 중… (최대 2분)' : status.text}
+        </span>
+      </td>
+      <td>
+        <span className={review.statusText} data-tone={latest.reviewStatus === 'CONFIRMED' ? undefined : 'neutral'}>
+          {latest.reviewStatus === 'CONFIRMED' ? `확정값 ${confirmedCount}개 공개` : '확정 전 · 학생 비공개'}
+        </span>
+      </td>
+      <td data-col="date" className={review.tiny}>
+        {dateLabel(latest.uploadedAt)}
+      </td>
+      <td>
+        <div className={review.rowButtons}>
+          {canAnalyze ? (
+            <button type="button" className={`${review.buttonDark} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
+              {analyzing ? '분석 중…' : latest.analysisStatus === 'FAILED' ? '다시 분석' : '분석'}
+            </button>
+          ) : (
+            <button type="button" className={`${review.buttonDark} ${review.small}`} onClick={() => navigate(paths.planReview(plan.planId, latest.documentRevisionId))} data-testid="plan-open-review">
+              {latest.reviewStatus === 'CONFIRMED' ? '결과 보기' : '검토'}
+            </button>
+          )}
+          <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={downloadOriginal} disabled={!original?.available} title={original?.available ? `${format} 원문 내려받기` : '원문을 보관하지 않은 이전 등록분이에요'} data-testid="plan-original-download-button">
+            원문
+          </button>
+          <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={onRevision}>
+            개정본
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }
 
@@ -486,19 +490,19 @@ function UploadPlanModal({
         <>
           <button
             type="button"
-            className={styles.ghostButton}
+            className={review.buttonGhost}
             onClick={() => (savedPlan ? onDone(savedPlan.plan, { revision: savedPlan.revision, analysis: null }) : onClose())}
             disabled={pending}
           >
             {savedPlan ? '분석 없이 닫기' : '취소'}
           </button>
-          <button type="button" className={styles.primaryButton} onClick={submit} disabled={pending || !file} aria-busy={pending} title={!file ? 'PDF 파일을 먼저 골라 주세요' : undefined} data-testid="plan-upload-submit">
+          <button type="button" className={review.buttonPrimary} onClick={submit} disabled={pending || !file} aria-busy={pending} title={!file ? 'PDF 파일을 먼저 골라 주세요' : undefined} data-testid="plan-upload-submit">
             {pending ? (stage === 'analyze' ? '분석 중…' : '올리는 중…') : savedPlan ? '분석 다시 시도' : isRevision ? '개정본 올리고 분석' : '등록하고 분석'}
           </button>
         </>
       }
     >
-      <div className={review.dialogBody} style={{ padding: 0 }} data-testid="plan-upload-dialog">
+      <div className={review.dialogBody} data-testid="plan-upload-dialog">
         <div
           className={review.dropArea}
           data-over={dragging || undefined}
@@ -528,7 +532,7 @@ function UploadPlanModal({
                 {pending && <span className={review.indeterminate} role="progressbar" aria-label={stage === 'analyze' ? '분석 중' : '올리는 중'} style={{ display: 'block' }} />}
               </span>
               {!pending && !savedPlan && (
-                <button type="button" className={review.chipButton} onClick={() => pick(null)} aria-label="고른 파일 지우기">
+                <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={() => pick(null)} aria-label="고른 파일 지우기">
                   지우기
                 </button>
               )}
@@ -536,8 +540,8 @@ function UploadPlanModal({
           ) : (
             <label className={review.dropPrompt}>
               <FileIcon size={28} />
-              <strong style={{ color: 'var(--as-color-text)', fontSize: 15 }}>평가계획서 파일을 끌어다 놓으세요</strong>
-              <span>또는 눌러서 고르기 · PDF{multiformatUpload ? '·HWP·HWPX' : ''} · 20MB까지</span>
+              <strong>평가계획서 파일을 업로드해 주세요</strong>
+              <span>끌어다 놓거나 눌러서 고르기 · PDF{multiformatUpload ? '·HWP·HWPX' : ''} · 20MB 이하</span>
               <input
                 id="plan-file"
                 ref={inputRef}
@@ -564,15 +568,15 @@ function UploadPlanModal({
           )}
         </div>
 
-        <div style={{ display: 'grid', alignContent: 'start', gap: 16 }}>
+        <div className={review.formStack}>
           {!isRevision ? (
-            <div className={review.formGrid}>
-              <label className={review.formField} style={{ gridColumn: '1 / -1' }}>
-                학교
+            <>
+              <label className={review.formRow}>
+                <span>학교</span>
                 <input className={review.input} value={schoolName} readOnly />
               </label>
-              <label className={review.formField}>
-                학년도
+              <label className={review.formRow}>
+                <span>학년도</span>
                 <select className={review.input} value={year} onChange={(event) => setYear(Number(event.target.value))}>
                   {years.map((value) => (
                     <option key={value} value={value}>
@@ -581,8 +585,8 @@ function UploadPlanModal({
                   ))}
                 </select>
               </label>
-              <label className={review.formField}>
-                학년
+              <label className={review.formRow}>
+                <span>학년</span>
                 <select className={review.input} value={grade} onChange={(event) => setGrade(Number(event.target.value))}>
                   {[1, 2, 3].map((value) => (
                     <option key={value} value={value}>
@@ -591,23 +595,23 @@ function UploadPlanModal({
                   ))}
                 </select>
               </label>
-              <label className={review.formField}>
-                학기
+              <label className={review.formRow}>
+                <span>학기</span>
                 <select className={review.input} value={semester} onChange={(event) => setSemester(Number(event.target.value))}>
                   <option value={1}>1학기</option>
                   <option value={2}>2학기</option>
                 </select>
               </label>
-            </div>
+            </>
           ) : (
             <p className={review.muted}>같은 문서에 새 개정본을 올려요. 이전 버전과 검토 기록은 그대로 남아요.</p>
           )}
-          <label className={review.formField}>
-            원본 출처 주소 (선택)
+          <label className={review.formRow}>
+            <span>출처 (선택)</span>
             <input className={review.input} type="url" value={sourceUrl} placeholder="학교 홈페이지·학교알리미 게시 주소" onChange={(event) => setSourceUrl(event.target.value)} />
           </label>
           <div className={review.guide}>
-            <strong style={{ fontSize: 14 }}>등록 안내</strong>
+            <strong>등록 안내</strong>
             <ul>
               {isAdminMockDataSource ? (
                 <li>시연용 화면이에요. 파일은 서버에 저장되지 않아요.</li>

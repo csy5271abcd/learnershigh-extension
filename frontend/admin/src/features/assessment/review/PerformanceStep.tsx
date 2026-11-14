@@ -1,170 +1,185 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
+import { CheckIcon } from '../components/canonicalUi.ts'
 import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, type Decision } from './reviewModel.ts'
 import styles from './review.module.css'
 
-// 3단계 수행평가 검토: 과목 → 수행평가 카드 → 항목별 확인·수정.
-// 결정(맞아요/수정/원문에 없음)은 이 화면 안 상태이고 서버 임시 저장은 없다. 최종 확정 때 PUT review로 저장된다.
-// 값이 없는 후보는 '확인 필요'로 강조하고 0으로 바꾸지 않는다.
+// 3단계 수행평가 세부기준 검토: 왼쪽 목록(과목 → 평가 비율 · 수행평가) | 오른쪽 선택 항목 상세.
+// 필드는 "이름 · 값 · 원문 쪽 · [확인][수정]" 한 줄. 수정할 때만 입력을 펼친다. 항목이 100개여도 한 번에 한 수행평가만 본다.
+// 결정은 화면 상태(브라우저 임시 보관)이고 서버 저장은 최종 확정(PUT review) 때 한다. 값 없는 후보는 0으로 바꾸지 않는다.
+
+export type PerformanceSelection = { subjectIndex: number; item: 'common' | number }
 
 interface StepProps {
   view: EvaluationPlanAnalysisView
-  subjectIndex: number
-  onSubject: (index: number) => void
+  selection: PerformanceSelection
+  onSelect: (selection: PerformanceSelection) => void
   decisions: Record<string, Decision>
   onDecide: (field: ReviewFieldCandidate, decision: Decision | null) => void
   onJump: (page: number) => void
   readOnly: boolean
 }
 
-export function PerformanceStep({ view, subjectIndex, onSubject, decisions, onDecide, onJump, readOnly }: StepProps) {
-  const fields = (view.reviewFields ?? []).filter((field) => field.subjectIndex === subjectIndex)
-  const subject = view.subjects[subjectIndex]
-  const commonFields = fields.filter((field) => !field.fieldPath.startsWith('performanceEvaluation.items['))
-  const items = (view.itemDetails ?? []).filter((item) => item.subjectIndex === subjectIndex)
-  const itemFields = (itemIndex: number) => fields.filter((field) => field.fieldPath.startsWith(`performanceEvaluation.items[${itemIndex}].`))
+const isItemField = (field: ReviewFieldCandidate, itemIndex: number) => field.fieldPath.startsWith(`performanceEvaluation.items[${itemIndex}].`)
+const isCommonField = (field: ReviewFieldCandidate) => !field.fieldPath.startsWith('performanceEvaluation.items[')
+
+export function PerformanceStep({ view, selection, onSelect, decisions, onDecide, onJump, readOnly }: StepProps) {
+  const fields = view.reviewFields ?? []
+  const remaining = (list: ReviewFieldCandidate[]) => list.filter((field) => !decisions[fieldKey(field)]).length
+  const subjectFields = (index: number) => fields.filter((field) => field.subjectIndex === index)
+  const items = (index: number) => (view.itemDetails ?? []).filter((item) => item.subjectIndex === index)
+
+  const current = subjectFields(selection.subjectIndex).filter((field) => (selection.item === 'common' ? isCommonField(field) : isItemField(field, selection.item)))
+  const item = selection.item === 'common' ? null : items(selection.subjectIndex).find((detail) => detail.itemIndex === selection.item) ?? null
+  const subject = view.subjects[selection.subjectIndex]
 
   return (
-    <div data-testid="review-step-performance">
-      <h3 className={styles.stepTitle}>수행평가 세부기준 검토</h3>
-      <p className={styles.stepLead}>원문과 비교해 맞는 값은 &lsquo;맞아요&rsquo;, 다른 값은 &lsquo;수정&rsquo;을 눌러 고쳐 주세요. 원문 쪽 버튼을 누르면 왼쪽 원문이 그 쪽으로 이동해요.</p>
-
-      {view.reviewStatus === 'CONFIRMED' && (
-        <div className={styles.notice} data-tone="success" role="status" data-testid="performance-confirmed-notice">
-          <div>
-            <strong>확정이 끝난 문서예요</strong>
-            <p>아래는 분석기 후보(읽기 전용)예요. 학생에게 공개된 확정값은 &lsquo;최종 확정&rsquo; 단계에서 볼 수 있어요.</p>
-          </div>
-        </div>
-      )}
-      <div className={styles.subjectRail} role="group" aria-label="과목 선택">
-        {view.subjects.map((item, index) => {
-          const list = (view.reviewFields ?? []).filter((field) => field.subjectIndex === index)
-          const reviewed = list.filter((field) => decisions[fieldKey(field)]).length
+    <div className={styles.master} data-testid="review-step-performance">
+      <nav className={styles.nav} aria-label="수행평가 목록">
+        {view.subjects.map((entry, index) => {
+          const common = subjectFields(index).filter(isCommonField)
           return (
-            <button key={`${item.subjectName}-${index}`} type="button" className={styles.subjectChip} aria-pressed={index === subjectIndex} onClick={() => onSubject(index)}>
-              <strong title={item.subjectName}>{item.subjectName}</strong>
-              <span className={styles.tiny}>
-                수행평가 {item.performanceEvaluation?.items.length ?? 0}개 · 검토 {reviewed}/{list.length}
+            <div key={`${entry.subjectName}-${index}`} className={styles.navGroup}>
+              <span className={styles.navSubject} title={entry.subjectName}>
+                {entry.subjectName}
               </span>
-            </button>
+              {common.length > 0 && (
+                <NavItem label="평가 비율" left={remaining(common)} current={selection.subjectIndex === index && selection.item === 'common'} onClick={() => onSelect({ subjectIndex: index, item: 'common' })} />
+              )}
+              {items(index).map((detail) => {
+                const list = subjectFields(index).filter((field) => isItemField(field, detail.itemIndex ?? -1))
+                return (
+                  <NavItem
+                    key={`${detail.itemKey}-${detail.itemIndex}`}
+                    label={detail.label || '이름 미확인 수행평가'}
+                    left={remaining(list)}
+                    current={selection.subjectIndex === index && selection.item === detail.itemIndex}
+                    onClick={() => onSelect({ subjectIndex: index, item: detail.itemIndex ?? 0 })}
+                  />
+                )
+              })}
+              {items(index).length === 0 && <p className={styles.tiny} style={{ margin: '4px 10px' }}>추출된 수행평가 없음</p>}
+            </div>
           )
         })}
-      </div>
+      </nav>
 
-      {!subject ? (
-        <p className={styles.muted}>분석기가 인식한 과목이 없어요. 원문을 직접 확인해 주세요.</p>
-      ) : (
-        <>
-          {commonFields.length > 0 && (
-            <section className={styles.itemCard} aria-label={`${subject.subjectName} 평가 비율`}>
-              <div className={styles.itemHead}>
-                <h4>{subject.subjectName} · 평가 비율</h4>
-              </div>
-              <div className={styles.fieldGrid}>
-                {commonFields.map((field) => (
-                  <FieldTile key={fieldKey(field)} field={field} view={view} decision={decisions[fieldKey(field)]} onDecide={onDecide} onJump={onJump} readOnly={readOnly} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {items.length === 0 ? (
-            <div className={styles.softCard} style={{ marginTop: 14 }}>
-              <p className={styles.muted}>이 과목에서 추출한 수행평가가 없어요. 분석되지 않았을 수 있으니 원문을 직접 확인해 주세요.</p>
+      <section className={styles.detail} aria-label="선택한 항목 상세">
+        {view.reviewStatus === 'CONFIRMED' && (
+          <p className={styles.tiny} style={{ margin: '0 0 12px' }} data-testid="performance-confirmed-notice">
+            확정된 문서예요. 아래는 분석기 후보(읽기 전용)이고, 학생에게 공개된 확정값은 &lsquo;최종 확정&rsquo;에서 볼 수 있어요.
+          </p>
+        )}
+        {!subject ? (
+          <p className={styles.muted}>분석기가 인식한 과목이 없어요. 원문을 직접 확인해 주세요.</p>
+        ) : (
+          <>
+            <span className={styles.tiny}>{subject.subjectName}</span>
+            <div className={styles.detailHead}>
+              <h4>{item ? item.label || '이름 미확인 수행평가' : '평가 비율'}</h4>
+              <span className={styles.statusText} data-tone={remaining(current) === 0 ? undefined : 'neutral'}>
+                {current.length === 0 ? '' : remaining(current) === 0 ? '모두 확인했어요' : `확인 ${remaining(current)}개 남음`}
+              </span>
             </div>
-          ) : (
-            items.map((item) => {
-              const list = itemFields(item.itemIndex ?? -1)
-              const reviewed = list.filter((field) => decisions[fieldKey(field)]).length
-              const pending = list.length - reviewed
-              return (
-                <section key={`${item.itemKey}-${item.itemIndex}`} className={styles.itemCard} style={{ marginTop: 14 }} aria-label={item.label} data-testid="review-item-card">
-                  <div className={styles.itemHead}>
-                    <h4>{item.label || '이름을 읽지 못한 수행평가'}</h4>
-                    {list.length > 0 && pending === 0 ? (
-                      <span className={styles.pill} data-tone="success">검토 완료</span>
-                    ) : (
-                      <span className={styles.pill} data-tone="warning">확인 {pending}개 남음</span>
-                    )}
-                  </div>
-                  <div className={styles.fieldGrid}>
-                    {list.map((field) => (
-                      <FieldTile key={fieldKey(field)} field={field} view={view} decision={decisions[fieldKey(field)]} onDecide={onDecide} onJump={onJump} readOnly={readOnly} />
-                    ))}
-                  </div>
-                  <div className={styles.itemDetail}>
-                    <div>
-                      <span className={styles.detailLabel}>평가 방법 · 활동</span>
-                      <p className={styles.detailText}>{item.content ?? '분석되지 않음 · 원문 확인 필요'}</p>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-                      <div>
-                        <span className={styles.detailLabel}>제출물</span>
-                        <p className={styles.detailText}>{item.submissions.length ? item.submissions.join(', ') : '분석되지 않음'}</p>
-                      </div>
-                      <div>
-                        <span className={styles.detailLabel}>조건</span>
-                        <p className={styles.detailText}>{item.conditions.length ? item.conditions.join('\n') : '분석되지 않음'}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <span className={styles.detailLabel}>채점기준표 (분석기 후보)</span>
-                      {item.rubric.length === 0 ? (
-                        <p className={styles.detailText}>분석되지 않음 · 원문 확인 필요</p>
-                      ) : (
-                        <table className={styles.rubric} data-testid="review-rubric">
-                          <thead>
-                            <tr>
-                              <th scope="col">평가 요소</th>
-                              <th scope="col">수행 수준</th>
-                              <th scope="col" style={{ width: 70 }}>배점</th>
-                              <th scope="col" style={{ width: 92 }}>원문</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {item.rubric.flatMap((criterion, criterionIndex) => {
-                              const levels = criterion.levels.length ? criterion.levels : [null]
-                              return levels.map((level, levelIndex) => (
-                                <tr key={`${criterionIndex}-${levelIndex}`}>
-                                  {levelIndex === 0 && (
-                                    <td rowSpan={levels.length} style={{ fontWeight: 600 }}>
-                                      {criterion.element}
-                                    </td>
-                                  )}
-                                  <td>{level ? level.description : '수준 분석되지 않음'}</td>
-                                  <td>{level && level.score !== null ? `${level.score}점` : '확인 필요'}</td>
-                                  {levelIndex === 0 && (
-                                    <td rowSpan={levels.length}>
-                                      {criterion.sourcePages.length
-                                        ? criterion.sourcePages.map((page) => (
-                                            <button key={page} type="button" className={styles.pageLink} onClick={() => onJump(page)}>
-                                              {page}쪽
-                                            </button>
-                                          ))
-                                        : <span className={styles.tiny}>근거 없음</span>}
-                                    </td>
-                                  )}
-                                </tr>
-                              ))
-                            })}
-                          </tbody>
-                        </table>
-                      )}
-                      <p className={styles.tiny} style={{ marginTop: 6 }}>채점기준표는 지금 화면에서 확인용으로만 보여요. 수준·배점 단위 확정은 분석 계약(0.3)이 정해진 뒤 열려요.</p>
-                    </div>
-                  </div>
-                </section>
-              )
-            })
-          )}
-        </>
-      )}
+
+            <ul className={styles.rows} style={{ marginTop: 16 }} data-testid="review-field-list">
+              {current.length === 0 ? (
+                <li className={styles.row}>
+                  <span className={styles.muted}>확인할 값이 없어요. 원문을 직접 확인해 주세요.</span>
+                </li>
+              ) : (
+                current.map((field) => <FieldRow key={fieldKey(field)} field={field} view={view} decision={decisions[fieldKey(field)]} onDecide={onDecide} onJump={onJump} readOnly={readOnly} />)
+              )}
+            </ul>
+
+            {item && (
+              <>
+                <p className={styles.sectionLabel}>평가 방법 · 활동</p>
+                <p className={styles.prose}>{item.content ?? '분석되지 않음 — 원문을 확인해 주세요.'}</p>
+
+                <ul className={styles.rows} style={{ marginTop: 16 }}>
+                  <li className={styles.row}>
+                    <span className={styles.rowLabel}>제출물</span>
+                    <span className={styles.rowValue} style={{ fontWeight: 500 }}>
+                      {item.submissions.length ? item.submissions.join(', ') : '분석되지 않음'}
+                    </span>
+                  </li>
+                  <li className={styles.row}>
+                    <span className={styles.rowLabel}>조건</span>
+                    <span className={styles.rowValue} style={{ fontWeight: 500, whiteSpace: 'pre-line' }}>
+                      {item.conditions.length ? item.conditions.join('\n') : '분석되지 않음'}
+                    </span>
+                  </li>
+                </ul>
+
+                <p className={styles.sectionLabel}>채점기준표 · 분석기 후보</p>
+                {item.rubric.length === 0 ? (
+                  <p className={styles.muted}>분석되지 않음 — 원문을 확인해 주세요.</p>
+                ) : (
+                  <table className={styles.table} data-testid="review-rubric">
+                    <thead>
+                      <tr>
+                        <th scope="col" style={{ width: '24%' }}>평가 요소</th>
+                        <th scope="col">수행 수준</th>
+                        <th scope="col" style={{ width: 72 }}>배점</th>
+                        <th scope="col" style={{ width: 84 }}>원문</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {item.rubric.flatMap((criterion, criterionIndex) => {
+                        const levels = criterion.levels.length ? criterion.levels : [null]
+                        return levels.map((level, levelIndex) => (
+                          <tr key={`${criterionIndex}-${levelIndex}`}>
+                            {levelIndex === 0 && (
+                              <td rowSpan={levels.length} style={{ fontWeight: 600 }}>
+                                {criterion.element}
+                              </td>
+                            )}
+                            <td>{level ? level.description : '수준 분석되지 않음'}</td>
+                            <td className="num">{level && level.score !== null ? `${level.score}점` : '확인 필요'}</td>
+                            {levelIndex === 0 && (
+                              <td rowSpan={levels.length}>
+                                {criterion.sourcePages.length ? (
+                                  criterion.sourcePages.map((page) => (
+                                    <button key={page} type="button" className={styles.page} onClick={() => onJump(page)}>
+                                      {page}쪽
+                                    </button>
+                                  ))
+                                ) : (
+                                  <span className={styles.tiny}>근거 없음</span>
+                                )}
+                              </td>
+                            )}
+                          </tr>
+                        ))
+                      })}
+                    </tbody>
+                  </table>
+                )}
+                <p className={styles.tiny} style={{ marginTop: 8 }}>
+                  채점기준표는 지금 확인용이에요. 수준·배점 단위 확정은 분석 계약(0.3)이 정해진 뒤 열려요.
+                </p>
+              </>
+            )}
+          </>
+        )}
+      </section>
     </div>
   )
 }
 
-function FieldTile({
+function NavItem({ label, left, current, onClick }: { label: string; left: number; current: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className={styles.navItem} aria-current={current ? 'true' : undefined} onClick={onClick} title={label} data-testid="performance-nav-item">
+      <span>{label}</span>
+      <span className={styles.navCount} data-done={left === 0 ? 'true' : undefined}>
+        {left === 0 ? '완료' : `${left}개 남음`}
+      </span>
+    </button>
+  )
+}
+
+function FieldRow({
   field,
   view,
   decision,
@@ -185,9 +200,9 @@ function FieldTile({
   const name = fieldName(field, view)
   const candidate = candidateText(field.candidate)
   const firstPage = field.sourcePages[0] ? String(field.sourcePages[0]) : ''
-  const state = editing ? 'editing' : decision ? (decision.kind === 'edited' ? 'edited' : 'confirmed') : field.candidate === null ? 'missing' : 'unchecked'
   const numeric = field.kind === 'number'
   const invalid = value.trim() !== '' && numeric && !Number.isFinite(Number(value))
+  const state = editing ? 'editing' : decision ? 'decided' : field.candidate === null ? 'missing' : 'open'
 
   const startEdit = () => {
     setValue(decision && decision.kind !== 'absent' ? decision.value : candidate)
@@ -201,41 +216,33 @@ function FieldTile({
     setEditing(false)
   }
 
-  return (
-    <div className={styles.field} data-state={state} data-testid="review-field" data-field-path={field.fieldPath}>
-      <div className={styles.fieldLabel}>
-        <span>{name}</span>
-        <span>
-          {state === 'missing' && '확인 필요'}
-          {state === 'unchecked' && '미확인'}
-          {state === 'confirmed' && '✓ 확인함'}
-          {state === 'edited' && '수정함'}
-          {state === 'editing' && '수정 중'}
+  if (editing) {
+    return (
+      <li className={styles.row} data-state="editing" data-testid="review-field" data-field-path={field.fieldPath}>
+        <span className={styles.rowLabel} style={{ paddingTop: 10 }}>
+          {name}
         </span>
-      </div>
-      {editing ? (
-        <>
-          <div className={styles.editRow}>
-            <input
-              className={styles.input}
-              aria-label={`${name} 값`}
-              aria-invalid={invalid}
-              inputMode={numeric ? 'decimal' : undefined}
-              value={value}
-              placeholder={numeric ? `숫자${fieldUnit(field.fieldPath) ? ` (${fieldUnit(field.fieldPath)})` : ''}` : '값'}
-              onChange={(event) => setValue(event.target.value)}
-              data-testid="review-field-input"
-            />
-            <input className={styles.input} aria-label={`${name} 근거 쪽`} inputMode="numeric" value={page} placeholder="쪽" onChange={(event) => setPage(event.target.value)} data-testid="review-field-page" />
-          </div>
-          {invalid && <p className={styles.tiny} style={{ color: 'var(--as-color-danger)', margin: '0 0 6px' }}>숫자를 입력해 주세요.</p>}
-          <div className={styles.fieldActions}>
-            <button type="button" className={styles.chipButton} data-variant="primary" onClick={apply} disabled={invalid} data-testid="review-field-apply">
+        <div className={styles.editor}>
+          <input
+            className={styles.input}
+            aria-label={`${name} 값`}
+            aria-invalid={invalid}
+            inputMode={numeric ? 'decimal' : undefined}
+            value={value}
+            placeholder={numeric ? `숫자${fieldUnit(field.fieldPath) ? ` (${fieldUnit(field.fieldPath)})` : ''}` : '값'}
+            onChange={(event) => setValue(event.target.value)}
+            data-testid="review-field-input"
+            autoFocus
+          />
+          <input className={styles.input} aria-label={`${name} 근거 쪽`} inputMode="numeric" value={page} placeholder="쪽" onChange={(event) => setPage(event.target.value)} data-testid="review-field-page" />
+          {invalid && <span className={styles.statusText} data-tone="danger" style={{ gridColumn: '1 / -1' }}>숫자를 입력해 주세요.</span>}
+          <div className={styles.editorActions}>
+            <button type="button" className={`${styles.buttonDark} ${styles.small}`} onClick={apply} disabled={invalid} data-testid="review-field-apply">
               적용
             </button>
             <button
               type="button"
-              className={styles.chipButton}
+              className={`${styles.button} ${styles.small}`}
               onClick={() => {
                 onDecide(field, { kind: 'absent', page })
                 setEditing(false)
@@ -243,41 +250,55 @@ function FieldTile({
             >
               원문에 없음
             </button>
-            <button type="button" className={styles.chipButton} onClick={() => setEditing(false)}>
+            <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={() => setEditing(false)}>
               취소
             </button>
           </div>
-        </>
-      ) : (
-        <>
-          <p className={styles.fieldValue}>
-            {decision?.kind === 'edited' && <s>{displayValue(candidate, field.fieldPath)}</s>}
-            {decision?.kind === 'absent' ? '원문에 없음' : displayValue(decision ? decision.value : candidate, field.fieldPath)}
-          </p>
-          <div className={styles.fieldActions}>
-            {field.sourcePages.slice(0, 2).map((source) => (
-              <button key={source} type="button" className={styles.pageLink} onClick={() => onJump(source)} aria-label={`${name} 원문 ${source}쪽으로 이동`}>
-                {source}쪽
-              </button>
-            ))}
-            {!readOnly && !decision && (
-              <button type="button" className={styles.chipButton} onClick={() => onDecide(field, { kind: 'confirmed', value: candidate, page: firstPage })} disabled={field.candidate === null} data-testid="review-field-confirm">
-                맞아요
-              </button>
-            )}
-            {!readOnly && (
-              <button type="button" className={styles.chipButton} onClick={startEdit} data-testid="review-field-edit">
-                수정
-              </button>
-            )}
-            {!readOnly && decision && (
-              <button type="button" className={styles.chipButton} onClick={() => onDecide(field, null)} data-testid="review-field-undo">
-                되돌리기
-              </button>
-            )}
-          </div>
-        </>
+        </div>
+      </li>
+    )
+  }
+
+  return (
+    <li className={styles.row} data-state={state} data-testid="review-field" data-field-path={field.fieldPath}>
+      <span className={styles.rowLabel}>{name}</span>
+      <span className={styles.rowValue}>
+        {decision?.kind === 'edited' && <s>{displayValue(candidate, field.fieldPath)}</s>}
+        {decision?.kind === 'absent' ? '원문에 없음' : displayValue(decision ? decision.value : candidate, field.fieldPath).replace('확인 필요', '값을 읽지 못함')}
+      </span>
+      <span className={styles.rowMeta}>
+        {field.sourcePages.length ? (
+          field.sourcePages.slice(0, 3).map((source, index) => (
+            <button key={source} type="button" className={styles.page} onClick={() => onJump(source)} aria-label={`${name} 원문 ${source}쪽으로 이동`}>
+              {index === 0 ? `원문 ${source}쪽` : `${source}쪽`}
+            </button>
+          ))
+        ) : (
+          <span>근거 없음</span>
+        )}
+      </span>
+      {decision && (
+        <span className={styles.check} data-testid="review-field-state">
+          <CheckIcon size={14} /> {decision.kind === 'edited' ? '수정함' : decision.kind === 'absent' ? '없음 확인' : '확인함'}
+        </span>
       )}
-    </div>
+      {!readOnly && (
+        <span className={styles.rowActions}>
+          {!decision && (
+            <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => onDecide(field, { kind: 'confirmed', value: candidate, page: firstPage })} disabled={field.candidate === null} data-testid="review-field-confirm">
+              확인
+            </button>
+          )}
+          <button type="button" className={`${styles.button} ${styles.small}`} onClick={startEdit} data-testid="review-field-edit">
+            수정
+          </button>
+          {decision && (
+            <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={() => onDecide(field, null)} data-testid="review-field-undo">
+              되돌리기
+            </button>
+          )}
+        </span>
+      )}
+    </li>
   )
 }

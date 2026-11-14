@@ -1,519 +1,93 @@
 /*
- * 평가계획서 검토 Workspace (UI 재설계, 2026-11-14).
- * 시각 참고: references/design/daglo/additional (흰 작업 카드 + 연회색 작업면, 큰 Radius, 얇은 Border, 하단 우측 파란 CTA, 단계 완료 체크).
- * 색·글꼴은 .lh-assessment 범위의 --as-* Token만 쓴다. AdminShell·Student Care 스타일은 건드리지 않는다.
+ * 평가계획서 검토·목록 화면 (2차 UI, 2026-11-14).
+ * 참고: references/design/daglo (상위 21개 + additional 19개).
+ * 원칙: 흰색·검정·회색 중심, 파랑은 선택·주요 동작·링크·진행에만. 노랑·초록은 쓰지 않고 빨강은 실제 오류에만.
+ *       테두리보다 여백·정렬로 구분하고 카드 안에 카드를 겹치지 않는다. 패널 사이는 1px 선 하나.
+ * 색은 기존 --as-* Token만 쓴다(다크 모드 호환). AdminShell·Student Care 스타일은 건드리지 않는다.
  */
 
-.workspace {
-  --rv-gap: 16px;
-  --rv-card-radius: 16px;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  height: var(--am-frame-height);
-  min-height: 560px;
-  background: var(--as-color-subtle);
-}
-
-/* ── 상단 작업 머리글 ───────────────────────────── */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-width: 0;
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--as-color-line);
-  background: var(--as-color-surface);
-}
-
-.back {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 10px;
-  background: none;
-  color: var(--as-color-text);
-  cursor: pointer;
-}
-
-.back:hover {
-  background: var(--as-color-fill);
-}
-
-.titleBlock {
-  min-width: 0;
-  flex: 1;
-}
-
-.eyebrow {
-  margin: 0;
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-}
-
-.title {
-  margin: 2px 0 0;
-  overflow: hidden;
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.headerBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-end;
-}
-
-.pill {
+/* ── 공통 버튼·입력 (높이 40, Radius 10으로 통일) ─────────────── */
+.button,
+.buttonDark,
+.buttonPrimary,
+.buttonGhost {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 11px;
-  border-radius: var(--as-radius-pill);
-  background: var(--as-color-fill);
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.pill[data-tone='warning'] {
-  background: var(--as-color-warning-soft);
-  color: var(--as-color-warning-text);
-}
-
-.pill[data-tone='danger'] {
-  background: var(--as-color-danger-soft);
-  color: var(--as-color-danger);
-}
-
-.pill[data-tone='success'] {
-  background: var(--as-color-success-soft);
-  color: var(--as-color-success-text);
-}
-
-.pill[data-tone='primary'] {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
-}
-
-/* ── 본문: 원문 | 분할선 | 검토 ───────────────────── */
-.body {
-  display: flex;
-  min-height: 0;
-  gap: 0;
-}
-
-.paneSwitch {
-  display: none;
-}
-
-.source {
-  display: flex;
-  flex-direction: column;
-  flex: none;
-  width: var(--rv-split, 52%);
-  min-width: 320px;
-  min-height: 0;
-  padding: var(--rv-gap) 0 var(--rv-gap) var(--rv-gap);
-}
-
-.source[data-fullscreen='true'] {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  width: auto;
-  padding: 16px;
-  background: var(--as-color-backdrop);
-}
-
-.sourceCard,
-.reviewCard {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  flex: 1;
-  border: 1px solid var(--as-color-line);
-  border-radius: var(--rv-card-radius);
-  background: var(--as-color-surface);
-  overflow: hidden;
-}
-
-.cardHead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--as-color-line);
-}
-
-.cardHeadTitle {
-  min-width: 0;
-  flex: 1;
-}
-
-.cardHeadTitle strong {
-  display: block;
-  overflow: hidden;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cardHeadTitle span {
-  color: var(--as-color-text-tertiary);
-  font-size: 12px;
-}
-
-.iconButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 11px;
+  height: 40px;
+  padding: 0 16px;
   border: 1px solid var(--as-color-line);
   border-radius: 10px;
   background: var(--as-color-surface);
   color: var(--as-color-text);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.iconButton:hover:not(:disabled) {
+.button:hover:not(:disabled),
+.buttonGhost:hover:not(:disabled) {
   background: var(--as-color-fill);
 }
 
-.iconButton:disabled {
+.buttonDark {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+}
+
+.buttonPrimary {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: var(--as-color-primary-hover);
+}
+
+.buttonGhost {
+  border-color: transparent;
+  background: none;
+}
+
+.small {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.button:disabled,
+.buttonDark:disabled,
+.buttonPrimary:disabled {
+  border-color: var(--as-color-disabled-bg);
+  background: var(--as-color-disabled-bg);
   color: var(--as-color-disabled-text);
   cursor: not-allowed;
 }
 
-.sourceBody {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: 12px;
-  background: var(--as-color-subtle);
+.buttonGhost:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
 }
 
-.splitter {
-  flex: none;
-  width: 16px;
-  margin: var(--rv-gap) 0;
-  border: 0;
-  background: none;
-  cursor: col-resize;
-  touch-action: none;
-}
-
-.splitter::after {
-  content: '';
-  display: block;
-  width: 4px;
-  height: 44px;
-  margin: 0 auto;
-  border-radius: 4px;
-  background: var(--as-color-line);
-}
-
-.splitter:hover::after,
-.splitter:focus-visible::after {
-  background: var(--as-color-primary);
-}
-
-.review {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-  padding: var(--rv-gap) var(--rv-gap) var(--rv-gap) 0;
-}
-
-/* ── 단계 탐색 ─────────────────────────────── */
-.steps {
-  display: flex;
-  gap: 6px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--as-color-line);
-  overflow-x: auto;
-}
-
-.step {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: none;
-  height: 36px;
-  padding: 0 12px 0 8px;
-  border: 0;
-  border-radius: 10px;
-  background: none;
-  color: var(--as-color-text-secondary);
-  font: inherit;
-  font-size: 13.5px;
-  cursor: pointer;
-}
-
-.step:hover {
-  background: var(--as-color-fill);
-}
-
-.step[aria-current='step'] {
-  background: var(--as-color-fill);
-  color: var(--as-color-text);
-  font-weight: 700;
-}
-
-.stepNumber {
-  display: inline-grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.step[data-done='true'] .stepNumber {
-  background: var(--as-color-success);
-  color: #fff;
-}
-
-.reviewBody {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: 22px 24px 28px;
-}
-
-.stepTitle {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 700;
-}
-
-.stepLead {
-  margin: 6px 0 18px;
-  color: var(--as-color-text-secondary);
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* ── 카드 ─────────────────────────────── */
-.card {
-  border: 1px solid var(--as-color-line);
-  border-radius: 14px;
-  background: var(--as-color-surface);
-  padding: 18px;
-}
-
-.card + .card {
-  margin-top: 12px;
-}
-
-.softCard {
-  border-radius: 14px;
-  background: var(--as-color-subtle);
-  padding: 16px 18px;
-}
-
-.cardTitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 6px;
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.muted {
-  margin: 0;
-  color: var(--as-color-text-secondary);
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-
-.tiny {
-  color: var(--as-color-text-tertiary);
-  font-size: 12px;
-}
-
-.statGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.stat {
-  border: 1px solid var(--as-color-line);
-  border-radius: 14px;
-  padding: 14px 16px;
-  background: var(--as-color-surface);
-}
-
-.stat dt {
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-}
-
-.stat dd {
-  margin: 6px 0 0;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.stat dd small {
-  margin-left: 2px;
-  color: var(--as-color-text-tertiary);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.notice {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  padding: 16px 18px;
-  border-radius: 14px;
-  background: var(--as-color-warning-soft);
-  color: var(--as-color-warning-text);
-}
-
-.notice[data-tone='danger'] {
-  background: var(--as-color-danger-soft);
-  color: var(--as-color-danger);
-}
-
-.notice[data-tone='success'] {
-  background: var(--as-color-success-soft);
-  color: var(--as-color-success-text);
-}
-
-.notice[data-tone='info'] {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
-}
-
-.notice strong {
-  display: block;
-  margin-bottom: 2px;
-  font-size: 14.5px;
-}
-
-.notice p {
-  margin: 0;
-  color: var(--as-color-text);
-  font-size: 13.5px;
-  line-height: 1.6;
-}
-
-.issueList {
-  display: grid;
-  gap: 8px;
-  margin: 0;
+.link {
   padding: 0;
-  list-style: none;
-}
-
-.issue {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 12px 14px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 12px;
-  font-size: 13.5px;
-}
-
-.issueDot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  margin-top: 6px;
-  border-radius: 50%;
-  background: var(--as-color-warning-text);
-}
-
-.issue[data-tone='danger'] .issueDot {
-  background: var(--as-color-danger);
-}
-
-details.diagnostic {
-  margin-top: 12px;
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-}
-
-details.diagnostic summary {
-  cursor: pointer;
-}
-
-details.diagnostic code {
-  font-size: 12px;
-  word-break: break-all;
-}
-
-/* ── 과목 선택 ─────────────────────────────── */
-.subjectRail {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
-.subjectChip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  flex: none;
-  min-width: 150px;
-  max-width: 240px;
-  padding: 10px 14px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 12px;
-  background: var(--as-color-surface);
+  border: 0;
+  background: none;
+  color: var(--as-color-primary);
   font: inherit;
-  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.subjectChip[aria-pressed='true'] {
-  border-color: var(--as-color-ink);
-  box-shadow: inset 0 0 0 1px var(--as-color-ink);
-}
-
-.subjectChip strong {
-  overflow: hidden;
-  max-width: 100%;
-  font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.subjectCard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
-  gap: 14px;
-  align-items: center;
+.link:hover {
+  text-decoration: underline;
 }
 
 .input {
@@ -531,220 +105,587 @@ details.diagnostic code {
 .input:focus {
   border-color: var(--as-color-primary);
   outline: none;
-  box-shadow: 0 0 0 3px var(--as-color-primary-soft);
 }
 
 .input[aria-invalid='true'] {
   border-color: var(--as-color-danger);
 }
 
-/* ── 수행평가 카드 ─────────────────────────────── */
-.itemCard {
-  border: 1px solid var(--as-color-line);
-  border-radius: 16px;
+.muted {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tiny {
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+}
+
+.statusText {
+  color: var(--as-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.statusText[data-tone='neutral'] {
+  color: var(--as-color-text-secondary);
+  font-weight: 500;
+}
+
+.statusText[data-tone='danger'] {
+  color: var(--as-color-danger);
+}
+
+/* ── 검토 Workspace ─────────────────────────────── */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: var(--am-frame-height);
+  min-height: 560px;
   background: var(--as-color-surface);
-  overflow: hidden;
 }
 
-.itemCard + .itemCard {
-  margin-top: 14px;
-}
-
-.itemHead {
+.header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 16px 18px 12px;
+  gap: 12px;
+  min-width: 0;
+  height: 56px;
+  padding: 0 16px 0 8px;
+  border-bottom: 1px solid var(--as-color-line);
 }
 
-.itemHead h4 {
+.back {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text);
+  cursor: pointer;
+}
+
+.back:hover {
+  background: var(--as-color-fill);
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
   flex: 1;
+  font-size: 14.5px;
+}
+
+.crumbs span {
+  flex: none;
+  color: var(--as-color-text-secondary);
+}
+
+.crumbs strong {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerStatus {
+  flex: none;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.body {
+  display: flex;
+  min-height: 0;
+}
+
+.paneSwitch {
+  display: none;
+}
+
+.source {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: var(--rv-split, 52%);
+  min-width: 320px;
+  min-height: 0;
+  background: var(--as-color-subtle);
+}
+
+.source[data-fullscreen='true'] {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: auto;
+}
+
+.paneBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 48px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--as-color-line);
+  background: var(--as-color-surface);
+}
+
+.paneBar strong {
+  overflow: hidden;
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sourceBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 12px 16px;
+}
+
+.splitter {
+  position: relative;
+  flex: none;
+  width: 1px;
+  padding: 0;
+  border: 0;
+  background: var(--as-color-line);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.splitter::after {
+  content: '';
+  position: absolute;
+  inset: 0 -5px;
+}
+
+.splitter:hover,
+.splitter:focus-visible {
+  background: var(--as-color-primary);
+  outline: none;
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 단계: 밑줄 탭 (다글로 스크립트 화면) */
+.steps {
+  display: flex;
+  gap: 4px;
+  height: 48px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--as-color-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.step {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 0 10px;
+  border: 0;
+  background: none;
+  color: var(--as-color-text-tertiary);
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.step:hover {
+  color: var(--as-color-text);
+}
+
+.step[aria-current='step'] {
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.step[aria-current='step']::after {
+  content: '';
+  position: absolute;
+  right: 10px;
+  bottom: -1px;
+  left: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--as-color-ink);
+}
+
+.stepNo {
+  color: inherit;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.step[data-done='true'] .stepNo {
+  color: var(--as-color-primary);
+}
+
+.reviewBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 28px 32px 32px;
+}
+
+.title {
   margin: 0;
-  font-size: 16px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.lead {
+  margin: 8px 0 24px;
+  color: var(--as-color-text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.sectionLabel {
+  margin: 28px 0 10px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 정보 행: 선으로만 구분 (카드 없음) */
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: 14.5px;
+}
+
+.rowLabel {
+  flex: 0 0 160px;
+  color: var(--as-color-text-secondary);
+  font-size: 14px;
+}
+
+.rowValue {
+  min-width: 0;
+  flex: 1;
+  font-weight: 600;
+  word-break: keep-all;
+}
+
+.rowValue s {
+  margin-right: 8px;
+  color: var(--as-color-text-tertiary);
+  font-weight: 400;
+}
+
+.rowMeta {
+  flex: none;
+  color: var(--as-color-text-tertiary);
+  font-size: 13px;
+}
+
+.rowActions {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.row[data-state='missing'] .rowValue {
+  color: var(--as-color-text-tertiary);
+  font-weight: 500;
+}
+
+.row[data-state='editing'] {
+  align-items: flex-start;
+  background: var(--as-color-subtle);
+  margin: 0 -12px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--as-color-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px;
+  gap: 8px;
+  flex: 1;
+}
+
+.editorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+
+/* 요약 수치: 한 줄 정보 (카드 나열 없음) */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 36px;
+  margin: 0 0 8px;
+}
+
+.facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.facts dt {
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.facts dd {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.facts dd small {
+  margin-left: 2px;
+  color: var(--as-color-text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--as-color-subtle);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.note strong {
+  font-weight: 700;
+}
+
+.note[data-tone='danger'] {
+  color: var(--as-color-danger);
+}
+
+.noteIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--as-color-text-secondary);
+}
+
+details.more {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+details.more summary {
+  color: var(--as-color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+details.more ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--as-color-text-secondary);
+  line-height: 1.8;
+}
+
+details.more code {
+  font-size: 12px;
+  word-break: break-all;
+}
+
+/* ── 수행평가: 목록 | 상세 ───────────────────────── */
+.master {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: 100%;
+}
+
+.nav {
+  border-right: 1px solid var(--as-color-line);
+  padding: 20px 12px;
+  overflow-y: auto;
+}
+
+.navGroup + .navGroup {
+  margin-top: 18px;
+}
+
+.navSubject {
+  display: block;
+  overflow: hidden;
+  margin: 0 8px 6px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navItem:hover {
+  background: var(--as-color-subtle);
+}
+
+.navItem[aria-current='true'] {
+  background: var(--as-color-active);
+  font-weight: 700;
+}
+
+.navItem span:first-child {
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navCount {
+  flex: none;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.navCount[data-done='true'] {
+  color: var(--as-color-primary);
+}
+
+.detail {
+  min-width: 0;
+  padding: 24px 28px 32px;
+}
+
+.detailHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.detailHead h4 {
+  margin: 0;
+  font-size: 20px;
   font-weight: 700;
   word-break: keep-all;
 }
 
-.fieldGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 8px;
-  padding: 0 18px 16px;
-}
-
-.field {
-  position: relative;
-  padding: 12px 14px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 12px;
-  background: var(--as-color-surface);
-}
-
-.field[data-state='unchecked'] {
-  border-style: dashed;
-}
-
-.field[data-state='missing'] {
-  border-color: var(--as-color-warning-text);
-  border-style: dashed;
-  background: var(--as-color-warning-soft);
-}
-
-.field[data-state='confirmed'] {
-  border-color: var(--as-color-success);
-}
-
-.field[data-state='edited'],
-.field[data-state='editing'] {
-  border-color: var(--as-color-primary);
-  background: var(--as-color-primary-soft);
-}
-
-.fieldLabel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-}
-
-.fieldValue {
-  margin: 6px 0 8px;
-  font-size: 17px;
-  font-weight: 700;
-  word-break: break-word;
-}
-
-.fieldValue s {
-  margin-right: 6px;
-  color: var(--as-color-text-tertiary);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.fieldActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chipButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 8px;
-  background: var(--as-color-surface);
-  color: var(--as-color-text);
-  font: inherit;
-  font-size: 12.5px;
-  cursor: pointer;
-}
-
-.chipButton:hover:not(:disabled) {
-  background: var(--as-color-fill);
-}
-
-.chipButton[data-variant='primary'] {
-  border-color: var(--as-color-primary);
-  background: var(--as-color-primary);
-  color: var(--as-color-on-primary);
-}
-
-.chipButton:disabled {
-  color: var(--as-color-disabled-text);
-  cursor: not-allowed;
-}
-
-.editRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 84px;
-  gap: 6px;
-  margin: 6px 0 8px;
-}
-
-.itemDetail {
-  display: grid;
-  gap: 12px;
-  padding: 16px 18px 18px;
-  border-top: 1px solid var(--as-color-line);
-  background: var(--as-color-subtle);
-}
-
-.detailLabel {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--as-color-text-secondary);
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-.detailText {
+.prose {
   margin: 0;
-  font-size: 13.5px;
-  line-height: 1.65;
+  font-size: 14.5px;
+  line-height: 1.75;
   white-space: pre-line;
 }
 
-.rubric {
+.table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 1px solid var(--as-color-line);
-  border-radius: 12px;
-  background: var(--as-color-surface);
-  font-size: 13px;
-  overflow: hidden;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
-.rubric th,
-.rubric td {
-  padding: 9px 12px;
+.table th,
+.table td {
+  padding: 12px 10px;
   border-bottom: 1px solid var(--as-color-line);
   text-align: left;
   vertical-align: top;
 }
 
-.rubric th {
-  background: var(--as-color-subtle);
+.table th {
+  border-top: 1px solid var(--as-color-line);
   color: var(--as-color-text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.rubric tr:last-child td {
-  border-bottom: 0;
+.table td.num {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.pageLink {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 8px;
+.page {
+  padding: 0;
   border: 0;
-  border-radius: 7px;
-  background: var(--as-color-primary-soft);
+  background: none;
   color: var(--as-color-primary);
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.pageLink + .pageLink {
-  margin-left: 4px;
+.page + .page {
+  margin-left: 8px;
 }
 
 /* ── 하단 작업 막대 ─────────────────────────────── */
 .actionBar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 8px;
+  min-height: 64px;
+  padding: 10px 16px 10px 24px;
   border-top: 1px solid var(--as-color-line);
   background: var(--as-color-surface);
 }
@@ -752,105 +693,61 @@ details.diagnostic code {
 .progress {
   min-width: 0;
   flex: 1;
-  font-size: 13px;
+  font-size: 13.5px;
+  color: var(--as-color-text-secondary);
+}
+
+.progress strong {
+  color: var(--as-color-text);
 }
 
 .progressTrack {
-  height: 6px;
-  margin-top: 6px;
-  border-radius: 6px;
+  width: min(240px, 100%);
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 4px;
   background: var(--as-color-fill);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 6px;
-  background: var(--as-color-success);
+  background: var(--as-color-primary);
   transition: width 200ms ease;
 }
 
-.ctaGhost,
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 42px;
-  padding: 0 18px;
-  border-radius: 12px;
-  font: inherit;
-  font-size: 14.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.ctaGhost {
-  border: 0;
-  background: none;
-  color: var(--as-color-text);
-}
-
-.ctaGhost:hover:not(:disabled) {
-  background: var(--as-color-fill);
-}
-
-.cta {
-  border: 0;
-  background: var(--as-color-primary);
-  color: var(--as-color-on-primary);
-}
-
-.cta:hover:not(:disabled) {
-  background: var(--as-color-primary-hover);
-}
-
-.cta:disabled,
-.ctaGhost:disabled {
-  background: var(--as-color-disabled-bg);
-  color: var(--as-color-disabled-text);
-  cursor: not-allowed;
-}
-
-.ctaGhost:disabled {
-  background: none;
-}
-
 /* ── 최종 확정 ─────────────────────────────── */
-.checklist {
-  display: grid;
-  gap: 10px;
+.checkList {
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid var(--as-color-line);
 }
 
-.checkItem {
+.checkRow {
   display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 14px 16px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 14px;
-  background: var(--as-color-surface);
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--as-color-line);
 }
 
-.checkMark {
+.checkNo {
   display: inline-grid;
   place-items: center;
   flex: none;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--as-color-line);
   border-radius: 50%;
-  background: var(--as-color-fill);
-  color: var(--as-color-text-tertiary);
+  color: var(--as-color-text-secondary);
   font-size: 13px;
   font-weight: 700;
 }
 
-.checkItem[data-done='true'] .checkMark {
-  background: var(--as-color-success);
-  color: #fff;
+.checkRow[data-done='true'] .checkNo {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
 }
 
 .checkBody {
@@ -858,270 +755,167 @@ details.diagnostic code {
   flex: 1;
 }
 
-.checkBody strong {
+.checkBody > strong {
   display: block;
-  font-size: 14.5px;
+  margin-bottom: 4px;
+  font-size: 15px;
 }
 
-.dropZone {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.fileInput {
   margin-top: 10px;
-  padding: 12px 14px;
-  border: 1px dashed var(--as-color-line);
-  border-radius: 12px;
-  background: var(--as-color-subtle);
   font-size: 13px;
-}
-
-.blockers {
-  margin: 14px 0 0;
-  padding: 14px 18px;
-  border-radius: 14px;
-  background: var(--as-color-subtle);
-  color: var(--as-color-text-secondary);
-  font-size: 13px;
-  line-height: 1.7;
 }
 
 .done {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  padding: 28px 16px;
+  gap: 10px;
+  padding: 36px 16px 28px;
   text-align: center;
 }
 
-.doneIcon {
+.doneMark {
   display: inline-grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: var(--as-color-success-soft);
-  color: var(--as-color-success-text);
-  font-size: 24px;
+  background: var(--as-color-primary-soft);
+  color: var(--as-color-primary);
+  font-size: 22px;
 }
 
-.valueTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.valueTable th,
-.valueTable td {
-  padding: 9px 10px;
-  border-bottom: 1px solid var(--as-color-line);
-  text-align: left;
-}
-
-.valueTable th {
-  color: var(--as-color-text-secondary);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* ── Monthly Planner ─────────────────────────────── */
-.planner {
+.empty {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 14px;
+  justify-items: center;
+  gap: 8px;
+  padding: 72px 16px;
+  text-align: center;
 }
 
-.plannerSide {
-  display: grid;
-  align-content: start;
+.empty strong {
+  font-size: 16px;
+}
+
+/* ── 평가계획서 목록 (다글로 '내 PDF·전체 보드') ───────────── */
+.listPage {
+  padding: 28px 32px 40px;
+}
+
+.listHead {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  margin-bottom: 20px;
 }
 
-.monthList {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-}
-
-.monthButton {
-  height: 32px;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: var(--as-color-text-secondary);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.monthButton[aria-pressed='true'] {
-  background: var(--as-color-ink);
-  color: var(--as-color-on-ink);
+.listHead h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 24px;
   font-weight: 700;
 }
 
-.legend {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 12.5px;
-  color: var(--as-color-text-secondary);
-}
-
-.legendSwatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 6px;
-  border-radius: 3px;
-  background: var(--as-color-primary);
-}
-
-.calendarHead {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.calendarHead h4 {
-  flex: 1;
-  margin: 0;
-  font-size: 17px;
-}
-
-.band {
+.toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  min-height: 38px;
+  gap: 8px;
   margin-bottom: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--as-color-subtle);
-  font-size: 12.5px;
-  color: var(--as-color-text-secondary);
 }
 
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+.select {
+  height: 40px;
+  padding: 0 32px 0 12px;
   border: 1px solid var(--as-color-line);
-  border-radius: 12px;
-  overflow: hidden;
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
 }
 
-.weekday {
-  padding: 8px;
-  border-bottom: 1px solid var(--as-color-line);
+.search {
+  position: relative;
+  flex: 1 1 220px;
+  max-width: 360px;
+}
+
+.search .input {
+  border-color: transparent;
+  background: var(--as-color-fill);
+}
+
+.sourceNote {
+  margin: 0 0 18px;
   color: var(--as-color-text-tertiary);
-  font-size: 11.5px;
-  font-weight: 600;
-  text-align: right;
+  font-size: 12.5px;
 }
 
-.day {
-  min-height: 74px;
-  padding: 6px 8px;
-  border-right: 1px solid var(--as-color-line);
-  border-bottom: 1px solid var(--as-color-line);
-  font-size: 12px;
-  text-align: right;
-  color: var(--as-color-text-secondary);
+.docTable {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.day:nth-child(7n) {
-  border-right: 0;
+.docTable th {
+  padding: 10px 12px;
+  color: var(--as-color-text-tertiary);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.day[data-blank='true'] {
+.docTable td {
+  padding: 16px 12px;
+  border-top: 1px solid var(--as-color-line);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.docTable tbody tr:hover td {
   background: var(--as-color-subtle);
 }
 
-.entryBlock {
+.docName {
+  display: block;
+  overflow: hidden;
+  max-width: 520px;
+  font-size: 15px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docSub {
   display: block;
   margin-top: 4px;
-  padding: 3px 6px;
-  border: 0;
-  border-radius: 6px;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
-  font: inherit;
-  font-size: 11.5px;
-  text-align: left;
-  cursor: pointer;
+  color: var(--as-color-text-tertiary);
+  font-size: 13px;
 }
 
-.plannerEmpty {
-  position: relative;
-}
-
-.plannerOverlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  border-radius: 12px;
-  background: rgb(255 255 255 / 0.82);
-  text-align: center;
+.rowButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 /* ── 업로드 Dialog ─────────────────────────────── */
-.dialogBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 900;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: var(--as-color-backdrop);
-}
-
-.dialog {
-  display: flex;
-  flex-direction: column;
-  width: min(1040px, 100%);
-  max-height: calc(100vh - 48px);
-  border-radius: 24px;
-  background: var(--as-color-surface);
-  box-shadow: var(--as-shadow-modal);
-  overflow: hidden;
-}
-
-.dialogHead {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 28px 32px 8px;
-}
-
-.dialogHead h2 {
-  flex: 1;
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-}
-
 .dialogBody {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 24px;
-  padding: 20px 32px;
-  overflow-y: auto;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px;
 }
 
 .dropArea {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 320px;
+  min-height: 340px;
   padding: 16px;
   border: 1px dashed transparent;
-  border-radius: 18px;
-  background: var(--as-color-subtle);
+  border-radius: 16px;
+  background: var(--as-color-fill);
 }
 
 .dropArea[data-over='true'] {
@@ -1134,11 +928,17 @@ details.diagnostic code {
   flex: 1;
   place-items: center;
   align-content: center;
-  gap: 8px;
+  gap: 6px;
   padding: 24px;
   color: var(--as-color-text-secondary);
-  font-size: 14px;
+  font-size: 13.5px;
   text-align: center;
+  cursor: pointer;
+}
+
+.dropPrompt strong {
+  color: var(--as-color-text);
+  font-size: 15px;
 }
 
 .fileCard {
@@ -1146,8 +946,7 @@ details.diagnostic code {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border: 1px solid var(--as-color-line);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--as-color-surface);
 }
 
@@ -1174,9 +973,10 @@ details.diagnostic code {
 
 .indeterminate {
   position: relative;
-  height: 6px;
+  display: block;
+  height: 4px;
   margin-top: 8px;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--as-color-fill);
   overflow: hidden;
 }
@@ -1186,7 +986,7 @@ details.diagnostic code {
   position: absolute;
   inset: 0 auto 0 0;
   width: 35%;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--as-color-primary);
   animation: rv-indeterminate 1.2s ease-in-out infinite;
 }
@@ -1202,29 +1002,38 @@ details.diagnostic code {
 
 @media (prefers-reduced-motion: reduce) {
   .indeterminate::after {
-    animation: none;
     width: 100%;
+    animation: none;
     opacity: 0.4;
   }
 }
 
-.formGrid {
+.formStack {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  align-content: start;
+  gap: 16px;
 }
 
-.formField {
+.formRow {
   display: grid;
-  gap: 6px;
-  font-size: 13px;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.formRow > span {
   color: var(--as-color-text-secondary);
 }
 
 .guide {
   padding: 16px 18px;
   border: 1px solid var(--as-color-line);
-  border-radius: 16px;
+  border-radius: 14px;
+}
+
+.guide strong {
+  font-size: 14px;
 }
 
 .guide ul {
@@ -1233,40 +1042,33 @@ details.diagnostic code {
   list-style: disc;
   color: var(--as-color-text-secondary);
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
-.dialogFoot {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 32px 28px;
-}
-
-.dialogFoot .tiny {
-  flex: 1;
-}
-
-/* ── 반응형: 좁은 화면은 원문/검토 전환 ───────────── */
+/* ── 반응형 ─────────────────────────────── */
 @media (max-width: 1100px) {
+  .workspace {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
   .paneSwitch {
     display: flex;
     gap: 4px;
-    margin: 12px 16px 0;
+    margin: 10px 16px;
     padding: 4px;
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--as-color-fill);
   }
 
   .paneSwitch button {
     flex: 1;
-    height: 34px;
+    height: 36px;
     border: 0;
-    border-radius: 9px;
+    border-radius: 8px;
     background: none;
     color: var(--as-color-text-secondary);
     font: inherit;
-    font-size: 13.5px;
+    font-size: 14px;
     cursor: pointer;
   }
 
@@ -1276,10 +1078,6 @@ details.diagnostic code {
     font-weight: 700;
   }
 
-  .workspace {
-    grid-template-rows: auto auto minmax(0, 1fr);
-  }
-
   .splitter {
     display: none;
   }
@@ -1287,11 +1085,6 @@ details.diagnostic code {
   .source {
     width: 100%;
     min-width: 0;
-    padding: 12px 16px 16px;
-  }
-
-  .review {
-    padding: 12px 16px 16px;
   }
 
   .body[data-pane='review'] .source:not([data-fullscreen='true']),
@@ -1299,46 +1092,109 @@ details.diagnostic code {
     display: none;
   }
 
-  .planner {
+  .master {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nav {
+    display: flex;
+    gap: 6px;
+    padding: 12px 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--as-color-line);
+    overflow-x: auto;
+  }
+
+  .navGroup {
+    display: contents;
+  }
+
+  .navSubject {
+    display: none;
+  }
+
+  .navItem {
+    flex: none;
+    width: auto;
+    max-width: 220px;
+    border: 1px solid var(--as-color-line);
   }
 
   .dialogBody {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .listPage {
+    padding: 20px 16px 32px;
+  }
 }
 
 @media (max-width: 640px) {
   .header {
+    height: auto;
+    min-height: 56px;
     flex-wrap: wrap;
-    padding: 12px 14px;
+    padding: 8px 12px 8px 4px;
   }
 
-  .headerBadges {
+  .crumbs span {
+    display: none;
+  }
+
+  .headerStatus {
     width: 100%;
-    justify-content: flex-start;
+    padding-left: 44px;
   }
 
-  .reviewBody {
-    padding: 16px;
+  .reviewBody,
+  .detail {
+    padding: 20px 16px 24px;
   }
 
-  .subjectCard,
-  .formGrid {
-    grid-template-columns: minmax(0, 1fr);
+  .row {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+
+  .rowLabel {
+    flex-basis: 100%;
   }
 
   .actionBar {
     flex-wrap: wrap;
+    padding: 10px 12px;
   }
 
   .progress {
     flex-basis: 100%;
   }
 
-  .dialogHead,
-  .dialogBody,
-  .dialogFoot {
-    padding-inline: 18px;
+  .docTable thead {
+    display: none;
+  }
+
+  .docTable tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-top: 1px solid var(--as-color-line);
+    padding: 12px 0;
+  }
+
+  .docTable td {
+    padding: 4px 0;
+    border-top: 0;
+  }
+
+  .docTable td[data-col='name'] {
+    grid-column: 1 / -1;
+  }
+
+  .docTable td[data-col='date'] {
+    display: none;
+  }
+
+  .formRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
   }
 }

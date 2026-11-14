@@ -26,6 +26,10 @@ const DevContextSwitcher = import.meta.env.DEV
   ? lazy(() => import('../../../../../student/src/features/assessment/dev/DevContextSwitcher.tsx'))
   : null
 
+// 개발 전용 Monthly Planner 샘플 Preview (/assessment/dev/monthly-planner). Production 번들에서는 Route와 샘플 데이터가 함께 빠진다.
+const MonthlyPlannerPreview = import.meta.env.DEV ? lazy(() => import('../dev/MonthlyPlannerPreview.tsx')) : null
+const plannerPreviewPath = '/assessment/dev/monthly-planner'
+
 const tabs: { id: AssessmentTab; label: string }[] = [
   { id: 'overview', label: '전체 현황' },
   { id: 'students', label: '학생 Assessment' },
@@ -53,6 +57,17 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
   const listView = ['overview', 'students', 'student', 'feedback', 'plans', 'tasks', 'mock-exams', 'universities', 'sources', 'references', 'not-found'].includes(route.view)
 
   let page
+  if (MonthlyPlannerPreview && location.pathname === plannerPreviewPath) {
+    return (
+      <div className={`lh-assessment ${styles.root}`} data-view="planner-preview">
+        <div className={styles.frame} data-width="full">
+          <Suspense fallback={null}>
+            <MonthlyPlannerPreview />
+          </Suspense>
+        </div>
+      </div>
+    )
+  }
   switch (route.view) {
     case 'overview':
       page = <OverviewRoute search={search} />
