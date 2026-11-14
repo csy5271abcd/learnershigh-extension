@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
  * {@link EvaluationPlanService#recordServerAnalysis}의 짧은 Transaction에서 한다.
  *
  * <ul>
- *   <li>Run 상태는 분석기 판정을 따른다. Envelope PARTIAL(부분 결과)은 저장할 상태가 아직 없어(DB 제약·계약 대기)
- *       REVIEW_REQUIRED로 바꿔 저장하지 않고 422 PLAN_ANALYSIS_PARTIAL_NOT_STORABLE로 알린다. 그 밖에는 payload status.</li>
+ *   <li>Run 상태는 분석기 판정을 따른다. Envelope PARTIAL(부분 결과)은 PARTIAL Run으로 저장한다(A3.5) —
+ *       REVIEW_REQUIRED로 바꾸지 않는다. 분석기 errors[] 코드는 경고(source=ANALYZER_ERROR)로 함께 보존한다.</li>
  *   <li>연결 실패·BUSY·Timeout·응답 오류는 Run을 만들지 않는다 → 기존 Revision·이전 Run·검토는 그대로다.</li>
  *   <li>HWP·HWPX: 분석 결과 계약이 실험 단계(S-8)라 실험 기능이 꺼져 있으면 분석기를 부르지 않고 422(format_contract_pending).</li>
  *   <li>같은 Revision 동시 요청은 409(이 서버 인스턴스 기준). 같은 결과 재요청은 새 Run 없이 기존 Run을 돌려준다.</li>
@@ -98,7 +98,8 @@ public class PlanAnalysisService {
                 throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "payload_invalid");
             }
             PlanAnalysisStatus status = runStatus(result.envelopeStatus(), request.status());
-            return plans.recordServerAnalysis(admin, planId, revisionId, request, status, result.warnings(), List.of());
+            return plans.recordServerAnalysis(admin, planId, revisionId, request, status, result.warnings(),
+                    result.errorCodes(), List.of());
         } finally {
             running.remove(revision.id());
         }
@@ -106,11 +107,17 @@ public class PlanAnalysisService {
 
     /**
      * 분석기 Envelope 판정 → 저장 상태. 분석기 Adapter는 과목이 하나라도 있으면 payload status를 REVIEW_REQUIRED로 내므로
-     * Envelope 판정을 먼저 본다. PARTIAL은 저장하지 않는다(422). 알 수 없거나 payload와 모순되는 판정도 저장하지 않는다(502).
+     * Envelope 판정을 먼저 본다. PARTIAL은 payload가 후보를 담은 경우(REVIEW_REQUIRED)에만 PARTIAL로 저장한다.
+     * 알 수 없거나 payload와 모순되는 판정(PARTIAL인데 payload FAILED 등)은 저장하지 않는다(502 status_conflict).
      */
     static PlanAnalysisStatus runStatus(String envelopeStatus, String payloadStatus) {
         return switch (envelopeStatus) {
-            case "PARTIAL" -> throw rejected(AssessmentErrorCode.PLAN_ANALYSIS_PARTIAL_NOT_STORABLE, "partial_result");
+            case "PARTIAL" -> {
+                if (!"REVIEW_REQUIRED".equals(payloadStatus)) {
+                    throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "status_conflict");
+                }
+                yield PlanAnalysisStatus.PARTIAL;
+            }
             case "OK_REVIEW_REQUIRED" -> PlanAnalysisStatus.valueOf(payloadStatus);
             case "PARSE_FAILED" -> {
                 if (!"FAILED".equals(payloadStatus)) {

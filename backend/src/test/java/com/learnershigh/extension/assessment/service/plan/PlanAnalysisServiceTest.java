@@ -9,14 +9,16 @@ import com.learnershigh.extension.common.error.BusinessException;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
-/** 분석기 판정 → 저장 상태 규칙 (A3). PARTIAL을 성공으로 바꾸지 않는다. */
+/** 분석기 판정 → 저장 상태 규칙 (A3, A3.5). PARTIAL을 성공(REVIEW_REQUIRED)으로 바꾸지 않는다. */
 class PlanAnalysisServiceTest {
 
     @Test
-    void PARTIAL은_REVIEW_REQUIRED로_바꾸지_않고_저장_불가로_알린다() {
+    void PARTIAL은_REVIEW_REQUIRED로_바꾸지_않고_PARTIAL로_저장한다() {
         // 분석기 Adapter는 과목이 하나라도 있으면 payload status를 REVIEW_REQUIRED로 낸다 → Envelope 판정을 따른다
-        assertThatThrownBy(() -> PlanAnalysisService.runStatus("PARTIAL", "REVIEW_REQUIRED"))
-                .isInstanceOf(BusinessException.class).hasMessageContaining("부분 결과");
+        assertThat(PlanAnalysisService.runStatus("PARTIAL", "REVIEW_REQUIRED")).isEqualTo(PlanAnalysisStatus.PARTIAL);
+        // PARTIAL인데 payload에 후보가 없다(FAILED)면 모순이다
+        assertThatThrownBy(() -> PlanAnalysisService.runStatus("PARTIAL", "FAILED"))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("분석기 결과");
         assertThat(PlanAnalysisService.runStatus("OK_REVIEW_REQUIRED", "REVIEW_REQUIRED"))
                 .isEqualTo(PlanAnalysisStatus.REVIEW_REQUIRED);
         assertThat(PlanAnalysisService.runStatus("OK_REVIEW_REQUIRED", "FAILED")).isEqualTo(PlanAnalysisStatus.FAILED);

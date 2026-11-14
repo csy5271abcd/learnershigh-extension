@@ -3,6 +3,7 @@ package com.learnershigh.extension.assessment.service.plan;
 import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.plan.ConfirmedFieldView;
 import com.learnershigh.extension.assessment.dto.plan.SourceReviewView;
+import com.learnershigh.extension.assessment.dto.plan.StudentConfirmedFieldView;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanFileView;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
@@ -129,6 +130,22 @@ public class PlanViews {
                 times.toOffset(review.reviewedAt()), review.reviewerAuth(), review.sourceCheckMethod(),
                 review.sourceCheckSha256(), Boolean.TRUE.equals(review.manualComparisonConfirmed()),
                 review.confirmedValues().size());
+    }
+
+    /**
+     * 학생 공개용 확정값 (§10-1 상세, A3.5 DRAFT): 그 Revision의 가장 최근 검토 기록. 검토가 없으면 빈 목록.
+     * HWP·HWPX 근거 위치는 내보내지 않는다(M-5).
+     */
+    public List<StudentConfirmedFieldView> studentConfirmedFields(String revisionId) {
+        PlanReview review = latest(reviews.findByRevisionIds(List.of(revisionId)), PlanReview::revisionId).get(revisionId);
+        if (review == null) {
+            return List.of();
+        }
+        return review.confirmedValues().stream()
+                .map(value -> new StudentConfirmedFieldView(value.subjectId(), value.fieldPath(),
+                        value.valueJson() == null ? null : json(value.valueJson()),
+                        "PDF".equals(value.evidenceFormat()) ? value.pdfPageNumber() : null))
+                .toList();
     }
 
     private List<ConfirmedFieldView> confirmedFields(PlanReview review) {

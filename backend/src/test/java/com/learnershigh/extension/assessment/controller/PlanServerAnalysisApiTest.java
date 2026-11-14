@@ -3,9 +3,12 @@ package com.learnershigh.extension.assessment.controller;
 import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asAdmin;
 import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asStudent;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -55,7 +59,7 @@ class PlanServerAnalysisApiTest {
     static final String PLANS = "/api/admin/assessment/evaluation-plans";
     static final String TOKEN = "it-token-not-a-secret-0123456789abcdef";
 
-    enum Mode { OK, PARTIAL, SHA_MISMATCH, NOT_JSON, NOT_IMPORTABLE, UNKNOWN_FIELD, BUSY, SLOW, DELAYED_OK }
+    enum Mode { OK, PARTIAL, PARTIAL_FAILED_PAYLOAD, SHA_MISMATCH, NOT_JSON, NOT_IMPORTABLE, UNKNOWN_FIELD, BUSY, SLOW, DELAYED_OK }
 
     static volatile Mode mode = Mode.OK;
     static final AtomicInteger calls = new AtomicInteger();
@@ -119,7 +123,9 @@ class PlanServerAnalysisApiTest {
                             }
                             yield envelope("OK_REVIEW_REQUIRED", pdfSha, true, payload);
                         }
-                        case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload);
+                        case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload)
+                                .replace("\"errors\":[]", "\"errors\":[{\"code\":\"SUBJECT_SECTION_NOT_FOUND\"}]");
+                        case PARTIAL_FAILED_PAYLOAD -> envelope("PARTIAL", pdfSha, true, failedPayload());
                         case SHA_MISMATCH -> envelope("OK_REVIEW_REQUIRED", "0".repeat(64), true, payload);
                         case NOT_JSON -> "<html>gateway</html>";
                         case NOT_IMPORTABLE -> envelope("OK_REVIEW_REQUIRED", pdfSha, false, payload)
@@ -166,6 +172,14 @@ class PlanServerAnalysisApiTest {
                  "warnings":["구간 2개 미추출(합성)"],"errors":[],"elapsedMs":7}""".formatted(status, sha, importable, payloadJson);
     }
 
+    /** 같은 원문에 대한 FAILED payload (과목 없음 + 실패 사유). */
+    static String failedPayload() {
+        return """
+                {"analyzer":{"name":"curriculum-analysis","version":"v21.1/backend-adapter-0.2"},
+                 "source":{"sha256":"%s","pageCount":2},"status":"FAILED","failureReason":"stub","subjects":[],
+                 "warnings":[]}""".formatted(pdfSha);
+    }
+
     /** multipart 본문에서 file 부분 바이트의 SHA-256 (Backend가 보관 원문을 그대로 보냈는지 확인). */
     static String filePartSha(byte[] body, String contentType) {
         try {
@@ -187,10 +201,14 @@ class PlanServerAnalysisApiTest {
     }
 
     Uploaded register(String admin, String fileName, byte[] bytes) throws Exception {
+        return register(admin, fileName, bytes, 1);
+    }
+
+    Uploaded register(String admin, String fileName, byte[] bytes, int semester) throws Exception {
         String body = mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", fileName,
                                 "application/octet-stream", bytes)), admin)
                         .param("schoolId", "school_001").param("academicYear", "2026")
-                        .param("grade", "1").param("semester", "1"))
+                        .param("grade", "1").param("semester", String.valueOf(semester)))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         return new Uploaded(JsonPath.read(body, "$.planId"), JsonPath.read(body, "$.documentRevisionId"));
     }
@@ -235,14 +253,84 @@ class PlanServerAnalysisApiTest {
     }
 
     @Test
-    void 분석기의_PARTIAL은_REVIEW_REQUIRED로_바꿔_저장하지_않고_422로_알린다() throws Exception {
-        // 부분 결과 저장 상태가 DB 제약·계약에 아직 없다 (ck_assessment_plan_analysis_status: REVIEW_REQUIRED, FAILED)
+    void 분석기의_PARTIAL은_PARTIAL_Run으로_저장되고_재조회된다() throws Exception {
+        // A3.5: REVIEW_REQUIRED로 바꾸지 않는다 (DB 제약 V202611140100)
         Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf);
-        expectFailure(uploaded, Mode.PARTIAL, 422, "PLAN_ANALYSIS_PARTIAL_NOT_STORABLE", "partial_result");
-        assertThat(calls.get()).isEqualTo(1);
-        assertThat(runs()).isZero();
+        mode = Mode.PARTIAL;
+        String created = mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.analysisStatus").value("PARTIAL"))
+                .andExpect(jsonPath("$.reviewStatus").value("UNREVIEWED"))
+                .andExpect(jsonPath("$.subjects.length()").value(1))
+                // 분석기 경고와 오류 코드(누락 사유)를 값 수정 없이 보존한다
+                .andExpect(jsonPath("$.warnings[?(@.source == 'ANALYZER')]").isNotEmpty())
+                .andExpect(jsonPath("$.warnings[?(@.source == 'ANALYZER_ERROR')].message")
+                        .value(contains("SUBJECT_SECTION_NOT_FOUND")))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(jdbc.queryForObject("select status from assessment_plan_analysis_run", String.class))
+                .isEqualTo("PARTIAL");
+        String analysisId = JsonPath.read(created, "$.analysisId");
+        mvc.perform(asAdmin(get(uploaded.analysis()), "adm_gangnam"))
+                .andExpect(jsonPath("$.analysisId").value(analysisId))
+                .andExpect(jsonPath("$.analysisStatus").value("PARTIAL"));
         mvc.perform(asAdmin(get(PLANS + "/" + uploaded.planId()), "adm_plan_operator"))
-                .andExpect(jsonPath("$.revisions[0].analysisStatus").value("NOT_REQUESTED"));
+                .andExpect(jsonPath("$.revisions[0].analysisStatus").value("PARTIAL"));
+        // 같은 PARTIAL 결과 재요청 → 200, 새 Run 없음
+        mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator")).andExpect(status().isOk());
+        assertThat(runs()).isEqualTo(1);
+    }
+
+    @Test
+    void PARTIAL인데_payload가_FAILED면_모순이라_저장하지_않는다() throws Exception {
+        Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf);
+        expectFailure(uploaded, Mode.PARTIAL_FAILED_PAYLOAD, 502, "PLAN_ANALYZER_BAD_RESPONSE", "status_conflict");
+        assertThat(runs()).isZero();
+    }
+
+    @Test
+    void PARTIAL_결과를_관리자가_정정해_확정하면_학생에게_확정값만_공개된다() throws Exception {
+        Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf, 2);
+        mode = Mode.PARTIAL;
+        String analysisId = JsonPath.read(mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.analysisId");
+        String student = "/api/student/assessment/evaluation-plans/" + uploaded.planId();
+        // 확정 전: 학생에게 없음
+        mvc.perform(asStudent(get(student), "stu_001")).andExpect(status().isNotFound());
+
+        String review = PLANS + "/" + uploaded.planId() + "/revisions/" + uploaded.revisionId() + "/review";
+        // 관리자 정정값(후보 60 → 55)과 '원문에 없음' 확인(null)을 함께 저장한다
+        mvc.perform(asAdmin(put(review), "adm_gangnam").contentType(MediaType.APPLICATION_JSON).content("""
+                        {"analysisId":"%s","decision":"CONFIRM","reviewedSubjects":[{"subjectId":"subj_02","confirmedFields":[
+                          {"fieldPath":"performanceEvaluation.weightPercent","value":55,"pdfPageNumber":1},
+                          {"fieldPath":"performanceEvaluation.items[0].timing","value":null,"pdfPageNumber":null}]}]}"""
+                        .formatted(analysisId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.analysisStatus").value("PARTIAL"))
+                .andExpect(jsonPath("$.reviewStatus").value("CONFIRMED"))
+                // AI 후보는 그대로, 확정값은 따로
+                .andExpect(jsonPath("$.subjects[0].performanceEvaluation.weightPercent").value(60))
+                .andExpect(jsonPath("$.confirmedFields.length()").value(2));
+
+        // 확정 후: 학생 상세에 확정값만 (AI 후보·분석 상태·경고·근거 위치 없음)
+        String body = mvc.perform(asStudent(get(student), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewStatus").value("CONFIRMED"))
+                .andExpect(jsonPath("$.confirmedFields.length()").value(2))
+                .andExpect(jsonPath("$.confirmedFields[?(@.fieldPath == 'performanceEvaluation.weightPercent')].value")
+                        .value(contains(55)))
+                .andExpect(jsonPath("$.confirmedFields[?(@.fieldPath == 'performanceEvaluation.items[0].timing')].value")
+                        .value(contains(nullValue())))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(body).doesNotContain("\"subjects\"").doesNotContain("analysisStatus")
+                .doesNotContain("documentLocator").doesNotContain("warnings");
+        // 목록에는 확정값을 붙이지 않는다
+        mvc.perform(asStudent(get("/api/student/assessment/evaluation-plans"), "stu_001").param("schoolId", "school_001")
+                        .param("academicYear", "2026").param("grade", "1").param("semester", "2"))
+                .andExpect(jsonPath("$.items[0].planId").value(uploaded.planId()))
+                .andExpect(jsonPath("$.items[0].confirmedFields").doesNotExist());
+        // 원래 분석 Run은 그대로다
+        assertThat(jdbc.queryForObject("select status from assessment_plan_analysis_run", String.class))
+                .isEqualTo("PARTIAL");
     }
 
     @Test

@@ -92,7 +92,9 @@ public class EvaluationPlanQueryService {
         if (items.isEmpty()) {
             throw PlanAccess.planNotFound();
         }
-        return items.getFirst();
+        // 상세에만 그 공개 Revision의 확정값을 붙인다 (후보·근거 위치는 없다).
+        StudentEvaluationPlanResponse item = items.getFirst();
+        return item.withConfirmedFields(views.studentConfirmedFields(item.documentRevisionId()));
     }
 
     private List<StudentEvaluationPlanResponse> toStudent(List<EvaluationPlan> found) {
@@ -107,7 +109,7 @@ public class EvaluationPlanQueryService {
                     return new StudentEvaluationPlanResponse(plan.id(), revision.id(), plan.schoolId(),
                             plan.academicYear(), plan.grade(), plan.semester(), revision.fileName(),
                             revision.sourceUrl(), revision.reviewStatus().name(), times.toOffset(revision.uploadedAt()),
-                            PlanViews.file(revision));
+                            PlanViews.file(revision), null);
                 })
                 .sorted(Comparator.comparing(StudentEvaluationPlanResponse::uploadedAt))
                 .toList();
