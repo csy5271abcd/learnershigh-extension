@@ -63,6 +63,7 @@ export const confirmPlanReview = http.confirmPlanReviewHttp
 export const getPlanReviewDraft = http.getPlanReviewDraftHttp
 // A6 운영계획 확정 (§39-6): 서버 기능이라 Mock 대체 없음(Mock 데이터 모드에서는 이 단계를 쓰지 않는다)
 export const getTeachingPlanReview = http.getTeachingPlanReviewHttp
+export const getPlanSubjects = http.getPlanSubjectsHttp
 export const confirmTeachingPlan = http.confirmTeachingPlanHttp
 export const savePlanReviewDraft = http.savePlanReviewDraftHttp
 // A5 학교 검색: Mock 데이터 모드에는 Backend가 없어 빈 결과(전체 학교 아님 표시 유지)

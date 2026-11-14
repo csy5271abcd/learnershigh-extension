@@ -2,6 +2,7 @@ import type {
   AdminEvaluationPlan,
   AdminEvaluationPlanRevision,
   AdminSchool,
+  PlanSubjects,
   TeachingPlanIssue,
   TeachingPlanReviewRequest,
   TeachingPlanReviewView,
@@ -509,6 +510,9 @@ export function savePlanReviewHttp(
 ): Promise<AdminEvaluationPlanRevision> {
   return notConnected('검토 확정은 아직 화면에 연결하지 않았어요. 분석 과목을 학업 정보의 과목 ID와 맞추는 화면이 필요해요(C-7). 임시 저장은 서버에 없어요.')
 }
+
+/** A6 §38-4 문서 슬롯 학업 과목 (검토 화면 과목 선택용) */
+export const getPlanSubjectsHttp = (planId: string) => adminHttp<PlanSubjects>(`${plansPath}/${encodeURIComponent(planId)}/subjects`)
 
 /** A6 월별 운영계획 확정 조회·저장 (DRAFT §39-6). 평가 정보 확정과 별도. 409(이미 확정)는 그대로 던진다 */
 const teachingPlanPath = (planId: string, revisionId: string) =>

@@ -2,6 +2,7 @@ package com.learnershigh.extension.assessment.service.plan;
 
 import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
 import com.learnershigh.extension.assessment.dto.plan.StudentEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.record.ArtifactDtos.FileDownload;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
@@ -62,6 +63,18 @@ public class EvaluationPlanQueryService {
 
     public AdminEvaluationPlanResponse adminGet(AdminActor admin, String planId) {
         return views.admin(List.of(access.plan(admin, planId))).getFirst();
+    }
+
+    /** §38-4: 문서 슬롯(학교·학년도·학년·학기)의 학업 과목. 확정 검증과 같은 원천이다. */
+    public PlanSubjectsResponse adminSubjects(AdminActor admin, String planId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        Optional<AcademicContextRecord> slot = contexts.findSlot(plan.schoolId(), plan.academicYear(), plan.grade(),
+                plan.semester());
+        List<PlanSubjectsResponse.Item> items = slot.map(context -> context.subjects().stream()
+                .map(subject -> new PlanSubjectsResponse.Item(subject.subjectId(), subject.name()))
+                .toList()).orElse(List.of());
+        return new PlanSubjectsResponse(plan.id(), plan.schoolId(), plan.academicYear(), plan.grade(), plan.semester(),
+                slot.isPresent(), slot.map(AcademicContextRecord::source).orElse(null), items);
     }
 
     public PlanAnalysisResponse adminAnalysis(AdminActor admin, String planId, String revisionId) {

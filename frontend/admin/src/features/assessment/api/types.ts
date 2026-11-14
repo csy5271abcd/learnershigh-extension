@@ -561,3 +561,11 @@ export interface TeachingPlanReviewView {
     rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate; candidate: TeachingPlanRowCandidate }[]
   } | null
 }
+
+/** §38-4 문서 슬롯 학업 과목 (A6 DRAFT). available=false = 슬롯 학업 정보 없음(오류 아님) → 직접 입력으로 대신 */
+export interface PlanSubjects {
+  planId: string
+  available: boolean
+  source: string | null
+  items: { subjectId: string; name: string }[]
+}

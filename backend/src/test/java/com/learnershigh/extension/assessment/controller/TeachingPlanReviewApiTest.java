@@ -261,6 +261,26 @@ class TeachingPlanReviewApiTest {
     }
 
     @Test
+    void 검토_화면은_문서_슬롯의_학업_과목을_고를_수_있고_슬롯이_없으면_빈_목록이다() throws Exception {
+        mvc.perform(asAdmin(get(PLANS + "/" + planId + "/subjects"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(true))
+                .andExpect(jsonPath("$.items[?(@.subjectId == 'subj_02')].name").value(containsInAnyOrder("통합과학2")))
+                .andExpect(jsonPath("$.items.length()").value(4));
+        String other = mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", "other.pdf",
+                                "application/octet-stream", (new String(pdf, StandardCharsets.ISO_8859_1) + "\n% other\n")
+                                        .getBytes(StandardCharsets.ISO_8859_1))), "adm_plan_operator")
+                        .param("schoolId", "school_unknown").param("academicYear", "2026")
+                        .param("grade", "1").param("semester", "2"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        mvc.perform(asAdmin(get(PLANS + "/" + JsonPath.read(other, "$.planId") + "/subjects"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false))
+                .andExpect(jsonPath("$.items.length()").value(0));
+        mvc.perform(get(PLANS + "/" + planId + "/subjects")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void 인증_없는_학생_요청은_401() throws Exception {
         mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
         mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());

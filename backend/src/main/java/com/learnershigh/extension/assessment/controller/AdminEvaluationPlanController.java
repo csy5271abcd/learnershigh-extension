@@ -4,6 +4,7 @@ import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanRespons
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewRequest;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewRequest;
@@ -154,6 +155,12 @@ public class AdminEvaluationPlanController {
     public PlanReviewDraftResponse saveReviewDraft(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId, @Valid @RequestBody PlanReviewDraftRequest request) {
         return draftService.save(admin, planId, revisionId, request);
+    }
+
+    /** A6 §38-4: 문서 슬롯의 학업 과목 (검토 화면 과목 선택용, 확정 검증과 같은 원천). */
+    @GetMapping("/{planId}/subjects")
+    public PlanSubjectsResponse subjects(AdminActor admin, @PathVariable String planId) {
+        return queryService.adminSubjects(admin, planId);
     }
 
     /** A6 월별 운영계획 확정 조회 (DRAFT §39-6). review=null이면 아직 확정 전. */
