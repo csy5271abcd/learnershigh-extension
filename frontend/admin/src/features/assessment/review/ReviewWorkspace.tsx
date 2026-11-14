@@ -259,7 +259,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               />
             )}
             {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onJump={jump} readOnly={!editable || !isPdf} />}
-            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} />}
+            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} decisions={decisions} subjectIds={subjectIds} onDecide={draft.setDecision} draftEditable={editable} />}
             {step === 'confirm' && (
               <ConfirmStep
                 view={view}

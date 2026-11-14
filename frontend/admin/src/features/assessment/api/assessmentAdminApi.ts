@@ -61,6 +61,9 @@ export const savePlanReview = useMock ? mock.savePlanReviewMock : http.savePlanR
 export const confirmPlanReview = http.confirmPlanReviewHttp
 // A5 공유 검토 초안: 서버 전용(Mock 데이터 모드의 이전 검토 화면은 쓰지 않는다)
 export const getPlanReviewDraft = http.getPlanReviewDraftHttp
+// A6 운영계획 확정 (§39-6): 서버 기능이라 Mock 대체 없음(Mock 데이터 모드에서는 이 단계를 쓰지 않는다)
+export const getTeachingPlanReview = http.getTeachingPlanReviewHttp
+export const confirmTeachingPlan = http.confirmTeachingPlanHttp
 export const savePlanReviewDraft = http.savePlanReviewDraftHttp
 // A5 학교 검색: Mock 데이터 모드에는 Backend가 없어 빈 결과(전체 학교 아님 표시 유지)
 export const searchSchools = useMock ? () => Promise.resolve({ coverage: 'REGISTERED_PLANS_ONLY', masterConnected: false, truncated: false, items: [] }) : http.searchSchoolsHttp

@@ -8,7 +8,7 @@ import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { firstPageOf, groupConfirmedFields, unitOf, type ConfirmedItem, type ConfirmedSubject, type ConfirmedValue } from '../model/confirmedPlanView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
 import styles from './EvaluationPlansRoute.module.css'
-import { evaluationPlanOriginalPath } from './paths.ts'
+import { evaluationPlanOriginalPath, monthlyPlanPath } from './paths.ts'
 
 // 학교 평가 정보 (§10-1 상세 confirmedFields, 2026-11-15). 관리자가 원문과 대조해 확정한 값만 보여 준다.
 // - 서버는 확정 Revision만, 확정값만 보낸다(분석 후보·검토 초안 없음). 이 화면은 값을 계산·보충하지 않는다.
@@ -103,8 +103,11 @@ function PlanSection({ plan }: { plan: EvaluationPlan }) {
         <span className={styles.meta}>
           {plan.academicYear}학년도 {plan.grade}학년 {plan.semester}학기 · 확정 과목 {subjects.length}개
         </span>
+        <Link className={styles.linkButton} to={monthlyPlanPath} data-testid="confirmed-plan-monthly">
+          월별 운영계획
+        </Link>
         {plan.file?.available && (
-          <Link className={styles.linkButton} to={evaluationPlanOriginalPath(plan.planId)} data-testid="confirmed-plan-original">
+          <Link className={styles.linkButton} style={{ marginLeft: 0 }} to={evaluationPlanOriginalPath(plan.planId)} data-testid="confirmed-plan-original">
             원문 보기
           </Link>
         )}

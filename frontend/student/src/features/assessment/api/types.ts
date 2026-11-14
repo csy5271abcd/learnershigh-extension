@@ -1,3 +1,4 @@
+import type { PlanRowLike } from '../components/teaching-plan/teachingPlanPlacement.ts'
 // Student Assessment API Type. 출처: docs/api/api-contract.md (DRAFT)
 // 계약에 없는 필드는 추가하지 않는다. 필드를 바꾸려면 계약 개정이 먼저다 (CLAUDE.md §18).
 
@@ -892,4 +893,16 @@ export interface ReferenceCatalog {
   areas: ReferenceArea[]
   /** 원본 문서·확인일 */
   basis: { document: string; checkedOn: string }
+}
+
+/** §10-1-2 학생 월별 교수·학습 운영계획 (A6 DRAFT). 확정 행만. status NOT_CONFIRMED = 문서는 공개됐지만 운영계획은 확정 전(오류 아님) */
+export interface StudentTeachingPlan {
+  planId: string
+  documentRevisionId: string
+  academicYear: number
+  grade: number
+  semester: number
+  status: 'CONFIRMED' | 'NOT_CONFIRMED'
+  confirmedAt: string | null
+  rows: (PlanRowLike & { subjectId: string })[]
 }

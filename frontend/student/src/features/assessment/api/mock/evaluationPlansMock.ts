@@ -4,6 +4,7 @@ import type {
   EvaluationPlanUpload,
   PersonalReview,
   PersonalReviewRequest,
+  StudentTeachingPlan,
   UploadEvaluationPlanRequest,
 } from '../types.ts'
 import { fixtureAnalysisResults, fixtureOtherSchoolPlan } from './evaluationPlansFixture.ts'
@@ -169,5 +170,17 @@ export function savePersonalReviewMock(documentRevisionId: string, request: Pers
     }
     mockStore.personalReviews = [...mockStore.personalReviews.filter((item) => item.documentRevisionId !== documentRevisionId), review]
     return structuredClone(review)
+  })
+}
+
+/**
+ * A6 §10-1-2 Mock: 개발 Mock 데이터에는 관리자 확정 운영계획이 없다 → 계약 모양 그대로 "확정 전"을 돌려준다(가짜 계획을 만들지 않음).
+ * 실제 확정 행은 http 모드(Backend)에서만 보인다.
+ */
+export function getEvaluationPlanTeachingPlanMock(planId: string): Promise<StudentTeachingPlan> {
+  return respond(() => {
+    const plan = mockStore.evaluationPlans.find((item) => item.planId === planId)
+    if (!plan) fail(404, { code: 'NOT_FOUND', message: '평가계획서를 찾을 수 없어요.', details: {} })
+    return { planId, documentRevisionId: plan.documentRevisionId, academicYear: plan.academicYear, grade: plan.grade, semester: plan.semester, status: 'NOT_CONFIRMED' as const, confirmedAt: null, rows: [] }
   })
 }

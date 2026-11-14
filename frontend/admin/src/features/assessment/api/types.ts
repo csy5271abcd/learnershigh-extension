@@ -1,3 +1,4 @@
+import type { PlanRowLike, PlanSchedule } from '../../../../../student/src/features/assessment/components/teaching-plan/teachingPlanPlacement.ts'
 import type {
   AcademicContext,
   AnalysisSubject,
@@ -238,7 +239,8 @@ export interface EvaluationPlanAnalysisView {
   confirmedFields: AdminEvaluationPlanRevision['confirmedFields']
   /** 아래는 Backend §39 GET이 주는 값 (http). Mock에는 없다 */
   analysisId?: string | null
-  analyzer?: { origin: string; name: string; version: string } | null
+  /** contractVersion·profile: analysis-import-0.3 DRAFT 결과일 때만 (§39-3) */
+  analyzer?: { origin: string; name: string; version: string; contractVersion?: string; profile?: string } | null
   receivedAt?: string | null
   /** 분석기 경고(ANALYZER)와 서버 검사 경고(SERVER). 값을 고치지 않고 경고만 남긴다 */
   warnings?: { source: string; message: string }[]
@@ -251,6 +253,11 @@ export interface EvaluationPlanAnalysisView {
   /** 과목별 원문 쪽 범위 (http) */
   subjectPages?: { subjectName: string; from: number | null; to: number | null }[]
   /** 수행 항목의 활동·제출물·조건 (http). 화면 AnalysisSubject Type에 없는 후보 값을 그대로 보여주기 위해 따로 둔다 */
+  /**
+   * 0.3 DRAFT 과목별 추출 상태·운영계획 후보 (http, §39-3). 0.2 결과에는 없다(빈 배열 — '운영계획 없음'이 아니라 '형식상 전달 안 됨').
+   * rows는 분석 후보 그대로(정밀도 8종 포함). 학생 공개는 §39-6 확정 뒤에만.
+   */
+  teachingPlanCandidates?: TeachingPlanCandidateSubject[]
   /** 문서 슬롯 (http): 학교·학년도·학년·학기. 검토 화면 머리글에 쓴다 */
   slot?: { schoolId: string; academicYear: number; grade: number; semester: number }
   itemDetails?: {
@@ -504,4 +511,53 @@ export interface SchoolSearchResult {
   masterConnected: boolean
   truncated: boolean
   items: { schoolId: string; name: string | null; nameSource: string | null; planCount: number; latestAcademicYear: number | null }[]
+}
+
+// ---- A6 월별 교수·학습 운영계획 (api-contract.md §39-3 · §39-6 DRAFT) ----
+
+export type TeachingPlanRowCandidate = PlanRowLike & { sources?: { pdfPageNumber?: number | null }[] | null }
+
+export interface TeachingPlanIssue {
+  code: string
+  severity?: 'BLOCKING' | 'REVIEW' | 'INFO' | null
+  fieldPath?: string | null
+  message?: string | null
+}
+
+export interface TeachingPlanCandidateSubject {
+  subjectIndex: number
+  subjectName: string
+  /** 0.3 extraction.status (없으면 null) */
+  extractionStatus: 'COMPLETE' | 'PARTIAL' | 'MISSING_SECTION' | null
+  issues: TeachingPlanIssue[]
+  /** null = 이 과목 결과에 운영계획 필드 자체가 없음 */
+  rows: TeachingPlanRowCandidate[] | null
+}
+
+export type TeachingPlanDecisionKind = 'CONFIRMED' | 'EDITED' | 'EXCLUDED'
+
+export interface TeachingPlanEdits {
+  unit?: string | null
+  content?: string | null
+  note?: string | null
+  specialSchedule?: string | null
+  schedule?: PlanSchedule | null
+}
+
+export interface TeachingPlanReviewRequest {
+  analysisId: string
+  rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; edits?: TeachingPlanEdits }[]
+}
+
+export interface TeachingPlanReviewView {
+  planId: string
+  revisionId: string
+  latestAnalysisId: string | null
+  candidateRowCount: number
+  review: {
+    analysisId: string
+    reviewedBy: string
+    reviewedAt: string
+    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate; candidate: TeachingPlanRowCandidate }[]
+  } | null
 }

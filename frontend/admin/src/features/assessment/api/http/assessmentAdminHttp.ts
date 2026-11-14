@@ -2,6 +2,10 @@ import type {
   AdminEvaluationPlan,
   AdminEvaluationPlanRevision,
   AdminSchool,
+  TeachingPlanIssue,
+  TeachingPlanReviewRequest,
+  TeachingPlanReviewView,
+  TeachingPlanRowCandidate,
   AnalysisSubject,
   EvaluationPlanAnalysisView,
   PlanAnalysisStatus,
@@ -314,6 +318,9 @@ interface BackendSubject {
       sources: BackendLocator[] | null
     }[] | null
   } | null
+  /** 0.3 DRAFT (§39-3) — 0.2 결과에는 없다 */
+  extraction?: { status: 'COMPLETE' | 'PARTIAL' | 'MISSING_SECTION'; issues?: TeachingPlanIssue[] | null } | null
+  teachingPlan?: TeachingPlanRowCandidate[] | null
 }
 
 interface BackendAnalysis {
@@ -322,7 +329,7 @@ interface BackendAnalysis {
   analysisId: string | null
   analysisStatus: PlanAnalysisStatus
   reviewStatus: PlanReviewStatus
-  analyzer: { origin: string; name: string; version: string } | null
+  analyzer: { origin: string; name: string; version: string; contractVersion?: string; profile?: string } | null
   receivedAt: string | null
   subjects: BackendSubject[] | null
   warnings: { source: string; message: string }[] | null
@@ -443,6 +450,13 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
     reviewFields: reviewFieldsOf(subjects),
     subjectPages: subjects.map((subject) => ({ subjectName: subject.subjectName, from: subject.pageRange?.from ?? null, to: subject.pageRange?.to ?? null })),
     slot: { schoolId: plan.schoolId, academicYear: plan.academicYear, grade: plan.grade, semester: plan.semester },
+    teachingPlanCandidates: subjects.map((subject, subjectIndex) => ({
+      subjectIndex,
+      subjectName: subject.subjectName,
+      extractionStatus: subject.extraction?.status ?? null,
+      issues: subject.extraction?.issues ?? [],
+      rows: subject.teachingPlan ?? null,
+    })),
     itemDetails: subjects.flatMap((subject, subjectIndex) =>
       (subject.performanceEvaluation?.items ?? []).map((item, itemIndex) => ({
         subjectIndex,
@@ -495,6 +509,13 @@ export function savePlanReviewHttp(
 ): Promise<AdminEvaluationPlanRevision> {
   return notConnected('검토 확정은 아직 화면에 연결하지 않았어요. 분석 과목을 학업 정보의 과목 ID와 맞추는 화면이 필요해요(C-7). 임시 저장은 서버에 없어요.')
 }
+
+/** A6 월별 운영계획 확정 조회·저장 (DRAFT §39-6). 평가 정보 확정과 별도. 409(이미 확정)는 그대로 던진다 */
+const teachingPlanPath = (planId: string, revisionId: string) =>
+  `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/teaching-plan-review`
+export const getTeachingPlanReviewHttp = (planId: string, revisionId: string) => adminHttp<TeachingPlanReviewView>(teachingPlanPath(planId, revisionId))
+export const confirmTeachingPlanHttp = (planId: string, revisionId: string, request: TeachingPlanReviewRequest) =>
+  adminHttp<TeachingPlanReviewView>(teachingPlanPath(planId, revisionId), { method: 'PUT', json: request })
 
 /** A5 공유 검토 초안 조회·저장 (DRAFT §39-4). 409(충돌·결과 바뀜)는 그대로 던진다 — 화면이 사용자에게 선택을 묻는다 */
 const draftPath = (planId: string, revisionId: string) => `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/review-draft`

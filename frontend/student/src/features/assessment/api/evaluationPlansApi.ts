@@ -1,10 +1,11 @@
 import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
-import { downloadEvaluationPlanFileHttp, getEvaluationPlanHttp, listEvaluationPlansHttp, previewEvaluationPlanFileHttp } from './http/evaluationPlansHttp.ts'
+import { downloadEvaluationPlanFileHttp, getEvaluationPlanHttp, getEvaluationPlanTeachingPlanHttp, listEvaluationPlansHttp, previewEvaluationPlanFileHttp } from './http/evaluationPlansHttp.ts'
 import { guardWrite } from './viewMode.ts'
 import {
   getEvaluationPlanAnalysisMock,
   getEvaluationPlanMock,
+  getEvaluationPlanTeachingPlanMock,
   listEvaluationPlansMock,
   requestEvaluationPlanAnalysisMock,
   savePersonalReviewMock,
@@ -16,6 +17,7 @@ import type {
   EvaluationPlanUpload,
   PersonalReview,
   PersonalReviewRequest,
+  StudentTeachingPlan,
   UploadEvaluationPlanRequest,
 } from './types.ts'
 
@@ -75,4 +77,9 @@ export function getEvaluationPlanAnalysis(documentRevisionId: string): Promise<E
 /** §11 PUT /api/student/assessment/evaluation-plans/{documentRevisionId}/personal-review */
 export function savePersonalReview(documentRevisionId: string, request: PersonalReviewRequest): Promise<PersonalReview> {
   return guardWrite('savePersonalReview', () => (isMockDataSource ? savePersonalReviewMock(documentRevisionId, request) : httpNotConnected()))
+}
+
+/** A6 §10-1-2 GET .../evaluation-plans/{planId}/teaching-plan — 확정 운영계획 행만 (후보·초안 없음) */
+export function getEvaluationPlanTeachingPlan(planId: string): Promise<StudentTeachingPlan> {
+  return isMockDataSource ? getEvaluationPlanTeachingPlanMock(planId) : getEvaluationPlanTeachingPlanHttp(planId)
 }

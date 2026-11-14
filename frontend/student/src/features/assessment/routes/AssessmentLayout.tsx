@@ -8,6 +8,7 @@ import type { AcademicContext, AcademicTermQuery } from '../api/types.ts'
 import {
   ArchiveIcon,
   BookIcon,
+  CalendarIcon,
   BooksIcon,
   OpenBookIcon,
   BulbIcon,
@@ -46,6 +47,7 @@ import {
   assessmentPath,
   enrichmentSection,
   evaluationPlansPath,
+  monthlyPlanPath,
   feedbackSection,
   growthSection,
   tipsSection,
@@ -169,6 +171,9 @@ export function AssessmentLayout() {
               </MenuLink>
               <MenuLink to={evaluationPlansPath} icon={BookIcon} active={pathname.startsWith(evaluationPlansPath)} onNavigate={closeNav}>
                 학교 평가 정보
+              </MenuLink>
+              <MenuLink to={monthlyPlanPath} icon={CalendarIcon} active={pathname.startsWith(monthlyPlanPath)} onNavigate={closeNav}>
+                월별 운영계획
               </MenuLink>
               {pendingMenu.map((item) => (
                 <MenuLink

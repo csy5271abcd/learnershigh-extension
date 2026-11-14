@@ -1,11 +1,11 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '../AssessmentIcons.tsx'
-import { calendarYear, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
+import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
 import styles from './monthlyPlanner.module.css'
 
 // 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용 렌더러).
 // - mode='student': 확정(CONFIRMED) 계획만 받는다는 전제의 읽기 전용 화면. 후보·누락 정보는 보이지 않는다.
-// - mode='admin'  : 분석 후보(점선)·확정 표시, 읽지 못한 칸 표시. 편집·확정은 계약(0.3 teachingPlan) 이후 연결한다.
+// - mode='admin'  : 분석 후보(점선)·확정 표시, 읽지 못한 칸 표시. 편집·확정은 관리자 검토 단계(TeachingPlanStep)가 한다.
 // 날짜 규칙은 teachingPlanPlacement.ts (원문에 없는 날짜를 만들지 않음).
 
 const weekdays = ['일', '월', '화', '수', '목', '금', '토']
@@ -25,7 +25,7 @@ export interface MonthlyPlannerProps {
 export function MonthlyPlanner({ academicYear, semester, entries, mode, emptyState, onOpenSource }: MonthlyPlannerProps) {
   const months = semesterMonths(semester)
   const subjects = useMemo(() => [...new Set(entries.map((entry) => entry.subjectName))], [entries])
-  const firstWithData = months.find((month) => entries.some((entry) => entry.month === month)) ?? months[0]
+  const firstWithData = months.find((month) => entries.some((entry) => monthsOf(entry).includes(month))) ?? months[0]
   const [month, setMonth] = useState(firstWithData)
   const [hidden, setHidden] = useState<Set<string>>(new Set())
   // 좁은 화면은 주차 목록을 기본으로 (7열 Grid가 너무 좁다)
@@ -33,9 +33,10 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   const [selected, setSelected] = useState<TeachingPlanEntry | null>(null)
   const visible = entries.filter((entry) => !hidden.has(entry.subjectName))
   const placement = placeEntries(visible, academicYear, month)
+  const unplaced = unplacedEntries(visible)
   const position = months.indexOf(month)
 
-  const countIn = (value: number) => visible.filter((entry) => entry.month === value).length
+  const countIn = (value: number) => visible.filter((entry) => monthsOf(entry).includes(value)).length
   const toggleSubject = (subject: string) =>
     setHidden((previous) => {
       const next = new Set(previous)
@@ -44,16 +45,16 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
       return next
     })
   const color = (entry: TeachingPlanEntry) => String(subjectColorIndex(subjects, entry.subjectName))
-  const short = (entry: TeachingPlanEntry) => entry.unit ?? entry.content ?? entry.asWritten
+  const short = (entry: TeachingPlanEntry) => entry.unit ?? entry.content ?? entry.specialSchedule ?? whenLabel(entry)
   const chip = (entry: TeachingPlanEntry) => (
     <button
-      key={entry.rowKey}
+      key={entry.id}
       type="button"
       className={styles.chip}
-      aria-pressed={selected?.rowKey === entry.rowKey}
+      aria-pressed={selected?.id === entry.id}
       data-candidate={mode === 'admin' && entry.status === 'CANDIDATE' ? 'true' : undefined}
       onClick={() => setSelected(entry)}
-      title={`${entry.subjectName} · ${short(entry)} (${entry.asWritten})`}
+      title={`${entry.subjectName} · ${short(entry)} (${whenLabel(entry)})`}
       data-testid="planner-chip"
     >
       <span className={styles.dot} data-c={color(entry)} />
@@ -76,8 +77,9 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   const byWeekList = [
     ...placement.monthSummary.map((entry) => ({ group: `${month}월 전체`, entry })),
     ...placement.weekBands.flatMap((band) => band.entries.map((entry) => ({ group: `${month}월 ${band.week}주`, entry }))),
+    ...placement.termWeekBands.flatMap((band) => band.entries.map((entry) => ({ group: `학기 ${band.week}주차`, entry }))),
     ...(placement.year === null ? [] : placement.cells.flatMap((cell) => (cell ? cell.entries.filter((entry) => entry.dateFrom === cell.iso).map((entry) => ({ group: `${month}월 ${cell.day}일`, entry })) : []))),
-    ...placement.undated.map((entry) => ({ group: '날짜 미확인', entry })),
+    ...placement.undated.map((entry) => ({ group: `${month}월 · 날짜·주차 미확인`, entry })),
   ]
 
   return (
@@ -109,9 +111,10 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
         </div>
         <ul className={styles.legend} aria-label="표시 기준">
           <li>날짜가 적힌 계획 → 날짜 칸</li>
-          <li>&lsquo;n주&rsquo; 계획 → 주차 줄 (학교 주차 그대로)</li>
-          <li>월만 적힌 계획 → 월 전체 줄</li>
-          <li>날짜를 알 수 없음 → 따로 모음</li>
+          <li>&lsquo;n월 n주&rsquo; → 그 달의 주차 줄 (학교 주차 그대로)</li>
+          <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
+          <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
+          <li>달을 알 수 없음 → 아래 따로 모음</li>
           {mode === 'admin' && <li>점선 = 분석 후보(미확정)</li>}
         </ul>
       </aside>
@@ -138,7 +141,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
 
         {view === 'calendar' ? (
           <>
-            {(placement.monthSummary.length > 0 || placement.weekBands.length > 0 || placement.undated.length > 0) && (
+            {(placement.monthSummary.length > 0 || placement.weekBands.length > 0 || placement.termWeekBands.length > 0 || placement.undated.length > 0) && (
               <div className={styles.bands}>
                 {placement.monthSummary.length > 0 && (
                   <div className={styles.band} data-testid="planner-month-band">
@@ -152,15 +155,21 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                     <div className={styles.bandItems}>{band.entries.map(chip)}</div>
                   </div>
                 ))}
+                {placement.termWeekBands.map((band) => (
+                  <div key={`term-${band.week}`} className={styles.band} data-testid="planner-term-week-band">
+                    <span className={styles.bandLabel}>학기 {band.week}주차</span>
+                    <div className={styles.bandItems}>{band.entries.map(chip)}</div>
+                  </div>
+                ))}
                 {placement.undated.length > 0 && (
-                  <div className={styles.band}>
-                    <span className={styles.bandLabel}>날짜 미확인</span>
+                  <div className={styles.band} data-testid="planner-undated-band">
+                    <span className={styles.bandLabel}>날짜·주차 미확인</span>
                     <div className={styles.bandItems}>{placement.undated.map(chip)}</div>
                   </div>
                 )}
               </div>
             )}
-            {calendarYear(academicYear, month) === null ? (
+            {placement.year === null ? (
               <p className={styles.yearUnknown}>
                 {academicYear}학년도 {month}월은 학사일정으로 실제 연도를 확인하기 전이라 날짜 칸을 그리지 않아요. 원문의 주차·월 정보만 위에 보여 줘요.
               </p>
@@ -177,10 +186,10 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                       <span className={styles.dayNo}>{cell.day}</span>
                       {cell.entries.slice(0, MAX_PER_DAY).map((entry) => (
                         <button
-                          key={entry.rowKey}
+                          key={entry.id}
                           type="button"
                           className={styles.event}
-                          aria-pressed={selected?.rowKey === entry.rowKey}
+                          aria-pressed={selected?.id === entry.id}
                           data-candidate={mode === 'admin' && entry.status === 'CANDIDATE' ? 'true' : undefined}
                           onClick={() => setSelected(entry)}
                           title={`${entry.subjectName} · ${short(entry)}`}
@@ -211,7 +220,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
         ) : (
           <ul className={styles.list} data-testid="planner-list">
             {byWeekList.map(({ group, entry }, index) => (
-              <li key={`${group}-${entry.rowKey}`}>
+              <li key={`${group}-${entry.id}`}>
                 {(index === 0 || byWeekList[index - 1].group !== group) && <p className={styles.listGroup}>{group}</p>}
                 <button type="button" className={styles.listItem} onClick={() => setSelected(entry)}>
                   <span className={styles.dot} data-c={color(entry)} />
@@ -225,6 +234,12 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
               </li>
             ))}
           </ul>
+        )}
+        {unplaced.length > 0 && (
+          <div className={styles.band} data-testid="planner-unplaced">
+            <span className={styles.bandLabel}>달을 정할 수 없는 계획 {unplaced.length}개</span>
+            <div className={styles.bandItems}>{unplaced.map(chip)}</div>
+          </div>
         )}
       </section>
 
@@ -267,8 +282,8 @@ function EntryDetail({
         {entry.subjectName}
       </span>
       <h5>{entry.unit ?? '단원 미확인'}</h5>
-      <span className={styles.when}>
-        {entry.asWritten} · {precisionLabel[entry.precision]} 단위
+      <span className={styles.when} data-testid="planner-detail-when">
+        {whenLabel(entry)} · {precisionLabel[entry.precision]} 단위{entry.asWritten ? ` · 원문 “${entry.asWritten}”` : ''}
       </span>
       {mode === 'admin' && (
         <p className={styles.statusLine} data-tone={entry.status === 'CONFIRMED' ? 'neutral' : undefined}>
@@ -282,6 +297,7 @@ function EntryDetail({
         {field('평가 방법', entry.assessmentMethods.length ? entry.assessmentMethods : null, 'assessmentMethods')}
         {field('연계 수행평가', entry.linkedAssessments.length ? entry.linkedAssessments : null, 'linkedAssessments')}
         {field('특별 일정', entry.specialSchedule, 'specialSchedule')}
+        {field('비고', entry.note, 'note')}
       </dl>
       <button
         type="button"

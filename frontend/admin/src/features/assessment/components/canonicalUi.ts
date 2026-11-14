@@ -20,4 +20,5 @@ export { ReferenceCategoryIcon } from '../../../../../student/src/features/asses
 export { AnalysisPreviewResult } from '../../../../../student/src/features/assessment/components/pdf-import/AnalysisPreviewResult.tsx'
 // 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용 렌더러, 2026-11-14)
 export { MonthlyPlanner } from '../../../../../student/src/features/assessment/components/teaching-plan/MonthlyPlanner.tsx'
-export type { TeachingPlanEntry } from '../../../../../student/src/features/assessment/components/teaching-plan/teachingPlanPlacement.ts'
+export type { TeachingPlanEntry, PlanRowLike, PlanSchedule, DatePrecision } from '../../../../../student/src/features/assessment/components/teaching-plan/teachingPlanPlacement.ts'
+export { entryFromRow, whenLabel, precisionLabel } from '../../../../../student/src/features/assessment/components/teaching-plan/teachingPlanPlacement.ts'
