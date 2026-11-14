@@ -215,6 +215,7 @@ public class EvaluationPlanService {
                         request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now())
                 : PlanAnalysisRun.importExternal(revision.id(), status, request.analyzer().name(),
                         request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now());
+        run.withContract(request.contractVersion(), request.analyzer().profile());
         PlanAnalysisRun saved = runs.saveAndFlush(run);
         return new ImportResult(true, views.analysis(plan, revision, Optional.of(saved)));
     }

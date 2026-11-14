@@ -1,0 +1,268 @@
+package com.learnershigh.extension.assessment.controller;
+
+import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asAdmin;
+import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asStudent;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.jayway.jsonpath.JsonPath;
+import com.learnershigh.extension.support.MySqlContainerConfig;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+
+/**
+ * A6 월별 교수·학습 운영계획 (§39-3 0.3 수신 · §39-6 확정 · §10-1-2 학생 조회, 2026-11-15 DRAFT).
+ * Stub 분석기가 Envelope PARTIAL + 합성 0.3 payload(contract03/synthetic-0.3.analysis-import.json, 정밀도 8종 9행)를 돌려준다.
+ * 실제 학교 문서·실제 0.3 Adapter 출력이 아니다(계정 B 미합의).
+ */
+@Tag("integration")
+@SpringBootTest(properties = {
+    "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage",
+    "assessment.analyzer.token=it-token-not-a-secret-0123456789abcdef",
+    "assessment.analyzer.timeout-millis=3000",
+    "assessment.analyzer.retry-delay-millis=10",
+    "assessment.analysis-import.contract03-enabled=true"})
+@AutoConfigureMockMvc
+@ActiveProfiles("e2e")
+@Import(MySqlContainerConfig.class)
+class TeachingPlanReviewApiTest {
+
+    static final String PLANS = "/api/admin/assessment/evaluation-plans";
+    static final String STUDENT = "/api/student/assessment/evaluation-plans/";
+    static final HttpServer ANALYZER = startStub();
+    static String payload;
+    static byte[] pdf;
+
+    @DynamicPropertySource
+    static void analyzer(DynamicPropertyRegistry registry) {
+        registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
+    }
+
+    @Autowired
+    MockMvc mvc;
+
+    @Autowired
+    JdbcTemplate jdbc;
+
+    String planId;
+    String revisionId;
+    String analysisId;
+
+    static HttpServer startStub() {
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.setExecutor(Executors.newCachedThreadPool());
+            server.createContext("/analyze-preview", exchange -> {
+                exchange.getRequestBody().readAllBytes();
+                String sha = com.jayway.jsonpath.JsonPath.read(payload, "$.source.sha256");
+                String body = """
+                        {"service":{"name":"stub-analyzer"},"requestId":"stub03","ok":true,"status":"PARTIAL",
+                         "analyzerVersion":"synthetic","source":{"sha256":"%s"},
+                         "backendImport":{"contract":"AnalysisImportRequest","variant":"OFFICIAL_PDF","importable":true,
+                           "blockers":[],"payload":%s},"warnings":[],"errors":[{"code":"TEACHING_PLAN_PARTIAL"}],
+                         "elapsedMs":3}""".formatted(sha, payload);
+                byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+                exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
+                exchange.sendResponseHeaders(200, bytes.length);
+                exchange.getResponseBody().write(bytes);
+                exchange.close();
+            });
+            server.start();
+            return server;
+        } catch (IOException failure) {
+            throw new IllegalStateException(failure);
+        }
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+        jdbc.update("delete from assessment_plan_teaching_plan_row");
+        jdbc.update("delete from assessment_plan_teaching_plan_review");
+        jdbc.update("delete from assessment_plan_review_draft_event");
+        jdbc.update("delete from assessment_plan_review_draft");
+        jdbc.update("delete from assessment_school_assessment");
+        jdbc.update("delete from assessment_plan_confirmed_value");
+        jdbc.update("delete from assessment_plan_review");
+        jdbc.update("delete from assessment_plan_analysis_run");
+        jdbc.update("delete from assessment_plan_revision");
+        jdbc.update("delete from assessment_evaluation_plan");
+        pdf = MultiformatExperimentalApiTest.resource("/assessment/analyzer-v21_1/synthetic-e2e.pdf");
+        payload = new String(MultiformatExperimentalApiTest.resource(
+                "/assessment/contract03/synthetic-0.3.analysis-import.json"), StandardCharsets.UTF_8);
+        String body = mvc.perform(asAdmin(multipart(PLANS).file(new MockMultipartFile("file", "synthetic-e2e.pdf",
+                                "application/octet-stream", pdf)), "adm_plan_operator")
+                        .param("schoolId", "school_001").param("academicYear", "2026")
+                        .param("grade", "1").param("semester", "2"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        planId = JsonPath.read(body, "$.planId");
+        revisionId = JsonPath.read(body, "$.documentRevisionId");
+        analysisId = JsonPath.read(mvc.perform(asAdmin(post(revisionPath() + "/analysis"), "adm_plan_operator"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.analysisStatus").value("PARTIAL"))
+                .andExpect(jsonPath("$.analyzer.contractVersion").value("0.3"))
+                .andExpect(jsonPath("$.analyzer.profile").value("synthetic-0.3"))
+                .andExpect(jsonPath("$.subjects[0].teachingPlan.length()").value(9))
+                .andExpect(jsonPath("$.subjects[0].teachingPlan[3].schedule.precision").value("TERM_WEEK"))
+                .andExpect(jsonPath("$.subjects[0].extraction.issues.length()").value(3))
+                .andReturn().getResponse().getContentAsString(), "$.analysisId");
+    }
+
+    String revisionPath() {
+        return PLANS + "/" + planId + "/revisions/" + revisionId;
+    }
+
+    void confirmEvaluation() throws Exception {
+        mvc.perform(asAdmin(put(revisionPath() + "/review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"analysisId":"%s","decision":"CONFIRM","reviewedSubjects":[{"subjectId":"subj_02",
+                                 "confirmedFields":[{"fieldPath":"performanceEvaluation.weightPercent","value":60,"pdfPageNumber":1}]}]}"""
+                                .formatted(analysisId)))
+                .andExpect(status().isOk());
+    }
+
+    String rows(String... rows) {
+        return """
+                {"analysisId":"%s","rows":[%s]}""".formatted(analysisId, String.join(",", rows));
+    }
+
+    @Test
+    void 운영계획_후보는_0_3_결과에_그대로_저장되고_학생에게는_확정_전_보이지_않는다() throws Exception {
+        assertThat(jdbc.queryForMap("select contract_version, analyzer_profile, status from assessment_plan_analysis_run"))
+                .containsEntry("contract_version", "0.3").containsEntry("analyzer_profile", "synthetic-0.3")
+                .containsEntry("status", "PARTIAL");
+        mvc.perform(asAdmin(get(revisionPath() + "/teaching-plan-review"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.latestAnalysisId").value(analysisId))
+                .andExpect(jsonPath("$.candidateRowCount").value(9))
+                .andExpect(jsonPath("$.review").doesNotExist());
+        // 평가 정보 확정 전: 문서 자체가 학생에게 없다
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001")).andExpect(status().isNotFound());
+        // 평가 정보만 확정: 문서는 보이지만 운영계획은 확정 전 (오류 아님)
+        confirmEvaluation();
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("NOT_CONFIRMED"))
+                .andExpect(jsonPath("$.rows.length()").value(0));
+    }
+
+    @Test
+    void 관리자가_확정한_행만_수정값으로_학생에게_공개되고_제외_행과_후보는_나가지_않는다() throws Exception {
+        confirmEvaluation();
+        String confirmed = mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"EDITED\","
+                                        + "\"edits\":{\"unit\":\"3. 역학 시스템(수정)\",\"note\":\"\",\"schedule\":{\"precision\":\"WEEK_IN_MONTH\","
+                                        + "\"monthFrom\":10,\"monthTo\":10,\"weekLabel\":\"10월 3주\",\"weekFrom\":3,\"weekTo\":3,"
+                                        + "\"weekScope\":\"IN_MONTH\",\"weekScopeBasis\":\"LABEL\"}}}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T04\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T08\",\"subjectId\":\"subj_02\",\"decision\":\"EXCLUDED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T09\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.reviewedBy").value("adm_gangnam"))
+                .andExpect(jsonPath("$.review.rows.length()").value(5))
+                .andExpect(jsonPath("$.review.rows[1].row.unit").value("3. 역학 시스템(수정)"))
+                .andExpect(jsonPath("$.review.rows[1].candidate.unit").value("3. 역학 시스템"))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(confirmed).contains("\"decision\":\"EXCLUDED\"");
+        assertThat(jdbc.queryForList("select precision_code from assessment_plan_teaching_plan_row order by sort_order",
+                String.class)).containsExactly("EXACT_DATE", "WEEK_IN_MONTH", "TERM_WEEK", "UNKNOWN", "EXACT_DATE");
+        // 확정해도 분석 후보(Run)는 그대로다
+        assertThat(jdbc.queryForObject("select result_json from assessment_plan_analysis_run", String.class))
+                .contains("\"unit\":\"3. 역학 시스템\"").doesNotContain("(수정)");
+
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.rows.length()").value(4))
+                .andExpect(jsonPath("$.rows[*].rowKey").value(containsInAnyOrder("T01", "T03", "T04", "T09")))
+                .andExpect(jsonPath("$.rows[1].unit").value("3. 역학 시스템(수정)"))
+                .andExpect(jsonPath("$.rows[1].schedule.weekFrom").value(3))
+                .andExpect(jsonPath("$.rows[2].schedule.precision").value("TERM_WEEK"))
+                .andExpect(jsonPath("$.rows[3].schedule.calendarYear").value(2027))
+                .andExpect(jsonPath("$.rows[0].pdfPageNumber").value(1))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(student).doesNotContain("candidate").doesNotContain("FIELD_NOT_PROVIDED")
+                .doesNotContain("extraction").doesNotContain("2차 지필평가").doesNotContain("EXCLUDED");
+
+        // 재확정은 정책 미결 → 409
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_plan_operator")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T05\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("teaching_plan_already_confirmed"));
+    }
+
+    @Test
+    void 없는_행_슬롯_밖_과목_수정_누락_연도_생성은_거절하고_아무것도_저장하지_않는다() throws Exception {
+        String body = mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T99\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_99\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T02\",\"subjectId\":\"subj_02\",\"decision\":\"EDITED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T05\",\"subjectId\":\"subj_02\",\"decision\":\"EDITED\","
+                                        + "\"edits\":{\"schedule\":{\"precision\":\"EXACT_DATE\",\"dateFrom\":{\"year\":2026,\"month\":11,\"day\":2},"
+                                        + "\"calendarYear\":2026,\"calendarYearBasis\":\"EXPLICIT_IN_CELL\"}}}")))
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(body).contains("rows[0].rowKey").contains("rows[1].subjectId").contains("rows[2].edits")
+                .contains("rows[3].edits.schedule.calendarYear");
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"analysisId":"analysis_unknown","rows":[{"subjectIndex":0,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].field").value("analysisId"));
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
+    }
+
+    @Test
+    void 운영계획_검토_결정은_공유_초안에_저장되고_학생에게_새지_않는다() throws Exception {
+        // 평가 정보 확정 전, 같은 검토 Workspace에서 운영계획 결정도 공유 초안에 둔다
+        mvc.perform(asAdmin(put(revisionPath() + "/review-draft"), "adm_plan_operator")
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"analysisId":"%s","baseVersion":null,"decisions":[
+                                  {"subjectIndex":0,"fieldPath":"teachingPlan[2]","decision":"EDITED","value":"{\\"unit\\":\\"초안 단원 77\\"}","pdfPageNumber":1},
+                                  {"subjectIndex":0,"fieldPath":"teachingPlan[7]","decision":"ABSENT","value":null,"pdfPageNumber":null}],
+                                 "subjectLinks":[{"subjectIndex":0,"subjectId":"subj_02"}]}""".formatted(analysisId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft.decisions[0].candidate.rowKey").value("T03"));
+        confirmEvaluation();
+        // 현재 제약(A5 규칙): 평가 정보 확정 뒤에는 공유 초안이 닫혀 운영계획 초안도 저장되지 않는다(결정 대기 D-A6-5)
+        mvc.perform(asAdmin(put(revisionPath() + "/review-draft"), "adm_plan_operator")
+                        .contentType(MediaType.APPLICATION_JSON).content("""
+                                {"analysisId":"%s","baseVersion":0,"decisions":[],"subjectLinks":[]}""".formatted(analysisId)))
+                .andExpect(status().isConflict());
+        String student =mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(student).doesNotContain("초안 단원 77");
+    }
+
+    @Test
+    void 인증_없는_학생_요청은_401() throws Exception {
+        mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
+        mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());
+    }
+}

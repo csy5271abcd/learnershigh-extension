@@ -6,8 +6,11 @@ import com.learnershigh.extension.common.error.CommonErrorCode;
 import com.learnershigh.extension.common.error.FieldViolation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DeserializationFeature;
@@ -22,10 +25,23 @@ public class AnalysisImportParser {
 
     private final JsonMapper strictMapper;
     private final Validator validator;
+    /** analysis-import-0.3 DRAFT 수신 (§39-3). 합의 전이라 기본 꺼짐 — 꺼져 있으면 0.3 필드는 unknown_field. */
+    private final boolean contract03Enabled;
 
     public AnalysisImportParser(JsonMapper mapper, Validator validator) {
+        this(mapper, validator, false);
+    }
+
+    @Autowired
+    public AnalysisImportParser(JsonMapper mapper, Validator validator,
+            @Value("${assessment.analysis-import.contract03-enabled:false}") boolean contract03Enabled) {
         this.strictMapper = mapper.rebuild().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
         this.validator = validator;
+        this.contract03Enabled = contract03Enabled;
+    }
+
+    public boolean contract03Enabled() {
+        return contract03Enabled;
     }
 
     public AnalysisImportRequest parse(String body) {
@@ -39,6 +55,10 @@ public class AnalysisImportParser {
         if (request == null) {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("body", "required"));
         }
+        List<FieldViolation> gate = versionGate(request, contract03Enabled);
+        if (!gate.isEmpty()) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, gate.toArray(FieldViolation[]::new));
+        }
         List<FieldViolation> violations = validator.validate(request).stream()
                 .map(violation -> new FieldViolation(violation.getPropertyPath().toString(), reasonOf(violation)))
                 .sorted(Comparator.comparing(FieldViolation::field))
@@ -47,6 +67,40 @@ public class AnalysisImportParser {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, violations.toArray(FieldViolation[]::new));
         }
         return request;
+    }
+
+    /**
+     * 계약 버전별 허용 필드. contractVersion이 없으면 0.2: 0.3 필드(analyzer.profile·extraction·teachingPlan)는 지금처럼
+     * unknown_field, payload status PARTIAL은 format(0.2는 Envelope로만 표현). 0.3은 설정이 켜졌을 때만 받는다.
+     */
+    static List<FieldViolation> versionGate(AnalysisImportRequest request, boolean contract03Enabled) {
+        List<FieldViolation> violations = new ArrayList<>();
+        if (request.contractVersion() != null) {
+            if (!contract03Enabled) {
+                violations.add(new FieldViolation("contractVersion", "unknown_field"));
+            }
+            return violations;
+        }
+        if (request.analyzer() != null && request.analyzer().profile() != null) {
+            violations.add(new FieldViolation("analyzer.profile", "unknown_field"));
+        }
+        if ("PARTIAL".equals(request.status())) {
+            violations.add(new FieldViolation("status", "format"));
+        }
+        List<AnalysisImportRequest.Subject> subjects = request.subjects() == null ? List.of() : request.subjects();
+        for (int i = 0; i < subjects.size(); i++) {
+            AnalysisImportRequest.Subject subject = subjects.get(i);
+            if (subject == null) {
+                continue;
+            }
+            if (subject.extraction() != null) {
+                violations.add(new FieldViolation("subjects[" + i + "].extraction", "unknown_field"));
+            }
+            if (subject.teachingPlan() != null) {
+                violations.add(new FieldViolation("subjects[" + i + "].teachingPlan", "unknown_field"));
+            }
+        }
+        return violations;
     }
 
     private static String reasonOf(ConstraintViolation<?> violation) {

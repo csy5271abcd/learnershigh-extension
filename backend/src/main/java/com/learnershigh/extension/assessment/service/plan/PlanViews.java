@@ -85,7 +85,8 @@ public class PlanViews {
                 run.map(PlanAnalysisRun::id).orElse(null),
                 run.map(r -> r.status().name()).orElse(NOT_REQUESTED),
                 revision.reviewStatus().name(),
-                run.map(r -> new PlanAnalysisResponse.Analyzer(r.origin(), r.analyzerName(), r.analyzerVersion()))
+                run.map(r -> new PlanAnalysisResponse.Analyzer(r.origin(), r.analyzerName(), r.analyzerVersion(),
+                        r.contractVersion(), r.analyzerProfile()))
                         .orElse(null),
                 run.map(r -> times.toOffset(r.receivedAt())).orElse(null),
                 run.map(r -> json(r.resultJson())).orElse(List.of()),

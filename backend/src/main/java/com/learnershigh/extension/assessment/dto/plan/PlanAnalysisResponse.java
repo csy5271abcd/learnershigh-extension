@@ -12,7 +12,14 @@ public record PlanAnalysisResponse(String planId, String documentRevisionId, Str
         String analysisStatus, String reviewStatus, Analyzer analyzer, OffsetDateTime receivedAt,
         Object subjects, Object warnings, List<ConfirmedFieldView> confirmedFields, Review review) {
 
-    public record Analyzer(String origin, String name, String version) {
+    /** contractVersion·profile: analysis-import-0.3 DRAFT 결과일 때만 붙는다(NON_NULL) — 0.2 응답은 이전과 같다. */
+    public record Analyzer(String origin, String name, String version,
+            @JsonInclude(JsonInclude.Include.NON_NULL) String contractVersion,
+            @JsonInclude(JsonInclude.Include.NON_NULL) String profile) {
+
+        public Analyzer(String origin, String name, String version) {
+            this(origin, name, version, null, null);
+        }
     }
 
     /** sourceReview는 HWP·HWPX 검토에만 붙는다(NON_NULL) — PDF 응답은 이전과 같다. */

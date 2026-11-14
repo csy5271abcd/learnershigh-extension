@@ -41,6 +41,13 @@ public class PlanAnalysisRun {
     @Column(name = "analyzer_version", nullable = false, length = 50, updatable = false)
     private String analyzerVersion;
 
+    /** analysis-import-0.3 DRAFT 결과일 때 "0.3". null = backend-adapter-0.2 (V202611150100). */
+    @Column(name = "contract_version", length = 10, updatable = false)
+    private String contractVersion;
+
+    @Column(name = "analyzer_profile", length = 50, updatable = false)
+    private String analyzerProfile;
+
     @Column(name = "payload_sha256", nullable = false, length = 64, updatable = false)
     private String payloadSha256;
 
@@ -90,6 +97,21 @@ public class PlanAnalysisRun {
         run.receivedBy = adminId;
         run.receivedAt = now;
         return run;
+    }
+
+    /** 저장 전에만 부른다(저장 뒤 내용은 바뀌지 않는다). */
+    public PlanAnalysisRun withContract(String contractVersion, String analyzerProfile) {
+        this.contractVersion = contractVersion;
+        this.analyzerProfile = analyzerProfile;
+        return this;
+    }
+
+    public String contractVersion() {
+        return contractVersion;
+    }
+
+    public String analyzerProfile() {
+        return analyzerProfile;
     }
 
     public String id() {

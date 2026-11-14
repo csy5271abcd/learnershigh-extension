@@ -134,6 +134,14 @@ public class EvaluationPlanQueryService {
      * 다른 학교·학년·학기 문서, 미확정 문서는 존재를 드러내지 않도록 404.
      */
     public FileDownload studentFile(StudentActor student, String planId, boolean preview) {
+        return verifiedFile(studentPublic(student, planId).revision(), preview);
+    }
+
+    /** 학생에게 공개된 문서와 그 Revision(자기 슬롯 + 가장 최근 확정본). 아니면 존재를 드러내지 않도록 404. */
+    public record PublicPlan(EvaluationPlan plan, PlanRevision revision) {
+    }
+
+    public PublicPlan studentPublic(StudentActor student, String planId) {
         EvaluationPlan plan = plans.findById(planId).filter(p -> contexts
                         .find(student.studentId(), p.academicYear(), p.semester())
                         .filter(c -> p.matchesSlot(c.schoolId(), c.academicYear(), c.grade(), c.semester()))
@@ -141,7 +149,7 @@ public class EvaluationPlanQueryService {
                 .orElseThrow(PlanAccess::planNotFound);
         PlanRevision revision = Optional.ofNullable(latestConfirmed(List.of(plan)).get(plan.id()))
                 .orElseThrow(PlanAccess::planNotFound);
-        return verifiedFile(revision, preview);
+        return new PublicPlan(plan, revision);
     }
 
     /**

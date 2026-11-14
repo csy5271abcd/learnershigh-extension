@@ -4,6 +4,8 @@ import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanRespons
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
+import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewRequest;
+import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanUploadResponse;
 import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
@@ -13,6 +15,8 @@ import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
 import com.learnershigh.extension.assessment.service.plan.PdfInspector;
 import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
 import com.learnershigh.extension.assessment.service.plan.PlanReviewDraftService;
+import com.learnershigh.extension.assessment.service.plan.TeachingPlanQueryService;
+import com.learnershigh.extension.assessment.service.plan.TeachingPlanReviewService;
 import com.learnershigh.extension.common.error.BusinessException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -53,13 +57,18 @@ public class AdminEvaluationPlanController {
     private final EvaluationPlanService service;
     private final PlanAnalysisService analysisService;
     private final PlanReviewDraftService draftService;
+    private final TeachingPlanReviewService teachingPlanService;
+    private final TeachingPlanQueryService teachingPlanQueries;
 
     public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service,
-            PlanAnalysisService analysisService, PlanReviewDraftService draftService) {
+            PlanAnalysisService analysisService, PlanReviewDraftService draftService,
+            TeachingPlanReviewService teachingPlanService, TeachingPlanQueryService teachingPlanQueries) {
         this.queryService = queryService;
         this.service = service;
         this.analysisService = analysisService;
         this.draftService = draftService;
+        this.teachingPlanService = teachingPlanService;
+        this.teachingPlanQueries = teachingPlanQueries;
     }
 
     @GetMapping
@@ -145,6 +154,20 @@ public class AdminEvaluationPlanController {
     public PlanReviewDraftResponse saveReviewDraft(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId, @Valid @RequestBody PlanReviewDraftRequest request) {
         return draftService.save(admin, planId, revisionId, request);
+    }
+
+    /** A6 월별 운영계획 확정 조회 (DRAFT §39-6). review=null이면 아직 확정 전. */
+    @GetMapping("/{planId}/revisions/{revisionId}/teaching-plan-review")
+    public TeachingPlanReviewResponse teachingPlanReview(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return teachingPlanQueries.adminGet(admin, planId, revisionId);
+    }
+
+    /** A6 월별 운영계획 확정 (DRAFT §39-6). 평가 정보 확정과 별도. Revision당 1건(재확정 409). */
+    @PutMapping(path = "/{planId}/revisions/{revisionId}/teaching-plan-review", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public TeachingPlanReviewResponse confirmTeachingPlan(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId, @Valid @RequestBody TeachingPlanReviewRequest request) {
+        return teachingPlanService.confirm(admin, planId, revisionId, request);
     }
 
     private static EvaluationPlanService.UploadedPdf uploaded(MultipartFile file, String sourceUrl) {

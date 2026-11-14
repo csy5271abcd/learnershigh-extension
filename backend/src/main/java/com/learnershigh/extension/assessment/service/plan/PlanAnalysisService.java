@@ -97,7 +97,9 @@ public class PlanAnalysisService {
             } catch (BusinessException invalid) {
                 throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "payload_invalid");
             }
-            PlanAnalysisStatus status = runStatus(result.envelopeStatus(), request.status());
+            PlanAnalysisStatus status = request.contract03()
+                    ? runStatus03(result.envelopeStatus(), request.status())
+                    : runStatus(result.envelopeStatus(), request.status());
             return plans.recordServerAnalysis(admin, planId, revisionId, request, status, result.warnings(),
                     result.errorCodes(), List.of());
         } finally {
@@ -127,6 +129,27 @@ public class PlanAnalysisService {
             }
             default -> throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "unknown_status");
         };
+    }
+
+    /** 0.3 Envelope 판정 (§39-3 DRAFT): payload status가 PARTIAL을 직접 갖고, 실패 계열 Envelope는 payload FAILED와만 맞는다. */
+    static final Set<String> FAILED_ENVELOPES = Set.of("PARSE_FAILED", "NO_ASSESSMENTS_EXTRACTED", "NO_SEGMENTS",
+            "UNSUPPORTED_FORMAT", "NEEDS_OCR");
+
+    static PlanAnalysisStatus runStatus03(String envelopeStatus, String payloadStatus) {
+        String expected;
+        if ("OK_REVIEW_REQUIRED".equals(envelopeStatus)) {
+            expected = "REVIEW_REQUIRED";
+        } else if ("PARTIAL".equals(envelopeStatus)) {
+            expected = "PARTIAL";
+        } else if (FAILED_ENVELOPES.contains(envelopeStatus)) {
+            expected = "FAILED";
+        } else {
+            throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "unknown_status");
+        }
+        if (!expected.equals(payloadStatus)) {
+            throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "status_conflict");
+        }
+        return PlanAnalysisStatus.valueOf(payloadStatus);
     }
 
     private static BusinessException translate(PlanAnalyzerException failure) {

@@ -1,8 +1,10 @@
 package com.learnershigh.extension.assessment.controller;
 
 import com.learnershigh.extension.assessment.dto.plan.StudentEvaluationPlanResponse;
+import com.learnershigh.extension.assessment.dto.plan.StudentTeachingPlanResponse;
 import com.learnershigh.extension.assessment.integration.auth.StudentActor;
 import com.learnershigh.extension.assessment.service.plan.EvaluationPlanQueryService;
+import com.learnershigh.extension.assessment.service.plan.TeachingPlanQueryService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -27,9 +29,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudentEvaluationPlanController {
 
     private final EvaluationPlanQueryService queryService;
+    private final TeachingPlanQueryService teachingPlans;
 
-    public StudentEvaluationPlanController(EvaluationPlanQueryService queryService) {
+    public StudentEvaluationPlanController(EvaluationPlanQueryService queryService,
+            TeachingPlanQueryService teachingPlans) {
         this.queryService = queryService;
+        this.teachingPlans = teachingPlans;
+    }
+
+    /** A6 §10-1-2: 공개(확정) Revision의 확정 운영계획 행만. 확정 전이면 NOT_CONFIRMED + 빈 목록. */
+    @GetMapping("/{planId}/teaching-plan")
+    public StudentTeachingPlanResponse teachingPlan(StudentActor student, @PathVariable String planId) {
+        return teachingPlans.studentGet(student, planId);
     }
 
     @GetMapping

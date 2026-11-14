@@ -75,6 +75,9 @@ public class AnalysisImportValidator {
             pageCount = null;
         }
 
+        if (request.contract03()) {
+            Contract03Rules.document(request, errors);
+        }
         if ("FAILED".equals(request.status())) {
             if (!request.subjects().isEmpty()) {
                 errors.add(new FieldViolation("subjects", "must_be_empty_when_failed"));
@@ -95,7 +98,7 @@ public class AnalysisImportValidator {
             if (!subjectNames.add(subject.subjectName().strip())) {
                 errors.add(new FieldViolation(path + ".subjectName", "duplicate"));
             }
-            new SubjectCheck(path, subject, format, pageCount, multiformat, errors, warnings).run();
+            new SubjectCheck(path, subject, format, pageCount, multiformat, request.contract03(), errors, warnings).run();
         }
         return new Result(errors, warnings);
     }
@@ -108,17 +111,19 @@ public class AnalysisImportValidator {
         private final PlanDocumentFormat format;
         private final Integer pageCount;
         private final boolean multiformat;
+        private final boolean contract03;
         private final List<FieldViolation> errors;
         private final List<String> warnings;
         private final Set<String> itemKeys = new HashSet<>();
 
         SubjectCheck(String path, Subject subject, PlanDocumentFormat format, Integer pageCount, boolean multiformat,
-                List<FieldViolation> errors, List<String> warnings) {
+                boolean contract03, List<FieldViolation> errors, List<String> warnings) {
             this.path = path;
             this.subject = subject;
             this.format = format;
             this.pageCount = pageCount;
             this.multiformat = multiformat;
+            this.contract03 = contract03;
             this.errors = errors;
             this.warnings = warnings;
         }
@@ -146,6 +151,10 @@ public class AnalysisImportValidator {
                     && written.weightPercent().add(performance.weightPercent()).compareTo(HUNDRED) != 0) {
                 warnings.add(subject.subjectName() + ": 지필(" + written.weightPercent().toPlainString() + ") + 수행("
                         + performance.weightPercent().toPlainString() + ") 반영비율 합계가 100이 아닙니다. 원문 값을 그대로 두었습니다.");
+            }
+            if (contract03) {
+                // 0.3: 과목 추출 상태·issue·운영계획 행 (운영계획 근거 쪽은 과목 쪽 범위 밖일 수 있어 범위를 적용하지 않는다)
+                Contract03Rules.subject(path, subject, errors, (at, list) -> locators(at, list, null));
             }
         }
 
