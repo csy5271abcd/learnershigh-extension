@@ -134,7 +134,7 @@ export function blockersOf({ view, decisions, subjectIds, hashMatches, attested,
   return blockers
 }
 
-/** §39 PUT review 요청 (PDF). 빈 값/원문에 없음 = null (0으로 바꾸지 않는다) */
+/** §39 PUT review 요청 (PDF). 빈 값/원문에 없음 = null (0으로 바꾸지 않는다). 분석 과목 번호 포함(A11) */
 export function confirmRequestOf(view: EvaluationPlanAnalysisView, decisions: Record<string, Decision>, subjectIds: Record<number, string>): PlanReviewConfirmRequest {
   const fields = (view.reviewFields ?? []).filter((field) => decisions[fieldKey(field)])
   const subjects = [...new Set(fields.map((field) => field.subjectIndex))]
@@ -143,6 +143,8 @@ export function confirmRequestOf(view: EvaluationPlanAnalysisView, decisions: Re
     decision: 'CONFIRM',
     reviewedSubjects: subjects.map((index) => ({
       subjectId: subjectIds[index].trim(),
+      // A11: 관리자가 연결한 분석 과목 번호를 함께 확정한다(§39-7). 다과목 문서에서 초안이 닫혀도 과목 연결이 확정값에 남는다
+      analysisSubjectIndex: index,
       confirmedFields: fields
         .filter((field) => field.subjectIndex === index)
         .map((field) => {

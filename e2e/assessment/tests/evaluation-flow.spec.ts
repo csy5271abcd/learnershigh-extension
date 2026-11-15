@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { ADMIN, STUDENT, runTag, uniquePdf } from '../support.ts'
+import { ADMIN, ADMIN_ID, PLANS, STUDENT, runTag, uniquePdf } from '../support.ts'
 
 // 평가계획서 기본 흐름 + 검토 Stepper (A7). Stub 분석기(0.2 합성 결과) 기준 — 실제 분석기 검증을 대신하지 않는다.
 
@@ -71,6 +71,11 @@ test('업로드 → 검토(과목 선택·수행평가 확인) → 초안 저장
   await page.getByTestId('review-attest').check()
   await page.getByTestId('review-confirm').click()
   await expect(page.getByTestId('review-confirmed')).toBeVisible({ timeout: 15_000 })
+  // A11: 화면 확정도 분석 과목 번호를 함께 저장한다(§39-7) — 과목 연결이 확정값에 남는다
+  const [, planId, revisionId] = new URL(page.url()).pathname.match(/evaluation-plans\/([^/]+)\/revisions\/([^/?]+)/) ?? []
+  const saved = await (await page.request.get(`${PLANS}/${planId}/revisions/${revisionId}/analysis`, { headers: { 'X-Assessment-Admin-Id': ADMIN_ID } })).json()
+  expect(saved.confirmedFields.length).toBeGreaterThan(0)
+  expect(new Set(saved.confirmedFields.map((field: { analysisSubjectIndex?: number }) => field.analysisSubjectIndex))).toEqual(new Set([0]))
   // 완료 단계는 체크 아이콘(진회색 원), 현재 단계는 번호
   await expect(steps.nth(4)).toHaveAttribute('aria-current', 'step')
   await expect(steps.nth(1).locator('svg')).toHaveCount(1)
