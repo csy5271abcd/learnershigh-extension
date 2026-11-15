@@ -139,16 +139,6 @@ function ReplyView({ entry, onUnavailable }: { entry: FeedbackListEntry; onUnava
             >
               노트에 메모 추가
             </button>
-            {recommendation.type === 'ENRICHMENT_TASK' && (
-              <button
-                type="button"
-                className={styles.smallPrimaryButton}
-                aria-disabled="true"
-                onClick={() => onUnavailable('심화 탐구 화면이 준비되면 여기서 바로 시작할 수 있어요.')}
-              >
-                심화 탐구로 시작
-              </button>
-            )}
           </div>
         </section>
       ))}

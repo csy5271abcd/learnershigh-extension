@@ -6,6 +6,8 @@
 > 목적: 심화 탐구를 **Frontend 정적 예시 콘텐츠**로 정의하고, 콘텐츠 구조·원문/자체 작성 구분·출처·품질 기준을 한 곳에서 관리한다.  
 > 상태: **Feature Spec 작성본(DRAFT, 2026-11-03).** 2026-11-11 Student 화면을 이 명세에 맞게 바꿨다(정적 콘텐츠·작성 기능 제거, `assessment-ui-analysis-connection-202611/REPORT.md`). 2026-11-12 Admin 화면도 같은 정적 원천의 읽기 전용 열람으로 바꿨다(`assessment-seed-and-ui-verification-202611/ADMIN-ENRICHMENT-STATIC.md`). §10의 코드 삭제·Type 축소는 아직이다. 범위 변경 ADR은 Shared 승인 대기(`harness-change-proposals.md` P-34).
 
+> **A12 (2026-11-16) 코드 정리:** 사용자 결정(학생 자율 심화탐구 = 준비된 콘텐츠 열람 전용)에 따라 화면에 연결되지 않던 생성·진행 코드를 지웠다 — `EnrichmentTaskDetailRoute`·`MyEnrichmentTasksRoute`·`EnrichmentPanel`·`TaskExamSource`·`CreateEnrichmentModal`·`examTaskPrefill`·`NoteTargetModal`·`PersonalMaterialModal`, `enrichmentApi`의 Task 생성·수정·상태 변경·개인 모의고사 자료 함수, 피드백 카드의 비활성 '심화 탐구로 시작' 버튼, 성장 기록 폼의 심화 탐구 선택지. 학교 수행평가 노트·자료함·파일 버전·피드백·성장 기록은 그대로다. Backend에는 개인 Task Entity·Table이 없어 지울 서버 코드·데이터·Migration이 없다. Mock Fixture(`enrichmentFixture`)는 정적 콘텐츠 원천과 관리자 열람이 함께 써서 유지한다.
+
 ## 1. 범위 변경 요약 (2026-11-03)
 
 | 구분 | 내용 |

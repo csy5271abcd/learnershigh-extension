@@ -4,7 +4,6 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { Link, useBlocker, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { listArtifacts } from '../api/assessmentDetailApi.ts'
-import { getEnrichmentTask, listEnrichmentTasks } from '../api/enrichmentApi.ts'
 import { createGrowthRecord, getGrowthRecord, trashGrowthRecord, updateGrowthRecord } from '../api/growthArchiveApi.ts'
 import { getSchoolAssessment } from '../api/schoolAssessmentApi.ts'
 import type { AssessmentSourceType, CreateGrowthRecordRequest, GrowthRecord, UpdateGrowthRecordRequest } from '../api/types.ts'
@@ -26,7 +25,6 @@ import { growthPath, growthRecordDetailPath, relatedSourcePath } from './paths.t
 // 문장은 학생이 직접 쓴다. AI 생성·자동 채우기는 하지 않는다. 결과물은 Artifact 단위로만 연결한다 (특정 Version 고정 여부 미정, MM-38).
 
 const sourceTypes: AssessmentSourceType[] = ['SCHOOL_ASSESSMENT', 'ENRICHMENT_TASK']
-const relatedOptionsPageSize = 100
 
 function parseSourceType(value: string | null): AssessmentSourceType | null {
   return sourceTypes.find((type) => type === value) ?? null
@@ -321,7 +319,8 @@ function loadRelated(sourceType: AssessmentSourceType | null, sourceId: string |
   if (!sourceType || !sourceId) return Promise.resolve(undefined)
   return sourceType === 'SCHOOL_ASSESSMENT'
     ? getSchoolAssessment(sourceId).then((item) => ({ title: item.title, subjectId: item.subjectId }))
-    : getEnrichmentTask(sourceId).then((task) => ({ title: task.title, subjectId: task.subjectId }))
+    : // A12: 자율 심화탐구 개인 Task는 더 이상 만들지 않는다. 예전에 연결된 기록은 지우지 않고 이름만 일반 문구로 보여 준다
+      Promise.resolve({ title: '이전 자율 심화탐구 기록(종료된 기능)', subjectId: null })
 }
 
 const relatedKey = (type: AssessmentSourceType | null, id: string | null) => (type && id ? `${type}:${id}` : '')
@@ -389,7 +388,6 @@ function GrowthRecordForm({ initial, submitLabel, onCancel, onSubmit }: GrowthRe
   }, [dirty])
 
   const contexts = terms.data?.contexts ?? []
-  const tasks = useApiQuery('gr-form-tasks', () => listEnrichmentTasks({ page: 0, size: relatedOptionsPageSize }))
   const currentKey = relatedKey(values.relatedSourceType, values.relatedSourceId)
   const options = [
     ...(termAssessments.data?.items ?? []).map((item) => ({
@@ -397,12 +395,6 @@ function GrowthRecordForm({ initial, submitLabel, onCancel, onSubmit }: GrowthRe
       label: item.title,
       group: '학교 수행평가 (선택한 학기)',
       subjectId: item.subjectId,
-    })),
-    ...(tasks.data?.items ?? []).map((task) => ({
-      key: relatedKey('ENRICHMENT_TASK', task.taskId),
-      label: task.title,
-      group: '심화 탐구',
-      subjectId: task.subjectId,
     })),
   ]
   // 지금 연결된 활동이 목록(선택 학기)에 없으면 원본 이름을 따로 조회해 선택지에 남긴다.
@@ -505,7 +497,6 @@ function GrowthRecordForm({ initial, submitLabel, onCancel, onSubmit }: GrowthRe
           </select>
           <ChevronDownIcon size={16} className={enrichmentStyles.selectChevron} />
         </span>
-        {tasks.status === 'error' && <p className={formStyles.fieldError}>심화 탐구 목록을 불러오지 못했어요. ({tasks.error?.code})</p>}
       </div>
 
       <div className={styles.formRow}>
