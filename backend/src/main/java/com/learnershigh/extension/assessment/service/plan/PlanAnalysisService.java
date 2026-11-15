@@ -127,6 +127,14 @@ public class PlanAnalysisService {
                 }
                 yield PlanAnalysisStatus.FAILED;
             }
+            // A7 (2026-11-15): 실제 분석기 v21.1이 보내는 '결과 없음' 계열. 장애·계약 불일치(502)가 아니라 문서 쪽 사유(422)로 알린다.
+            // 0.2 표에 없는 상태라 Run으로 저장하지 않는다(FAILED 저장 여부는 계정 B·사용자 결정 대기). payload가 FAILED가 아니면 모순.
+            case "NO_ASSESSMENTS_EXTRACTED", "NO_SEGMENTS", "NEEDS_OCR", "UNSUPPORTED_FORMAT" -> {
+                if (!"FAILED".equals(payloadStatus)) {
+                    throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "status_conflict");
+                }
+                throw rejected(AssessmentErrorCode.PLAN_ANALYSIS_NO_RESULT, envelopeStatus.toLowerCase(Locale.ROOT));
+            }
             default -> throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "unknown_status");
         };
     }

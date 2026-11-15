@@ -179,9 +179,16 @@ class AnalysisImportContract03Test {
         assertThatThrownBy(() -> PlanAnalysisService.runStatus03("SOMETHING_NEW", "FAILED"))
                 .isInstanceOf(BusinessException.class)
                 .satisfies(e -> assertThat(String.valueOf(((BusinessException) e).details())).contains("unknown_status"));
-        // 0.2 표는 그대로: NO_ASSESSMENTS_EXTRACTED는 아직 unknown_status (결정 대기)
+        // 0.2: '결과 없음' 계열은 저장하지 않고 422 PLAN_ANALYSIS_NO_RESULT(사유 코드)로 알린다(A7). 모르는 상태는 여전히 unknown_status
         assertThatThrownBy(() -> PlanAnalysisService.runStatus("NO_ASSESSMENTS_EXTRACTED", "FAILED"))
                 .isInstanceOf(BusinessException.class)
+                .satisfies(e -> {
+                    assertThat(((BusinessException) e).errorCode().toString()).isEqualTo("PLAN_ANALYSIS_NO_RESULT");
+                    assertThat(String.valueOf(((BusinessException) e).details())).contains("no_assessments_extracted");
+                });
+        assertThatThrownBy(() -> PlanAnalysisService.runStatus("NEEDS_OCR", "REVIEW_REQUIRED"))
+                .satisfies(e -> assertThat(String.valueOf(((BusinessException) e).details())).contains("status_conflict"));
+        assertThatThrownBy(() -> PlanAnalysisService.runStatus("SOMETHING_NEW", "FAILED"))
                 .satisfies(e -> assertThat(String.valueOf(((BusinessException) e).details())).contains("unknown_status"));
     }
 }

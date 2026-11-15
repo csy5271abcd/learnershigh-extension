@@ -36,6 +36,23 @@ public class MockAcademicContextProvider implements AcademicContextProvider {
                     new Subject("subj_13", "통합사회1"),
                     new Subject("subj_14", "과학탐구실험1")), SOURCE));
 
+    /**
+     * 3개년 평가계획서 비교(A7, 2026-11-15)용 <b>과거 학년도 문서 슬롯</b> — 개발용 Mock. 평가계획서 확정 검증(findSlot)에만 쓰고
+     * 학생 학기 조회(find)에는 쓰지 않는다. 2025는 2026과 같은 과목 ID(ID가 유지되는 경우), 2024는 이름이 비슷해도 다른 과목 ID
+     * (교육과정이 달라 같은 과목으로 단정할 수 없는 경우)를 흉내 낸다. 실제 학교·과목 정보가 아니다(실제 원천은 API-OD-A01·1팀).
+     */
+    private static final List<AcademicContextRecord> PAST_PLAN_SLOTS = List.of(
+            new AcademicContextRecord("school_001", "예시고등학교", 2025, 1, 2, List.of(
+                    new Subject("subj_01", "공통국어2"),
+                    new Subject("subj_02", "통합과학2"),
+                    new Subject("subj_03", "통합사회2"),
+                    new Subject("subj_04", "과학탐구실험2")), SOURCE),
+            new AcademicContextRecord("school_001", "예시고등학교", 2024, 1, 2, List.of(
+                    new Subject("subj24_01", "국어"),
+                    new Subject("subj24_02", "통합과학"),
+                    new Subject("subj24_03", "통합사회"),
+                    new Subject("subj24_04", "과학탐구실험")), SOURCE));
+
     private final SubjectCatalog catalog;
     private final ObjectProvider<DemoRoster> roster;
 
@@ -62,7 +79,7 @@ public class MockAcademicContextProvider implements AcademicContextProvider {
     @Override
     public Optional<AcademicContextRecord> findSlot(String schoolId, int academicYear, int grade, int semester) {
         // 평가계획서 검토 확정용 학교 슬롯은 기존 예시고등학교만 있다. 시연 학교의 평가계획서 운영은 범위 밖이다(PDF는 참고자료).
-        return CONTEXTS.stream()
+        return java.util.stream.Stream.concat(CONTEXTS.stream(), PAST_PLAN_SLOTS.stream())
                 .filter(context -> context.schoolId().equals(schoolId) && context.academicYear() == academicYear
                         && context.grade() == grade && context.semester() == semester)
                 .findFirst()

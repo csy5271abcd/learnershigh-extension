@@ -59,7 +59,7 @@ class PlanServerAnalysisApiTest {
     static final String PLANS = "/api/admin/assessment/evaluation-plans";
     static final String TOKEN = "it-token-not-a-secret-0123456789abcdef";
 
-    enum Mode { OK, PARTIAL, PARTIAL_FAILED_PAYLOAD, SHA_MISMATCH, NOT_JSON, NOT_IMPORTABLE, UNKNOWN_FIELD, BUSY, SLOW, DELAYED_OK }
+    enum Mode { OK, PARTIAL, PARTIAL_FAILED_PAYLOAD, NO_RESULT, SHA_MISMATCH, NOT_JSON, NOT_IMPORTABLE, UNKNOWN_FIELD, BUSY, SLOW, DELAYED_OK }
 
     static volatile Mode mode = Mode.OK;
     static final AtomicInteger calls = new AtomicInteger();
@@ -128,6 +128,8 @@ class PlanServerAnalysisApiTest {
                         case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload)
                                 .replace("\"errors\":[]", "\"errors\":[{\"code\":\"SUBJECT_SECTION_NOT_FOUND\"}]");
                         case PARTIAL_FAILED_PAYLOAD -> envelope("PARTIAL", pdfSha, true, failedPayload());
+                        // 실제 분석기 v21.1이 평가계획서가 아닌 문서에 보내는 응답 모양 (A6 실분석기 확인)
+                        case NO_RESULT -> envelope("NO_ASSESSMENTS_EXTRACTED", pdfSha, true, failedPayload());
                         case SHA_MISMATCH -> envelope("OK_REVIEW_REQUIRED", "0".repeat(64), true, payload);
                         case NOT_JSON -> "<html>gateway</html>";
                         case NOT_IMPORTABLE -> envelope("OK_REVIEW_REQUIRED", pdfSha, false, payload)
@@ -287,6 +289,16 @@ class PlanServerAnalysisApiTest {
         Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf);
         expectFailure(uploaded, Mode.PARTIAL_FAILED_PAYLOAD, 502, "PLAN_ANALYZER_BAD_RESPONSE", "status_conflict");
         assertThat(runs()).isZero();
+    }
+
+    @Test
+    void 평가항목을_찾지_못한_문서는_장애가_아니라_422_사유로_알리고_저장하지_않는다() throws Exception {
+        Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf);
+        expectFailure(uploaded, Mode.NO_RESULT, 422, "PLAN_ANALYSIS_NO_RESULT", "no_assessments_extracted");
+        assertThat(runs()).isZero();
+        // 재시도해도 같은 사유 (분석기 장애처럼 재시도를 유도하지 않는다)
+        expectFailure(uploaded, Mode.NO_RESULT, 422, "PLAN_ANALYSIS_NO_RESULT", "no_assessments_extracted");
+        assertThat(calls.get()).isEqualTo(2);
     }
 
     @Test
