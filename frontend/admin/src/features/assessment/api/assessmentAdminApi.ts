@@ -4,7 +4,7 @@ import * as records from './http/adminRecordsHttp.ts'
 import { getReferenceCatalogContent } from './canonicalSource.ts'
 import * as mock from './mock/assessmentAdminMock.ts'
 import { isAdminMockDataSource } from './mock/adminMockRuntime.ts'
-import type { SchoolAssessment, StudentViewSource } from './types.ts'
+import type { PlanStructurePreview, SchoolAssessment, StudentViewSource } from './types.ts'
 // Stage 1: Contract 기반 Mock Adapter. Stage 2 (2026-11-09): 아래 Resource만 http Adapter로 바꿨다(VITE_ASSESSMENT_DATA_SOURCE=http).
 // http로 바꾸지 않은 함수는 http 모드에서 Mock이 503 ASSESSMENT_API_NOT_CONNECTED로 끝난다(Mock 값을 돌려주지 않는다).
 export {
@@ -77,6 +77,9 @@ export const searchSchools = useMock ? () => Promise.resolve({ coverage: 'REGIST
 export const previewPlanRevision = useMock
   ? (_planId: string, _revisionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
   : http.previewPlanRevisionHttp
+export const getPlanStructure = useMock
+  ? (_planId: string, _revisionId: string): Promise<PlanStructurePreview> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
+  : http.getPlanStructureHttp
 export const downloadPlanRevision = useMock
   ? (_planId: string, _revisionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
   : http.downloadPlanRevisionHttp

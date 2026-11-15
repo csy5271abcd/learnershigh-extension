@@ -1,0 +1,440 @@
+f0	P	0	p0	HWP_PARAGRAPH	2099학년도 1학년 1학기 [가상과학탐구] 가상고등학교 평가 계획
+f0	P	0	p1	HWP_PARAGRAPH	
+f0	C	0	p1.c0.r0c0	1x1
+f0	P	0	p1.c0.r0c0.p0	HWP_TABLE_CELL	학교명
+f0	C	0	p1.c0.r0c1	1x1
+f0	P	0	p1.c0.r0c1.p0	HWP_TABLE_CELL	학년
+f0	C	0	p1.c0.r0c2	1x1
+f0	P	0	p1.c0.r0c2.p0	HWP_TABLE_CELL	학기
+f0	C	0	p1.c0.r0c3	1x1
+f0	P	0	p1.c0.r0c3.p0	HWP_TABLE_CELL	과목
+f0	C	0	p1.c0.r1c0	1x1
+f0	P	0	p1.c0.r1c0.p0	HWP_TABLE_CELL	가상고
+f0	C	0	p1.c0.r1c1	1x1
+f0	P	0	p1.c0.r1c1.p0	HWP_TABLE_CELL	1학년
+f0	C	0	p1.c0.r1c2	1x1
+f0	P	0	p1.c0.r1c2.p0	HWP_TABLE_CELL	1학기
+f0	C	0	p1.c0.r1c3	1x1
+f0	P	0	p1.c0.r1c3.p0	HWP_TABLE_CELL	가상과학탐구
+f0	P	0	p2	HWP_PARAGRAPH	1. 평가 계획
+f0	P	0	p3	HWP_PARAGRAPH	
+f0	C	0	p3.c0.r0c0	1x1
+f0	P	0	p3.c0.r0c0.p0	HWP_TABLE_CELL	평가 종류
+f0	C	0	p3.c0.r0c1	1x2
+f0	P	0	p3.c0.r0c1.p0	HWP_TABLE_CELL	지필평가
+f0	C	0	p3.c0.r0c3	1x2
+f0	P	0	p3.c0.r0c3.p0	HWP_TABLE_CELL	수행평가
+f0	C	0	p3.c0.r1c0	1x1
+f0	P	0	p3.c0.r1c0.p0	HWP_TABLE_CELL	반영비율
+f0	C	0	p3.c0.r1c1	1x2
+f0	P	0	p3.c0.r1c1.p0	HWP_TABLE_CELL	40%
+f0	C	0	p3.c0.r1c3	1x2
+f0	P	0	p3.c0.r1c3.p0	HWP_TABLE_CELL	60%
+f0	C	0	p3.c0.r2c0	1x1
+f0	P	0	p3.c0.r2c0.p0	HWP_TABLE_CELL	평가영역
+f0	C	0	p3.c0.r2c1	1x2
+f0	P	0	p3.c0.r2c1.p0	HWP_TABLE_CELL	1차 지필평가(40%)
+f0	C	0	p3.c0.r2c3	1x1
+f0	P	0	p3.c0.r2c3.p0	HWP_TABLE_CELL	탐구 보고서
+f0	C	0	p3.c0.r2c4	1x1
+f0	P	0	p3.c0.r2c4.p0	HWP_TABLE_CELL	토론 활동
+f0	C	0	p3.c0.r3c0	1x1
+f0	P	0	p3.c0.r3c0.p0	HWP_TABLE_CELL	평가 방법
+f0	C	0	p3.c0.r3c1	1x1
+f0	P	0	p3.c0.r3c1.p0	HWP_TABLE_CELL	선택형
+f0	C	0	p3.c0.r3c2	1x1
+f0	P	0	p3.c0.r3c2.p0	HWP_TABLE_CELL	서답형
+f0	C	0	p3.c0.r3c3	1x1
+f0	P	0	p3.c0.r3c3.p0	HWP_TABLE_CELL	서술형
+f0	C	0	p3.c0.r3c4	1x1
+f0	P	0	p3.c0.r3c4.p0	HWP_TABLE_CELL	토의토론
+f0	C	0	p3.c0.r4c0	1x1
+f0	P	0	p3.c0.r4c0.p0	HWP_TABLE_CELL	영역만점
+f0	C	0	p3.c0.r4c1	1x1
+f0	P	0	p3.c0.r4c1.p0	HWP_TABLE_CELL	70점
+f0	C	0	p3.c0.r4c2	1x1
+f0	P	0	p3.c0.r4c2.p0	HWP_TABLE_CELL	30점
+f0	C	0	p3.c0.r4c3	1x1
+f0	P	0	p3.c0.r4c3.p0	HWP_TABLE_CELL	100점
+f0	C	0	p3.c0.r4c4	1x1
+f0	P	0	p3.c0.r4c4.p0	HWP_TABLE_CELL	100점
+f0	C	0	p3.c0.r5c0	1x1
+f0	P	0	p3.c0.r5c0.p0	HWP_TABLE_CELL	세부 반영비율
+f0	C	0	p3.c0.r5c1	1x1
+f0	P	0	p3.c0.r5c1.p0	HWP_TABLE_CELL	28%
+f0	C	0	p3.c0.r5c2	1x1
+f0	P	0	p3.c0.r5c2.p0	HWP_TABLE_CELL	12%
+f0	C	0	p3.c0.r5c3	1x1
+f0	P	0	p3.c0.r5c3.p0	HWP_TABLE_CELL	30%
+f0	C	0	p3.c0.r5c4	1x1
+f0	P	0	p3.c0.r5c4.p0	HWP_TABLE_CELL	30%
+f0	C	0	p3.c0.r6c0	1x1
+f0	P	0	p3.c0.r6c0.p0	HWP_TABLE_CELL	기본점수
+f0	C	0	p3.c0.r6c1	1x2
+f0	P	0	p3.c0.r6c1.p0	HWP_TABLE_CELL	0점
+f0	C	0	p3.c0.r6c3	1x1
+f0	P	0	p3.c0.r6c3.p0	HWP_TABLE_CELL	10점
+f0	C	0	p3.c0.r6c4	1x1
+f0	P	0	p3.c0.r6c4.p0	HWP_TABLE_CELL	10점
+f0	C	0	p3.c0.r7c0	1x1
+f0	P	0	p3.c0.r7c0.p0	HWP_TABLE_CELL	평가시기
+f0	C	0	p3.c0.r7c1	1x2
+f0	P	0	p3.c0.r7c1.p0	HWP_TABLE_CELL	5월
+f0	C	0	p3.c0.r7c3	1x1
+f0	P	0	p3.c0.r7c3.p0	HWP_TABLE_CELL	4월
+f0	C	0	p3.c0.r7c4	1x1
+f0	P	0	p3.c0.r7c4.p0	HWP_TABLE_CELL	6월
+f0	P	0	p4	HWP_PARAGRAPH	가. 탐구 보고서 세부 계획
+f0	P	0	p5	HWP_PARAGRAPH	
+f0	C	0	p5.c0.r0c0	1x1
+f0	P	0	p5.c0.r0c0.p0	HWP_TABLE_CELL	수행 과제
+f0	C	0	p5.c0.r0c1	1x2
+f0	P	0	p5.c0.r0c1.p0	HWP_TABLE_CELL	1. 가상 하천의 수질을 측정하는 실험을 수행한다.
+f0	P	0	p5.c0.r0c1.p1	HWP_TABLE_CELL	2. 측정 결과를 정리하여 탐구 보고서를 제출한다.
+f0	C	0	p5.c0.r1c0	1x1
+f0	P	0	p5.c0.r1c0.p0	HWP_TABLE_CELL	평가 목표
+f0	C	0	p5.c0.r1c1	1x2
+f0	P	0	p5.c0.r1c1.p0	HWP_TABLE_CELL	변인을 통제하여 실험을 설계할 수 있다.
+f0	C	0	p5.c0.r2c0	1x1
+f0	P	0	p5.c0.r2c0.p0	HWP_TABLE_CELL	유의사항
+f0	C	0	p5.c0.r2c1	1x2
+f0	P	0	p5.c0.r2c1.p0	HWP_TABLE_CELL	보고서는 A4 2쪽 이상으로 작성한다.
+f0	P	0	p5.c0.r2c1.p1	HWP_TABLE_CELL	모둠별로 실험을 수행한다.
+f0	C	0	p5.c0.r3c0	1x1
+f0	P	0	p5.c0.r3c0.p0	HWP_TABLE_CELL	평가 요소
+f0	C	0	p5.c0.r3c1	1x1
+f0	P	0	p5.c0.r3c1.p0	HWP_TABLE_CELL	채점 기준
+f0	C	0	p5.c0.r3c2	1x1
+f0	P	0	p5.c0.r3c2.p0	HWP_TABLE_CELL	배점
+f0	C	0	p5.c0.r4c0	2x1
+f0	P	0	p5.c0.r4c0.p0	HWP_TABLE_CELL	실험 설계
+f0	C	0	p5.c0.r4c1	1x1
+f0	P	0	p5.c0.r4c1.p0	HWP_TABLE_CELL	변인 통제가 명확함
+f0	C	0	p5.c0.r4c2	1x1
+f0	P	0	p5.c0.r4c2.p0	HWP_TABLE_CELL	50
+f0	C	0	p5.c0.r5c1	1x1
+f0	P	0	p5.c0.r5c1.p0	HWP_TABLE_CELL	변인 통제가 일부 부족함
+f0	C	0	p5.c0.r5c2	1x1
+f0	P	0	p5.c0.r5c2.p0	HWP_TABLE_CELL	30
+f0	C	0	p5.c0.r6c0	2x1
+f0	P	0	p5.c0.r6c0.p0	HWP_TABLE_CELL	보고서 작성
+f0	C	0	p5.c0.r6c1	1x1
+f0	P	0	p5.c0.r6c1.p0	HWP_TABLE_CELL	결과와 결론이 타당함
+f0	C	0	p5.c0.r6c2	1x1
+f0	P	0	p5.c0.r6c2.p0	HWP_TABLE_CELL	50
+f0	C	0	p5.c0.r7c1	1x1
+f0	P	0	p5.c0.r7c1.p0	HWP_TABLE_CELL	결과 해석이 부족함
+f0	C	0	p5.c0.r7c2	1x1
+f0	P	0	p5.c0.r7c2.p0	HWP_TABLE_CELL	30
+f0	P	0	p6	HWP_PARAGRAPH	나. 토론 활동 세부 계획
+f0	P	0	p7	HWP_PARAGRAPH	
+f0	C	0	p7.c0.r0c0	1x1
+f0	P	0	p7.c0.r0c0.p0	HWP_TABLE_CELL	수행 과제
+f0	C	0	p7.c0.r0c1	1x2
+f0	P	0	p7.c0.r0c1.p0	HWP_TABLE_CELL	주어진 논제에 대해 찬반 토론에 참여한다.
+f0	C	0	p7.c0.r1c0	1x1
+f0	P	0	p7.c0.r1c0.p0	HWP_TABLE_CELL	유의사항
+f0	C	0	p7.c0.r1c1	1x2
+f0	P	0	p7.c0.r1c1.p0	HWP_TABLE_CELL	발언은 1회 3분 이내로 한다.
+f0	C	0	p7.c0.r2c0	1x1
+f0	P	0	p7.c0.r2c0.p0	HWP_TABLE_CELL	평가 요소
+f0	C	0	p7.c0.r2c1	1x1
+f0	P	0	p7.c0.r2c1.p0	HWP_TABLE_CELL	채점 기준
+f0	C	0	p7.c0.r2c2	1x1
+f0	P	0	p7.c0.r2c2.p0	HWP_TABLE_CELL	배점
+f0	C	0	p7.c0.r3c0	2x1
+f0	P	0	p7.c0.r3c0.p0	HWP_TABLE_CELL	논증
+f0	C	0	p7.c0.r3c1	1x1
+f0	P	0	p7.c0.r3c1.p0	HWP_TABLE_CELL	주장과 근거가 타당함
+f0	C	0	p7.c0.r3c2	1x1
+f0	P	0	p7.c0.r3c2.p0	HWP_TABLE_CELL	100
+f0	C	0	p7.c0.r4c1	1x1
+f0	P	0	p7.c0.r4c1.p0	HWP_TABLE_CELL	근거가 부족함
+f0	C	0	p7.c0.r4c2	1x1
+f0	P	0	p7.c0.r4c2.p0	HWP_TABLE_CELL	60
+f1	P	0	p0	HWP_PARAGRAPH	2099학년도 1학년 1학기 [가상과학탐구] 가상고등학교 평가 계획
+f1	P	0	p1	HWP_PARAGRAPH	
+f1	C	0	p1.c0.r0c0	1x1
+f1	P	0	p1.c0.r0c0.p0	HWP_TABLE_CELL	학교명
+f1	C	0	p1.c0.r0c1	1x1
+f1	P	0	p1.c0.r0c1.p0	HWP_TABLE_CELL	학년
+f1	C	0	p1.c0.r0c2	1x1
+f1	P	0	p1.c0.r0c2.p0	HWP_TABLE_CELL	학기
+f1	C	0	p1.c0.r0c3	1x1
+f1	P	0	p1.c0.r0c3.p0	HWP_TABLE_CELL	과목
+f1	C	0	p1.c0.r1c0	1x1
+f1	P	0	p1.c0.r1c0.p0	HWP_TABLE_CELL	가상고
+f1	C	0	p1.c0.r1c1	1x1
+f1	P	0	p1.c0.r1c1.p0	HWP_TABLE_CELL	1학년
+f1	C	0	p1.c0.r1c2	1x1
+f1	P	0	p1.c0.r1c2.p0	HWP_TABLE_CELL	1학기
+f1	C	0	p1.c0.r1c3	1x1
+f1	P	0	p1.c0.r1c3.p0	HWP_TABLE_CELL	가상과학탐구
+f1	P	0	p2	HWP_PARAGRAPH	1. 평가 계획
+f1	P	0	p3	HWP_PARAGRAPH	
+f1	P	0	p3.c0.cap.p0	CONTROL_TEXT	<표 1> 평가 요소별 반영비율
+f1	C	0	p3.c0.r0c0	1x1
+f1	P	0	p3.c0.r0c0.p0	HWP_TABLE_CELL	평가 종류
+f1	C	0	p3.c0.r0c1	1x2
+f1	P	0	p3.c0.r0c1.p0	HWP_TABLE_CELL	지필평가
+f1	C	0	p3.c0.r0c3	1x2
+f1	P	0	p3.c0.r0c3.p0	HWP_TABLE_CELL	수행평가
+f1	C	0	p3.c0.r1c0	1x1
+f1	P	0	p3.c0.r1c0.p0	HWP_TABLE_CELL	반영비율
+f1	C	0	p3.c0.r1c1	1x2
+f1	P	0	p3.c0.r1c1.p0	HWP_TABLE_CELL	40%
+f1	C	0	p3.c0.r1c3	1x2
+f1	P	0	p3.c0.r1c3.p0	HWP_TABLE_CELL	60%
+f1	C	0	p3.c0.r2c0	1x1
+f1	P	0	p3.c0.r2c0.p0	HWP_TABLE_CELL	평가영역
+f1	C	0	p3.c0.r2c1	1x2
+f1	P	0	p3.c0.r2c1.p0	HWP_TABLE_CELL	1차 지필평가(40%)
+f1	C	0	p3.c0.r2c3	1x1
+f1	P	0	p3.c0.r2c3.p0	HWP_TABLE_CELL	탐구 보고서
+f1	C	0	p3.c0.r2c4	1x1
+f1	P	0	p3.c0.r2c4.p0	HWP_TABLE_CELL	토론 활동
+f1	C	0	p3.c0.r3c0	1x1
+f1	P	0	p3.c0.r3c0.p0	HWP_TABLE_CELL	평가 방법
+f1	C	0	p3.c0.r3c1	1x1
+f1	P	0	p3.c0.r3c1.p0	HWP_TABLE_CELL	선택형
+f1	C	0	p3.c0.r3c2	1x1
+f1	P	0	p3.c0.r3c2.p0	HWP_TABLE_CELL	서답형
+f1	C	0	p3.c0.r3c3	1x1
+f1	P	0	p3.c0.r3c3.p0	HWP_TABLE_CELL	서술형
+f1	C	0	p3.c0.r3c4	1x1
+f1	P	0	p3.c0.r3c4.p0	HWP_TABLE_CELL	토의토론
+f1	C	0	p3.c0.r4c0	1x1
+f1	P	0	p3.c0.r4c0.p0	HWP_TABLE_CELL	영역만점
+f1	C	0	p3.c0.r4c1	1x1
+f1	P	0	p3.c0.r4c1.p0	HWP_TABLE_CELL	70점
+f1	C	0	p3.c0.r4c2	1x1
+f1	P	0	p3.c0.r4c2.p0	HWP_TABLE_CELL	30점
+f1	C	0	p3.c0.r4c3	1x1
+f1	P	0	p3.c0.r4c3.p0	HWP_TABLE_CELL	100점
+f1	C	0	p3.c0.r4c4	1x1
+f1	P	0	p3.c0.r4c4.p0	HWP_TABLE_CELL	100점
+f1	C	0	p3.c0.r5c0	1x1
+f1	P	0	p3.c0.r5c0.p0	HWP_TABLE_CELL	세부 반영비율
+f1	C	0	p3.c0.r5c1	1x1
+f1	P	0	p3.c0.r5c1.p0	HWP_TABLE_CELL	28%
+f1	C	0	p3.c0.r5c2	1x1
+f1	P	0	p3.c0.r5c2.p0	HWP_TABLE_CELL	12%
+f1	C	0	p3.c0.r5c3	1x1
+f1	P	0	p3.c0.r5c3.p0	HWP_TABLE_CELL	30%
+f1	C	0	p3.c0.r5c4	1x1
+f1	P	0	p3.c0.r5c4.p0	HWP_TABLE_CELL	30%
+f1	C	0	p3.c0.r6c0	1x1
+f1	P	0	p3.c0.r6c0.p0	HWP_TABLE_CELL	평가시기
+f1	C	0	p3.c0.r6c1	1x2
+f1	P	0	p3.c0.r6c1.p0	HWP_TABLE_CELL	5월
+f1	C	0	p3.c0.r6c3	1x1
+f1	P	0	p3.c0.r6c3.p0	HWP_TABLE_CELL	4월
+f1	C	0	p3.c0.r6c4	1x1
+f1	P	0	p3.c0.r6c4.p0	HWP_TABLE_CELL	6월
+f1	P	0	p4	HWP_PARAGRAPH	가. 탐구 보고서 세부 계획
+f1	P	0	p5	HWP_PARAGRAPH	
+f1	P	0	p5.c0.cap.p0	CONTROL_TEXT	<표 2> 탐구 보고서 채점 기준
+f1	P	0	p5.c0.cap.p1	CONTROL_TEXT	(모둠별 실험 후 개인 보고서)
+f1	C	0	p5.c0.r0c0	1x1
+f1	P	0	p5.c0.r0c0.p0	HWP_TABLE_CELL	수행 과제
+f1	C	0	p5.c0.r0c1	1x2
+f1	P	0	p5.c0.r0c1.p0	HWP_TABLE_CELL	1. 가상 하천의 수질을 측정하는 실험을 수행한다.
+f1	P	0	p5.c0.r0c1.p1	HWP_TABLE_CELL	2. 측정 결과를 정리하여 탐구 보고서를 제출한다.
+f1	C	0	p5.c0.r1c0	1x1
+f1	P	0	p5.c0.r1c0.p0	HWP_TABLE_CELL	유의사항
+f1	C	0	p5.c0.r1c1	1x2
+f1	P	0	p5.c0.r1c1.p0	HWP_TABLE_CELL	보고서는 A4 2쪽 이상으로 작성한다.
+f1	C	0	p5.c0.r2c0	1x1
+f1	P	0	p5.c0.r2c0.p0	HWP_TABLE_CELL	평가 요소
+f1	C	0	p5.c0.r2c1	1x1
+f1	P	0	p5.c0.r2c1.p0	HWP_TABLE_CELL	채점 기준
+f1	C	0	p5.c0.r2c2	1x1
+f1	P	0	p5.c0.r2c2.p0	HWP_TABLE_CELL	배점
+f1	C	0	p5.c0.r3c0	2x1
+f1	P	0	p5.c0.r3c0.p0	HWP_TABLE_CELL	실험 설계
+f1	C	0	p5.c0.r3c1	1x1
+f1	P	0	p5.c0.r3c1.p0	HWP_TABLE_CELL	변인 통제가 명확함
+f1	C	0	p5.c0.r3c2	1x1
+f1	P	0	p5.c0.r3c2.p0	HWP_TABLE_CELL	50
+f1	C	0	p5.c0.r4c1	1x1
+f1	P	0	p5.c0.r4c1.p0	HWP_TABLE_CELL	변인 통제가 일부 부족함
+f1	C	0	p5.c0.r4c2	1x1
+f1	P	0	p5.c0.r4c2.p0	HWP_TABLE_CELL	30
+f1	C	0	p5.c0.r5c0	2x1
+f1	P	0	p5.c0.r5c0.p0	HWP_TABLE_CELL	보고서 작성
+f1	C	0	p5.c0.r5c1	1x1
+f1	P	0	p5.c0.r5c1.p0	HWP_TABLE_CELL	결과와 결론이 타당함
+f1	C	0	p5.c0.r5c2	1x1
+f1	P	0	p5.c0.r5c2.p0	HWP_TABLE_CELL	50
+f1	C	0	p5.c0.r6c1	1x1
+f1	P	0	p5.c0.r6c1.p0	HWP_TABLE_CELL	결과 해석이 부족함
+f1	C	0	p5.c0.r6c2	1x1
+f1	P	0	p5.c0.r6c2.p0	HWP_TABLE_CELL	30
+f1	P	0	p6	HWP_PARAGRAPH	
+f1	P	0	p6.c0.cap.p0	CONTROL_TEXT	<표 3> 토론 활동 채점 기준
+f1	C	0	p6.c0.r0c0	1x1
+f1	P	0	p6.c0.r0c0.p0	HWP_TABLE_CELL	수행 과제
+f1	C	0	p6.c0.r0c1	1x2
+f1	P	0	p6.c0.r0c1.p0	HWP_TABLE_CELL	주어진 논제에 대해 찬반 토론에 참여한다.
+f1	C	0	p6.c0.r1c0	1x1
+f1	P	0	p6.c0.r1c0.p0	HWP_TABLE_CELL	평가 요소
+f1	C	0	p6.c0.r1c1	1x1
+f1	P	0	p6.c0.r1c1.p0	HWP_TABLE_CELL	채점 기준
+f1	C	0	p6.c0.r1c2	1x1
+f1	P	0	p6.c0.r1c2.p0	HWP_TABLE_CELL	배점
+f1	C	0	p6.c0.r2c0	2x1
+f1	P	0	p6.c0.r2c0.p0	HWP_TABLE_CELL	논증
+f1	C	0	p6.c0.r2c1	1x1
+f1	P	0	p6.c0.r2c1.p0	HWP_TABLE_CELL	주장과 근거가 타당함
+f1	C	0	p6.c0.r2c2	1x1
+f1	P	0	p6.c0.r2c2.p0	HWP_TABLE_CELL	100
+f1	C	0	p6.c0.r3c1	1x1
+f1	P	0	p6.c0.r3c1.p0	HWP_TABLE_CELL	근거가 부족함
+f1	C	0	p6.c0.r3c2	1x1
+f1	P	0	p6.c0.r3c2.p0	HWP_TABLE_CELL	60
+f1	P	0	p7	HWP_PARAGRAPH	
+f1	C	0	p7.c0.r0c0	1x1
+f1	P	0	p7.c0.r0c0.p0	HWP_TABLE_CELL	비고
+f1	C	0	p7.c0.r0c1	1x1
+f1	P	0	p7.c0.r0c1.p0	HWP_TABLE_CELL	가상 안내 문장
+f1	P	0	p8	HWP_PARAGRAPH	
+f1	P	0	p8.c0.cap.p0	CONTROL_TEXT	바깥 표 제목
+f1	C	0	p8.c0.r0c0	1x1
+f1	P	0	p8.c0.r0c0.p0	HWP_TABLE_CELL	바깥 칸
+f1	C	0	p8.c0.r0c1	1x1
+f1	P	0	p8.c0.r0c1.p0	HWP_TABLE_CELL	
+f1	P	0	p8.c0.r0c1.p0.c0.cap.p0	CONTROL_TEXT	안쪽 표 제목
+f1	C	0	p8.c0.r0c1.p0.c0.r0c0	1x1
+f1	P	0	p8.c0.r0c1.p0.c0.r0c0.p0	HWP_TABLE_CELL	안쪽 칸 A
+f1	C	0	p8.c0.r0c1.p0.c0.r0c1	1x1
+f1	P	0	p8.c0.r0c1.p0.c0.r0c1.p0	HWP_TABLE_CELL	안쪽 칸 B
+f2	P	0	p0	HWPX_PARAGRAPH	2026학년도 1학년 1학기 [과학] 가상고등학교 평가 계획 (합성 자료)
+f2	P	0	p1	HWPX_PARAGRAPH	
+f2	C	0	p1.c0.r0c0	1x1
+f2	P	0	p1.c0.r0c0.p0	HWPX_TABLE_CELL	학교명
+f2	C	0	p1.c0.r0c1	1x1
+f2	P	0	p1.c0.r0c1.p0	HWPX_TABLE_CELL	학년
+f2	C	0	p1.c0.r0c2	1x1
+f2	P	0	p1.c0.r0c2.p0	HWPX_TABLE_CELL	학기
+f2	C	0	p1.c0.r0c3	1x1
+f2	P	0	p1.c0.r0c3.p0	HWPX_TABLE_CELL	과목
+f2	C	0	p1.c0.r1c0	1x1
+f2	P	0	p1.c0.r1c0.p0	HWPX_TABLE_CELL	가상고
+f2	C	0	p1.c0.r1c1	1x1
+f2	P	0	p1.c0.r1c1.p0	HWPX_TABLE_CELL	1학년
+f2	C	0	p1.c0.r1c2	1x1
+f2	P	0	p1.c0.r1c2.p0	HWPX_TABLE_CELL	1학기
+f2	C	0	p1.c0.r1c3	1x1
+f2	P	0	p1.c0.r1c3.p0	HWPX_TABLE_CELL	과학
+f2	P	0	p2	HWPX_PARAGRAPH	2. 평가 계획
+f2	P	0	p3	HWPX_PARAGRAPH	
+f2	C	0	p3.c0.r0c0	1x2
+f2	P	0	p3.c0.r0c0.p0	HWPX_TABLE_CELL	평가 종류
+f2	C	0	p3.c0.r0c2	1x2
+f2	P	0	p3.c0.r0c2.p0	HWPX_TABLE_CELL	지 필 평 가
+f2	C	0	p3.c0.r0c4	1x2
+f2	P	0	p3.c0.r0c4.p0	HWPX_TABLE_CELL	수 행 평 가
+f2	C	0	p3.c0.r1c0	1x2
+f2	P	0	p3.c0.r1c0.p0	HWPX_TABLE_CELL	반영비율
+f2	C	0	p3.c0.r1c2	1x2
+f2	P	0	p3.c0.r1c2.p0	HWPX_TABLE_CELL	50%
+f2	C	0	p3.c0.r1c4	1x2
+f2	P	0	p3.c0.r1c4.p0	HWPX_TABLE_CELL	50%
+f2	C	0	p3.c0.r2c0	1x2
+f2	P	0	p3.c0.r2c0.p0	HWPX_TABLE_CELL	평가영역
+f2	C	0	p3.c0.r2c2	1x2
+f2	P	0	p3.c0.r2c2.p0	HWPX_TABLE_CELL	1차 시험(50%)
+f2	C	0	p3.c0.r2c4	1x1
+f2	P	0	p3.c0.r2c4.p0	HWPX_TABLE_CELL	탐구 보고서
+f2	C	0	p3.c0.r2c5	1x1
+f2	P	0	p3.c0.r2c5.p0	HWPX_TABLE_CELL	발표 활동
+f2	C	0	p3.c0.r3c0	1x2
+f2	P	0	p3.c0.r3c0.p0	HWPX_TABLE_CELL	평가 방법
+f2	C	0	p3.c0.r3c2	1x1
+f2	P	0	p3.c0.r3c2.p0	HWPX_TABLE_CELL	선택형
+f2	C	0	p3.c0.r3c3	1x1
+f2	P	0	p3.c0.r3c3.p0	HWPX_TABLE_CELL	서답형
+f2	C	0	p3.c0.r3c4	1x1
+f2	P	0	p3.c0.r3c4.p0	HWPX_TABLE_CELL	서술형
+f2	C	0	p3.c0.r3c5	1x1
+f2	P	0	p3.c0.r3c5.p0	HWPX_TABLE_CELL	구술
+f2	C	0	p3.c0.r4c0	1x2
+f2	P	0	p3.c0.r4c0.p0	HWPX_TABLE_CELL	영역만점
+f2	C	0	p3.c0.r4c2	1x1
+f2	P	0	p3.c0.r4c2.p0	HWPX_TABLE_CELL	70점
+f2	C	0	p3.c0.r4c3	1x1
+f2	P	0	p3.c0.r4c3.p0	HWPX_TABLE_CELL	30점
+f2	C	0	p3.c0.r4c4	1x1
+f2	P	0	p3.c0.r4c4.p0	HWPX_TABLE_CELL	25점
+f2	C	0	p3.c0.r4c5	1x1
+f2	P	0	p3.c0.r4c5.p0	HWPX_TABLE_CELL	40점
+f2	C	0	p3.c0.r5c0	1x2
+f2	P	0	p3.c0.r5c0.p0	HWPX_TABLE_CELL	세부
+f2	P	0	p3.c0.r5c0.p1	HWPX_TABLE_CELL	반영비율
+f2	C	0	p3.c0.r5c2	1x1
+f2	P	0	p3.c0.r5c2.p0	HWPX_TABLE_CELL	35%
+f2	C	0	p3.c0.r5c3	1x1
+f2	P	0	p3.c0.r5c3.p0	HWPX_TABLE_CELL	15%
+f2	C	0	p3.c0.r5c4	1x1
+f2	P	0	p3.c0.r5c4.p0	HWPX_TABLE_CELL	25%
+f2	C	0	p3.c0.r5c5	1x1
+f2	P	0	p3.c0.r5c5.p0	HWPX_TABLE_CELL	25%
+f2	C	0	p3.c0.r6c0	1x2
+f2	P	0	p3.c0.r6c0.p0	HWPX_TABLE_CELL	기본점수
+f2	C	0	p3.c0.r6c2	1x2
+f2	P	0	p3.c0.r6c2.p0	HWPX_TABLE_CELL	0점
+f2	C	0	p3.c0.r6c4	1x1
+f2	P	0	p3.c0.r6c4.p0	HWPX_TABLE_CELL	5점
+f2	C	0	p3.c0.r6c5	1x1
+f2	P	0	p3.c0.r6c5.p0	HWPX_TABLE_CELL	5점
+f2	C	0	p3.c0.r7c0	1x2
+f2	P	0	p3.c0.r7c0.p0	HWPX_TABLE_CELL	평가시기
+f2	C	0	p3.c0.r7c2	1x2
+f2	P	0	p3.c0.r7c2.p0	HWPX_TABLE_CELL	5월
+f2	C	0	p3.c0.r7c4	1x1
+f2	P	0	p3.c0.r7c4.p0	HWPX_TABLE_CELL	4월
+f2	C	0	p3.c0.r7c5	1x1
+f2	P	0	p3.c0.r7c5.p0	HWPX_TABLE_CELL	6월
+f2	P	0	p4	HWPX_PARAGRAPH	가. 탐구 보고서 세부 계획
+f2	P	0	p5	HWPX_PARAGRAPH	
+f2	C	0	p5.c0.r0c0	1x1
+f2	P	0	p5.c0.r0c0.p0	HWPX_TABLE_CELL	수행 과제
+f2	C	0	p5.c0.r0c1	1x3
+f2	P	0	p5.c0.r0c1.p0	HWPX_TABLE_CELL	1. 하천 수질 측정 실험을 수행한다.
+f2	P	0	p5.c0.r0c1.p1	HWPX_TABLE_CELL	2. 측정 결과를 정리하여 탐구 보고서를
+f2	P	0	p5.c0.r0c1.p2	HWPX_TABLE_CELL	제출한다.
+f2	C	0	p5.c0.r1c0	1x1
+f2	P	0	p5.c0.r1c0.p0	HWPX_TABLE_CELL	평가 목표
+f2	C	0	p5.c0.r1c1	1x3
+f2	P	0	p5.c0.r1c1.p0	HWPX_TABLE_CELL	변인을 통제하여 실험을 설계할 수 있다.
+f2	C	0	p5.c0.r2c0	1x1
+f2	P	0	p5.c0.r2c0.p0	HWPX_TABLE_CELL	유의사항
+f2	C	0	p5.c0.r2c1	1x3
+f2	P	0	p5.c0.r2c1.p0	HWPX_TABLE_CELL	보고서는 A4 2쪽 이상으로 작성한다.
+f2	P	0	p5.c0.r2c1.p1	HWPX_TABLE_CELL	발표는 5분 이내로 한다.
+f2	C	0	p5.c0.r3c0	1x1
+f2	P	0	p5.c0.r3c0.p0	HWPX_TABLE_CELL	평가 요소
+f2	C	0	p5.c0.r3c1	1x1
+f2	P	0	p5.c0.r3c1.p0	HWPX_TABLE_CELL	채점 기준
+f2	C	0	p5.c0.r3c2	1x1
+f2	P	0	p5.c0.r3c2.p0	HWPX_TABLE_CELL	배점
+f2	C	0	p5.c0.r4c0	2x1
+f2	P	0	p5.c0.r4c0.p0	HWPX_TABLE_CELL	실험 설계
+f2	C	0	p5.c0.r4c1	1x1
+f2	P	0	p5.c0.r4c1.p0	HWPX_TABLE_CELL	변인 통제가 명확함
+f2	C	0	p5.c0.r4c2	1x1
+f2	P	0	p5.c0.r4c2.p0	HWPX_TABLE_CELL	10
+f2	C	0	p5.c0.r5c1	1x1
+f2	P	0	p5.c0.r5c1.p0	HWPX_TABLE_CELL	변인 통제가 일부 부족함
+f2	C	0	p5.c0.r5c2	1x1
+f2	P	0	p5.c0.r5c2.p0	HWPX_TABLE_CELL	5
+f2	C	0	p5.c0.r6c0	2x1
+f2	P	0	p5.c0.r6c0.p0	HWPX_TABLE_CELL	보고서 작성
+f2	C	0	p5.c0.r6c1	1x1
+f2	P	0	p5.c0.r6c1.p0	HWPX_TABLE_CELL	결과와 결론이 타당함
+f2	C	0	p5.c0.r6c2	1x1
+f2	P	0	p5.c0.r6c2.p0	HWPX_TABLE_CELL	15
+f2	C	0	p5.c0.r7c1	1x1
+f2	P	0	p5.c0.r7c1.p0	HWPX_TABLE_CELL	결과 해석이 부족함
+f2	C	0	p5.c0.r7c2	1x1
+f2	P	0	p5.c0.r7c2.p0	HWPX_TABLE_CELL	8

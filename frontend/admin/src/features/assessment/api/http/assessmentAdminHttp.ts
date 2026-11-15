@@ -2,6 +2,7 @@ import type {
   AdminEvaluationPlan,
   AdminEvaluationPlanRevision,
   AdminSchool,
+  PlanStructurePreview,
   ArchiveSubject,
   PlanArchiveDetail,
   PlanSubjects,
@@ -436,6 +437,9 @@ function reviewFieldsOf(subjects: BackendSubject[]): ReviewFieldCandidate[] {
 }
 
 /** S-4: Revision 원문 미리보기(inline, PDF만)·내려받기(형식 그대로). 서버가 크기·SHA-256을 다시 확인한다. */
+/** A10 §38-6 HWP·HWPX 원문 구조 미리보기 (JSON). 422 PLAN_PREVIEW_FAILED·409 무결성은 그대로 던진다 */
+export const getPlanStructureHttp = (planId: string, revisionId: string) =>
+  adminHttp<PlanStructurePreview>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/structure`)
 export const previewPlanRevisionHttp = (planId: string, revisionId: string) =>
   adminFile(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/preview`)
 export const downloadPlanRevisionHttp = (planId: string, revisionId: string) =>
@@ -551,13 +555,13 @@ export async function getPlanArchiveDetailHttp(planId: string, revisionId: strin
     adminHttp<PlanReviewDraftView>(`${revisionPath}/review-draft`).catch(() => null),
     adminHttp<TeachingPlanReviewView>(`${revisionPath}/teaching-plan-review`).catch(() => null),
   ])
+  // 과목 연결 우선순위 (A10): ① 확정값에 저장된 분석 과목 번호(공식, 초안이 닫혀도 남음)
+  // ② 검토 초안의 subjectLinks(번호·과목 모두 ①에 없을 때만) ③ 분석 과목 1개 + 확정 과목 1개. 그 밖에는 추정하지 않는다
   const subjectLinks: Record<number, string> = {}
   for (const field of analysis.confirmedFields ?? []) if (field.analysisSubjectIndex != null && subjectLinks[field.analysisSubjectIndex] === undefined) subjectLinks[field.analysisSubjectIndex] = field.subjectId
   const linkedSubjectIds = () => new Set(Object.values(subjectLinks))
   for (const link of draft?.draft?.subjectLinks ?? []) if (subjectLinks[link.subjectIndex] === undefined && !linkedSubjectIds().has(link.subjectId)) subjectLinks[link.subjectIndex] = link.subjectId
   // 과목 번호 없이 확정한 이전 PDF: 분석 과목이 하나이고 확정 과목도 하나면 그 둘은 같은 과목이다
-  // 과목 연결 우선순위 (A10): ① 확정값에 저장된 분석 과목 번호(공식, 초안이 닫혀도 남음)
-  // ② 검토 초안의 subjectLinks(번호·과목 모두 ①에 없을 때만) ③ 분석 과목 1개 + 확정 과목 1개. 그 밖에는 추정하지 않는다
   const confirmedSubjects = new Set((analysis.confirmedFields ?? []).map((field) => field.subjectId))
   if ((analysis.subjects ?? []).length === 1 && subjectLinks[0] === undefined && confirmedSubjects.size === 1) subjectLinks[0] = [...confirmedSubjects][0]
   return {

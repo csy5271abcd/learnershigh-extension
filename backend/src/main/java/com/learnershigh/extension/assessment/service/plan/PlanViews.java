@@ -103,7 +103,7 @@ public class PlanViews {
                 times.toOffset(revision.uploadedAt()), run == null ? NOT_REQUESTED : run.status().name(),
                 revision.reviewStatus().name(), review == null ? List.of() : confirmedFields(review),
                 revision.sha256(), revision.format().name(), review == null ? null : sourceReview(review),
-                file(revision));
+                adminFile(revision));
     }
 
     /** 불투명 파일 참조 (저장 키를 내보내지 않는다). 원문이 없으면 null. */
@@ -120,6 +120,19 @@ public class PlanViews {
         return new PlanFileView(fileRef(revision), revision.fileName(), revision.contentType(), revision.sizeBytes(),
                 revision.sha256(), revision.format().name(), revision.pageCount(), revision.hasStoredFile(),
                 previewAvailable(revision));
+    }
+
+    /** 관리자 응답의 원문 정보: 학생 응답 모양 + HWP·HWPX 구조 미리보기 대상 여부(A10). */
+    public static PlanFileView adminFile(PlanRevision revision) {
+        PlanFileView file = file(revision);
+        return new PlanFileView(file.fileRef(), file.fileName(), file.contentType(), file.sizeBytes(), file.checksum(),
+                file.documentFormat(), file.pageCount(), file.available(), file.previewAvailable(),
+                structurePreviewAvailable(revision));
+    }
+
+    /** 구조 미리보기 대상: 원문을 보관한 HWP·HWPX. PDF는 기존 /preview(PDF Viewer)를 쓴다. */
+    public static boolean structurePreviewAvailable(PlanRevision revision) {
+        return revision.hasStoredFile() && revision.format() != PlanDocumentFormat.PDF;
     }
 
     /** HWP·HWPX 검토 기록. PDF 검토(원문 확인 기록 없음)는 null → 응답에서 빠진다. */
@@ -152,6 +165,7 @@ public class PlanViews {
     private List<ConfirmedFieldView> confirmedFields(PlanReview review) {
         return review.confirmedValues().stream()
                 .map(value -> "PDF".equals(value.evidenceFormat())
+                        // PDF: A10부터 분석 과목 번호가 있으면 함께 보낸다(NON_NULL — 이전 확정값 응답은 그대로)
                         ? new ConfirmedFieldView(value.subjectId(), value.fieldPath(),
                                 value.valueJson() == null ? null : json(value.valueJson()), value.pdfPageNumber(),
                                 value.analysisSubjectIndex(), null, null)
@@ -166,7 +180,6 @@ public class PlanViews {
         return mapper.readValue(raw, Object.class);
     }
 
-                        // PDF: A10부터 분석 과목 번호가 있으면 함께 보낸다(NON_NULL — 이전 확정값 응답은 그대로)
     /** 정렬된 목록(오래된 것 → 최근)에서 Key별 마지막 항목. */
     private static <T> Map<String, T> latest(List<T> ordered, Function<T, String> key) {
         Map<String, T> result = new LinkedHashMap<>();

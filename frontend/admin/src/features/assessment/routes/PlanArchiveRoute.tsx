@@ -5,6 +5,7 @@ import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, ArchiveItem, Arc
 import { RemoteView } from '../components/AdminParts.tsx'
 import { Modal, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
 import { PlanOriginalViewer } from '../components/PlanOriginalViewer.tsx'
+import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
 import { dateLabel } from '../model/adminFormat.ts'
 import { useRemote } from '../model/useRemote.ts'
 import styles from './archive.module.css'
@@ -30,13 +31,23 @@ type FieldState =
 const pagesOf = (sources: ArchiveLocator[] | null | undefined) =>
   [...new Set((sources ?? []).map((source) => source.pdfPageNumber).filter((page): page is number => typeof page === 'number'))].sort((a, b) => a - b)
 
-const locatorText = (sources: ArchiveLocator[] | null | undefined) =>
-  (sources ?? [])
-    .map((source) => source.documentLocator)
-    .filter(Boolean)
-    .map((locator) => `구역 ${locator!.section}${locator!.table != null ? ` · 표 ${locator!.table + 1}` : ''}${locator!.row != null ? ` · ${locator!.row + 1}행` : ''}`)
-    .slice(0, 2)
-    .join(', ')
+/** HWP·HWPX 근거 위치(분석 결과 documentLocator) — 같은 section·path가 두 번 나오면 하나로 */
+const locatorsOf = (sources: ArchiveLocator[] | null | undefined) => {
+  const seen = new Set<string>()
+  const out: NonNullable<ArchiveLocator['documentLocator']>[] = []
+  for (const source of sources ?? []) {
+    const locator = source.documentLocator
+    if (!locator || seen.has(`${locator.section}:${locator.path}`)) continue
+    seen.add(`${locator.section}:${locator.path}`)
+    out.push(locator)
+  }
+  return out
+}
+
+const locatorLabel = (locator: NonNullable<ArchiveLocator['documentLocator']>) =>
+  `구역 ${locator.section + 1}${locator.table != null ? ` · 표 ${locator.table + 1}` : ''}${locator.row != null ? ` · ${locator.row + 1}행` : ''}${locator.col != null ? ` ${locator.col + 1}열` : ''}`
+
+type OpenSource = (page: number | null, label: string, focus?: StructureFocus | null) => void
 
 export function PlanArchiveRoute({ search }: { search: URLSearchParams }) {
   const schoolId = search.get('school') ?? ''
@@ -219,11 +230,11 @@ function DocumentDetail({
   setParams: (patch: Record<string, string | number | null>) => void
 }) {
   const detail = useRemote(() => getPlanArchiveDetail(plan.planId, revision.documentRevisionId), [plan.planId, revision.documentRevisionId])
-  const [source, setSource] = useState<{ page: number; label: string } | null>(null)
+  const [source, setSource] = useState<{ page: number; label: string; focus: StructureFocus | null } | null>(null)
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const format = revision.documentFormat ?? 'PDF'
-  const previewable = Boolean(revision.file?.available && revision.file.previewAvailable)
-  const openSource = (page: number | null, label: string) => setSource({ page: page ?? 1, label })
+  const structureViewable = Boolean(revision.file?.available && revision.file.structurePreviewAvailable)
+  const openSource: OpenSource = (page, label, focus = null) => setSource({ page: page ?? 1, label, focus })
   const download = () => {
     setDownloadError(null)
     downloadPlanRevision(plan.planId, revision.documentRevisionId).then(
@@ -292,13 +303,13 @@ function DocumentDetail({
         <Modal title={`${revision.fileName} · ${source.label}`} wide onRequestClose={() => setSource(null)} footer={<button type="button" className={styles.button} onClick={() => setSource(null)}>닫기</button>}>
           {format !== 'PDF' && (
             <p className={styles.notice} data-testid="archive-hwp-notice">
-              {previewable
-                ? `${format} 원문을 PDF로 변환한 미리보기예요. 변환 미리보기의 쪽은 원문 위치와 다를 수 있어 근거 위치로 이동하지 않아요. 정확한 위치는 원문 파일에서 확인해 주세요.`
+              {structureViewable
+                ? `${format} 원본을 직접 읽은 화면이에요(PDF 변환 없음). ${source.focus ? '분석 근거 위치를 표시해요.' : '근거 위치 버튼을 누르면 그 칸·문단을 표시해요.'}`
                 : `${format} 원문은 앱 안에서 미리 볼 수 없어요. 내려받아 한글 프로그램으로 확인해 주세요.`}
             </p>
           )}
           <div className={styles.viewer}>
-            <PlanOriginalViewer bare planId={plan.planId} revisionId={revision.documentRevisionId} file={revision.file} page={format === 'PDF' ? source.page : 1} onPageChange={(page) => setSource({ ...source, page })} />
+            <PlanOriginalViewer bare planId={plan.planId} revisionId={revision.documentRevisionId} file={revision.file} page={format === 'PDF' ? source.page : 1} onPageChange={(page) => setSource({ ...source, page })} focus={source.focus} />
           </div>
         </Modal>
       )}
@@ -321,7 +332,7 @@ function DetailBody({
   tab: Tab
   itemIndex: number
   setParams: (patch: Record<string, string | number | null>) => void
-  onSource: (page: number | null, label: string) => void
+  onSource: OpenSource
   academicYear: number
   semester: number
 }) {
@@ -400,10 +411,10 @@ function Value({ state, unit = '', onSource }: { state: FieldState; unit?: strin
   }
 }
 
-function SourceLinks({ sources, onSource, label }: { sources: ArchiveLocator[] | null | undefined; onSource: (page: number | null, label: string) => void; label: string }) {
+function SourceLinks({ sources, onSource, label }: { sources: ArchiveLocator[] | null | undefined; onSource: OpenSource; label: string }) {
   const pages = pagesOf(sources)
-  const locator = locatorText(sources)
-  if (pages.length === 0 && !locator) return <span className={styles.muted}>근거 위치 없음</span>
+  const locators = locatorsOf(sources).slice(0, 3)
+  if (pages.length === 0 && locators.length === 0) return <span className={styles.muted}>근거 위치 없음</span>
   return (
     <span className={styles.sources}>
       {pages.map((page) => (
@@ -411,7 +422,17 @@ function SourceLinks({ sources, onSource, label }: { sources: ArchiveLocator[] |
           {page}쪽
         </button>
       ))}
-      {locator && <span className={styles.muted}>{locator}</span>}
+      {locators.map((locator) => (
+        <button
+          key={`${locator.section}:${locator.path}`}
+          type="button"
+          className={styles.pageLink}
+          onClick={() => onSource(null, `${label} · ${locatorLabel(locator)}`, { section: locator.section, path: locator.path })}
+          data-testid="archive-locator-link"
+        >
+          {locatorLabel(locator)}
+        </button>
+      ))}
     </span>
   )
 }
@@ -427,7 +448,7 @@ function PerformancePanel({
   itemIndex: number
   stateOf: (fieldPath: string, candidate: unknown) => FieldState
   onSelect: (index: number) => void
-  onSource: (page: number | null, label: string) => void
+  onSource: OpenSource
 }) {
   const items = subject.performanceEvaluation?.items ?? []
   if (items.length === 0) {
@@ -460,7 +481,7 @@ function PerformancePanel({
   )
 }
 
-function ItemDetail({ item, path, stateOf, onSource }: { item: ArchiveItem; path: (field: string) => string; stateOf: (fieldPath: string, candidate: unknown) => FieldState; onSource: (page: number | null, label: string) => void }) {
+function ItemDetail({ item, path, stateOf, onSource }: { item: ArchiveItem; path: (field: string) => string; stateOf: (fieldPath: string, candidate: unknown) => FieldState; onSource: OpenSource }) {
   const rows: [string, React.ReactNode][] = [
     ['수행평가명', <Value key="l" state={stateOf(path('label'), item.label)} onSource={onSource} />],
     ['평가 영역', item.area ? <span key="a">{item.area}<em className={styles.badge}>후보</em></span> : <span key="a" className={styles.muted}>정보 없음</span>],
@@ -536,7 +557,7 @@ function ItemDetail({ item, path, stateOf, onSource }: { item: ArchiveItem; path
   )
 }
 
-function TeachingPanel({ subject, subjectIndex, data, onSource, academicYear, semester }: { subject: ArchiveSubject; subjectIndex: number; data: PlanArchiveDetail; onSource: (page: number | null, label: string) => void; academicYear: number; semester: number }) {
+function TeachingPanel({ subject, subjectIndex, data, onSource, academicYear, semester }: { subject: ArchiveSubject; subjectIndex: number; data: PlanArchiveDetail; onSource: OpenSource; academicYear: number; semester: number }) {
   const confirmedRows = data.teachingPlan?.review?.rows.filter((row) => row.subjectIndex === subjectIndex && row.decision !== 'EXCLUDED') ?? null
   const confirmed = Boolean(data.teachingPlan?.review)
   const rows: { row: TeachingPlanRowCandidate; key: string }[] = useMemo(
@@ -630,7 +651,7 @@ function rank(label: string, order: number[]) {
   return label.startsWith('이 학기') ? 100 : 200
 }
 
-function OverviewPanel({ subject, stateOf, onSource }: { subject: ArchiveSubject; stateOf: (fieldPath: string, candidate: unknown) => FieldState; onSource: (page: number | null, label: string) => void }) {
+function OverviewPanel({ subject, stateOf, onSource }: { subject: ArchiveSubject; stateOf: (fieldPath: string, candidate: unknown) => FieldState; onSource: OpenSource }) {
   const exams = subject.writtenEvaluation?.exams ?? []
   return (
     <div className={styles.overview} data-testid="archive-overview">

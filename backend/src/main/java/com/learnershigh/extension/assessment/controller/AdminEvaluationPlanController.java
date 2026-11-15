@@ -4,6 +4,7 @@ import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanRespons
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanStructurePreviewResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewRequest;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewResponse;
@@ -16,6 +17,7 @@ import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
 import com.learnershigh.extension.assessment.service.plan.PdfInspector;
 import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
 import com.learnershigh.extension.assessment.service.plan.PlanReviewDraftService;
+import com.learnershigh.extension.assessment.service.plan.PlanStructurePreviewQueryService;
 import com.learnershigh.extension.assessment.service.plan.TeachingPlanQueryService;
 import com.learnershigh.extension.assessment.service.plan.TeachingPlanReviewService;
 import com.learnershigh.extension.common.error.BusinessException;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,16 +63,19 @@ public class AdminEvaluationPlanController {
     private final PlanReviewDraftService draftService;
     private final TeachingPlanReviewService teachingPlanService;
     private final TeachingPlanQueryService teachingPlanQueries;
+    private final PlanStructurePreviewQueryService structureService;
 
     public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service,
             PlanAnalysisService analysisService, PlanReviewDraftService draftService,
-            TeachingPlanReviewService teachingPlanService, TeachingPlanQueryService teachingPlanQueries) {
+            TeachingPlanReviewService teachingPlanService, TeachingPlanQueryService teachingPlanQueries,
+            PlanStructurePreviewQueryService structureService) {
         this.queryService = queryService;
         this.service = service;
         this.analysisService = analysisService;
         this.draftService = draftService;
         this.teachingPlanService = teachingPlanService;
         this.teachingPlanQueries = teachingPlanQueries;
+        this.structureService = structureService;
     }
 
     @GetMapping
@@ -118,6 +124,18 @@ public class AdminEvaluationPlanController {
     public ResponseEntity<InputStreamResource> preview(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId) {
         return FileResponses.inline(queryService.adminFile(admin, planId, revisionId, true));
+    }
+
+    /**
+     * A10 §38-6: HWP·HWPX 원문 구조 미리보기(문단·표·병합 셀, PDF 변환 없음). 원본 크기·SHA-256 확인 후 서버에서 직접 읽는다.
+     * PDF는 415(기존 /preview 사용), 원문 없음 404, 무결성 409, 판독 실패·한도·시간 초과 422 PLAN_PREVIEW_FAILED.
+     */
+    @GetMapping("/{planId}/revisions/{revisionId}/structure")
+    public ResponseEntity<PlanStructurePreviewResponse> structure(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore().cachePrivate())
+                .header("X-Content-Type-Options", "nosniff")
+                .body(structureService.admin(admin, planId, revisionId));
     }
 
     /**

@@ -6,7 +6,7 @@ import { formatBytes } from './reviewModel.ts'
 import styles from './review.module.css'
 
 // 왼쪽 원문 영역: 얇은 막대(파일명·쪽 수·내려받기·전체 화면) + 기존 PDF Viewer(쪽 이동·확대·폭 맞춤). 카드·겹친 회색 상자 없음.
-// HWP·HWPX는 검증된 변환 엔진이 없어 미리보기를 만들지 않는다(가짜 미리보기 없음 — Viewer가 안내만 한다).
+// HWP·HWPX(A10)는 Viewer가 원본 구조(문단·표)를 직접 그린다 — PDF 변환 없음.
 export function SourcePane({ planId, revisionId, file, page, onPageChange }: { planId: string; revisionId: string; file: PlanFileMeta | null | undefined; page: number; onPageChange: (page: number) => void }) {
   const [fullscreen, setFullscreen] = useState(false)
   const [downloadError, setDownloadError] = useState<string | null>(null)
@@ -44,7 +44,7 @@ export function SourcePane({ planId, revisionId, file, page, onPageChange }: { p
         <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={download} disabled={!file?.available} data-testid="review-source-download">
           내려받기
         </button>
-        <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={() => setFullscreen((value) => !value)} aria-pressed={fullscreen} disabled={!file?.previewAvailable} data-testid="review-source-fullscreen">
+        <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={() => setFullscreen((value) => !value)} aria-pressed={fullscreen} disabled={!file?.previewAvailable && !file?.structurePreviewAvailable} data-testid="review-source-fullscreen">
           {fullscreen ? '닫기' : '전체 화면'}
         </button>
       </div>

@@ -190,6 +190,45 @@ export interface PlanFileMeta {
   pageCount: number | null
   available: boolean
   previewAvailable: boolean
+  /** A10 관리자 응답만: 원문 구조 미리보기(§38-6 .../structure) 대상(보관된 HWP·HWPX). 실제 판독 실패는 그 요청의 422 */
+  structurePreviewAvailable?: boolean
+}
+
+/** A10 §38-6 HWP·HWPX 원문 구조(문단·표·병합 셀). section·path는 분석 결과 documentLocator와 같은 위치 규칙 */
+export interface PlanStructureBlock {
+  type: 'PARAGRAPH' | 'TABLE'
+  section: number
+  path: string
+  kind?: string
+  text?: string
+  control?: string
+  blocks?: PlanStructureBlock[]
+  table?: number
+  rows?: number
+  cols?: number
+  cells?: PlanStructureCell[]
+  caption?: PlanStructureBlock[]
+}
+
+export interface PlanStructureCell {
+  row: number
+  col: number
+  rowSpan: number
+  colSpan: number
+  path: string
+  paragraphs: PlanStructureBlock[]
+}
+
+export interface PlanStructurePreview {
+  planId: string
+  revisionId: string
+  documentFormat: 'HWP' | 'HWPX'
+  sha256: string
+  renderer: { name: string; version: string }
+  sectionCount: number
+  stats: { paragraphs: number; tables: number; cells: number; textChars: number }
+  notices?: string[]
+  blocks: PlanStructureBlock[]
 }
 
 export interface AdminEvaluationPlanRevision {
