@@ -4,6 +4,7 @@ import type {
   AdminSchool,
   PlanStructurePreview,
   PlanReviewHistory,
+  TeachingPlanHistory,
   ArchiveSubject,
   PlanArchiveDetail,
   PlanSubjects,
@@ -26,7 +27,7 @@ import type {
 } from '../types.ts'
 import { ApiError } from '../canonicalSource.ts'
 import { adminFile, adminHttp, notConnected } from './adminHttpClient.ts'
-import { getStudentFilterOptionsHttp } from './adminRecordsHttp.ts'
+import { devCurrentTerm } from './adminRecordsHttp.ts'
 
 // Admin Assessment HTTP Adapter (Stage 2, 2026-11-09). 화면 함수 시그니처는 Mock과 같고, Backend 응답 Shape 차이는 여기서만 변환한다.
 // 실제 Backend Endpoint가 없는 기능은 호출하지 않고 이유를 담은 503 ASSESSMENT_API_NOT_CONNECTED로 끝낸다.
@@ -144,38 +145,39 @@ const plansPath = '/api/admin/assessment/evaluation-plans'
 // - 개발 설정 운영 학교(VITE_ASSESSMENT_DEV_PLAN_SCHOOLS) ∪ 개발 서버에서는 지점 권한으로 조회한 담당 학생의 학교(Mock listSchoolsMock과 같은 규칙).
 // - 학교마다 평가계획서 목록을 읽어 공식 운영 권한을 구분한다. 403 FORBIDDEN은 "운영 권한 없음"(planOperable=false)으로 표시하고
 //   목록 전체를 실패시키지 않는다. 운영 권한(OD-A08)은 넓히지 않는다 — 서버가 계속 학교별로 검사한다.
-export async function listSchoolsHttp(): Promise<{ items: (AdminSchool & { region: string | null; documentCount: number | null; planOperable?: boolean })[] }> {
+export async function listSchoolsHttp(): Promise<{ items: (AdminSchool & { region: string | null; documentCount: number | null; planOperable?: boolean; studentCount?: number })[] }> {
+  // A13: 관리자 담당 학생의 학교(§33-1 managed-schools, 서버가 지점 범위에서 학교 ID로 중복 제거). 전체 학교 Master가 아니다.
+  // 평가계획서 운영 권한(OD-A08)은 모든 학교라 등록 문서가 있는 다른 학교는 화면이 따로 보여 준다(권한을 줄이지 않는다).
   const raw: unknown = import.meta.env.DEV ? import.meta.env.VITE_ASSESSMENT_DEV_PLAN_SCHOOLS : undefined
   const configured = typeof raw === 'string' ? raw.split(',').map((entry) => entry.trim()).filter(Boolean) : []
   const schools = new Map<string, string>()
-  const studentSchools = new Set<string>()
-  if (import.meta.env.DEV) {
-    for (const school of (await getStudentFilterOptionsHttp()).schools) {
-      schools.set(school.schoolId, school.name)
-      studentSchools.add(school.schoolId)
-    }
+  const studentSchools = new Map<string, number>()
+  const term = devCurrentTerm()
+  const managed = await adminHttp<{ items: { schoolId: string; name: string | null; studentCount: number }[] }>('/api/admin/assessment/managed-schools', {
+    query: { academicYear: term.academicYear, semester: term.semester },
+  })
+  for (const school of managed.items) {
+    schools.set(school.schoolId, school.name ?? school.schoolId)
+    studentSchools.set(school.schoolId, school.studentCount)
   }
   for (const entry of configured) {
     const [schoolId, name] = entry.split(':')
     if (!schools.has(schoolId)) schools.set(schoolId, name || schoolId)
   }
-  if (schools.size === 0) {
-    return notConnected('담당 학교 목록 API가 아직 없어요. (학교 원천 API-OD-A01 · 평가계획서 운영 권한 OD-A08 결정 대기)')
-  }
   const items = await Promise.all(
     [...schools].map(async ([schoolId, name]) => {
       try {
         const plans = await adminHttp<{ items: BackendPlan[] }>(plansPath, { query: { schoolId } })
-        return { schoolId, name, region: null, documentCount: plans.items.length, planOperable: true }
+        return { schoolId, name, region: null, documentCount: plans.items.length, planOperable: true, studentCount: studentSchools.get(schoolId) }
       } catch (error) {
         // 설정에만 있고 담당 학생의 학교도 아닌 학교는 운영 권한이 없으면 목록에서 뺀다
-        if (error instanceof ApiError && error.code === 'FORBIDDEN') return studentSchools.has(schoolId) ? { schoolId, name, region: null, documentCount: null, planOperable: false } : null
+        if (error instanceof ApiError && error.code === 'FORBIDDEN') return studentSchools.has(schoolId) ? { schoolId, name, region: null, documentCount: null, planOperable: false, studentCount: studentSchools.get(schoolId) } : null
         throw error
       }
     }),
   ).then((list) => list.filter((item) => item !== null))
-  // 운영 권한이 있는 학교를 먼저, 그다음 이름순
-  items.sort((a, b) => Number(b.planOperable) - Number(a.planOperable) || a.name.localeCompare(b.name, 'ko'))
+  // 담당 학생 학교를 먼저(학생 많은 순), 운영 권한이 있는 학교를 먼저, 그다음 이름순
+  items.sort((a, b) => Number(Boolean(b.studentCount)) - Number(Boolean(a.studentCount)) || (b.studentCount ?? 0) - (a.studentCount ?? 0) || Number(b.planOperable) - Number(a.planOperable) || a.name.localeCompare(b.name, 'ko'))
   return { items }
 }
 
@@ -537,6 +539,11 @@ export const getPlanReviewDraftHttp = (planId: string, revisionId: string) => ad
 /** A7 운영계획 초안 (§39-6): 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 저장된다 */
 const teachingDraftPath = (planId: string, revisionId: string) => `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/teaching-plan-draft`
 export const getTeachingPlanDraftHttp = (planId: string, revisionId: string) => adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId))
+/** A13 §39-10 운영계획 재검토 시작 · 확정 이력 */
+export const reopenTeachingPlanDraftHttp = (planId: string, revisionId: string) =>
+  adminHttp<PlanReviewDraftView>(`${teachingDraftPath(planId, revisionId)}/reopen`, { method: 'POST' })
+export const getTeachingPlanHistoryHttp = (planId: string, revisionId: string) =>
+  adminHttp<TeachingPlanHistory>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/teaching-plan-reviews`)
 export const saveTeachingPlanDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
   adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId), { method: 'PUT', json: request })
 /** A12 §39-8 재검토 시작: 확정된 Revision의 평가 정보 초안을 다시 연다. 이미 열려 있으면 409 그대로 */

@@ -8,6 +8,7 @@ import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, 
 import type { Decision } from './reviewModel.ts'
 import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
 import { useServerDraft } from './useServerDraft.ts'
+import { TeachingPlanHistoryPanel } from './TeachingPlanHistoryPanel.tsx'
 import styles from './review.module.css'
 
 // 4단계 월별 교수·학습 운영 계획 (A6, api-contract.md §39-3 · §39-6 DRAFT).
@@ -61,6 +62,9 @@ export function TeachingPlanStep({
   const confirmedReview = server.state === 'ready' ? server.data.review : null
   // 운영계획 전용 공유 초안 (평가 정보 초안과 별도, 운영계획 확정 때 닫힌다)
   const draft = useServerDraft(view, { scope: 'TEACHING_PLAN', closed: Boolean(confirmedReview) })
+  // A13: 운영계획 재검토 중이면 확정본이 있어도 편집·재확정한다. 화면 잠금·표시는 lockedReview(확정됨 + 재검토 안 열림) 기준
+  const reReview = Boolean(confirmedReview) && draft.reopened
+  const lockedReview = confirmedReview && !reReview ? confirmedReview : null
   const [subjectOptions, setSubjectOptions] = useState<PlanSubjects | null>(null)
   useEffect(() => {
     let cancelled = false
@@ -72,7 +76,7 @@ export function TeachingPlanStep({
       cancelled = true
     }
   }, [view.planId])
-  const draftEditable = !confirmedReview && draft.sync.kind !== 'closed' && draft.sync.kind !== 'loading' && draft.sync.kind !== 'load-error' && draft.sync.kind !== 'stale' && !draft.choice
+  const draftEditable = !lockedReview && draft.sync.kind !== 'closed' && draft.sync.kind !== 'loading' && draft.sync.kind !== 'load-error' && draft.sync.kind !== 'stale' && !draft.choice
   const decisions = draft.decisions
   const subjectIds: Record<number, string> = { ...evaluationSubjectIds, ...Object.fromEntries(Object.entries(draft.subjectIds).filter(([, id]) => id.trim() !== '')) }
   const decisionOf = (key: string): Decision | undefined => decisions[key]
@@ -94,8 +98,8 @@ export function TeachingPlanStep({
 
   const entries: TeachingPlanEntry[] = useMemo(() => {
     if (!slot) return []
-    if (confirmedReview) {
-      return confirmedReview.rows
+    if (lockedReview) {
+      return lockedReview.rows
         .filter((row) => row.decision !== 'EXCLUDED')
         .map((row) => entryFromRow(row.row, { id: `${row.subjectIndex}|${row.rowKey}`, subjectName: candidates[row.subjectIndex]?.subjectName ?? row.subjectId, status: 'CONFIRMED', academicYear: slot.academicYear }))
     }
@@ -110,12 +114,12 @@ export function TeachingPlanStep({
         return entryFromRow(row, { id: keyOf(ref), subjectName: ref.subjectName, status: 'CANDIDATE', academicYear: slot.academicYear, missingFields: missing })
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refs, confirmedReview, decisions, slot])
+  }, [refs, lockedReview, decisions, slot])
 
   const decidedRefs = refs.filter((ref) => decisionOf(keyOf(ref)))
   const missingSubject = [...new Set(decidedRefs.map((ref) => ref.subjectIndex))].filter((index) => !(subjectIds[index] ?? '').trim())
   const published = decidedRefs.filter((ref) => decisionOf(keyOf(ref))?.kind !== 'absent').length
-  const canConfirm = !confirmedReview && decidedRefs.length > 0 && missingSubject.length === 0 && !submitting && Boolean(view.analysisId)
+  const canConfirm = !lockedReview && decidedRefs.length > 0 && missingSubject.length === 0 && !submitting && Boolean(view.analysisId)
 
   const submit = async () => {
     if (!canConfirm || !view.analysisId) return
@@ -131,6 +135,8 @@ export function TeachingPlanStep({
         }),
       })
       setServer({ state: 'ready', data })
+      // 재확정이면 닫힌 초안을 다시 읽는다(첫 확정은 closed 옵션이 바뀌며 다시 읽힌다)
+      if (reReview) void draft.reload()
     } catch (cause) {
       setSubmitError(cause instanceof Error ? cause.message : String(cause))
     } finally {
@@ -164,23 +170,29 @@ export function TeachingPlanStep({
 
       {refs.length > 0 && (
         <div className={styles.banner} data-testid="teaching-plan-status" style={{ marginBottom: 12 }}>
-          {confirmedReview ? (
+          {lockedReview ? (
             <span>
-              확정됨 · {confirmedReview.reviewedBy} · {new Date(confirmedReview.reviewedAt).toLocaleString('ko-KR')} · 학생 공개 {confirmedReview.rows.filter((row) => row.decision !== 'EXCLUDED').length}행 · 제외 {confirmedReview.rows.filter((row) => row.decision === 'EXCLUDED').length}행
+              확정됨 · {lockedReview.reviewedBy} · {new Date(lockedReview.reviewedAt).toLocaleString('ko-KR')} · 학생 공개 {lockedReview.rows.filter((row) => row.decision !== 'EXCLUDED').length}행 · 제외 {lockedReview.rows.filter((row) => row.decision === 'EXCLUDED').length}행
             </span>
           ) : (
             <span>
               후보 {refs.length}행 · 결정 {decidedRefs.length}행(공개 {published} · 제외 {decidedRefs.length - published}) · 결정하지 않은 행은 공개되지 않아요
             </span>
           )}
-          {!confirmedReview && (
+          {!lockedReview && (
             <span style={{ marginLeft: 'auto' }}>
               <SyncText sync={draft.sync} onRetry={() => void draft.retry()} />
             </span>
           )}
         </div>
       )}
-      {refs.length > 0 && !confirmedReview && <DraftBanner state={draft} />}
+      {reReview && (
+        <p className={styles.banner} data-testid="teaching-plan-rereview-badge" style={{ marginBottom: 12 }}>
+          운영계획 재검토 중 · 다시 확정하기 전까지 학생에게는 {confirmedReview?.versionNo ?? 1}차 확정본이 그대로 보여요.
+        </p>
+      )}
+      {refs.length > 0 && !lockedReview && <DraftBanner state={draft} />}
+      {confirmedReview && <TeachingPlanHistoryPanel planId={view.planId} revisionId={view.documentRevisionId} canStart={Boolean(lockedReview)} onStart={draft.reopen} refreshKey={`${confirmedReview.versionNo ?? 1}|${reReview}`} />}
       {server.state === 'error' && (
         <p className={styles.muted} role="alert">
           운영계획 확정 상태를 불러오지 못했어요. {server.message}
@@ -206,7 +218,7 @@ export function TeachingPlanStep({
                     {subject.extractionStatus ? `추출 ${subject.extractionStatus === 'COMPLETE' ? '완료' : subject.extractionStatus === 'PARTIAL' ? '일부' : '구간 없음'} · ` : ''}
                     {linked ? `과목 ${subjectOptions?.items.find((item) => item.subjectId === linked)?.name ?? linked}` : '과목 미연결'}
                   </span>
-                  {!confirmedReview && subjectOptions?.available && subjectOptions.items.length > 0 && (
+                  {!lockedReview && subjectOptions?.available && subjectOptions.items.length > 0 && (
                     <select
                       className={styles.select}
                       style={{ maxWidth: 200, marginLeft: 'auto' }}
@@ -254,8 +266,8 @@ export function TeachingPlanStep({
                         const edits = editsOf(decision)
                         const entry = entryFromRow({ ...ref.row, ...Object.fromEntries(Object.entries(edits).filter(([, value]) => value !== undefined)) } as TeachingPlanRowCandidate, { id: key, subjectName: ref.subjectName, status: 'CANDIDATE', academicYear: slot?.academicYear ?? 0 })
                         const page = firstPage(ref.row)
-                        const confirmedRow = confirmedReview?.rows.find((row) => row.subjectIndex === ref.subjectIndex && row.rowKey === ref.row.rowKey)
-                        const locked = Boolean(confirmedReview)
+                        const confirmedRow = lockedReview?.rows.find((row) => row.subjectIndex === ref.subjectIndex && row.rowKey === ref.row.rowKey)
+                        const locked = Boolean(lockedReview)
                         const pageText = page ? String(page) : ''
                         return (
                           <tr key={key} data-testid="teaching-plan-row" data-decision={confirmedRow?.decision ?? decision?.kind ?? 'none'}>
@@ -330,17 +342,19 @@ export function TeachingPlanStep({
         </div>
       )}
 
-      {refs.length > 0 && !confirmedReview && (
+      {refs.length > 0 && !lockedReview && (
         <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <button type="button" className={styles.buttonDark} disabled={!canConfirm} onClick={() => void submit()} data-testid="teaching-plan-confirm" aria-busy={submitting}>
-            {submitting ? '확정하는 중…' : `운영계획 확정 (공개 ${published}행)`}
+            {submitting ? '확정하는 중…' : reReview ? `운영계획 다시 확정 (공개 ${published}행)` : `운영계획 확정 (공개 ${published}행)`}
           </button>
           <span className={styles.tiny}>
             {missingSubject.length > 0
               ? `과목이 연결되지 않은 행이 있어요(${missingSubject.map((index) => candidates[index]?.subjectName ?? index).join(', ')}).`
               : decidedRefs.length === 0
                 ? '확정할 행을 하나 이상 정해 주세요.'
-                : '확정하면 학생 화면 월별 계획에 공개돼요(문서가 학생에게 공개된 경우). 확정 뒤에는 바꿀 수 없어요(재확정 정책 미결).'}
+                : reReview
+                  ? '다시 확정하면 새 확정 버전이 학생 월별 계획에 공개되고, 이전 확정본은 이력으로 남아요.'
+                  : '확정하면 학생 화면 월별 계획에 공개돼요(문서가 학생에게 공개된 경우). 고치려면 확정 뒤 재검토를 시작해요.'}
           </span>
           {submitError && (
             <span className={styles.muted} role="alert">

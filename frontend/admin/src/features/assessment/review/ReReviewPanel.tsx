@@ -47,7 +47,7 @@ export function ReReviewPanel({ planId, revisionId, onReopen, reopened }: { plan
   }
 
   return (
-    <section className={styles.note} style={{ marginTop: 16 }} aria-label="재검토·확정 이력" data-testid="review-rereview">
+    <section className={styles.note} style={{ marginTop: 16, display: 'block' }} aria-label="재검토·확정 이력" data-testid="review-rereview">
       {!reopened && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
           <span>값을 고쳐야 하면 재검토를 시작해요. 다시 확정하기 전까지 학생에게는 지금 확정본이 그대로 보여요.</span>

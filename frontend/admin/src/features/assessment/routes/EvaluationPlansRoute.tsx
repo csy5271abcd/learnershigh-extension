@@ -37,7 +37,9 @@ type AnalyzerOutcome =
 
 // AD-03 학교별 평가계획서 (2차 UI, 2026-11-14 — 다글로 '내 PDF·전체 보드' 목록 참고).
 // 정책: 정상 인증된 관리자는 모든 학교의 평가계획서를 등록·분석·검토·확정한다(OD-A08). 학생 기록·Student Care 권한과는 별개다.
-// 학교 원천: 전체 학교 목록 API가 아직 없다(API-OD-A01). 아래 목록은 '담당 학생 학교 + 개발 설정'이라 전체 학교가 아니다 —
+// A13 사용자 결정: 담당 학생의 학교(§33-1 managed-schools)를 먼저 보여 준다. 평가계획서 운영 권한(OD-A08)은 모든 학교라
+//   등록 문서가 있는 다른 학교도 아래 묶음으로 남긴다(권한을 줄이지 않음).
+// 학교 원천: 전체 학교 목록 API가 아직 없다(API-OD-A01). 아래 목록은 '담당 학생 학교 + 등록 학교'라 전체 학교가 아니다 —
 //   목록에 없는 학교는 학교 코드로 직접 연다(서버가 모든 학교를 허용한다). 학교를 새로 만들거나 이름을 지어내지 않는다.
 // 한 학년·학기에 여러 문서·개정본을 둘 수 있고 기존 파일을 덮어쓰지 않는다 (§38).
 export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
@@ -46,8 +48,10 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const registered = useRemote(() => searchSchools(), [])
   const registeredSchools = registered.state.status === 'success' ? registered.state.data.items : []
   const knownSchools = schools.state.status === 'success' ? schools.state.data.items : []
-  const extraSchools = knownSchools.filter((school) => !registeredSchools.some((item) => item.schoolId === school.schoolId))
-  const schoolId = search.get('school') ?? registeredSchools[0]?.schoolId ?? knownSchools[0]?.schoolId ?? ''
+  const managedSchools = knownSchools.filter((school) => (school.studentCount ?? 0) > 0)
+  const otherRegistered = registeredSchools.filter((item) => !managedSchools.some((school) => school.schoolId === item.schoolId))
+  const extraSchools = knownSchools.filter((school) => !(school.studentCount ?? 0) && !registeredSchools.some((item) => item.schoolId === school.schoolId))
+  const schoolId = search.get('school') ?? managedSchools[0]?.schoolId ?? registeredSchools[0]?.schoolId ?? knownSchools[0]?.schoolId ?? ''
   const selectedSchool = knownSchools.find((school) => school.schoolId === schoolId)
   const registeredName = registeredSchools.find((school) => school.schoolId === schoolId)?.name ?? null
   const schoolLabel = selectedSchool?.name ?? registeredName ?? `학교 코드 ${schoolId}`
@@ -126,9 +130,21 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
       <div className={review.toolbar}>
         <select className={review.select} aria-label="학교" value={schoolId} onChange={(event) => setParams({ school: event.target.value, year: null })} data-testid="plans-school">
           {schoolId && !knownSchools.some((school) => school.schoolId === schoolId) && !registeredSchools.some((school) => school.schoolId === schoolId) && <option value={schoolId}>학교 코드 {schoolId}</option>}
-          {registeredSchools.length > 0 && (
-            <optgroup label="평가계획서가 등록된 학교">
-              {registeredSchools.map((school) => (
+          {managedSchools.length > 0 && (
+            <optgroup label="담당 학생 학교" data-testid="plans-managed-schools">
+              {managedSchools.map((school) => {
+                const plansCount = registeredSchools.find((item) => item.schoolId === school.schoolId)?.planCount
+                return (
+                  <option key={school.schoolId} value={school.schoolId}>
+                    {school.name} · 담당 학생 {school.studentCount}명{plansCount ? ` · ${plansCount}건` : ''}
+                  </option>
+                )
+              })}
+            </optgroup>
+          )}
+          {otherRegistered.length > 0 && (
+            <optgroup label={managedSchools.length > 0 ? '평가계획서가 등록된 다른 학교' : '평가계획서가 등록된 학교'}>
+              {otherRegistered.map((school) => (
                 <option key={school.schoolId} value={school.schoolId}>
                   {school.name ?? `학교 코드 ${school.schoolId}`} · {school.planCount}건
                 </option>
@@ -136,7 +152,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
             </optgroup>
           )}
           {extraSchools.length > 0 && (
-            <optgroup label="담당 학생 학교 (개발 정보)">
+            <optgroup label="개발 설정 학교">
               {extraSchools.map((school) => (
                 <option key={school.schoolId} value={school.schoolId}>
                   {school.name}
@@ -172,7 +188,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
       </div>
       <p className={review.sourceNote}>
         <span data-testid="plans-school-coverage">
-          학교 목록은 평가계획서가 등록된 학교와 담당 학생 학교예요. 전체 학교 목록(학교 Master)은 아직 연결되지 않았어요{registered.state.status === 'error' ? ' · 등록 학교를 불러오지 못했어요' : ''}.
+          학교 목록은 담당 학생의 학교를 먼저, 그다음 평가계획서가 등록된 다른 학교를 보여 줘요. 전체 학교 목록(학교 Master)은 아직 연결되지 않았어요{registered.state.status === 'error' ? ' · 등록 학교를 불러오지 못했어요' : ''}.
         </span>{' '}
         다른 학교는 학교 코드로 열 수 있어요{' '}
         <input className={review.input} style={{ width: 150, height: 30, fontSize: 12.5, marginLeft: 4 }} value={schoolCode} placeholder="학교 코드" aria-label="학교 코드로 열기" onChange={(event) => setSchoolCode(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && openCode()} />{' '}

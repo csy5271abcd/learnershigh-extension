@@ -295,6 +295,8 @@ export interface AdminEvaluationPlan {
 export interface AdminSchool {
   schoolId: string
   name: string
+  /** A13 http: 이 관리자의 담당 학생 수(§33-1 managed-schools). 담당 학생 학교가 아니면 없음 */
+  studentCount?: number
 }
 
 export interface EvaluationPlanAnalysisView {
@@ -627,7 +629,27 @@ export interface TeachingPlanReviewView {
     reviewedBy: string
     reviewedAt: string
     rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate; candidate: TeachingPlanRowCandidate }[]
+    /** A13: 이 확정 버전(1부터). review는 최신 버전 */
+    versionNo?: number
   } | null
+}
+
+/** A13 §39-10 운영계획 확정 이력 (관리자 전용, 최신 → 과거). 기록은 불변, current = 학생 공개 중 */
+export interface TeachingPlanHistory {
+  planId: string
+  revisionId: string
+  reReviewOpen: boolean
+  items: {
+    reviewId: string
+    versionNo: number
+    analysisId: string
+    reviewedBy: string
+    reviewedAt: string
+    current: boolean
+    publishedRowCount: number
+    excludedRowCount: number
+    rows: NonNullable<TeachingPlanReviewView['review']>['rows']
+  }[]
 }
 
 /** §38-4 문서 슬롯 학업 과목 (A6 DRAFT). available=false = 슬롯 학업 정보 없음(오류 아님) → 직접 입력으로 대신 */

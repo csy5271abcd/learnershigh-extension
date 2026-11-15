@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getPlanReviewDraft, getTeachingPlanDraft, reopenPlanReviewDraft, savePlanReviewDraft, saveTeachingPlanDraft } from '../api/assessmentAdminApi.ts'
+import { getPlanReviewDraft, getTeachingPlanDraft, reopenPlanReviewDraft, reopenTeachingPlanDraft, savePlanReviewDraft, saveTeachingPlanDraft } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
 import type { EvaluationPlanAnalysisView, PlanReviewDraftDecision, PlanReviewDraftView } from '../api/types.ts'
 import type { Decision } from './reviewModel.ts'
@@ -120,8 +120,8 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
   const [sync, setSync] = useState<SyncState>({ kind: 'loading' })
   const [server, setServer] = useState<PlanReviewDraftView | null>(null)
   const [choice, setChoice] = useState<DraftChoice | null>(null)
-  /** A12 재검토 중: 확정된 문서의 최신 분석 결과 평가 정보 초안이 다시 열려 있다(학생 공개값은 이전 확정본 그대로) */
-  const reopened = scope === 'EVALUATION' && confirmed && server?.draft?.status === 'ACTIVE' && server.draft.analysisId === view.analysisId
+  /** A12·A13 재검토 중: 확정된 범위(평가 정보 또는 운영계획)의 최신 분석 결과 초안이 다시 열려 있다(학생 공개값은 이전 확정본 그대로) */
+  const reopened = confirmed && server?.draft?.status === 'ACTIVE' && server.draft.analysisId === view.analysisId
   const [edits, setEdits] = useState(0)
   const version = useRef<number | null>(null)
   const latest = useRef<Backup>({ decisions: {}, subjectIds: {} })
@@ -158,10 +158,10 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     editsRef.current = 0
     setEdits(0)
     // A12: 확정된 문서라도 재검토로 다시 연 평가 정보 초안(ACTIVE)은 편집할 수 있다
-    const reopenedNow = scope === 'EVALUATION' && confirmed && draft?.status === 'ACTIVE'
+    const reopenedNow = confirmed && draft?.status === 'ACTIVE'
     setSync((confirmed && !reopenedNow) || draft?.status === 'CLOSED' ? { kind: 'closed' } : draft ? { kind: 'saved', at: draft.updatedAt, by: draft.updatedBy, version: draft.version } : { kind: 'idle' })
     return result
-  }, [view.planId, view.documentRevisionId, view.analysisId, confirmed, scope, key, apply, loadDraft])
+  }, [view.planId, view.documentRevisionId, view.analysisId, confirmed, key, apply, loadDraft])
 
   useEffect(() => {
     let cancelled = false
@@ -261,9 +261,9 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
 
   /** A12 재검토 시작: 서버에서 초안을 다시 연 뒤 다시 읽는다 */
   const reopen = useCallback(async () => {
-    await reopenPlanReviewDraft(view.planId, view.documentRevisionId)
+    await (scope === 'TEACHING_PLAN' ? reopenTeachingPlanDraft : reopenPlanReviewDraft)(view.planId, view.documentRevisionId)
     await load('reload')
-  }, [view.planId, view.documentRevisionId, load])
+  }, [view.planId, view.documentRevisionId, scope, load])
   const reload = useCallback(() => load('reload'), [load])
   return { decisions, subjectIds, sync, server, choice, unsaved, reopened, reopen, reload, setDecision, setSubjectId, clearAll, resolveChoice, resolveConflict, retry: save, forgetBackup: () => writeBackup(key, null) }
 }
