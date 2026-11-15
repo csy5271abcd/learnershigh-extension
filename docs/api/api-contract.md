@@ -1485,7 +1485,27 @@ GET  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teac
 - `reopen`: 운영계획이 확정된 Revision만(아니면 `409 revision: teaching_plan_not_confirmed`). 확정으로 닫힌 운영계획 초안을 다시 열거나, 없으면(API 확정 등) 같은 분석 결과의 최신 확정 행으로 새 초안을 채운다(CONFIRMED → CONFIRMED, EXCLUDED → ABSENT, EDITED → 고친 칸만 edits JSON, 과목 연결 포함). 이미 열려 있으면 `409 draft: already_open`. 응답은 §39-6 운영계획 초안 GET과 같다.
 - 재검토 중에는 운영계획 초안 저장·`PUT .../teaching-plan-review`(다시 확정)가 허용된다. 응답 `review.versionNo` = 그 버전.
 - `teaching-plan-reviews`: `{ planId, revisionId, reReviewOpen, items: [{ reviewId, versionNo, analysisId, reviewedBy, reviewedAt, current, publishedRowCount, excludedRowCount, rows[] }] }` 최신 → 과거(rows는 §39-6 RowView). 관리자 전용 — 학생 응답(§10-1-2)에는 버전·이력·제외 행이 없다.
-- 이번 범위 밖: 분석 후보에 없는 **새 행 추가**(확정 요청은 후보 행 `rowKey`만 받는다 — 계약 추가 필요).
+- 분석 후보에 없는 **새 행 추가**는 A14 §39-11(관리자 직접 추가 행).
+
+### 39-11. 운영계획 관리자 직접 추가 행 (A14, 2026-11-16 사용자 지시 · DRAFT — 구현됨)
+
+```http
+POST /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teaching-plan-draft/manual-rows             # 새 행
+PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teaching-plan-draft/manual-rows/{rowKey}    # 수정·제외·복원
+```
+
+- 의미: 분석 결과(Run)에 없던 운영계획 행을 관리자가 원문을 보고 **운영계획 초안**에 직접 추가한다. 분석 후보 행과 출처가 다르며(`origin: "MANUAL"`), 분석 결과(Run)는 바꾸지 않는다. 학생에게는 운영계획 확정(§39-6·§39-10) 뒤에만 보인다.
+- 요청(둘 다): `{ analysisId, baseVersion, row: { subjectIndex, status: "INCLUDED"|"EXCLUDED", unit?, content?, note?, specialSchedule?, achievementStandards?: [{code?, text?}], teachingMethods?: [string], assessmentMethods?: [string], schedule: Schedule(§39-3), pdfPageNumber? } }`. 응답은 §39-6 운영계획 초안 GET과 같고 `draft.manualRows[]`가 추가된다.
+- `draft.manualRows[]`: `{ rowKey, origin: "MANUAL", subjectIndex, status, unit, content, note, specialSchedule, achievementStandards, teachingMethods, assessmentMethods, schedule, pdfPageNumber, createdBy, createdAt, updatedBy, updatedAt }`. 평가 정보 초안·이전 초안은 빈 목록.
+- 행 키: **서버 발급** `manual_` + 16자리(같은 과목의 분석 후보 `rowKey`·기존 추가 행 키와 겹치지 않음). 재검토·재확정에서도 같은 키가 같은 행을 가리킨다. 요청으로 키를 정할 수 없다.
+- 저장 규칙(운영계획 초안 저장과 같음): 최신 분석 결과만(`analysisId: unknown` 400 · 바뀜 409 `PLAN_REVIEW_DRAFT_STALE`) · 분석 실패·운영계획 후보 0행 문서는 `400 analysisId: analysis_failed | no_teaching_plan`(분석 결과가 전혀 없는 문서의 수동 전체 작성은 범위 밖) · 확정된 운영계획은 재검토(§39-10) 중에만(아니면 `409 revision: teaching_plan_already_confirmed`) · `baseVersion` 낙관적 잠금(초안이 없으면 `null` → 새 초안, 다르면 `409 PLAN_REVIEW_DRAFT_CONFLICT`) — **같은 생성 요청을 다시 보내면 409라 행이 두 번 생기지 않는다**.
+- 입력 검증: 단원·학습 내용·특별 일정 중 하나 필수(`row.content: required`) · 월 1~12·주차 1~25(요청 형식 400) · §39-3 일정 규칙(주차 거꾸로 `row.schedule.weekTo: out_of_range`, 날짜 정밀도의 날짜) · 정밀도별 최소 값(`MONTH`·`MONTH_RANGE`·`WEEK_IN_MONTH` → `monthFrom`, `MONTH_RANGE` → `monthTo`, `WEEK_IN_MONTH`·`TERM_WEEK` → `weekFrom`, `DATE_RANGE` → `dateTo`: `required`) · 연도(`calendarYear`) 금지(`not_allowed` — 원문 칸 근거를 관리자 입력으로 만들지 않음) · `pdfPageNumber`는 PDF 쪽 수 안(`out_of_range`), HWP·HWPX는 `not_allowed` · 분석 결과에 없는 과목 슬롯 `row.subjectIndex: out_of_range`. 서버는 월·주차를 추정하지 않는다(분석기 주차 해석 규칙과 무관).
+- 수정(PUT): 이 초안에 있는 키만(없으면 `404 NOT_FOUND` — 다른 Revision·다른 분석 결과·위조 키 포함), 과목 슬롯은 바꿀 수 없다(`row.subjectIndex: conflict`). 제외 = `status: EXCLUDED`, 복원 = `INCLUDED`(내용 그대로).
+- `PUT .../teaching-plan-draft`(행 결정 자동 저장)는 `manualRows`를 받지 않고 **그대로 보존**한다(기존 요청 모양 그대로).
+- 확정(`PUT .../teaching-plan-review`)에 선택 필드 `manualRows: [{ rowKey, subjectIndex, subjectId, decision: "CONFIRMED"|"EXCLUDED" }]` 추가. 내용은 서버가 **열려 있는 운영계획 초안의 행**에서 가져온다(요청으로 내용을 바꿀 수 없음). 검증: 초안에 없는 키 `manualRows[n].rowKey: unknown` · 초안과 다른 과목 슬롯 `subjectIndex: conflict` · 초안 상태와 다른 결정(화면이 오래됨) `decision: conflict` · 문서 슬롯 밖 과목 `subjectId: unknown` · 같은 과목 슬롯의 후보 행과 다른 과목 `subjectId: conflict` · 중복 `rowKey: duplicate`. `rows`는 이제 0행 허용(후보 행 + 추가 행 합이 0이면 `rows: required`). 기존 요청(`manualRows` 없음)은 그대로 동작한다.
+- 확정 행 저장: `assessment_plan_teaching_plan_row.row_origin` = `ANALYSIS`(기존 행 전부) | `MANUAL`, 관리자 추가 행은 `candidate_json = NULL`·결정 `CONFIRMED`/`EXCLUDED`만(DB CHECK, Migration `V202611160200`). 행 JSON은 §39-3 행 모양 + `origin: "MANUAL"`·`manualPdfPageNumber`, `sources: []`(분석 근거로 위장하지 않음). 월·주차 칸은 관리자가 고른 `schedule` 값 그대로 옮긴다. 버전마다 새로 INSERT(이전 버전의 추가 행 불변).
+- 관리자 응답: 확정 행 `RowView`에 `origin` 추가(`candidate`는 추가 행이면 `null`) — §39-6 GET·§39-10 이력. 학생(§10-1-2): 응답 모양 변경 없음. 추가 행도 같은 `rows[]`에 나오고, `pdfPageNumber`는 관리자 확인 쪽(없으면 `null`). 버전·출처·제외 행은 보내지 않는다. 운영계획 행으로 수행평가 과제를 만들지 않는다.
+
 
 ### 39-6. 월별 교수·학습 운영계획 검토·확정 (A6, 2026-11-15 DRAFT — 구현됨)
 
