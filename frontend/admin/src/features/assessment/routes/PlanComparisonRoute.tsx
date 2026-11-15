@@ -198,10 +198,18 @@ function ComparisonBody({
       ))}
 
       <div style={{ overflowX: 'auto' }}>
-        <table className={review.table} data-testid="compare-table">
+        {/* 열 너비 고정: 학년도 열의 과목 선택 상자가 다른 열을 밀어내지 않게 한다. 좁으면 이 영역 안에서만 가로 스크롤 */}
+        <table className={review.table} data-testid="compare-table" style={{ tableLayout: 'fixed', minWidth: 200 + data.columns.length * 220 + 170 }}>
+          <colgroup>
+            <col style={{ width: 200 }} />
+            {data.columns.map((column) => (
+              <col key={column.academicYear} style={{ width: 220 }} />
+            ))}
+            <col style={{ width: 170 }} />
+          </colgroup>
           <thead>
             <tr>
-              <th scope="col" style={{ width: '20%' }}>
+              <th scope="col">
                 {data.schoolName ?? data.schoolId} · {data.grade}학년 {data.semester}학기
               </th>
               {data.columns.map((column) => (
@@ -209,7 +217,7 @@ function ComparisonBody({
                   <YearHeader column={column} onSubject={onSubject} onPlan={onPlan} />
                 </th>
               ))}
-              <th scope="col" style={{ width: 150 }}>
+              <th scope="col">
                 변경 상태
               </th>
             </tr>
@@ -301,9 +309,13 @@ function YearHeader({ column, onSubject, onPlan }: { column: PlanComparisonColum
     <div style={{ display: 'grid', gap: 4, fontWeight: 400 }} data-testid={`compare-column-${column.academicYear}`} data-status={column.status}>
       <strong>{column.academicYear}학년도</strong>
       <span className={review.tiny}>{columnText[column.status] ?? column.status}</span>
-      {column.fileName && <span className={review.tiny}>{column.fileName}</span>}
+      {column.fileName && (
+        <span className={review.tiny} style={{ overflowWrap: 'anywhere' }}>
+          {column.fileName}
+        </span>
+      )}
       {column.status === 'AMBIGUOUS_PLAN' && (
-        <select className={review.select} aria-label={`${column.academicYear}학년도 문서`} onChange={(event) => onPlan(column.academicYear, event.target.value)} defaultValue="">
+        <select className={review.select} style={{ width: '100%', minWidth: 0 }} aria-label={`${column.academicYear}학년도 문서`} onChange={(event) => onPlan(column.academicYear, event.target.value)} defaultValue="">
           <option value="">문서 선택</option>
           {column.plans
             .filter((plan) => plan.confirmedRevisionId)
@@ -315,7 +327,7 @@ function YearHeader({ column, onSubject, onPlan }: { column: PlanComparisonColum
         </select>
       )}
       {column.subjects.length > 0 ? (
-        <select className={review.select} aria-label={`${column.academicYear}학년도 과목`} value={column.subjectId ?? ''} onChange={(event) => onSubject(column.academicYear, event.target.value)} data-testid={`compare-subject-${column.academicYear}`}>
+        <select className={review.select} style={{ width: '100%', minWidth: 0 }} aria-label={`${column.academicYear}학년도 과목`} value={column.subjectId ?? ''} onChange={(event) => onSubject(column.academicYear, event.target.value)} data-testid={`compare-subject-${column.academicYear}`}>
           <option value="">과목 선택</option>
           {column.subjects.map((subject) => (
             <option key={subject.subjectId} value={subject.subjectId}>
