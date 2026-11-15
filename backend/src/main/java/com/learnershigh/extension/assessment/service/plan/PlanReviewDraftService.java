@@ -125,11 +125,13 @@ public class PlanReviewDraftService {
         EvaluationPlan plan = access.plan(admin, planId);
         PlanRevision revision = access.revision(plan, revisionId);
         boolean teachingPlan = PlanReviewDraft.SCOPE_TEACHING_PLAN.equals(scope);
-        if (teachingPlan && teachingPlanReviews.findByRevisionId(revision.id()).isPresent()) {
+        Optional<PlanAnalysisRun> latest = latestRun(revision);
+        if (teachingPlan && teachingPlanReviews.findByRevisionId(revision.id()).isPresent()
+                && !draftOpen(latest, PlanReviewDraft.SCOPE_TEACHING_PLAN)) {
+            // A13: 확정된 운영계획은 재검토를 시작한 뒤에만 초안을 받는다
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
                     new FieldViolation("revision", "teaching_plan_already_confirmed"));
         }
-        Optional<PlanAnalysisRun> latest = latestRun(revision);
         if (!teachingPlan && revision.isConfirmed() && !reReviewOpen(latest)) {
             // A12: 확정된 Revision은 재검토를 시작(POST .../review-draft/reopen)한 뒤에만 초안을 받는다
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
@@ -186,8 +188,115 @@ public class PlanReviewDraftService {
     }
 
     private boolean reReviewOpen(Optional<PlanAnalysisRun> latest) {
-        return latest.flatMap(run -> drafts.findByAnalysisId(run.id(), PlanReviewDraft.SCOPE_EVALUATION))
-                .filter(PlanReviewDraft::isActive).isPresent();
+        return draftOpen(latest, PlanReviewDraft.SCOPE_EVALUATION);
+    }
+
+    private boolean draftOpen(Optional<PlanAnalysisRun> latest, String scope) {
+        return latest.flatMap(run -> drafts.findByAnalysisId(run.id(), scope)).filter(PlanReviewDraft::isActive).isPresent();
+    }
+
+    /** A13: 이 분석 결과의 운영계획 초안이 열려 있는가(확정된 운영계획의 재확정 허용 조건). */
+    @Transactional(readOnly = true)
+    public boolean teachingPlanDraftOpen(String analysisId) {
+        return drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_TEACHING_PLAN).filter(PlanReviewDraft::isActive).isPresent();
+    }
+
+    /**
+     * A13 운영계획 재검토 시작 (POST .../teaching-plan-draft/reopen). 운영계획이 확정된 Revision만(아니면 409 teaching_plan_not_confirmed).
+     * 확정으로 닫힌 운영계획 초안을 다시 열거나, 없으면 최신 확정 행으로 새 초안을 채운다(같은 분석 결과일 때만).
+     * 평가 정보 초안·확정은 건드리지 않는다. 재확정 전까지 학생에게는 최신 확정 버전이 그대로 보인다.
+     */
+    public PlanReviewDraftResponse reopenTeachingPlan(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        Optional<com.learnershigh.extension.assessment.entity.TeachingPlanReview> confirmed =
+                teachingPlanReviews.findByRevisionId(revision.id());
+        if (confirmed.isEmpty()) {
+            throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                    new FieldViolation("revision", "teaching_plan_not_confirmed"));
+        }
+        PlanAnalysisRun run = latestRun(revision).orElseThrow(() -> BusinessException.withFields(
+                AssessmentErrorCode.INVALID_STATE_TRANSITION, new FieldViolation("analysisId", "unknown")));
+        Instant now = times.now();
+        Optional<PlanReviewDraft> existing = drafts.findByAnalysisId(run.id(), PlanReviewDraft.SCOPE_TEACHING_PLAN);
+        PlanReviewDraft draft;
+        if (existing.isPresent()) {
+            draft = existing.get();
+            if (draft.isActive()) {
+                throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                        new FieldViolation("draft", "already_open"));
+            }
+            draft.reopenForReReview(admin.adminId(), now);
+            draft = drafts.saveAndFlush(draft);
+        } else {
+            Payload payload = confirmed.get().analysisId().equals(run.id())
+                    ? prefillFromTeachingPlan(confirmed.get(), run) : new Payload(List.of(), List.of());
+            draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_TEACHING_PLAN, revision.id(), run.id(), revision.sha256(),
+                    run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
+            try {
+                draft = drafts.saveAndFlush(draft);
+            } catch (DataIntegrityViolationException raced) {
+                throw conflict(null);
+            }
+        }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
+                mapper.writeValueAsString(List.of("reopened"))));
+        return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_TEACHING_PLAN);
+    }
+
+    /** 확정 행 → 운영계획 초안 결정(teachingPlan[n]): CONFIRMED 그대로, EXCLUDED → ABSENT, EDITED → 고친 칸만 edits JSON. */
+    private Payload prefillFromTeachingPlan(com.learnershigh.extension.assessment.entity.TeachingPlanReview review,
+            PlanAnalysisRun run) {
+        JsonNode subjects = mapper.readTree(run.resultJson());
+        List<PlanReviewDraftResponse.StoredDecision> decisions = new ArrayList<>();
+        Map<Integer, String> links = new LinkedHashMap<>();
+        for (com.learnershigh.extension.assessment.entity.TeachingPlanReviewRow row : review.rows()) {
+            int index = row.analysisSubjectIndex();
+            if (index < 0 || index >= subjects.size()) {
+                continue;
+            }
+            JsonNode rows = subjects.get(index).get("teachingPlan");
+            int position = -1;
+            for (int i = 0; rows != null && rows.isArray() && i < rows.size(); i++) {
+                if (row.rowKey().equals(rows.get(i).path("rowKey").asText(null))) {
+                    position = i;
+                    break;
+                }
+            }
+            if (position < 0) {
+                continue;
+            }
+            links.putIfAbsent(index, row.subjectId());
+            String fieldPath = "teachingPlan[" + position + "]";
+            String decision = switch (row.decision()) {
+                case "EXCLUDED" -> "ABSENT";
+                case "EDITED" -> "EDITED";
+                default -> "CONFIRMED";
+            };
+            String value = null;
+            if ("EDITED".equals(decision)) {
+                JsonNode finalRow = mapper.readTree(row.rowJson());
+                JsonNode candidate = mapper.readTree(row.candidateJson());
+                tools.jackson.databind.node.ObjectNode edits = mapper.createObjectNode();
+                for (String key : List.of("unit", "content", "note", "specialSchedule", "schedule")) {
+                    JsonNode now = finalRow.get(key);
+                    if (!Objects.equals(now, candidate.get(key))) {
+                        edits.set(key, now == null ? tools.jackson.databind.node.NullNode.getInstance() : now);
+                    }
+                }
+                value = edits.toString();
+            }
+            Integer page = null;
+            JsonNode sources = mapper.readTree(row.rowJson()).get("sources");
+            if (sources != null && sources.isArray() && !sources.isEmpty() && sources.get(0).has("pdfPageNumber")
+                    && sources.get(0).get("pdfPageNumber").isNumber()) {
+                page = sources.get(0).get("pdfPageNumber").asInt();
+            }
+            decisions.add(new PlanReviewDraftResponse.StoredDecision(index, fieldPath, decision, value, page,
+                    candidate(subjects.get(index), fieldPath)));
+        }
+        return new Payload(decisions, links.entrySet().stream()
+                .map(e -> new PlanReviewDraftRequest.SubjectLink(e.getKey(), e.getValue())).toList());
     }
 
     /** A12: 이 분석 결과의 평가 정보 초안이 열려 있는가(확정된 Revision의 재확정 허용 조건). */

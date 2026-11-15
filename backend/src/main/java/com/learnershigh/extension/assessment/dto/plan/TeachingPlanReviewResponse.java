@@ -10,7 +10,21 @@ import java.util.List;
 public record TeachingPlanReviewResponse(String planId, String revisionId, String latestAnalysisId,
         int candidateRowCount, Review review) {
 
-    public record Review(String analysisId, String reviewedBy, OffsetDateTime reviewedAt, List<RowView> rows) {
+    /** A13: versionNo = 이 확정 버전(1부터). 이 응답의 review는 최신 버전이다. */
+    public record Review(String analysisId, String reviewedBy, OffsetDateTime reviewedAt, List<RowView> rows,
+            int versionNo) {
+
+        public Review(String analysisId, String reviewedBy, OffsetDateTime reviewedAt, List<RowView> rows) {
+            this(analysisId, reviewedBy, reviewedAt, rows, 1);
+        }
+    }
+
+    /** A13 §39-10 운영계획 확정 이력(관리자 전용): 최신 → 과거. current = 학생에게 공개 중인 버전. 기록은 불변. */
+    public record History(String planId, String revisionId, boolean reReviewOpen, List<Version> items) {
+    }
+
+    public record Version(String reviewId, int versionNo, String analysisId, String reviewedBy, OffsetDateTime reviewedAt,
+            boolean current, int publishedRowCount, int excludedRowCount, List<RowView> rows) {
     }
 
     public record RowView(int subjectIndex, String rowKey, String subjectId, String decision, Object row,

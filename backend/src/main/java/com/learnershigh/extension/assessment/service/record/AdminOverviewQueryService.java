@@ -198,6 +198,32 @@ public class AdminOverviewQueryService {
                 new AdminOverviewResponse.ContentCounts(null, scraps), top, times.toOffset(now));
     }
 
+    /** A13 담당 학생의 학교(학교 ID 기준 중복 제거, 학생 수 많은 순 → 이름순). 다른 지점 학생의 학교는 나오지 않는다. */
+    public AdminOverviewResponse.ManagedSchools managedSchools(AdminActor admin, Integer academicYear, Integer semester) {
+        LocalDate today = LocalDate.ofInstant(times.now(), ZONE);
+        int year = academicYear != null ? academicYear : today.getMonthValue() <= 2 ? today.getYear() - 1 : today.getYear();
+        int term = semester != null ? semester : today.getMonthValue() >= 3 && today.getMonthValue() <= 8 ? 1 : 2;
+        Map<String, String> names = new LinkedHashMap<>();
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        int without = 0;
+        for (ExistingStudent student : adminStudents.inScope(admin)) {
+            var context = adminStudents.context(student.studentId(), year, term);
+            if (context.isEmpty() || context.get().schoolId() == null) {
+                without++;
+                continue;
+            }
+            String schoolId = context.get().schoolId();
+            names.putIfAbsent(schoolId, context.get().schoolName());
+            counts.merge(schoolId, 1, Integer::sum);
+        }
+        List<AdminOverviewResponse.ManagedSchool> items = counts.entrySet().stream()
+                .map(e -> new AdminOverviewResponse.ManagedSchool(e.getKey(), names.get(e.getKey()), e.getValue()))
+                .sorted(Comparator.comparing(AdminOverviewResponse.ManagedSchool::studentCount).reversed()
+                        .thenComparing(s -> s.name() == null ? s.schoolId() : s.name()))
+                .toList();
+        return new AdminOverviewResponse.ManagedSchools(year, term, "ASSIGNED_STUDENTS", items, without);
+    }
+
     private AdminOverviewResponse.Activity activity(String type, PlanRevision revision, String detail, String actor,
             Instant at) {
         return new AdminOverviewResponse.Activity(type, revision == null ? null : revision.planId(),

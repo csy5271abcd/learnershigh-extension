@@ -189,6 +189,22 @@ public class AdminEvaluationPlanController {
         return draftService.save(admin, planId, revisionId, request);
     }
 
+    /** A13 §39-10 운영계획 재검토 시작: 확정된 운영계획의 초안을 다시 연다(평가 정보·이전 확정 버전·학생 공개값 불변). */
+    @PostMapping("/{planId}/revisions/{revisionId}/teaching-plan-draft/reopen")
+    public PlanReviewDraftResponse reopenTeachingPlanDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return draftService.reopenTeachingPlan(admin, planId, revisionId);
+    }
+
+    /** A13 §39-10 운영계획 확정 이력(관리자 전용, 최신 → 과거). */
+    @GetMapping("/{planId}/revisions/{revisionId}/teaching-plan-reviews")
+    public TeachingPlanReviewResponse.History teachingPlanReviews(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        boolean open = teachingPlanQueries.latestAnalysisId(admin, planId, revisionId)
+                .map(draftService::teachingPlanDraftOpen).orElse(false);
+        return teachingPlanQueries.adminHistory(admin, planId, revisionId, open);
+    }
+
     /** A7 §39-6 운영계획 공유 초안 조회. 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 쓴다. */
     @GetMapping("/{planId}/revisions/{revisionId}/teaching-plan-draft")
     public PlanReviewDraftResponse teachingPlanDraft(AdminActor admin, @PathVariable String planId,

@@ -49,15 +49,42 @@ public class TeachingPlanQueryService {
         return view(plan, revision, reviews.findByRevisionId(revision.id()), latestRun(runs, revision));
     }
 
+    private List<TeachingPlanReviewResponse.RowView> rowViews(TeachingPlanReview review) {
+        return review.rows().stream()
+                .map(row -> new TeachingPlanReviewResponse.RowView(row.analysisSubjectIndex(), row.rowKey(),
+                        row.subjectId(), row.decision(), mapper.readValue(row.rowJson(), Object.class),
+                        mapper.readValue(row.candidateJson(), Object.class)))
+                .toList();
+    }
+
+    /** A13 §39-10 운영계획 확정 이력 (관리자 전용, 최신 → 과거). reReviewOpen = 최신 분석 결과의 운영계획 초안이 열려 있음. */
+    public TeachingPlanReviewResponse.History adminHistory(AdminActor admin, String planId, String revisionId,
+            boolean reReviewOpen) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        List<TeachingPlanReview> history = reviews.findHistory(revision.id());
+        List<TeachingPlanReviewResponse.Version> items = new java.util.ArrayList<>();
+        for (int i = 0; i < history.size(); i++) {
+            TeachingPlanReview review = history.get(i);
+            int excluded = (int) review.rows().stream().filter(row -> "EXCLUDED".equals(row.decision())).count();
+            items.add(new TeachingPlanReviewResponse.Version(review.getId(), review.versionNo(), review.analysisId(),
+                    review.reviewedBy(), times.toOffset(review.reviewedAt()), i == 0, review.rows().size() - excluded,
+                    excluded, rowViews(review)));
+        }
+        return new TeachingPlanReviewResponse.History(plan.id(), revision.id(), reReviewOpen && !history.isEmpty(), items);
+    }
+
+    /** 최신 분석 결과 ID (재검토 열림 판단용) */
+    public Optional<String> latestAnalysisId(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        return latestRun(runs, access.revision(plan, revisionId)).map(PlanAnalysisRun::id);
+    }
+
     TeachingPlanReviewResponse view(EvaluationPlan plan, PlanRevision revision, Optional<TeachingPlanReview> review,
             Optional<PlanAnalysisRun> latest) {
         int candidates = latest.map(run -> candidateRowCount(mapper.readTree(run.resultJson()))).orElse(0);
         TeachingPlanReviewResponse.Review body = review.map(r -> new TeachingPlanReviewResponse.Review(r.analysisId(),
-                r.reviewedBy(), times.toOffset(r.reviewedAt()), r.rows().stream()
-                        .map(row -> new TeachingPlanReviewResponse.RowView(row.analysisSubjectIndex(), row.rowKey(),
-                                row.subjectId(), row.decision(), mapper.readValue(row.rowJson(), Object.class),
-                                mapper.readValue(row.candidateJson(), Object.class)))
-                        .toList()))
+                r.reviewedBy(), times.toOffset(r.reviewedAt()), rowViews(r), r.versionNo()))
                 .orElse(null);
         return new TeachingPlanReviewResponse(plan.id(), revision.id(), latest.map(PlanAnalysisRun::id).orElse(null),
                 candidates, body);

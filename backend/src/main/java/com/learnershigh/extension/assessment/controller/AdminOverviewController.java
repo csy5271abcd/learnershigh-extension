@@ -34,6 +34,14 @@ public class AdminOverviewController {
         return overview.overview(admin, blankToNull(schoolId), academicYear, semester, grade);
     }
 
+    /** A13 §33-1 관리자 담당 학생의 학교(전체 학교 Master 아님). */
+    @GetMapping("/managed-schools")
+    public AdminOverviewResponse.ManagedSchools managedSchools(AdminActor admin,
+            @RequestParam(required = false) @Min(2000) @Max(2100) Integer academicYear,
+            @RequestParam(required = false) @Min(1) @Max(2) Integer semester) {
+        return overview.managedSchools(admin, academicYear, semester);
+    }
+
     private static String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.strip();
     }

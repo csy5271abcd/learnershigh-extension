@@ -3,6 +3,7 @@ package com.learnershigh.extension.assessment.controller;
 import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asAdmin;
 import static com.learnershigh.extension.assessment.controller.SchoolAssessmentApiTest.asStudent;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -374,5 +375,101 @@ class TeachingPlanReviewApiTest {
     void 인증_없는_학생_요청은_401() throws Exception {
         mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
         mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());
+    }
+
+    String row(String key, String decision) {
+        return "{\"subjectIndex\":0,\"rowKey\":\"" + key + "\",\"subjectId\":\"subj_02\",\"decision\":\"" + decision + "\"}";
+    }
+
+    @Test
+    void 운영계획_재검토_재확정은_새_버전을_쌓고_학생은_최신_버전만_보며_평가정보_확정과_독립이다() throws Exception {
+        confirmEvaluation();
+        String edited = "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"EDITED\",\"edits\":{\"unit\":\"1차 수정 단원\"}}";
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(rows(row("T01", "CONFIRMED"), edited, row("T08", "EXCLUDED"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.versionNo").value(1));
+
+        // 재검토 없이 다시 확정·초안 저장은 막힌다
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(rows(row("T05", "CONFIRMED"))))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("teaching_plan_already_confirmed"));
+
+        // 재검토 시작: 확정으로 닫힌 운영계획 초안이 없으므로(API 확정) 1차 확정 행으로 새 초안을 채운다
+        String reopened = mvc.perform(asAdmin(post(revisionPath() + "/teaching-plan-draft/reopen"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.draft.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.draft.subjectLinks[0].subjectId").value("subj_02"))
+                .andExpect(jsonPath("$.draft.decisions.length()").value(3))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(reopened).contains("\"decision\":\"ABSENT\"").contains("1차 수정 단원");
+        mvc.perform(asAdmin(post(revisionPath() + "/teaching-plan-draft/reopen"), "adm_gangnam"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("already_open"));
+        // 재검토 중 초안 저장 가능, 학생에게는 1차 확정본(T01·T03)
+        int version = JsonPath.read(reopened, "$.draft.version");
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-draft"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"analysisId":"%s","baseVersion":%d,"subjectLinks":[{"subjectIndex":0,"subjectId":"subj_02"}],
+                                 "decisions":[{"subjectIndex":0,"fieldPath":"teachingPlan[4]","decision":"CONFIRMED","pdfPageNumber":1}]}"""
+                                .formatted(analysisId, version)))
+                .andExpect(status().isOk());
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.rows[*].rowKey").value(containsInAnyOrder("T01", "T03")));
+
+        // 2차 확정: T01 제외, T05·T08 공개
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(rows(row("T01", "EXCLUDED"), row("T05", "CONFIRMED"), row("T08", "CONFIRMED"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.versionNo").value(2))
+                .andExpect(jsonPath("$.review.reviewedBy").value("adm_plan_operator"));
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.rows[*].rowKey").value(containsInAnyOrder("T05", "T08")));
+
+        // 3차: 닫힌 운영계획 초안을 다시 열어 확정
+        mvc.perform(asAdmin(post(revisionPath() + "/teaching-plan-draft/reopen"), "adm_gangnam")).andExpect(status().isOk());
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(rows(row("T09", "CONFIRMED"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.versionNo").value(3));
+        String history = mvc.perform(asAdmin(get(revisionPath() + "/teaching-plan-reviews"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reReviewOpen").value(false))
+                .andExpect(jsonPath("$.items[*].versionNo").value(contains(3, 2, 1)))
+                .andExpect(jsonPath("$.items[0].current").value(true))
+                .andExpect(jsonPath("$.items[2].current").value(false))
+                .andExpect(jsonPath("$.items[2].publishedRowCount").value(2))
+                .andExpect(jsonPath("$.items[2].excludedRowCount").value(1))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(history).contains("1차 수정 단원"); // 1차 확정 행은 그대로 남는다
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.rows[*].rowKey").value(contains("T09")));
+        // 학생 응답에 이력·버전·제외 행 없음
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(student).doesNotContain("versionNo").doesNotContain("EXCLUDED").doesNotContain("1차 수정 단원");
+        // 평가 정보 확정 이력은 그대로 1건, 평가 정보 재검토는 열리지 않았다
+        mvc.perform(asAdmin(get(revisionPath() + "/reviews"), "adm_gangnam"))
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.reReviewOpen").value(false));
+        // 같은 Revision에 같은 버전은 DB가 거절한다(동시 재확정 방지)
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 3", String.class);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
+                insert into assessment_plan_teaching_plan_review (id, revision_id, analysis_id, version_no, row_count, reviewed_by, reviewed_at)
+                select 'dup_version', revision_id, analysis_id, 3, 0, 'x', reviewed_at from assessment_plan_teaching_plan_review where id = ?""", reviewId))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void 운영계획을_확정하지_않은_문서는_재검토를_시작할_수_없다() throws Exception {
+        mvc.perform(asAdmin(post(revisionPath() + "/teaching-plan-draft/reopen"), "adm_gangnam"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("teaching_plan_not_confirmed"));
+        mvc.perform(asAdmin(get(revisionPath() + "/teaching-plan-reviews"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(0));
+        mvc.perform(get(revisionPath() + "/teaching-plan-reviews")).andExpect(status().isUnauthorized());
     }
 }

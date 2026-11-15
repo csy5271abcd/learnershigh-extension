@@ -75,7 +75,9 @@ public class TeachingPlanReviewService {
             TeachingPlanReviewRequest request) {
         EvaluationPlan plan = access.plan(admin, planId);
         PlanRevision revision = access.revision(plan, revisionId);
-        if (reviews.findByRevisionId(revision.id()).isPresent()) {
+        Optional<TeachingPlanReview> previous = reviews.findByRevisionId(revision.id());
+        if (previous.isPresent() && !drafts.teachingPlanDraftOpen(request.analysisId())) {
+            // A13: 확정된 운영계획은 재검토(POST .../teaching-plan-draft/reopen)를 시작한 분석 결과로만 다시 확정한다
             throw alreadyConfirmed();
         }
         List<FieldViolation> violations = new ArrayList<>();
@@ -101,8 +103,13 @@ public class TeachingPlanReviewService {
 
         Optional<AcademicContextRecord> slot = contexts.findSlot(plan.schoolId(), plan.academicYear(), plan.grade(),
                 plan.semester());
+        // A13: 새 버전 = 이전 최신 + 1. 시각도 이전 기록보다 항상 뒤(고정 시계에서도 이력 순서가 시각과 어긋나지 않게)
+        java.time.Instant reviewedAt = times.now();
+        if (previous.isPresent() && !reviewedAt.isAfter(previous.get().reviewedAt())) {
+            reviewedAt = previous.get().reviewedAt().plusNanos(1_000);
+        }
         TeachingPlanReview review = TeachingPlanReview.confirm(revision.id(), run.get().id(), admin.adminId(),
-                times.now());
+                reviewedAt, previous.map(p -> p.versionNo() + 1).orElse(1));
         Set<String> seen = new HashSet<>();
         Map<Integer, String> subjectOfIndex = new HashMap<>();
         for (int i = 0; i < request.rows().size(); i++) {
@@ -119,8 +126,8 @@ public class TeachingPlanReviewService {
             if (slot.isEmpty() || !slot.get().hasSubject(row.subjectId())) {
                 violations.add(new FieldViolation(at + ".subjectId", "unknown"));
             } else {
-                String previous = subjectOfIndex.putIfAbsent(row.subjectIndex(), row.subjectId());
-                if (previous != null && !previous.equals(row.subjectId())) {
+                String linked = subjectOfIndex.putIfAbsent(row.subjectIndex(), row.subjectId());
+                if (linked != null && !linked.equals(row.subjectId())) {
                     violations.add(new FieldViolation(at + ".subjectId", "conflict"));
                 }
             }

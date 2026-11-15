@@ -34,6 +34,17 @@ public record AdminOverviewResponse(Kpi kpi, EvaluationPlans evaluationPlans, Of
     public record ContentCounts(Integer mockExamMaterials, int scraps) {
     }
 
+    /**
+     * A13 §33-1 관리자 담당 학교: 담당 학생(지점 범위)의 그 학기 학업 Context에서 학교를 중복 없이 모은다(학교 ID 기준).
+     * 전체 학교 Master가 아니다(coverage = ASSIGNED_STUDENTS). 학업 Context가 없는 담당 학생 수는 studentsWithoutSchool.
+     */
+    public record ManagedSchools(int academicYear, int semester, String coverage, List<ManagedSchool> items,
+            int studentsWithoutSchool) {
+    }
+
+    public record ManagedSchool(String schoolId, String name, int studentCount) {
+    }
+
     /** type: PLAN_UPLOADED · PLAN_ANALYZED · PLAN_CONFIRMED · TEACHING_PLAN_CONFIRMED · FEEDBACK_REQUESTED · FEEDBACK_DELIVERED */
     public record Activity(String type, String planId, String revisionId, String title, String detail, String actor,
             OffsetDateTime at) {
