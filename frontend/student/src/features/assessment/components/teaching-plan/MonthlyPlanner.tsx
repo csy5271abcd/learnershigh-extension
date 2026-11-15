@@ -34,6 +34,8 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   const visible = entries.filter((entry) => !hidden.has(entry.subjectName))
   const placement = placeEntries(visible, academicYear, month)
   const unplaced = unplacedEntries(visible)
+  // 이 학기 달(1학기 3~8월, 2학기 9~2월) 밖 시기의 행도 버리지 않고 따로 보여 준다 (예: 원문에 다른 달·연도가 적힌 행)
+  const outsideTerm = visible.filter((entry) => monthsOf(entry).length > 0 && !monthsOf(entry).some((value) => months.includes(value)))
   const position = months.indexOf(month)
 
   const countIn = (value: number) => visible.filter((entry) => monthsOf(entry).includes(value)).length
@@ -234,6 +236,12 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
               </li>
             ))}
           </ul>
+        )}
+        {outsideTerm.length > 0 && (
+          <div className={styles.band} data-testid="planner-outside-term">
+            <span className={styles.bandLabel}>이 학기 달 밖의 계획 {outsideTerm.length}개</span>
+            <div className={styles.bandItems}>{outsideTerm.map(chip)}</div>
+          </div>
         )}
         {unplaced.length > 0 && (
           <div className={styles.band} data-testid="planner-unplaced">
