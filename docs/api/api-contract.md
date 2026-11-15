@@ -709,6 +709,8 @@ GET  /api/student/assessment/my-mock-exam-materials
 
 # 18. Student — 개인 심화 Task (ST-16)
 
+> **A12(2026-11-16 사용자 결정): 사용하지 않음.** 학생 자율 심화탐구는 준비된 콘텐츠 열람 전용(Frontend 정적 콘텐츠, `assessment-enrichment-content.md`)이다. 아래 Endpoint는 구현하지 않으며 화면도 호출하지 않는다(Frontend의 Task 생성·수정·상태 변경 함수와 생성·진행 화면 제거). 이미 만들어진 데이터·Migration은 지우지 않는다. 성장 기록의 예전 `ENRICHMENT_TASK` 연결은 이름 없이 '이전 자율 심화탐구 기록'으로만 보인다.
+
 ```http
 GET    /api/student/assessment/enrichment/tasks?status=IN_PROGRESS&page=0&size=20
 POST   /api/student/assessment/enrichment/tasks
@@ -1097,6 +1099,25 @@ GET /api/admin/assessment/overview?schoolId=&academicYear=2026&grade=&semester=
 
 수치는 전부 **형식 예시**이며 실제 DB 조회의 Derived 결과만 운영에서 사용한다. 기존 Admin 운영 KPI·Student Care 데이터를 신규 Assessment 집계에 합치지 않는다.
 
+**A12 구현 (2026-11-16):** `GET /api/admin/assessment/overview?schoolId=&academicYear=&semester=&grade=` — 요청 시점 DB 계산(저장 Counter 없음). 학생·피드백 수치는 관리자 담당 범위 + 학교·학년(학업 Context) 필터, 평가계획서 수치는 운영 범위(OD-A08)와 학교·학년도·학년 필터, 문서마다 최신 Revision 기준. 응답(위 모양 + 추가, 하위 호환):
+
+```json
+{
+  "kpi": { "registeredStudents": 1, "schoolAssessments": 3, "enrichmentTasks": 0, "feedbackPending": 1, "feedbackDelivered": 2 },
+  "evaluationPlans": { "schools": 1, "documents": 4, "revisions": 5,
+    "analysis": { "notRequested": 0, "reviewRequired": 2, "partial": 1, "completed": 0, "failed": 1 },
+    "reviewPending": 2, "evaluationConfirmed": 1, "teachingPlanConfirmed": 1, "reReviewInProgress": 0 },
+  "oldestPendingRequestedAt": "2026-11-15T10:00:00+09:00",
+  "contentCounts": { "mockExamMaterials": null, "scraps": 3 },
+  "recentActivity": [{ "type": "PLAN_CONFIRMED", "planId": "plan_…", "revisionId": "plan_rev_…", "title": "파일명.pdf", "detail": "5개 값", "actor": "adm_…", "at": "…" }],
+  "asOf": "…"
+}
+```
+
+- `enrichmentTasks`는 개인 탐구 Task를 만들지 않으므로(§18) 항상 0. `mockExamMaterials`는 학생 정적 콘텐츠라 서버 집계가 아니어서 `null`(화면은 스크랩 수만 표시). `academicYear`·`semester`가 없으면 서버 오늘 날짜로 학기를 정한다(3~8월 1학기).
+- `recentActivity.type`: `PLAN_UPLOADED`·`PLAN_ANALYZED`(detail = 분석 상태)·`PLAN_CONFIRMED`·`TEACHING_PLAN_CONFIRMED`·`FEEDBACK_REQUESTED`·`FEEDBACK_DELIVERED`(actor = 학생 ID). 최근 10건.
+- 권한: 관리자 인증 필수(없음·학생 `401`).
+
 ---
 
 # 34. Admin — 학생 Assessment 목록·상세 (AD-02)
@@ -1358,7 +1379,7 @@ PUT /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revie
 | 인증 없음·학생 | `401` |
 
 - PUT review(CONFIRM) 성공 시 같은 Transaction에서 그 분석 결과의 초안을 `CLOSED(CONFIRMED)`로 닫는다.
-- 크기: decisions ≤ 600, subjectLinks ≤ 50, value ≤ 1000자. 저장 기록 응답은 최근 20건.
+- 크기: decisions ≤ 600, subjectLinks ≤ 50, value ≤ 4000자(A12: 채점표 전체를 한 결정으로 담기 위해 1000 → 4000, 확정값 한도와 같음). 저장 기록 응답은 최근 20건.
 
 ### 39-3. 분석 결과 계약 `analysis-import-0.3` (A6, 2026-11-15 DRAFT — 계정 B 합의 전 · 기본 꺼짐)
 
@@ -1419,6 +1440,26 @@ Envelope ↔ payload (0.3만):
 0.2 표(§39-2)는 바뀌지 않는다 — 실제 분석기 v21.1은 평가 목록이 없는 문서에 Envelope `NO_ASSESSMENTS_EXTRACTED` + payload `FAILED`를 보내며, 0.2 경로에서는 지금도 `502 unknown_status`다(2026-11-15 실분석기 확인, 결정 대기 D-A6-3).
 
 저장·응답: Run에 `contract_version`·`analyzer_profile`을 기록하고 과목 JSON(`extraction`·`teachingPlan` 포함)을 받은 그대로 저장한다. `GET .../analysis` 응답 `analyzer`에 `contractVersion`·`profile`(있을 때만)이 붙고, `subjects[]`는 받은 그대로다. 학생 응답에는 어느 것도 나가지 않는다.
+
+### 39-8. 재검토·재확정·확정 이력 (A12, 2026-11-16 사용자 결정 · DRAFT — 구현됨, 평가 정보만)
+
+```http
+POST /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/review-draft/reopen   # 재검토 시작
+GET  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/reviews               # 확정 이력
+```
+
+- 규칙(사용자 결정): 이전 확정 기록 불변 · 재검토는 초안으로 · 재확정은 **새 확정 기록** · 학생은 최신 확정 기록만 · 이전 기록은 관리자만 · 재검토 중 학생 공개값 불변 · 평가 정보와 운영계획은 따로.
+- `reopen`: 확정된 Revision만(아니면 `409 revision: not_confirmed`). 최신 분석 결과의 평가 정보 초안이 확정으로 닫혀 있으면 다시 열고, 초안이 없으면(API 확정 등) 그 분석 결과로 한 최신 확정값으로 채운 새 초안을 만든다(과목 번호 `analysisSubjectIndex`가 있는 값만, 과목 연결 포함). 이미 열려 있으면 `409 draft: already_open`. 응답은 §39-4 GET과 같다.
+- 재검토 중에는 §39-4 초안 저장이 허용된다(아니면 기존대로 `409 revision: already_confirmed`). `PUT .../review`는 확정된 Revision이면 재검토가 열려 있어야 한다(아니면 `409 INVALID_STATE_TRANSITION revision: re_review_not_started`). 확정하면 초안을 다시 닫는다.
+- 확정 기록 순서: 고정 시계(시연·시험)나 같은 순간의 재확정에서도 새 기록이 이전 기록보다 1µs 이상 뒤가 되도록 서버가 정한다(DATETIME(6)).
+- `reviews` 응답: `{ planId, revisionId, reReviewOpen, items: [{ reviewId, analysisId, reviewedBy, reviewedAt, current, confirmedFieldCount, confirmedFields[] }] }` 최신 → 과거, `current` = 학생 공개 중. 관리자 전용(학생 응답 없음).
+- **운영계획(§39-6) 재확정은 아직 아님**: `assessment_plan_teaching_plan_review`가 Revision당 1건(UNIQUE)이라 새 Migration이 필요하다 — 다음 작업.
+
+### 39-9. 채점기준 수동 보완 (A12 · DRAFT — 구현됨)
+
+- 확정값 `fieldPath = performanceEvaluation.items[n].rubric`, `value` = 그 항목 채점표 전체 `[{ element, levels: [{ description, score|null }] }]`(요소 1~30, 수준 0~10, element 1~200자, description 1~500자, score 0~1000). 모양이 다르면 `400 …value: rubric_shape`. PDF는 근거 쪽(`pdfPageNumber`) 필수(기존 `evidence_required`).
+- 분석 후보(`subjects[].performanceEvaluation.items[n].rubric`)는 바뀌지 않는다. 관리자 값은 초안(§39-4, 결정 `EDITED`, value = JSON 글자)에 저장되고 확정 때 확정값이 된다.
+- 학생 §10-1 상세 `confirmedFields`에 같은 경로·값으로 나온다(학생 화면 '세부 채점기준' 표).
 
 ### 39-6. 월별 교수·학습 운영계획 검토·확정 (A6, 2026-11-15 DRAFT — 구현됨)
 
