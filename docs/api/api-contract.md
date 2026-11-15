@@ -1120,6 +1120,18 @@ GET /api/admin/assessment/overview?schoolId=&academicYear=2026&grade=&semester=
 
 ---
 
+## 33-1. 관리자 담당 학교 (A13, 2026-11-16 사용자 결정 · DRAFT — 구현됨)
+
+```http
+GET /api/admin/assessment/managed-schools?academicYear=2026&semester=2
+```
+
+- 응답: `{ academicYear, semester, coverage: "ASSIGNED_STUDENTS", items: [{ schoolId, name, studentCount }], studentsWithoutSchool }`.
+- 관리자 담당 학생(지점 범위, §17)의 그 학기 학업 Context에서 학교를 **학교 ID 기준으로** 중복 없이 모은다(같은 이름의 다른 학교는 따로). 학생 수 많은 순 → 이름순. 학업 Context가 없는 담당 학생 수는 `studentsWithoutSchool`. 다른 지점 학생의 학교는 나오지 않는다.
+- **전체 학교 Master가 아니다**(1팀, API-OD-A01). 새 학교 테이블·전역 학교 검색을 만들지 않았다.
+- 화면: 학교별 평가계획서의 학교 선택이 '담당 학생 학교'를 먼저, '평가계획서가 등록된 다른 학교'를 다음으로 보여 준다. 평가계획서 운영 권한(OD-A08: 정상 관리자는 모든 학교)은 줄이지 않았다 — 담당 학생이 없는 학교의 등록 문서도 열 수 있고 학교 코드 직접 입력도 그대로다(사용자 결정 '담당 학교 우선 표시'와의 차이, A13 보고).
+- 권한: 관리자 인증 필수(없음·학생 `401`). 지점이 없는 관리자(평가계획서 운영자)는 빈 목록.
+
 # 34. Admin — 학생 Assessment 목록·상세 (AD-02)
 
 ```http
@@ -1453,13 +1465,27 @@ GET  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 - 재검토 중에는 §39-4 초안 저장이 허용된다(아니면 기존대로 `409 revision: already_confirmed`). `PUT .../review`는 확정된 Revision이면 재검토가 열려 있어야 한다(아니면 `409 INVALID_STATE_TRANSITION revision: re_review_not_started`). 확정하면 초안을 다시 닫는다.
 - 확정 기록 순서: 고정 시계(시연·시험)나 같은 순간의 재확정에서도 새 기록이 이전 기록보다 1µs 이상 뒤가 되도록 서버가 정한다(DATETIME(6)).
 - `reviews` 응답: `{ planId, revisionId, reReviewOpen, items: [{ reviewId, analysisId, reviewedBy, reviewedAt, current, confirmedFieldCount, confirmedFields[] }] }` 최신 → 과거, `current` = 학생 공개 중. 관리자 전용(학생 응답 없음).
-- **운영계획(§39-6) 재확정은 아직 아님**: `assessment_plan_teaching_plan_review`가 Revision당 1건(UNIQUE)이라 새 Migration이 필요하다 — 다음 작업.
+- 운영계획(§39-6) 재검토·재확정은 A13에서 별도 범위로 구현했다(§39-10). 두 확정 범위는 서로의 초안·이력에 영향을 주지 않는다.
 
 ### 39-9. 채점기준 수동 보완 (A12 · DRAFT — 구현됨)
 
 - 확정값 `fieldPath = performanceEvaluation.items[n].rubric`, `value` = 그 항목 채점표 전체 `[{ element, levels: [{ description, score|null }] }]`(요소 1~30, 수준 0~10, element 1~200자, description 1~500자, score 0~1000). 모양이 다르면 `400 …value: rubric_shape`. PDF는 근거 쪽(`pdfPageNumber`) 필수(기존 `evidence_required`).
 - 분석 후보(`subjects[].performanceEvaluation.items[n].rubric`)는 바뀌지 않는다. 관리자 값은 초안(§39-4, 결정 `EDITED`, value = JSON 글자)에 저장되고 확정 때 확정값이 된다.
 - 학생 §10-1 상세 `confirmedFields`에 같은 경로·값으로 나온다(학생 화면 '세부 채점기준' 표).
+
+### 39-10. 운영계획 재검토·재확정·확정 이력 (A13, 2026-11-16 사용자 승인 · DRAFT — 구현됨)
+
+```http
+POST /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teaching-plan-draft/reopen   # 운영계획 재검토 시작
+GET  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teaching-plan-reviews        # 운영계획 확정 이력
+```
+
+- 규칙: 확정 버전 불변 · 재검토 중 학생은 이전(최신) 확정 버전 · 재확정 = 새 버전 · 이전 버전은 관리자만 · 평가 정보 확정·재검토(§39-8)와 독립 · 제외 행 비공개 · 정밀도·시기 불명·학기 밖 행 보존(행 모양 §39-3 그대로).
+- 저장: Migration `V202611160100` — `assessment_plan_teaching_plan_review.version_no`(기존 행 = 1), `UNIQUE(revision_id, version_no)`(옛 `UNIQUE(revision_id)` 제거). 최신 = 가장 큰 `version_no`(시각과 무관하게 안정). 같은 버전을 두 번 저장하면 DB가 거절 → `409 teaching_plan_already_confirmed`(동시 재확정 방지). 새 버전의 확정 시각도 이전 버전보다 항상 뒤.
+- `reopen`: 운영계획이 확정된 Revision만(아니면 `409 revision: teaching_plan_not_confirmed`). 확정으로 닫힌 운영계획 초안을 다시 열거나, 없으면(API 확정 등) 같은 분석 결과의 최신 확정 행으로 새 초안을 채운다(CONFIRMED → CONFIRMED, EXCLUDED → ABSENT, EDITED → 고친 칸만 edits JSON, 과목 연결 포함). 이미 열려 있으면 `409 draft: already_open`. 응답은 §39-6 운영계획 초안 GET과 같다.
+- 재검토 중에는 운영계획 초안 저장·`PUT .../teaching-plan-review`(다시 확정)가 허용된다. 응답 `review.versionNo` = 그 버전.
+- `teaching-plan-reviews`: `{ planId, revisionId, reReviewOpen, items: [{ reviewId, versionNo, analysisId, reviewedBy, reviewedAt, current, publishedRowCount, excludedRowCount, rows[] }] }` 최신 → 과거(rows는 §39-6 RowView). 관리자 전용 — 학생 응답(§10-1-2)에는 버전·이력·제외 행이 없다.
+- 이번 범위 밖: 분석 후보에 없는 **새 행 추가**(확정 요청은 후보 행 `rowKey`만 받는다 — 계약 추가 필요).
 
 ### 39-6. 월별 교수·학습 운영계획 검토·확정 (A6, 2026-11-15 DRAFT — 구현됨)
 
@@ -1475,7 +1501,7 @@ PUT /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teach
   - `subjectId`: 그 슬롯 학업 Context 과목(§39 review와 같은 검사, `unknown`). 같은 `subjectIndex`는 같은 `subjectId`.
   - `edits`: `EDITED`일 때만 필수 — `unit`·`content`·`note`·`specialSchedule`(문자열 — `null`이면 후보 그대로, 빈 문자열이면 값 지움)·`schedule`(`null`이면 후보 그대로)(§39-3 모양·규칙. `calendarYear`는 후보 값과 같을 때만 허용 — 연도를 새로 만들지 않음). 그 밖 필드는 후보 그대로.
   - `EXCLUDED`: 학생에게 보이지 않는다(기록은 남김).
-- 같은 Revision에 이미 확정된 운영계획이 있으면 `409 INVALID_STATE_TRANSITION (teaching_plan_already_confirmed)` — 재검토·재확정 정책은 미결(평가 정보 확정과 같음).
+- 같은 Revision에 이미 확정된 운영계획이 있으면 `409 INVALID_STATE_TRANSITION (teaching_plan_already_confirmed)` — 단 A13부터 운영계획 재검토를 시작(§39-10)한 분석 결과로는 다시 확정할 수 있다(새 확정 버전).
 - 저장: 확정 기록 1건 + 행별 결과(최종 값·원래 후보·결정·확정자·시각). 후보(Run)는 바뀌지 않는다.
 - 응답(GET·PUT 같음): `{ planId, revisionId, latestAnalysisId, candidateRowCount, review: null | { analysisId, reviewedBy, reviewedAt, rows:[{ subjectIndex, rowKey, subjectId, decision, row, candidate }] } }` — `row`는 확정된 최종 행(§39-3 행 모양), `candidate`는 원래 후보 행.
 - 검토 중 결정은 **운영계획 전용 공유 초안**에 저장한다 (A7, 2026-11-15 — 평가 정보 초안과 수명주기 분리):
