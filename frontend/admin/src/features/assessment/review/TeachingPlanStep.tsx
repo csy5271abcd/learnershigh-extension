@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
 import { confirmTeachingPlan, getPlanSubjects, getTeachingPlanReview } from '../api/assessmentAdminApi.ts'
-import type { EvaluationPlanAnalysisView, PlanSubjects, TeachingPlanEdits, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
+import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
+import { EvidenceLinks } from './EvidenceLinks.tsx'
+import type { OnJump } from './evidence.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
 import type { Decision } from './reviewModel.ts'
 import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
@@ -28,7 +30,7 @@ export function TeachingPlanStep({
   subjectIds: evaluationSubjectIds,
 }: {
   view: EvaluationPlanAnalysisView
-  onJump: (page: number) => void
+  onJump: OnJump
   /** 평가 정보 초안의 과목 연결 (운영계획 초안에 연결이 없을 때 기본값으로 쓴다) */
   subjectIds: Record<number, string>
 }) {
@@ -186,7 +188,7 @@ export function TeachingPlanStep({
       )}
 
       {slot ? (
-        <MonthlyPlanner academicYear={slot.academicYear} semester={slot.semester} entries={entries} mode="admin" onOpenSource={onJump} emptyState={empty} />
+        <MonthlyPlanner academicYear={slot.academicYear} semester={slot.semester} entries={entries} mode="admin" onOpenSource={(page) => onJump(page)} emptyState={empty} />
       ) : (
         <p className={styles.muted}>문서의 학년도·학기 정보를 받지 못했어요.</p>
       )}
@@ -283,13 +285,17 @@ export function TeachingPlanStep({
                               )}
                             </td>
                             <td>
-                              {page ? (
-                                <button type="button" className={styles.link} onClick={() => onJump(page)}>
-                                  {page}쪽
-                                </button>
-                              ) : (
-                                <span className={styles.tiny}>없음</span>
-                              )}
+                              <EvidenceLinks
+                                pages={page ? [page] : []}
+                                locators={(ref.row.sources ?? []).map((source) => source.documentLocator).filter((at): at is ReviewDocumentLocator => Boolean(at))}
+                                name={`운영계획 ${entry.unit ?? whenLabel(entry)}`}
+                                onJump={onJump}
+                                max={2}
+                                pageLabel={(at) => `${at}쪽`}
+                                buttonClassName={styles.link}
+                                emptyText="없음"
+                                emptyReason="분석 결과에 이 운영계획 행의 원문 위치가 없어요."
+                              />
                             </td>
                             <td>
                               {locked || !draftEditable ? (

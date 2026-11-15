@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getPlanSubjects } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects } from '../api/types.ts'
 import { fieldKey, type Decision } from './reviewModel.ts'
+import type { OnJump } from './evidence.ts'
 import styles from './review.module.css'
 
 // 2단계 과목 확인: 분석기가 찾은 과목을 학업 정보의 과목 코드와 연결한다(선 하나로 나눈 행 목록).
@@ -19,7 +20,7 @@ export function SubjectStep({
   decisions: Record<string, Decision>
   onSubjectId: (index: number, value: string) => void
   onOpenSubject: (index: number) => void
-  onJump: (page: number) => void
+  onJump: OnJump
 }) {
   const fields = view.reviewFields ?? []
   const pages = view.subjectPages ?? []

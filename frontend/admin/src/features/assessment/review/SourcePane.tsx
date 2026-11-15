@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { downloadPlanRevision } from '../api/assessmentAdminApi.ts'
 import type { PlanFileMeta } from '../api/types.ts'
 import { PlanOriginalViewer } from '../components/PlanOriginalViewer.tsx'
+import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
 import { formatBytes } from './reviewModel.ts'
 import styles from './review.module.css'
 
 // 왼쪽 원문 영역: 얇은 막대(파일명·쪽 수·내려받기·전체 화면) + 기존 PDF Viewer(쪽 이동·확대·폭 맞춤). 카드·겹친 회색 상자 없음.
 // HWP·HWPX(A10)는 Viewer가 원본 구조(문단·표)를 직접 그린다 — PDF 변환 없음.
-export function SourcePane({ planId, revisionId, file, page, onPageChange }: { planId: string; revisionId: string; file: PlanFileMeta | null | undefined; page: number; onPageChange: (page: number) => void }) {
+export function SourcePane({ planId, revisionId, file, page, onPageChange, focus = null }: { planId: string; revisionId: string; file: PlanFileMeta | null | undefined; page: number; onPageChange: (page: number) => void; focus?: StructureFocus | null }) {
   const [fullscreen, setFullscreen] = useState(false)
   const [downloadError, setDownloadError] = useState<string | null>(null)
 
@@ -54,7 +55,7 @@ export function SourcePane({ planId, revisionId, file, page, onPageChange }: { p
         </p>
       )}
       <div className={styles.sourceBody}>
-        <PlanOriginalViewer bare planId={planId} revisionId={revisionId} file={file} page={page} onPageChange={onPageChange} />
+        <PlanOriginalViewer bare planId={planId} revisionId={revisionId} file={file} page={page} onPageChange={onPageChange} focus={focus} />
       </div>
     </section>
   )

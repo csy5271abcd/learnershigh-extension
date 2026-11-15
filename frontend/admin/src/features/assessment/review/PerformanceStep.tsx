@@ -3,6 +3,8 @@ import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/ty
 import { CheckIcon } from '../components/canonicalUi.ts'
 import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, type Decision } from './reviewModel.ts'
 import styles from './review.module.css'
+import { EvidenceLinks } from './EvidenceLinks.tsx'
+import type { OnJump } from './evidence.ts'
 
 // 3단계 수행평가 세부기준 검토: 왼쪽 목록(과목 → 평가 비율 · 수행평가) | 오른쪽 선택 항목 상세.
 // 필드는 "이름 · 값 · 원문 쪽 · [확인][수정]" 한 줄. 수정할 때만 입력을 펼친다. 항목이 100개여도 한 번에 한 수행평가만 본다.
@@ -16,7 +18,7 @@ interface StepProps {
   onSelect: (selection: PerformanceSelection) => void
   decisions: Record<string, Decision>
   onDecide: (field: ReviewFieldCandidate, decision: Decision | null) => void
-  onJump: (page: number) => void
+  onJump: OnJump
   readOnly: boolean
 }
 
@@ -139,15 +141,15 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                             <td className="num">{level && level.score !== null ? `${level.score}점` : '확인 필요'}</td>
                             {levelIndex === 0 && (
                               <td rowSpan={levels.length}>
-                                {criterion.sourcePages.length ? (
-                                  criterion.sourcePages.map((page) => (
-                                    <button key={page} type="button" className={styles.page} onClick={() => onJump(page)}>
-                                      {page}쪽
-                                    </button>
-                                  ))
-                                ) : (
-                                  <span className={styles.tiny}>근거 없음</span>
-                                )}
+                                <EvidenceLinks
+                                  pages={criterion.sourcePages}
+                                  locators={criterion.documentLocators}
+                                  name={`채점 요소 ${criterion.element}`}
+                                  onJump={onJump}
+                                  max={2}
+                                  pageLabel={(page) => `${page}쪽`}
+                                  emptyReason="분석 결과에 이 채점 요소의 원문 위치가 없어요."
+                                />
                               </td>
                             )}
                           </tr>
@@ -191,7 +193,7 @@ function FieldRow({
   view: EvaluationPlanAnalysisView
   decision: Decision | undefined
   onDecide: (field: ReviewFieldCandidate, decision: Decision | null) => void
-  onJump: (page: number) => void
+  onJump: OnJump
   readOnly: boolean
 }) {
   const [editing, setEditing] = useState(false)
@@ -203,6 +205,12 @@ function FieldRow({
   const numeric = field.kind === 'number'
   const invalid = value.trim() !== '' && numeric && !Number.isFinite(Number(value))
   const state = editing ? 'editing' : decision ? 'decided' : field.candidate === null ? 'missing' : 'open'
+  // A11: 값이 없을 때 이유를 구분한다 — 분석기가 '원문에 없음'으로 본 것 / 읽지 못한 것 / 그냥 비어 있는 것. 관리자 확정 전에는 모두 미확정이다
+  const issue = field.candidate === null
+    ? view.teachingPlanCandidates?.find((subject) => subject.subjectIndex === field.subjectIndex)?.issues.find((item) => item.fieldPath === field.fieldPath)
+    : undefined
+  const missingText =
+    issue?.code === 'FIELD_NOT_PROVIDED' ? '원문에 없음(분석 판단 · 미확정)' : issue?.code === 'FIELD_EXTRACTION_FAILED' ? '분석하지 못함 — 원문 확인 후 입력' : '값 없음 — 원문 확인 필요'
 
   const startEdit = () => {
     setValue(decision && decision.kind !== 'absent' ? decision.value : candidate)
@@ -264,18 +272,10 @@ function FieldRow({
       <span className={styles.rowLabel}>{name}</span>
       <span className={styles.rowValue}>
         {decision?.kind === 'edited' && <s>{displayValue(candidate, field.fieldPath)}</s>}
-        {decision?.kind === 'absent' ? '원문에 없음' : displayValue(decision ? decision.value : candidate, field.fieldPath).replace('확인 필요', '값을 읽지 못함')}
+        {decision?.kind === 'absent' ? '원문에 없음' : !decision && field.candidate === null ? <span className={styles.tiny} data-testid="review-field-missing" data-reason={issue?.code ?? 'NONE'}>{missingText}</span> : displayValue(decision ? decision.value : candidate, field.fieldPath).replace('확인 필요', '값을 읽지 못함')}
       </span>
       <span className={styles.rowMeta}>
-        {field.sourcePages.length ? (
-          field.sourcePages.slice(0, 3).map((source, index) => (
-            <button key={source} type="button" className={styles.page} onClick={() => onJump(source)} aria-label={`${name} 원문 ${source}쪽으로 이동`}>
-              {index === 0 ? `원문 ${source}쪽` : `${source}쪽`}
-            </button>
-          ))
-        ) : (
-          <span>근거 없음</span>
-        )}
+        <EvidenceLinks pages={field.sourcePages} locators={field.documentLocators} name={name} onJump={onJump} />
       </span>
       {decision && (
         <span className={styles.check} data-testid="review-field-state">

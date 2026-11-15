@@ -444,8 +444,10 @@
 
 .row {
   display: flex;
+  /* A11: 좁은 검토 열에서는 근거·동작이 다음 줄로 내려가고 값이 한 글자씩 꺾이지 않는다 */
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: 8px 16px;
   min-height: 56px;
   padding: 10px 0;
   border-bottom: 1px solid var(--as-color-line);
@@ -459,8 +461,8 @@
 }
 
 .rowValue {
-  min-width: 0;
-  flex: 1;
+  min-width: 96px;
+  flex: 1 1 120px;
   font-weight: 600;
   word-break: keep-all;
 }
@@ -472,7 +474,12 @@
 }
 
 .rowMeta {
-  flex: none;
+  flex: 0 1 auto;
+  /* A11: 근거 버튼이 여러 개여도 값 칸을 밀어내지 않게 줄바꿈 허용 */
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 100%;
   color: var(--as-color-text-tertiary);
   font-size: 13px;
 }
@@ -1258,4 +1265,10 @@ details.more code {
     grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
+}
+
+/* A11: 근거 버튼(쪽·원문 위치)은 좁은 표 칸에서도 한 줄로 */
+.page,
+.link {
+  white-space: nowrap;
 }

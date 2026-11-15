@@ -166,3 +166,65 @@ test('다과목 PDF: 확정한 과목에만 확정값이 붙고, 새로고침·�
   expect(text).not.toContain('analysisSubjectIndex')
   expect(JSON.parse(text).confirmedFields.map((field: { subjectId: string }) => field.subjectId).sort()).toEqual(['subj_02', 'subj_04'])
 })
+
+test('검토 Wizard: HWPX 필드 근거 버튼 → 원문 구조의 그 칸 강조, 근거 없는 채점기준은 이유 표시, 구간·확대·구역/표 탐색', async ({ page, request }) => {
+  const tag = runTag()
+  const doc = await register(request, `e2e-wizard-hwpx-${tag}.hwpx`, hwpx)
+  await importAnalysis(request, doc, hwpxImport)
+
+  await page.goto(`${ADMIN}/assessment/evaluation-plans/${doc.planId}/revisions/${doc.revisionId}`)
+  await expect(page.getByTestId('review-workspace')).toBeVisible({ timeout: 30_000 })
+  await page.getByTestId('review-step-performance-tab').click()
+  // 수행평가 1 선택 → 수행평가명 필드의 HWPX 위치 버튼
+  await page.getByTestId('performance-nav-item').filter({ hasText: '탐구 보고서' }).first().click()
+  const labelField = page.getByTestId('review-field').filter({ has: page.getByTestId('evidence-locator') }).first()
+  await labelField.getByTestId('evidence-locator').first().click()
+  const source = page.getByTestId('review-source-pane')
+  const viewer = source.getByTestId('structure-viewer')
+  await expect(viewer).toBeVisible()
+  await expect(viewer.locator('[data-focused="true"]')).toHaveCount(1)
+  await expect(viewer.getByTestId('structure-focus-missing')).toHaveCount(0)
+  // 다른 필드의 근거로 바꾸면 강조도 옮겨 간다(항상 한 곳)
+  const buttons = page.getByTestId('review-step-performance').getByTestId('evidence-locator')
+  const total = await buttons.count()
+  expect(total).toBeGreaterThan(1)
+  for (let i = 0; i < total; i++) {
+    await buttons.nth(i).click()
+    await expect(viewer.locator('[data-focused="true"]')).toHaveCount(1)
+  }
+  // 이 Fixture의 채점기준에는 원문 위치가 없다 → 가짜 위치 대신 '근거 없음'
+  await expect(page.getByTestId('review-rubric').getByTestId('evidence-none').first()).toBeVisible()
+  await page.screenshot({ path: 'test-results/a11-wizard-hwpx-locator-1536.png' })
+
+  // 확대·축소·초기화
+  await expect(viewer.getByTestId('structure-zoom-level')).toHaveText('100%')
+  await viewer.getByTestId('structure-zoom-in').click()
+  await viewer.getByTestId('structure-zoom-in').click()
+  await expect(viewer.getByTestId('structure-zoom-level')).toHaveText('120%')
+  await viewer.getByTestId('structure-zoom-reset').click()
+  await expect(viewer.getByTestId('structure-zoom-level')).toHaveText('100%')
+  // 구간 이동(인쇄 쪽이 아닌 구조 구간) + 키보드
+  await expect(viewer.getByTestId('structure-seg-label')).toContainText('구간 ')
+  await viewer.getByTestId('structure-seg-next').click()
+  await expect(viewer.getByTestId('structure-seg-label')).toContainText('구간 2 /')
+  await viewer.locator('[role="document"]').focus()
+  await page.keyboard.press('Alt+ArrowDown')
+  await expect(viewer.getByTestId('structure-seg-label')).toContainText('구간 3 /')
+  await page.keyboard.press('+')
+  await expect(viewer.getByTestId('structure-zoom-level')).toHaveText('110%')
+  await page.keyboard.press('0')
+  await expect(viewer.getByTestId('structure-zoom-level')).toHaveText('100%')
+  // 표 목록으로 이동
+  const outline = viewer.getByTestId('structure-outline')
+  const tableOption = await outline.locator('optgroup[label="표"] option').nth(1).getAttribute('value')
+  await outline.selectOption(tableOption!)
+  await expect(viewer.getByTestId('structure-seg-label')).not.toContainText('구간 3 /')
+  // 찾기 이전·다음
+  await viewer.getByTestId('structure-find').fill('평가')
+  await expect(viewer.getByTestId('structure-find-count')).toContainText('1 /')
+  await viewer.getByTestId('structure-find-next').click()
+  await expect(viewer.getByTestId('structure-find-count')).toContainText('2 /')
+  await viewer.getByTestId('structure-find-prev').click()
+  await expect(viewer.getByTestId('structure-find-count')).toContainText('1 /')
+  await page.screenshot({ path: 'test-results/a11-wizard-structure-nav-1536.png' })
+})

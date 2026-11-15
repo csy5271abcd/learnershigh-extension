@@ -84,7 +84,8 @@
   border-radius: var(--as-radius-lg);
   background: var(--as-color-surface);
   color: var(--as-color-text);
-  font-size: 14px;
+  /* A11 확대·축소: 본문 글자 크기만 바꾼다(표는 em 기준이라 함께 바뀐다) */
+  font-size: calc(14px * var(--sv-zoom, 1));
   line-height: 1.7;
   word-break: keep-all;
   overflow-wrap: anywhere;
@@ -110,7 +111,7 @@
 .table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 13px;
+  font-size: 0.93em;
 }
 
 .table td {
@@ -196,4 +197,54 @@
 
 .more:hover {
   border-color: var(--as-color-primary);
+}
+
+.page:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.group {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ghost:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.outline select {
+  height: 32px;
+  max-width: 220px;
+  padding: 0 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.top {
+  position: relative;
+}
+
+.anchor {
+  display: block;
+  height: 0;
+}
+
+@media (max-width: 640px) {
+  .find input,
+  .outline select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .find,
+  .outline {
+    flex: 1 1 100%;
+  }
 }

@@ -480,6 +480,7 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
           element: criterion.element,
           levels: (criterion.levels ?? []).map((level) => ({ description: level.description, score: level.score })),
           sourcePages: pagesOf(criterion.sources),
+          documentLocators: documentLocatorsOf(criterion.sources),
         })),
       })),
     ),

@@ -310,7 +310,7 @@ export interface EvaluationPlanAnalysisView {
     submissions: string[]
     conditions: string[]
     /** 채점기준표 후보 (A4): 평가 요소 → 수행 수준(문장·배점). 배점이 없으면 null(0 아님). sourcePages는 PDF 근거 쪽 */
-    rubric: { element: string; levels: { description: string; score: number | null }[]; sourcePages: number[] }[]
+    rubric: { element: string; levels: { description: string; score: number | null }[]; sourcePages: number[]; documentLocators: ReviewDocumentLocator[] }[]
   }[]
 }
 
@@ -554,7 +554,7 @@ export interface SchoolSearchResult {
 
 // ---- A6 월별 교수·학습 운영계획 (api-contract.md §39-3 · §39-6 DRAFT) ----
 
-export type TeachingPlanRowCandidate = PlanRowLike & { sources?: { pdfPageNumber?: number | null }[] | null }
+export type TeachingPlanRowCandidate = Omit<PlanRowLike, 'sources'> & { sources?: { pdfPageNumber?: number | null; documentLocator?: ReviewDocumentLocator | null }[] | null }
 
 export interface TeachingPlanIssue {
   code: string

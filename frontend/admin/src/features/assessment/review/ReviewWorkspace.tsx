@@ -13,6 +13,8 @@ import { OverviewStep } from './OverviewStep.tsx'
 import { PerformanceStep, type PerformanceSelection } from './PerformanceStep.tsx'
 import { analysisStatusText, blockersOf, confirmRequestOf, fieldKey, steps, type Decision, type StepId } from './reviewModel.ts'
 import { SourcePane } from './SourcePane.tsx'
+import type { OnJump } from './evidence.ts'
+import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
 import { SubjectStep } from './SubjectStep.tsx'
 import { TeachingPlanStep } from './TeachingPlanStep.tsx'
 import { useServerDraft, type SyncState } from './useServerDraft.ts'
@@ -120,8 +122,11 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
     setStep(next)
     setPane('review')
   }
-  const jump = (page: number) => {
-    setViewerPage(page)
+  // A11: PDF는 쪽 번호, HWP·HWPX는 구조 위치(section·path)로 이동한다. 같은 위치를 다시 눌러도 다시 스크롤하도록 seq를 올린다
+  const [viewerFocus, setViewerFocus] = useState<StructureFocus | null>(null)
+  const jump: OnJump = (target) => {
+    if (typeof target === 'number') setViewerPage(target)
+    else setViewerFocus((current) => ({ section: target.section, path: target.path, seq: (current?.seq ?? 0) + 1 }))
     if (window.matchMedia('(max-width: 1100px)').matches) setPane('source')
   }
   const decide = (field: ReviewFieldCandidate, decision: Decision | null) => draft.setDecision(fieldKey(field), decision)
@@ -231,7 +236,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
       </div>
 
       <div className={styles.body} ref={bodyRef} data-pane={pane} style={{ ['--rv-split' as string]: `${split}%` }}>
-        <SourcePane planId={view.planId} revisionId={view.documentRevisionId} file={view.revisionFile?.file} page={viewerPage} onPageChange={setViewerPage} />
+        <SourcePane planId={view.planId} revisionId={view.documentRevisionId} file={view.revisionFile?.file} page={viewerPage} onPageChange={setViewerPage} focus={viewerFocus} />
         <button
           type="button"
           className={styles.splitter}
