@@ -1,5 +1,6 @@
 import type {
   ActivitySummary,
+  AssessmentOverview,
   AdminArtifact,
   AdminFeedbackDetail,
   AdminFeedbackRequest,
@@ -48,6 +49,12 @@ const statusKey = { BEFORE_START: 'beforeStart', IN_PROGRESS: 'inProgress', COMP
  * 서버가 돌려준 **담당 지점 학생 목록 안에서만** 학교·학년·상태(해당 학기 수행평가가 그 상태로 1건 이상)를 거른다.
  * 서버 권한 범위를 넓히지 않는다. 과목 필터는 목록 응답에 수강 과목이 없어 http에서는 적용하지 않는다.
  */
+/** §33 Assessment 현황 (A12): 서버가 요청 시점 DB에서 계산한 값. 학기는 개발 현재 학기(devCurrentTerm)를 보낸다 */
+export function getOverviewHttp(query: { schoolId?: string; grade?: number } = {}): Promise<AssessmentOverview> {
+  const term = devCurrentTerm()
+  return adminHttp<AssessmentOverview>(`${base}/overview`, { query: { schoolId: query.schoolId, grade: query.grade, academicYear: term.academicYear, semester: term.semester } })
+}
+
 export async function listStudentsHttp(query: StudentListQuery = {}): Promise<{ items: AdminStudentSummary[] }> {
   const term = query.term ?? devCurrentTerm()
   const response = await adminHttp<{ items: AdminStudentSummary[] }>(`${base}/students`, {

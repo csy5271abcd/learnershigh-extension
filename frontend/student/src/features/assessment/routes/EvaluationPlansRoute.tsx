@@ -194,6 +194,36 @@ function ItemTable({ title, items, plan, namePrefix }: { title: string; items: C
               <Fact label="만점" value={item.maxScore} unit={unitOf('maxScore')} plan={plan} />
               <Fact label="시기" value={item.timing} unit="" plan={plan} />
             </span>
+            {item.rubric && (
+              <div className={styles.rubric} data-testid="confirmed-rubric">
+                <span className={styles.factLabel}>세부 채점기준</span>
+                <table className={styles.rubricTable}>
+                  <thead>
+                    <tr>
+                      <th scope="col">채점 요소</th>
+                      <th scope="col">수준별 기준</th>
+                      <th scope="col">점수</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {item.rubric.criteria.flatMap((criterion, c) =>
+                      (criterion.levels.length ? criterion.levels : [null]).map((level, l) => (
+                        <tr key={`${c}-${l}`}>
+                          {l === 0 && <th scope="row" rowSpan={Math.max(1, criterion.levels.length)}>{criterion.element}</th>}
+                          <td>{level ? level.description : '—'}</td>
+                          <td>{level && level.score !== null ? `${level.score}점` : '—'}</td>
+                        </tr>
+                      )),
+                    )}
+                  </tbody>
+                </table>
+                {item.rubric.page !== null && (
+                  <Link className={styles.sourcePage} to={evaluationPlanOriginalPath(plan.planId, item.rubric.page)} aria-label={`채점기준 원문 ${item.rubric.page}쪽에서 확인`}>
+                    원문 {item.rubric.page}쪽
+                  </Link>
+                )}
+              </div>
+            )}
           </li>
         ))}
       </ul>

@@ -84,8 +84,9 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const fields = view.reviewFields ?? []
   const decided = fields.filter((field) => decisions[fieldKey(field)]).length
   const isPdf = (view.revisionFile?.documentFormat ?? 'PDF') === 'PDF'
-  const editable = !confirmed && sync.kind !== 'closed' && sync.kind !== 'loading' && sync.kind !== 'load-error' && sync.kind !== 'stale' && !draft.choice
-  const blockers = blockersOf({ view, decisions, subjectIds, hashMatches: hash.status === 'match', attested, partialAcknowledged })
+  // A12: 확정 문서라도 재검토 중(초안 다시 열림)이면 편집·재확정할 수 있다
+  const editable = (!confirmed || draft.reopened) && sync.kind !== 'closed' && sync.kind !== 'loading' && sync.kind !== 'load-error' && sync.kind !== 'stale' && !draft.choice
+  const blockers = blockersOf({ view, decisions, subjectIds, hashMatches: hash.status === 'match', attested, partialAcknowledged, reReview: draft.reopened })
   const stepIndex = steps.findIndex((item) => item.id === step)
 
   // 학교 이름: 평가계획서 화면의 학교 목록에서 찾는다. 전체 학교 원천이 없어 못 찾으면 이름 없이 학년도·학기만 보여 준다.
@@ -155,8 +156,11 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
       const next = await confirmPlanReview(view.planId, view.documentRevisionId, confirmRequestOf(view, decisions, subjectIds))
       // 서버가 같은 Transaction에서 공유 초안을 닫았다. 이 브라우저 백업도 지운다
       draft.forgetBackup()
-      setToast({ id: nextToastId(), tone: 'success', text: '확정했어요. 확정한 값만 학생에게 공개돼요.' })
+      const wasReReview = draft.reopened
+      setToast({ id: nextToastId(), tone: 'success', text: wasReReview ? '다시 확정했어요. 학생에게는 새 확정본이 보여요.' : '확정했어요. 확정한 값만 학생에게 공개돼요.' })
       onReplaced(next)
+      // 재확정은 확정 상태가 그대로라 초안이 닫힌 것을 다시 읽어야 한다
+      if (wasReReview) void draft.reload()
     } catch (cause) {
       const apiError = toApiError(cause)
       const reasons = Object.entries(apiError.fieldReasons()).map(([field, reason]) => `${field}: ${reason}`)
@@ -284,7 +288,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                 onJump={jump}
               />
             )}
-            {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onJump={jump} readOnly={!editable || !isPdf} />}
+            {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onDecideKey={draft.setDecision} onJump={jump} readOnly={!editable || !isPdf} />}
             {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} subjectIds={subjectIds} />}
             {step === 'confirm' && (
               <ConfirmStep
@@ -300,6 +304,8 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                 blockers={blockers}
                 error={error}
                 onGo={go}
+                reopened={draft.reopened}
+                onReopen={draft.reopen}
                 onConfirmedStructured={(next) => {
                   setToast({ id: nextToastId(), tone: 'success', text: '확정했어요.' })
                   onReplaced(next)
@@ -309,7 +315,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
           </div>
           <div className={styles.actionBar} data-testid="review-action-bar">
             <div className={styles.progress}>
-              {confirmed ? (
+              {confirmed && !draft.reopened ? (
                 <span>서버에 저장된 확정 결과를 보고 있어요</span>
               ) : (
                 <>
@@ -317,6 +323,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                     <strong>
                       검토 {decided}/{fields.length}
                     </strong>{' '}
+                    {draft.reopened && <span data-testid="review-rereview-badge"> · 재검토 중(학생에게는 이전 확정본 공개 중)</span>}
                     · <SyncText sync={sync} onRetry={() => void draft.retry()} />
                     {editable && decided > 0 && (
                       <>
@@ -337,10 +344,10 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               이전
             </button>
             {step === 'confirm' ? (
-              !confirmed &&
+              (!confirmed || draft.reopened) &&
               isPdf && (
                 <button type="button" className={styles.buttonPrimary} onClick={confirm} disabled={blockers.length > 0 || pending} aria-busy={pending} data-testid="review-confirm">
-                  {pending ? '확정하는 중…' : '확정하고 학생에게 공개'}
+                  {pending ? '확정하는 중…' : draft.reopened ? '다시 확정하고 학생에게 공개' : '확정하고 학생에게 공개'}
                 </button>
               )
             ) : (
@@ -349,7 +356,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
                   다음
                 </button>
                 <button type="button" className={styles.buttonPrimary} onClick={() => go('confirm')} data-testid="review-go-confirm">
-                  {confirmed ? '확정 결과' : '최종 확정'}
+                  {confirmed && !draft.reopened ? '확정 결과' : '최종 확정'}
                 </button>
               </>
             )}

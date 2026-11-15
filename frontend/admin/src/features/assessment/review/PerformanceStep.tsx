@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { CheckIcon } from '../components/canonicalUi.ts'
-import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, type Decision } from './reviewModel.ts'
+import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, rubricFieldPath, type Decision } from './reviewModel.ts'
+import { RubricEditor } from './RubricEditor.tsx'
 import styles from './review.module.css'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
@@ -18,6 +19,8 @@ interface StepProps {
   onSelect: (selection: PerformanceSelection) => void
   decisions: Record<string, Decision>
   onDecide: (field: ReviewFieldCandidate, decision: Decision | null) => void
+  /** A12 채점기준 보완처럼 후보 필드가 없는 결정 (키 = 과목번호|fieldPath) */
+  onDecideKey: (key: string, decision: Decision | null) => void
   onJump: OnJump
   readOnly: boolean
 }
@@ -25,7 +28,7 @@ interface StepProps {
 const isItemField = (field: ReviewFieldCandidate, itemIndex: number) => field.fieldPath.startsWith(`performanceEvaluation.items[${itemIndex}].`)
 const isCommonField = (field: ReviewFieldCandidate) => !field.fieldPath.startsWith('performanceEvaluation.items[')
 
-export function PerformanceStep({ view, selection, onSelect, decisions, onDecide, onJump, readOnly }: StepProps) {
+export function PerformanceStep({ view, selection, onSelect, decisions, onDecide, onDecideKey, onJump, readOnly }: StepProps) {
   const fields = view.reviewFields ?? []
   const remaining = (list: ReviewFieldCandidate[]) => list.filter((field) => !decisions[fieldKey(field)]).length
   const subjectFields = (index: number) => fields.filter((field) => field.subjectIndex === index)
@@ -159,8 +162,17 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                   </table>
                 )}
                 <p className={styles.tiny} style={{ marginTop: 8 }}>
-                  채점기준표는 지금 확인용이에요. 수준·배점 단위 확정은 분석 계약(0.3)이 정해진 뒤 열려요.
+                  위 표는 분석기 후보예요. 빠졌거나 틀리면 아래에서 채점기준을 직접 입력해 확정할 수 있어요(분석 후보는 바뀌지 않아요).
                 </p>
+                <RubricEditor
+                  key={`${item.subjectIndex}-${item.itemIndex}`}
+                  candidate={item.rubric.map((criterion) => ({ element: criterion.element, levels: criterion.levels }))}
+                  decision={decisions[`${item.subjectIndex}|${rubricFieldPath(item.itemIndex ?? 0)}`]}
+                  onSave={(decision) => onDecideKey(`${item.subjectIndex}|${rubricFieldPath(item.itemIndex ?? 0)}`, decision)}
+                  readOnly={readOnly}
+                  pageCount={view.revisionFile?.pageCount ?? null}
+                  defaultPage={item.rubric.flatMap((criterion) => criterion.sourcePages)[0] ?? null}
+                />
               </>
             )}
           </>

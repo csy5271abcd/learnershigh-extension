@@ -81,12 +81,24 @@ export interface AssessmentOverview {
     feedbackPending: number
     feedbackDelivered: number
   }
-  /** Mockup AM-01 첫 카드: 등록 학교 수·평가계획서 PDF 수 (P-27, §38 목록에서 계산) */
-  evaluationPlans: { schools: number; documents: number }
+  /** Mockup AM-01 첫 카드: 등록 학교 수·평가계획서 문서 수. A12 http: 분석·검토·확정·재검토 상태별 문서 수(최신 Revision 기준) */
+  evaluationPlans: {
+    schools: number
+    documents: number
+    revisions?: number
+    analysis?: { notRequested: number; reviewRequired: number; partial: number; completed: number; failed: number }
+    reviewPending?: number
+    evaluationConfirmed?: number
+    teachingPlanConfirmed?: number
+    reReviewInProgress?: number
+  }
+  /** A12 http: 최근 Assessment 활동(실제 기록 시각) */
+  recentActivity?: { type: string; planId: string | null; revisionId: string | null; title: string | null; detail: string | null; actor: string | null; at: string }[]
   /** 가장 오래 기다린 대기 요청 시각 (P-27) */
   oldestPendingRequestedAt: string | null
   /** 최근 등록 콘텐츠 (P-27: §40·§43에서 계산) */
-  contentCounts: { mockExamMaterials: number; scraps: number }
+  /** mockExamMaterials: 학생 정적 콘텐츠라 http에서는 null(서버 집계 아님) */
+  contentCounts: { mockExamMaterials: number | null; scraps: number }
   asOf: string
 }
 
@@ -192,6 +204,22 @@ export interface PlanFileMeta {
   previewAvailable: boolean
   /** A10 관리자 응답만: 원문 구조 미리보기(§38-6 .../structure) 대상(보관된 HWP·HWPX). 실제 판독 실패는 그 요청의 422 */
   structurePreviewAvailable?: boolean
+}
+
+/** A12 §39-8 확정 이력 (관리자 전용). 기록은 불변, current = 학생에게 공개 중인 최신 기록 */
+export interface PlanReviewHistory {
+  planId: string
+  revisionId: string
+  reReviewOpen: boolean
+  items: {
+    reviewId: string
+    analysisId: string
+    reviewedBy: string
+    reviewedAt: string
+    current: boolean
+    confirmedFieldCount: number
+    confirmedFields: { subjectId: string; fieldPath: string; value: unknown; pdfPageNumber: number | null; analysisSubjectIndex?: number }[]
+  }[]
 }
 
 /** A10 §38-6 HWP·HWPX 원문 구조(문단·표·병합 셀). section·path는 분석 결과 documentLocator와 같은 위치 규칙 */
@@ -367,7 +395,8 @@ export interface PlanReviewConfirmRequest {
     analysisSubjectIndex?: number
     confirmedFields: {
       fieldPath: string
-      value: number | string | null
+      /** A12: 채점표 보완은 배열 값(`performanceEvaluation.items[n].rubric`) */
+      value: number | string | null | { element: string; levels: { description: string; score: number | null }[] }[]
       pdfPageNumber: number | null
       /** HWP·HWPX만: 확인한 원문 위치 */
       documentLocator?: ReviewDocumentLocator

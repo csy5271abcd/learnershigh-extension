@@ -266,3 +266,35 @@
     margin-left: 0;
   }
 }
+
+/* A12 관리자가 확정한 세부 채점기준 (얇은 선 표, Token만) */
+.rubric {
+  display: grid;
+  gap: 6px;
+  flex-basis: 100%;
+  margin-top: 8px;
+}
+
+.rubricTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.rubricTable th,
+.rubricTable td {
+  padding: 6px 8px;
+  border: 1px solid var(--as-color-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.rubricTable thead th {
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-weight: 600;
+}
+
+.rubricTable tbody th {
+  font-weight: 600;
+}

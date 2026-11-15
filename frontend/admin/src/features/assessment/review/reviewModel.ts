@@ -104,20 +104,73 @@ export interface ConfirmInput {
   hashMatches: boolean
   attested: boolean
   partialAcknowledged: boolean
+  /** A12 재검토 중(확정된 문서의 초안이 다시 열림) */
+  reReview?: boolean
+}
+
+// ---- A12 채점기준 수동 보완: 항목 하나의 채점표 전체를 관리자 값으로 확정한다(분석 후보는 그대로) ----
+export const RUBRIC_PATH = /^performanceEvaluation\.items\[(0|[1-9]\d{0,2})]\.rubric$/
+export const rubricFieldPath = (itemIndex: number) => `performanceEvaluation.items[${itemIndex}].rubric`
+export type RubricCriterion = { element: string; levels: { description: string; score: number | null }[] }
+
+/** 저장된 결정 값(JSON 글자) → 채점표. 모양이 맞지 않으면 null */
+export function parseRubric(value: string | undefined | null): RubricCriterion[] | null {
+  if (!value) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (!Array.isArray(parsed)) return null
+    return parsed.map((item) => ({
+      element: String((item as RubricCriterion).element ?? ''),
+      levels: ((item as RubricCriterion).levels ?? []).map((level) => ({ description: String(level.description ?? ''), score: typeof level.score === 'number' ? level.score : null })),
+    }))
+  } catch {
+    return null
+  }
+}
+
+/** 화면에서 쓰는 채점표 검사(서버 rubric_shape 규칙과 같다) */
+export function rubricProblem(rubric: RubricCriterion[] | null): string | null {
+  if (!rubric || rubric.length === 0) return '채점 요소를 하나 이상 입력해 주세요.'
+  if (rubric.length > 30) return '채점 요소는 30개까지예요.'
+  for (const criterion of rubric) {
+    if (!criterion.element.trim()) return '채점 요소 이름을 입력해 주세요.'
+    if (criterion.levels.length > 10) return '수준은 요소마다 10개까지예요.'
+    for (const level of criterion.levels) {
+      if (!level.description.trim()) return `'${criterion.element}'의 수준 기준을 입력해 주세요.`
+      if (level.score !== null && (level.score < 0 || level.score > 1000)) return `'${criterion.element}'의 점수는 0~1000 사이여야 해요.`
+    }
+  }
+  return null
+}
+
+/** 결정 중 채점표 보완만 (subjectIndex, fieldPath, decision) */
+export function rubricDecisions(decisions: Record<string, Decision>): { subjectIndex: number; fieldPath: string; decision: Decision }[] {
+  return Object.entries(decisions)
+    .map(([key, decision]) => ({ subjectIndex: Number(key.slice(0, key.indexOf('|'))), fieldPath: key.slice(key.indexOf('|') + 1), decision }))
+    .filter((entry) => RUBRIC_PATH.test(entry.fieldPath))
 }
 
 /** 확정할 수 없는 이유 (기존 검토 확정 조건과 같다: 원문 대조·과목 ID·근거 쪽·대조 확인·PARTIAL 확인) */
-export function blockersOf({ view, decisions, subjectIds, hashMatches, attested, partialAcknowledged }: ConfirmInput): string[] {
+export function blockersOf({ view, decisions, subjectIds, hashMatches, attested, partialAcknowledged, reReview = false }: ConfirmInput): string[] {
   const blockers: string[] = []
   const fields = (view.reviewFields ?? []).filter((field) => decisions[fieldKey(field)])
+  const rubrics = rubricDecisions(decisions)
   const pageCount = view.revisionFile?.pageCount ?? null
   if (!view.analysisId) blockers.push('저장된 분석 결과가 없어요.')
   if (view.analysisStatus !== 'REVIEW_REQUIRED' && view.analysisStatus !== 'PARTIAL') blockers.push('이 분석 상태에서는 확정할 수 없어요.')
-  if (view.reviewStatus === 'CONFIRMED') blockers.push('이미 확정된 문서예요. 다시 확정하는 정책은 아직 정해지지 않았어요.')
+  if (view.reviewStatus === 'CONFIRMED' && !reReview) blockers.push('이미 확정된 문서예요. 고치려면 먼저 재검토를 시작해 주세요.')
   if (!view.revisionFile?.checksum) blockers.push('서버에 원문 지문 정보가 없어 원문 대조를 할 수 없어요.')
   else if (!hashMatches) blockers.push('갖고 있는 학교 원본 파일로 원문이 같은지 확인해 주세요.')
-  if (fields.length === 0) blockers.push('확인하거나 수정한 항목이 아직 없어요.')
-  for (const index of new Set(fields.map((field) => field.subjectIndex))) {
+  if (fields.length === 0 && rubrics.length === 0) blockers.push('확인하거나 수정한 항목이 아직 없어요.')
+  for (const rubric of rubrics) {
+    const subjectName = view.subjects[rubric.subjectIndex]?.subjectName ?? '과목'
+    if (rubric.decision.kind !== 'edited') continue
+    const problem = rubricProblem(parseRubric(rubric.decision.value))
+    if (problem) blockers.push(`${subjectName} · 채점기준: ${problem}`)
+    const page = Number(rubric.decision.page)
+    if (!rubric.decision.page || !Number.isInteger(page) || page < 1 || (pageCount !== null && page > pageCount)) blockers.push(`${subjectName} · 채점기준: 근거 쪽(1~${pageCount ?? '?'})을 정해 주세요.`)
+  }
+  for (const index of new Set([...fields.map((field) => field.subjectIndex), ...rubrics.map((rubric) => rubric.subjectIndex)])) {
     if (!(subjectIds[index] ?? '').trim()) blockers.push(`'${view.subjects[index]?.subjectName ?? '과목'}'의 학업 과목을 연결해 주세요.`)
   }
   for (const field of fields) {
@@ -134,10 +187,13 @@ export function blockersOf({ view, decisions, subjectIds, hashMatches, attested,
   return blockers
 }
 
+type ConfirmedFieldRequest = PlanReviewConfirmRequest['reviewedSubjects'][number]['confirmedFields'][number]
+
 /** §39 PUT review 요청 (PDF). 빈 값/원문에 없음 = null (0으로 바꾸지 않는다). 분석 과목 번호 포함(A11) */
 export function confirmRequestOf(view: EvaluationPlanAnalysisView, decisions: Record<string, Decision>, subjectIds: Record<number, string>): PlanReviewConfirmRequest {
   const fields = (view.reviewFields ?? []).filter((field) => decisions[fieldKey(field)])
-  const subjects = [...new Set(fields.map((field) => field.subjectIndex))]
+  const rubrics = rubricDecisions(decisions).filter((rubric) => rubric.decision.kind === 'edited')
+  const subjects = [...new Set([...fields.map((field) => field.subjectIndex), ...rubrics.map((rubric) => rubric.subjectIndex)])]
   return {
     analysisId: view.analysisId ?? '',
     decision: 'CONFIRM',
@@ -145,15 +201,25 @@ export function confirmRequestOf(view: EvaluationPlanAnalysisView, decisions: Re
       subjectId: subjectIds[index].trim(),
       // A11: 관리자가 연결한 분석 과목 번호를 함께 확정한다(§39-7). 다과목 문서에서 초안이 닫혀도 과목 연결이 확정값에 남는다
       analysisSubjectIndex: index,
-      confirmedFields: fields
-        .filter((field) => field.subjectIndex === index)
-        .map((field) => {
-          const decision = decisions[fieldKey(field)]
-          if (decision.kind === 'absent') return { fieldPath: field.fieldPath, value: null, pdfPageNumber: decision.page ? Number(decision.page) : null }
-          const raw = decision.value.trim()
-          const value = raw === '' ? null : field.kind === 'number' ? Number(raw) : raw
-          return { fieldPath: field.fieldPath, value, pdfPageNumber: value === null ? (decision.page ? Number(decision.page) : null) : Number(decision.page) }
-        }),
+      confirmedFields: [
+        ...fields
+          .filter((field) => field.subjectIndex === index)
+          .map((field): ConfirmedFieldRequest => {
+            const decision = decisions[fieldKey(field)]
+            if (decision.kind === 'absent') return { fieldPath: field.fieldPath, value: null, pdfPageNumber: decision.page ? Number(decision.page) : null }
+            const raw = decision.value.trim()
+            const value = raw === '' ? null : field.kind === 'number' ? Number(raw) : raw
+            return { fieldPath: field.fieldPath, value, pdfPageNumber: value === null ? (decision.page ? Number(decision.page) : null) : Number(decision.page) }
+          }),
+        // A12 채점기준 수동 보완: 채점표 전체(JSON 배열)를 값으로 확정
+        ...rubrics
+          .filter((rubric) => rubric.subjectIndex === index)
+          .map((rubric): ConfirmedFieldRequest => ({
+            fieldPath: rubric.fieldPath,
+            value: rubric.decision.kind === 'edited' ? parseRubric(rubric.decision.value) : null,
+            pdfPageNumber: Number(rubric.decision.page),
+          })),
+      ],
     })),
   }
 }

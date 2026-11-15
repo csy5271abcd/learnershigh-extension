@@ -15,6 +15,13 @@ export interface ConfirmedItem {
   weightPercent: ConfirmedValue
   maxScore: ConfirmedValue
   timing: ConfirmedValue
+  /** A12: 관리자가 확정한 세부 채점기준(채점 요소 × 수준별 기준·점수). 확정되지 않았으면 없음 */
+  rubric?: { criteria: ConfirmedRubricCriterion[]; page: number | null }
+}
+
+export interface ConfirmedRubricCriterion {
+  element: string
+  levels: { description: string; score: number | null }[]
 }
 
 export interface ConfirmedSubject {
@@ -32,6 +39,24 @@ export interface ConfirmedSubject {
 
 const missing: ConfirmedValue = { state: 'missing' }
 const ITEM = /^(writtenEvaluation\.exams|performanceEvaluation\.items)\[(0|[1-9]\d{0,2})]\.(label|weightPercent|maxScore|timing)$/
+const RUBRIC = /^performanceEvaluation\.items\[(0|[1-9]\d{0,2})]\.rubric$/
+
+/** 확정 채점기준 값(JSON 배열)을 읽는다. 모양이 맞지 않으면 null(지어내지 않는다) */
+function toRubric(value: unknown): ConfirmedRubricCriterion[] | null {
+  if (!Array.isArray(value)) return null
+  const criteria: ConfirmedRubricCriterion[] = []
+  for (const item of value) {
+    if (!item || typeof item !== 'object' || typeof (item as { element?: unknown }).element !== 'string') return null
+    const levels = Array.isArray((item as { levels?: unknown }).levels) ? ((item as { levels: unknown[] }).levels) : []
+    criteria.push({
+      element: (item as { element: string }).element,
+      levels: levels
+        .filter((level): level is { description: string; score?: unknown } => Boolean(level) && typeof (level as { description?: unknown }).description === 'string')
+        .map((level) => ({ description: level.description, score: typeof level.score === 'number' ? level.score : null })),
+    })
+  }
+  return criteria
+}
 
 function toValue(field: ConfirmedPlanField): ConfirmedValue {
   if (field.value === null || field.value === undefined || field.value === '') return { state: 'absent', page: field.pdfPageNumber ?? null }
@@ -71,6 +96,18 @@ export function groupConfirmedFields(fields: ConfirmedPlanField[], context: Acad
     }
     if (field.fieldPath === 'performanceEvaluation.weightPercent') {
       subject.performanceWeight = value
+      continue
+    }
+    const rubricMatch = RUBRIC.exec(field.fieldPath)
+    const criteria = rubricMatch ? toRubric(field.value) : null
+    if (rubricMatch && criteria) {
+      const index = Number(rubricMatch[1])
+      let item = subject.items.find((candidate) => candidate.index === index)
+      if (!item) {
+        item = emptyItem(index)
+        subject.items.push(item)
+      }
+      item.rubric = { criteria, page: field.pdfPageNumber ?? null }
       continue
     }
     const match = ITEM.exec(field.fieldPath)

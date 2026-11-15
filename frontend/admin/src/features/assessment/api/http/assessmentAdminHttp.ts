@@ -3,6 +3,7 @@ import type {
   AdminEvaluationPlanRevision,
   AdminSchool,
   PlanStructurePreview,
+  PlanReviewHistory,
   ArchiveSubject,
   PlanArchiveDetail,
   PlanSubjects,
@@ -538,6 +539,12 @@ const teachingDraftPath = (planId: string, revisionId: string) => `${plansPath}/
 export const getTeachingPlanDraftHttp = (planId: string, revisionId: string) => adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId))
 export const saveTeachingPlanDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
   adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId), { method: 'PUT', json: request })
+/** A12 §39-8 재검토 시작: 확정된 Revision의 평가 정보 초안을 다시 연다. 이미 열려 있으면 409 그대로 */
+export const reopenPlanReviewDraftHttp = (planId: string, revisionId: string) =>
+  adminHttp<PlanReviewDraftView>(`${draftPath(planId, revisionId)}/reopen`, { method: 'POST' })
+/** A12 §39-8 확정 이력 (최신 → 과거, 관리자 전용) */
+export const getPlanReviewHistoryHttp = (planId: string, revisionId: string) =>
+  adminHttp<PlanReviewHistory>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/reviews`)
 export const savePlanReviewDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
   adminHttp<PlanReviewDraftView>(draftPath(planId, revisionId), { method: 'PUT', json: request })
 

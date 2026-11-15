@@ -33,7 +33,16 @@ export function OverviewRoute({ search }: { search: URLSearchParams }) {
               <span className={styles.kpiValue}>
                 {data.evaluationPlans.schools}개 학교 · PDF {data.evaluationPlans.documents}개
               </span>
-              <span className={styles.kpiMeta}>이번 학년도 등록 기준 · 학년·학기별 현황은 학교별 평가계획서에서 확인</span>
+              <span className={styles.kpiMeta}>
+                {data.evaluationPlans.analysis
+                  ? `검토 대기 ${data.evaluationPlans.reviewPending ?? 0} · 평가정보 확정 ${data.evaluationPlans.evaluationConfirmed ?? 0} · 운영계획 확정 ${data.evaluationPlans.teachingPlanConfirmed ?? 0} · 재검토 중 ${data.evaluationPlans.reReviewInProgress ?? 0}`
+                  : '이번 학년도 등록 기준 · 학년·학기별 현황은 학교별 평가계획서에서 확인'}
+              </span>
+              {data.evaluationPlans.analysis && (
+                <span className={styles.kpiMeta} data-testid="overview-plan-analysis">
+                  분석 전 {data.evaluationPlans.analysis.notRequested} · 검토 필요 {data.evaluationPlans.analysis.reviewRequired} · 일부 분석 {data.evaluationPlans.analysis.partial} · 실패 {data.evaluationPlans.analysis.failed}
+                </span>
+              )}
             </button>
             <button type="button" className={styles.kpi} onClick={() => navigate(`${paths.feedback}?status=PENDING`)}>
               <span className={styles.kpiLabel}>피드백 요청</span>
@@ -45,13 +54,31 @@ export function OverviewRoute({ search }: { search: URLSearchParams }) {
             <button type="button" className={styles.kpi} onClick={() => navigate(paths.mockExams)}>
               <span className={styles.kpiLabel}>심화 탐구 콘텐츠</span>
               <span className={styles.kpiValue}>
-                모의고사 소재 {data.contentCounts.mockExamMaterials} · 스크랩 {data.contentCounts.scraps}
+                {data.contentCounts.mockExamMaterials === null ? `참고자료 스크랩 ${data.contentCounts.scraps}` : `모의고사 소재 ${data.contentCounts.mockExamMaterials} · 스크랩 ${data.contentCounts.scraps}`}
               </span>
               <span className={styles.kpiMeta}>공개 중인 모의고사 탐구 소재 · 관리자 참고자료 스크랩(학생 비공개)</span>
             </button>
           </div>
         )}
       </RemoteView>
+      {overview.state.status === 'success' && overview.state.data.recentActivity && (
+        <section aria-label="최근 Assessment 활동" data-testid="overview-recent">
+          <h2 className={styles.sectionTitle}>최근 Assessment 활동</h2>
+          {overview.state.data.recentActivity.length === 0 ? (
+            <p className={styles.muted}>아직 기록된 활동이 없어요.</p>
+          ) : (
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {overview.state.data.recentActivity.map((activity, index) => (
+                <li key={`${activity.type}-${activity.at}-${index}`} className={styles.muted} style={{ padding: '6px 0', borderBottom: '1px solid var(--as-color-line)' }} data-testid="overview-activity">
+                  {dateTimeLabel(activity.at)} · {activityLabel[activity.type] ?? activity.type}
+                  {activity.title ? ` · ${activity.title}` : ''}
+                  {activity.detail ? ` (${activityDetail(activity.type, activity.detail)})` : ''}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <div className={styles.sectionHead}>
         <h2 className={styles.sectionTitle}>담당 학생 현황</h2>
@@ -146,4 +173,21 @@ export function StudentSummaryTable({ items }: { items: AdminStudentSummary[] })
       </table>
     </div>
   )
+}
+
+const activityLabel: Record<string, string> = {
+  PLAN_UPLOADED: '평가계획서 등록',
+  PLAN_ANALYZED: '분석 결과 저장',
+  PLAN_CONFIRMED: '평가정보 확정',
+  TEACHING_PLAN_CONFIRMED: '운영계획 확정',
+  FEEDBACK_REQUESTED: '피드백 요청',
+  FEEDBACK_DELIVERED: '피드백 전달',
+}
+
+const analysisDetail: Record<string, string> = { REVIEW_REQUIRED: '검토 필요', PARTIAL: '일부 분석', COMPLETED: '분석 완료', FAILED: '분석 실패' }
+
+function activityDetail(type: string, detail: string): string {
+  if (type === 'PLAN_ANALYZED') return analysisDetail[detail] ?? detail
+  if (type.startsWith('FEEDBACK')) return detail === 'SCHOOL_ASSESSMENT' ? '학교 수행평가' : detail
+  return detail
 }

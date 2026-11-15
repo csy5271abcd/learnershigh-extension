@@ -1,3 +1,4 @@
+import { ReReviewPanel } from './ReReviewPanel.tsx'
 import type { EvaluationPlanAnalysisView } from '../api/types.ts'
 import { PlanReviewConfirmPanel } from '../components/PlanReviewConfirmPanel.tsx'
 import { displayValue, fieldKey, fieldName, type Decision, type StepId } from './reviewModel.ts'
@@ -21,6 +22,8 @@ export function ConfirmStep({
   error,
   onGo,
   onConfirmedStructured,
+  reopened = false,
+  onReopen,
 }: {
   view: EvaluationPlanAnalysisView
   decisions: Record<string, Decision>
@@ -34,10 +37,20 @@ export function ConfirmStep({
   blockers: string[]
   error: string | null
   onGo: (step: StepId) => void
+  /** A12 재검토 중 */
+  reopened?: boolean
+  onReopen?: () => Promise<unknown>
   onConfirmedStructured: (next: EvaluationPlanAnalysisView) => void
 }) {
   const format = view.revisionFile?.documentFormat ?? 'PDF'
-  if (view.reviewStatus === 'CONFIRMED') return <ConfirmedSummary view={view} />
+  if (view.reviewStatus === 'CONFIRMED' && !reopened) {
+    return (
+      <>
+        <ConfirmedSummary view={view} />
+        {format === 'PDF' && onReopen && <ReReviewPanel planId={view.planId} revisionId={view.documentRevisionId} onReopen={onReopen} reopened={reopened} />}
+      </>
+    )
+  }
 
   if (format !== 'PDF') {
     // HWP·HWPX: 브라우저 미리보기가 없어 기존 구조 위치(구역·표·행·열) 대조 확정 흐름을 그대로 쓴다

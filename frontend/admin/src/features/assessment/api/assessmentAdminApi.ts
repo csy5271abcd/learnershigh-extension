@@ -11,7 +11,6 @@ export {
   catalogSubjectOptions,
   getCatalogTaskMock as getCatalogTask,
   getMockExamMock as getMockExamMaterial,
-  getOverviewMock as getOverview,
   getUniversityMock as getUniversityResource,
   linkToCatalogTaskMock as linkToCatalogTask,
   listCatalogMock as listCatalog,
@@ -41,6 +40,8 @@ export const listStudentSchoolAssessments: (studentId: string, term: { academicY
   useMock ? mock.listStudentSchoolAssessmentsMock : http.listStudentSchoolAssessmentsHttp
 /** 담당 학교 목록: Backend Endpoint 없음 → http는 개발 설정이 있을 때만 (assessmentAdminHttp.ts) */
 export const listSchools = useMock ? mock.listSchoolsMock : http.listSchoolsHttp
+/** §33 Assessment 현황 (A12: http = 실제 DB 집계) */
+export const getOverview = useMock ? mock.getOverviewMock : records.getOverviewHttp
 export const listPlanYears = useMock ? mock.listPlanYearsMock : http.listPlanYearsHttp
 /** §38 학교별 평가계획서 목록·개정 이력 */
 export const listEvaluationPlans = useMock ? mock.listEvaluationPlansMock : http.listEvaluationPlansHttp
@@ -71,6 +72,9 @@ export const getPlanArchiveDetail = http.getPlanArchiveDetailHttp
 export const listPlanYearsRegistered = (schoolId: string) => http.listPlanYearsHttp(schoolId, false)
 export const confirmTeachingPlan = http.confirmTeachingPlanHttp
 export const savePlanReviewDraft = http.savePlanReviewDraftHttp
+/** A12 재검토 시작·확정 이력 (§39-8) */
+export const reopenPlanReviewDraft = http.reopenPlanReviewDraftHttp
+export const getPlanReviewHistory = http.getPlanReviewHistoryHttp
 // A5 학교 검색: Mock 데이터 모드에는 Backend가 없어 빈 결과(전체 학교 아님 표시 유지)
 export const searchSchools = useMock ? () => Promise.resolve({ coverage: 'REGISTERED_PLANS_ONLY', masterConnected: false, truncated: false, items: [] }) : http.searchSchoolsHttp
 /** S-4 (http만) 평가계획서 원문 미리보기·내려받기. Mock에는 실제 파일이 없다 */
