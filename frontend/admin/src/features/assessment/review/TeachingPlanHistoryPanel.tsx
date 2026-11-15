@@ -93,8 +93,8 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
                   </thead>
                   <tbody>
                     {item.rows.map((row) => (
-                      <tr key={`${row.subjectIndex}|${row.rowKey}`}>
-                        <td>{row.rowKey}</td>
+                      <tr key={`${row.subjectIndex}|${row.rowKey}`} data-origin={row.origin ?? 'ANALYSIS'}>
+                        <td>{row.origin === 'MANUAL' ? '관리자 추가' : row.rowKey}</td>
                         <td>{row.row.unit ?? row.row.specialSchedule ?? '단원 미확인'}</td>
                         <td>{decisionText[row.decision]}</td>
                       </tr>

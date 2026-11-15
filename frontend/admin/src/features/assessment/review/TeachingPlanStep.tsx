@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
-import { confirmTeachingPlan, getPlanSubjects, getTeachingPlanReview } from '../api/assessmentAdminApi.ts'
-import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
+import { confirmTeachingPlan, createTeachingPlanManualRow, getPlanSubjects, getTeachingPlanReview, updateTeachingPlanManualRow } from '../api/assessmentAdminApi.ts'
+import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanManualRow, TeachingPlanManualRowInput, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
+import { TeachingPlanManualRowForm } from './TeachingPlanManualRowForm.tsx'
+import { manualRowErrorText } from './manualRowErrors.ts'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
@@ -24,6 +26,25 @@ const firstPage = (row: TeachingPlanRowCandidate) => {
   return pages.length ? Math.min(...pages) : null
 }
 const severityText: Record<string, string> = { BLOCKING: '먼저 확인', REVIEW: '확인 필요', INFO: '참고' }
+/** A14: 관리자 추가 행 → Planner 행 모양 (월·주차 칸은 관리자가 고른 schedule 값 그대로, 분석 근거 없음) */
+const manualAsRow = (row: TeachingPlanManualRow): TeachingPlanRowCandidate => ({
+  rowKey: row.rowKey,
+  month: row.schedule.monthFrom ?? null,
+  monthTo: row.schedule.monthTo ?? null,
+  weekLabel: row.schedule.weekLabel ?? null,
+  weekFrom: row.schedule.weekFrom ?? null,
+  weekTo: row.schedule.weekTo ?? null,
+  unit: row.unit,
+  content: row.content,
+  note: row.note,
+  achievementStandards: row.achievementStandards,
+  teachingMethods: row.teachingMethods,
+  assessmentMethods: row.assessmentMethods,
+  specialSchedule: row.specialSchedule,
+  schedule: row.schedule,
+  sources: [],
+})
+const manualKey = (row: { subjectIndex: number; rowKey: string }) => `manual|${row.subjectIndex}|${row.rowKey}`
 
 export function TeachingPlanStep({
   view,
@@ -46,6 +67,10 @@ export function TeachingPlanStep({
   const [editing, setEditing] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  /** A14 관리자 추가 행 입력 양식 (과목별 새 행 또는 기존 추가 행 수정) */
+  const [manualForm, setManualForm] = useState<{ subjectIndex: number; row?: TeachingPlanManualRow } | null>(null)
+  const [manualBusy, setManualBusy] = useState<string | null>(null)
+  const [manualError, setManualError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -96,6 +121,36 @@ export function TeachingPlanStep({
     }
   }
 
+  // A14 관리자 직접 추가 행: 편집 중이면 서버 초안, 잠긴 확정본이면 확정 행(origin MANUAL)
+  const manualRows = draft.manualRows
+  const pageCount = view.revisionFile?.documentFormat === 'PDF' ? (view.revisionFile.pageCount ?? null) : null
+  const manualDisabledReason = !draftEditable ? '지금은 운영계획 초안을 고칠 수 없어요.' : !draft.manualRowReady ? '행 결정을 서버에 저장하는 중이에요. 저장된 뒤 다시 눌러 주세요.' : null
+
+  const saveManual = async (input: TeachingPlanManualRowInput, rowKey?: string) => {
+    if (!view.analysisId) throw new Error('분석 결과가 없어요.')
+    const request = { analysisId: view.analysisId, baseVersion: draft.baseVersion(), row: input }
+    const result = rowKey
+      ? await updateTeachingPlanManualRow(view.planId, view.documentRevisionId, rowKey, request)
+      : await createTeachingPlanManualRow(view.planId, view.documentRevisionId, request)
+    draft.adopt(result)
+    // 평가 정보 쪽에서 연결한 과목을 운영계획 초안에도 남긴다(확정에 필요)
+    if (!draft.subjectIds[input.subjectIndex] && evaluationSubjectIds[input.subjectIndex]) draft.setSubjectId(input.subjectIndex, evaluationSubjectIds[input.subjectIndex])
+  }
+  /** 제외·복원: 같은 내용으로 상태만 바꿔 저장 */
+  const toggleManual = async (row: TeachingPlanManualRow) => {
+    if (manualBusy || manualDisabledReason) return
+    setManualBusy(row.rowKey)
+    setManualError(null)
+    try {
+      const { rowKey: _key, origin: _origin, createdBy: _cb, createdAt: _ca, updatedBy: _ub, updatedAt: _ua, ...input } = row
+      await saveManual({ ...input, status: row.status === 'EXCLUDED' ? 'INCLUDED' : 'EXCLUDED' }, row.rowKey)
+    } catch (cause) {
+      setManualError(manualRowErrorText(cause))
+    } finally {
+      setManualBusy(null)
+    }
+  }
+
   const entries: TeachingPlanEntry[] = useMemo(() => {
     if (!slot) return []
     if (lockedReview) {
@@ -113,13 +168,20 @@ export function TeachingPlanStep({
           .map((issue) => issue.fieldPath?.split('.').pop() ?? '')
         return entryFromRow(row, { id: keyOf(ref), subjectName: ref.subjectName, status: 'CANDIDATE', academicYear: slot.academicYear, missingFields: missing })
       })
+      .concat(
+        manualRows
+          .filter((row) => row.status !== 'EXCLUDED')
+          .map((row) => entryFromRow(manualAsRow(row), { id: manualKey(row), subjectName: candidates[row.subjectIndex]?.subjectName ?? '', status: 'CANDIDATE', academicYear: slot.academicYear })),
+      )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refs, lockedReview, decisions, slot])
+  }, [refs, lockedReview, decisions, slot, manualRows])
 
   const decidedRefs = refs.filter((ref) => decisionOf(keyOf(ref)))
-  const missingSubject = [...new Set(decidedRefs.map((ref) => ref.subjectIndex))].filter((index) => !(subjectIds[index] ?? '').trim())
-  const published = decidedRefs.filter((ref) => decisionOf(keyOf(ref))?.kind !== 'absent').length
-  const canConfirm = !lockedReview && decidedRefs.length > 0 && missingSubject.length === 0 && !submitting && Boolean(view.analysisId)
+  const missingSubject = [...new Set([...decidedRefs.map((ref) => ref.subjectIndex), ...manualRows.map((row) => row.subjectIndex)])].filter((index) => !(subjectIds[index] ?? '').trim())
+  const manualPublished = manualRows.filter((row) => row.status !== 'EXCLUDED').length
+  const published = decidedRefs.filter((ref) => decisionOf(keyOf(ref))?.kind !== 'absent').length + manualPublished
+  const decidedCount = decidedRefs.length + manualRows.length
+  const canConfirm = !lockedReview && decidedCount > 0 && missingSubject.length === 0 && !submitting && !manualBusy && !manualForm && Boolean(view.analysisId)
 
   const submit = async () => {
     if (!canConfirm || !view.analysisId) return
@@ -133,6 +195,8 @@ export function TeachingPlanStep({
           const kind = decision.kind === 'absent' ? 'EXCLUDED' : decision.kind === 'edited' ? 'EDITED' : 'CONFIRMED'
           return { subjectIndex: ref.subjectIndex, rowKey: ref.row.rowKey, subjectId: subjectIds[ref.subjectIndex].trim(), decision: kind, ...(kind === 'EDITED' ? { edits: editsOf(decision) } : {}) }
         }),
+        // A14: 관리자 추가 행은 키·과목·결정만 보낸다(내용은 서버가 초안에서 가져온다)
+        manualRows: manualRows.map((row) => ({ rowKey: row.rowKey, subjectIndex: row.subjectIndex, subjectId: subjectIds[row.subjectIndex].trim(), decision: row.status === 'EXCLUDED' ? 'EXCLUDED' : 'CONFIRMED' })),
       })
       setServer({ state: 'ready', data })
       // 재확정이면 닫힌 초안을 다시 읽는다(첫 확정은 closed 옵션이 바뀌며 다시 읽힌다)
@@ -176,7 +240,7 @@ export function TeachingPlanStep({
             </span>
           ) : (
             <span>
-              후보 {refs.length}행 · 결정 {decidedRefs.length}행(공개 {published} · 제외 {decidedRefs.length - published}) · 결정하지 않은 행은 공개되지 않아요
+              후보 {refs.length}행 · 결정 {decidedRefs.length}행 · 관리자 추가 {manualRows.length}행 · 공개 {published} · 제외 {decidedCount - published} · 결정하지 않은 후보 행은 공개되지 않아요
             </span>
           )}
           {!lockedReview && (
@@ -336,9 +400,44 @@ export function TeachingPlanStep({
                     </tbody>
                   </table>
                 )}
+                <ManualRowsBlock
+                  rows={lockedReview ? [] : manualRows.filter((row) => row.subjectIndex === subject.subjectIndex)}
+                  confirmed={lockedReview ? lockedReview.rows.filter((row) => row.origin === 'MANUAL' && row.subjectIndex === subject.subjectIndex) : []}
+                  academicYear={slot?.academicYear ?? 0}
+                  subjectName={subject.subjectName}
+                  editable={!lockedReview && draftEditable}
+                  busyKey={manualBusy}
+                  disabledReason={manualDisabledReason}
+                  onEdit={(row) => setManualForm({ subjectIndex: subject.subjectIndex, row })}
+                  onToggle={(row) => void toggleManual(row)}
+                />
+                {!lockedReview && draftEditable && rows.length > 0 && (manualForm?.subjectIndex === subject.subjectIndex ? (
+                  <TeachingPlanManualRowForm
+                    key={manualForm.row?.rowKey ?? 'new'}
+                    subjectIndex={subject.subjectIndex}
+                    subjectName={subject.subjectName}
+                    row={manualForm.row}
+                    pageCount={pageCount}
+                    disabledReason={manualDisabledReason}
+                    onCancel={() => setManualForm(null)}
+                    onSubmit={async (input) => {
+                      await saveManual(input, manualForm.row?.rowKey)
+                      setManualForm(null)
+                    }}
+                  />
+                ) : (
+                  <button type="button" className={`${styles.button} ${styles.small}`} style={{ marginTop: 8 }} onClick={() => setManualForm({ subjectIndex: subject.subjectIndex })} disabled={Boolean(manualForm)} data-testid={`teaching-plan-manual-add-${subject.subjectIndex}`}>
+                    + 새 행 추가
+                  </button>
+                ))}
               </section>
             )
           })}
+          {manualError && (
+            <p role="alert" className={styles.statusText} data-tone="danger" data-testid="teaching-plan-manual-error">
+              {manualError}
+            </p>
+          )}
         </div>
       )}
 
@@ -350,7 +449,9 @@ export function TeachingPlanStep({
           <span className={styles.tiny}>
             {missingSubject.length > 0
               ? `과목이 연결되지 않은 행이 있어요(${missingSubject.map((index) => candidates[index]?.subjectName ?? index).join(', ')}).`
-              : decidedRefs.length === 0
+              : manualForm
+                ? '작성 중인 추가 행을 저장하거나 취소한 뒤 확정해요.'
+              : decidedCount === 0
                 ? '확정할 행을 하나 이상 정해 주세요.'
                 : reReview
                   ? '다시 확정하면 새 확정 버전이 학생 월별 계획에 공개되고, 이전 확정본은 이력으로 남아요.'
@@ -382,6 +483,83 @@ function RowEditor({ initial, onSave, onCancel }: { initial: { unit: string; con
           취소
         </button>
       </div>
+    </div>
+  )
+}
+
+/** A14 관리자 직접 추가 행 표 — 분석 후보 행과 구분해 '관리자 추가'로 표시한다. 원문 근거 버튼 대신 관리자 확인 쪽(있을 때만)을 보여 준다 */
+function ManualRowsBlock({
+  rows,
+  confirmed,
+  academicYear,
+  subjectName,
+  editable,
+  busyKey,
+  disabledReason,
+  onEdit,
+  onToggle,
+}: {
+  rows: TeachingPlanManualRow[]
+  confirmed: NonNullable<TeachingPlanReviewView['review']>['rows']
+  academicYear: number
+  subjectName: string
+  editable: boolean
+  busyKey: string | null
+  disabledReason: string | null
+  onEdit: (row: TeachingPlanManualRow) => void
+  onToggle: (row: TeachingPlanManualRow) => void
+}) {
+  const items = rows.length
+    ? rows.map((row) => ({ key: row.rowKey, source: manualAsRow(row), page: row.pdfPageNumber, excluded: row.status === 'EXCLUDED', label: row.status === 'EXCLUDED' ? '제외(학생 비공개)' : '공개 예정', row }))
+    : confirmed.map((row) => ({ key: row.rowKey, source: row.row, page: row.row.manualPdfPageNumber ?? null, excluded: row.decision === 'EXCLUDED', label: row.decision === 'EXCLUDED' ? '제외' : '확정', row: null }))
+  if (items.length === 0) return null
+  return (
+    <div style={{ marginTop: 10 }} data-testid="teaching-plan-manual-rows">
+      <p className={styles.sectionLabel} style={{ margin: '0 0 6px' }}>
+        관리자 직접 추가 행 · {subjectName}
+      </p>
+      <table className={styles.table}>
+        <tbody>
+          {items.map((item) => {
+            const entry = entryFromRow(item.source, { id: item.key, subjectName, status: 'CANDIDATE', academicYear })
+            return (
+              <tr key={item.key} data-testid="teaching-plan-manual-row" data-status={item.excluded ? 'EXCLUDED' : 'INCLUDED'} style={item.excluded ? { opacity: 0.6 } : undefined}>
+                <td style={{ width: '22%' }}>
+                  <strong style={{ fontWeight: 600 }}>{whenLabel(entry)}</strong>
+                  <div className={styles.tiny}>{precisionLabel[entry.precision]}</div>
+                </td>
+                <td>
+                  <span className={styles.tiny} style={{ display: 'inline-block', padding: '1px 6px', borderRadius: 6, background: 'var(--as-color-surface-muted, #f2f4f6)', marginBottom: 4 }} data-testid="teaching-plan-manual-badge">
+                    관리자 추가
+                  </span>
+                  <div style={{ fontWeight: 600 }}>{entry.unit ?? entry.specialSchedule ?? '단원 없음'}</div>
+                  {entry.content && <div className={styles.tiny}>{entry.content}</div>}
+                </td>
+                <td style={{ width: 72 }}>
+                  <span className={styles.tiny} title={item.page ? '관리자가 확인한 PDF 쪽(분석 근거 아님)' : '분석 결과에 없던 행이라 원문 위치가 없어요.'}>
+                    {item.page ? `관리자 확인 ${item.page}쪽` : '원문 근거 없음'}
+                  </span>
+                </td>
+                <td style={{ width: 210 }}>
+                  {editable && item.row ? (
+                    <div className={styles.rowButtons} role="group" aria-label="추가 행 동작">
+                      <span className={styles.tiny} style={{ alignSelf: 'center' }}>{item.label}</span>
+                      <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => item.row && onEdit(item.row)} disabled={Boolean(busyKey) || Boolean(disabledReason) || item.excluded} title={disabledReason ?? undefined}>
+                        수정
+                      </button>
+                      <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => item.row && onToggle(item.row)} disabled={Boolean(busyKey) || Boolean(disabledReason)} aria-busy={busyKey === item.key} title={disabledReason ?? undefined} data-testid="teaching-plan-manual-toggle">
+                        {busyKey === item.key ? '저장 중…' : item.excluded ? '복원' : '제외'}
+                      </button>
+                    </div>
+                  ) : (
+                    <span className={styles.tiny}>{item.label}</span>
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }

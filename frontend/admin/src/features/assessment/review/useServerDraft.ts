@@ -131,6 +131,11 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
   const baseline = useRef<Backup>({ decisions: {}, subjectIds: {} })
   /** 사용자 변경 횟수 (이벤트 처리에서만 갱신). 저장 중 더 바뀌었는지 판단한다 */
   const editsRef = useRef(0)
+  /**
+   * A14 회귀 수정: 가장 마지막에 시작한 조회만 화면에 반영한다. 개발 모드(StrictMode)의 초기 조회 두 번 중 늦게 온 응답이
+   * 그 사이 사용자가 바꾼 값(브라우저 백업)을 '저장되지 않은 내용'으로 오인해 편집을 잠그던 문제를 막는다.
+   */
+  const loadSeq = useRef(0)
 
   const apply = useCallback((backup: Backup) => {
     latest.current = backup
@@ -140,7 +145,9 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
 
   /** 서버 초안을 읽어 화면 값을 서버 기준으로 맞춘다 (version 갱신) */
   const load = useCallback(async (mode: 'initial' | 'reload') => {
+    const seq = ++loadSeq.current
     const result = await loadDraft(view.planId, view.documentRevisionId)
+    if (seq !== loadSeq.current) return result
     setServer(result)
     const draft = result.draft && result.draft.analysisId === view.analysisId ? result.draft : null
     version.current = draft ? draft.version : null
@@ -265,5 +272,20 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     await load('reload')
   }, [view.planId, view.documentRevisionId, scope, load])
   const reload = useCallback(() => load('reload'), [load])
-  return { decisions, subjectIds, sync, server, choice, unsaved, reopened, reopen, reload, setDecision, setSubjectId, clearAll, resolveChoice, resolveConflict, retry: save, forgetBackup: () => writeBackup(key, null) }
+
+  /** A14: 이 분석 결과의 운영계획 초안에 있는 관리자 직접 추가 행 (서버 저장값만 — 브라우저 백업 없음) */
+  const manualRows = server?.draft && server.draft.analysisId === view.analysisId ? (server.draft.manualRows ?? []) : []
+  /** A14: 관리자 추가 행은 행 결정 저장이 끝난 상태에서만 저장한다(같은 초안 version을 두 저장이 다투지 않게) */
+  const manualRowReady = !unsaved && sync.kind !== 'loading' && sync.kind !== 'load-error' && sync.kind !== 'stale' && sync.kind !== 'closed' && !choice
+  /** A14: 추가 행 저장 응답(서버 초안)을 받아 version·표시를 맞춘다. 행 결정 값은 바뀌지 않는다(서버가 그대로 보존) */
+  const adopt = useCallback((result: PlanReviewDraftView) => {
+    setServer(result)
+    const draft = result.draft && result.draft.analysisId === view.analysisId ? result.draft : null
+    if (draft) {
+      version.current = draft.version
+      setSync({ kind: 'saved', at: draft.updatedAt, by: draft.updatedBy, version: draft.version })
+    }
+  }, [view.analysisId])
+  const baseVersion = () => version.current
+  return { decisions, subjectIds, sync, server, choice, unsaved, reopened, reopen, reload, setDecision, setSubjectId, clearAll, resolveChoice, resolveConflict, retry: save, forgetBackup: () => writeBackup(key, null), manualRows, manualRowReady, adopt, baseVersion }
 }

@@ -78,6 +78,8 @@ export const getPlanReviewHistory = http.getPlanReviewHistoryHttp
 /** A13 운영계획 재검토 시작·확정 이력 (§39-10) */
 export const reopenTeachingPlanDraft = http.reopenTeachingPlanDraftHttp
 export const getTeachingPlanHistory = http.getTeachingPlanHistoryHttp
+export const createTeachingPlanManualRow = http.createTeachingPlanManualRowHttp
+export const updateTeachingPlanManualRow = http.updateTeachingPlanManualRowHttp
 // A5 학교 검색: Mock 데이터 모드에는 Backend가 없어 빈 결과(전체 학교 아님 표시 유지)
 export const searchSchools = useMock ? () => Promise.resolve({ coverage: 'REGISTERED_PLANS_ONLY', masterConnected: false, truncated: false, items: [] }) : http.searchSchoolsHttp
 /** S-4 (http만) 평가계획서 원문 미리보기·내려받기. Mock에는 실제 파일이 없다 */

@@ -564,6 +564,8 @@ export interface PlanReviewDraftView {
     createdAt: string
     updatedBy: string
     updatedAt: string
+    /** A14 §39-11 운영계획 초안의 관리자 직접 추가 행 (평가 정보 초안에는 항상 빈 목록) */
+    manualRows?: TeachingPlanManualRow[]
   } | null
   history: { version: number; savedBy: string; savedAt: string; changedCount: number; changedFields: string[] }[]
   previousDrafts: { draftId: string; analysisId: string; status: string; version: number; decisionCount: number; updatedBy: string; updatedAt: string }[]
@@ -617,6 +619,48 @@ export interface TeachingPlanEdits {
 export interface TeachingPlanReviewRequest {
   analysisId: string
   rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; edits?: TeachingPlanEdits }[]
+  /** A14 §39-11: 관리자 직접 추가 행(키·과목·결정만 — 내용은 서버가 열린 운영계획 초안에서 가져온다) */
+  manualRows?: { rowKey: string; subjectIndex: number; subjectId: string; decision: 'CONFIRMED' | 'EXCLUDED' }[]
+}
+
+/** A14 §39-11 관리자 직접 추가 행 입력 (행 키는 서버 발급, 연도는 받지 않음) */
+export interface TeachingPlanManualRowInput {
+  subjectIndex: number
+  status: 'INCLUDED' | 'EXCLUDED'
+  unit?: string | null
+  content?: string | null
+  note?: string | null
+  specialSchedule?: string | null
+  achievementStandards?: { code?: string | null; text?: string | null }[]
+  teachingMethods?: string[]
+  assessmentMethods?: string[]
+  schedule: PlanSchedule
+  /** 관리자가 확인한 PDF 쪽(선택). 분석 근거가 아니다 */
+  pdfPageNumber?: number | null
+}
+
+export interface TeachingPlanManualRowRequest {
+  analysisId: string
+  baseVersion: number | null
+  row: TeachingPlanManualRowInput
+}
+
+/** A14 운영계획 초안의 관리자 직접 추가 행 (origin은 항상 MANUAL — 분석 후보가 아니다) */
+export interface TeachingPlanManualRow extends Required<Pick<TeachingPlanManualRowInput, 'subjectIndex' | 'status' | 'schedule'>> {
+  rowKey: string
+  origin: 'MANUAL'
+  unit: string | null
+  content: string | null
+  note: string | null
+  specialSchedule: string | null
+  achievementStandards: { code?: string | null; text?: string | null }[]
+  teachingMethods: string[]
+  assessmentMethods: string[]
+  pdfPageNumber: number | null
+  createdBy: string
+  createdAt: string
+  updatedBy: string
+  updatedAt: string
 }
 
 export interface TeachingPlanReviewView {
@@ -628,7 +672,8 @@ export interface TeachingPlanReviewView {
     analysisId: string
     reviewedBy: string
     reviewedAt: string
-    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate; candidate: TeachingPlanRowCandidate }[]
+    /** A14: origin MANUAL = 관리자 직접 추가 행(candidate 없음, row.manualPdfPageNumber = 관리자 확인 쪽) */
+    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate & { manualPdfPageNumber?: number | null }; candidate: TeachingPlanRowCandidate | null; origin?: 'ANALYSIS' | 'MANUAL' }[]
     /** A13: 이 확정 버전(1부터). review는 최신 버전 */
     versionNo?: number
   } | null

@@ -10,6 +10,7 @@ import type {
   PlanSubjects,
   TeachingPlanIssue,
   TeachingPlanReviewRequest,
+  TeachingPlanManualRowRequest,
   TeachingPlanReviewView,
   TeachingPlanRowCandidate,
   AnalysisSubject,
@@ -546,6 +547,11 @@ export const getTeachingPlanHistoryHttp = (planId: string, revisionId: string) =
   adminHttp<TeachingPlanHistory>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/teaching-plan-reviews`)
 export const saveTeachingPlanDraftHttp = (planId: string, revisionId: string, request: PlanReviewDraftSaveRequest) =>
   adminHttp<PlanReviewDraftView>(teachingDraftPath(planId, revisionId), { method: 'PUT', json: request })
+/** A14 §39-11 관리자 직접 추가 행 생성·수정(제외·복원 포함). 409(초안 version 충돌)·400(입력)은 그대로 던진다 */
+export const createTeachingPlanManualRowHttp = (planId: string, revisionId: string, request: TeachingPlanManualRowRequest) =>
+  adminHttp<PlanReviewDraftView>(`${teachingDraftPath(planId, revisionId)}/manual-rows`, { method: 'POST', json: request })
+export const updateTeachingPlanManualRowHttp = (planId: string, revisionId: string, rowKey: string, request: TeachingPlanManualRowRequest) =>
+  adminHttp<PlanReviewDraftView>(`${teachingDraftPath(planId, revisionId)}/manual-rows/${encodeURIComponent(rowKey)}`, { method: 'PUT', json: request })
 /** A12 §39-8 재검토 시작: 확정된 Revision의 평가 정보 초안을 다시 연다. 이미 열려 있으면 409 그대로 */
 export const reopenPlanReviewDraftHttp = (planId: string, revisionId: string) =>
   adminHttp<PlanReviewDraftView>(`${draftPath(planId, revisionId)}/reopen`, { method: 'POST' })
