@@ -15,6 +15,7 @@ import com.learnershigh.extension.assessment.integration.context.AcademicContext
 import com.learnershigh.extension.assessment.integration.storage.PlanDocumentStorage;
 import com.learnershigh.extension.assessment.repository.EvaluationPlanRepository;
 import com.learnershigh.extension.assessment.repository.PlanRevisionRepository;
+import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
 import com.learnershigh.extension.assessment.service.AssessmentTimes;
 import com.learnershigh.extension.common.error.BusinessException;
 import com.learnershigh.extension.common.error.CommonErrorCode;
@@ -42,10 +43,12 @@ public class EvaluationPlanQueryService {
     private final AcademicContextProvider contexts;
     private final AssessmentTimes times;
     private final PlanDocumentStorage storage;
+    private final TeachingPlanReviewRepository teachingPlanReviews;
 
     public EvaluationPlanQueryService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
             PlanAccess access, PlanViews views, AcademicContextProvider contexts, AssessmentTimes times,
-            PlanDocumentStorage storage) {
+            PlanDocumentStorage storage, TeachingPlanReviewRepository teachingPlanReviews) {
+        this.teachingPlanReviews = teachingPlanReviews;
         this.plans = plans;
         this.revisions = revisions;
         this.access = access;
@@ -129,11 +132,27 @@ public class EvaluationPlanQueryService {
     }
 
     /** 문서별 가장 최근에 확정된 Revision. 확정 Revision이 없는 문서는 빠진다. */
+    /**
+     * 문서별 학생 공개 Revision: 가장 최근에 평가 정보가 확정된 Revision.
+     * A8 (2026-11-15 DRAFT, 승인 대기): 평가 정보가 확정된 Revision이 하나도 없는 문서(예: 운영계획만 있는 문서)는
+     * 운영계획이 확정된 가장 최근 Revision을 공개한다. 평가 확정본이 있으면 그것이 우선이다(기존 공개값을 밀어내지 않음).
+     * 둘 다 없으면 공개하지 않는다.
+     */
     private Map<String, PlanRevision> latestConfirmed(List<EvaluationPlan> found) {
-        return revisions.findByPlanIds(found.stream().map(EvaluationPlan::id).toList()).stream()
+        List<PlanRevision> all = revisions.findByPlanIds(found.stream().map(EvaluationPlan::id).toList());
+        Map<String, PlanRevision> result = new java.util.HashMap<>(all.stream()
                 .filter(PlanRevision::isConfirmed)
                 .collect(Collectors.toMap(PlanRevision::planId, r -> r,
-                        (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b));
+                        (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b)));
+        List<PlanRevision> withoutEvaluation = all.stream().filter(r -> !result.containsKey(r.planId())).toList();
+        if (!withoutEvaluation.isEmpty()) {
+            java.util.Set<String> teachingConfirmed = new java.util.HashSet<>(teachingPlanReviews
+                    .findReviewedRevisionIds(withoutEvaluation.stream().map(PlanRevision::id).toList()));
+            withoutEvaluation.stream()
+                    .filter(r -> teachingConfirmed.contains(r.id()))
+                    .forEach(r -> result.merge(r.planId(), r, (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b));
+        }
+        return result;
     }
 
     /** 관리자: Revision 원문 (§38 확장, S-4). preview=true면 서비스 안 미리보기용(PDF만). */

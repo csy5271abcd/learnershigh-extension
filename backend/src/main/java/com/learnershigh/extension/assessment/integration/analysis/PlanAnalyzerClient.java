@@ -18,7 +18,12 @@ public interface PlanAnalyzerClient {
      * @param fileId           분석기 로그·결과 연결용 ID (Revision ID 기반, [A-Za-z0-9_-]{1,40})
      * @param analyzerVersion  분석기 프로필 (예: v21.1)
      */
-    record Request(byte[] bytes, String fileName, String fileId, String analyzerVersion) {
+    record Request(byte[] bytes, String fileName, String fileId, String analyzerVersion, String contract) {
+
+        /** 0.2 요청 (contract 필드를 보내지 않는다). */
+        public Request(byte[] bytes, String fileName, String fileId, String analyzerVersion) {
+            this(bytes, fileName, fileId, analyzerVersion, null);
+        }
     }
 
     /**
@@ -33,6 +38,14 @@ public interface PlanAnalyzerClient {
      */
     record Result(String requestId, String envelopeStatus, String analyzerProfile, String analyzerChannel,
             String sourceSha256, Integer elapsedMs, String variant, boolean importable, List<String> blockerCodes,
-            String payloadJson, List<String> warnings, List<String> errorCodes) {
+            String payloadJson, List<String> warnings, List<String> errorCodes, int httpStatus,
+            String contractVersion, String analyzerStatus) {
+
+        public Result(String requestId, String envelopeStatus, String analyzerProfile, String analyzerChannel,
+                String sourceSha256, Integer elapsedMs, String variant, boolean importable, List<String> blockerCodes,
+                String payloadJson, List<String> warnings, List<String> errorCodes) {
+            this(requestId, envelopeStatus, analyzerProfile, analyzerChannel, sourceSha256, elapsedMs, variant,
+                    importable, blockerCodes, payloadJson, warnings, errorCodes, 200, null, null);
+        }
     }
 }

@@ -24,6 +24,10 @@ import tools.jackson.databind.json.JsonMapper;
 /**
  * 계정 B 분석기 `POST /analyze-preview` HTTP Client (A3, 2026-11-13). 분석기 코드는 수정하지 않고 현재 계약을 그대로 쓴다.
  * <ul>
+ *   <li>analysis-import-0.3 (A8, 2026-11-15): Request.contract가 "0.3"이면 multipart에 contract=0.3을 더한다(계정 B B6 개발 계약).
+ *       0.3에서는 분석기가 실패 결과(PARSE_FAILED·UNSUPPORTED_FORMAT)를 HTTP 422 본문의 Envelope로 보내므로, 0.3 요청의 4xx 본문에
+ *       Envelope(status·source.sha256·backendImport.payload)가 있으면 오류가 아니라 결과로 돌려준다(HTTP 코드와 분석 상태를 따로 다룬다).
+ *       0.2 요청의 4xx 처리는 그대로다.</li>
  *   <li>multipart: file + analyzerVersion + includeAnalysis=false + fileId. 본문을 바이트 배열로 만들어 Content-Length를 보낸다
  *       (분석기는 chunked를 받지 않는다). HTTP/1.1 고정(분석기는 HTTP/2 업그레이드를 모른다).</li>
  *   <li>인증: {@code X-Analysis-Token}. 값은 로그·예외·응답에 넣지 않는다.</li>
@@ -72,10 +76,11 @@ public class HttpPlanAnalyzerClient implements PlanAnalyzerClient {
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                 .build();
         int attempt = 0;
+        boolean contract03 = "0.3".equals(request.contract());
         while (true) {
             attempt++;
             try {
-                return send(httpRequest);
+                return send(httpRequest, contract03);
             } catch (PlanAnalyzerException failure) {
                 boolean retryable = failure.kind() == Kind.CONNECTION_FAILED || failure.kind() == Kind.BUSY;
                 if (!retryable || attempt > maxRetries) {
@@ -89,7 +94,7 @@ public class HttpPlanAnalyzerClient implements PlanAnalyzerClient {
         }
     }
 
-    private Result send(HttpRequest httpRequest) {
+    private Result send(HttpRequest httpRequest, boolean contract03) {
         HttpResponse<String> response;
         try {
             response = http.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
@@ -113,7 +118,9 @@ public class HttpPlanAnalyzerClient implements PlanAnalyzerClient {
         if (status == 503) {
             throw new PlanAnalyzerException(Kind.BUSY, code, "analyzer busy");
         }
-        if (status >= 400 && status < 500) {
+        boolean envelope03 = contract03 && root != null && root.isObject() && text(root.path("status")) != null
+                && root.path("backendImport").path("payload").isObject();
+        if (status >= 400 && status < 500 && !(status == 422 && envelope03)) {
             throw new PlanAnalyzerException(Kind.REJECTED, code, "analyzer rejected request (" + status + ")");
         }
         if (status >= 500) {
@@ -154,9 +161,10 @@ public class HttpPlanAnalyzerClient implements PlanAnalyzerClient {
         Result result = new Result(text(root.path("requestId")), envelopeStatus, text(root.path("analyzerVersion")),
                 text(root.path("analyzerChannel")), sha, elapsed, text(backendImport.path("variant")),
                 backendImport.path("importable").asBoolean(false), List.copyOf(blockers),
-                payload.isObject() ? mapper.writeValueAsString(payload) : null, List.copyOf(warnings), List.copyOf(errors));
-        log.info("plan analyzer done requestId={} status={} variant={} importable={} elapsedMs={} sha={}",
-                result.requestId(), envelopeStatus, result.variant(), result.importable(), elapsed,
+                payload.isObject() ? mapper.writeValueAsString(payload) : null, List.copyOf(warnings), List.copyOf(errors),
+                status, text(root.path("contractVersion")), text(root.path("analyzerStatus")));
+        log.info("plan analyzer done requestId={} http={} contract={} status={} variant={} importable={} elapsedMs={} sha={}",
+                result.requestId(), status, result.contractVersion(), envelopeStatus, result.variant(), result.importable(), elapsed,
                 sha.length() >= 12 ? sha.substring(0, 12) : sha);
         return result;
     }
@@ -184,6 +192,9 @@ public class HttpPlanAnalyzerClient implements PlanAnalyzerClient {
     static byte[] multipart(String boundary, Request request) {
         ByteArrayOutputStream out = new ByteArrayOutputStream(request.bytes().length + 1024);
         field(out, boundary, "analyzerVersion", request.analyzerVersion());
+        if (request.contract() != null) {
+            field(out, boundary, "contract", request.contract());
+        }
         field(out, boundary, "includeAnalysis", "false");
         if (request.fileId() != null) {
             field(out, boundary, "fileId", request.fileId());

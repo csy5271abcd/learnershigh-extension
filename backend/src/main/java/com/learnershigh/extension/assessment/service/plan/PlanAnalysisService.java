@@ -45,11 +45,14 @@ public class PlanAnalysisService {
     private final AnalysisImportParser parser;
     private final DocumentFormatInspector formatInspector;
     private final String analyzerVersion;
+    /** 0.3 요청 때 함께 보내는 분석 프로필 (계정 B B6: 0.3은 v21.4-dev만 허용). 0.2 프로필과 섞지 않는다. */
+    private final String contract03Version;
     private final Set<String> running = ConcurrentHashMap.newKeySet();
 
     public PlanAnalysisService(PlanAccess access, EvaluationPlanQueryService queries, EvaluationPlanService plans,
             PlanAnalyzerClient client, AnalysisImportParser parser, DocumentFormatInspector formatInspector,
-            @Value("${assessment.analyzer.version:v21.1}") String analyzerVersion) {
+            @Value("${assessment.analyzer.version:v21.1}") String analyzerVersion,
+            @Value("${assessment.analyzer.contract03-version:v21.4-dev}") String contract03Version) {
         this.access = access;
         this.queries = queries;
         this.plans = plans;
@@ -57,6 +60,28 @@ public class PlanAnalysisService {
         this.parser = parser;
         this.formatInspector = formatInspector;
         this.analyzerVersion = analyzerVersion;
+        this.contract03Version = contract03Version;
+        checkProfiles(analyzerVersion, contract03Version);
+    }
+
+    /**
+     * 계약 버전과 분석 프로필을 짝으로만 쓴다(A8): 0.2 = analyzer.version, 0.3 = analyzer.contract03-version.
+     * 두 값이 같거나 0.2 프로필이 개발 프로필이면 잘못된 조합이라 기동을 멈춘다(요청마다 섞어 보내지 않게).
+     */
+    public static void checkProfiles(String version02, String version03) {
+        if (version02 == null || version02.isBlank() || version03 == null || version03.isBlank()
+                || version02.equals(version03) || version02.endsWith("-dev")) {
+            throw new IllegalStateException("assessment.analyzer.version(0.2)과 contract03-version(0.3)은 서로 다른 프로필이어야 합니다.");
+        }
+    }
+
+    /** 이번 요청의 계약·프로필 짝. 0.3 Gate(assessment.analysis-import.contract03-enabled)가 켜졌을 때만 0.3을 요청한다. */
+    String requestedContract() {
+        return parser.contract03Enabled() ? "0.3" : null;
+    }
+
+    String requestedProfile() {
+        return parser.contract03Enabled() ? contract03Version : analyzerVersion;
     }
 
     public EvaluationPlanService.ImportResult analyze(AdminActor admin, String planId, String revisionId) {
@@ -79,7 +104,7 @@ public class PlanAnalysisService {
             PlanAnalyzerClient.Result result;
             try {
                 result = client.analyze(new PlanAnalyzerClient.Request(bytes, revision.fileName(), fileId(revision),
-                        analyzerVersion));
+                        requestedProfile(), requestedContract()));
             } catch (PlanAnalyzerException failure) {
                 throw translate(failure);
             }
@@ -96,6 +121,11 @@ public class PlanAnalysisService {
                 request = parser.parse(result.payloadJson());
             } catch (BusinessException invalid) {
                 throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "payload_invalid");
+            }
+            // 요청한 계약과 받은 계약이 다르면 저장하지 않는다(0.3 요청에 0.2가 오면 조용히 대체하지 않음, 반대도 같음)
+            if (!java.util.Objects.equals(requestedContract(), request.contractVersion())
+                    || (result.contractVersion() != null && !result.contractVersion().equals(request.contractVersion()))) {
+                throw rejected(AssessmentErrorCode.PLAN_ANALYZER_BAD_RESPONSE, "contract_mismatch");
             }
             PlanAnalysisStatus status = request.contract03()
                     ? runStatus03(result.envelopeStatus(), request.status())

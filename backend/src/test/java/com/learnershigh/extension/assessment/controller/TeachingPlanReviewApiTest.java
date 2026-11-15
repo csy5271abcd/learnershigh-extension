@@ -351,6 +351,26 @@ class TeachingPlanReviewApiTest {
     }
 
     @Test
+    void 평가_정보_확정이_없는_문서는_운영계획을_확정하면_그_Revision이_학생에게_공개된다_A8() throws Exception {
+        // 운영계획만 있는 문서처럼 평가 정보를 확정하지 않은 상태
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001")).andExpect(status().isNotFound());
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isOk());
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CONFIRMED"))
+                .andExpect(jsonPath("$.rows.length()").value(1));
+        // 문서는 보이지만 평가 확정값은 없다(후보를 공개하지 않음)
+        String detail = mvc.perform(asStudent(get(STUDENT + planId), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.confirmedFields.length()").value(0))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(detail).doesNotContain("analysisStatus").doesNotContain("candidate");
+    }
+
+    @Test
     void 인증_없는_학생_요청은_401() throws Exception {
         mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
         mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());

@@ -115,6 +115,36 @@ class HttpPlanAnalyzerClientTest {
     }
 
     @Test
+    void 요청_0_2는_contract를_보내지_않고_0_3은_contract와_함께_보내며_0_3의_422_Envelope는_결과로_읽는다() {
+        handler = exchange -> reply(exchange, 200, ok("OK_REVIEW_REQUIRED"));
+        client(Duration.ofSeconds(5)).analyze(request());
+        assertThat(lastBody.get()).doesNotContain("name=\"contract\"");
+
+        String failed = """
+                {"ok":true,"status":"PARSE_FAILED","analyzerStatus":"PARSE_FAILED","contractVersion":"0.3",
+                 "analyzerVersion":"v21.4-dev","analyzerChannel":"EXPERIMENTAL_DEV","source":{"sha256":"%s"},
+                 "backendImport":{"variant":"CONTRACT03_DEV","importable":true,"blockers":[],
+                   "payload":{"contractVersion":"0.3","status":"FAILED","subjects":[]}},"warnings":[],"errors":[]}"""
+                .formatted(SHA);
+        handler = exchange -> reply(exchange, 422, failed);
+        PlanAnalyzerClient.Request request03 = new PlanAnalyzerClient.Request(request().bytes(), request().fileName(),
+                request().fileId(), "v21.4-dev", "0.3");
+        PlanAnalyzerClient.Result result = client(Duration.ofSeconds(5)).analyze(request03);
+        assertThat(lastBody.get()).contains("name=\"contract\"\r\n\r\n0.3").contains("name=\"analyzerVersion\"\r\n\r\nv21.4-dev");
+        assertThat(result.httpStatus()).isEqualTo(422);
+        assertThat(result.envelopeStatus()).isEqualTo("PARSE_FAILED");
+        assertThat(result.contractVersion()).isEqualTo("0.3");
+        assertThat(result.analyzerStatus()).isEqualTo("PARSE_FAILED");
+
+        // 0.2 요청의 422(같은 본문이어도)는 지금처럼 거절로 다룬다
+        assertKind(Kind.REJECTED, null);
+        // 0.3이어도 Envelope 없는 4xx는 거절 (예: 400 CONTRACT03_DISABLED — 0.2로 대체하지 않음)
+        handler = exchange -> reply(exchange, 400, "{\"errors\":[{\"code\":\"CONTRACT03_DISABLED\"}]}");
+        assertThatThrownBy(() -> client(Duration.ofSeconds(5)).analyze(request03))
+                .isInstanceOfSatisfying(PlanAnalyzerException.class, e -> assertThat(e.analyzerCode()).isEqualTo("CONTRACT03_DISABLED"));
+    }
+
+    @Test
     void BUSY는_재시도하고_끝내_BUSY면_실패한다() {
         handler = exchange -> reply(exchange, 503, "{\"ok\":false,\"status\":\"ERROR\",\"errors\":[{\"code\":\"BUSY\"}]}");
         assertThatThrownBy(() -> client(Duration.ofSeconds(5)).analyze(request()))
