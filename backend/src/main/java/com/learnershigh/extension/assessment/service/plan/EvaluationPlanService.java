@@ -210,11 +210,18 @@ public class EvaluationPlanService {
         serverWarnings.forEach(message -> warnings.add(warning("SERVER", message)));
         String subjectsJson = mapper.writeValueAsString(request.subjects());
         String warningsJson = mapper.writeValueAsString(warnings);
+        // 최신 분석 결과 = 수신 시각이 가장 늦은 Run. 같은 시각(고정 시계·같은 순간 수신)이면 무작위 ID 순서로 최신이 바뀌므로
+        // 새 Run은 같은 Revision의 이전 Run보다 항상 뒤 시각으로 받는다(A12·A13 확정 시각과 같은 규칙, A14 회귀 수정)
+        java.time.Instant receivedAt = times.now();
+        List<PlanAnalysisRun> previousRuns = runs.findByRevisionIds(List.of(revision.id()));
+        if (!previousRuns.isEmpty() && !receivedAt.isAfter(previousRuns.getLast().receivedAt())) {
+            receivedAt = previousRuns.getLast().receivedAt().plusNanos(1_000);
+        }
         PlanAnalysisRun run = PlanAnalysisRun.ORIGIN_SERVER_ANALYZER.equals(origin)
                 ? PlanAnalysisRun.serverAnalyzer(revision.id(), status, request.analyzer().name(),
-                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now())
+                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), receivedAt)
                 : PlanAnalysisRun.importExternal(revision.id(), status, request.analyzer().name(),
-                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), times.now());
+                        request.analyzer().version(), payloadSha, subjectsJson, warningsJson, admin.adminId(), receivedAt);
         run.withContract(request.contractVersion(), request.analyzer().profile());
         PlanAnalysisRun saved = runs.saveAndFlush(run);
         return new ImportResult(true, views.analysis(plan, revision, Optional.of(saved)));
