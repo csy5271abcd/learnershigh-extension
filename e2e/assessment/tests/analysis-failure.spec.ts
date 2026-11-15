@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test'
 import { ADMIN, PLANS, ADMIN_ID, runTag, uniquePdf } from '../support.ts'
 
-// 분석 실패 안내 (A7): 분석기가 '평가항목 없음'(NO_ASSESSMENTS_EXTRACTED)을 보내면 장애·계약 오류가 아니라 문서 쪽 사유로 안내하고
-// 결과를 저장하지 않는다. Stub 응답 모양은 실제 분석기 v21.1(2026-11-15 확인)과 같다.
+// 분석 실패 안내 (A7·A8): 분석기가 '평가항목 없음'(NO_ASSESSMENTS_EXTRACTED)을 보낸 경우.
+// 이 E2E는 0.3 Gate ON 환경이라 B6 규칙대로 0.3 FAILED Run으로 저장되고, 관리자는 '찾지 못함'을 보며 확정할 수 없다.
+// (0.2 경로의 422 PLAN_ANALYSIS_NO_RESULT는 Integration Test와 실제 분석기 v21.1 확인으로 따로 검증한다.)
 
-test('평가항목을 찾지 못한 문서는 원인을 단정하지 않는 안내를 보여 주고 분석 결과를 저장하지 않는다', async ({ page, request }) => {
+test('평가항목을 찾지 못한 문서는 실패로 저장되고 관리자에게 안내되며 평가 정보로 확정할 수 없다', async ({ page, request }) => {
   const tag = runTag()
   const fileName = `e2e-noresult-${tag}.pdf`
   const created = await request.post(PLANS, {
@@ -14,17 +15,20 @@ test('평가항목을 찾지 못한 문서는 원인을 단정하지 않는 안�
   expect(created.status()).toBe(201)
   const plan = await created.json()
 
-  const direct = await request.post(`${PLANS}/${plan.planId}/revisions/${plan.documentRevisionId}/analysis`, { headers: { 'X-Assessment-Admin-Id': ADMIN_ID } })
-  expect(direct.status()).toBe(422)
-  expect((await direct.json()).code).toBe('PLAN_ANALYSIS_NO_RESULT')
-
   await page.goto(`${ADMIN}/assessment/evaluation-plans?school=school_001&year=2026`)
   const row = page.getByTestId('plan-row').filter({ hasText: fileName })
   await expect(row).toBeVisible()
   await row.getByTestId('plan-analyze-button').click()
-  await expect(page.getByText(/문서에서 평가항목을 찾지 못했어요/)).toBeVisible({ timeout: 15_000 })
-  await expect(page.getByText(/평가계획서여도 찾지 못할 수 있어요/)).toBeVisible()
+  await expect(page.getByText(/평가 정보를 찾지 못했어요/)).toBeVisible({ timeout: 15_000 })
 
   const analysis = await request.get(`${PLANS}/${plan.planId}/revisions/${plan.documentRevisionId}/analysis`, { headers: { 'X-Assessment-Admin-Id': ADMIN_ID } })
-  expect((await analysis.json()).analysisStatus).toBe('NOT_REQUESTED')
+  const body = await analysis.json()
+  expect(body.analysisStatus).toBe('FAILED')
+  expect(body.analyzer.contractVersion).toBe('0.3')
+  // 실패 결과는 확정 대상이 아니다
+  const confirm = await request.put(`${PLANS}/${plan.planId}/revisions/${plan.documentRevisionId}/review`, {
+    headers: { 'X-Assessment-Admin-Id': ADMIN_ID },
+    data: { analysisId: body.analysisId, decision: 'CONFIRM', reviewedSubjects: [{ subjectId: 'subj_12', confirmedFields: [{ fieldPath: 'performanceEvaluation.weightPercent', value: 60, pdfPageNumber: 1 }] }] },
+  })
+  expect(confirm.status()).toBe(400)
 })
