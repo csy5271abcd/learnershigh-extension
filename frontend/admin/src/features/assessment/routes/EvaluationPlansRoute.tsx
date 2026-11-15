@@ -109,8 +109,8 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
       <div className={review.listHead}>
         <h2>학교별 평가계획서</h2>
         {!isAdminMockDataSource && (
-          <button type="button" className={review.button} onClick={() => navigate(paths.planCompare(schoolId || undefined))} data-testid="open-plan-compare">
-            학년도 비교
+          <button type="button" className={review.button} onClick={() => navigate(paths.planArchive(schoolId || undefined))} data-testid="open-plan-archive">
+            학년도별 열람
           </button>
         )}
         {!isAdminMockDataSource && import.meta.env.DEV && (

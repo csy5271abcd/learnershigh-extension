@@ -174,6 +174,48 @@ class EvaluationPlanApiTest {
         assertThat(jdbc.queryForObject("select count(*) from assessment_evaluation_plan", Integer.class)).isZero();
     }
 
+    /** A9: 학년도는 독립된 열람 단위다. 학년도별 목록·분석은 섞이지 않고, 제거한 학년도 비교 API는 더 이상 없다. */
+    @Test
+    void 학년도별_목록과_분석은_해당_학년도_문서만_돌려주고_학년도_비교_API는_없다() throws Exception {
+        byte[] bytes2026 = pdf(3, "y2026");
+        Uploaded y2026 = register(bytes2026);
+        byte[] bytes2025 = pdf(3, "y2025");
+        String body2025 = mvc.perform(asAdmin(multipart(PLANS)
+                                .file(new MockMultipartFile("file", "2025_예시고_1학년_2학기(합성).pdf", "application/pdf",
+                                        bytes2025)), OPERATOR)
+                        .param("schoolId", "school_001").param("academicYear", "2025")
+                        .param("grade", "1").param("semester", "2"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Uploaded y2025 = new Uploaded(JsonPath.read(body2025, "$.planId"), JsonPath.read(body2025, "$.documentRevisionId"));
+        importAnalysis(y2026, analysis(sha256(bytes2026), 3));
+
+        mvc.perform(asAdmin(get(PLANS), OPERATOR).param("schoolId", "school_001").param("academicYear", "2025"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].planId").value(y2025.planId()))
+                .andExpect(jsonPath("$.items[0].academicYear").value(2025));
+        mvc.perform(asAdmin(get(PLANS), OPERATOR).param("schoolId", "school_001").param("academicYear", "2026"))
+                .andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].planId").value(y2026.planId()));
+        // 2026 분석 결과는 2025 문서의 분석으로 보이지 않는다
+        mvc.perform(asAdmin(get(PLANS + "/" + y2025.planId() + "/revisions/" + y2025.revisionId() + "/analysis"), OPERATOR))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.analysisStatus").value("NOT_REQUESTED"))
+                .andExpect(jsonPath("$.subjects").isEmpty());
+        mvc.perform(asAdmin(get(PLANS + "/" + y2026.planId() + "/revisions/" + y2026.revisionId() + "/analysis"), OPERATOR))
+                .andExpect(jsonPath("$.subjects[0].subjectName").value("통합과학2"))
+                .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[0].rubric[0].element").value("탐구 설계"));
+        // 다른 학년도 문서의 Revision 경로를 섞어 쓰면 거절된다
+        mvc.perform(asAdmin(get(PLANS + "/" + y2025.planId() + "/revisions/" + y2026.revisionId() + "/analysis"), OPERATOR))
+                .andExpect(status().isNotFound());
+        // A7 학년도 비교 API 제거: 비교 처리기가 없어 문서 조회(planId="comparison")로 해석되고 404
+        mvc.perform(asAdmin(get(PLANS + "/comparison"), OPERATOR).param("schoolId", "school_001")
+                        .param("grade", "1").param("semester", "2").param("years", "2025,2026"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.years").doesNotExist());
+    }
+
     @Test
     void 개정본을_추가해도_이전_Revision은_보존된다() throws Exception {
         byte[] first = pdf(3, "first");

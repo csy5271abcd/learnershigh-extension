@@ -3,7 +3,6 @@ package com.learnershigh.extension.assessment.controller;
 import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
-import com.learnershigh.extension.assessment.dto.plan.PlanComparisonResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewRequest;
@@ -16,7 +15,6 @@ import com.learnershigh.extension.assessment.service.plan.EvaluationPlanQuerySer
 import com.learnershigh.extension.assessment.service.plan.EvaluationPlanService;
 import com.learnershigh.extension.assessment.service.plan.PdfInspector;
 import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
-import com.learnershigh.extension.assessment.service.plan.PlanComparisonQueryService;
 import com.learnershigh.extension.assessment.service.plan.PlanReviewDraftService;
 import com.learnershigh.extension.assessment.service.plan.TeachingPlanQueryService;
 import com.learnershigh.extension.assessment.service.plan.TeachingPlanReviewService;
@@ -62,13 +60,10 @@ public class AdminEvaluationPlanController {
     private final PlanReviewDraftService draftService;
     private final TeachingPlanReviewService teachingPlanService;
     private final TeachingPlanQueryService teachingPlanQueries;
-    private final PlanComparisonQueryService comparisonService;
 
     public AdminEvaluationPlanController(EvaluationPlanQueryService queryService, EvaluationPlanService service,
             PlanAnalysisService analysisService, PlanReviewDraftService draftService,
-            TeachingPlanReviewService teachingPlanService, TeachingPlanQueryService teachingPlanQueries,
-            PlanComparisonQueryService comparisonService) {
-        this.comparisonService = comparisonService;
+            TeachingPlanReviewService teachingPlanService, TeachingPlanQueryService teachingPlanQueries) {
         this.queryService = queryService;
         this.service = service;
         this.analysisService = analysisService;
@@ -160,19 +155,6 @@ public class AdminEvaluationPlanController {
     public PlanReviewDraftResponse saveReviewDraft(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId, @Valid @RequestBody PlanReviewDraftRequest request) {
         return draftService.save(admin, planId, revisionId, request);
-    }
-
-    /**
-     * A7 §38-5 학년도별 평가계획서 비교 (관리자 확정값만). years 2~5개, subjects/plans는 "학년도:ID" 형식.
-     * 과목은 학년도마다 관리자가 고른 ID로만 맞춘다(이름으로 자동 병합하지 않음). 학생 응답 아님.
-     */
-    @GetMapping("/comparison")
-    public PlanComparisonResponse comparison(AdminActor admin, @RequestParam @NotBlank @Size(max = 64) String schoolId,
-            @RequestParam @Min(1) @Max(3) int grade, @RequestParam @Min(1) @Max(2) int semester,
-            @RequestParam List<Integer> years,
-            @RequestParam(required = false) List<String> subjects,
-            @RequestParam(required = false) List<String> plans) {
-        return comparisonService.compare(admin, schoolId, grade, semester, years, subjects, plans);
     }
 
     /** A7 §39-6 운영계획 공유 초안 조회. 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 쓴다. */

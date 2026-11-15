@@ -570,55 +570,59 @@ export interface PlanSubjects {
   items: { subjectId: string; name: string }[]
 }
 
-// ---- A7 학년도별 평가계획서 비교 (api-contract.md §38-5 DRAFT) ----
+// ---- A9 학년도별 평가계획서 열람 (기존 §39 GET analysis · §39-4 review-draft · §39-6 teaching-plan-review 조합, 새 API 없음) ----
 
-export type PlanComparisonStatus = 'SAME' | 'CHANGED' | 'ADDED' | 'REMOVED' | 'POSSIBLE_RENAME' | 'NOT_COMPARABLE' | 'NEEDS_REVIEW'
-
-export interface PlanComparisonCell {
-  state: 'VALUE' | 'ABSENT' | 'NOT_CONFIRMED' | 'NOT_AVAILABLE'
-  value: string | number | null
-  pdfPageNumber: number | null
+export interface ArchiveLocator {
+  pdfPageNumber?: number | null
+  printedPageLabel?: string | null
+  extractedText?: string | null
+  documentLocator?: { kind: string; section: number; path: string; table?: number | null; row?: number | null; col?: number | null } | null
 }
 
-export interface PlanComparisonItemCell {
-  state: 'PRESENT' | 'MISSING' | 'NOT_AVAILABLE'
-  itemIndex: number | null
-  weightPercent: PlanComparisonCell | null
-  maxScore: PlanComparisonCell | null
-  timing: PlanComparisonCell | null
-  pdfPageNumber: number | null
+export interface ArchiveRubricCriterion {
+  element: string
+  levels?: { description: string; score: number | null }[] | null
+  sources?: ArchiveLocator[] | null
 }
 
-export interface PlanComparisonTransition {
-  fromYear: number
-  toYear: number
-  status: PlanComparisonStatus
+export interface ArchiveItem {
+  itemKey: string
+  label: string
+  area?: string | null
+  timing?: string | null
+  weightPercent?: number | null
+  maxScore?: number | null
+  content?: string | null
+  submissions?: string[] | null
+  conditions?: string[] | null
+  rubric?: ArchiveRubricCriterion[] | null
+  sources?: ArchiveLocator[] | null
 }
 
-export interface PlanComparisonColumn {
-  academicYear: number
-  status: 'NO_PLAN' | 'NOT_CONFIRMED' | 'AMBIGUOUS_PLAN' | 'NO_SUBJECT_SELECTED' | 'SUBJECT_UNKNOWN' | 'SUBJECT_NOT_CONFIRMED' | 'CONFIRMED'
-  planId: string | null
-  revisionId: string | null
-  fileName: string | null
-  documentFormat: 'PDF' | 'HWP' | 'HWPX' | null
-  previewAvailable: boolean
-  subjectId: string | null
-  subjectName: string | null
-  teachingPlanRows: number | null
-  plans: { planId: string; latestRevisionId: string | null; confirmedRevisionId: string | null; fileName: string | null; reviewStatus: string | null }[]
-  subjects: { subjectId: string; name: string; confirmed: boolean }[]
-  slotAvailable: boolean
+export interface ArchiveSubject {
+  subjectName: string
+  pageRange?: { from: number; to: number } | null
+  sources?: ArchiveLocator[] | null
+  writtenEvaluation?: {
+    weightPercent: number | null
+    sources?: ArchiveLocator[] | null
+    exams?: { itemKey: string; round: number; weightPercent: number | null; maxScore?: number | null; timing?: string | null; questionTypes?: string[] | null; sources?: ArchiveLocator[] | null }[] | null
+  } | null
+  performanceEvaluation?: { weightPercent: number | null; sources?: ArchiveLocator[] | null; items?: ArchiveItem[] | null } | null
+  extraction?: { status: string; issues?: TeachingPlanIssue[] | null } | null
+  teachingPlan?: TeachingPlanRowCandidate[] | null
 }
 
-export interface PlanComparison {
-  schoolId: string
-  schoolName: string | null
-  grade: number
-  semester: number
-  basis: 'CONFIRMED_ONLY'
-  columns: PlanComparisonColumn[]
-  rows: { key: string; label: string; cells: PlanComparisonCell[]; status: PlanComparisonStatus; transitions: PlanComparisonTransition[]; note: string | null }[]
-  items: { label: string | null; cells: PlanComparisonItemCell[]; status: PlanComparisonStatus; transitions: PlanComparisonTransition[]; note: string | null }[]
-  warnings: string[]
+/** 한 Revision의 열람 자료: 분석 후보(subjects)와 관리자 확정값(confirmed)은 서로 다른 데이터다 */
+export interface PlanArchiveDetail {
+  analysisId: string | null
+  analysisStatus: PlanAnalysisStatus
+  reviewStatus: PlanReviewStatus
+  analyzer: { origin: string; name: string; version: string; contractVersion?: string; profile?: string } | null
+  subjects: ArchiveSubject[]
+  warnings: { source: string; message: string }[]
+  confirmed: { subjectId: string; fieldPath: string; value: unknown; pdfPageNumber: number | null }[]
+  /** 분석 과목 순번 → 학업 과목 ID (평가 정보 초안의 과목 연결, 없으면 비어 있음) */
+  subjectLinks: Record<number, string>
+  teachingPlan: TeachingPlanReviewView | null
 }

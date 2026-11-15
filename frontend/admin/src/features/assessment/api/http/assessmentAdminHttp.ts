@@ -2,8 +2,9 @@ import type {
   AdminEvaluationPlan,
   AdminEvaluationPlanRevision,
   AdminSchool,
+  ArchiveSubject,
+  PlanArchiveDetail,
   PlanSubjects,
-  PlanComparison,
   TeachingPlanIssue,
   TeachingPlanReviewRequest,
   TeachingPlanReviewView,
@@ -177,9 +178,11 @@ export async function listSchoolsHttp(): Promise<{ items: (AdminSchool & { regio
 }
 
 /** 실제 등록된 문서의 학년도 + 개발용 현재 학기(VITE_ASSESSMENT_DEV_CURRENT_TERM)의 학년도. 날짜로 학년도를 추측하지 않는다. */
-export async function listPlanYearsHttp(schoolId: string): Promise<number[]> {
+/** includeCurrentTerm=false(A9 학년도별 열람): 실제 등록 문서가 있는 학년도만 */
+export async function listPlanYearsHttp(schoolId: string, includeCurrentTerm = true): Promise<number[]> {
   const plans = await adminHttp<{ items: BackendPlan[] }>(plansPath, { query: { schoolId } })
   const years = new Set(plans.items.map((plan) => plan.academicYear))
+  if (!includeCurrentTerm) return [...years].sort((a, b) => b - a)
   const term: unknown = import.meta.env.DEV ? import.meta.env.VITE_ASSESSMENT_DEV_CURRENT_TERM : undefined
   const match = typeof term === 'string' ? /^(\d{4})-[12]$/.exec(term.trim()) : null
   if (match) years.add(Number(match[1]))
@@ -536,15 +539,33 @@ export const savePlanReviewDraftHttp = (planId: string, revisionId: string, requ
 /** A5 학교 검색: 평가계획서가 등록된 학교 (전체 학교 Master 연결 전) */
 export const searchSchoolsHttp = (query?: string) => adminHttp<SchoolSearchResult>('/api/admin/assessment/schools', { query: { query, limit: 100 } })
 
-/** A7 §38-5 학년도별 비교 (관리자 확정값만). years·subjects·plans는 쉼표로 잇는다(subjects·plans는 "학년도:ID") */
-export const comparePlansHttp = (request: { schoolId: string; grade: number; semester: number; years: number[]; subjects: Record<number, string>; plans: Record<number, string> }) =>
-  adminHttp<PlanComparison>(`${plansPath}/comparison`, {
-    query: {
-      schoolId: request.schoolId,
-      grade: request.grade,
-      semester: request.semester,
-      years: request.years.join(','),
-      subjects: Object.entries(request.subjects).filter(([, id]) => id).map(([year, id]) => `${year}:${id}`).join(','),
-      plans: Object.entries(request.plans).filter(([, id]) => id).map(([year, id]) => `${year}:${id}`).join(','),
-    },
-  })
+/**
+ * A9 학년도별 열람: 한 Revision의 분석 결과(원본 모양 그대로)·관리자 확정값·과목 연결·운영계획 확정을 함께 읽는다.
+ * 새 Endpoint 없이 기존 §39 GET analysis · §39-4 review-draft · §39-6 teaching-plan-review를 조합한다.
+ * 초안·운영계획 조회 실패는 '없음'이 아니라 null로 두고 화면이 구분한다.
+ */
+export async function getPlanArchiveDetailHttp(planId: string, revisionId: string): Promise<PlanArchiveDetail> {
+  const revisionPath = `${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}`
+  const [analysis, draft, teaching] = await Promise.all([
+    adminHttp<{ analysisId: string | null; analysisStatus: PlanAnalysisStatus; reviewStatus: PlanReviewStatus; analyzer: PlanArchiveDetail['analyzer']; subjects: ArchiveSubject[] | null; warnings: { source: string; message: string }[] | null; confirmedFields: BackendConfirmedField[] | null }>(`${revisionPath}/analysis`),
+    adminHttp<PlanReviewDraftView>(`${revisionPath}/review-draft`).catch(() => null),
+    adminHttp<TeachingPlanReviewView>(`${revisionPath}/teaching-plan-review`).catch(() => null),
+  ])
+  const subjectLinks: Record<number, string> = {}
+  for (const link of draft?.draft?.subjectLinks ?? []) subjectLinks[link.subjectIndex] = link.subjectId
+  for (const field of analysis.confirmedFields ?? []) if (field.analysisSubjectIndex != null && !subjectLinks[field.analysisSubjectIndex]) subjectLinks[field.analysisSubjectIndex] = field.subjectId
+  // PDF 확정값에는 분석 과목 순번이 없다. 분석 과목이 하나이고 확정 과목도 하나면 그 둘은 같은 과목이다(그 밖에는 추정하지 않는다)
+  const confirmedSubjects = new Set((analysis.confirmedFields ?? []).map((field) => field.subjectId))
+  if ((analysis.subjects ?? []).length === 1 && subjectLinks[0] === undefined && confirmedSubjects.size === 1) subjectLinks[0] = [...confirmedSubjects][0]
+  return {
+    analysisId: analysis.analysisId,
+    analysisStatus: analysis.analysisStatus,
+    reviewStatus: analysis.reviewStatus,
+    analyzer: analysis.analyzer,
+    subjects: analysis.subjects ?? [],
+    warnings: analysis.warnings ?? [],
+    confirmed: (analysis.confirmedFields ?? []).map((field) => ({ subjectId: field.subjectId, fieldPath: field.fieldPath, value: field.value, pdfPageNumber: field.pdfPageNumber })),
+    subjectLinks,
+    teachingPlan: teaching,
+  }
+}
