@@ -60,6 +60,9 @@ export default defineConfig({
         ASSESSMENT_ANALYZER_BASE_URL: `http://127.0.0.1:${ports.analyzer}`,
         ASSESSMENT_ANALYZER_TOKEN: token,
         ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED: 'true',
+        // A10: 합성 수신 JSON(HWPX Locator·다과목 PDF)을 넣으려고 이 일회용 E2E Backend에서만 켠다. 애플리케이션 기본값은 계속 false다.
+        ASSESSMENT_ANALYSIS_IMPORT_ENABLED: 'true',
+        ASSESSMENT_MULTIFORMAT_EXPERIMENTAL: 'true',
       },
     },
     {
