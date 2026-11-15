@@ -19,6 +19,8 @@ export type AssessmentRoute =
   | { tab: 'plans'; view: 'plans' }
   | { tab: 'plans'; view: 'plan-review'; planId: string; revisionId: string }
   | { tab: 'plans'; view: 'plan-ai' }
+  /** A7 학년도별 평가계획서 비교 (?school=&grade=&semester=&years=&subject=년도:ID) */
+  | { tab: 'plans'; view: 'plan-compare' }
   | { tab: 'content'; view: 'tasks' }
   | { tab: 'content'; view: 'task-edit'; catalogTaskId: string | null }
   | { tab: 'content'; view: 'mock-exams' }
@@ -45,7 +47,10 @@ export const paths = {
   feedback: `${assessmentAdminPath}/feedback`,
   feedbackDetail: (requestId: string) => `${assessmentAdminPath}/feedback/${enc(requestId)}`,
   plans: `${assessmentAdminPath}/evaluation-plans`,
-  planReview: (planId: string, revisionId: string) => `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}`,
+  /** page: 원문 근거 쪽 (검토 Workspace PDF Viewer를 그 쪽으로 연다) */
+  planReview: (planId: string, revisionId: string, page?: number) =>
+    `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}${page ? `?page=${page}` : ''}`,
+  planCompare: (school?: string) => `${assessmentAdminPath}/evaluation-plans/comparison${school ? `?school=${enc(school)}` : ''}`,
   planAi: `${assessmentAdminPath}/evaluation-plans/ai-analysis`,
   tasks: `${assessmentAdminPath}/content/tasks`,
   taskNew: `${assessmentAdminPath}/content/tasks/new`,
@@ -95,6 +100,7 @@ export function matchAssessmentRoute(pathname: string): AssessmentRoute {
   if (section === 'evaluation-plans') {
     if (!a) return { tab: 'plans', view: 'plans' }
     if (a === 'ai-analysis' && !b) return { tab: 'plans', view: 'plan-ai' }
+    if (a === 'comparison' && !b) return { tab: 'plans', view: 'plan-compare' }
     if (b === 'revisions' && c && !d) return { tab: 'plans', view: 'plan-review', planId: a, revisionId: c }
   }
   if (section === 'content') {

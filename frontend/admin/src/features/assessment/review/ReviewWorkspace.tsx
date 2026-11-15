@@ -57,7 +57,8 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const [hash, setHash] = useState<HashState>({ status: 'none' })
   const [attested, setAttested] = useState(false)
   const [partialAcknowledged, setPartialAcknowledged] = useState(false)
-  const [viewerPage, setViewerPage] = useState(1)
+  // 학년도 비교 등에서 근거 쪽으로 들어오면(?page=N) 그 쪽부터 연다
+  const [viewerPage, setViewerPage] = useState(() => Math.max(1, Number(new URLSearchParams(window.location.search).get('page')) || 1))
   const [pane, setPane] = useState<'source' | 'review'>('review')
   const [split, setSplit] = useState(readSplit)
   const [error, setError] = useState<string | null>(null)

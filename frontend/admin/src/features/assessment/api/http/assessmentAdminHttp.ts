@@ -3,6 +3,7 @@ import type {
   AdminEvaluationPlanRevision,
   AdminSchool,
   PlanSubjects,
+  PlanComparison,
   TeachingPlanIssue,
   TeachingPlanReviewRequest,
   TeachingPlanReviewView,
@@ -534,3 +535,16 @@ export const savePlanReviewDraftHttp = (planId: string, revisionId: string, requ
 
 /** A5 학교 검색: 평가계획서가 등록된 학교 (전체 학교 Master 연결 전) */
 export const searchSchoolsHttp = (query?: string) => adminHttp<SchoolSearchResult>('/api/admin/assessment/schools', { query: { query, limit: 100 } })
+
+/** A7 §38-5 학년도별 비교 (관리자 확정값만). years·subjects·plans는 쉼표로 잇는다(subjects·plans는 "학년도:ID") */
+export const comparePlansHttp = (request: { schoolId: string; grade: number; semester: number; years: number[]; subjects: Record<number, string>; plans: Record<number, string> }) =>
+  adminHttp<PlanComparison>(`${plansPath}/comparison`, {
+    query: {
+      schoolId: request.schoolId,
+      grade: request.grade,
+      semester: request.semester,
+      years: request.years.join(','),
+      subjects: Object.entries(request.subjects).filter(([, id]) => id).map(([year, id]) => `${year}:${id}`).join(','),
+      plans: Object.entries(request.plans).filter(([, id]) => id).map(([year, id]) => `${year}:${id}`).join(','),
+    },
+  })

@@ -6,6 +6,7 @@ import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, PlanAnalysisStat
 import { FieldError, RemoteView } from '../components/AdminParts.tsx'
 import { AlertIcon, FileIcon, Modal, Toast, UploadIcon, type ToastMessage } from '../components/canonicalUi.ts'
 import { dateLabel, fileSizeLabel, nextToastId } from '../model/adminFormat.ts'
+import { analysisFailureText } from '../model/analysisFailure.ts'
 import { useCommand, useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
 import review from '../review/review.module.css'
@@ -95,7 +96,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
             ? '일부만 분석된 결과를 저장했어요. "검토"에서 빠진 부분을 원문과 대조해 주세요.'
             : '분석 결과를 저장했어요. "검토"에서 원문과 대조해 확인해 주세요.',
       })
-    } else setToast({ id: nextToastId(), tone: 'error', text: `${outcome.error.message} (${outcome.error.code}${analysisReason(outcome.error)})` })
+    } else setToast({ id: nextToastId(), tone: 'error', text: analysisFailureText(outcome.error) })
   }
 
   const openCode = () => {
@@ -107,6 +108,11 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
     <div className={review.listPage} data-testid="plans-page">
       <div className={review.listHead}>
         <h2>학교별 평가계획서</h2>
+        {!isAdminMockDataSource && (
+          <button type="button" className={review.button} onClick={() => navigate(paths.planCompare(schoolId || undefined))} data-testid="open-plan-compare">
+            학년도 비교
+          </button>
+        )}
         {!isAdminMockDataSource && import.meta.env.DEV && (
           <button type="button" className={review.button} onClick={() => navigate(paths.planAi)} data-testid="open-plan-ai">
             PDF AI 분석
@@ -297,13 +303,6 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   )
 }
 
-/** 서버 분석 오류 사유(details.fields[0].reason: busy·timeout·status_conflict·format_contract_pending 등)를 짧게 덧붙인다 */
-function analysisReason(error: { details?: unknown }): string {
-  const fields = (error.details as { fields?: { reason?: string }[] } | undefined)?.fields
-  const reason = fields?.[0]?.reason
-  return reason ? ` · ${reason}` : ''
-}
-
 // 상태 문구는 서버 값으로만: 분석 상태 / 검토(확정 여부) / 학생 공개 = 확정값만 (확정값 개수는 최신 개정본의 confirmedFields)
 const analysisText: Record<PlanAnalysisStatus, { text: string; tone?: 'neutral' | 'danger' }> = {
   NOT_REQUESTED: { text: '분석 전', tone: 'neutral' },
@@ -483,7 +482,7 @@ function UploadPlanModal({
         analysis = (await requestPlanAnalysis(plan.planId, latest.documentRevisionId)).analysisStatus
       } catch (caught) {
         // 등록은 끝났다. 분석 실패 사유를 숨기지 않고 알린다(빈 결과로 바꾸지 않음)
-        analysisError = (caught as { message?: string }).message ?? '분석을 실행하지 못했어요.'
+        analysisError = analysisFailureText(caught as { code?: string; message?: string; details?: unknown })
       }
       return { plan, analysis, analysisError, analyzer: undefined as AnalyzerOutcome | undefined }
     })

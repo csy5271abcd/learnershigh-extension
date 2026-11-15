@@ -569,3 +569,56 @@ export interface PlanSubjects {
   source: string | null
   items: { subjectId: string; name: string }[]
 }
+
+// ---- A7 학년도별 평가계획서 비교 (api-contract.md §38-5 DRAFT) ----
+
+export type PlanComparisonStatus = 'SAME' | 'CHANGED' | 'ADDED' | 'REMOVED' | 'POSSIBLE_RENAME' | 'NOT_COMPARABLE' | 'NEEDS_REVIEW'
+
+export interface PlanComparisonCell {
+  state: 'VALUE' | 'ABSENT' | 'NOT_CONFIRMED' | 'NOT_AVAILABLE'
+  value: string | number | null
+  pdfPageNumber: number | null
+}
+
+export interface PlanComparisonItemCell {
+  state: 'PRESENT' | 'MISSING' | 'NOT_AVAILABLE'
+  itemIndex: number | null
+  weightPercent: PlanComparisonCell | null
+  maxScore: PlanComparisonCell | null
+  timing: PlanComparisonCell | null
+  pdfPageNumber: number | null
+}
+
+export interface PlanComparisonTransition {
+  fromYear: number
+  toYear: number
+  status: PlanComparisonStatus
+}
+
+export interface PlanComparisonColumn {
+  academicYear: number
+  status: 'NO_PLAN' | 'NOT_CONFIRMED' | 'AMBIGUOUS_PLAN' | 'NO_SUBJECT_SELECTED' | 'SUBJECT_UNKNOWN' | 'SUBJECT_NOT_CONFIRMED' | 'CONFIRMED'
+  planId: string | null
+  revisionId: string | null
+  fileName: string | null
+  documentFormat: 'PDF' | 'HWP' | 'HWPX' | null
+  previewAvailable: boolean
+  subjectId: string | null
+  subjectName: string | null
+  teachingPlanRows: number | null
+  plans: { planId: string; latestRevisionId: string | null; confirmedRevisionId: string | null; fileName: string | null; reviewStatus: string | null }[]
+  subjects: { subjectId: string; name: string; confirmed: boolean }[]
+  slotAvailable: boolean
+}
+
+export interface PlanComparison {
+  schoolId: string
+  schoolName: string | null
+  grade: number
+  semester: number
+  basis: 'CONFIRMED_ONLY'
+  columns: PlanComparisonColumn[]
+  rows: { key: string; label: string; cells: PlanComparisonCell[]; status: PlanComparisonStatus; transitions: PlanComparisonTransition[]; note: string | null }[]
+  items: { label: string | null; cells: PlanComparisonItemCell[]; status: PlanComparisonStatus; transitions: PlanComparisonTransition[]; note: string | null }[]
+  warnings: string[]
+}
