@@ -5,6 +5,7 @@ import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisRun;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisStatus;
+import com.learnershigh.extension.assessment.entity.PlanReview;
 import com.learnershigh.extension.assessment.entity.PlanReviewDraft;
 import com.learnershigh.extension.assessment.entity.PlanReviewDraftEvent;
 import com.learnershigh.extension.assessment.entity.PlanRevision;
@@ -13,6 +14,7 @@ import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftEventRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository;
+import com.learnershigh.extension.assessment.repository.PlanReviewRepository;
 import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
 import com.learnershigh.extension.assessment.service.AssessmentTimes;
 import com.learnershigh.extension.common.error.BusinessException;
@@ -65,17 +67,19 @@ public class PlanReviewDraftService {
 
     private final PlanReviewDraftEventRepository events;
     private final TeachingPlanReviewRepository teachingPlanReviews;
+    private final PlanReviewRepository reviews;
     private final AssessmentTimes times;
     private final JsonMapper mapper;
 
     public PlanReviewDraftService(PlanAccess access, PlanAnalysisRunRepository runs, PlanReviewDraftRepository drafts,
             PlanReviewDraftEventRepository events, TeachingPlanReviewRepository teachingPlanReviews,
-            AssessmentTimes times, JsonMapper mapper) {
+            PlanReviewRepository reviews, AssessmentTimes times, JsonMapper mapper) {
         this.access = access;
         this.runs = runs;
         this.drafts = drafts;
         this.events = events;
         this.teachingPlanReviews = teachingPlanReviews;
+        this.reviews = reviews;
         this.times = times;
         this.mapper = mapper;
     }
@@ -125,12 +129,12 @@ public class PlanReviewDraftService {
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
                     new FieldViolation("revision", "teaching_plan_already_confirmed"));
         }
-        if (!teachingPlan && revision.isConfirmed()) {
-            // 확정 뒤 재검토(이전 확정 대체) 정책이 미결이라 초안을 받지 않는다
+        Optional<PlanAnalysisRun> latest = latestRun(revision);
+        if (!teachingPlan && revision.isConfirmed() && !reReviewOpen(latest)) {
+            // A12: 확정된 Revision은 재검토를 시작(POST .../review-draft/reopen)한 뒤에만 초안을 받는다
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
                     new FieldViolation("revision", "already_confirmed"));
         }
-        Optional<PlanAnalysisRun> latest = latestRun(revision);
         if (latest.isEmpty() || !latest.get().id().equals(request.analysisId())) {
             boolean known = runs.findById(request.analysisId()).filter(r -> r.revisionId().equals(revision.id())).isPresent();
             if (!known) {
@@ -179,6 +183,88 @@ public class PlanReviewDraftService {
         events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, changed.size(),
                 mapper.writeValueAsString(changed.stream().limit(CHANGED_PATHS_LIMIT).toList())));
         return view(plan, revision, Optional.of(run), scope);
+    }
+
+    private boolean reReviewOpen(Optional<PlanAnalysisRun> latest) {
+        return latest.flatMap(run -> drafts.findByAnalysisId(run.id(), PlanReviewDraft.SCOPE_EVALUATION))
+                .filter(PlanReviewDraft::isActive).isPresent();
+    }
+
+    /** A12: 이 분석 결과의 평가 정보 초안이 열려 있는가(확정된 Revision의 재확정 허용 조건). */
+    @Transactional(readOnly = true)
+    public boolean evaluationDraftOpen(String analysisId) {
+        return drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_EVALUATION).filter(PlanReviewDraft::isActive).isPresent();
+    }
+
+    /**
+     * A12 재검토 시작 (POST .../review-draft/reopen). 확정된 Revision만. 최신 분석 결과의 평가 정보 초안을 다시 열거나,
+     * 초안이 없으면(API로 확정한 경우 등) 그 분석 결과로 확정한 최신 확정값으로 새 초안을 만든다(과목 번호가 있는 값만 채움).
+     * 이전 확정 기록·학생 공개값은 바뀌지 않는다. 이미 열려 있으면 409(draft: already_open).
+     */
+    public PlanReviewDraftResponse reopen(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        if (!revision.isConfirmed()) {
+            throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                    new FieldViolation("revision", "not_confirmed"));
+        }
+        PlanAnalysisRun run = latestRun(revision).orElseThrow(() -> BusinessException.withFields(
+                AssessmentErrorCode.INVALID_STATE_TRANSITION, new FieldViolation("analysisId", "unknown")));
+        if (run.status() == PlanAnalysisStatus.FAILED) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("analysisId", "analysis_failed"));
+        }
+        Instant now = times.now();
+        Optional<PlanReviewDraft> existing = drafts.findByAnalysisId(run.id(), PlanReviewDraft.SCOPE_EVALUATION);
+        PlanReviewDraft draft;
+        if (existing.isPresent()) {
+            draft = existing.get();
+            if (draft.isActive()) {
+                throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                        new FieldViolation("draft", "already_open"));
+            }
+            draft.reopenForReReview(admin.adminId(), now);
+            draft = drafts.saveAndFlush(draft);
+        } else {
+            Payload payload = prefillFromLatestReview(revision, run);
+            draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_EVALUATION, revision.id(), run.id(), revision.sha256(),
+                    run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
+            try {
+                draft = drafts.saveAndFlush(draft);
+            } catch (DataIntegrityViolationException raced) {
+                throw conflict(null);
+            }
+        }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
+                mapper.writeValueAsString(List.of("reopened"))));
+        return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_EVALUATION);
+    }
+
+    /** 최신 확정값(이 분석 결과로 확정한 것)에서 초안 결정을 채운다. 과목 번호가 없는 값은 과목을 알 수 없어 넣지 않는다. */
+    private Payload prefillFromLatestReview(PlanRevision revision, PlanAnalysisRun run) {
+        List<PlanReview> all = reviews.findByRevisionIds(List.of(revision.id()));
+        if (all.isEmpty() || !all.getLast().analysisId().equals(run.id())) {
+            return new Payload(List.of(), List.of());
+        }
+        JsonNode subjects = mapper.readTree(run.resultJson());
+        List<PlanReviewDraftResponse.StoredDecision> decisions = new ArrayList<>();
+        java.util.Map<Integer, String> links = new java.util.LinkedHashMap<>();
+        for (PlanReview.PlanConfirmedValue value : all.getLast().confirmedValues()) {
+            Integer index = value.analysisSubjectIndex();
+            if (index == null || index < 0 || index >= subjects.size()) {
+                continue;
+            }
+            links.putIfAbsent(index, value.subjectId());
+            String text = null;
+            if (value.valueJson() != null) {
+                JsonNode node = mapper.readTree(value.valueJson());
+                text = node.isTextual() ? node.asText() : node.toString();
+            }
+            decisions.add(new PlanReviewDraftResponse.StoredDecision(index, value.fieldPath(),
+                    text == null ? "ABSENT" : "EDITED", text, value.pdfPageNumber(),
+                    candidate(subjects.get(index), value.fieldPath())));
+        }
+        return new Payload(decisions, links.entrySet().stream()
+                .map(e -> new PlanReviewDraftRequest.SubjectLink(e.getKey(), e.getValue())).toList());
     }
 
     /** 최종 확정(PUT review)과 같은 Transaction에서 호출: 그 분석 결과의 초안을 닫는다. 초안이 없으면 아무것도 하지 않는다. */

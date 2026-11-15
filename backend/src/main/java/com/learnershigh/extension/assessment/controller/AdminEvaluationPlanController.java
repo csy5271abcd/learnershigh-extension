@@ -168,6 +168,20 @@ public class AdminEvaluationPlanController {
         return draftService.get(admin, planId, revisionId);
     }
 
+    /** A12 §39-8 재검토 시작: 확정된 Revision의 평가 정보 초안을 다시 연다(이전 확정 기록·학생 공개값 불변). */
+    @PostMapping("/{planId}/revisions/{revisionId}/review-draft/reopen")
+    public PlanReviewDraftResponse reopenReviewDraft(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId) {
+        return draftService.reopen(admin, planId, revisionId);
+    }
+
+    /** A12 §39-8 확정 이력(관리자 전용, 최신 → 과거). */
+    @GetMapping("/{planId}/revisions/{revisionId}/reviews")
+    public com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse reviews(AdminActor admin,
+            @PathVariable String planId, @PathVariable String revisionId) {
+        return queryService.adminReviews(admin, planId, revisionId);
+    }
+
     /** A5 공유 검토 초안 저장 (DRAFT §39-4). baseVersion 불일치·다른 결과 → 409. 확정은 PUT .../review만 한다. */
     @PutMapping(path = "/{planId}/revisions/{revisionId}/review-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
     public PlanReviewDraftResponse saveReviewDraft(AdminActor admin, @PathVariable String planId,

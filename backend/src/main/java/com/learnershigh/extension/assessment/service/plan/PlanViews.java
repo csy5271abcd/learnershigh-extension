@@ -135,6 +135,21 @@ public class PlanViews {
         return revision.hasStoredFile() && revision.format() != PlanDocumentFormat.PDF;
     }
 
+    /** A12 확정 이력: 최신 → 과거. 기록 자체는 확정 때 저장된 그대로다. */
+    public com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse history(EvaluationPlan plan,
+            PlanRevision revision, boolean reReviewOpen) {
+        List<PlanReview> all = reviews.findByRevisionIds(List.of(revision.id()));
+        List<com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse.Item> items = new java.util.ArrayList<>();
+        for (int i = all.size() - 1; i >= 0; i--) {
+            PlanReview review = all.get(i);
+            items.add(new com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse.Item(review.id(),
+                    review.analysisId(), review.reviewedBy(), times.toOffset(review.reviewedAt()), i == all.size() - 1,
+                    review.confirmedValues().size(), confirmedFields(review)));
+        }
+        return new com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse(plan.id(), revision.id(),
+                reReviewOpen, items);
+    }
+
     /** HWP·HWPX 검토 기록. PDF 검토(원문 확인 기록 없음)는 null → 응답에서 빠진다. */
     private SourceReviewView sourceReview(PlanReview review) {
         if (review.sourceCheckMethod() == null) {

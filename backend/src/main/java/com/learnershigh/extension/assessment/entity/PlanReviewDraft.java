@@ -138,6 +138,20 @@ public class PlanReviewDraft implements Persistable<String> {
         return STATUS_ACTIVE.equals(status);
     }
 
+    /**
+     * A12 재검토 시작: 확정과 함께 닫힌 평가 정보 초안을 다시 연다. 이전 확정 기록(Review)은 그대로이고,
+     * 재확정 전까지 학생 공개값도 바뀌지 않는다. 확정으로 닫힌 초안만 다시 연다.
+     */
+    public void reopenForReReview(String adminId, Instant now) {
+        if (isActive() || !CLOSED_CONFIRMED.equals(closedReason)) {
+            throw new IllegalStateException("only a confirmed-closed draft can be reopened");
+        }
+        this.status = STATUS_ACTIVE;
+        this.closedReason = null;
+        this.updatedBy = adminId;
+        this.updatedAt = now;
+    }
+
     @Override
     public String getId() {
         return id;

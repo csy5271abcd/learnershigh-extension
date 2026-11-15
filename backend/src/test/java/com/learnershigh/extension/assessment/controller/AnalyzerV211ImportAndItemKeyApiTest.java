@@ -52,7 +52,11 @@ class AnalyzerV211ImportAndItemKeyApiTest {
     JdbcTemplate jdbc;
 
     @BeforeEach
+    @org.junit.jupiter.api.AfterEach
     void setUp() {
+        // A12: 재검토 시작이 초안을 만들므로 분석 Run보다 먼저 지운다(끝난 뒤에도 지워 다른 시험 클래스의 정리를 막지 않는다)
+        jdbc.update("delete from assessment_plan_review_draft_event");
+        jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");
         jdbc.update("delete from assessment_plan_review");
@@ -232,6 +236,8 @@ class AnalyzerV211ImportAndItemKeyApiTest {
         reference(v211.revisionId(), "P01").andExpect(status().isCreated());
 
         // 그 Run으로 다시 검토하면 P77도 허용된다. 이전 검토의 P01도 계속 허용(대체 규칙 미확정), 이미 저장된 학생 참조는 바꾸지 않는다
+        // A12: 확정된 Revision을 다시 확정하려면 먼저 재검토를 시작한다(§39-8, 이전 확정 기록은 그대로)
+        mvc.perform(asAdmin(post(v211.base() + "/review-draft/reopen"), OPERATOR)).andExpect(status().isOk());
         confirm(v211, run3);
         reference(v211.revisionId(), "P77").andExpect(status().isCreated());
         reference(v211.revisionId(), "P01").andExpect(status().isCreated());

@@ -25,7 +25,8 @@ public record PlanReviewDraftRequest(
             @NotNull @Min(0) @Max(49) Integer subjectIndex,
             @NotBlank @Size(max = 300) String fieldPath,
             @NotNull @Pattern(regexp = "CONFIRMED|EDITED|ABSENT") String decision,
-            @Size(max = 1000) String value,
+            // A12: 채점표 전체(JSON 글자)를 한 결정으로 담을 수 있게 확정값 한도(4,000)와 맞춘다
+            @Size(max = 4000) String value,
             @Min(1) Integer pdfPageNumber) {
     }
 

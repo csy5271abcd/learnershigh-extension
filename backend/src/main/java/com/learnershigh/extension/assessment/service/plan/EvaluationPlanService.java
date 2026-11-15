@@ -234,6 +234,12 @@ public class EvaluationPlanService {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR,
                     new FieldViolation("revision.documentFormat", "verified_auth_required"));
         }
+        if (revision.isConfirmed() && !drafts.evaluationDraftOpen(request.analysisId())) {
+            // A12 재확정: 이미 확정된 Revision은 재검토를 시작(초안 다시 열기)한 분석 결과로만 다시 확정한다.
+            // 새 확정 기록이 하나 더 쌓이고 이전 기록은 바뀌지 않는다(학생은 최신 확정 기록을 본다).
+            throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                    new FieldViolation("revision", "re_review_not_started"));
+        }
         List<FieldViolation> violations = new ArrayList<>();
         Optional<PlanAnalysisRun> run = runs.findById(request.analysisId())
                 .filter(r -> r.revisionId().equals(revision.id()));
@@ -246,7 +252,14 @@ public class EvaluationPlanService {
                 ? analysisSubjects(run.get()) : List.of();
         // A10: PDF도 분석 과목 번호를 선택적으로 받는다 — 범위는 저장된 분석 결과의 과목 수로만 판정한다(DTO 재해석 없음)
         int pdfAnalysisSubjectCount = !structured && run.isPresent() ? mapper.readTree(run.get().resultJson()).size() : 0;
-        PlanReview review = PlanReview.confirm(revision.id(), request.analysisId(), admin.adminId(), times.now());
+        // A12: 확정 기록은 시각 순서로 '최신'을 정한다(학생 공개). 고정 시계(시연·시험)나 같은 순간의 재확정에서도
+        // 새 기록이 항상 이전 기록보다 뒤가 되도록 1마이크로초씩 민다(DB DATETIME(6) 정밀도).
+        java.time.Instant reviewedAt = times.now();
+        List<PlanReview> previous = reviews.findByRevisionIds(List.of(revision.id()));
+        if (!previous.isEmpty() && !reviewedAt.isAfter(previous.getLast().reviewedAt())) {
+            reviewedAt = previous.getLast().reviewedAt().plusNanos(1_000);
+        }
+        PlanReview review = PlanReview.confirm(revision.id(), request.analysisId(), admin.adminId(), reviewedAt);
         if (structured) {
             ReviewFieldRules.checkSource(request.sourceCheck(), revision.sha256(), violations::add);
             if (request.sourceCheck() != null) {
@@ -291,6 +304,10 @@ public class EvaluationPlanService {
                 }
                 if (valueJson != null && valueJson.length() > VALUE_JSON_MAX) {
                     violations.add(new FieldViolation(path + ".value", "size"));
+                }
+                if (field.value() != null && ReviewFieldRules.RUBRIC_PATH.matcher(field.fieldPath()).matches()) {
+                    // A12 채점기준 수동 보완: 항목 하나의 채점표 전체를 관리자 값으로 확정한다(분석 후보는 그대로 둔다)
+                    ReviewFieldRules.checkRubricValue(mapper.valueToTree(field.value()), path + ".value", violations::add);
                 }
                 if (structured) {
                     if (run.isPresent()) {

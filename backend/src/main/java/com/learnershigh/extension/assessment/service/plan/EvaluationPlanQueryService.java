@@ -44,11 +44,17 @@ public class EvaluationPlanQueryService {
     private final AssessmentTimes times;
     private final PlanDocumentStorage storage;
     private final TeachingPlanReviewRepository teachingPlanReviews;
+    private final com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs;
+    private final com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts;
 
     public EvaluationPlanQueryService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
             PlanAccess access, PlanViews views, AcademicContextProvider contexts, AssessmentTimes times,
-            PlanDocumentStorage storage, TeachingPlanReviewRepository teachingPlanReviews) {
+            PlanDocumentStorage storage, TeachingPlanReviewRepository teachingPlanReviews,
+            com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs,
+            com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts) {
         this.teachingPlanReviews = teachingPlanReviews;
+        this.runs = runs;
+        this.drafts = drafts;
         this.plans = plans;
         this.revisions = revisions;
         this.access = access;
@@ -62,6 +68,18 @@ public class EvaluationPlanQueryService {
             Integer academicYear, Integer grade, Integer semester) {
         access.requireOperator(admin);
         return Map.of("items", views.admin(plans.search(schoolId, academicYear, grade, semester)));
+    }
+
+    /** A12 §39-8 확정 이력 + 재검토 진행 여부(최신 분석 결과의 평가 정보 초안이 열려 있는가). */
+    public com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse adminReviews(AdminActor admin,
+            String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        List<com.learnershigh.extension.assessment.entity.PlanAnalysisRun> list = runs.findByRevisionIds(List.of(revision.id()));
+        boolean open = revision.isConfirmed() && !list.isEmpty()
+                && drafts.findByAnalysisId(list.getLast().id(), com.learnershigh.extension.assessment.entity.PlanReviewDraft.SCOPE_EVALUATION)
+                        .filter(com.learnershigh.extension.assessment.entity.PlanReviewDraft::isActive).isPresent();
+        return views.history(plan, revision, open);
     }
 
     public AdminEvaluationPlanResponse adminGet(AdminActor admin, String planId) {

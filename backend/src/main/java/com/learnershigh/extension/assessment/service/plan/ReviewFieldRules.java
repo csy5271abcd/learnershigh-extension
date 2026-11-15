@@ -31,6 +31,10 @@ final class ReviewFieldRules {
     private static final Pattern ANY_INDEX = Pattern.compile("\\[\\d+]");
     private static final Pattern SHA256 = Pattern.compile("[0-9a-f]{64}");
     static final String ABSENCE_NOT_IN_SOURCE = "NOT_IN_SOURCE";
+    /** A12: 수행평가 항목 하나의 채점표 전체(관리자 수동 보완·수정) */
+    static final Pattern RUBRIC_PATH = Pattern.compile("performanceEvaluation\\.items\\[(0|[1-9]\\d{0,2})]\\.rubric");
+    static final int RUBRIC_MAX_CRITERIA = 30;
+    static final int RUBRIC_MAX_LEVELS = 10;
 
     private ReviewFieldRules() {
     }
@@ -186,6 +190,33 @@ final class ReviewFieldRules {
             }
         }
         return false;
+    }
+
+    /**
+     * A12 채점표 값 모양: [{ element: 글자 1~200, levels: [{ description: 글자 1~500, score: 0~1000 숫자 또는 null }] (0~10개) }] 1~30개.
+     * 분석 결과 rubric과 같은 모양이다(학생 화면이 같은 방식으로 읽는다). 맞지 않으면 rubric_shape.
+     */
+    static void checkRubricValue(tools.jackson.databind.JsonNode value, String path, Consumer<FieldViolation> out) {
+        boolean ok = value.isArray() && !value.isEmpty() && value.size() <= RUBRIC_MAX_CRITERIA;
+        for (int i = 0; ok && i < value.size(); i++) {
+            tools.jackson.databind.JsonNode criterion = value.get(i);
+            tools.jackson.databind.JsonNode element = criterion.get("element");
+            tools.jackson.databind.JsonNode levels = criterion.get("levels");
+            ok = criterion.isObject() && criterion.size() <= 2 && element != null && element.isTextual()
+                    && !element.asText().isBlank() && element.asText().length() <= 200
+                    && levels != null && levels.isArray() && levels.size() <= RUBRIC_MAX_LEVELS;
+            for (int j = 0; ok && j < levels.size(); j++) {
+                tools.jackson.databind.JsonNode level = levels.get(j);
+                tools.jackson.databind.JsonNode description = level.get("description");
+                tools.jackson.databind.JsonNode score = level.get("score");
+                ok = level.isObject() && level.size() <= 2 && description != null && description.isTextual()
+                        && !description.asText().isBlank() && description.asText().length() <= 500
+                        && (score == null || score.isNull() || (score.isNumber() && score.asDouble() >= 0 && score.asDouble() <= 1000));
+            }
+        }
+        if (!ok) {
+            out.accept(new FieldViolation(path, "rubric_shape"));
+        }
     }
 
     /** 같은 과목에서 같은 fieldPath가 두 번 나오면 true(처음 본 것은 false). */
