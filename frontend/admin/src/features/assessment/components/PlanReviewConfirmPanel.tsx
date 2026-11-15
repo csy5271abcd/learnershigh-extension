@@ -130,7 +130,8 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
       decision: 'CONFIRM',
       reviewedSubjects: usedSubjects.map((index) => ({
         subjectId: subjectIds[index].trim(),
-        ...(isPdf ? {} : { analysisSubjectIndex: index }),
+        // A10: PDF도 분석 과목 번호를 함께 확정한다 — 다과목 문서에서 초안이 닫혀도 과목 연결이 확정값에 남는다
+        analysisSubjectIndex: index,
         confirmedFields: checked
           .filter((field) => field.subjectIndex === index)
           .map((field) => {

@@ -552,9 +552,12 @@ export async function getPlanArchiveDetailHttp(planId: string, revisionId: strin
     adminHttp<TeachingPlanReviewView>(`${revisionPath}/teaching-plan-review`).catch(() => null),
   ])
   const subjectLinks: Record<number, string> = {}
-  for (const link of draft?.draft?.subjectLinks ?? []) subjectLinks[link.subjectIndex] = link.subjectId
-  for (const field of analysis.confirmedFields ?? []) if (field.analysisSubjectIndex != null && !subjectLinks[field.analysisSubjectIndex]) subjectLinks[field.analysisSubjectIndex] = field.subjectId
-  // PDF 확정값에는 분석 과목 순번이 없다. 분석 과목이 하나이고 확정 과목도 하나면 그 둘은 같은 과목이다(그 밖에는 추정하지 않는다)
+  for (const field of analysis.confirmedFields ?? []) if (field.analysisSubjectIndex != null && subjectLinks[field.analysisSubjectIndex] === undefined) subjectLinks[field.analysisSubjectIndex] = field.subjectId
+  const linkedSubjectIds = () => new Set(Object.values(subjectLinks))
+  for (const link of draft?.draft?.subjectLinks ?? []) if (subjectLinks[link.subjectIndex] === undefined && !linkedSubjectIds().has(link.subjectId)) subjectLinks[link.subjectIndex] = link.subjectId
+  // 과목 번호 없이 확정한 이전 PDF: 분석 과목이 하나이고 확정 과목도 하나면 그 둘은 같은 과목이다
+  // 과목 연결 우선순위 (A10): ① 확정값에 저장된 분석 과목 번호(공식, 초안이 닫혀도 남음)
+  // ② 검토 초안의 subjectLinks(번호·과목 모두 ①에 없을 때만) ③ 분석 과목 1개 + 확정 과목 1개. 그 밖에는 추정하지 않는다
   const confirmedSubjects = new Set((analysis.confirmedFields ?? []).map((field) => field.subjectId))
   if ((analysis.subjects ?? []).length === 1 && subjectLinks[0] === undefined && confirmedSubjects.size === 1) subjectLinks[0] = [...confirmedSubjects][0]
   return {

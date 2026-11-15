@@ -132,8 +132,17 @@ public class PlanReview implements Persistable<String> {
 
     /** PDF 확정값: 근거는 물리 쪽 번호. */
     public void addConfirmedValue(String subjectId, String fieldPath, String valueJson, Integer pdfPageNumber) {
+        addConfirmedValue(subjectId, fieldPath, valueJson, pdfPageNumber, null);
+    }
+
+    /**
+     * PDF 확정값 + 분석 과목 번호(A10, 선택). 확정 시점의 분석 과목 ↔ 학업 과목 연결을 확정값과 함께 남긴다 —
+     * 검토 초안이 닫혀도 다과목 문서의 과목 연결이 보존된다. null이면 연결 정보 없음(이전 확정과 같음).
+     */
+    public void addConfirmedValue(String subjectId, String fieldPath, String valueJson, Integer pdfPageNumber,
+            Integer analysisSubjectIndex) {
         confirmedValues.add(new PlanConfirmedValue(revisionId, subjectId, fieldPath, valueJson, pdfPageNumber,
-                "PDF", null, null, confirmedValues.size()));
+                "PDF", null, analysisSubjectIndex, confirmedValues.size()));
     }
 
     /** HWP·HWPX 확정값: 근거는 구조 Locator(JSON)와 분석 결과 안의 과목 번호. 가짜 PDF 쪽 번호를 만들지 않는다. */

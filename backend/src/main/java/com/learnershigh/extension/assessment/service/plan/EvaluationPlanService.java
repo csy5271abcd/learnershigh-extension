@@ -244,6 +244,8 @@ public class EvaluationPlanService {
         }
         List<AnalysisImportRequest.Subject> analysisSubjects = structured && run.isPresent()
                 ? analysisSubjects(run.get()) : List.of();
+        // A10: PDF도 분석 과목 번호를 선택적으로 받는다 — 범위는 저장된 분석 결과의 과목 수로만 판정한다(DTO 재해석 없음)
+        int pdfAnalysisSubjectCount = !structured && run.isPresent() ? mapper.readTree(run.get().resultJson()).size() : 0;
         PlanReview review = PlanReview.confirm(revision.id(), request.analysisId(), admin.adminId(), times.now());
         if (structured) {
             ReviewFieldRules.checkSource(request.sourceCheck(), revision.sha256(), violations::add);
@@ -270,6 +272,9 @@ public class EvaluationPlanService {
             }
             if (structured && run.isPresent()) {
                 ReviewFieldRules.checkSubjectIndex(analysisSubjects, subject.analysisSubjectIndex(),
+                        subjectPath + ".analysisSubjectIndex", usedIndexes, violations::add);
+            } else if (!structured && run.isPresent()) {
+                ReviewFieldRules.checkOptionalSubjectIndex(pdfAnalysisSubjectCount, subject.analysisSubjectIndex(),
                         subjectPath + ".analysisSubjectIndex", usedIndexes, violations::add);
             }
             for (int f = 0; f < subject.confirmedFields().size(); f++) {
@@ -305,7 +310,8 @@ public class EvaluationPlanService {
                             && field.pdfPageNumber() > revision.pageCount()) {
                         violations.add(new FieldViolation(path + ".pdfPageNumber", "out_of_range"));
                     }
-                    review.addConfirmedValue(subject.subjectId(), field.fieldPath(), valueJson, field.pdfPageNumber());
+                    review.addConfirmedValue(subject.subjectId(), field.fieldPath(), valueJson, field.pdfPageNumber(),
+                            subject.analysisSubjectIndex());
                 }
             }
         }

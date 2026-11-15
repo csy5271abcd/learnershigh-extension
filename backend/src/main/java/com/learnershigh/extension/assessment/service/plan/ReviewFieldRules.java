@@ -18,7 +18,8 @@ import java.util.regex.Pattern;
  * 검토 요청의 형식별 필드 규칙 (Phase B M-4, 2026-11-11).
  *
  * <p>PDF: 기존 규칙 그대로 + 비정규 색인({@code [01]}) 거절 + 같은 과목 안 fieldPath 중복 거절.
- * HWP·HWPX 전용 필드(sourceCheck·analysisSubjectIndex·documentLocator·absence)는 PDF에서 not_allowed.
+ * HWP·HWPX 전용 필드(sourceCheck·documentLocator·absence)는 PDF에서 not_allowed. PDF analysisSubjectIndex는 A10부터 선택 항목이다
+ * (다과목 문서의 분석 과목 ↔ 확정 과목 연결을 확정 시점에 영속화한다, {@link #checkOptionalSubjectIndex}).
  *
  * <p>HWP·HWPX: 원본 SHA 대조 + 명시적 수동 대조 확인 필수, 필드마다 이 Run의 그 과목·근거 노드에 있는 Locator만 허용
  * ({@link ReviewEvidenceScope}). 값 null은 absence=NOT_IN_SOURCE와 확인한 위치가 있어야만 확정한다.
@@ -44,16 +45,13 @@ final class ReviewFieldRules {
         return true;
     }
 
-    /** PDF 요청에 HWP·HWPX 전용 필드가 있으면 거절한다(PDF 범위 확장은 별도 결정). */
+    /** PDF 요청에 HWP·HWPX 전용 필드(sourceCheck·documentLocator·absence)가 있으면 거절한다. analysisSubjectIndex는 허용(A10). */
     static void rejectStructuredFieldsOnPdf(PlanReviewRequest request, Consumer<FieldViolation> out) {
         if (request.sourceCheck() != null) {
             out.accept(new FieldViolation("sourceCheck", "not_allowed"));
         }
         for (int s = 0; s < request.reviewedSubjects().size(); s++) {
             ReviewedSubject subject = request.reviewedSubjects().get(s);
-            if (subject.analysisSubjectIndex() != null) {
-                out.accept(new FieldViolation("reviewedSubjects[" + s + "].analysisSubjectIndex", "not_allowed"));
-            }
             for (int f = 0; f < subject.confirmedFields().size(); f++) {
                 ConfirmedField field = subject.confirmedFields().get(f);
                 String path = "reviewedSubjects[" + s + "].confirmedFields[" + f + "]";
@@ -96,6 +94,22 @@ final class ReviewFieldRules {
         if (index == null) {
             out.accept(new FieldViolation(path, "required"));
         } else if (index < 0 || index >= analysisSubjects.size()) {
+            out.accept(new FieldViolation(path, "unknown"));
+        } else if (!used.add(index)) {
+            out.accept(new FieldViolation(path, "duplicate"));
+        }
+    }
+
+    /**
+     * PDF 분석 과목 번호(A10, 선택): 없으면 연결하지 않는다(이전 요청 호환). 있으면 이 분석 결과의 과목 범위 안이어야 하고
+     * 두 검토 과목이 같은 번호를 쓰지 않는다. 과목명·배열 순서로 추측하지 않고 관리자 화면이 고른 분석 과목 번호만 저장한다.
+     */
+    static void checkOptionalSubjectIndex(int analysisSubjectCount, Integer index, String path, Set<Integer> used,
+            Consumer<FieldViolation> out) {
+        if (index == null) {
+            return;
+        }
+        if (index < 0 || index >= analysisSubjectCount) {
             out.accept(new FieldViolation(path, "unknown"));
         } else if (!used.add(index)) {
             out.accept(new FieldViolation(path, "duplicate"));

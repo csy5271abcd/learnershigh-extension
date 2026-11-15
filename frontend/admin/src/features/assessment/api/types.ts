@@ -324,7 +324,7 @@ export interface PlanReviewConfirmRequest {
   decision: 'CONFIRM'
   reviewedSubjects: {
     subjectId: string
-    /** HWP·HWPX만: 분석 결과 subjects[] 안의 번호 */
+    /** 분석 결과 subjects[] 안의 번호. HWP·HWPX 필수, PDF 선택(A10 — 다과목 연결 영속화) */
     analysisSubjectIndex?: number
     confirmedFields: {
       fieldPath: string

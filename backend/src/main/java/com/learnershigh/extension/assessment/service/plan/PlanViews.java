@@ -153,7 +153,8 @@ public class PlanViews {
         return review.confirmedValues().stream()
                 .map(value -> "PDF".equals(value.evidenceFormat())
                         ? new ConfirmedFieldView(value.subjectId(), value.fieldPath(),
-                                value.valueJson() == null ? null : json(value.valueJson()), value.pdfPageNumber())
+                                value.valueJson() == null ? null : json(value.valueJson()), value.pdfPageNumber(),
+                                value.analysisSubjectIndex(), null, null)
                         : new ConfirmedFieldView(value.subjectId(), value.fieldPath(),
                                 value.valueJson() == null ? null : json(value.valueJson()), null,
                                 value.analysisSubjectIndex(), json(value.evidenceLocatorJson()),
@@ -165,6 +166,7 @@ public class PlanViews {
         return mapper.readValue(raw, Object.class);
     }
 
+                        // PDF: A10부터 분석 과목 번호가 있으면 함께 보낸다(NON_NULL — 이전 확정값 응답은 그대로)
     /** 정렬된 목록(오래된 것 → 최근)에서 Key별 마지막 항목. */
     private static <T> Map<String, T> latest(List<T> ordered, Function<T, String> key) {
         Map<String, T> result = new LinkedHashMap<>();

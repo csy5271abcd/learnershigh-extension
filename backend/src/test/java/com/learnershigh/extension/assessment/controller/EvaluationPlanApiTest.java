@@ -350,7 +350,8 @@ class EvaluationPlanApiTest {
                         .formatted(analysisId, sha256(bytes))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[?(@.field == 'sourceCheck')].reason").value("not_allowed"))
-                .andExpect(jsonPath("$.details.fields[?(@.field == 'reviewedSubjects[0].analysisSubjectIndex')].reason").value("not_allowed"))
+                // A10: PDF analysisSubjectIndex는 선택 항목이 되어 더 이상 not_allowed가 아니다(PlanMultiSubjectConfirmApiTest)
+                .andExpect(jsonPath("$.details.fields[?(@.field == 'reviewedSubjects[0].analysisSubjectIndex')]").isEmpty())
                 .andExpect(jsonPath("$.details.fields[?(@.field == 'reviewedSubjects[0].confirmedFields[0].absence')].reason").value("not_allowed"));
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
 

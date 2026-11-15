@@ -378,7 +378,8 @@ class PlanServerAnalysisApiTest {
                 .andExpect(jsonPath("$.confirmedFields.length()").value(1))
                 .andExpect(jsonPath("$.confirmedFields[0].value").value(70))
                 .andReturn().getResponse().getContentAsString();
-        assertThat(body).doesNotContain("55");
+        // 이전 값(55)이 확정값에 섞이지 않는다. 본문 전체 문자열 검사는 무작위 ID(UUID)에 "55"가 들어가면 우연히 실패했다(A10에서 확인)
+        assertThat(JsonPath.<java.util.List<Object>>read(body, "$.confirmedFields[*].value")).containsExactly(70);
     }
 
     void confirm(Uploaded uploaded, String analysisId, int weight) throws Exception {
