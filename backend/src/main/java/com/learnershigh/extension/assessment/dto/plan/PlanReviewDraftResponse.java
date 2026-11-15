@@ -15,6 +15,18 @@ public record PlanReviewDraftResponse(String planId, String revisionId, String l
     public record Draft(String draftId, String analysisId, String status, String closedReason, long version,
             List<StoredDecision> decisions, List<PlanReviewDraftRequest.SubjectLink> subjectLinks, int decisionCount,
             String analyzerVersion, String createdBy, OffsetDateTime createdAt, String updatedBy,
+            OffsetDateTime updatedAt, List<ManualRow> manualRows) {
+    }
+
+    /**
+     * A14 §39-11 운영계획 초안의 관리자 직접 추가 행. origin은 항상 MANUAL(분석 후보가 아니다).
+     * rowKey는 서버 발급(manual_…) — 분석 후보 rowKey와 겹치지 않고 재검토·재확정에서도 같은 행을 가리킨다.
+     * status: INCLUDED(확정하면 공개) · EXCLUDED(제외, 학생 비공개). pdfPageNumber = 관리자가 확인한 쪽(분석 근거 아님).
+     */
+    public record ManualRow(String rowKey, String origin, int subjectIndex, String status, String unit, String content,
+            String note, String specialSchedule, List<AnalysisImportRequest.Standard> achievementStandards,
+            List<String> teachingMethods, List<String> assessmentMethods, AnalysisImportRequest.Schedule schedule,
+            Integer pdfPageNumber, String createdBy, OffsetDateTime createdAt, String updatedBy,
             OffsetDateTime updatedAt) {
     }
 

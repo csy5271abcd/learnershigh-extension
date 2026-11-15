@@ -17,6 +17,9 @@ public class TeachingPlanReviewRow {
     public static final String CONFIRMED = "CONFIRMED";
     public static final String EDITED = "EDITED";
     public static final String EXCLUDED = "EXCLUDED";
+    /** A14 행 출처: 분석 후보 행 / 관리자 직접 추가 행(후보 없음, candidateJson = null) */
+    public static final String ORIGIN_ANALYSIS = "ANALYSIS";
+    public static final String ORIGIN_MANUAL = "MANUAL";
 
     @Id
     @Column(name = "id", length = 64)
@@ -34,6 +37,9 @@ public class TeachingPlanReviewRow {
     @Column(name = "row_key", nullable = false, length = 50, updatable = false)
     private String rowKey;
 
+    @Column(name = "row_origin", nullable = false, length = 20, updatable = false)
+    private String origin;
+
     @Column(name = "decision", nullable = false, length = 20, updatable = false)
     private String decision;
 
@@ -49,14 +55,14 @@ public class TeachingPlanReviewRow {
     @Column(name = "row_json", nullable = false, updatable = false, columnDefinition = "MEDIUMTEXT")
     private String rowJson;
 
-    @Column(name = "candidate_json", nullable = false, updatable = false, columnDefinition = "MEDIUMTEXT")
+    @Column(name = "candidate_json", updatable = false, columnDefinition = "MEDIUMTEXT")
     private String candidateJson;
 
     protected TeachingPlanReviewRow() {
     }
 
     static TeachingPlanReviewRow of(int sortOrder, String subjectId, int analysisSubjectIndex, String rowKey,
-            String decision, String precision, Integer monthFrom, Integer monthTo, String rowJson,
+            String origin, String decision, String precision, Integer monthFrom, Integer monthTo, String rowJson,
             String candidateJson) {
         TeachingPlanReviewRow row = new TeachingPlanReviewRow();
         row.id = "teaching_plan_row_" + UUID.randomUUID();
@@ -64,6 +70,7 @@ public class TeachingPlanReviewRow {
         row.subjectId = subjectId;
         row.analysisSubjectIndex = analysisSubjectIndex;
         row.rowKey = rowKey;
+        row.origin = origin;
         row.decision = decision;
         row.precision = precision;
         row.monthFrom = monthFrom;
@@ -87,6 +94,14 @@ public class TeachingPlanReviewRow {
 
     public String rowKey() {
         return rowKey;
+    }
+
+    public String origin() {
+        return origin;
+    }
+
+    public boolean manual() {
+        return ORIGIN_MANUAL.equals(origin);
     }
 
     public String decision() {

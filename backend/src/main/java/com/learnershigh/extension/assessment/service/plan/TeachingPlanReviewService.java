@@ -1,6 +1,7 @@
 package com.learnershigh.extension.assessment.service.plan;
 
 import com.learnershigh.extension.assessment.dto.plan.AnalysisImportRequest;
+import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewRequest;
 import com.learnershigh.extension.assessment.dto.plan.TeachingPlanReviewResponse;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
@@ -42,7 +43,9 @@ import tools.jackson.databind.node.ObjectNode;
  *   <li>과목 ID는 그 문서 슬롯의 학업 과목이어야 한다(과목명으로 추측하지 않는다).</li>
  *   <li>관리자 수정은 unit·content·note·specialSchedule·schedule만. schedule은 0.3 불변 규칙을 지키고,
  *       calendarYear는 후보 값과 같을 때만 허용한다(연도를 새로 만들지 않음).</li>
- *   <li>Revision당 1건. 재검토·재확정 정책은 미결이라 두 번째 확정은 409.</li>
+ *   <li>A13: 확정은 버전으로 쌓인다(불변). 이미 확정된 운영계획은 재검토(초안 다시 열기) 중에만 다시 확정한다(아니면 409).</li>
+ *   <li>A14: 관리자 직접 추가 행(manualRows)은 열려 있는 운영계획 초안에 있는 서버 발급 키만 받고, 내용은 초안에서 가져온다.
+ *       출처 MANUAL·후보 없음으로 저장해 분석 후보 행과 구분한다.</li>
  * </ul>
  */
 @Service
@@ -151,6 +154,48 @@ public class TeachingPlanReviewService {
                     hasSchedule && number(schedule, "monthFrom") != null ? number(schedule, "monthFrom") : number(finalRow, "month"),
                     hasSchedule && number(schedule, "monthTo") != null ? number(schedule, "monthTo") : number(finalRow, "monthTo"),
                     mapper.writeValueAsString(finalRow), mapper.writeValueAsString(candidate));
+        }
+        // A14 §39-11 관리자 직접 추가 행: 열려 있는 운영계획 초안에 있는 키만(서버 발급). 내용은 초안에서 가져온다.
+        Map<String, PlanReviewDraftResponse.ManualRow> manual = request.manualRowsOrEmpty().isEmpty() ? Map.of()
+                : drafts.openManualRows(run.get().id());
+        for (int i = 0; i < request.manualRowsOrEmpty().size(); i++) {
+            TeachingPlanReviewRequest.ManualRow row = request.manualRowsOrEmpty().get(i);
+            String at = "manualRows[" + i + "]";
+            PlanReviewDraftResponse.ManualRow held = manual.get(row.rowKey());
+            if (held == null) {
+                violations.add(new FieldViolation(at + ".rowKey", "unknown"));
+                continue;
+            }
+            if (held.subjectIndex() != row.subjectIndex()) {
+                violations.add(new FieldViolation(at + ".subjectIndex", "conflict"));
+                continue;
+            }
+            if (!seen.add(row.subjectIndex() + "|" + row.rowKey())) {
+                violations.add(new FieldViolation(at + ".rowKey", "duplicate"));
+                continue;
+            }
+            String expected = TeachingPlanManualRows.EXCLUDED.equals(held.status()) ? TeachingPlanReviewRow.EXCLUDED
+                    : TeachingPlanReviewRow.CONFIRMED;
+            if (!expected.equals(row.decision())) {
+                // 화면이 오래된 초안을 보고 있다(제외·복원이 바뀜) — 다시 읽게 한다
+                violations.add(new FieldViolation(at + ".decision", "conflict"));
+            }
+            if (slot.isEmpty() || !slot.get().hasSubject(row.subjectId())) {
+                violations.add(new FieldViolation(at + ".subjectId", "unknown"));
+            } else {
+                String linked = subjectOfIndex.putIfAbsent(row.subjectIndex(), row.subjectId());
+                if (linked != null && !linked.equals(row.subjectId())) {
+                    violations.add(new FieldViolation(at + ".subjectId", "conflict"));
+                }
+            }
+            ObjectNode finalRow = TeachingPlanManualRows.rowJson(mapper, held);
+            AnalysisImportRequest.Schedule schedule = held.schedule();
+            review.addRow(row.subjectId(), row.subjectIndex(), row.rowKey(), TeachingPlanReviewRow.ORIGIN_MANUAL,
+                    row.decision(), schedule.precision(), schedule.monthFrom(), schedule.monthTo(),
+                    mapper.writeValueAsString(finalRow), null);
+        }
+        if (request.rows().isEmpty() && request.manualRowsOrEmpty().isEmpty()) {
+            violations.add(new FieldViolation("rows", "required"));
         }
         if (!violations.isEmpty()) {
             throw invalid(violations);

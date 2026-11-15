@@ -53,7 +53,8 @@ public class TeachingPlanQueryService {
         return review.rows().stream()
                 .map(row -> new TeachingPlanReviewResponse.RowView(row.analysisSubjectIndex(), row.rowKey(),
                         row.subjectId(), row.decision(), mapper.readValue(row.rowJson(), Object.class),
-                        mapper.readValue(row.candidateJson(), Object.class)))
+                        row.candidateJson() == null ? null : mapper.readValue(row.candidateJson(), Object.class),
+                        row.origin()))
                 .toList();
     }
 
@@ -117,6 +118,11 @@ public class TeachingPlanQueryService {
                 .filter(java.util.Objects::nonNull)
                 .min(Integer::compare)
                 .orElse(null);
+        if (stored.manual()) {
+            // A14: 관리자 추가 행은 분석 근거가 없다. 관리자가 확인한 PDF 쪽만(없으면 null)
+            tools.jackson.databind.JsonNode manualPage = mapper.readTree(stored.rowJson()).get("manualPdfPageNumber");
+            page = manualPage != null && manualPage.isNumber() ? manualPage.intValue() : null;
+        }
         return new StudentTeachingPlanResponse.Row(stored.subjectId(), row.rowKey(), row.month(), row.monthTo(),
                 row.weekLabel(), row.weekFrom(), row.weekTo(), row.unit(), row.content(), row.note(),
                 row.achievementStandards(), row.teachingMethods(), row.assessmentMethods(), row.specialSchedule(),

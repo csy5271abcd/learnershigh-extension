@@ -17,7 +17,24 @@ import java.util.List;
  */
 public record TeachingPlanReviewRequest(
         @NotBlank @Size(max = 64) String analysisId,
-        @NotNull @Size(min = 1, max = 2000) List<@NotNull @Valid Row> rows) {
+        @NotNull @Size(max = 2000) List<@NotNull @Valid Row> rows,
+        // A14 §39-11: 관리자 직접 추가 행(선택). 내용은 열려 있는 운영계획 초안의 행에서 서버가 가져온다(요청은 키·과목·결정만).
+        @Size(max = 200) List<@NotNull @Valid ManualRow> manualRows) {
+
+    public TeachingPlanReviewRequest(String analysisId, List<Row> rows) {
+        this(analysisId, rows, null);
+    }
+
+    public List<ManualRow> manualRowsOrEmpty() {
+        return manualRows == null ? List.of() : manualRows;
+    }
+
+    public record ManualRow(
+            @NotBlank @Size(max = 50) String rowKey,
+            @NotNull @Min(0) @Max(49) Integer subjectIndex,
+            @NotBlank @Size(max = 64) String subjectId,
+            @NotNull @Pattern(regexp = "CONFIRMED|EXCLUDED") String decision) {
+    }
 
     public record Row(
             @NotNull @Min(0) @Max(49) Integer subjectIndex,

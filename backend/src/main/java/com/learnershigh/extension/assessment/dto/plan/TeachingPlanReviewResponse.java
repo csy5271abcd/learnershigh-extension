@@ -27,7 +27,8 @@ public record TeachingPlanReviewResponse(String planId, String revisionId, Strin
             boolean current, int publishedRowCount, int excludedRowCount, List<RowView> rows) {
     }
 
+    /** A14: origin = ANALYSIS(분석 후보 행, candidate = 원래 후보) · MANUAL(관리자 직접 추가 행, candidate = null). */
     public record RowView(int subjectIndex, String rowKey, String subjectId, String decision, Object row,
-            Object candidate) {
+            Object candidate, String origin) {
     }
 }

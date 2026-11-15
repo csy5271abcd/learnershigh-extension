@@ -3,6 +3,7 @@ package com.learnershigh.extension.assessment.controller;
 import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
+import com.learnershigh.extension.assessment.dto.plan.TeachingPlanManualRowRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanStructurePreviewResponse;
 import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
@@ -203,6 +204,21 @@ public class AdminEvaluationPlanController {
         boolean open = teachingPlanQueries.latestAnalysisId(admin, planId, revisionId)
                 .map(draftService::teachingPlanDraftOpen).orElse(false);
         return teachingPlanQueries.adminHistory(admin, planId, revisionId, open);
+    }
+
+    /** A14 §39-11 운영계획 초안에 관리자 직접 추가 행 생성(행 키는 서버 발급). 학생에게는 확정 뒤에만 보인다. */
+    @PostMapping(path = "/{planId}/revisions/{revisionId}/teaching-plan-draft/manual-rows", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PlanReviewDraftResponse createTeachingPlanManualRow(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId, @Valid @RequestBody TeachingPlanManualRowRequest request) {
+        return draftService.writeManualRow(admin, planId, revisionId, null, request);
+    }
+
+    /** A14 §39-11 관리자 직접 추가 행 수정·제외·복원(status). 같은 초안의 키만, 과목은 바꿀 수 없다. */
+    @PutMapping(path = "/{planId}/revisions/{revisionId}/teaching-plan-draft/manual-rows/{rowKey}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public PlanReviewDraftResponse updateTeachingPlanManualRow(AdminActor admin, @PathVariable String planId,
+            @PathVariable String revisionId, @PathVariable String rowKey,
+            @Valid @RequestBody TeachingPlanManualRowRequest request) {
+        return draftService.writeManualRow(admin, planId, revisionId, rowKey, request);
     }
 
     /** A7 §39-6 운영계획 공유 초안 조회. 평가 정보 초안과 별도 — 평가 정보 확정 뒤에도 쓴다. */

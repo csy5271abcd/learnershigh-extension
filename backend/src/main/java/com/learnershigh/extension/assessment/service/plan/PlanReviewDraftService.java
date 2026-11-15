@@ -2,6 +2,7 @@ package com.learnershigh.extension.assessment.service.plan;
 
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftRequest;
 import com.learnershigh.extension.assessment.dto.plan.PlanReviewDraftResponse;
+import com.learnershigh.extension.assessment.dto.plan.TeachingPlanManualRowRequest;
 import com.learnershigh.extension.assessment.entity.EvaluationPlan;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisRun;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisStatus;
@@ -86,7 +87,18 @@ public class PlanReviewDraftService {
 
     /** 저장 본문 (payload_json) */
     record Payload(List<PlanReviewDraftResponse.StoredDecision> decisions,
-            List<PlanReviewDraftRequest.SubjectLink> subjectLinks) {
+            List<PlanReviewDraftRequest.SubjectLink> subjectLinks,
+            // A14: 운영계획 초안의 관리자 직접 추가 행(이전 초안 JSON에는 없음 → 빈 목록)
+            List<PlanReviewDraftResponse.ManualRow> manualRows) {
+
+        Payload {
+            manualRows = manualRows == null ? List.of() : List.copyOf(manualRows);
+        }
+
+        Payload(List<PlanReviewDraftResponse.StoredDecision> decisions,
+                List<PlanReviewDraftRequest.SubjectLink> subjectLinks) {
+            this(decisions, subjectLinks, List.of());
+        }
     }
 
     @Transactional(readOnly = true)
@@ -149,6 +161,13 @@ public class PlanReviewDraftService {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("analysisId", "analysis_failed"));
         }
         Payload payload = validate(request, run, revision, teachingPlan);
+        if (teachingPlan) {
+            // A14: 행 결정 저장(자동 저장)은 관리자 추가 행을 바꾸지 않는다 — 추가 행은 전용 API로만 생성·수정한다
+            Optional<PlanReviewDraft> held = drafts.findByAnalysisId(run.id(), scope);
+            if (held.isPresent()) {
+                payload = new Payload(payload.decisions(), payload.subjectLinks(), read(held.get()).manualRows());
+            }
+        }
         String payloadJson = mapper.writeValueAsString(payload);
         Instant now = times.now();
 
@@ -250,9 +269,17 @@ public class PlanReviewDraftService {
         JsonNode subjects = mapper.readTree(run.resultJson());
         List<PlanReviewDraftResponse.StoredDecision> decisions = new ArrayList<>();
         Map<Integer, String> links = new LinkedHashMap<>();
+        List<PlanReviewDraftResponse.ManualRow> manualRows = new ArrayList<>();
         for (com.learnershigh.extension.assessment.entity.TeachingPlanReviewRow row : review.rows()) {
             int index = row.analysisSubjectIndex();
             if (index < 0 || index >= subjects.size()) {
+                continue;
+            }
+            if (row.manual()) {
+                // A14: 관리자 추가 행은 같은 키로 초안에 다시 둔다(제외였으면 제외 상태로)
+                links.putIfAbsent(index, row.subjectId());
+                manualRows.add(TeachingPlanManualRows.fromConfirmed(mapper, row, review.reviewedBy(),
+                        times.toOffset(review.reviewedAt())));
                 continue;
             }
             JsonNode rows = subjects.get(index).get("teachingPlan");
@@ -296,7 +323,7 @@ public class PlanReviewDraftService {
                     candidate(subjects.get(index), fieldPath)));
         }
         return new Payload(decisions, links.entrySet().stream()
-                .map(e -> new PlanReviewDraftRequest.SubjectLink(e.getKey(), e.getValue())).toList());
+                .map(e -> new PlanReviewDraftRequest.SubjectLink(e.getKey(), e.getValue())).toList(), manualRows);
     }
 
     /** A12: 이 분석 결과의 평가 정보 초안이 열려 있는가(확정된 Revision의 재확정 허용 조건). */
@@ -377,6 +404,126 @@ public class PlanReviewDraftService {
     }
 
     /** 최종 확정(PUT review)과 같은 Transaction에서 호출: 그 분석 결과의 초안을 닫는다. 초안이 없으면 아무것도 하지 않는다. */
+    /**
+     * A14 §39-11 관리자 직접 추가 행 생성(rowKey = null) · 수정(rowKey). 운영계획 초안에만 저장한다(학생 비공개).
+     * 저장 규칙은 운영계획 초안 저장과 같다: 최신 분석 결과만, 확정된 운영계획은 재검토 중에만, baseVersion 낙관적 잠금
+     * (초안이 없으면 null → 새 초안). 같은 요청을 다시 보내면 version이 이미 올라가 409 — 행이 두 번 생기지 않는다.
+     * 수정은 같은 초안에 있는 키만(없으면 404 — 다른 Revision·다른 분석 결과의 키 포함), 과목(subjectIndex)은 바꿀 수 없다.
+     */
+    public PlanReviewDraftResponse writeManualRow(AdminActor admin, String planId, String revisionId, String rowKey,
+            TeachingPlanManualRowRequest request) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        String scope = PlanReviewDraft.SCOPE_TEACHING_PLAN;
+        Optional<PlanAnalysisRun> latest = latestRun(revision);
+        if (teachingPlanReviews.findByRevisionId(revision.id()).isPresent() && !draftOpen(latest, scope)) {
+            throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                    new FieldViolation("revision", "teaching_plan_already_confirmed"));
+        }
+        if (latest.isEmpty() || !latest.get().id().equals(request.analysisId())) {
+            boolean known = runs.findById(request.analysisId()).filter(r -> r.revisionId().equals(revision.id())).isPresent();
+            if (!known) {
+                throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("analysisId", "unknown"));
+            }
+            throw stale(latest.map(PlanAnalysisRun::id).orElse(null));
+        }
+        PlanAnalysisRun run = latest.get();
+        JsonNode subjects = mapper.readTree(run.resultJson());
+        if (run.status() == PlanAnalysisStatus.FAILED || TeachingPlanQueryService.candidateRowCount(subjects) == 0) {
+            // 분석 결과에 운영계획이 전혀 없는 문서의 수동 전체 작성은 이번 범위가 아니다
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("analysisId",
+                    run.status() == PlanAnalysisStatus.FAILED ? "analysis_failed" : "no_teaching_plan"));
+        }
+        Optional<PlanReviewDraft> existing = drafts.findByAnalysisId(run.id(), scope);
+        if (existing.isEmpty()) {
+            if (rowKey != null) {
+                throw manualRowNotFound();
+            }
+            if (request.baseVersion() != null) {
+                throw conflict(null);
+            }
+        } else {
+            if (!existing.get().isActive()) {
+                throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
+                        new FieldViolation("draft", "closed"));
+            }
+            if (request.baseVersion() == null || existing.get().version() != request.baseVersion()) {
+                throw conflict(existing.get());
+            }
+        }
+        Payload current = existing.map(this::read).orElse(new Payload(List.of(), List.of()));
+        List<PlanReviewDraftResponse.ManualRow> rows = new ArrayList<>(current.manualRows());
+        List<FieldViolation> violations = new ArrayList<>();
+        TeachingPlanManualRows.validate("row", request.row(), subjects.isArray() ? subjects.size() : 0,
+                revision.pageCount(), violations);
+        Instant now = times.now();
+        java.time.OffsetDateTime at = times.toOffset(now);
+        String key;
+        if (rowKey == null) {
+            if (rows.size() >= TeachingPlanManualRows.MAX_ROWS) {
+                violations.add(new FieldViolation("row", "too_many"));
+            }
+            key = TeachingPlanManualRows.newKey(subjects, request.row().subjectIndex(), rows);
+            if (violations.isEmpty()) {
+                rows.add(TeachingPlanManualRows.of(key, request.row(), admin.adminId(), at, admin.adminId(), at));
+            }
+        } else {
+            key = rowKey;
+            int position = -1;
+            for (int i = 0; i < rows.size(); i++) {
+                if (rows.get(i).rowKey().equals(rowKey)) {
+                    position = i;
+                }
+            }
+            if (position < 0) {
+                throw manualRowNotFound();
+            }
+            PlanReviewDraftResponse.ManualRow before = rows.get(position);
+            if (before.subjectIndex() != request.row().subjectIndex()) {
+                violations.add(new FieldViolation("row.subjectIndex", "conflict"));
+            }
+            if (violations.isEmpty()) {
+                rows.set(position, TeachingPlanManualRows.of(key, request.row(), before.createdBy(), before.createdAt(),
+                        admin.adminId(), at));
+            }
+        }
+        if (!violations.isEmpty()) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, violations.toArray(FieldViolation[]::new));
+        }
+        Payload payload = new Payload(current.decisions(), current.subjectLinks(), rows);
+        String payloadJson = mapper.writeValueAsString(payload);
+        PlanReviewDraft draft;
+        if (existing.isEmpty()) {
+            draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(),
+                    payloadJson, payload.decisions().size(), admin.adminId(), now);
+            try {
+                draft = drafts.saveAndFlush(draft);
+            } catch (DataIntegrityViolationException raced) {
+                throw conflict(null);
+            }
+        } else {
+            draft = existing.get();
+            draft.replace(payloadJson, payload.decisions().size(), admin.adminId(), now);
+            draft = drafts.saveAndFlush(draft);
+        }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 1,
+                mapper.writeValueAsString(List.of(request.row().subjectIndex() + "|manual:" + key))));
+        return view(plan, revision, Optional.of(run), scope);
+    }
+
+    /** A14: 확정 요청이 가리키는 관리자 추가 행(열려 있는 운영계획 초안에 있는 것만). 키 → 행 */
+    @Transactional(readOnly = true)
+    public Map<String, PlanReviewDraftResponse.ManualRow> openManualRows(String analysisId) {
+        Map<String, PlanReviewDraftResponse.ManualRow> rows = new LinkedHashMap<>();
+        drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_TEACHING_PLAN).filter(PlanReviewDraft::isActive)
+                .ifPresent(draft -> read(draft).manualRows().forEach(row -> rows.put(row.rowKey(), row)));
+        return rows;
+    }
+
+    private static BusinessException manualRowNotFound() {
+        return new BusinessException(CommonErrorCode.NOT_FOUND, "운영계획 추가 행을 찾을 수 없습니다.");
+    }
+
     public void closeOnConfirm(String analysisId, String adminId, Instant now) {
         // 평가 정보 초안만 닫는다. 운영계획 초안은 운영계획 확정 때 닫는다 (A7)
         drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_EVALUATION)
@@ -515,7 +662,7 @@ public class PlanReviewDraftService {
         Payload payload = read(d);
         return new PlanReviewDraftResponse.Draft(d.id(), d.analysisId(), d.status(), d.closedReason(), d.version(),
                 payload.decisions(), payload.subjectLinks(), d.decisionCount(), d.analyzerVersion(), d.createdBy(),
-                times.toOffset(d.createdAt()), d.updatedBy(), times.toOffset(d.updatedAt()));
+                times.toOffset(d.createdAt()), d.updatedBy(), times.toOffset(d.updatedAt()), payload.manualRows());
     }
 
     private BusinessException conflict(PlanReviewDraft current) {

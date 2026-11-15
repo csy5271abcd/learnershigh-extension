@@ -80,8 +80,18 @@ public class TeachingPlanReview implements Persistable<String> {
 
     public void addRow(String subjectId, int analysisSubjectIndex, String rowKey, String decision, String precision,
             Integer monthFrom, Integer monthTo, String rowJson, String candidateJson) {
-        rows.add(TeachingPlanReviewRow.of(rows.size(), subjectId, analysisSubjectIndex, rowKey, decision, precision,
-                monthFrom, monthTo, rowJson, candidateJson));
+        addRow(subjectId, analysisSubjectIndex, rowKey, TeachingPlanReviewRow.ORIGIN_ANALYSIS, decision, precision,
+                monthFrom, monthTo, rowJson, candidateJson);
+    }
+
+    /** A14: origin = ANALYSIS(분석 후보, candidateJson 필수) · MANUAL(관리자 직접 추가, candidateJson = null). */
+    public void addRow(String subjectId, int analysisSubjectIndex, String rowKey, String origin, String decision,
+            String precision, Integer monthFrom, Integer monthTo, String rowJson, String candidateJson) {
+        if (TeachingPlanReviewRow.ORIGIN_MANUAL.equals(origin) == (candidateJson != null)) {
+            throw new IllegalArgumentException("manual rows have no candidate; analysis rows must keep theirs");
+        }
+        rows.add(TeachingPlanReviewRow.of(rows.size(), subjectId, analysisSubjectIndex, rowKey, origin, decision,
+                precision, monthFrom, monthTo, rowJson, candidateJson));
         rowCount = rows.size();
     }
 
