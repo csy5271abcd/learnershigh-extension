@@ -1199,6 +1199,7 @@ GET /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/previ
 ```
 
 오류·Header 규칙은 §10-1-1과 같다(무결성 `409 FILE_INTEGRITY_FAILED`, HWP·HWPX 미리보기 `415 PREVIEW_UNAVAILABLE`, 원문 없음 `404`).
+HWP·HWPX 원문은 A10부터 §38-6 구조 미리보기(`.../structure`, 관리자 전용)로 연다. `/preview`의 PDF 전용 동작은 바뀌지 않는다.
 
 ### 38-2. 평가계획서 운영 권한 (OD-A08, 2026-11-13 사용자 결정)
 
@@ -1245,8 +1246,26 @@ GET /api/admin/assessment/evaluation-plans/{planId}/subjects
 
 - 값 표시 상태(화면 규칙, 새 필드 없음): **관리자 확정**(`confirmedFields` 값) / **원문에 없음(관리자 확정)**(`value = null`) / **원문에 없음(분석)**(0.3 issue `FIELD_NOT_PROVIDED`) / **분석하지 못함**(issue `FIELD_EXTRACTION_FAILED`) / **미확정 후보**(분석값) / **정보 없음**. 값을 만들지 않는다. 채점기준·내용·제출물·조건은 확정 대상이 아니므로 항상 후보로 표시한다.
 - 운영계획: 기존 8종 날짜 정밀도를 그대로 쓰고, 그 학기 달 밖 행과 시기를 정할 수 없는 행도 별도 묶음으로 모두 보인다. 0.2 결과(운영계획 필드 없음)는 '원문에 없음'이 아니라 '이전 분석 형식이라 담기지 않음'으로 안내한다.
-- HWP·HWPX: 원문 미리보기는 §38-1 `previewAvailable`을 따른다(현재 `false` → 내려받기만, 화면 안내). 변환 미리보기가 생겨도 `documentLocator`를 변환 PDF 쪽으로 이동하지 않는다(위치 대응 미검증).
+- HWP·HWPX: 원문은 §38-6 구조 미리보기로 연다(A10, `file.structurePreviewAvailable`). 근거 버튼은 분석 결과 `documentLocator`의 `section`·`path`와 **정확히 같은** 위치만 강조한다(없으면 강조하지 않고 안내). PDF로 변환하지 않으므로 쪽 번호 이동은 없다.
+- 분석 과목 ↔ 학업 과목 연결 우선순위(A10): ① 확정값의 `analysisSubjectIndex`(§39-7) ② 초안 `subjectLinks`(①에 없는 번호·과목만) ③ 분석 과목 1개 + 확정 과목 1개. 그 밖에는 추정하지 않는다.
 - 권한: 평가계획서 운영(OD-A08). 관리자 전용 화면이며 학생 공개 범위(§10-1)는 바뀌지 않는다.
+
+### 38-6. HWP·HWPX 원문 구조 미리보기 (A10, 2026-11-15 DRAFT — 구현됨)
+
+```http
+GET /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/structure
+```
+
+- **PDF로 변환하지 않는다.** 서버가 보관한 원본 바이트(크기·SHA-256 재확인)를 메모리에서 직접 읽어 문단·표(병합 칸 포함)·캡션·글상자 글을 JSON으로 돌려준다. 외부 프로그램·외부 서버·유료 SDK를 쓰지 않는다(JDK 표준 기능만). 원본·Revision·Storage에 쓰지 않고 파생 파일·임시 파일을 만들지 않으며 결과를 저장하지 않는다.
+- 응답: `{ planId, revisionId, documentFormat: "HWP"|"HWPX", sha256, renderer:{name, version}, sectionCount, stats:{paragraphs, tables, cells, textChars}, notices[], blocks[] }`.
+  - `blocks[]`: `{ type: "PARAGRAPH", section, path, kind, text, control?, blocks? }` 또는 `{ type: "TABLE", section, path, table, rows, cols, cells[], caption? }`. `cells[]` = `{ row, col, rowSpan, colSpan, path, paragraphs[] }`(row·col 0부터, 화면 배치용).
+  - `kind` = `HWP_PARAGRAPH`·`HWP_TABLE_CELL`·`HWPX_PARAGRAPH`·`HWPX_TABLE_CELL`·`CONTROL_TEXT`(캡션·글상자, `control`에 개체 이름).
+  - `section`·`path`는 분석 결과 `documentLocator`와 **같은 위치 규칙**이다(최상위 `p<n>`, 문단 안 n번째 개체 `.c<k>`, 칸 `.r<row>c<col>`, 칸 문단 `.p<m>`, 캡션 `.cap.p<m>`, 개체 안 문단 `.x<m>`). 공개 평가계획서 4,192건(HWP 3,283·HWPX 909, 확장자 `.hwp`인 HWPX 5건 포함)을 계정 B DocumentModel 판독과 대조해 위치·글자가 모두 같음을 확인했다. HWPX 칸 안에 표가 있으면 분석기는 안쪽 표의 병합 값을 읽는데, 이 응답의 `rowSpan`·`colSpan`은 그 칸의 직계 값이다(위치 `path`는 같다).
+  - 쪽 나눔·글꼴·그림·도형·수식 배치는 담지 않는다(조판 결과가 아니라 문서 구조다).
+- 관리자 상세(§38) `revisions[].file.structurePreviewAvailable`: 원문을 보관한 HWP·HWPX면 `true`, PDF·원문 없음은 `false`. 학생 응답에는 없다.
+- 오류: PDF `415 PREVIEW_UNAVAILABLE`(기존 `/preview` 사용), 원문 없음 `404`, 무결성 `409 FILE_INTEGRITY_FAILED`, 판독 실패 `422 PLAN_PREVIEW_FAILED` + `details.fields[0] = { field: "file", reason }` — `parse_failed`(손상·지원하지 않는 구조) · `limit_exceeded`(위치 250,000개·글자 8,000,000자·중첩 16단계·압축 해제 128MB(HWPX ZIP 100MB·항목 2,000개) 초과) · `timeout`(기본 10초, `assessment.plan-preview.structure-timeout-ms`) · `protected`(암호·배포용).
+- 보안: HWPX XML은 DOCTYPE 금지·외부 엔터티/DTD/스키마 접근 금지·Secure Processing, ZIP 경로 이탈 이름 거절. 글자는 화면이 문자열로만 넣는다(HTML로 해석하지 않음). `Cache-Control: private, no-store`, `X-Content-Type-Options: nosniff`.
+- 권한: 평가계획서 운영(OD-A08). 인증 없음·학생·알 수 없는 관리자 `401`, 다른 문서의 Revision `404`.
 ---
 
 # 39. Admin — 지필·수행 추출·원본 검토 (AD-04·05)
@@ -1268,6 +1287,15 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
   ], "decision": "CONFIRM"
 }
 ```
+
+### 39-7. 다과목 PDF 확정값의 분석 과목 연결 (A10, 2026-11-15 DRAFT — 구현됨)
+
+- PDF 요청의 `reviewedSubjects[].analysisSubjectIndex`를 **선택 항목**으로 받는다(§62-2의 PDF `not_allowed` 규칙을 이 항목에 한해 대체). 값은 그 분석 결과 `subjects[]` 안의 번호(0부터)이며, 관리자 화면이 고른 분석 과목이다. 과목명·배열 순서로 서버가 추측하지 않는다.
+- 검증: 범위 밖 `unknown`, 두 검토 과목이 같은 번호 `duplicate`(HWP·HWPX와 같은 사유 코드). 없으면 이전처럼 연결 정보 없이 저장한다(하위 호환).
+- 저장: 확정값 행의 `analysis_subject_index`(Migration `V202611151300` — CHECK 제약만 교체, 데이터 변경 없음). 확정과 함께 남으므로 검토 초안이 닫혀도 과목 연결이 보존된다.
+- 응답: 관리자 `confirmedFields[].analysisSubjectIndex`(값이 있을 때만, NON_NULL — 이전 PDF 확정값 응답은 그대로). **학생 응답에는 내보내지 않는다**(학생은 자기 학업 과목 `subjectId`별 확정값만 본다).
+- 이전 확정값: 보정하지 않는다(기존 Revision·확정값 불변). 열람 화면은 §38-5의 우선순위로 연결하고, 근거가 없으면 '후보'로 둔다.
+- 한 분석 결과 안에 같은 과목명이 두 번 나오면 수신(§39 analysis-imports·서버 분석)이 기존 규칙대로 `subjects[n].subjectName: duplicate`로 거절한다(과목을 구분할 근거가 없어 저장하지 않음).
 
 `decision=CONFIRM`은 **공통 평가정보 확인**이지 학생 과제 승인/반려가 아니다. PDF 비율 합계가 원본과 다르면 경고하며 자동 재배분하지 않는다. 확인 결과의 공개 범위는 학교·학년도·학년·학기로 제한된다. 추출 실패/부분 성공/수동 정정·확인 상태를 구분한다.
 
@@ -1711,6 +1739,7 @@ Note 저장에는 `expectedRevisionId`, 콘텐츠 편집에는 `updatedAt`/Versi
 | 415 | `UNSUPPORTED_FILE_TYPE` | 허용되지 않은 파일 형식 |
 | 422 | `PDF_EXTRACTION_FAILED` | 분석 결과 생성 불가(상태 응답과 병행 가능) |
 | 422 | `PREVIEW_UNAVAILABLE` | 지원 형식/변환 불가 |
+| 422 | `PLAN_PREVIEW_FAILED` | HWP·HWPX 원문 구조를 읽지 못함(§38-6, `details.fields[file].reason`) |
 | 502/503 | `ASSESSMENT_AI_UNAVAILABLE` | 분석/설명 Provider 장애 |
 | 503 | `EXISTING_STUDENT_UNAVAILABLE` | 기존 학생 컨텍스트 연동 장애 |
 
