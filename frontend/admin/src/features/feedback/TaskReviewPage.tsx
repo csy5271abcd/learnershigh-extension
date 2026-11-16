@@ -36,7 +36,6 @@ interface TaskReviewPageProps {
   onBack: () => void
   onGo: (feedbackId: string) => void
   onOpenStudent: (studentId: string) => void
-  onRecommendCase: (studentId: string, taskId: string) => void
 }
 
 const decisionLabel: Record<AiItemDecision, string> = { ACCEPT: '동의', EXCLUDE: '제외', EDIT_AND_DELIVER: '수정' }
@@ -51,7 +50,7 @@ const decisionVisual: Record<DecisionKey, { label: string; tone: VisualTone }> =
 const aiItemDomId = (itemId: string) => `ai-item-${itemId}`
 const COMMENT_MAX = 500
 
-export function TaskReviewPage({ state, review, task, student, navigation, onBack, onGo, onOpenStudent, onRecommendCase }: TaskReviewPageProps) {
+export function TaskReviewPage({ state, review, task, student, navigation, onBack, onGo, onOpenStudent }: TaskReviewPageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const [decisions, setDecisions] = useState<Record<string, DecisionState>>({})
   const [editing, setEditing] = useState<string | null>(null)
@@ -72,8 +71,6 @@ export function TaskReviewPage({ state, review, task, student, navigation, onBac
   const delivery = review.delivery
   const detail = buildTaskDetail(state, task.taskId)
   const queueItem = deriveFeedbackQueue(state).find((item) => item.feedbackId === review.feedbackId) ?? null
-  const caseRefs = task.relatedMentorCaseIds.map((id) => state.mentorCases.find((item) => item.contentId === id)).filter((item) => item !== undefined)
-  const recommended = new Set(state.recommendations.filter((item) => item.taskId === task.taskId).map((item) => item.caseId))
 
   const counts = { ACCEPT: 0, EDIT_AND_DELIVER: 0, EXCLUDE: 0, pending: 0 }
   for (const item of review.aiItems) {
@@ -443,24 +440,6 @@ export function TaskReviewPage({ state, review, task, student, navigation, onBac
               </div>
 
               <div className={`${ui.list} ${styles.staffSecondary}`}>
-                <h3 className={ui.subTitle}>Mentor Case</h3>
-                {caseRefs.length === 0 ? (
-                  <p className={ui.muted}>이 Task에 연결된 Mentor Case가 없어요.</p>
-                ) : (
-                  <ul className={ui.list}>
-                    {caseRefs.map((item) => (
-                      <li key={item.contentId} className={ui.listItem}>
-                        <span className={ui.cellMain}>{item.title}</span>
-                        <span className={ui.cellSub}>
-                          {item.mentorName} · {item.mentorAffiliation} · {recommended.has(item.contentId) ? '선생님 추천' : '학생 참고 Case'}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <button type="button" className={`${ui.secondaryButton} ${ui.smallButton}`} onClick={() => onRecommendCase(student.studentId, task.taskId)}>
-                  Mentor Case 추천하기
-                </button>
                 <div className={styles.secondaryActions}>
                   <button type="button" className={ui.secondaryButton} disabled aria-describedby="draft-reason">
                     임시 저장

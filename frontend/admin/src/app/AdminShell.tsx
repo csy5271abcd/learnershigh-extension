@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import styles from './AdminShell.module.css'
 
-export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'parent-report' | 'feedback-dashboard' | 'mentor-cases' | 'connections' | 'interview' | 'operations' | 'assessment'
+export type AdminExtensionEntryId = 'today-board' | 'student-care' | 'parent-report' | 'feedback-dashboard' | 'connections' | 'interview' | 'operations' | 'assessment'
 
 interface AdminExtensionEntry {
   id: AdminExtensionEntryId
@@ -38,7 +38,6 @@ const extensionEntries: AdminExtensionEntry[] = [
   { id: 'student-care', label: '학생 케어' },
   { id: 'parent-report', label: '학부모 리포트' },
   { id: 'feedback-dashboard', label: 'Feedback Dashboard' },
-  { id: 'mentor-cases', label: 'Mentor 추천' },
   { id: 'connections', label: 'Connection 검토' },
   { id: 'interview', label: 'Interview 관리' },
   { id: 'operations', label: 'Operations' },

@@ -9,13 +9,8 @@ import {
   connectionsPath,
   interviewPath,
   matchActivityInspectorPath,
-  matchMentorCaseDetailPath,
-  matchMentorContentDetailPath,
-  matchMentorProfilePath,
   matchStudent360Path,
   matchTaskInspectorPath,
-  mentorCasesPath,
-  mentorContentPath,
   operationsPath,
   todayBoardPath,
 } from './features/student-management/routes/paths.ts'
@@ -23,10 +18,6 @@ import {
   ActivityInspectorRoute,
   ConnectionRoute,
   InterviewRoute,
-  MentorCaseDetailRoute,
-  MentorCaseRoute,
-  MentorContentDetailRoute,
-  MentorProfileRoute,
   OperationsRoute,
   Student360Route,
   TaskInspectorRoute,
@@ -40,7 +31,8 @@ import { AssessmentAdminRoute } from './features/assessment/routes/AssessmentAdm
 import { assessmentAdminPath, isAssessmentAdminPath } from './features/assessment/routes/paths.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
-// Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Mentor 추천 · Connection · Interview · Operations)
+// Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Connection · Interview · Operations)
+// 구형 Mentor 추천 화면(Mentor Case · 콘텐츠 · Profile)은 2026-11-16 제거했다(A20). 그 주소는 '페이지 없음'으로 간다.
 // 학생 케어(features/student-care, Wangyu)는 같은 AdminShell 안의 Feature Route(/student-care)로 연결한다. (별도 App Shell을 쓰지 않는다)
 // 학생 케어는 시안 X′(features/student-care/variants/x2) 하나다. 예전 화면(StudentCarePage·개선안·시안들)은 커밋 77ec091에 남겼다.
 const entryPaths: Record<AdminExtensionEntryId, string> = {
@@ -48,7 +40,6 @@ const entryPaths: Record<AdminExtensionEntryId, string> = {
   'student-care': studentCarePath,
   'parent-report': parentReportPath,
   'feedback-dashboard': feedbackDashboardPath,
-  'mentor-cases': mentorContentPath,
   connections: connectionsPath,
   interview: interviewPath,
   operations: operationsPath,
@@ -63,9 +54,6 @@ function App() {
   const studentId = matchStudent360Path(pathname)
   const taskId = matchTaskInspectorPath(pathname)
   const activityId = matchActivityInspectorPath(pathname)
-  const caseId = matchMentorCaseDetailPath(pathname)
-  const contentId = matchMentorContentDetailPath(pathname)
-  const mentorId = matchMentorProfilePath(pathname)
 
   let current: AdminExtensionEntryId = 'feedback-dashboard'
   let pageLabel = 'Feedback Dashboard'
@@ -92,22 +80,6 @@ function App() {
     current = 'today-board'
     pageLabel = '성장활동 상세'
     page = <ActivityInspectorRoute key={activityId} activityId={activityId} location={location} />
-  } else if (caseId !== null) {
-    current = 'mentor-cases'
-    pageLabel = 'Mentor Case 상세'
-    page = <MentorCaseDetailRoute key={caseId} caseId={caseId} location={location} />
-  } else if (contentId !== null) {
-    current = 'mentor-cases'
-    pageLabel = 'Mentor 콘텐츠 상세'
-    page = <MentorContentDetailRoute key={contentId} contentId={contentId} location={location} />
-  } else if (mentorId !== null) {
-    current = 'mentor-cases'
-    pageLabel = 'Mentor Profile'
-    page = <MentorProfileRoute key={mentorId} mentorId={mentorId} location={location} />
-  } else if (pathname === mentorCasesPath || pathname === mentorContentPath) {
-    current = 'mentor-cases'
-    pageLabel = 'Mentor 추천'
-    page = <MentorCaseRoute location={location} />
   } else if (pathname === connectionsPath) {
     current = 'connections'
     pageLabel = 'Connection 검토'

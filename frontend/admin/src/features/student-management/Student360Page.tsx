@@ -30,7 +30,6 @@ interface Student360PageProps {
   onBack: () => void
   backLabel: string
   onOpenReview: (feedbackId: string) => void
-  onRecommendCase: (taskId: string | null) => void
   onOpenInterview: () => void
   onOpenTask: (taskId: string) => void
   onOpenActivity: (activityId: string) => void
@@ -43,7 +42,7 @@ interface Student360PageProps {
 const stageName = ['', '안내문 등록', '주제 선정', '자료 조사', '초안 V1 제출', 'AI 사전 점검', '선생님 피드백', 'Revision', '최종 제출'] as const
 const shareLabel: Record<ParentShareStatus, string> = { not_shared: '공유 안 함', consented: '학생 동의 (첨부 후보)', attached: 'Report 첨부됨', shared: '학부모에게 공유됨' }
 
-export function Student360Page({ state, data, tab, onTabChange, onSwitchStudent, onBack, backLabel, onOpenReview, onRecommendCase, onOpenInterview, onOpenTask, onOpenActivity, onNavigate, activityFilter, onActivityFilterChange }: Student360PageProps) {
+export function Student360Page({ state, data, tab, onTabChange, onSwitchStudent, onBack, backLabel, onOpenReview, onOpenInterview, onOpenTask, onOpenActivity, onNavigate, activityFilter, onActivityFilterChange }: Student360PageProps) {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const { insight } = data
   const { student } = insight
@@ -112,7 +111,6 @@ export function Student360Page({ state, data, tab, onTabChange, onSwitchStudent,
         {tab === 'study' && <Study data={data} />}
         {tab === 'school' && <School data={data} onOpenTask={onOpenTask} />}
         {tab === 'activities' && <Activities data={data} onOpenReview={onOpenReview} onOpenActivity={onOpenActivity} filter={activityFilter} onFilterChange={onActivityFilterChange} />}
-        {tab === 'mentor' && <Mentor data={data} onRecommendCase={onRecommendCase} />}
         {tab === 'reports' && <Reports data={data} />}
         {tab === 'school' && student.grade === '고3' && (
           <p className={ui.note}>
@@ -242,9 +240,6 @@ function Overview({ state, data, onOpenReview, onTabChange, onOpenTask, onNaviga
             ))}
           </ul>
         )}
-      </Card>
-      <Card title="Mentor 적용" onMore={() => onTabChange('mentor')}>
-        {data.applications.length === 0 ? <p className={ui.muted}>적용 중인 Mentor Plan / Routine이 없어요.</p> : <p>{data.applications.length}개 적용 중</p>}
       </Card>
       <Card title="Parent Report" onMore={() => onTabChange('reports')}>
         {data.parentReport ? (
@@ -691,103 +686,6 @@ function Activities({ data, onOpenReview, onOpenActivity, filter, onFilterChange
         </div>
       )}
     </div>
-  )
-}
-
-// ---------- Mentor ----------
-
-function Mentor({ data, onRecommendCase }: { data: Student360; onRecommendCase: (taskId: string | null) => void }) {
-  return (
-    <>
-      <div className={styles.cardHead}>
-        <p className={ui.muted}>Mentor Hub와 같은 Mentor / Case Identity를 써요. 학생 실명 · 학교는 Mentor에게 보이지 않아요.</p>
-        <button type="button" className={ui.primaryButton} onClick={() => onRecommendCase(data.insight.primaryTask?.taskId ?? null)}>
-          Mentor Case 추천하기
-        </button>
-      </div>
-      <div className={ui.grid2}>
-        <article className={ui.panel} data-tone="surface">
-          <h2 className={ui.subTitle}>선생님 추천 Case (Mentor Hub에 보임)</h2>
-          {data.recommendations.length === 0 ? (
-            <p className={ui.muted}>추천한 Case가 없어요.</p>
-          ) : (
-            <ul className={ui.list}>
-              {data.recommendations.map((item) => (
-                <li key={`${item.caseId}-${item.linkedTask?.taskId}`}>
-                  <span className={ui.cellMain}>{item.title}</span>
-                  <span className={ui.cellSub}>
-                    {item.mentorName} · {item.linkedTask ? item.linkedTask.title : '활동 연결'} · {item.recommendedDate ? formatMonthDay(item.recommendedDate) : '추천일 기록 없음'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-        <article className={ui.panel} data-tone="surface">
-          <h2 className={ui.subTitle}>Task 연결 Case</h2>
-          {data.taskCases.length === 0 ? (
-            <p className={ui.muted}>Case가 연결된 수행평가가 없어요.</p>
-          ) : (
-            <ul className={ui.list}>
-              {data.taskCases.map(({ task, cases }) => (
-                <li key={task.taskId}>
-                  <span className={ui.cellMain}>{task.title}</span>
-                  <span className={ui.cellSub}>{cases.map((item) => item.title).join(' · ')}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-        <article className={ui.panel} data-tone="surface">
-          <h2 className={ui.subTitle}>추천 Mentor</h2>
-          {data.hubMentors.length === 0 ? (
-            <p className={ui.muted}>Mentor Hub 추천 결과 정보가 없어요.</p>
-          ) : (
-            <ul className={ui.list}>
-              {data.hubMentors.map((item) => (
-                <li key={item.mentorId}>
-                  <span className={ui.cellMain}>
-                    {item.mentorName} · {item.mentorAffiliation}
-                  </span>
-                  <span className={ui.cellSub}>{item.reason}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-        <article className={ui.panel} data-tone="surface">
-          <h2 className={ui.subTitle}>적용 중 Plan / Routine</h2>
-          {data.applications.length === 0 ? (
-            <p className={ui.muted}>적용 중인 Mentor Plan / Routine이 없어요.</p>
-          ) : (
-            <ul className={ui.list}>
-              {data.applications.map((item) => (
-                <li key={item.applicationId}>
-                  <span className={ui.cellMain}>
-                    {item.kind === 'plan' ? 'Plan' : 'Routine'} · {item.title}
-                  </span>
-                  <span className={ui.cellSub}>
-                    {item.mentorName} · {formatMonthDay(item.appliedDate)} 적용 · 기존 Plan 실행 {item.progress.done}/{item.progress.total}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </article>
-        <article className={ui.panel} data-tone="surface">
-          <h2 className={ui.subTitle}>저장 Content 관심 Tag</h2>
-          {data.savedTags.length === 0 ? (
-            <p className={ui.muted}>저장한 Content 정보가 없어요.</p>
-          ) : (
-            <div className={ui.badgeList}>
-              {data.savedTags.map((tag) => (
-                <Badge key={tag}>#{tag}</Badge>
-              ))}
-            </div>
-          )}
-        </article>
-      </div>
-    </>
   )
 }
 

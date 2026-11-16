@@ -10,14 +10,8 @@ import { useAdminState } from '../../../store/adminStore.ts'
 import { feedbackReviewPath } from '../../feedback/routes/paths.ts'
 import { ConnectionReviewPage, type ConnectionFilter } from '../ConnectionReviewPage.tsx'
 import { InterviewManagementPage, type InterviewEditorRequest, type InterviewFilter } from '../InterviewManagementPage.tsx'
-import { mentorCaseDetailsFixture } from '../../../fixtures/adminMentorCaseDetails.fixture.ts'
 import { buildTaskDetail } from '../../../read-model/taskDetail.ts'
 import { ActivityInspectorPage, TaskInspectorPage } from '../InspectorPages.tsx'
-import { MentorCaseDetailPage } from '../MentorCaseDetailPage.tsx'
-import { MentorRecommendPage, type MentorContentTab } from '../MentorRecommendPage.tsx'
-import { MentorContentDetailPage } from '../MentorContentDetailPage.tsx'
-import { MentorProfilePage } from '../MentorProfilePage.tsx'
-import { findMentorContent, findMentorProfile, mentorContentTypes, type MentorContentItem } from '../../../read-model/mentorContent.ts'
 import { OperationsPage } from '../OperationsPage.tsx'
 import { Student360Page } from '../Student360Page.tsx'
 import { TodayBoardPage } from '../TodayBoardPage.tsx'
@@ -28,12 +22,6 @@ import {
   interviewPath,
   connectionsPath,
   isInAppEntry,
-  mentorCaseDetailPath,
-  mentorCaseSearchPath,
-  mentorContentDetailPath,
-  mentorContentPath,
-  mentorCasesPath,
-  mentorProfilePath,
   readStudent360Tab,
   taskInspectorPath,
   student360Path,
@@ -123,58 +111,12 @@ export function Student360Route({ studentId, location }: { studentId: string; lo
       onBack={back}
       backLabel={backLabel}
       onOpenReview={(feedbackId) => navigate(feedbackReviewPath(feedbackId), { entry: inAppEntry })}
-      onRecommendCase={(taskId) => navigate(mentorCaseSearchPath({ studentId, taskId: taskId ?? undefined }), { entry: inAppEntry })}
       onOpenInterview={() => navigate(`/interview?studentId=${encodeURIComponent(studentId)}`, { entry: inAppEntry })}
       onOpenTask={(taskId) => navigate(taskInspectorPath(taskId), { entry: inAppEntry })}
       onOpenActivity={(activityId) => navigate(activityInspectorPath(activityId), { entry: inAppEntry })}
       onNavigate={(href) => navigate(href, { entry: inAppEntry })}
       activityFilter={new URLSearchParams(location.search).get('astatus') ?? 'all'}
       onActivityFilterChange={(value) => replaceSearch(setParam(location.search, { astatus: value === 'all' ? null : value }))}
-    />
-  )
-}
-
-const readContentTab = (value: string | null, fallback: MentorContentTab): MentorContentTab =>
-  value === 'all' || mentorContentTypes.includes(value as never) ? (value as MentorContentTab) : fallback
-
-const contextOf = (params: URLSearchParams) => ({ studentId: params.get('studentId'), taskId: params.get('taskId'), activityId: params.get('activityId') })
-
-/** Content 상세로 이동 (Case는 Case 상세, 나머지는 Content 상세). 추천 Context는 Query로 이어 간다. */
-const openContent = (item: MentorContentItem, params: URLSearchParams) =>
-  navigate(item.type === 'case' ? mentorCaseDetailPath(item.contentId, contextOf(params)) : mentorContentDetailPath(item.contentId, contextOf(params)), { entry: inAppEntry })
-
-const openMentor = (mentorId: string, params: URLSearchParams) => navigate(mentorProfilePath(mentorId, contextOf(params)), { entry: inAppEntry })
-
-/** Mentor 추천 Home. /mentor-content 기본 탭은 전체, /mentor-cases 기본 탭은 Case다. (?type=으로 바꾼다) */
-export function MentorCaseRoute({ location }: { location: AdminLocation }) {
-  const state = useAdminState()
-  const { state: load, reload } = useScreenLoad('mentor-cases', readScreenScenario(location.search))
-  const params = new URLSearchParams(location.search)
-  const target = params.get('taskId') ? `t:${params.get('taskId')}` : params.get('activityId') ? `a:${params.get('activityId')}` : null
-  const defaultTab: MentorContentTab = location.pathname === mentorCasesPath ? 'case' : 'all'
-  return (
-    <MentorRecommendPage
-      tab={readContentTab(params.get('type'), defaultTab)}
-      onTabChange={(tab) => replaceSearch(setParam(location.search, { type: tab === defaultTab ? null : tab }))}
-      onOpenContent={(item) => openContent(item, params)}
-      onOpenMentor={(mentorId) => openMentor(mentorId, params)}
-      state={state}
-      load={load}
-      onRetry={reload}
-      context={{ studentId: params.get('studentId'), target }}
-      onContextChange={(context) =>
-        replaceSearch(
-          setParam(location.search, {
-            studentId: context.studentId,
-            taskId: context.target?.startsWith('t:') ? context.target.slice(2) : null,
-            activityId: context.target?.startsWith('a:') ? context.target.slice(2) : null,
-          }),
-        )
-      }
-      filter={{ query: params.get('q') ?? '', subject: params.get('subject') ?? '', activityType: params.get('activityType') ?? '' }}
-      onFilterChange={(filter) => replaceSearch(setParam(location.search, { q: filter.query.trim() || null, subject: filter.subject || null, activityType: filter.activityType || null }))}
-      onOpenStudent={(studentId) => openStudent(studentId, 'mentor')}
-      onOpenCase={(caseId) => navigate(mentorCaseDetailPath(caseId, { studentId: params.get('studentId'), taskId: params.get('taskId'), activityId: params.get('activityId') }), { entry: inAppEntry })}
     />
   )
 }
@@ -256,112 +198,6 @@ export function ActivityInspectorRoute({ activityId, location }: { activityId: s
             {...back}
             onOpenStudent={(id) => openStudent(id, 'activities')}
             onOpenReview={(feedbackId) => navigate(feedbackReviewPath(feedbackId), { entry: inAppEntry })}
-          />
-        )
-      }}
-    </PageFrame>
-  )
-}
-
-export function MentorCaseDetailRoute({ caseId, location }: { caseId: string; location: AdminLocation }) {
-  const state = useAdminState()
-  const { state: load, reload } = useScreenLoad('mentor-case-detail', readScreenScenario(location.search))
-  const params = new URLSearchParams(location.search)
-  const back = backOf(location, mentorCaseSearchPath({ studentId: params.get('studentId') ?? undefined, taskId: params.get('taskId') ?? undefined, activityId: params.get('activityId') ?? undefined }), 'Mentor Case 목록')
-  return (
-    <PageFrame load={load} reload={reload} label="Mentor Case">
-      {() => {
-        const caseRef = load.status === 'ready' && !load.empty ? state.mentorCases.find((item) => item.contentId === caseId) : undefined
-        const detail = mentorCaseDetailsFixture.find((item) => item.contentId === caseId)
-        if (!caseRef || !detail) return <NotFound title="Mentor Case를 찾을 수 없어요." {...back} />
-        const student = state.students.find((item) => item.studentId === params.get('studentId')) ?? null
-        const targetTask = student ? (state.tasks.find((item) => item.taskId === params.get('taskId') && item.studentId === student.studentId) ?? null) : null
-        const targetActivity = student ? (state.activities.find((item) => item.activityId === params.get('activityId') && item.studentId === student.studentId) ?? null) : null
-        return (
-          <MentorCaseDetailPage
-            key={caseId}
-            state={state}
-            caseRef={caseRef}
-            detail={detail}
-            student={student}
-            targetTask={targetTask}
-            targetActivity={targetActivity}
-            {...back}
-            onChooseContext={back.onBack}
-            onOpenMentor={(mentorId) => openMentor(mentorId, params)}
-            onOpenStudent={(id) => openStudent(id, 'mentor')}
-            onOpenTask={(id) => navigate(taskInspectorPath(id), { entry: inAppEntry })}
-            onOpenActivity={(id) => navigate(activityInspectorPath(id), { entry: inAppEntry })}
-            onOpenContent={(id) => {
-              const related = findMentorContent(state, id)
-              if (related) openContent(related, params)
-            }}
-          />
-        )
-      }}
-    </PageFrame>
-  )
-}
-
-export function MentorContentDetailRoute({ contentId, location }: { contentId: string; location: AdminLocation }) {
-  const state = useAdminState()
-  const { state: load, reload } = useScreenLoad('mentor-content-detail', readScreenScenario(location.search))
-  const params = new URLSearchParams(location.search)
-  const back = backOf(location, mentorContentPath, 'Mentor 추천')
-  return (
-    <PageFrame load={load} reload={reload} label="Mentor 콘텐츠">
-      {() => {
-        const item = load.status === 'ready' && !load.empty ? findMentorContent(state, contentId) : null
-        if (!item) return <NotFound title="Mentor 콘텐츠를 찾을 수 없어요." {...back} />
-        if (item.type === 'case')
-          // Case 상세는 /mentor-cases/:caseId가 맡는다. (주소만 다른 같은 Case)
-          return (
-            <div className={ui.page}>
-              <NoticeState title="Activity Case는 Case 상세 화면에서 볼 수 있어요." focus>
-                <button type="button" className={ui.secondaryButton} onClick={() => navigate(mentorCaseDetailPath(item.contentId, contextOf(params)), { entry: location.state })}>
-                  Case 상세로 가기
-                </button>
-              </NoticeState>
-            </div>
-          )
-        const target = params.get('taskId') ? `t:${params.get('taskId')}` : params.get('activityId') ? `a:${params.get('activityId')}` : null
-        return (
-          <MentorContentDetailPage
-            key={contentId}
-            state={state}
-            item={item}
-            studentId={params.get('studentId')}
-            target={target}
-            {...back}
-            onOpenMentor={(mentorId) => openMentor(mentorId, params)}
-            onOpenCase={(caseId) => navigate(mentorCaseDetailPath(caseId, contextOf(params)), { entry: inAppEntry })}
-            onOpenStudent={(id) => openStudent(id, 'mentor')}
-          />
-        )
-      }}
-    </PageFrame>
-  )
-}
-
-export function MentorProfileRoute({ mentorId, location }: { mentorId: string; location: AdminLocation }) {
-  const state = useAdminState()
-  const { state: load, reload } = useScreenLoad('mentor-profile', readScreenScenario(location.search))
-  const params = new URLSearchParams(location.search)
-  const back = backOf(location, mentorContentPath, 'Mentor 추천')
-  return (
-    <PageFrame load={load} reload={reload} label="Mentor Profile">
-      {() => {
-        const profile = load.status === 'ready' && !load.empty ? findMentorProfile(mentorId) : null
-        if (!profile) return <NotFound title="Mentor를 찾을 수 없어요." {...back} />
-        return (
-          <MentorProfilePage
-            key={mentorId}
-            state={state}
-            profile={profile}
-            tab={readContentTab(params.get('type'), 'all')}
-            onTabChange={(tab) => replaceSearch(setParam(location.search, { type: tab === 'all' ? null : tab }))}
-            {...back}
-            onOpenContent={(item) => openContent(item, params)}
           />
         )
       }}

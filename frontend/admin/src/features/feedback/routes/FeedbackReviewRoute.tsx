@@ -5,7 +5,7 @@ import { ErrorState, LoadingState, NoticeState } from '../../../components/Admin
 import ui from '../../../components/AdminUi.module.css'
 import { deriveFeedbackQueue, findReviewTarget } from '../../../read-model/feedbackQueue.ts'
 import { useAdminState } from '../../../store/adminStore.ts'
-import { inAppEntry, mentorCaseSearchPath, student360Path } from '../../student-management/routes/paths.ts'
+import { inAppEntry, student360Path } from '../../student-management/routes/paths.ts'
 import { ActivityFeedbackPage } from '../ActivityFeedbackPage.tsx'
 import type { ReviewNavigation } from '../ReviewTopBar.tsx'
 import { TaskReviewPage } from '../TaskReviewPage.tsx'
@@ -81,7 +81,6 @@ export function FeedbackReviewRoute({ feedbackId, location }: { feedbackId: stri
       onBack={onBack}
       onGo={onGo}
       onOpenStudent={onOpenStudent}
-      onRecommendCase={(studentId, taskId) => navigate(mentorCaseSearchPath({ studentId, taskId }), { entry: inAppEntry })}
     />
   )
 }
