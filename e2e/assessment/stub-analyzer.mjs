@@ -17,6 +17,18 @@ const resources = fileURLToPath(new URL('../../backend/src/test/resources/assess
 const payload02 = readFileSync(`${resources}analyzer-v21_1/analysis-import.json`, 'utf8')
 const payload03 = readFileSync(`${resources}contract03/synthetic-0.3.analysis-import.json`, 'utf8')
 
+function withExtension(payloadJson) {
+  const payload = JSON.parse(payloadJson)
+  const first = payload.subjects[0]
+  first.grades = [1]
+  Object.assign(first.performanceEvaluation.items[0].rubric[0], { maxScore: 75, linkReview: 'REVIEW_REQUIRED' })
+  const second = JSON.parse(JSON.stringify(first))
+  second.grades = [2]
+  delete second.performanceEvaluation.items[0].rubric[0].linkReview
+  payload.subjects.push(second)
+  return JSON.stringify(payload)
+}
+
 function field(body, name) {
   const at = body.indexOf(`name="${name}"\r\n\r\n`)
   if (at < 0) return null
@@ -74,7 +86,9 @@ createServer((request, response) => {
       body = envelope('NO_ASSESSMENTS_EXTRACTED', sha, requested03 ? as03(JSON.stringify(failed)) : JSON.stringify(failed))
     } else {
       const contract03 = fileName.includes('contract03')
-      const source = contract03 ? payload03 : payload02
+      // A15: *contract03ext* → 같은 합성 0.3 + 선택 확장 필드(§39-12): 과목 0 원문 1학년·첫 채점 요소 배점 75·연결 확인 필요,
+      // 과목 1 = 같은 이름의 원문 2학년 과목(다른 학년). 계정 B 실제 서비스는 아직 이 필드를 보내지 않는다.
+      const source = fileName.includes('contract03ext') ? withExtension(payload03) : contract03 ? payload03 : payload02
       const original = JSON.parse(source).source.sha256
       const swapped = source.split(original).join(sha)
       body = envelope(contract03 ? 'PARTIAL' : 'OK_REVIEW_REQUIRED', sha, requested03 ? as03(swapped) : swapped)
