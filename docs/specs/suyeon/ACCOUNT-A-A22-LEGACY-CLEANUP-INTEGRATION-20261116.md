@@ -5,11 +5,11 @@
 
 ## 30. 최종 판정 (먼저)
 
-**PARTIAL** — 레거시 제거·두 기능 보존·Backend/Frontend 시험·새 인수 시험·Assessment E2E·Railway E2E·새 DB 기동·실행 가이드까지 완료. 다만 PASS 조건 중 다음이 남았다.
+**PARTIAL** — PASS 기준 9개(레거시 제거·두 기능 보존·Backend·Frontend·Student Care 인수 E2E·Assessment E2E·신규 DB 기동·PR 갱신 및 **GitHub CI 전체 통과**·실행 가이드)는 모두 충족했다. 그러나 다음 문제가 남아 있어 PARTIAL('테스트 또는 DB 문제가 남음')로 판정한다.
 
 1. **기존 시연 DB(`lh_demo_manual_20261111`) Migration 문제는 해결하지 않았다**(연결·변경 금지 — 새 독립 DB로 대체, §20).
 2. 새 Student Care 인수 시험은 **22건 통과(21 정상 + 알려진 제품 결함 1건 '예상 실패')**. 이전 화면용 31건은 현재 화면에 없는 기능이라 이력용으로 보관했다(사용자 승인, 완규님 검토 대기).
-3. 로컬 전체 Backend Integration 실행에서 `StudentCareLockFailureApiTest` 2건이 **환경 실패**(테스트용 MySQL 컨테이너 기동 중 끊김, A20과 같은 클래스) — 단독 재실행 2/2 통과. GitHub CI 결과는 §26.
+3. 새로 발견한 Student Care 제품 결함(상담 양식 첫 글자 유실)이 남아 있고, 인수 시험 교체·이전 31건 처분은 완규님 승인 전이다. (로컬 Integration 환경 실패 2건은 GitHub CI Backend Job에서 재현되지 않았다 — §26.)
 
 ---
 
@@ -203,15 +203,25 @@ Railway 시험용 별도 일회용 DB(33467)에서도 18개 적용 후 기동.
 
 ## 24. GitHub Push 결과
 
-(Push 후 기록)
+`git push origin integration/assessment-studentcare-20261116` — `1c89c48..3879bb4` Fast-forward(Force 없음). Push 직전 원격 브랜치가 `1c89c48` 그대로임을 확인(다른 사람의 수정 없음). 원격 `main`은 `c03a1a4` 그대로. 변경분 전체에서 실제 Railway 토큰 문자열 0(값 출력 없이 대조).
 
 ## 25. PR #17 업데이트 결과
 
-(갱신 후 기록)
+REST API로 본문만 갱신(제목 유지, **Draft 유지**, state open, head `3879bb4`). 새 PR을 만들지 않았고 Ready 전환·병합을 하지 않았다. https://github.com/csy5271abcd/learnershigh-extension/pull/17
 
 ## 26. GitHub CI 확인 결과
 
-(CI 완료 후 기록)
+head `3879bb4` (Workflow 실행 2회 — push·pull_request), 읽기 전용 API로 확인:
+
+| Job | 결과 |
+|---|---|
+| Harness / Repository Rules | **success** ×2 |
+| Frontend | **success** ×2 |
+| Backend (Ubuntu, Testcontainers) | **success** ×2 — 로컬 환경 실패 2건은 CI에서 재현되지 않음 |
+| **E2E (Playwright)** | **success** ×2 — A20·A21 시점(PR head `1c89c48`)과 `main c03a1a4`에서는 failure였다 |
+| CI Result | **success** ×2 |
+
+`main`의 E2E 실패(이전 화면 시험 31건)와 이번 브랜치 결과를 구분한다: 이번 통과는 새 X′ 인수 시험(21 정상 + 1 예상 실패) 기준이다.
 
 ## 27. 완규님 검토 필요 항목
 
