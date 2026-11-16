@@ -1,0 +1,23 @@
+.region {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  z-index: 60;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+.toast {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-size: 13px;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.18);
+}
+
+.toast[data-tone='error'] {
+  background: var(--as-color-danger);
+  color: #ffffff;
+}

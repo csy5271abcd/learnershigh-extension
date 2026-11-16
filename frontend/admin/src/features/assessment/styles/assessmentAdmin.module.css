@@ -1,0 +1,1936 @@
+/*
+ * Admin Assessment 관리 화면 공통 Style.
+ * 기준: references/claude-design-mockup/LearnersHighAssessment/Admin/Assessment-Management/ (AM-01~20)
+ * 색·글꼴·간격은 Student와 같은 `.lh-assessment` 범위의 --as-* Token만 쓴다 (components/canonicalUi.ts가 Token CSS를 불러온다).
+ * 기존 Admin Shell(Sidebar·Header)·Student Care 스타일은 바꾸지 않는다.
+ * 선택 상태는 회색 채움으로만 표시한다 (파란 왼쪽 강조선·굵은 파란 Outline 사용 안 함).
+ */
+
+.root {
+  /* Admin Shell 본문 안쪽. Header(56px) 아래 화면 높이를 채운다 */
+  --am-frame-height: calc(100vh - var(--lh-admin-header-height, 56px) - 30px);
+  min-width: 0;
+  padding: 15px 14px;
+  font-family: var(--as-font);
+  color: var(--as-color-text);
+}
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  /* 본문 최대 너비 (2026-10-29 요청 ①). Admin Shell(Sidebar·Header)은 그대로 두고 Assessment 본문만 가운데로 모은다.
+     일반 목록·폼은 1200px, PDF Viewer·2열 비교·학생 화면 보기처럼 공간이 필요한 화면은 data-width="wide"(1480px). */
+  width: 100%;
+  max-width: var(--am-content-max, 1200px);
+  margin-inline: auto;
+  min-height: var(--am-frame-height);
+  border-radius: 12px;
+  background: var(--as-color-surface);
+  overflow: hidden;
+}
+
+.frame[data-width='wide'] {
+  --am-content-max: 1480px;
+}
+
+/* 학생 Desktop 화면 미리보기 화면 (학생 화면 보기·수행평가 상세): 폭 제한 없음 */
+.frame[data-width='full'] {
+  --am-content-max: none;
+}
+
+/* ── 상단 탭 (AM-01) ─────────────────────────────── */
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  min-height: 46px;
+  padding: 0 21px;
+  border-bottom: 1px solid var(--as-color-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 0 11px;
+  border: 0;
+  background: none;
+  color: #4b5059;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--as-color-text);
+}
+
+.tab[aria-current='page'] {
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.tab[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--as-color-ink);
+}
+
+.tabCount {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #12a5f4;
+  color: var(--as-color-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.subTabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--as-color-line);
+  overflow-x: auto;
+}
+
+.subTab {
+  flex: none;
+  padding: 12px 10px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.subTab[aria-current='page'] {
+  border-bottom-color: var(--as-color-ink);
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  padding: 20px;
+}
+
+.tabsEnd {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 16px;
+  color: var(--as-color-text-tertiary);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.tabsEnd .mockNotice {
+  margin: 0;
+  font-size: 11px;
+}
+
+.mockNotice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+/* ── 공통 요소 ────────────────────────────────────── */
+.sectionTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 24px 0 12px;
+}
+
+.sectionHead:first-child {
+  margin-top: 0;
+}
+
+.muted {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.toolbarEnd {
+  margin-left: auto;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 260px;
+  min-width: 160px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-tertiary);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.search:focus-within {
+  box-shadow: 0 0 0 2px var(--as-color-primary-soft);
+}
+
+.select {
+  height: 36px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 16px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--as-color-fill);
+}
+
+.chip[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-weight: 600;
+}
+
+/* 작은 회색 필터 (목업 AM-19 자료 성격 줄): 선택은 연한 회색 채움 */
+.chipQuiet {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chipQuiet:hover {
+  background: var(--as-color-fill);
+}
+
+.chipQuiet[aria-pressed='true'] {
+  background: var(--as-color-active);
+  color: var(--as-color-text);
+  font-weight: 600;
+}
+
+/* 하위 탭 Segmented (목업 AM-09·12·17: 회색 상자 안 흰 선택 칸) */
+.segmented {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 2px;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: 9px;
+  background: var(--as-color-fill);
+}
+
+.segment {
+  flex: none;
+  height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.segment[aria-current='page'],
+.segment[aria-pressed='true'] {
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08);
+}
+
+.segmentBar {
+  padding: 16px 21px 0;
+}
+
+
+.primaryButton,
+.secondaryButton,
+.ghostButton,
+.dangerButton,
+.inkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.inkButton {
+  border: 0;
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+}
+
+.inkButton:hover:not(:disabled) {
+  background: #3a3e46;
+}
+
+.primaryButton {
+  border: 0;
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--as-color-primary-hover);
+}
+
+.secondaryButton {
+  border: 1px solid var(--as-color-line);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+}
+
+.secondaryButton:hover:not(:disabled),
+.ghostButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.ghostButton {
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text-secondary);
+}
+
+.dangerButton {
+  border: 1px solid var(--as-color-danger-soft);
+  background: var(--as-color-surface);
+  color: var(--as-color-danger);
+}
+
+.smallButton {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+:is(.primaryButton, .secondaryButton, .ghostButton, .dangerButton, .inkButton, .chip):disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-primary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge[data-tone='success'] {
+  background: var(--as-color-success-soft);
+  color: var(--as-color-success-text);
+}
+
+.badge[data-tone='warning'] {
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+}
+
+.badge[data-tone='danger'] {
+  background: var(--as-color-danger-soft);
+  color: var(--as-color-danger);
+}
+
+.badge[data-tone='primary'] {
+  background: var(--as-color-primary-soft);
+  color: var(--as-color-primary);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--as-color-idle);
+}
+
+.dot[data-status='IN_PROGRESS'] {
+  background: var(--as-color-primary);
+}
+
+.dot[data-status='COMPLETED'] {
+  background: var(--as-color-success);
+}
+
+.danger {
+  color: var(--as-color-danger);
+}
+
+/* ── KPI 카드 (AM-01) ─────────────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kpi:hover {
+  background: var(--as-color-subtle);
+}
+
+.kpiLabel {
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.kpiValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.kpiMeta {
+  overflow: hidden;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 표 ─────────────────────────────────────────── */
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+
+.table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 10px 12px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table th:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.table th:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--as-color-line);
+  vertical-align: middle;
+}
+
+.table tbody tr[data-clickable='true'] {
+  cursor: pointer;
+}
+
+.table tbody tr[data-clickable='true']:hover {
+  background: var(--as-color-subtle);
+}
+
+.table tbody tr[aria-selected='true'] {
+  background: var(--as-color-selected);
+}
+
+.cellTitle {
+  display: block;
+  font-weight: 600;
+}
+
+.cellSub {
+  display: block;
+  margin-top: 2px;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.cellClamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  max-width: 360px;
+}
+
+.rowButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.rowButton:hover .cellTitle {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── 상세 화면 (AM-03·06·10) ─────────────────────── */
+.detail {
+  display: flex;
+  flex-direction: column;
+  height: var(--am-frame-height);
+  min-height: 520px;
+}
+
+.detailHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--as-color-text);
+  cursor: pointer;
+}
+
+.backButton:hover {
+  background: var(--as-color-fill);
+}
+
+.breadcrumb {
+  margin: 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.detailTitle {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.detailHeadText {
+  flex: 1;
+  min-width: 200px;
+}
+
+.detailHeadEnd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.split {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 0;
+}
+
+.splitWide {
+  grid-template-columns: minmax(0, 1fr) 440px;
+}
+
+.pane {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.paneInner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.paneInnerWide {
+  max-width: none;
+  padding: 20px 24px;
+}
+
+/* 평가계획서 검토: 왼쪽 원문 Viewer / 오른쪽 분석 결과 (S-4, 2026-11-13) */
+.reviewSplit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr));
+  /* 각 열이 따로 스크롤한다. 좁은 화면에서 두 줄이 되면 위·아래로 나눠 각각 스크롤 */
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+}
+
+.originalPane {
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 0 20px 24px;
+  border-right: 1px solid var(--as-color-line);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--as-color-line);
+}
+
+.sideTabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.sideBody {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sideFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.metaBox {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.metaRow dt {
+  color: var(--as-color-text-secondary);
+}
+
+.metaRow dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.readOnly {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.studentLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.box {
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.boxSubtle {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--as-color-subtle);
+  font-size: 13px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.listPlain {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: 13px;
+}
+
+.listRow:last-child {
+  border-bottom: 0;
+}
+
+/* ── 읽기 전용 노트 ───────────────────────────────── */
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.noteHeading {
+  margin: 14px 0 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.noteHeading[data-level='2'] {
+  font-size: 17px;
+}
+
+.noteHeading[data-level='3'] {
+  font-size: 15px;
+}
+
+.notePara {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.noteBlock {
+  position: relative;
+  border-radius: 6px;
+}
+
+.noteBlock[data-commented='true'] {
+  background: var(--as-color-warning-soft);
+}
+
+.noteBlockAction {
+  position: absolute;
+  top: 2px;
+  right: -4px;
+  opacity: 0;
+}
+
+.noteBlock:hover .noteBlockAction,
+.noteBlock:focus-within .noteBlockAction {
+  opacity: 1;
+}
+
+.noteQuote {
+  margin: 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--as-color-line);
+  color: var(--as-color-text-secondary);
+}
+
+.noteCallout {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--as-color-subtle);
+}
+
+.noteCode {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--as-color-subtle);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12px;
+}
+
+.noteTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.noteTable td {
+  padding: 8px 10px;
+  border: 1px solid var(--as-color-line);
+}
+
+.noteCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.noteDivider {
+  width: 100%;
+  margin: 6px 0;
+  border: 0;
+  border-top: 1px solid var(--as-color-line);
+}
+
+/* ── 폼 ─────────────────────────────────────────── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.uploadGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.formGrid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.required {
+  margin-left: 2px;
+  color: var(--as-color-danger);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.textarea {
+  min-height: 84px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--as-color-text-tertiary);
+  outline: none;
+}
+
+.input[aria-invalid='true'],
+.textarea[aria-invalid='true'] {
+  border-color: var(--as-color-danger);
+}
+
+.fieldError {
+  margin: 0;
+  color: var(--as-color-danger);
+  font-size: 12px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.formError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--as-color-danger-soft);
+  color: var(--as-color-danger);
+  font-size: 13px;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* ── 카드 격자 (AM-19 참고자료원) ─────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.sourceCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.sourceIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+}
+
+.sourceText {
+  flex: 1;
+  min-width: 0;
+}
+
+.sourceName {
+  display: block;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sourceMeta {
+  display: block;
+  overflow: hidden;
+  color: var(--as-color-text-tertiary);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 평가계획서 (AM-07) ───────────────────────────── */
+.master {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  min-height: var(--am-frame-height);
+}
+
+.masterList {
+  padding: 16px;
+  border-right: 1px solid var(--as-color-line);
+}
+
+.masterItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.masterItem:hover {
+  background: var(--as-color-subtle);
+}
+
+.masterItem[aria-current='true'] {
+  background: var(--as-color-active);
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: 48px repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-items: stretch;
+}
+
+.slotHead {
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.slotGrade {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 58px;
+  padding: 10px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.slot[data-empty='true'] {
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+}
+
+.slot:hover {
+  background: var(--as-color-fill);
+}
+
+.slot[aria-pressed='true'] {
+  background: var(--as-color-active);
+}
+
+/* ── PDF 원문 + 관리 패널 (AM-17 상세) ─────────────── */
+.pdfPane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--as-color-subtle);
+}
+
+/* ── 모바일·태블릿 ────────────────────────────────── */
+@media (max-width: 1279px) {
+  .split,
+  .splitWide {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .root {
+    padding: 8px;
+  }
+
+  .body {
+    padding: 16px;
+  }
+
+  .kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 두 영역을 위아래로 쌓고 문서 전체가 한 번만 스크롤되게 한다 (이중 스크롤 방지) */
+  .detail {
+    height: auto;
+  }
+
+  .split,
+  .splitWide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pane,
+  .sideBody,
+  .pdfPane {
+    overflow: visible;
+  }
+
+  .side {
+    border-top: 1px solid var(--as-color-line);
+    border-left: 0;
+  }
+
+  .master {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .masterList {
+    border-right: 0;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+
+  .formGrid,
+  .formGrid3,
+  .uploadGrid,
+  .metaBox {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 599px) {
+  .paneInner,
+  .paneInnerWide {
+    padding: 16px;
+  }
+
+  .detailHead {
+    padding: 10px 12px;
+  }
+
+  .slotGrid {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .slotGrid > .slotHead:first-child {
+    display: none;
+  }
+
+  .search {
+    flex-basis: 100%;
+  }
+}
+
+/* ── 공개 토글 (목업 AM-17) ───────────────────────── */
+.switch {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: #d5d8de;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--as-color-primary);
+}
+
+.switch[aria-checked='true']::after {
+  transform: translateX(16px);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.switch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ── 모의고사 소재 카드 (목업 AM-12) ──────────────── */
+.materialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.materialCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px 17px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-surface);
+}
+
+.materialCard:hover {
+  border-color: #d9dbe0;
+}
+
+.materialTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.materialTop > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materialMeta {
+  margin: 4px 0 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 11.5px;
+}
+
+.materialTitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.materialDesc {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: #4b5059;
+  font-size: 12.5px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.materialConcept {
+  margin: 0;
+  overflow: hidden;
+  color: var(--as-color-text-tertiary);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materialActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.materialActions .hint {
+  margin-left: auto;
+}
+
+/* ── 학생 Assessment master-detail (목업 AM-02) ──── */
+.masterDetail {
+  display: grid;
+  grid-template-columns: 276px minmax(0, 1fr);
+  min-height: calc(var(--am-frame-height) - 46px);
+}
+
+.masterPane {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px 11px;
+  border-right: 1px solid var(--as-color-line);
+}
+
+.masterPane .search {
+  flex: none;
+  width: 100%;
+}
+
+.masterFilters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.masterFilters .select {
+  width: 100%;
+  height: 32px;
+  font-size: 12px;
+}
+
+.studentItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.studentItem:hover {
+  background: var(--as-color-subtle);
+}
+
+.studentItem[aria-current='true'] {
+  background: var(--as-color-active);
+}
+
+.initials {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.initialsLarge {
+  width: 48px;
+  height: 48px;
+  font-size: 15px;
+}
+
+.studentItemText {
+  flex: 1;
+  min-width: 0;
+}
+
+.detailPane {
+  min-width: 0;
+  padding: 22px 26px;
+}
+
+.profile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.profileText {
+  flex: 1;
+  min-width: 200px;
+}
+
+.profileName {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.profileMeta {
+  margin: 2px 0 8px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.subjectChip {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 13px;
+  font-size: 11.5px;
+}
+
+.subjectChip[data-custom='true'] {
+  border-style: dashed;
+  color: var(--as-color-warning-text);
+}
+
+.lineTabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 20px;
+  border-bottom: 1px solid var(--as-color-line);
+  overflow-x: auto;
+}
+
+.lineTabs .subTab span {
+  margin-left: 3px;
+  color: var(--as-color-text-tertiary);
+  font-weight: 400;
+}
+
+/* 머리줄 없는 행 목록 (목업 AM-02 과제 목록) */
+.plainRows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plainRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 110px 90px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--as-color-line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plainRow:hover {
+  background: var(--as-color-subtle);
+}
+
+.plainRowTitle {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+/* ── PDF 끌어다 놓기 (목업 AM-08) ─────────────────── */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 120px;
+  padding: 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-subtle);
+  text-align: center;
+  cursor: pointer;
+}
+
+.dropzone[data-active='true'] {
+  border-color: var(--as-color-text-tertiary);
+  background: var(--as-color-fill);
+}
+
+.dropzone:focus-within {
+  box-shadow: 0 0 0 2px var(--as-color-primary-soft);
+}
+
+.dropzoneTitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.infoLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.infoBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.formSectionTitle {
+  margin: 8px 0 -4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.previewLabel {
+  margin: 0 0 8px;
+  color: var(--as-color-text-tertiary);
+  font-size: 11.5px;
+}
+
+.sideSubtle {
+  background: #fbfbfc;
+}
+
+@media (max-width: 1023px) {
+  .masterDetail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .masterPane {
+    border-right: 0;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+
+  .detailPane {
+    padding: 18px 16px;
+  }
+
+  .plainRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .plainRow > :nth-child(2),
+  .plainRow > :nth-child(3) {
+    display: none;
+  }
+
+  .tabsEnd {
+    display: none;
+  }
+}
+
+/* ── 결과 파일 카드 (목업 AM-04 '수행평가 결과 파일') ── */
+.artifactCard {
+  overflow: hidden;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.artifactHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: 13.5px;
+}
+
+.artifactHead strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+
+.artifactRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.artifactRow + .artifactRow {
+  border-top: 1px solid var(--as-color-line);
+}
+
+.artifactRow[aria-current='true'] {
+  background: var(--as-color-subtle);
+}
+
+.artifactVersion {
+  flex: none;
+  width: 28px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sectionIconTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ── 학생 화면 보기 (요청 ⑧). Student Assessment Layout을 Admin Shell 안에 넣는다 ── */
+.studentViewRoot {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 학생 화면 보기: 위아래 여백 없이 Admin Header 바로 아래부터 그린다. Student 화면 본체는 학생 앱과 같은 배치 규칙(본체 폭 기준)을 쓴다 */
+.root[data-view='student-view'],
+.root[data-view='record'] {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.root[data-view='student-view'] .frame,
+.root[data-view='record'] .frame {
+  border-radius: 0;
+  overflow: visible;
+}
+
+/* 수행평가 상세(관리자 진입): 학생 화면 / 관리자 기록 도구 전환 */
+.recordTabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 42px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.recordTabs .readOnly {
+  margin-left: auto;
+}
+
+.studentViewFrame {
+  /* 머리글(DetailHead)의 아래 경계선을 그대로 쓴다. 테두리를 더하면 Student 높이 계산보다 1px 커져 바깥이 스크롤된다 */
+  min-width: 0;
+}
+
+/* ── 모의고사 원문 입력 (요청 ③) ── */
+.passageInput {
+  width: 100%;
+  min-height: 240px;
+  max-height: 520px;
+  padding: 12px 14px;
+  border: 1px solid var(--as-color-line-strong, #d1d6db);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.7;
+  resize: vertical;
+  overflow-y: auto;
+}
+
+.passageInput[aria-invalid='true'] {
+  border-color: #e5484d;
+}
+
+.passageMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  color: var(--as-color-text-tertiary, #8b95a1);
+  font-size: 12px;
+}
+
+.passageMeta [data-over='true'] {
+  color: #e5484d;
+  font-weight: 600;
+}
+
+.passageError {
+  color: #e5484d;
+  font-size: 12px;
+}
+
+.passageView {
+  max-height: 320px;
+  margin: 0 0 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-fill, #f8f9fa);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+
+.checkLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ── 대학 공식 자료실 링크 (요청 ④) ── */
+.officialLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.officialLabel {
+  margin-right: 4px;
+  color: var(--as-color-text-tertiary, #8b95a1);
+  font-size: 12.5px;
+}
+
+.officialLink {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line-strong, #d1d6db);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.officialLink:hover {
+  background: var(--as-color-fill, #f6f7f9);
+}
+
+/* ── 참고자료실: 자료원별 저장 수 (요청 ⑤) ── */
+.savedCount {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-text-secondary, #4e5968);
+  font: inherit;
+  font-size: 11.5px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── 수행평가 상세 메타정보 (시연 피드백 ③) ── */
+.metaRow[data-wide] {
+  grid-column: 1 / -1;
+}
+
+.metaBox .metaRow dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.candidateTag {
+  /* Student 수행평가 상세와 같은 회색 보조 글 (노란 배경·갈색 글 제거, 2026-10-29) */
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-caption, 12px);
+  white-space: nowrap;
+}
+
+.metaSection {
+  margin-top: 16px;
+}
+
+.metaList {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.attachRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+}
+
+.attachRow > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.studentNoteBody {
+  display: grid;
+  overflow-wrap: anywhere;
+}
+
+.studentNoteBody table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.studentNoteBody img {
+  max-width: 100%;
+  height: auto;
+}

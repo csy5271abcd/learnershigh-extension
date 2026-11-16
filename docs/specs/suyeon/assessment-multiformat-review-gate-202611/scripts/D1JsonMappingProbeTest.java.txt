@@ -1,0 +1,100 @@
+package com.learnershigh.extension.assessment.probe;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
+
+/**
+ * 임시 탐침(D-1 승인 요청 근거용, 저장소에 남기지 않음). D-1 초안이 적용된 격리 Schema에서
+ * Hibernate 7이 JSON Column에 무엇을 쓰는지 세 가지 매핑으로 비교한다.
+ */
+@Tag("probe")
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:mysql://localhost:3307/lh_assessment_d1_truth2",
+        "spring.datasource.username=root", "spring.datasource.password=root",
+        "spring.flyway.enabled=false"})
+class D1JsonMappingProbeTest {
+
+    static final String LOCATOR = "{\"kind\":\"HWP_TABLE_CELL\",\"section\":0,\"path\":\"p3.c0.r5c3\",\"table\":1,\"row\":5,\"col\":3}";
+
+    @Autowired EntityManager em;
+    @Autowired TransactionTemplate tx;
+    @Autowired JdbcTemplate jdbc;
+
+    @Test
+    void compareMappings() {
+        jdbc.update("DELETE FROM assessment_plan_confirmed_value WHERE id LIKE 'probe_%'");
+        report("A @JdbcTypeCode(JSON) String", () -> em.persist(new JsonString("probe_a", LOCATOR)), "probe_a",
+                () -> em.find(JsonString.class, "probe_a").locator);
+        report("B columnDefinition=json String", () -> em.persist(new PlainString("probe_b", LOCATOR)), "probe_b",
+                () -> em.find(PlainString.class, "probe_b").locator);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("kind", "HWP_TABLE_CELL"); map.put("section", 0); map.put("path", "p3.c0.r5c3");
+        map.put("table", 1); map.put("row", 5); map.put("col", 3); map.put("control", "표 제목");
+        report("C @JdbcTypeCode(JSON) Map", () -> em.persist(new JsonMap("probe_c", map)), "probe_c",
+                () -> String.valueOf(em.find(JsonMap.class, "probe_c").locator));
+    }
+
+    private void report(String name, Runnable write, String id, java.util.function.Supplier<String> read) {
+        String outcome;
+        try {
+            tx.executeWithoutResult(s -> write.run());
+            Map<String, Object> raw = jdbc.queryForMap(
+                    "SELECT JSON_TYPE(evidence_locator_json) t, CAST(evidence_locator_json AS CHAR) j FROM assessment_plan_confirmed_value WHERE id = ?", id);
+            em.clear();
+            String back = tx.execute(s -> read.get());
+            outcome = "stored JSON_TYPE=" + raw.get("t") + " raw=" + raw.get("j") + " | read back=" + back;
+        } catch (RuntimeException e) {
+            Throwable root = e;
+            while (root.getCause() != null) root = root.getCause();
+            outcome = "FAILED " + root.getClass().getSimpleName() + ": " + root.getMessage();
+        }
+        System.out.println("PROBE " + name + " -> " + outcome);
+    }
+
+    @jakarta.persistence.MappedSuperclass
+    abstract static class Base {
+        @Id @Column(name = "id") String id;
+        @Column(name = "review_id") String reviewId = "rv1";
+        @Column(name = "revision_id") String revisionId = "r_hwp";
+        @Column(name = "subject_id") String subjectId = "subj_14";
+        @Column(name = "field_path") String fieldPath = "performanceEvaluation.items[0].weightPercent";
+        @Column(name = "value_json") String valueJson = "30";
+        @Column(name = "evidence_format") String evidenceFormat = "HWP";
+        @Column(name = "analysis_subject_index") Integer analysisSubjectIndex = 0;
+        @Column(name = "position") int position = 500;
+    }
+
+    @Entity(name = "ProbeJsonString") @Table(name = "assessment_plan_confirmed_value")
+    static class JsonString extends Base {
+        @JdbcTypeCode(SqlTypes.JSON) @Column(name = "evidence_locator_json") String locator;
+        JsonString() { }
+        JsonString(String id, String locator) { this.id = id; this.locator = locator; this.position = 501; }
+    }
+
+    @Entity(name = "ProbePlainString") @Table(name = "assessment_plan_confirmed_value")
+    static class PlainString extends Base {
+        @Column(name = "evidence_locator_json", columnDefinition = "json") String locator;
+        PlainString() { }
+        PlainString(String id, String locator) { this.id = id; this.locator = locator; this.position = 502; }
+    }
+
+    @Entity(name = "ProbeJsonMap") @Table(name = "assessment_plan_confirmed_value")
+    static class JsonMap extends Base {
+        @JdbcTypeCode(SqlTypes.JSON) @Column(name = "evidence_locator_json") Map<String, Object> locator;
+        JsonMap() { }
+        JsonMap(String id, Map<String, Object> locator) { this.id = id; this.locator = locator; this.position = 503; }
+    }
+}

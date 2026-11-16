@@ -1,0 +1,237 @@
+{
+ "contractVersion": "0.3",
+ "analyzer": {
+  "name": "curriculum-analysis",
+  "version": "v21.9-b13-dev/contract03-adapter-0.3-draft",
+  "profile": "v21.9-b13-dev"
+ },
+ "source": {
+  "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "format": "PDF",
+  "pageCount": 2
+ },
+ "status": "REVIEW_REQUIRED",
+ "failureReason": null,
+ "subjects": [
+  {
+   "subjectName": "가상국어",
+   "sources": [
+    {
+     "pdfPageNumber": 1,
+     "extractedText": "가상국어"
+    },
+    {
+     "pdfPageNumber": 1,
+     "extractedText": "2099학년도 1학기 1학년 평가 계획"
+    }
+   ],
+   "performanceEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "items": [
+     {
+      "itemKey": "P01",
+      "label": "가상 토론",
+      "area": null,
+      "timing": "4월",
+      "weightPercent": 20,
+      "maxScore": null,
+      "content": null,
+      "submissions": [],
+      "conditions": [],
+      "rubric": [],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "가상 토론"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "20"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "4월"
+       }
+      ]
+     }
+    ]
+   },
+   "extraction": {
+    "status": "COMPLETE",
+    "issues": [
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].maxScore",
+      "basis": "NO_FIELD_WORDS_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].rubric",
+      "basis": "NO_RUBRIC_SIGNAL_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "TEACHING_PLAN_PARTIAL",
+      "severity": "REVIEW",
+      "fieldPath": "teachingPlan",
+      "message": "PLAN_WORDS_WITHOUT_TEACHING_TABLE"
+     }
+    ]
+   },
+   "teachingPlan": [],
+   "grades": [
+    1
+   ]
+  },
+  {
+   "subjectName": "가상수학",
+   "sources": [
+    {
+     "pdfPageNumber": 1,
+     "extractedText": "가상수학"
+    },
+    {
+     "pdfPageNumber": 1,
+     "extractedText": "2099학년도 1학기 1학년 평가 계획"
+    }
+   ],
+   "performanceEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "items": [
+     {
+      "itemKey": "P01",
+      "label": "가상 탐구",
+      "area": null,
+      "timing": "5월",
+      "weightPercent": 30,
+      "maxScore": null,
+      "content": null,
+      "submissions": [],
+      "conditions": [],
+      "rubric": [],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "가상 탐구"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "30"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "5월"
+       }
+      ]
+     }
+    ]
+   },
+   "extraction": {
+    "status": "COMPLETE",
+    "issues": [
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].maxScore",
+      "basis": "NO_FIELD_WORDS_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].rubric",
+      "basis": "NO_RUBRIC_SIGNAL_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "TEACHING_PLAN_PARTIAL",
+      "severity": "REVIEW",
+      "fieldPath": "teachingPlan",
+      "message": "PLAN_WORDS_WITHOUT_TEACHING_TABLE"
+     }
+    ]
+   },
+   "teachingPlan": [],
+   "grades": [
+    1
+   ]
+  },
+  {
+   "subjectName": "가상영어",
+   "sources": [
+    {
+     "pdfPageNumber": 2,
+     "extractedText": "가상영어"
+    },
+    {
+     "pdfPageNumber": 1,
+     "extractedText": "2099학년도 1학기 2학년 평가 계획"
+    }
+   ],
+   "performanceEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "items": [
+     {
+      "itemKey": "P01",
+      "label": "가상 에세이",
+      "area": null,
+      "timing": "6월",
+      "weightPercent": 30,
+      "maxScore": null,
+      "content": null,
+      "submissions": [],
+      "conditions": [],
+      "rubric": [],
+      "sources": [
+       {
+        "pdfPageNumber": 2,
+        "extractedText": "가상 에세이"
+       },
+       {
+        "pdfPageNumber": 2,
+        "extractedText": "30"
+       },
+       {
+        "pdfPageNumber": 2,
+        "extractedText": "6월"
+       }
+      ]
+     }
+    ]
+   },
+   "extraction": {
+    "status": "COMPLETE",
+    "issues": [
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].maxScore",
+      "basis": "NO_FIELD_WORDS_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[0].rubric",
+      "basis": "NO_RUBRIC_SIGNAL_IN_SEGMENT_SCAN"
+     },
+     {
+      "code": "TEACHING_PLAN_PARTIAL",
+      "severity": "REVIEW",
+      "fieldPath": "teachingPlan",
+      "message": "PLAN_WORDS_WITHOUT_TEACHING_TABLE"
+     }
+    ]
+   },
+   "teachingPlan": [],
+   "grades": [
+    2
+   ]
+  }
+ ],
+ "warnings": [
+  "CONTEXT_CONFLICT: 구간마다 grade 값이 다름 — 문서 값 null",
+  "SUBJECT_DUPLICATE: S01.K03 '가상국어' 중복 — 보내지 않음"
+ ]
+}

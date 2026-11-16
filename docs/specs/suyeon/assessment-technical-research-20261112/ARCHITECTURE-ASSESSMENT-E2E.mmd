@@ -1,0 +1,63 @@
+%% LearnersHigh Assessment 전체 아키텍처 (현재 개발·시연 구성) — 2026-11-12 코드 기준
+%% 실선 = 실제 구현·실행 확인된 흐름 / 점선 = 코드는 있으나 기본 비활성 또는 미호출
+flowchart LR
+    subgraph FE["Frontend — React 19.3 · TypeScript 6.0 · Vite 8.3 (npm workspaces)"]
+        direction TB
+        STU["Student :5173<br/>frontend/student · react-router 7.18 · pdfjs-dist 5.4<br/>수행평가·노트·결과물·피드백·성장 기록·자료함·휴지통<br/>평가계획서 가져오기 → 분석 미리보기 결과 페이지(저장 안 함)<br/>심화 탐구(정적)"]
+        ADM["Admin :5174<br/>frontend/admin<br/>평가계획서 등록·Revision → 분석기 → 수신 → 검토·확정<br/>학생 기록·학생 화면 보기(읽기 전용 iframe)·피드백 전달·참고자료실"]
+        AUTHM["개발용 Mock 인증 헤더<br/>X-Assessment-Student-Id / X-Assessment-Admin-Id<br/>(VITE_ASSESSMENT_DEV_*)"]:::dev
+    end
+
+    subgraph PX["Vite 개발 서버 Proxy (Node) — 개발 전용"]
+        P1["/api → VITE_API_TARGET<br/>(기본 http://localhost:18080)"]
+        P2["/dev-analysis → 127.0.0.1:8765<br/>X-Analysis-Token 주입(CURRICULUM_ANALYSIS_TOKEN[_FILE])<br/>changeOrigin · Cookie·Origin 제거"]:::dev
+    end
+
+    subgraph BE["Backend :18080 — Java 21 · Spring Boot 4.1.1 (WebMVC · Validation · Data JPA · Flyway)"]
+        direction TB
+        CTL["Controller (assessment 패키지)<br/>Student: /api/student/assessment/**<br/>Admin: /api/admin/assessment/**"]
+        AUTH["AssessmentActorProvider<br/>= MockHeaderAssessmentActorProvider"]:::dev
+        CTX["AcademicContextProvider<br/>= MockAcademicContextProvider (learnershigh.integration.mode=mock)"]:::dev
+        PLAN["EvaluationPlanService<br/>등록·Revision(SHA·크기, PdfInspector/DocumentFormatInspector)<br/>importAnalysis(AnalysisImportValidator, payload SHA 중복 방지)<br/>review → ConfirmedValue (ReviewFieldRules)"]
+        REC["record/* Service<br/>Note·Revision · Artifact·Version · Feedback(Snapshot·Reply)<br/>Growth · Resource · Favorite · Trash(soft delete)"]
+        SA["SchoolAssessmentService<br/>evaluationItemRef → ConfirmedItemKeys"]
+        AISVC["AssessmentAiService (Claude anthropic-java 3.2.0, PDFBox)<br/>/api/admin/assessment/ai/*<br/>기본 provider=none → 503"]:::off
+        STO["LocalFileArtifactStorage<br/>~/.learnershigh-extension/dev-artifact-storage<br/>UUID 키 · SHA-256 · 서명 검사"]:::dev
+    end
+
+    subgraph AI["평가계획서 분석기 (로컬, 저장소 밖) :8765"]
+        SVC["analysis_service.py (Python 3.12 stdlib)<br/>POST /analyze-preview · GET /health<br/>규칙 기반 v21.1 · llmCalls=false"]
+        WK["analysis_worker → docmodel → assembly 0.3 → task_detail<br/>→ backend_adapter(PDF) / multiformat_adapter(HWP·HWPX)<br/>PDF: Java 17 PdfLayout + PDFBox 3.0.5"]
+    end
+
+    subgraph DB["MySQL (Docker learnershigh-mysql) — Flyway /database/migrations 8개"]
+        T1["assessment_evaluation_plan · plan_revision<br/>plan_analysis_run(result_json) · plan_review<br/>plan_confirmed_value(field_path·value_json·근거)"]
+        T2["assessment_school_assessment"]
+        T3["assessment_note · note_revision · artifact · artifact_version<br/>feedback_request · feedback_snapshot · feedback_reply<br/>growth_record · resource · favorite"]
+    end
+
+    EXT["Anthropic API"]:::off
+
+    STU --> AUTHM
+    ADM --> AUTHM
+    STU -- "/api/*" --> P1
+    ADM -- "/api/*" --> P1
+    STU -- "/dev-analysis/analyze-preview (multipart)" --> P2
+    ADM -- "/dev-analysis/analyze-preview (multipart)" --> P2
+    P2 --> SVC --> WK
+    P1 --> CTL
+    CTL --> AUTH
+    CTL --> PLAN
+    CTL --> REC
+    CTL --> SA
+    PLAN --> T1
+    SA --> T2
+    SA -. "itemKey 확인" .-> T1
+    REC --> T3
+    REC --> STO
+    CTL -.-> AISVC -.-> EXT
+    PLAN --> CTX
+    SA --> CTX
+
+    classDef dev fill:#fff4d6,stroke:#c90
+    classDef off fill:#eee,stroke:#999,stroke-dasharray: 4 3,color:#666

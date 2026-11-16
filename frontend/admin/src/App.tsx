@@ -36,6 +36,8 @@ import { studentCarePath, isStudentCarePath, studentCareX2Path, parentReportPath
 import { VariantX2 } from './features/student-care/variants/x2/VariantX2.tsx'
 import { ParentReportFrame } from './features/student-care/variants/x2/ParentReportFrame.tsx'
 import { configureCommandScenario } from './store/adminCommands.ts'
+import { AssessmentAdminRoute } from './features/assessment/routes/AssessmentAdminRoute.tsx'
+import { assessmentAdminPath, isAssessmentAdminPath } from './features/assessment/routes/paths.ts'
 
 // Admin Extension App Shell. 주소(pathname)로 화면을 고른다. (Router Library 미확정 → app/adminLocation.ts)
 // Feature는 src/features/<feature>/에 둔다: feedback(Queue · Review), student-management(Today Board · Student 360 · Mentor 추천 · Connection · Interview · Operations)
@@ -50,6 +52,7 @@ const entryPaths: Record<AdminExtensionEntryId, string> = {
   connections: connectionsPath,
   interview: interviewPath,
   operations: operationsPath,
+  assessment: assessmentAdminPath,
 }
 
 function App() {
@@ -122,6 +125,11 @@ function App() {
     current = 'student-care'
     pageLabel = '학생 케어'
     page = <div className={ui.page}><VariantX2 /></div>
+  } else if (isAssessmentAdminPath(pathname)) {
+    // Assessment 관리(Suyeon): 하위 화면 분기는 features/assessment/routes가 맡는다
+    current = 'assessment'
+    pageLabel = 'Assessment 관리'
+    page = <AssessmentAdminRoute location={location} />
   } else if (pathname === operationsPath) {
     current = 'operations'
     pageLabel = 'Operations'
@@ -140,7 +148,7 @@ function App() {
   }
 
   return (
-    <AdminShell current={current} pageLabel={pageLabel} onEntrySelect={(id) => navigate(entryPaths[id])}>
+    <AdminShell current={current} pageLabel={pageLabel} surface={current === 'assessment' ? 'canvas' : 'plain'} onEntrySelect={(id) => navigate(entryPaths[id])}>
       {page}
     </AdminShell>
   )
