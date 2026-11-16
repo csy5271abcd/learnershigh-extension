@@ -14,6 +14,9 @@ import tools.jackson.databind.json.JsonMapper;
  *   <li>{@code ASSESSMENT_ANALYZER_VERSION} (기본 v21.1), {@code ASSESSMENT_ANALYZER_TIMEOUT_MILLIS} (기본 130000 = 분석기 120초 + 여유),
  *       {@code ASSESSMENT_ANALYZER_MAX_RETRIES} (기본 2, 연결 실패·BUSY만)</li>
  * </ul>
+ * A18 시연 결정(2026-11-16): 원격(Railway) 분석기 {@code ANALYZER_TIMEOUT_SEC=120} + 이 Backend
+ * {@code ASSESSMENT_ANALYZER_TIMEOUT_MILLIS=150000}(30초 여유)·{@code ASSESSMENT_ANALYZER_CONTRACT03_VERSION=v21.10-b16-dev}을
+ * 시연 환경 변수로 넣는다. 기본값은 바꾸지 않는다. Timeout은 재시도하지 않는다(최대 대기 = 이 값).
  */
 @Configuration
 public class PlanAnalyzerConfig {

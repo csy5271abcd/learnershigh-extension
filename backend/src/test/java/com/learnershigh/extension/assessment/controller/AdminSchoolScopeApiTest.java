@@ -24,7 +24,10 @@ import org.springframework.test.web.servlet.MockMvc;
  * 개발용 다지점 시연 명단(합성 학생 60명, 지점 A·B·C, 학교 15곳)을 켠 일회용 DB에서 시험한다.
  */
 @Tag("integration")
-@SpringBootTest(properties = "assessment.demo-roster.enabled=true")
+// A18: AllGradesPlanSlotApiTest와 같은 설정 — Spring Context(MySQL 컨테이너)를 공유한다(설정을 바꿀 때 둘 다 바꾼다).
+@SpringBootTest(properties = {"assessment.demo-roster.enabled=true", "assessment.analysis-import.enabled=true",
+    "assessment.analysis-import.contract03-enabled=true",
+    "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)

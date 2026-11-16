@@ -122,6 +122,11 @@ public class DemoRoster {
         return Optional.ofNullable(students.get(studentId));
     }
 
+    /** 명단 학생이 소속된 합성 학교 (A18 학년별 시연 슬롯용). 명단에 없는 학교는 empty — 학교를 만들지 않는다. */
+    public Optional<School> school(String schoolId) {
+        return students.values().stream().map(Student::school).filter(s -> s.schoolId().equals(schoolId)).findFirst();
+    }
+
     public List<ExistingStudent> studentsOf(String branchId) {
         return students.values().stream().filter(s -> s.branchId().equals(branchId)).map(DemoRoster::asExisting).toList();
     }

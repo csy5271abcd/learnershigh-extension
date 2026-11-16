@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
  *   <li>기존 Mock 학생(stu_*): 모두 같은 가상 학교(예시고등학교) 1학년이라고 가정한다. 실제 학교 정보가 아니다. 수강 과목은 바꾸지 않았다.</li>
  *   <li>개발용 시연 명단 학생(stu_demo_*, 플래그 ON일 때만): 명단의 학교·학년·학교 반·번호·학기별 수강 과목을 쓴다.</li>
  *   <li>모든 학생에게 같은 학년도·학년·학기의 공통 과목 후보(SubjectCatalog)를 붙인다(§9-1 catalogSubjects DRAFT). 학교별 후보가 아니다.</li>
+ *   <li>평가계획서 문서 슬롯(findSlot): 예시고등학교 1학년 슬롯 + (명단 플래그 ON일 때만) 명단 합성 학교의 1~3학년 × 1·2학기
+ *       카탈로그 슬롯(A18, §38-4, 출처 {@code DEV_DEMO_CATALOG}).</li>
  * </ul>
  */
 @Component
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Component;
 public class MockAcademicContextProvider implements AcademicContextProvider {
 
     private static final String SOURCE = "EXISTING_LEARNERSHIGH";
+    /** A18: 시연 학교 학년별 슬롯의 출처 — 개발용 공통 카탈로그(실제 학교 개설 과목 아님) */
+    public static final String DEMO_SLOT_SOURCE = "DEV_DEMO_CATALOG";
 
     private static final List<AcademicContextRecord> CONTEXTS = List.of(
             new AcademicContextRecord("school_001", "예시고등학교", 2026, 1, 2, List.of(
@@ -78,12 +82,32 @@ public class MockAcademicContextProvider implements AcademicContextProvider {
 
     @Override
     public Optional<AcademicContextRecord> findSlot(String schoolId, int academicYear, int grade, int semester) {
-        // 평가계획서 검토 확정용 학교 슬롯은 기존 예시고등학교만 있다. 시연 학교의 평가계획서 운영은 범위 밖이다(PDF는 참고자료).
-        return java.util.stream.Stream.concat(CONTEXTS.stream(), PAST_PLAN_SLOTS.stream())
+        // 기존 예시고등학교 슬롯(1학년)이 먼저다 — 바뀌지 않는다.
+        Optional<AcademicContextRecord> existing = java.util.stream.Stream.concat(CONTEXTS.stream(), PAST_PLAN_SLOTS.stream())
                 .filter(context -> context.schoolId().equals(schoolId) && context.academicYear() == academicYear
                         && context.grade() == grade && context.semester() == semester)
                 .findFirst()
                 .map(this::withCatalog);
+        return existing.isPresent() ? existing : demoSlot(schoolId, academicYear, grade, semester);
+    }
+
+    /**
+     * A18 학년별 개발용 시연 슬롯 (api-contract §38-4, 시연 명단 플래그 ON일 때만). 명단의 합성 학교 × 카탈로그가 있는 학년도·학년·학기.
+     * 과목 = 그 학년·학기 공통 카탈로그 후보(학교별 실제 개설 과목이 아님) — 출처를 {@link #DEMO_SLOT_SOURCE}로 구분한다.
+     * 학생 공개 범위는 그대로 학생 학업 Context(학교·학년도·학년·학기) = 문서 슬롯이고, 학년 문맥 충돌 검사도 그대로다.
+     */
+    private Optional<AcademicContextRecord> demoSlot(String schoolId, int academicYear, int grade, int semester) {
+        DemoRoster demo = roster.getIfAvailable();
+        if (demo == null) {
+            return Optional.empty();
+        }
+        List<CatalogSubject> candidates = catalog.find(academicYear, grade, semester);
+        if (candidates.isEmpty()) {
+            return Optional.empty();
+        }
+        return demo.school(schoolId).map(school -> new AcademicContextRecord(school.schoolId(), school.name(), academicYear,
+                grade, semester, candidates.stream().map(c -> new Subject(c.subjectId(), c.name())).toList(),
+                DEMO_SLOT_SOURCE, candidates, null, null));
     }
 
     private AcademicContextRecord withCatalog(AcademicContextRecord context) {

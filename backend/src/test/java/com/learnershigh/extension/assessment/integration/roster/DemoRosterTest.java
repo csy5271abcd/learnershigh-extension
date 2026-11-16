@@ -170,6 +170,72 @@ class DemoRosterTest {
                 .map(AcademicContextResponse.CatalogSubject::subjectId)).containsExactlyInAnyOrder("subj_01", "subj_02", "subj_03", "subj_04");
     }
 
+    // ── A18: 학년별 개발용 시연 슬롯 (api-contract §38-4) ──
+
+    @Test
+    void A18_명단이_켜지면_합성_학교마다_1_3학년_1_2학기_카탈로그_슬롯이_있다() {
+        MockAcademicContextProvider contexts = new MockAcademicContextProvider(catalog, provider(roster));
+        DemoRoster.Student any = roster.student("stu_demo_001").orElseThrow();
+        String schoolId = any.school().schoolId();
+        for (int grade = 1; grade <= 3; grade++) {
+            for (int semester = 1; semester <= 2; semester++) {
+                AcademicContextRecord slot = contexts.findSlot(schoolId, 2026, grade, semester).orElseThrow();
+                assertThat(slot.schoolId()).isEqualTo(schoolId);
+                assertThat(slot.schoolName()).isEqualTo(any.school().name());
+                assertThat(slot.grade()).isEqualTo(grade);
+                assertThat(slot.semester()).isEqualTo(semester);
+                assertThat(slot.source()).isEqualTo(MockAcademicContextProvider.DEMO_SLOT_SOURCE);
+                assertThat(slot.subjects()).extracting(AcademicContextRecord.Subject::subjectId)
+                        .containsExactlyElementsOf(catalog.find(2026, grade, semester).stream()
+                                .map(SubjectCatalog.CatalogSubject::subjectId).toList());
+                // 다른 학년·학기 과목은 이 슬롯 과목이 아니다
+                int otherGrade = grade == 3 ? 1 : grade + 1;
+                catalog.find(2026, otherGrade, semester).forEach(c -> assertThat(slot.hasSubject(c.subjectId())).isFalse());
+            }
+        }
+    }
+
+    @Test
+    void A18_기존_예시고_1학년_슬롯은_그대로이고_없는_슬롯을_만들지_않는다() {
+        MockAcademicContextProvider on = new MockAcademicContextProvider(catalog, provider(roster));
+        MockAcademicContextProvider off = new MockAcademicContextProvider(catalog, provider(null));
+        for (MockAcademicContextProvider contexts : List.of(on, off)) {
+            AcademicContextRecord legacy = contexts.findSlot("school_001", 2026, 1, 2).orElseThrow();
+            assertThat(legacy.source()).isEqualTo("EXISTING_LEARNERSHIGH");
+            assertThat(legacy.subjects()).extracting(AcademicContextRecord.Subject::subjectId)
+                    .containsExactly("subj_01", "subj_02", "subj_03", "subj_04");
+            assertThat(contexts.findSlot("school_001", 2025, 1, 2)).isPresent();
+            // 예시고 2·3학년은 여전히 없다(학교를 만들지 않음)
+            assertThat(contexts.findSlot("school_001", 2026, 2, 1)).isEmpty();
+            assertThat(contexts.findSlot("school_001", 2026, 3, 2)).isEmpty();
+        }
+        String schoolId = roster.student("stu_demo_001").orElseThrow().school().schoolId();
+        assertThat(off.findSlot(schoolId, 2026, 2, 1)).as("플래그 OFF면 시연 슬롯 없음").isEmpty();
+        assertThat(on.findSlot(schoolId, 2025, 2, 1)).as("카탈로그 없는 학년도").isEmpty();
+        assertThat(on.findSlot(schoolId, 2026, 4, 1)).as("없는 학년").isEmpty();
+        assertThat(on.findSlot(schoolId, 2026, 2, 3)).as("없는 학기").isEmpty();
+        assertThat(on.findSlot("sch_demo_unknown", 2026, 2, 1)).as("명단에 없는 학교").isEmpty();
+    }
+
+    @Test
+    void A18_2_3학년_시연_학생의_학업_Context는_자기_학교_학년_슬롯과만_맞는다() {
+        MockAcademicContextProvider contexts = new MockAcademicContextProvider(catalog, provider(roster));
+        for (int grade = 2; grade <= 3; grade++) {
+            int g = grade;
+            DemoRoster.Student student = roster.studentsOf("br_demo_a").stream()
+                    .map(s -> roster.student(s.studentId()).orElseThrow())
+                    .filter(s -> s.grade() == g).findFirst().orElseThrow();
+            for (int semester = 1; semester <= 2; semester++) {
+                AcademicContextRecord own = contexts.find(student.studentId(), 2026, semester).orElseThrow();
+                AcademicContextRecord slot = contexts.findSlot(own.schoolId(), 2026, own.grade(), semester).orElseThrow();
+                assertThat(own.grade()).isEqualTo(grade);
+                assertThat(slot.grade()).isEqualTo(own.grade());
+                // 학생 수강 과목은 모두 그 슬롯 과목이다 (확정값을 자기 학년 과목으로 볼 수 있음)
+                own.subjects().forEach(s -> assertThat(slot.hasSubject(s.subjectId())).isTrue());
+            }
+        }
+    }
+
     @Test
     void 학교학년반번호가_겹치는_명단은_시작을_멈춘다() {
         assertThatThrownBy(() -> new DemoRoster(catalog, "assessment/demo-roster/invalid-duplicate-seat.json"))
