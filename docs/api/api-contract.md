@@ -1309,6 +1309,26 @@ GET /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/struc
 - 권한: 평가계획서 운영(OD-A08). 인증 없음·학생·알 수 없는 관리자 `401`, 다른 문서의 Revision `404`.
 ---
 
+### 38-9. 평가계획서 문서 삭제 (A25, 2026-11-17 DRAFT — 구현됨)
+
+```http
+DELETE /api/admin/assessment/evaluation-plans/{planId}?schoolId=school_001&confirmPublished=false
+```
+
+- **논리 삭제**: 문서에 `deleted_at`·`deleted_by`만 남긴다(Migration `V202611170100`). Revision·원문 파일·분석 Run·검토·확정 기록·운영계획 검토는 지우지 않는다(감사·무결성). 영구 삭제·복원·보존 기간은 정하지 않았다(OD-A11과 같은 미결).
+- 삭제된 문서는 모든 조회에서 빠진다: §38 관리자 목록·상세·원문·검토 경로 `404`, §38-3 학교 검색 수, §10-1 학생 목록·상세·원문, Monthly Planner(§10-1 운영계획) — **학생 공개도 함께 해제**된다.
+- `schoolId`(필수): 문서의 학교와 다르면 `404`(잘못된 대상 삭제 방지). 운영 권한은 §38-2(OD-A08) 그대로 — 인증 없음·학생 `401`, 운영 권한 없음 `403`.
+- 학생 공개 중(확정된 Revision이 있음)인데 `confirmPublished=true`가 없으면 `409 PLAN_DELETE_CONFIRMATION_REQUIRED`, 아무것도 바뀌지 않는다. 화면이 영향을 알리고 확인받은 뒤 `true`로 다시 보낸다.
+- 그 문서의 Revision을 서버가 분석 중이면 `409 PLAN_ANALYSIS_IN_PROGRESS`.
+- 이미 삭제된 문서를 다시 지우면 `404`(보이지 않는 문서). 동시 개정 등록과 겹치면 낙관적 잠금으로 한쪽이 `409`.
+- 같은 학생이 이미 만든 학교 수행평가(§12 `evaluationItemRef`)는 학생 자료이므로 지우지 않는다. 삭제된 문서의 항목을 새로 참조하는 등록은 `unknown`으로 거절된다.
+
+`200`:
+
+```json
+{ "planId": "plan_…", "schoolId": "school_001", "deletedAt": "2026-11-17T03:00:00Z", "wasPublished": true, "revisionCount": 2 }
+```
+
 # 39. Admin — 지필·수행 추출·원본 검토 (AD-04·05)
 
 ```http

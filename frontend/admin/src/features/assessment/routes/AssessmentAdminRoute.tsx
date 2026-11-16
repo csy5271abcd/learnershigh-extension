@@ -7,7 +7,6 @@ import { MockNotice } from '../components/AdminParts.tsx'
 import { EmptyState } from '../components/canonicalUi.ts'
 import { useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
-import { EvaluationPlanAiRoute } from '../ai/EvaluationPlanAiRoute.tsx'
 import { ContentRoute } from './ContentRoute.tsx'
 import { EvaluationPlanReviewRoute } from './EvaluationPlanReviewRoute.tsx'
 import { PlanReviewWorkspaceRoute } from '../review/ReviewWorkspace.tsx'
@@ -41,7 +40,7 @@ const tabs: { id: AssessmentTab; label: string }[] = [
 ]
 
 /** PDF Viewer·2열 비교·학생 화면 보기처럼 넓은 작업 공간이 필요한 화면 (요청 ①: 그 밖의 화면은 기본 최대 너비) */
-const wideViews = new Set<string>(['students', 'student', 'feedback-detail', 'plan-review', 'plan-archive', 'plan-ai', 'university-detail', 'university-ai'])
+const wideViews = new Set<string>(['students', 'student', 'feedback-detail', 'plan-review', 'plan-archive', 'university-detail', 'university-ai'])
 /** 학생 Desktop 화면 미리보기가 들어가는 화면: 최대 폭 제한 없이 가용 폭 전체를 쓰고, 미리보기가 그 폭에 맞춰 Student 화면을 축소한다 */
 // plan-review: 원문과 검토를 나란히 두는 작업 공간이라 가용 폭 전체를 쓴다 (2026-11-14 UI 재설계)
 const previewViews = new Set<string>(['student-view', 'record', 'plan-review'])
@@ -84,9 +83,6 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
       break
     case 'student-view':
       page = <StudentViewRoute key={route.studentId} studentId={route.studentId} search={search} />
-      break
-    case 'plan-ai':
-      page = <EvaluationPlanAiRoute />
       break
     case 'feedback':
       page = <FeedbackListRoute search={search} />

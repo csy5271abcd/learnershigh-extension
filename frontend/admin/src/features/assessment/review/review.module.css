@@ -1283,3 +1283,294 @@ details.more code {
 .link {
   white-space: nowrap;
 }
+
+/* ---- A25 행 더보기 메뉴 · 평가계획서 삭제 확인 (Daglo 패턴: 무채색 메뉴, 파괴 동작만 빨강) ---- */
+.moreMenu {
+  position: relative;
+  display: inline-flex;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.iconButton:hover,
+.iconButton[aria-expanded='true'] {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.iconButton:focus-visible,
+.moreMenuItem:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.moreMenuList {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 132px;
+  padding: 6px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  box-shadow: var(--as-shadow-popover);
+}
+
+.moreMenuItem {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.moreMenuItem:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.moreMenuItem[data-tone='danger'] {
+  color: var(--as-color-danger);
+}
+
+.moreMenuItem:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.buttonDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--as-color-danger);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buttonDanger:disabled {
+  background: var(--as-color-disabled-bg);
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.deleteBody {
+  display: grid;
+  gap: 14px;
+}
+
+.deleteFile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+}
+
+.deleteFile > div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.deleteFile strong {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deleteFile span {
+  font-size: 12px;
+}
+
+.deleteNotes {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.deleteAck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--as-color-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.deleteError {
+  margin: 0;
+  color: var(--as-color-danger);
+  font-size: 13px;
+}
+
+/* A25: 확정 차단 안내 — 빨간 경고 대신 무채색 상자 + 굵은 차단 문구(검증은 그대로, 정보 위계만 조정) */
+.blockedNote {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--as-color-ink);
+  border-radius: var(--as-radius-sm);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.blockedNote strong {
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+/* A25 원본 대조 파일 선택 카드 (Daglo 업로드 카드: 연회색 면 · 파일 카드 · 진행 바) */
+.pickCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px dashed var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-fill);
+}
+
+.pickCard[data-state='match'],
+.pickCard[data-state='mismatch'] {
+  border-style: solid;
+  background: var(--as-color-surface);
+}
+
+.pickCard[data-state='match'] {
+  border-color: var(--as-color-primary);
+}
+
+.pickCard[data-dragging] {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary-soft);
+}
+
+.pickInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pickIcon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 46px;
+  border-radius: 8px;
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.pickBody {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.pickName {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pickMeta {
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.pickProgress {
+  position: relative;
+  display: block;
+  height: 4px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--as-color-active);
+}
+
+.pickProgress::after {
+  position: absolute;
+  inset: 0 60% 0 0;
+  border-radius: inherit;
+  background: var(--as-color-primary);
+  animation: pick-progress 1.1s ease-in-out infinite;
+  content: '';
+}
+
+@keyframes pick-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pickProgress::after {
+    animation: none;
+  }
+}
+
+.pickStatus {
+  margin: 4px 0 0;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pickStatus[data-tone='ok'] {
+  color: var(--as-color-primary);
+}
+
+.pickStatus[data-tone='danger'] {
+  color: var(--as-color-danger);
+}

@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.SQLRestriction;
 
 /**
  * 학교·학년도·학년·학기 슬롯에 등록된 평가계획서 문서 하나 (domain.md §9-0 ① 원본).
@@ -14,6 +15,8 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "assessment_evaluation_plan")
+// A25: 삭제한 문서는 모든 조회(관리자·학생·Planner·원문·학교 검색·현황)에서 빠진다. 기록 행은 보존한다
+@SQLRestriction("deleted_at is null")
 public class EvaluationPlan {
 
     @Id
@@ -41,6 +44,12 @@ public class EvaluationPlan {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
+    @Column(name = "deleted_by", length = 64)
+    private String deletedBy;
+
     @Version
     @Column(name = "version", nullable = false)
     private long version;
@@ -66,6 +75,19 @@ public class EvaluationPlan {
     public int reserveNextRevisionNumber() {
         revisionCount += 1;
         return revisionCount;
+    }
+
+    /** 논리 삭제. version 증가로 동시 개정 등록·삭제는 한쪽이 409가 된다. */
+    public void markDeleted(String adminId, Instant now) {
+        if (deletedAt != null) {
+            throw new IllegalStateException("already deleted");
+        }
+        deletedAt = now;
+        deletedBy = adminId;
+    }
+
+    public Instant deletedAt() {
+        return deletedAt;
     }
 
     public boolean matchesSlot(String otherSchoolId, int otherYear, int otherGrade, int otherSemester) {

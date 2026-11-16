@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
-import { addPlanRevision, downloadPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, searchSchools, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
+import { addPlanRevision, deleteEvaluationPlan, downloadPlanRevision, importPlanAnalysis, isAdminMockDataSource, listEvaluationPlans, listPlanYears, listSchools, requestPlanAnalysis, searchSchools, uploadEvaluationPlan } from '../api/assessmentAdminApi.ts'
 import { AnalysisPreviewError, requestAnalysisPreview } from '../api/canonicalSource.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, PlanAnalysisStatus } from '../api/types.ts'
 import { FieldError, RemoteView } from '../components/AdminParts.tsx'
@@ -67,6 +67,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const [schoolCode, setSchoolCode] = useState('')
   const [upload, setUpload] = useState<{ grade: number; semester: number; planId?: string } | null>(null)
   const [toast, setToast] = useState<ToastMessage | null>(null)
+  const [deleting, setDeleting] = useState<AdminEvaluationPlan | null>(null)
   const { run, pending } = useCommand()
 
   const setParams = (entries: Record<string, string | null>) => {
@@ -115,11 +116,6 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
         {!isAdminMockDataSource && (
           <button type="button" className={review.button} onClick={() => navigate(paths.planArchive(schoolId || undefined))} data-testid="open-plan-archive">
             학년도별 열람
-          </button>
-        )}
-        {!isAdminMockDataSource && import.meta.env.DEV && (
-          <button type="button" className={review.button} onClick={() => navigate(paths.planAi)} data-testid="open-plan-ai">
-            PDF AI 분석
           </button>
         )}
         <button type="button" className={review.buttonPrimary} onClick={() => setUpload({ grade: gradeFilter ?? 1, semester: semesterFilter ?? 2 })} disabled={!schoolId || !year} data-testid="plan-upload-open">
@@ -273,13 +269,25 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
                 </thead>
                 <tbody>
                   {sorted.map((plan) => (
-                    <PlanRow key={plan.planId} plan={plan} pending={pending} analyzingRevisionId={analyzingRevisionId} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} />
+                    <PlanRow key={plan.planId} plan={plan} pending={pending} analyzingRevisionId={analyzingRevisionId} onAnalyze={analyze} onRevision={() => setUpload({ grade: plan.grade, semester: plan.semester, planId: plan.planId })} onDelete={isAdminMockDataSource ? undefined : () => setDeleting(plan)} />
                   ))}
                 </tbody>
               </table>
             )
           }}
         </RemoteView>
+      )}
+      {deleting && (
+        <DeletePlanDialog
+          plan={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={(fileName) => {
+            setDeleting(null)
+            plans.reload()
+            registered.reload()
+            setToast({ id: nextToastId(), tone: 'success', text: `${fileName} 문서를 삭제했어요. 학생 화면에서도 보이지 않아요.` })
+          }}
+        />
       )}
       {upload && schoolId && year && (
         <UploadPlanModal
@@ -329,7 +337,7 @@ const analysisText: Record<PlanAnalysisStatus, { text: string; tone?: 'neutral' 
   FAILED: { text: '분석 실패', tone: 'danger' },
 }
 
-function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }: { plan: AdminEvaluationPlan; pending: boolean; analyzingRevisionId: string | null; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void }) {
+function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, onRevision, onDelete }: { plan: AdminEvaluationPlan; pending: boolean; analyzingRevisionId: string | null; onAnalyze: (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => void; onRevision: () => void; onDelete?: () => void }) {
   const latest = plan.revisions[plan.revisions.length - 1]
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const original = latest.file
@@ -400,6 +408,7 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, onRevision }: 
           <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={onRevision}>
             개정본
           </button>
+          {onDelete && <RowMoreMenu label={`${latest.fileName} 더보기`} items={[{ key: 'delete', text: '삭제', tone: 'danger', onSelect: onDelete, disabled: analyzing, testId: 'plan-delete-open' }]} />}
         </div>
       </td>
     </tr>
@@ -665,6 +674,147 @@ function UploadPlanModal({
             </ul>
           </div>
         </div>
+      </div>
+    </Modal>
+  )
+}
+
+// ---- A25 평가계획서 삭제 (논리 삭제, api-contract.md §38-9 DRAFT) ----
+
+interface MoreMenuItem {
+  key: string
+  text: string
+  tone?: 'danger'
+  disabled?: boolean
+  testId?: string
+  onSelect: () => void
+}
+
+/** 행 보조 동작 메뉴(⋯). Esc·바깥 클릭으로 닫고, Esc로 닫으면 연 버튼으로 초점을 돌려준다 */
+function RowMoreMenu({ label, items }: { label: string; items: MoreMenuItem[] }) {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onPointer = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false)
+        buttonRef.current?.focus()
+      }
+    }
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    rootRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus()
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+  return (
+    <div className={review.moreMenu} ref={rootRef}>
+      <button ref={buttonRef} type="button" className={review.iconButton} aria-label={label} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((value) => !value)} data-testid="plan-more-button">
+        <span aria-hidden="true">⋯</span>
+      </button>
+      {open && (
+        <div className={review.moreMenuList} role="menu">
+          {items.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              role="menuitem"
+              className={review.moreMenuItem}
+              data-tone={item.tone}
+              disabled={item.disabled}
+              data-testid={item.testId}
+              onClick={() => {
+                setOpen(false)
+                item.onSelect()
+              }}
+            >
+              {item.text}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** 삭제 확인. 학생 공개 중(확정된 개정본이 있음)이면 영향을 알리고 한 번 더 확인받는다(서버도 같은 규칙으로 409). */
+function DeletePlanDialog({ plan, onClose, onDeleted }: { plan: AdminEvaluationPlan; onClose: () => void; onDeleted: (fileName: string) => void }) {
+  const latest = plan.revisions[plan.revisions.length - 1]
+  const published = plan.revisions.some((revision) => revision.reviewStatus === 'CONFIRMED')
+  const [acknowledged, setAcknowledged] = useState(false)
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const canDelete = !pending && (!published || acknowledged)
+  const submit = () => {
+    if (!canDelete) return
+    setPending(true)
+    setError(null)
+    deleteEvaluationPlan(plan.planId, plan.schoolId, published).then(
+      () => onDeleted(latest.fileName),
+      (cause: Error & { code?: string; status?: number }) => {
+        setPending(false)
+        setError(
+          cause.status === 404
+            ? '이미 삭제됐거나 찾을 수 없는 문서예요. 목록을 새로고침해 주세요.'
+            : cause.code === 'PLAN_ANALYSIS_IN_PROGRESS'
+              ? '이 문서를 분석하고 있어요. 분석이 끝난 뒤 다시 시도해 주세요.'
+              : cause.code === 'PLAN_DELETE_CONFIRMATION_REQUIRED'
+                ? '학생에게 공개 중인 문서예요. 아래 내용을 확인한 뒤 다시 삭제해 주세요.'
+                : `삭제하지 못했어요. ${cause.message}`,
+        )
+      },
+    )
+  }
+  return (
+    <Modal
+      compact
+      title="평가계획서를 삭제할까요?"
+      initialFocusRef={cancelRef}
+      onRequestClose={() => !pending && onClose()}
+      footer={
+        <>
+          <button ref={cancelRef} type="button" className={review.buttonGhost} onClick={onClose} disabled={pending}>
+            취소
+          </button>
+          <button type="button" className={review.buttonDanger} onClick={submit} disabled={!canDelete} aria-busy={pending} data-testid="plan-delete-confirm">
+            {pending ? '삭제하는 중…' : '삭제'}
+          </button>
+        </>
+      }
+    >
+      <div className={review.deleteBody} data-testid="plan-delete-dialog">
+        <div className={review.deleteFile}>
+          <FileIcon size={18} />
+          <div>
+            <strong title={latest.fileName}>{latest.fileName}</strong>
+            <span>
+              {plan.academicYear}학년도 · 고{plan.grade} · {plan.semester}학기 · 개정본 {plan.revisions.length}개
+            </span>
+          </div>
+        </div>
+        <ul className={review.deleteNotes}>
+          <li>목록과 검토 화면에서 사라져요. 분석·확정 기록과 원문 파일은 지우지 않고 보관해요.</li>
+          {published ? <li>학생에게 공개 중인 평가 정보와 월별 운영계획도 학생 화면에서 함께 사라져요.</li> : <li>아직 학생에게 공개되지 않은 문서예요.</li>}
+        </ul>
+        {published && (
+          <label className={review.deleteAck}>
+            <input type="checkbox" checked={acknowledged} onChange={(event) => setAcknowledged(event.target.checked)} disabled={pending} data-testid="plan-delete-ack" />
+            학생 화면에서도 사라지는 것을 확인했어요
+          </label>
+        )}
+        {error && (
+          <p className={review.deleteError} role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </Modal>
   )

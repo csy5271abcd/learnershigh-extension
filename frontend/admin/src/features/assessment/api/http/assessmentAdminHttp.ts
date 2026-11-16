@@ -451,6 +451,18 @@ export const getPlanStructureHttp = (planId: string, revisionId: string) =>
   adminHttp<PlanStructurePreview>(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/structure`)
 export const previewPlanRevisionHttp = (planId: string, revisionId: string) =>
   adminFile(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/preview`)
+/** §38-9 평가계획서 문서 삭제(논리 삭제, A25 DRAFT). 학생 공개 중이면 confirmPublished=true가 있어야 한다(없으면 409 PLAN_DELETE_CONFIRMATION_REQUIRED). */
+export interface PlanDeleteResult {
+  planId: string
+  schoolId: string
+  deletedAt: string
+  wasPublished: boolean
+  revisionCount: number
+}
+
+export const deleteEvaluationPlanHttp = (planId: string, schoolId: string, confirmPublished: boolean) =>
+  adminHttp<PlanDeleteResult>(`${plansPath}/${encodeURIComponent(planId)}`, { method: 'DELETE', query: { schoolId, confirmPublished: String(confirmPublished) } })
+
 export const downloadPlanRevisionHttp = (planId: string, revisionId: string) =>
   adminFile(`${plansPath}/${encodeURIComponent(planId)}/revisions/${encodeURIComponent(revisionId)}/file`)
 

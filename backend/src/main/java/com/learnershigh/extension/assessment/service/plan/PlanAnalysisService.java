@@ -49,6 +49,11 @@ public class PlanAnalysisService {
     private final String contract03Version;
     private final Set<String> running = ConcurrentHashMap.newKeySet();
 
+    /** A25 삭제 전 확인: 이 Revision 중 하나라도 지금 분석 중인가 */
+    public boolean anyRunning(java.util.Collection<String> revisionIds) {
+        return revisionIds.stream().anyMatch(running::contains);
+    }
+
     public PlanAnalysisService(PlanAccess access, EvaluationPlanQueryService queries, EvaluationPlanService plans,
             PlanAnalyzerClient client, AnalysisImportParser parser, DocumentFormatInspector formatInspector,
             @Value("${assessment.analyzer.version:v21.1}") String analyzerVersion,

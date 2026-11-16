@@ -89,6 +89,10 @@ export const previewPlanRevision = useMock
 export const getPlanStructure = useMock
   ? (_planId: string, _revisionId: string): Promise<PlanStructurePreview> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
   : http.getPlanStructureHttp
+/** §38-9 평가계획서 삭제(A25). 시연(Mock) 데이터는 서버 기록이 없어 지우지 않는다 */
+export const deleteEvaluationPlan = useMock
+  ? (_planId: string, _schoolId: string, _confirmPublished: boolean): Promise<http.PlanDeleteResult> => Promise.reject(new Error('시연 데이터는 삭제할 수 없어요.'))
+  : http.deleteEvaluationPlanHttp
 export const downloadPlanRevision = useMock
   ? (_planId: string, _revisionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 원문 파일이 없어요.'))
   : http.downloadPlanRevisionHttp

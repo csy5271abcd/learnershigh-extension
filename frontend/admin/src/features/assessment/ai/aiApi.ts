@@ -12,25 +12,6 @@ export interface AiField {
   evidenceQuote: string
 }
 
-export interface EvaluationPlanResult {
-  schoolName: AiField
-  academicYear: AiField
-  grade: AiField
-  semester: AiField
-  subjects: {
-    subjectName: AiField
-    writtenExamTotalRatio: AiField
-    performanceTotalRatio: AiField
-    writtenExams: { name: AiField; timing: AiField; ratio: AiField; maxScore: AiField }[]
-    performanceAreas: { area: AiField; evaluationType: AiField; timing: AiField; ratio: AiField; maxScore: AiField; scoringCriteria: AiField[] }[]
-    achievementStandards: { code: AiField; statement: AiField }[]
-    units: AiField[]
-    teachingMethods: AiField[]
-    achievementLevels: AiField[]
-  }[]
-  unreadableNotes: string[]
-}
-
 export interface InquiryTopic {
   title: string
   reason: string
@@ -148,9 +129,6 @@ function pdfForm(file: File, hint: string) {
   if (hint.trim()) form.append('hint', hint.trim())
   return form
 }
-
-export const analyzeEvaluationPlanPdf = (file: File, hint: string, idempotencyKey: string) =>
-  call<AiAnalysis<EvaluationPlanResult>>('/evaluation-plan-analyses', { method: 'POST', body: pdfForm(file, hint), headers: { 'Idempotency-Key': idempotencyKey } })
 
 export const analyzeUniversityExamPdf = (file: File, hint: string, idempotencyKey: string) =>
   call<AiAnalysis<UniversityExamResult>>('/university-exam-analyses', { method: 'POST', body: pdfForm(file, hint), headers: { 'Idempotency-Key': idempotencyKey } })

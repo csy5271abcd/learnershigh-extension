@@ -35,6 +35,7 @@ public enum AssessmentErrorCode implements ErrorCode {
     // A5 공유 검토 초안 (DRAFT 계약 §39-4)
     PLAN_REVIEW_DRAFT_CONFLICT(HttpStatus.CONFLICT, "다른 관리자가 먼저 검토 초안을 저장했어요. 최신 초안을 확인한 뒤 다시 저장해 주세요."),
     PLAN_REVIEW_DRAFT_STALE(HttpStatus.CONFLICT, "분석 결과가 새로 바뀌었어요. 이전 초안은 보존되어 있고, 새 결과를 다시 검토해야 해요."),
+    PLAN_DELETE_CONFIRMATION_REQUIRED(HttpStatus.CONFLICT, "학생에게 공개 중인 평가계획서예요. 삭제하면 학생 화면에서도 사라져요. 확인한 뒤 다시 삭제해 주세요."),
     PLAN_FILE_DUPLICATE(HttpStatus.CONFLICT, "같은 파일이 이미 이 평가계획서의 개정본으로 등록되어 있어요."),
     FILE_VERSION_MISMATCH(HttpStatus.CONFLICT, "다른 버전이 먼저 올라왔어요. 버전 목록을 확인한 뒤 다시 올려 주세요."),
     FEEDBACK_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "피드백 요청을 찾을 수 없습니다."),

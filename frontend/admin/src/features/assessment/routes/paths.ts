@@ -18,7 +18,6 @@ export type AssessmentRoute =
   | { tab: 'feedback'; view: 'feedback-detail'; requestId: string }
   | { tab: 'plans'; view: 'plans' }
   | { tab: 'plans'; view: 'plan-review'; planId: string; revisionId: string }
-  | { tab: 'plans'; view: 'plan-ai' }
   /** A9 학년도별 평가계획서 열람 (?school=&year=&grade=&semester=&plan=&subject=&tab=&item=) */
   | { tab: 'plans'; view: 'plan-archive' }
   | { tab: 'content'; view: 'tasks' }
@@ -50,7 +49,6 @@ export const paths = {
   /** page: 원문 근거 쪽 (검토 Workspace PDF Viewer를 그 쪽으로 연다) */
   planReview: (planId: string, revisionId: string, page?: number) =>
     `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}${page ? `?page=${page}` : ''}`,
-  planAi: `${assessmentAdminPath}/evaluation-plans/ai-analysis`,
   planArchive: (school?: string) => `${assessmentAdminPath}/evaluation-plans/archive${school ? `?school=${enc(school)}` : ''}`,
   tasks: `${assessmentAdminPath}/content/tasks`,
   taskNew: `${assessmentAdminPath}/content/tasks/new`,
@@ -99,7 +97,8 @@ export function matchAssessmentRoute(pathname: string): AssessmentRoute {
   }
   if (section === 'evaluation-plans') {
     if (!a) return { tab: 'plans', view: 'plans' }
-    if (a === 'ai-analysis' && !b) return { tab: 'plans', view: 'plan-ai' }
+    // A25: 'PDF AI 분석' 별도 화면 제거(등록 과정의 서버 분석과 중복). 예전 주소는 목록으로 연다
+    if (a === 'ai-analysis' && !b) return { tab: 'plans', view: 'plans' }
     if (a === 'archive' && !b) return { tab: 'plans', view: 'plan-archive' }
     if (b === 'revisions' && c && !d) return { tab: 'plans', view: 'plan-review', planId: a, revisionId: c }
   }
