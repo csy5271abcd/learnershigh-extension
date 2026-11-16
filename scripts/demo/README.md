@@ -10,7 +10,7 @@ The script uses existing clock/case/note/decision APIs to calculate snapshots at
 
 ## Acceptance suite and local API target
 
-`e2e/playwright.config.ts` runs the current27 acceptance cases against the100-student source at fixed date10/28, including the original persisted history example. The old prototype specs remain historical evidence; CI now seeds the isolated source explicitly before these tests. Model/API80 and source-seed6 tests also run in CI.
+`e2e/playwright.config.ts` runs the current acceptance suite (2026-11-16, A22): `student-care-x2.spec.ts` (student care X', the single screen since 2026-11-12) and `admin-shell.spec.ts`, against the 210-student source (`generate-care-seed.mjs`, AS_OF 2026-11-11) with screen today 2026-11-12 (`APP_FIXED_DATE=2026-11-12`, `LEARNERSHIGH_MOCK_ANCHOR_DATE=2026-11-11`). Each test starts from `/api/test/reset` (care cases/settings only; source rows stay) and reads expected values from the same API. The 31 cases written for the pre-X' screen (branch-overview/branch-patterns/final/history-details/metric-extremes) remain as historical evidence outside `testMatch`. `seed-care-history.mjs` now reads the branch counts from the generator and picks the first START_TIME_SHIFT student in `demo_large` with recheck = API today + 7 days. Model/API and source-seed tests also run in CI.
 
 The default Vite target is `http://localhost:8080`. For the local8081 server, set `VITE_CARE_API_TARGET=http://127.0.0.1:8081` in the ignored `frontend/admin/.env.local` or the process environment. `VITE_API_TARGET` continues to control other features. Do not commit runtime jars, credentials or logs.
 

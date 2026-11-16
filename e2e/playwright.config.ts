@@ -6,10 +6,11 @@ const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH
 
 export default defineConfig({
   testDir: './tests',
-  // Current acceptance suite: requires the explicit 100-student care-demo DB.
-  // Historical prototype specs remain as evidence, not current acceptance tests.
-  testMatch: ['student-care-branch-overview.spec.ts','student-care-branch-patterns.spec.ts',
-    'student-care-final.spec.ts','student-care-history-details.spec.ts','student-care-metric-extremes.spec.ts'],
+  // Current acceptance suite (2026-11-16, A22): student care X' (the single screen since 2026-11-12) + admin shell.
+  // Requires the care-demo DB seeded by scripts/demo/generate-care-seed.mjs (210 students, AS_OF 2026-11-11, screen today 2026-11-12).
+  // Historical specs remain as evidence, not current acceptance tests: the 31 cases in student-care-branch-overview/branch-patterns/
+  // final/history-details/metric-extremes test the pre-X' screen removed on 2026-11-12 (kept, not deleted — owner review pending).
+  testMatch: ['student-care-x2.spec.ts','admin-shell.spec.ts'],
   // 학생 케어 상태와 기준일은 Backend 하나를 공유하므로 순서대로 실행한다.
   fullyParallel: false,
   workers: 1,
