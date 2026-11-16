@@ -1934,3 +1934,55 @@
   max-width: 100%;
   height: auto;
 }
+
+/* A25 HWP·HWPX 변환 미리보기: 보기 방식 탭(Daglo 밑줄 탭) · 안내 줄 */
+.convertedViewer {
+  display: grid;
+  gap: 10px;
+}
+
+.viewerTabs {
+  display: flex;
+  gap: 18px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.viewerTab {
+  margin-bottom: -1px;
+  padding: 8px 2px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.viewerTab[aria-selected='true'] {
+  border-bottom-color: var(--as-color-ink);
+  color: var(--as-color-text);
+}
+
+.viewerTab:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.viewerNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.viewerNotice strong {
+  color: var(--as-color-text);
+}

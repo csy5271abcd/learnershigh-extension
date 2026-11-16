@@ -63,9 +63,11 @@ public class StudentEvaluationPlanController {
         return FileResponses.attachment(queryService.studentFile(student, planId, false));
     }
 
-    /** S-4: 공개(확정)된 Revision 미리보기(inline, PDF만). */
+    /** S-4: 공개(확정)된 Revision 미리보기(inline). HWP·HWPX는 변환기가 있으면 변환 PDF(A25). */
     @GetMapping(path = "/{planId}/preview", produces = MediaType.ALL_VALUE)
     public ResponseEntity<InputStreamResource> preview(StudentActor student, @PathVariable String planId) {
-        return FileResponses.inline(queryService.studentFile(student, planId, true));
+        com.learnershigh.extension.assessment.service.plan.EvaluationPlanQueryService.PreviewFile preview =
+                queryService.studentPreview(student, planId);
+        return FileResponses.preview(preview.file(), preview.converted());
     }
 }

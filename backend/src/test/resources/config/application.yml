@@ -15,3 +15,6 @@ assessment:
     version: v21.1
     contract03-version: v21.4-dev
     timeout-millis: 130000
+  preview:
+    converter:
+      mode: none

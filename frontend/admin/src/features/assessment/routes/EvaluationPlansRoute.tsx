@@ -369,7 +369,7 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, onRevision, on
         </span>
         <span className={review.docSub}>
           고{plan.grade} · {plan.semester}학기 · {format}
-          {format !== 'PDF' ? ' (미리보기 준비 중)' : ''} · v{latest.revisionNumber}
+          {format !== 'PDF' ? ' (PDF 변환 미리보기)' : ''} · v{latest.revisionNumber}
           {plan.revisions.length > 1 ? ` (개정 ${plan.revisions.length}회)` : ''} · {fileSizeLabel(latest.sizeBytes)}
         </span>
         {downloadError && (

@@ -46,12 +46,15 @@ public class EvaluationPlanQueryService {
     private final TeachingPlanReviewRepository teachingPlanReviews;
     private final com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs;
     private final com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts;
+    private final PlanPreviewRenditionService renditions;
 
     public EvaluationPlanQueryService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
             PlanAccess access, PlanViews views, AcademicContextProvider contexts, AssessmentTimes times,
             PlanDocumentStorage storage, TeachingPlanReviewRepository teachingPlanReviews,
             com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs,
-            com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts) {
+            com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts,
+            PlanPreviewRenditionService renditions) {
+        this.renditions = renditions;
         this.teachingPlanReviews = teachingPlanReviews;
         this.runs = runs;
         this.drafts = drafts;
@@ -171,6 +174,33 @@ public class EvaluationPlanQueryService {
                     .forEach(r -> result.merge(r.planId(), r, (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b));
         }
         return result;
+    }
+
+    /**
+     * 미리보기 응답(A25). converted=true면 HWP·HWPX 원문을 미리보기용으로 변환한 PDF다(원본 아님, 줄바꿈·쪽 나눔이 원본과 다를 수 있음).
+     */
+    public record PreviewFile(FileDownload file, boolean converted) {
+    }
+
+    /** 관리자 미리보기: PDF는 원문 그대로, HWP·HWPX는 변환기가 있으면 변환 PDF(§38-10), 없으면 415. */
+    public PreviewFile adminPreview(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        return preview(access.revision(plan, revisionId));
+    }
+
+    /** 학생 미리보기: 공개된(확정) Revision만. 규칙은 관리자와 같다. */
+    public PreviewFile studentPreview(StudentActor student, String planId) {
+        return preview(studentPublic(student, planId).revision());
+    }
+
+    private PreviewFile preview(PlanRevision revision) {
+        if (revision.hasStoredFile() && renditions.converts(revision)) {
+            byte[] pdf = renditions.pdf(revision, verifiedBytes(revision));
+            String base = revision.fileName().replaceAll("\\.(?i)(hwpx?|pdf)$", "");
+            return new PreviewFile(new FileDownload(base + " (미리보기 변환).pdf", "application/pdf", pdf.length,
+                    new ByteArrayInputStream(pdf)), true);
+        }
+        return new PreviewFile(verifiedFile(revision, true), false);
     }
 
     /** 관리자: Revision 원문 (§38 확장, S-4). preview=true면 서비스 안 미리보기용(PDF만). */

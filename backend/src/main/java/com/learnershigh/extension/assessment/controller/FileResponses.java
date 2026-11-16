@@ -29,6 +29,20 @@ final class FileResponses {
                 .body(new InputStreamResource(file.content()));
     }
 
+    /** A25: HWP·HWPX 미리보기를 변환 PDF로 줄 때 원본이 아님을 알린다(X-Preview-Rendition: converted-pdf). */
+    static ResponseEntity<InputStreamResource> preview(FileDownload file, boolean converted) {
+        ResponseEntity<InputStreamResource> response = inline(file);
+        if (!converted) {
+            return response;
+        }
+        return ResponseEntity.status(response.getStatusCode())
+                .headers(headers -> {
+                    headers.addAll(response.getHeaders());
+                    headers.set("X-Preview-Rendition", "converted-pdf");
+                })
+                .body(response.getBody());
+    }
+
     static ResponseEntity<InputStreamResource> attachment(FileDownload file) {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.contentType()))

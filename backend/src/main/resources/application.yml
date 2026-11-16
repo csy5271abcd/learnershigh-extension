@@ -81,6 +81,15 @@ assessment:
     # HWP·HWPX 업로드·분석·원문 구조 위치(A10). 2026-11-16 A23: 기본 켬.
     # 평가정보 '공식 확정'은 별개다 — plan-review.structured-confirm-dev(기본 false = verified_auth_required)를 그대로 따른다.
     experimental: true
+  preview:
+    converter:
+      # HWP·HWPX 원문 미리보기용 PDF 변환(A25). none(기본) = 변환 안 함(미리보기 415, 원본 다운로드만).
+      # docker = 로컬 Docker로 tools/plan-preview-converter 이미지(LibreOffice+H2Orestart)를 네트워크 없이 실행.
+      # soffice = 같은 프로그램이 설치된 서버에서 직접 실행. 문서를 외부 서비스로 보내지 않는다.
+      mode: ${ASSESSMENT_PREVIEW_CONVERTER:none}
+      docker-image: ${ASSESSMENT_PREVIEW_CONVERTER_IMAGE:lh-plan-preview-converter:0.1}
+      soffice-path: ${ASSESSMENT_PREVIEW_SOFFICE_PATH:soffice}
+      timeout-seconds: ${ASSESSMENT_PREVIEW_CONVERTER_TIMEOUT_SECONDS:90}
   analyzer:
     # 평가계획서 분석기(계정 B, Railway). 2026-11-16 A23 사용자 결정: 환경 변수 없이 이 값으로 바로 연결한다.
     # 환경 변수(ASSESSMENT_ANALYZER_*)·실행 인자를 주면 Spring 규칙대로 이 값보다 우선한다 — 단 token은 예외(A24):

@@ -1329,6 +1329,14 @@ DELETE /api/admin/assessment/evaluation-plans/{planId}?schoolId=school_001&confi
 { "planId": "plan_…", "schoolId": "school_001", "deletedAt": "2026-11-17T03:00:00Z", "wasPublished": true, "revisionCount": 2 }
 ```
 
+### 38-10. HWP·HWPX 원문 PDF 변환 미리보기 (A25, 2026-11-17 DRAFT — 구현됨, 새 Endpoint 없음)
+
+- 기존 `GET .../revisions/{revisionId}/preview`(관리자)·`GET /api/student/assessment/evaluation-plans/{planId}/preview`(학생, 공개 Revision만)가 HWP·HWPX에서도 동작한다: 서버에 변환기가 설정되어 있으면(`assessment.preview.converter.mode=docker|soffice`) **미리보기용 변환 PDF**를 `application/pdf`·`inline`으로 주고 헤더 `X-Preview-Rendition: converted-pdf`를 붙인다. 파일 이름은 `<원본 이름> (미리보기 변환).pdf`.
+- 변환 PDF는 **원본이 아니다**: 원본 크기·SHA-256 확인(§38-1) 뒤 변환하고, 원본 Revision 파일은 바꾸지 않는다. `/file` 다운로드는 계속 원본 HWP·HWPX다. 변환본은 (Revision ID, 원본 SHA-256, 변환기 ID) 키로 캐시한다.
+- 변환기 미설정(`none`, 기본): 지금처럼 `415 PREVIEW_UNAVAILABLE`. 변환 실패·시간 초과·출력 이상: `422 PLAN_PREVIEW_FAILED`(메시지에 원인 코드만). 같은 원본의 확정 실패는 기록해 다시 변환하지 않는다(일시 원인 — 변환기 실행 불가·바쁨 — 은 기록하지 않음).
+- 변환기: LibreOffice headless + H2Orestart(HWP 5.x·HWPX), 네트워크 없는 일회용 컨테이너(`tools/plan-preview-converter`). 문서를 외부 서비스로 보내지 않는다. 글꼴 대체로 줄바꿈·쪽 나눔이 원본과 다를 수 있다.
+- **근거 위치**: HWP·HWPX 분석 근거는 `documentLocator`(구역·표·행·열)이고 변환 PDF 쪽과 대응 정보가 없다. 화면은 근거를 변환 PDF 쪽으로 옮기지 않고, §38-6 구조 미리보기('분석용 구조')에서 강조한다. `previewAvailable`(PDF 원문 미리보기 여부)의 의미는 바꾸지 않는다.
+
 # 39. Admin — 지필·수행 추출·원본 검토 (AD-04·05)
 
 ```http

@@ -3,13 +3,14 @@ import { downloadPlanRevision, previewPlanRevision } from '../api/assessmentAdmi
 import type { PlanFileMeta } from '../api/types.ts'
 import styles from '../styles/assessmentAdmin.module.css'
 import { AlertIcon, InfoIcon, PdfViewer } from './canonicalUi.ts'
-import { PlanStructureViewer, type StructureFocus } from './PlanStructureViewer.tsx'
+import { ConvertedOriginalViewer } from './ConvertedOriginalViewer.tsx'
+import type { StructureFocus } from './PlanStructureViewer.tsx'
 
 // 평가계획서 원문 Viewer (S-4, 2026-11-13). 서버가 보관한 원문을 인증된 API로 받아 서비스 안에서 보여 준다.
 // - PDF: 미리보기 바이트를 받아 blob 주소로 pdf.js Viewer(Student PdfViewer 재사용: 쪽 이동·확대·축소·폭 맞춤)에 넘긴다.
 //   Mock Header 인증은 iframe src에 붙일 수 없어 fetch로 받는다.
-// - HWP·HWPX(A10): 서버가 원본을 직접 읽은 문단·표 구조를 PlanStructureViewer로 보여 준다(PDF 변환 없음).
-//   분석 근거 위치(documentLocator)는 같은 section·path가 있을 때만 강조한다. 쪽 번호 이동은 하지 않는다.
+// - HWP·HWPX(A25): 서버가 원본을 미리보기용 PDF로 변환해 PDF Viewer로 보여 준다(ConvertedOriginalViewer).
+//   A10 구조 추출 화면은 '분석용 구조' 탭으로만 남긴다(근거 위치 강조용, 원문 미리보기 아님). 근거를 변환 PDF 쪽으로 옮기지 않는다.
 // - 원문을 보관하지 않은 이전 등록분: 없는 파일을 만들어 보여 주지 않는다.
 // 근거 쪽 이동: 상위가 page를 바꾸면 그 쪽으로 이동한다(분석 결과의 PDF 쪽 근거).
 
@@ -116,8 +117,8 @@ export function PlanOriginalViewer({
         <p className={styles.muted} data-testid="plan-original-missing">
           <InfoIcon size={14} /> 이 개정본은 원문 파일을 보관하지 않던 시기(2026-11-13 이전)에 등록되었어요. 원문을 다시 등록하면 여기서 볼 수 있어요.
         </p>
-      ) : !file.previewAvailable && file.structurePreviewAvailable ? (
-        <PlanStructureViewer planId={planId} revisionId={revisionId} focus={focus} />
+      ) : !file.previewAvailable && (file.documentFormat === 'HWP' || file.documentFormat === 'HWPX') ? (
+        <ConvertedOriginalViewer planId={planId} revisionId={revisionId} file={file} focus={focus} onDownload={download} />
       ) : !file.previewAvailable ? (
         <p className={styles.mockNotice} data-testid="plan-original-no-preview">
           <InfoIcon size={14} /> {file.documentFormat} 원문은 서버에 그대로 보관되어 있어요. 이 화면에서는 미리보기를 제공하지 않아요.

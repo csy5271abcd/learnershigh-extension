@@ -12,9 +12,10 @@ import styles from './ArtifactViewerRoute.module.css'
 // 학교 공통 평가계획서 원문 보기 (S-4, 2026-11-13).
 // - 서버는 관리자가 확정한 문서만, 학생 자기 학교·학년도·학년·학기 문서만 준다(아니면 404). 이 화면은 그 결과를 그대로 보여 준다.
 // - PDF: 인증된 API로 바이트를 받아 blob 주소로 pdf.js Viewer에 넘긴다(쪽 이동·확대·축소). ?page=N이면 그 쪽부터 연다.
-// - HWP·HWPX: 원문 내려받기만 된다. 레이아웃을 보존하는 변환 엔진을 검증하기 전이라 앱 안 미리보기는 없다(완료로 표시하지 않음).
+// - HWP·HWPX(A25): 서버가 미리보기용 PDF로 변환한 것을 보여 준다(원본 아님 — 줄바꿈·쪽 나눔이 다를 수 있다고 알린다).
+//   변환기가 없거나(415) 변환에 실패하면(422) 원본 내려받기를 안내한다.
 
-type Loaded = { key: string; kind: 'ready'; url: string } | { key: string; kind: 'error'; message: string }
+type Loaded = { key: string; kind: 'ready'; url: string } | { key: string; kind: 'error'; status: number; message: string }
 
 export function EvaluationPlanOriginalRoute() {
   const { planId = '' } = useParams()
@@ -74,7 +75,8 @@ export function EvaluationPlanOriginalRoute() {
 
 function OriginalBody({ planId, file, page, onPageChange }: { planId: string; file: PlanFileMeta | null; page: number; onPageChange: (page: number) => void }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
-  const canPreview = Boolean(file?.available && file.previewAvailable)
+  const converted = file?.documentFormat === 'HWP' || file?.documentFormat === 'HWPX'
+  const canPreview = Boolean(file?.available && (file.previewAvailable || converted))
   const preview = loaded && loaded.key === planId ? loaded : null
 
   useEffect(() => {
@@ -87,8 +89,8 @@ function OriginalBody({ planId, file, page, onPageChange }: { planId: string; fi
         created = URL.createObjectURL(blob)
         setLoaded({ key: planId, kind: 'ready', url: created })
       },
-      (cause: Error) => {
-        if (!cancelled) setLoaded({ key: planId, kind: 'error', message: cause.message })
+      (cause: Error & { status?: number }) => {
+        if (!cancelled) setLoaded({ key: planId, kind: 'error', status: cause.status ?? 0, message: cause.message })
       },
     )
     return () => {
@@ -100,7 +102,7 @@ function OriginalBody({ planId, file, page, onPageChange }: { planId: string; fi
   if (!file || !file.available) {
     return <p className={styles.unsupported}>이 평가계획서는 원문 파일이 아직 등록되지 않았어요. 학교 홈페이지·학교알리미에서 확인해 주세요.</p>
   }
-  if (!file.previewAvailable) {
+  if (!canPreview || (converted && preview?.kind === 'error' && preview.status === 415)) {
     return (
       <p className={styles.unsupported} data-testid="plan-original-no-preview">
         {file.documentFormat} 문서는 앱 안에서 바로 볼 수 있도록 준비하고 있어요. 지금은 원본을 내려받아 한글 프로그램에서 열어 주세요.
@@ -108,10 +110,24 @@ function OriginalBody({ planId, file, page, onPageChange }: { planId: string; fi
     )
   }
   if (preview?.kind === 'error') {
-    return <p className={styles.unsupported} role="alert">원문을 불러오지 못했어요. {preview.message}</p>
+    return (
+      <p className={styles.unsupported} role="alert" data-testid="plan-original-error">
+        {converted && preview.status === 422 ? `${file.documentFormat} 문서를 미리보기로 바꾸지 못했어요. 원본을 내려받아 한글 프로그램에서 열어 주세요.` : `원문을 불러오지 못했어요. ${preview.message}`}
+      </p>
+    )
   }
   if (preview?.kind !== 'ready') {
     return <LoadingRows rows={3} label="원문을 불러오는 중" />
+  }
+  if (converted) {
+    return (
+      <>
+        <p className={styles.unsupported} data-testid="plan-converted-notice">
+          {file.documentFormat} 원본을 미리보기용 PDF로 바꿔 보여 드려요. 글꼴이 달라 줄바꿈·쪽 나눔이 원본과 조금 다를 수 있어요. 정확한 내용은 원본을 내려받아 확인해 주세요.
+        </p>
+        <PdfViewer url={preview.url} title={`${file.fileName} (미리보기 변환)`} expectedPageCount={0} page={page} onPageChange={onPageChange} />
+      </>
+    )
   }
   return <PdfViewer url={preview.url} title={file.fileName} expectedPageCount={file.pageCount ?? 0} page={page} onPageChange={onPageChange} />
 }

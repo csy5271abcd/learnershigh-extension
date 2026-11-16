@@ -120,11 +120,12 @@ public class AdminEvaluationPlanController {
         return FileResponses.attachment(queryService.adminFile(admin, planId, revisionId, false));
     }
 
-    /** S-4: 서비스 안 미리보기(inline). 현재 PDF 원문만, HWP·HWPX는 415 PREVIEW_UNAVAILABLE(변환 Rendition 없음). */
+    /** S-4: 서비스 안 미리보기(inline). PDF는 원문, HWP·HWPX는 변환기가 있으면 미리보기 변환 PDF(A25 §38-10), 없으면 415 PREVIEW_UNAVAILABLE. */
     @GetMapping(path = "/{planId}/revisions/{revisionId}/preview", produces = MediaType.ALL_VALUE)
     public ResponseEntity<InputStreamResource> preview(AdminActor admin, @PathVariable String planId,
             @PathVariable String revisionId) {
-        return FileResponses.inline(queryService.adminFile(admin, planId, revisionId, true));
+        EvaluationPlanQueryService.PreviewFile preview = queryService.adminPreview(admin, planId, revisionId);
+        return FileResponses.preview(preview.file(), preview.converted());
     }
 
     /**
