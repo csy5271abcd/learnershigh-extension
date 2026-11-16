@@ -209,7 +209,12 @@ function ItemTable({ title, items, plan, namePrefix }: { title: string; items: C
                     {item.rubric.criteria.flatMap((criterion, c) =>
                       (criterion.levels.length ? criterion.levels : [null]).map((level, l) => (
                         <tr key={`${c}-${l}`}>
-                          {l === 0 && <th scope="row" rowSpan={Math.max(1, criterion.levels.length)}>{criterion.element}</th>}
+                          {l === 0 && (
+                            <th scope="row" rowSpan={Math.max(1, criterion.levels.length)}>
+                              {criterion.element}
+                              {criterion.maxScore !== null && <span data-testid="confirmed-rubric-max-score"> · 배점 {criterion.maxScore}점</span>}
+                            </th>
+                          )}
                           <td>{level ? level.description : '—'}</td>
                           <td>{level && level.score !== null ? `${level.score}점` : '—'}</td>
                         </tr>

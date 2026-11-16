@@ -293,6 +293,9 @@ interface BackendRubric {
   element: string
   levels: { description: string; score: number | null }[] | null
   sources?: BackendLocator[] | null
+  /** A15 0.3 선택 확장(§39-12): 요소 배점(원문에 있을 때만) · 채점표 연결 사람 확인 */
+  maxScore?: number | null
+  linkReview?: 'REVIEW_REQUIRED' | null
 }
 
 interface BackendSubject {
@@ -331,6 +334,8 @@ interface BackendSubject {
   /** 0.3 DRAFT (§39-3) — 0.2 결과에는 없다 */
   extraction?: { status: 'COMPLETE' | 'PARTIAL' | 'MISSING_SECTION'; issues?: TeachingPlanIssue[] | null } | null
   teachingPlan?: TeachingPlanRowCandidate[] | null
+  /** A15 0.3 선택 확장(§39-12): 원문 근거가 있는 학년만 */
+  grades?: number[] | null
 }
 
 interface BackendAnalysis {
@@ -463,9 +468,11 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
     reviewFields: reviewFieldsOf(subjects),
     subjectPages: subjects.map((subject) => ({ subjectName: subject.subjectName, from: subject.pageRange?.from ?? null, to: subject.pageRange?.to ?? null })),
     slot: { schoolId: plan.schoolId, academicYear: plan.academicYear, grade: plan.grade, semester: plan.semester },
+    subjectGrades: subjects.map((subject) => subject.grades ?? null),
     teachingPlanCandidates: subjects.map((subject, subjectIndex) => ({
       subjectIndex,
       subjectName: subject.subjectName,
+      grades: subject.grades ?? null,
       extractionStatus: subject.extraction?.status ?? null,
       issues: subject.extraction?.issues ?? [],
       rows: subject.teachingPlan ?? null,
@@ -483,6 +490,8 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
         rubric: (item.rubric ?? []).map((criterion) => ({
           element: criterion.element,
           levels: (criterion.levels ?? []).map((level) => ({ description: level.description, score: level.score })),
+          maxScore: criterion.maxScore ?? null,
+          linkReview: criterion.linkReview ?? null,
           sourcePages: pagesOf(criterion.sources),
           documentLocators: documentLocatorsOf(criterion.sources),
         })),

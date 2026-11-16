@@ -22,6 +22,8 @@ export interface ConfirmedItem {
 export interface ConfirmedRubricCriterion {
   element: string
   levels: { description: string; score: number | null }[]
+  /** A15: 관리자가 확정한 요소 배점(없으면 null — 수준 점수와 다름) */
+  maxScore: number | null
 }
 
 export interface ConfirmedSubject {
@@ -53,6 +55,7 @@ function toRubric(value: unknown): ConfirmedRubricCriterion[] | null {
       levels: levels
         .filter((level): level is { description: string; score?: unknown } => Boolean(level) && typeof (level as { description?: unknown }).description === 'string')
         .map((level) => ({ description: level.description, score: typeof level.score === 'number' ? level.score : null })),
+      maxScore: typeof (item as { maxScore?: unknown }).maxScore === 'number' ? (item as { maxScore: number }).maxScore : null,
     })
   }
   return criteria

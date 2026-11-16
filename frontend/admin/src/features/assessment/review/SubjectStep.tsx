@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getPlanSubjects } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects } from '../api/types.ts'
-import { fieldKey, type Decision } from './reviewModel.ts'
+import { fieldKey, gradeConflict, gradeText, type Decision } from './reviewModel.ts'
 import type { OnJump } from './evidence.ts'
 import styles from './review.module.css'
 
@@ -49,12 +49,24 @@ export function SubjectStep({
           const subjectFields = fields.filter((field) => field.subjectIndex === index)
           const reviewed = subjectFields.filter((field) => decisions[fieldKey(field)]).length
           const range = pages[index]
+          const grades = view.subjectGrades?.[index] ?? null
+          const conflict = gradeConflict(grades, view.slot?.grade)
           return (
             <li key={`${subject.subjectName}-${index}`} className={styles.row} style={{ minHeight: 76 }} data-testid="review-subject-card">
               <div style={{ minWidth: 0, flex: 1 }}>
                 <span className={styles.rowValue} style={{ fontSize: 16 }}>
                   {subject.subjectName}
                 </span>
+                {gradeText(grades) && (
+                  <span className={styles.tiny} style={{ marginLeft: 8 }} data-testid="review-subject-grades" title="분석기가 원문의 학년 문맥(제목·구간)에서 찾은 학년이에요.">
+                    원문 {gradeText(grades)}
+                  </span>
+                )}
+                {conflict && (
+                  <div className={styles.statusText} data-tone="danger" data-testid="review-subject-grade-conflict">
+                    이 문서는 {view.slot?.grade}학년으로 등록됐지만 원문상 {gradeText(grades)} 과목이에요. 다른 학년 학생에게 보이지 않게 확정할 수 없어요.
+                  </div>
+                )}
                 <div className={styles.tiny} style={{ marginTop: 4 }}>
                   수행평가 {subject.performanceEvaluation?.items.length ?? 0}개 · 검토 {reviewed}/{subjectFields.length}
                   {range?.from ? (

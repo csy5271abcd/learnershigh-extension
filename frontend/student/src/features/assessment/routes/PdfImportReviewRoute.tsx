@@ -311,7 +311,7 @@ export function PdfImportReviewRoute() {
       <div className={enrichmentStyles.tabs} role="tablist" aria-label="분석한 과목">
         {subjects.map((subject, index) => (
           <button
-            key={subject.subjectName}
+            key={`${subject.subjectName}-${index}`}
             type="button"
             role="tab"
             id={`subject-tab-${index}`}

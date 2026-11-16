@@ -62,6 +62,24 @@ export function RubricEditor({
                 data-testid="rubric-element-input"
                 style={{ flex: 1 }}
               />
+              <input
+                className={styles.input}
+                type="number"
+                min={0}
+                max={1000}
+                aria-label={`채점 요소 ${c + 1} 요소 배점`}
+                placeholder="요소 배점"
+                value={criterion.maxScore ?? ''}
+                onChange={(event) =>
+                  update((next) => {
+                    // A15: 요소 배점(선택) — 비우면 저장하지 않는다(0과 다름)
+                    if (event.target.value === '') delete next[c].maxScore
+                    else next[c].maxScore = Number(event.target.value)
+                  })
+                }
+                data-testid="rubric-max-score"
+                style={{ width: 110 }}
+              />
               <button type="button" className={`${styles.buttonGhost} ${styles.small}`} onClick={() => update((next) => void next.splice(c, 1))} aria-label={`채점 요소 ${c + 1} 삭제`}>
                 요소 삭제
               </button>
@@ -146,6 +164,7 @@ export function RubricEditor({
                     {l === 0 && (
                       <td rowSpan={Math.max(1, criterion.levels.length)} style={{ fontWeight: 600 }}>
                         {criterion.element}
+                        {typeof criterion.maxScore === 'number' && <div className={styles.tiny}>요소 배점 {criterion.maxScore}점</div>}
                       </td>
                     )}
                     <td>{level ? level.description : '수준 없음'}</td>

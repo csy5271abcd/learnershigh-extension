@@ -35,6 +35,7 @@ const reasonText: Record<string, string> = {
   evidence_scope_unavailable: '이 필드는 분석 결과에 구조 근거가 없어 확정할 수 없어요.',
   duplicate: '같은 필드를 두 번 확정하려고 했어요.',
   path_mismatch: '위치 정보(행·열)와 경로가 맞지 않아요.',
+  grade_conflict: '원문상 이 문서 학년이 아닌 과목이에요. 다른 학년 학생에게 보이지 않게 확정할 수 없어요.',
 }
 
 const fieldKey = (field: ReviewFieldCandidate) => `${field.subjectIndex}|${field.fieldPath}`

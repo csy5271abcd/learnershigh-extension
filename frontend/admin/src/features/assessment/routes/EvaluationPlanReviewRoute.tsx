@@ -281,8 +281,8 @@ function ReviewWorkspace({
                   </div>
                 </section>
               )}
-              {data.subjects.map((subject) => (
-                <SubjectReview key={subject.subjectName} subject={subject} fields={fields} onField={setField} documentFormat={data.revisionFile?.documentFormat ?? 'PDF'} onJump={jumpTo} />
+              {data.subjects.map((subject, index) => (
+                <SubjectReview key={`${subject.subjectName}-${index}`} subject={subject} fields={fields} onField={setField} documentFormat={data.revisionFile?.documentFormat ?? 'PDF'} onJump={jumpTo} />
               ))}
             </div>
           )}

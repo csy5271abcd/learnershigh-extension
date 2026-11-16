@@ -3,6 +3,7 @@ import { navigate } from '../../../app/adminLocation.ts'
 import { confirmTeachingPlan, createTeachingPlanManualRow, getPlanSubjects, getTeachingPlanReview, updateTeachingPlanManualRow } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanManualRow, TeachingPlanManualRowInput, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
 import { TeachingPlanManualRowForm } from './TeachingPlanManualRowForm.tsx'
+import { toApiError } from '../api/canonicalSource.ts'
 import { manualRowErrorText } from './manualRowErrors.ts'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
@@ -45,6 +46,11 @@ const manualAsRow = (row: TeachingPlanManualRow): TeachingPlanRowCandidate => ({
   sources: [],
 })
 const manualKey = (row: { subjectIndex: number; rowKey: string }) => `manual|${row.subjectIndex}|${row.rowKey}`
+/** A15: 시기 칸 제목(whenLabel)에 이미 정밀도 이름이 들어 있으면(예: '주차 (기준 미확인)') 아래 줄에 다시 쓰지 않는다 */
+const precisionNote = (entry: TeachingPlanEntry) => {
+  const label = precisionLabel[entry.precision]
+  return whenLabel(entry).replace(/\s/g, '').includes(label.replace(/\s/g, '')) ? null : label
+}
 
 export function TeachingPlanStep({
   view,
@@ -202,7 +208,9 @@ export function TeachingPlanStep({
       // 재확정이면 닫힌 초안을 다시 읽는다(첫 확정은 closed 옵션이 바뀌며 다시 읽힌다)
       if (reReview) void draft.reload()
     } catch (cause) {
-      setSubmitError(cause instanceof Error ? cause.message : String(cause))
+      const apiError = toApiError(cause)
+      const conflictGrade = Object.values(apiError.fieldReasons()).includes('grade_conflict')
+      setSubmitError(conflictGrade ? '원문상 이 문서 학년이 아닌 과목의 행이 있어요. 그 과목 행은 제외하거나 확정하지 마세요.' : apiError.message)
     } finally {
       setSubmitting(false)
     }
@@ -277,7 +285,10 @@ export function TeachingPlanStep({
             return (
               <section key={subject.subjectIndex} aria-label={`${subject.subjectName} 운영계획`}>
                 <div className={styles.detailHead}>
-                  <h4>{subject.subjectName}</h4>
+                  <h4>
+                    {subject.subjectName}
+                    {subject.grades && subject.grades.length > 0 && <span className={styles.tiny} style={{ marginLeft: 6 }}>원문 {subject.grades.join('·')}학년</span>}
+                  </h4>
                   <span className={styles.tiny}>
                     {subject.extractionStatus ? `추출 ${subject.extractionStatus === 'COMPLETE' ? '완료' : subject.extractionStatus === 'PARTIAL' ? '일부' : '구간 없음'} · ` : ''}
                     {linked ? `과목 ${subjectOptions?.items.find((item) => item.subjectId === linked)?.name ?? linked}` : '과목 미연결'}
@@ -338,7 +349,7 @@ export function TeachingPlanStep({
                             <td>
                               <strong style={{ fontWeight: 600 }}>{whenLabel(entry)}</strong>
                               <div className={styles.tiny}>
-                                {precisionLabel[entry.precision]}
+                                {precisionNote(entry)}
                                 {entry.asWritten ? ` · 원문 “${entry.asWritten}”` : ''}
                               </div>
                             </td>
@@ -526,7 +537,7 @@ function ManualRowsBlock({
               <tr key={item.key} data-testid="teaching-plan-manual-row" data-status={item.excluded ? 'EXCLUDED' : 'INCLUDED'} style={item.excluded ? { opacity: 0.6 } : undefined}>
                 <td style={{ width: '22%' }}>
                   <strong style={{ fontWeight: 600 }}>{whenLabel(entry)}</strong>
-                  <div className={styles.tiny}>{precisionLabel[entry.precision]}</div>
+                  <div className={styles.tiny}>{precisionNote(entry)}</div>
                 </td>
                 <td>
                   <span className={styles.tiny} style={{ display: 'inline-block', padding: '1px 6px', borderRadius: 6, background: 'var(--as-color-surface-muted, #f2f4f6)', marginBottom: 4 }} data-testid="teaching-plan-manual-badge">

@@ -111,7 +111,13 @@ export interface ConfirmInput {
 // ---- A12 채점기준 수동 보완: 항목 하나의 채점표 전체를 관리자 값으로 확정한다(분석 후보는 그대로) ----
 export const RUBRIC_PATH = /^performanceEvaluation\.items\[(0|[1-9]\d{0,2})]\.rubric$/
 export const rubricFieldPath = (itemIndex: number) => `performanceEvaluation.items[${itemIndex}].rubric`
-export type RubricCriterion = { element: string; levels: { description: string; score: number | null }[] }
+/** A15: maxScore = 요소 배점(선택). 수준 점수(levels[].score)와 다르다 */
+export type RubricCriterion = { element: string; levels: { description: string; score: number | null }[]; maxScore?: number | null }
+
+/** A15 §39-12 과목 학년 문맥: 원문 근거 학년이 있는데 문서 학년이 없으면 확정할 수 없다(서버 grade_conflict) */
+export const gradeText = (grades: number[] | null | undefined) => (grades && grades.length ? `${grades.join('·')}학년` : null)
+export const gradeConflict = (grades: number[] | null | undefined, documentGrade: number | undefined) =>
+  Boolean(grades && grades.length && documentGrade !== undefined && !grades.includes(documentGrade))
 
 /** 저장된 결정 값(JSON 글자) → 채점표. 모양이 맞지 않으면 null */
 export function parseRubric(value: string | undefined | null): RubricCriterion[] | null {
@@ -122,6 +128,7 @@ export function parseRubric(value: string | undefined | null): RubricCriterion[]
     return parsed.map((item) => ({
       element: String((item as RubricCriterion).element ?? ''),
       levels: ((item as RubricCriterion).levels ?? []).map((level) => ({ description: String(level.description ?? ''), score: typeof level.score === 'number' ? level.score : null })),
+      ...(typeof (item as RubricCriterion).maxScore === 'number' ? { maxScore: (item as RubricCriterion).maxScore } : {}),
     }))
   } catch {
     return null
@@ -135,6 +142,7 @@ export function rubricProblem(rubric: RubricCriterion[] | null): string | null {
   for (const criterion of rubric) {
     if (!criterion.element.trim()) return '채점 요소 이름을 입력해 주세요.'
     if (criterion.levels.length > 10) return '수준은 요소마다 10개까지예요.'
+    if (typeof criterion.maxScore === 'number' && (!Number.isFinite(criterion.maxScore) || criterion.maxScore < 0 || criterion.maxScore > 1000)) return `'${criterion.element}'의 요소 배점은 0~1000 사이여야 해요.`
     for (const level of criterion.levels) {
       if (!level.description.trim()) return `'${criterion.element}'의 수준 기준을 입력해 주세요.`
       if (level.score !== null && (level.score < 0 || level.score > 1000)) return `'${criterion.element}'의 점수는 0~1000 사이여야 해요.`

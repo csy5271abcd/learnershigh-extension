@@ -340,8 +340,11 @@ export interface EvaluationPlanAnalysisView {
     submissions: string[]
     conditions: string[]
     /** 채점기준표 후보 (A4): 평가 요소 → 수행 수준(문장·배점). 배점이 없으면 null(0 아님). sourcePages는 PDF 근거 쪽 */
-    rubric: { element: string; levels: { description: string; score: number | null }[]; sourcePages: number[]; documentLocators: ReviewDocumentLocator[] }[]
+    /** A15: maxScore = 요소 배점(수준 점수와 다름, 원문에 있을 때만) · linkReview = 채점표 연결이 간접 근거라 사람 확인 필요 */
+    rubric: { element: string; levels: { description: string; score: number | null }[]; maxScore?: number | null; linkReview?: 'REVIEW_REQUIRED' | null; sourcePages: number[]; documentLocators: ReviewDocumentLocator[] }[]
   }[]
+  /** A15 §39-12: 분석 과목별 원문 근거 학년(없으면 null — 추정하지 않음) */
+  subjectGrades?: (number[] | null)[]
 }
 
 /** 검토 확정 후보 필드 하나 (http Adapter가 분석 후보에서 만든다. 값은 바꾸지 않는다) */
@@ -599,6 +602,8 @@ export interface TeachingPlanIssue {
 export interface TeachingPlanCandidateSubject {
   subjectIndex: number
   subjectName: string
+  /** A15: 원문 근거 학년(없으면 null) */
+  grades?: number[] | null
   /** 0.3 extraction.status (없으면 null) */
   extractionStatus: 'COMPLETE' | 'PARTIAL' | 'MISSING_SECTION' | null
   issues: TeachingPlanIssue[]

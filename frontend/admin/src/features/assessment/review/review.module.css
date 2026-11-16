@@ -138,6 +138,17 @@
   color: var(--as-color-danger);
 }
 
+/* A15: 사람 확인이 필요한 분석 후보 (예: 채점표 간접 연결) */
+.statusText[data-tone='warning'] {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-size: 12px;
+}
+
 /* ── 검토 Workspace ─────────────────────────────── */
 .workspace {
   display: grid;

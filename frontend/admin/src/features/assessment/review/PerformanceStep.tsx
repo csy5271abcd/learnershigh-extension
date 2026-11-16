@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { CheckIcon } from '../components/canonicalUi.ts'
-import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, rubricFieldPath, type Decision } from './reviewModel.ts'
+import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
 import { RubricEditor } from './RubricEditor.tsx'
 import styles from './review.module.css'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
@@ -47,6 +47,8 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
             <div key={`${entry.subjectName}-${index}`} className={styles.navGroup}>
               <span className={styles.navSubject} title={entry.subjectName}>
                 {entry.subjectName}
+                {/* A15: 같은 이름의 다른 학년 과목을 구분한다(원문 근거 학년만) */}
+                {gradeText(view.subjectGrades?.[index]) && <span className={styles.tiny}> · 원문 {gradeText(view.subjectGrades?.[index])}</span>}
               </span>
               {common.length > 0 && (
                 <NavItem label="평가 비율" left={remaining(common)} current={selection.subjectIndex === index && selection.item === 'common'} onClick={() => onSelect({ subjectIndex: index, item: 'common' })} />
@@ -138,6 +140,16 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                             {levelIndex === 0 && (
                               <td rowSpan={levels.length} style={{ fontWeight: 600 }}>
                                 {criterion.element}
+                                {typeof criterion.maxScore === 'number' && (
+                                  <div className={styles.tiny} data-testid="review-rubric-max-score">
+                                    요소 배점 {criterion.maxScore}점
+                                  </div>
+                                )}
+                                {criterion.linkReview === 'REVIEW_REQUIRED' && (
+                                  <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
+                                    연결 확인 필요 · 간접 근거
+                                  </div>
+                                )}
                               </td>
                             )}
                             <td>{level ? level.description : '수준 분석되지 않음'}</td>
@@ -166,7 +178,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 </p>
                 <RubricEditor
                   key={`${item.subjectIndex}-${item.itemIndex}`}
-                  candidate={item.rubric.map((criterion) => ({ element: criterion.element, levels: criterion.levels }))}
+                  candidate={item.rubric.map((criterion) => ({ element: criterion.element, levels: criterion.levels, ...(typeof criterion.maxScore === 'number' ? { maxScore: criterion.maxScore } : {}) }))}
                   decision={decisions[`${item.subjectIndex}|${rubricFieldPath(item.itemIndex ?? 0)}`]}
                   onSave={(decision) => onDecideKey(`${item.subjectIndex}|${rubricFieldPath(item.itemIndex ?? 0)}`, decision)}
                   readOnly={readOnly}

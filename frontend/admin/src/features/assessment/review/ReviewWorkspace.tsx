@@ -163,7 +163,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
       if (wasReReview) void draft.reload()
     } catch (cause) {
       const apiError = toApiError(cause)
-      const reasons = Object.entries(apiError.fieldReasons()).map(([field, reason]) => `${field}: ${reason}`)
+      const reasons = Object.entries(apiError.fieldReasons()).map(([field, reason]) => (reason === 'grade_conflict' ? `${field}: 원문상 이 문서 학년이 아닌 과목이에요(확정 불가)` : `${field}: ${reason}`))
       setError(`${apiError.message}${reasons.length ? ` (${reasons.join(', ')})` : ''}`)
     } finally {
       pendingRef.current = false
