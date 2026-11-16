@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { subjectOptionLabel } from '../model/subjectOptionLabel.ts'
 import { getPlanSubjects } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects } from '../api/types.ts'
 import { fieldKey, gradeConflict, gradeText, type Decision } from './reviewModel.ts'
@@ -63,8 +64,11 @@ export function SubjectStep({
                   </span>
                 )}
                 {conflict && (
-                  <div className={styles.statusText} data-tone="danger" data-testid="review-subject-grade-conflict">
-                    이 문서는 {view.slot?.grade}학년으로 등록됐지만 원문상 {gradeText(grades)} 과목이에요. 다른 학년 학생에게 보이지 않게 확정할 수 없어요.
+                  <div className={styles.blockedNote} role="note" data-testid="review-subject-grade-conflict">
+                    <strong>확정할 수 없어요 · 학년이 달라요</strong>
+                    <span>
+                      이 문서는 {view.slot?.grade}학년으로 등록됐지만 원문상 {gradeText(grades)} 과목이에요. 다른 학년 학생에게 잘못 공개되지 않도록 이 과목은 확정에서 막아요.
+                    </span>
                   </div>
                 )}
                 <div className={styles.tiny} style={{ marginTop: 4 }}>
@@ -91,11 +95,11 @@ export function SubjectStep({
                   <option value="">과목 선택</option>
                   {options.items.map((item) => (
                     <option key={item.subjectId} value={item.subjectId}>
-                      {item.name} · {item.subjectId}
+                      {subjectOptionLabel(options.items, item)}
                     </option>
                   ))}
                   {subjectIds[index] && !options.items.some((item) => item.subjectId === subjectIds[index]) && (
-                    <option value={subjectIds[index]}>{subjectIds[index]} (목록에 없음 — 확정 시 거절돼요)</option>
+                    <option value={subjectIds[index]}>목록에 없는 과목 (확정 시 거절돼요)</option>
                   )}
                 </select>
               ) : (

@@ -1,4 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { LocalOriginalPicker } from '../review/LocalOriginalPicker.tsx'
+import type { HashState } from '../review/ConfirmStep.tsx'
 import { confirmPlanReview } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
 import type { EvaluationPlanAnalysisView, PlanReviewConfirmRequest, ReviewFieldCandidate } from '../api/types.ts'
@@ -18,7 +20,6 @@ import { MultiformatReviewReadiness } from './MultiformatReviewReadiness.tsx'
 //  6) PARTIAL이면 '일부만 분석됐고 빠진 부분은 확정하지 않는다'를 관리자가 직접 체크 (서버 검사 아님 · 화면 안전장치)
 // 이미 확인 완료(CONFIRMED)된 Revision은 재검토 정책(이전 검토 대체 여부)이 미확정이라 이 화면에서 추가 확정하지 않는다.
 
-type HashState = { status: 'none' } | { status: 'computing' } | { status: 'match' | 'mismatch'; hash: string } | { status: 'error'; message: string }
 
 interface FieldInput {
   checked: boolean
@@ -54,7 +55,6 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
   const documentFormat = data.revisionFile?.documentFormat ?? 'PDF'
   const isPdf = documentFormat === 'PDF'
   const [hash, setHash] = useState<HashState>({ status: 'none' })
-  const [localName, setLocalName] = useState<string | null>(null)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [subjectIds, setSubjectIds] = useState<Record<number, string>>({})
   const [inputs, setInputs] = useState<Record<string, FieldInput>>(() =>
@@ -77,14 +77,12 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
     setObjectUrl(null)
     if (!file) {
       setHash({ status: 'none' })
-      setLocalName(null)
       return
     }
-    setLocalName(file.name)
     setHash({ status: 'computing' })
     try {
       const value = await sha256Hex(file)
-      setHash({ status: value === checksum ? 'match' : 'mismatch', hash: value })
+      setHash({ status: value === checksum ? 'match' : 'mismatch', hash: value, fileName: file.name, sizeBytes: file.size })
       // 같은 PDF일 때만 브라우저 PDF 보기로 연다 (서버로 보내지 않는다). 브라우저는 HWP·HWPX를 바르게 열지 못해 열지 않는다.
       if (value === checksum && isPdf) setObjectUrl(URL.createObjectURL(file))
     } catch (cause) {
@@ -196,22 +194,13 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
             {documentFormat} · 브라우저는 원본을 열지 않아요. 한글 프로그램에서 아래 위치를 직접 대조해 주세요. 실제 관리자 인증이 없으면 서버가 확정을 거절해요(개발 합성 시험에서만 허용).
           </p>
         )}
-        <input
-          id={ids.file}
-          type="file"
-          accept={isPdf ? 'application/pdf,.pdf' : documentFormat === 'HWP' ? '.hwp' : '.hwpx'}
-          data-testid="review-local-pdf"
-          onChange={(event) => pickFile(event.target.files?.[0])}
-        />
-        <p className={styles.hint} data-testid="review-hash-status">
-          {hash.status === 'none' && '왼쪽에서 서버 원문을 볼 수 있어요. 확정 전에 갖고 있는 원본(또는 서버에서 내려받은 원본)을 고르면 이 브라우저에서만 SHA-256을 계산해 서버 checksum과 비교해요(파일을 보내지 않아요).'}
-          {hash.status === 'computing' && '계산 중…'}
-          {hash.status === 'match' &&
-            (isPdf
-              ? `일치: ${localName} — 등록된 문서와 같은 파일이에요. 아래에서 쪽을 확인하세요.`
-              : `일치: ${localName} — 등록된 문서와 같은 파일이에요. 한글 프로그램에서 이 파일을 열어 아래 위치(구역·표·행·열)의 값을 직접 대조해 주세요. 해시 일치는 같은 파일이라는 뜻일 뿐, 원문을 대조했다는 증명이 아니에요.`)}
-          {hash.status === 'mismatch' && `불일치: ${localName}의 SHA-256(${hash.hash.slice(0, 12)}…)이 등록 문서와 달라요. 이 파일로는 확정할 수 없어요.`}
-          {hash.status === 'error' && `계산 실패: ${hash.message}`}
+        <LocalOriginalPicker hash={hash} onPickFile={pickFile} format={isPdf ? 'PDF' : documentFormat === 'HWP' ? 'HWP' : 'HWPX'} inputId={ids.file} />
+        <p className={styles.hint}>
+          {hash.status === 'match' && !isPdf
+            ? '한글 프로그램에서 이 파일을 열어 아래 위치(구역·표·행·열)의 값을 직접 대조해 주세요. 해시 일치는 같은 파일이라는 뜻일 뿐, 원문을 대조했다는 증명이 아니에요.'
+            : hash.status === 'match'
+              ? '아래에서 쪽을 확인하세요.'
+              : '갖고 있는 원본(또는 서버에서 내려받은 원본)을 고르면 이 브라우저에서만 SHA-256을 계산해 등록 문서와 비교해요(파일을 보내지 않아요).'}
         </p>
         {objectUrl && <iframe title="원본 PDF (로컬 파일)" src={objectUrl} style={{ width: '100%', height: 420, border: '1px solid var(--as-color-border, #ddd)' }} />}
       </div>

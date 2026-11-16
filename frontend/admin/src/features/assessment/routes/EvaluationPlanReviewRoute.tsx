@@ -222,7 +222,6 @@ function ReviewWorkspace({
                           <tr key={`${item.subjectName}-${item.itemKey}`} data-testid="analysis-item-detail" data-item-key={item.itemKey}>
                             <td>
                               {item.label}
-                              <span className={styles.cellSub}>{item.itemKey}</span>
                             </td>
                             {/* 빈 값은 "원문에 없음"이 아니라 "추출되지 않음 · 확인 필요"다 */}
                             <td style={{ whiteSpace: 'pre-line' }}>{item.content ?? '추출되지 않음 · 확인 필요'}</td>
@@ -259,7 +258,7 @@ function ReviewWorkspace({
                                   <>
                                     <td rowSpan={levels.length}>
                                       {item.label}
-                                      <span className={styles.cellSub}>{item.subjectName} · {item.itemKey}</span>
+                                      <span className={styles.cellSub}>{item.subjectName}</span>
                                     </td>
                                     <td rowSpan={levels.length}>{criterion.element}</td>
                                   </>

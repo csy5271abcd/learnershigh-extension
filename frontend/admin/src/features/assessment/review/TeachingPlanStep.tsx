@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { subjectOptionLabel } from '../model/subjectOptionLabel.ts'
 import { navigate } from '../../../app/adminLocation.ts'
 import { confirmTeachingPlan, createTeachingPlanManualRow, getPlanSubjects, getTeachingPlanReview, updateTeachingPlanManualRow } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanManualRow, TeachingPlanManualRowInput, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
@@ -306,7 +307,7 @@ export function TeachingPlanStep({
                       <option value="">과목 선택</option>
                       {subjectOptions.items.map((item) => (
                         <option key={item.subjectId} value={item.subjectId}>
-                          {item.name} · {item.subjectId}
+                          {subjectOptionLabel(subjectOptions.items, item)}
                         </option>
                       ))}
                     </select>

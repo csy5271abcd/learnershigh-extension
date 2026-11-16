@@ -1,10 +1,11 @@
 import { ReReviewPanel } from './ReReviewPanel.tsx'
+import { LocalOriginalPicker } from './LocalOriginalPicker.tsx'
 import type { EvaluationPlanAnalysisView } from '../api/types.ts'
 import { PlanReviewConfirmPanel } from '../components/PlanReviewConfirmPanel.tsx'
 import { displayValue, fieldKey, fieldName, type Decision, type StepId } from './reviewModel.ts'
 import styles from './review.module.css'
 
-export type HashState = { status: 'none' } | { status: 'computing' } | { status: 'match' | 'mismatch'; hash: string; fileName: string } | { status: 'error'; message: string }
+export type HashState = { status: 'none' } | { status: 'computing' } | { status: 'match' | 'mismatch'; hash: string; fileName: string; sizeBytes: number } | { status: 'error'; message: string }
 
 // 5단계 최종 검토·확정. 기존 확정 조건(원문 동일 확인 · 과목 연결 · 근거 쪽 · 부분 분석 확인 · 원문 대조 확인)을 그대로 두고 행 목록으로 보여 준다.
 // 확정은 공통 평가정보 확인이지 학생 과제 승인·반려가 아니다. 확정한 값만 학생에게 공개된다.
@@ -87,14 +88,7 @@ export function ConfirmStep({
           <div className={styles.checkBody}>
             <strong>학교 원본이 등록 문서와 같은지 확인</strong>
             <p className={styles.muted}>파일은 서버로 보내지 않고 이 브라우저에서만 비교해요.</p>
-            <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={(event) => onPickFile(event.target.files?.[0])} data-testid="review-local-pdf" aria-label="학교 원본 PDF 고르기" />
-            <p className={styles.statusText} data-tone={hash.status === 'mismatch' || hash.status === 'error' ? 'danger' : hash.status === 'match' ? undefined : 'neutral'} style={{ margin: '8px 0 0' }} data-testid="review-hash-status">
-              {hash.status === 'none' && '원본 PDF를 골라 주세요.'}
-              {hash.status === 'computing' && '확인 중…'}
-              {hash.status === 'match' && `같은 파일이에요 · ${hash.fileName}`}
-              {hash.status === 'mismatch' && `등록 문서와 다른 파일이에요 · ${hash.fileName}`}
-              {hash.status === 'error' && `확인하지 못했어요 · ${hash.message}`}
-            </p>
+            <LocalOriginalPicker hash={hash} onPickFile={onPickFile} />
           </div>
         </li>
 
@@ -103,7 +97,7 @@ export function ConfirmStep({
           <div className={styles.checkBody}>
             <strong>과목 연결</strong>
             <p className={styles.muted}>
-              {usedSubjects.length === 0 ? '아직 확인한 과목이 없어요.' : usedSubjects.map((index) => `${view.subjects[index]?.subjectName ?? '과목'} → ${(subjectIds[index] ?? '').trim() || '미연결'}`).join(' · ')}
+              {usedSubjects.length === 0 ? '아직 확인한 과목이 없어요.' : usedSubjects.map((index) => `${view.subjects[index]?.subjectName ?? '과목'} · ${(subjectIds[index] ?? '').trim() ? '연결됨' : '미연결'}`).join(' · ')}
             </p>
             <button type="button" className={styles.link} style={{ marginTop: 6 }} onClick={() => onGo('subjects')}>
               과목 확인으로 가기
@@ -138,7 +132,7 @@ export function ConfirmStep({
                           {decision.kind === 'absent' ? '원문에 없음' : displayValue(decision.value, field.fieldPath)}
                           {decision.kind === 'edited' && <span className={styles.tiny}> · 수정</span>}
                         </td>
-                        <td>{decision.page ? `${decision.page}쪽` : <span className={styles.statusText} data-tone="danger">쪽 없음</span>}</td>
+                        <td>{decision.page ? `${decision.page}쪽` : <span className={styles.statusText} data-tone="warning">쪽 없음</span>}</td>
                       </tr>
                     )
                   })}

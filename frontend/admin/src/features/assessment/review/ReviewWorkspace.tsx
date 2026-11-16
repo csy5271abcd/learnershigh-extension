@@ -141,7 +141,7 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
     setHash({ status: 'computing' })
     try {
       const value = await sha256Hex(file)
-      setHash({ status: value === view.revisionFile?.checksum ? 'match' : 'mismatch', hash: value, fileName: file.name })
+      setHash({ status: value === view.revisionFile?.checksum ? 'match' : 'mismatch', hash: value, fileName: file.name, sizeBytes: file.size })
     } catch (cause) {
       setHash({ status: 'error', message: cause instanceof Error ? cause.message : '파일을 읽지 못했어요.' })
     }

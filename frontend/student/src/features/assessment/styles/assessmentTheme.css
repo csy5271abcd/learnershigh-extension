@@ -45,8 +45,9 @@
   --as-color-success: #14b8a6; /* 완료 점 */
   --as-color-success-soft: #e5f5f2;
   --as-color-success-text: #0b6e63;
-  --as-color-warning-soft: #fff3d1;
-  --as-color-warning-text: #935500;
+  /* A25 (Daglo 방향): '확인 필요'는 노랑 대신 연한 블루그레이. 실패·차단 오류만 danger(빨강)를 쓴다 */
+  --as-color-warning-soft: #eef1f6;
+  --as-color-warning-text: #3f4a5c;
   --as-color-idle: #b8bbc2; /* 시작 전 점 */
   --as-color-disabled-bg: #eaebef;
   --as-color-disabled-text: #c1c3c9;
@@ -99,8 +100,8 @@
     --as-color-danger-soft: #3a1f1d;
     --as-color-success-soft: #173431;
     --as-color-success-text: #5fd3c5;
-    --as-color-warning-soft: #3a2f14;
-    --as-color-warning-text: #f2c460;
+    --as-color-warning-soft: #262b34;
+    --as-color-warning-text: #c3cad6;
     --as-color-idle: #6b6f76;
     --as-color-disabled-bg: #2a2c31;
     --as-color-disabled-text: #63676e;
