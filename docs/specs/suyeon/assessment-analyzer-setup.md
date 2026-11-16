@@ -1,6 +1,6 @@
 # Assessment 평가계획서 분석기 연결 설정 (개발자 가이드)
 
-> 상태: 개발·시연 설정 안내(2026-11-16, A20). 분석기 0.3 계약은 **EXPERIMENTAL/DEV**이며 운영 사용 전 팀 합의가 필요하다.
+> 상태: 개발·시연 설정 안내(2026-11-16, A20 작성 · A23 갱신 — 연결값을 `application.yml`에 고정). 분석기 0.3 계약은 **EXPERIMENTAL/DEV**이며 운영 사용 전 팀 합의가 필요하다.
 > 근거 코드: `backend/.../assessment/integration/analysis/PlanAnalyzerConfig.java`, `HttpPlanAnalyzerClient.java`, `service/plan/PlanAnalysisService.java`. 실측: `ACCOUNT-A-A19-RAILWAY-HTTPS-INTEGRATION-20261116.md`.
 
 ## 1. 구조
@@ -13,63 +13,55 @@
 
 분석기는 **Spring Boot 서버만** 호출한다. React·PHP 등 브라우저나 다른 서버 코드는 분석기를 직접 부르지 않는다.
 
-## 2. 환경 변수
+## 2. 설정 위치 — `application.yml` (A23)
 
-Spring Boot는 환경 변수를 `assessment.analyzer.*` 설정으로 읽는다(Relaxed Binding). `application.yml`에는 값을 쓰지 않는다.
+2026-11-16 사용자 결정으로 분석기 연결값을 `backend/src/main/resources/application.yml`에 **고정**했다. **Railway 연결용 환경 변수를 따로 설정하지 않아도** Spring Boot를 실행하면 `HttpPlanAnalyzerClient`가 만들어지고, 모든 분석 요청에 `X-Analysis-Token` 헤더가 자동으로 붙는다.
 
-| 환경 변수 | 설정 키 | 시연 값 | 코드 기본값 | 의미 |
-|---|---|---|---|---|
-| `ASSESSMENT_ANALYZER_BASE_URL` | `assessment.analyzer.base-url` | `https://learnershigh-assessment-analyzer-production.up.railway.app` | (없음) | 분석기 주소. `/analyze-preview`를 붙여 호출 |
-| `ASSESSMENT_ANALYZER_TOKEN` | `assessment.analyzer.token` | **서버 비밀 환경 변수** | (없음) | `X-Analysis-Token` 헤더 값 |
-| `ASSESSMENT_ANALYZER_CONTRACT03_VERSION` | `assessment.analyzer.contract03-version` | `v21.10-b16-dev` | `v21.4-dev` | 0.3 계약 분석 프로필(B16 확장: 요소 배점·연결 확인·원문 학년) |
-| `ASSESSMENT_ANALYZER_TIMEOUT_MILLIS` | `assessment.analyzer.timeout-millis` | `150000` | `130000` | Backend 대기 상한. 분석기 120초 + 30초 여유. Timeout은 재시도하지 않음 |
-| `ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED` | `assessment.analysis-import.contract03-enabled` | `true` | `false` | 0.3 계약 결과 수신 허용 |
-| `ASSESSMENT_MULTIFORMAT_EXPERIMENTAL` | `assessment.multiformat.experimental` | `true` | `false` | HWP·HWPX 업로드 허용(평가정보 공식 확정은 별도 보호, §5) |
-| `ASSESSMENT_ANALYZER_VERSION` | `assessment.analyzer.version` | **설정하지 않음** | `v21.1` | 0.2 기본 분석기 프로필. 0.3 프로필(`…CONTRACT03_VERSION`)과 같은 값이면 시작 거부 |
-| (선택) `ASSESSMENT_ANALYZER_MAX_RETRIES` | `assessment.analyzer.max-retries` | — | `2` | 연결 실패·`503 BUSY`만 재시도 |
-
-```dotenv
-ASSESSMENT_ANALYZER_BASE_URL=https://learnershigh-assessment-analyzer-production.up.railway.app
-ASSESSMENT_ANALYZER_CONTRACT03_VERSION=v21.10-b16-dev
-ASSESSMENT_ANALYZER_TIMEOUT_MILLIS=150000
-ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED=true
-ASSESSMENT_MULTIFORMAT_EXPERIMENTAL=true
-ASSESSMENT_ANALYZER_TOKEN=<서버의 비밀 환경 변수 — 저장소·문서·PR에 쓰지 않는다>
+```yaml
+assessment:
+  analysis-import:
+    contract03-enabled: true          # analysis-import-0.3 결과 수신 (B16 확장 필드 maxScore·linkReview·grades)
+  multiformat:
+    experimental: true                # HWP·HWPX 업로드·분석 (평가정보 '공식 확정'은 별개 — §5)
+  analyzer:
+    base-url: https://learnershigh-assessment-analyzer-production.up.railway.app
+    version: v21.1                    # 0.2 기본 분석기 프로필 (그대로)
+    contract03-version: v21.10-b16-dev  # 0.3 B16 확장 프로필 — version과 같은 값이면 시작 거부
+    timeout-millis: 150000            # 분석기 120초 + 30초 여유, Timeout은 재시도하지 않음
+    token: <실제 Railway 토큰 — 파일에 직접 들어 있다>
 ```
 
-분석기 쪽(Railway, 계정 B) 값은 이 저장소에서 바꾸지 않는다: `ANALYZER_TIMEOUT_SEC=120`, `ANALYZER_ENABLE_CONTRACT03=1`, `ANALYZER_ENABLE_B13=1`, `ANALYZER_ENABLE_CONTRACT03_EXT=1`, `ANALYZER_ALLOWED_HOSTS`, 토큰.
+| 설정 키 | 값 | 덮어쓰는 환경 변수 |
+|---|---|---|
+| `assessment.analyzer.base-url` | Railway 주소 | `ASSESSMENT_ANALYZER_BASE_URL` |
+| `assessment.analyzer.token` | 실제 토큰 | `ASSESSMENT_ANALYZER_TOKEN` |
+| `assessment.analyzer.contract03-version` | `v21.10-b16-dev` | `ASSESSMENT_ANALYZER_CONTRACT03_VERSION` |
+| `assessment.analyzer.version` | `v21.1` | `ASSESSMENT_ANALYZER_VERSION` |
+| `assessment.analyzer.timeout-millis` | `150000` | `ASSESSMENT_ANALYZER_TIMEOUT_MILLIS` |
+| `assessment.analysis-import.contract03-enabled` | `true` | `ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED` |
+| `assessment.multiformat.experimental` | `true` | `ASSESSMENT_MULTIFORMAT_EXPERIMENTAL` |
+| `assessment.analyzer.max-retries` | (코드 기본 `2`) | `ASSESSMENT_ANALYZER_MAX_RETRIES` |
 
-## 3. 토큰 설정 방법
+**우선순위(Spring Boot 규칙)**: 실행 인자(`--assessment.analyzer.token=…`) > OS 환경 변수(`ASSESSMENT_ANALYZER_*`, Windows User 환경 변수 포함) > `application.yml`. 그래서:
+- 예전에 넣어 둔 `ASSESSMENT_ANALYZER_TOKEN` User 환경 변수가 남아 있으면 **그 값이 YAML 토큰을 덮어쓴다**(현재 값이 같으면 동작은 같다). 다르면 `analyzer_auth_failed`가 난다.
+- **실제 학교 문서·기존 코퍼스(F0xxxx)로 시험할 때는 반드시 `ASSESSMENT_ANALYZER_BASE_URL`을 로컬 분석기로 덮어쓴다.** 기본 주소가 Railway라서 덮어쓰지 않으면 원문이 원격으로 간다(원격 전송 금지 정책).
+- 시험 클래스패스(`backend/src/test/resources/config/application.yml`)는 분석기를 '미설정'으로 되돌린다 — `@SpringBootTest`가 원격으로 요청을 보내지 않고, A22까지의 시험 기본값(503·실험 기능 꺼짐)이 그대로 유지된다. 이 파일은 Jar에 들어가지 않는다.
 
-### 로컬 개발 (Windows PowerShell)
+분석기 쪽(Railway, 계정 B) 값은 이 저장소에서 바꾸지 않는다: `ANALYZER_TIMEOUT_SEC=120`, `ANALYZER_ENABLE_CONTRACT03=1`, `ANALYZER_ENABLE_B13=1`, `ANALYZER_ENABLE_CONTRACT03_EXT=1`, `ANALYZER_ALLOWED_HOSTS`, `CURRICULUM_ANALYSIS_TOKEN`.
 
-토큰을 대화·터미널 기록·파일에 남기지 않도록, 별도 PowerShell 창에서 **현재 사용자 환경 변수**로 넣고 Backend를 그 값으로 띄운다.
+## 3. 토큰 — 공개 저장소에 포함됨 (사용자 승인 사항)
 
-```powershell
-# 1회 설정 (값은 화면에 출력하지 않는다)
-$s = Read-Host -AsSecureString   # 입력이 화면에 보이지 않는다 (Windows PowerShell 5.1 / PowerShell 7 공통)
-[Environment]::SetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($s)), 'User')
-Remove-Variable s
-
-# Backend를 띄우는 창에서 읽어 프로세스에만 넣는다
-$env:ASSESSMENT_ANALYZER_TOKEN = [Environment]::GetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', 'User')
-cd backend; .\gradlew.bat bootRun
-
-# 검증이 끝나면 삭제
-[Environment]::SetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', $null, 'User')
-```
-
-`.env`·`application*.yml`·`docker-compose.yml`·스크립트에 토큰을 쓰지 않는다(Git에 들어갈 수 있는 파일 전부).
-
-### 실제 Spring Boot 서버
-
-배포 플랫폼의 **Secret/환경 변수 기능**으로 `ASSESSMENT_ANALYZER_TOKEN`을 넣는다. 다른 값(§2)은 일반 환경 변수로 넣어도 된다. 토큰을 바꾸면 분석기(Railway)와 Backend 양쪽을 같은 값으로 갱신하고 Backend를 재시작한다.
+- `application.yml`의 `token`은 **실제 Railway 인증 값**이며 Railway `CURRICULUM_ANALYSIS_TOKEN`과 같아야 한다(A23에서 실제 인증 요청으로 일치 확인).
+- **보안상 위험**: 이 저장소는 Public이다. 토큰은 파일과 **Git 이력**에 남아 누구나 읽을 수 있고, 이후 파일에서 지워도 이력에서는 사라지지 않는다. 토큰을 아는 사람은 누구나 분석기를 호출할 수 있다(요청 수 제한 없음, 동시 처리 1 → 남이 계속 호출하면 `BUSY`로 우리 분석이 막힐 수 있다). 2026-11-16 사용자가 이 위험을 알고 명시적으로 승인했다.
+- **토큰 교체**: Railway `CURRICULUM_ANALYSIS_TOKEN`과 `application.yml`의 `assessment.analyzer.token`을 **함께** 바꾸고 Backend를 재시작한다. 한쪽만 바꾸면 `503 analyzer_auth_failed`.
+- 공개를 원하지 않게 되면: Railway 토큰을 새 값으로 교체하고(공개된 값은 무효화), `application.yml`에서 `token`을 지운 뒤 운영 서버에는 Secret/환경 변수(`ASSESSMENT_ANALYZER_TOKEN`)로 넣는다.
+- 토큰은 로그·API 응답·React·PHP 코드에 넣지 않는다(§5). Backend 로그에는 토큰 값이 출력되지 않는다(A23 실측: 로그 검색 0건).
 
 ## 4. 미설정·오류 시 동작
 
 | 상황 | Backend 응답 | 저장 |
 |---|---|---|
-| `BASE_URL` 또는 `TOKEN` 없음 | `503 PLAN_ANALYZER_NOT_CONFIGURED` (조용히 다른 주소로 대체하지 않음) | 없음 |
+| 실제 적용된 주소·토큰이 비어 있음(예: 환경 변수로 빈 값을 넣음) | `503 PLAN_ANALYZER_NOT_CONFIGURED` (조용히 다른 주소로 대체하지 않음) | 없음 |
 | 토큰 불일치(분석기 401) | `503 PLAN_ANALYZER_UNAVAILABLE` · `analyzer_auth_failed` (재시도 안 함) | 없음 |
 | Backend 대기 초과 | `503 PLAN_ANALYZER_UNAVAILABLE` · `timeout` (재시도 안 함) | 없음 |
 | 분석기 자체 시간 초과(504) | `502 PLAN_ANALYZER_BAD_RESPONSE` · `analyzer_error:analysis_timeout` | 없음 |
@@ -79,7 +71,7 @@ cd backend; .\gradlew.bat bootRun
 
 실패한 분석은 Run을 만들지 않고 문서 상태가 `NOT_REQUESTED`로 남으며, 학생에게는 확정된 값만 보인다.
 
-## 5. 토큰을 React·PHP 코드에 넣지 않는 이유
+## 5. 토큰을 React·PHP 코드에 넣지 않는 이유 (Backend YAML에 둔 지금도 같다)
 
 - **브라우저로 내려간 값은 비밀이 아니다.** Vite의 `VITE_*` 변수는 빌드 결과 JavaScript에 그대로 들어가 누구나 개발자 도구로 읽을 수 있다. 토큰이 새면 누구나 분석기를 호출할 수 있다(분석기에는 요청 수 제한이 없고 동시 처리 1이라 쉽게 막힌다).
 - **업로드 원문 검증·저장·권한 검사는 Backend의 책임이다.** 브라우저가 직접 부르면 SHA 대조, 관리자 학교·학년 권한, 결과 저장 규칙을 건너뛰게 된다.

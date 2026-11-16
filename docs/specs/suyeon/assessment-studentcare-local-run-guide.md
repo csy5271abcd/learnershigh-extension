@@ -1,6 +1,6 @@
 # Student Care + Assessment 로컬 직접 실행 가이드 (Windows PowerShell)
 
-> 작성: 2026-11-16 (A22). 대상 코드: `integration/assessment-studentcare-20261116` (Draft PR #17).
+> 작성: 2026-11-16 (A22) · 갱신: 2026-11-16 (A23 — Railway 분석기 연결을 `application.yml`에 고정, 환경 변수 단계 제거). 대상 코드: `integration/assessment-studentcare-20261116` (Draft PR #17).
 > 목적: 개발자가 Spring Boot · 관리자 React · 학생 React를 직접 띄워 학생 케어와 Assessment 사용자 흐름을 확인한다.
 > 모든 값(포트·경로·Profile·환경 변수 이름)은 코드에서 확인한 실제 값이다. 아래 '검증 상태' 표에 A22에서 실제로 실행한 것과 아닌 것을 구분했다.
 
@@ -91,18 +91,14 @@ $env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED = 'false'        # 사용자 테스트�
 $env:ASSESSMENT_DEMO_ROSTER_ENABLED = 'true'
 $env:ASSESSMENT_STORAGE_ROOT        = "$env:USERPROFILE\.learnershigh-extension\local-run-storage"
 
-# Railway 평가계획서 분석기 (docs/specs/suyeon/assessment-analyzer-setup.md)
-$env:ASSESSMENT_ANALYZER_BASE_URL                   = 'https://learnershigh-assessment-analyzer-production.up.railway.app'
-$env:ASSESSMENT_ANALYZER_CONTRACT03_VERSION         = 'v21.10-b16-dev'
-$env:ASSESSMENT_ANALYZER_TIMEOUT_MILLIS             = '150000'
-$env:ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED  = 'true'
-$env:ASSESSMENT_MULTIFORMAT_EXPERIMENTAL            = 'true'
-# 토큰: User 환경 변수에 넣어 둔 값을 이 프로세스에만 옮긴다(출력하지 않음). 넣는 방법은 assessment-analyzer-setup.md §3
-$env:ASSESSMENT_ANALYZER_TOKEN = [Environment]::GetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', 'User')
-if (-not $env:ASSESSMENT_ANALYZER_TOKEN) { Write-Warning '분석기 토큰이 없습니다 — 분석 요청은 503 PLAN_ANALYZER_NOT_CONFIGURED 가 됩니다' }
+# Railway 평가계획서 분석기: 설정할 것이 없다 (A23).
+#   backend/src/main/resources/application.yml 의 assessment.analyzer.*(주소·B16 프로필·150초·토큰)와
+#   assessment.analysis-import.contract03-enabled / assessment.multiformat.experimental 이 그대로 적용된다.
+# 주의: 같은 이름의 환경 변수가 있으면 YAML보다 우선한다. 예전에 넣어 둔 User 환경 변수가 남아 있는지 확인:
+[Environment]::GetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN','User') -ne $null   # True면 그 값이 YAML 토큰을 덮어쓴다
+Get-ChildItem Env:ASSESSMENT_ANALYZER_*, Env:ASSESSMENT_ANALYSIS_*, Env:ASSESSMENT_MULTIFORMAT_* -ErrorAction SilentlyContinue | Select-Object Name   # 이 창에 남은 덮어쓰기 이름만 표시
 
-# 설정하지 않는 것: ASSESSMENT_ANALYZER_VERSION (0.2 기본 프로필, 건드리지 않음)
-#                 ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV (HWP·HWPX 공식 확정 보호 — 기본 false 유지)
+# 설정하지 않는 것: ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV (HWP·HWPX 공식 확정 보호 — 기본 false 유지)
 ```
 
 | 변수 | 의미 / 없을 때 |
@@ -110,7 +106,7 @@ if (-not $env:ASSESSMENT_ANALYZER_TOKEN) { Write-Warning '분석기 토큰이 �
 | `care-demo` Profile + `LEARNERSHIGH_MOCK_DATABASE_EXAMPLES=true` | 학생 케어가 §6의 합성 원천(210명)을 읽는다. 빠지면 13명 Java Fixture |
 | `e2e` Profile + `APP_FIXED_DATE` | 화면 기준일을 2026-11-12로 고정한다(합성 원천은 11-11까지). 빠지면 실제 오늘 기준이라 최근 7일에 기록 없음이 많아진다 |
 | `ASSESSMENT_DEMO_ROSTER_ENABLED=true` | 학년별 시연 슬롯·합성 학생. 빠지면 `school_001` 1학년만 |
-| Railway 4종 + 토큰 | 없으면 분석 요청이 503(조용히 다른 분석기로 대체하지 않음) |
+| Railway 분석기 | `application.yml`에 고정(A23). 환경 변수·실행 인자가 있으면 그 값이 우선한다 — 실제 학교 문서로 시험할 때는 반드시 `ASSESSMENT_ANALYZER_BASE_URL`을 로컬 분석기로 덮어쓴다(원격 전송 금지) |
 
 ## 5. Spring Boot 실행·확인 (4·5단계)
 
@@ -240,8 +236,8 @@ docker stop lh-local-run-mysql          # 데이터는 lh-local-run-mysql-data �
 
 # 처음부터 다시(이 가이드가 만든 것만 지운다 — learnershigh-mysql·mysql-data는 건드리지 않음)
 docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
-# 검증이 끝나면 분석기 토큰 User 환경 변수 삭제
-[Environment]::SetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', $null, 'User')
+# (선택) 예전에 넣은 분석기 토큰 User 환경 변수는 이제 필요 없다. 남겨 두면 YAML 값보다 우선하므로, 지우려면:
+# [Environment]::SetEnvironmentVariable('ASSESSMENT_ANALYZER_TOKEN', $null, 'User')
 ```
 
 ## 11. 체크리스트
@@ -255,7 +251,7 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 - [ ] PDF 업로드
 - [ ] HWP 업로드
 - [ ] HWPX 업로드
-- [ ] Railway 분석 요청 정상 (토큰 설정 시)
+- [ ] Railway 분석 요청 정상 (별도 설정 없이)
 - [ ] 분석 결과 검토
 - [ ] 학년별 확정 (PDF 평가 비율 · HWPX 운영계획)
 - [ ] 학생 평가정보 조회
@@ -285,8 +281,8 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 | 학생 케어 최근 7일이 '기록 없음' | `e2e` Profile과 `APP_FIXED_DATE=2026-11-12`가 빠졌다 |
 | Assessment 화면 401 | `VITE_ASSESSMENT_DEV_ADMIN_ID`(관리자) / `VITE_ASSESSMENT_DEV_STUDENT_ID`(학생)가 비었다 |
 | 학생 화면 404/연결 실패 | 학생은 `e2e/assessment/vite.student.config.ts`로 띄워야 `/api`가 Backend로 간다 |
-| 분석 503 `PLAN_ANALYZER_NOT_CONFIGURED` | 토큰 또는 Base URL이 없다 |
-| 분석 503 `analyzer_auth_failed` | 토큰이 Railway 값과 다르다 |
+| 분석 503 `PLAN_ANALYZER_NOT_CONFIGURED` | 실행 중 설정에서 주소·토큰이 비었다 — 환경 변수로 빈 값을 넣지 않았는지 확인 |
+| 분석 503 `analyzer_auth_failed` | 실제 적용 토큰이 Railway 값과 다르다 — 남아 있는 `ASSESSMENT_ANALYZER_TOKEN` 환경 변수가 YAML을 덮어쓰지 않는지 확인 |
 | 분석 503 `BUSY` | Railway 동시 처리 1 — 잠시 뒤 다시 |
 
 ## 13. 검증 상태 (A22)
@@ -296,6 +292,6 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 | 새 독립 DB에 18 Migration 순서대로 적용 + Backend 기동 + 같은 DB로 재기동(`validated 18`, `up to date`) + 학생 케어·Assessment API 200 | **실행 확인**(일회용 tmpfs MySQL, bash로 같은 값 실행) |
 | §6 합성 원천·상담 예시 Seed(재실행 시 쓰기 없음) | **실행 확인** |
 | §7 관리자 preview/화면 (`/`→학생 케어, 메뉴 3개, 학생 케어·Assessment·학부모 리포트 전환) | **실행 확인**(Playwright 인수 시험 22건) |
-| §8 학생 Vite + §9-2·9-3 Railway 흐름(합성 PDF·HWPX 업로드·분석·학년별 확정·학생 조회·학년 충돌·HWP/HWPX 보호) | **A22에서 실행 확인** — 레거시 정리 뒤 통합 트리로 Railway 화면 E2E **4/4**(같은 환경 변수, 합성 문서만 전송) |
+| §8 학생 Vite + §9-2·9-3 Railway 흐름(합성 PDF·HWPX 업로드·분석·학년별 확정·학생 조회·학년 충돌·HWP/HWPX 보호) | **A23에서 실행 확인** — Railway 관련 환경 변수를 모두 지운 Backend로 Railway 화면 E2E **4/4**, API 실측 7건(합성 문서만 전송) |
 | §9-4 학생 케어 흐름 | **실행 확인** — 학생 케어 X′ 인수 시험(학습관·거르기·상세·상담 저장·관리 기준·학습관별·사진 관찰 오류 안내·학부모 리포트) |
 | PowerShell 문법 그대로의 실행(§2~§10) | **미검증** — 같은 값으로 bash에서 실행했다. PowerShell 줄 바꿈(`` ` ``)·따옴표에서 문제가 나면 알려 주세요 |
