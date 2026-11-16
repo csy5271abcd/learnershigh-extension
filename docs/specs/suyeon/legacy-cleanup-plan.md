@@ -57,3 +57,16 @@
 | 5 | `frontend/mentor/` workspace 제거 (`package.json` workspaces, `dev:mentor`, lockfile 재생성), `README.md` §22, `.claude/rules/frontend-mentor.md`, `scripts/verify.ps1` 필수 목록 정리 | 팀 합의 (OD-A10) | Shared 승인 |
 
 각 단계에서 삭제 전 `git grep`으로 남은 참조가 없음을 확인하고 PR 설명에 결과를 붙인다. 이전 구현 이력은 Git History로만 보존한다.
+
+## 5. 진행 기록
+
+| 단계 | 상태 | 근거 |
+|---|---|---|
+| 1·2 Student: Assessment 진입·mentor-hub·school-admissions 제거 | **완료** (2026-10-28) | Assessment 브랜치 |
+| 3 Admin: Assessment Entry 추가 | **완료** | Assessment 브랜치, A20 통합 |
+| 4 Admin: 구형 Entry·Route·`features/feedback`·`features/student-management`·`fixtures`·`read-model`·`store`·구형 전용 components·`app/useScreenLoad.ts`·구형 Asset 제거, `/` 기본 화면 = 학생 케어 | **완료** (2026-11-16, A22, 사용자 승인) | A21 import 그래프 조사 → 73개 파일(진입점에서 도달하지 않음 확인) |
+| 4-1 Today Board ↔ 학생 케어 신호 제안 | **철회** (2026-11-16, 사용자 결정) | `docs/specs/wangyu/README.md`, `docs/OWNERSHIP.md` §4 |
+| 5 `frontend/mentor/` workspace 제거 | **완료** (2026-11-16, A20) | `frontend/package.json`·Lockfile |
+| 문서 | 진행 보고서 25개 정리(A22). `.claude/rules/frontend-mentor.md`·OWNERSHIP §3·§10·§11의 구형 예시는 원본 작업자 미Commit 수정과 조율 후 정리 | A22 보고서 §11 |
+
+남은 관리자 화면은 학생 케어(+학부모 리포트)와 Assessment 관리뿐이다. Backend에는 구형 기능 코드가 없었다(A21 §2).
