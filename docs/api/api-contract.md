@@ -1260,6 +1260,14 @@ GET /api/admin/assessment/evaluation-plans/{planId}/subjects
 - `available = false`: 그 슬롯의 학업 정보를 찾지 못함(오류 아님, `items = []`) — 화면은 과목 코드 직접 입력으로 대신한다. 과목명으로 ID를 추측해 고르지 않는다.
 - 권한: 평가계획서 운영(OD-A08). 인증 없음·학생 `401`.
 
+**학년별 개발용 시연 슬롯 (A18, 2026-11-16 사용자 지시 · DRAFT — 개발용 Mock 전용)**
+
+- 개발용 시연 명단이 켜졌을 때만(`learnershigh.integration.mode=mock` + `assessment.demo-roster.enabled=true`, 기본 OFF) 명단의 **합성 학교**(`sch_demo_*`)마다 과목 카탈로그(§9-1 `catalogSubjects`, 2026학년도)가 있는 **1~3학년 × 1·2학기** 슬롯을 제공한다. `items`는 그 학년·학기의 카탈로그 과목이고, `source = "DEV_DEMO_CATALOG"`다. 이것은 학교별 실제 개설 과목이 아니라 학교 공통 후보다(실제 원천은 API-OD-A01·OD-A04·1팀).
+- 기존 슬롯(`school_001` 2026 1학년 1·2학기, 2025·2024 1학년 2학기 — `source = "EXISTING_LEARNERSHIGH"` Mock)은 바뀌지 않는다. 명단이 꺼지면 시연 슬롯도 없다(`available = false`).
+- 같은 슬롯 규칙이 §39 평가 정보 확정·§39-6 운영계획 확정(`subjectId` 검사)과 학생 공개(§10-1: 학생 학업 Context의 학교·학년도·학년·학기 = 문서 슬롯)에 그대로 쓰인다. 학년 문맥 충돌(§39-12 `grade_conflict`)은 그대로다 — 슬롯 학년을 바꿔 다른 학년 과목을 확정하지 않는다.
+- 학기는 관리자가 등록한 문서 슬롯의 학기다. 원문에서 학기를 추론하지 않는다.
+- 학년도는 카탈로그가 있는 2026만이다(다른 학년도 시연 슬롯 없음).
+
 ### 38-5. 학년도별 평가계획서 열람 (A9, 2026-11-15 DRAFT — 구현됨, 새 Endpoint 없음)
 
 > A7의 학년도 비교(`GET .../evaluation-plans/comparison`, 연도 간 반영비율 증감·항목 추가/삭제·이름 변경 추정)는 **사용자 요구에서 제외되어 A9에서 제거**했다(Backend Controller·Service·DTO·시험, Frontend 화면·Type·Adapter, E2E). 그 경로는 이제 처리기가 없어 `GET .../evaluation-plans/{planId}`(`planId = "comparison"`)로 해석되어 `404`다. 학년도별 원문·분석 Run·Revision·확정값 데이터는 그대로 보존한다(비교 전용 DB 객체는 없었다).
@@ -1348,6 +1356,8 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 | 보관 원문 변조 | `409 FILE_INTEGRITY_FAILED` | 없음 |
 
 실패해도 기존 Revision·이전 Run·검토 상태는 바뀌지 않는다.
+
+**시간 제한 두 단계 (A18, 2026-11-16 사용자 결정 · 응답 모양 변경 없음)**: 시연·원격 환경은 분석기 처리 제한 `ANALYZER_TIMEOUT_SEC=120`(계정 B 배포 진입점, 비우면 180), Backend 대기 `ASSESSMENT_ANALYZER_TIMEOUT_MILLIS=150000`(기본값 130000은 그대로)으로 둔다. 분석기가 먼저 멈추면 분석기 `504 ANALYSIS_TIMEOUT` → 위 표대로 `502 PLAN_ANALYZER_BAD_RESPONSE (analyzer_error:analysis_timeout)`, Backend가 먼저 끊으면 `503 PLAN_ANALYZER_UNAVAILABLE (timeout)` — 둘 다 Run 없음, 재시도 없음, 다른 분석 프로필로 대체하지 않음. 관리자 화면은 `analyzer_error:analysis_timeout`을 계약 불일치가 아닌 **시간 초과**로 안내한다.
 
 ### 39-2. 분석 상태 `analysisStatus` (A3.5, 2026-11-14 사용자 승인)
 
