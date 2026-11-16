@@ -1440,6 +1440,19 @@ PUT /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revie
 - `schedule` 불변 규칙: `calendarYear`는 `calendarYearBasis = EXPLICIT_IN_CELL`일 때만(학년도로 연도 계산 금지) · `precision ∈ {EXACT_DATE, DATE_RANGE}` ⇔ `dateFrom` 있음 · `monthFrom ≤ monthTo`가 아니어도 됨(2학기 12→1월) · `UNKNOWN`·`WEEK_UNRESOLVED` 행도 버리지 않는다.
 - 받지 않는 것(0.3에서도 `unknown_field`): `document{}`·`source.sectionCount`(모양 미합의), 행의 `relatedItemKeys`·`linkageNotes`(계정 B도 제외), `extensions`.
 
+**PDF 원문 근거 쪽 범위 규칙** (A16, 2026-11-16 사용자 승인 · DRAFT — 구현됨, 0.2·0.3 공통)
+
+| 근거 | 문서 쪽 수(1~`source.pageCount`) | 과목 `pageRange` 안 |
+|---|---|---|
+| `subjects[].pageRange` 자체 | `from ≤ to ≤ pageCount` (아니면 `subjects[n].pageRange: out_of_range`) | — |
+| `subjects[].sources[]` (과목 확인 근거) | 필수 | **요구하지 않음** — 공통 머리글·과목 요약표 쪽은 과목 본문 범위 밖일 수 있다 |
+| `writtenEvaluation`·`exams[]`·`performanceEvaluation`·`items[]`·`rubric[]`의 `sources` | 필수 | 필수 (`pageRange`가 있을 때) — 변경 없음 |
+| 0.3 `extraction.issues[].sources`·`teachingPlan[].sources` | 필수 | 요구하지 않음 — 변경 없음 |
+
+- `pageRange`는 과목 **본문**이 있는 쪽이고, `subjects[].sources`는 그 과목을 원문에서 확인할 수 있는 근거다. 계정 A는 근거를 지우거나 `pageRange`를 넓혀 맞추지 않고 받은 그대로 저장한다.
+- 문서 쪽 수를 넘는 근거는 어느 위치든 `…pdfPageNumber: out_of_range`, 1 미만은 형식 오류다. HWP·HWPX `documentLocator` 규칙은 변경 없음.
+- 이전(A15까지)에는 과목 근거에도 `pageRange`를 적용해, 실제 분석기 결과(F01664, 40과목 중 22과목이 1쪽 머리글을 과목 근거로 보냄)가 `502 PLAN_ANALYZER_BAD_RESPONSE`로 거절됐다.
+
 Envelope ↔ payload (0.3만):
 
 | Envelope `status` | payload `status` | Run |
