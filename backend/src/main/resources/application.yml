@@ -83,7 +83,8 @@ assessment:
     experimental: true
   analyzer:
     # 평가계획서 분석기(계정 B, Railway). 2026-11-16 A23 사용자 결정: 환경 변수 없이 이 값으로 바로 연결한다.
-    # 환경 변수(ASSESSMENT_ANALYZER_*)·실행 인자를 주면 Spring 규칙대로 이 값보다 우선한다.
+    # 환경 변수(ASSESSMENT_ANALYZER_*)·실행 인자를 주면 Spring 규칙대로 이 값보다 우선한다 — 단 token은 예외(A24):
+    # token은 설정 파일의 값만 쓴다. ASSESSMENT_ANALYZER_TOKEN·-Dassessment.analyzer.token·--assessment.analyzer.token은 무시된다(AnalyzerTokenSource).
     # 주의(사용자 승인 사항): token은 실제 Railway 인증 값이며 이 저장소(Public)와 Git 이력에 공개된다. 교체 시 이 파일과 Railway CURRICULUM_ANALYSIS_TOKEN을 함께 바꾼다.
     # 주의: 기본 주소가 Railway이므로, 실제 학교 문서·기존 코퍼스로 시험할 때는 반드시 ASSESSMENT_ANALYZER_BASE_URL을 로컬 분석기로 덮어쓴다(원격 전송 금지).
     base-url: https://learnershigh-assessment-analyzer-production.up.railway.app

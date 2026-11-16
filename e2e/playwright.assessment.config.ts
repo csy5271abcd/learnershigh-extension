@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -12,7 +13,20 @@ if (!/\/lh_e2e_assessment[a-z0-9_]*(\?|$)/.test(dbUrl)) {
 }
 
 const ports = { backend: 18090, analyzer: 18768, student: 5191, admin: 5192 }
-const token = 'e2e-stub-token-not-a-secret-0123456789'
+// A24: Backend는 분석기 토큰을 application.yml 값만 쓴다(ASSESSMENT_ANALYZER_TOKEN 무시). 그래서 로컬 Stub이 그 값을 받아들이게 한다.
+// 값은 출력하지 않는다. Stub은 127.0.0.1에만 뜬다(원격 전송 없음).
+function yamlAnalyzerToken(): string {
+  const lines = readFileSync(new URL('../backend/src/main/resources/application.yml', import.meta.url), 'utf8').split('\n').map((line) => line.trimEnd())
+  // 첫 YAML 문서(기본 Profile)의 assessment.analyzer 블록 안에서만 찾는다
+  const docEnd = lines.indexOf('---')
+  const head = docEnd < 0 ? lines : lines.slice(0, docEnd)
+  const analyzerAt = head.indexOf('  analyzer:')
+  const tokenLine = analyzerAt < 0 ? undefined : head.slice(analyzerAt + 1).find((line) => line.startsWith('    token:'))
+  const value = tokenLine?.slice('    token:'.length).trim()
+  if (!value) throw new Error('application.yml에 assessment.analyzer.token이 없습니다')
+  return value
+}
+const token = yamlAnalyzerToken()
 const windows = process.platform === 'win32'
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH
 
@@ -58,7 +72,6 @@ export default defineConfig({
         SERVER_PORT: String(ports.backend),
         ASSESSMENT_STORAGE_ROOT: join(tmpdir(), 'lh-e2e-assessment-storage'),
         ASSESSMENT_ANALYZER_BASE_URL: `http://127.0.0.1:${ports.analyzer}`,
-        ASSESSMENT_ANALYZER_TOKEN: token,
         ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED: 'true',
         // A10: 합성 수신 JSON(HWPX Locator·다과목 PDF)을 넣으려고 이 일회용 E2E Backend에서만 켠다. 애플리케이션 기본값은 계속 false다.
         ASSESSMENT_ANALYSIS_IMPORT_ENABLED: 'true',

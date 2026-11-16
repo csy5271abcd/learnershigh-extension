@@ -48,7 +48,7 @@ class PlanAnalyzerYamlConfigTest {
     }
 
     @Test
-    void 환경_변수가_있으면_YAML보다_우선한다() throws IOException {
+    void 토큰_외_분석기_설정은_환경_변수가_있으면_YAML보다_우선한다() throws IOException { // 토큰은 예외 — AnalyzerTokenSourceTest
         StandardEnvironment env = mainYaml(Map.of(
                 "ASSESSMENT_ANALYZER_BASE_URL", "http://127.0.0.1:18870",
                 "ASSESSMENT_ANALYZER_TIMEOUT_MILLIS", "3000",
