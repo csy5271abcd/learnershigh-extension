@@ -71,12 +71,21 @@ public record AnalysisImportRequest(
             @Valid PerformanceEvaluation performanceEvaluation,
             @Size(max = 50) List<@NotNull @Valid Locator> sources,
             @JsonInclude(JsonInclude.Include.NON_NULL) @Valid Extraction extraction,
-            @JsonInclude(JsonInclude.Include.NON_NULL) @Size(max = 400) List<@NotNull @Valid TeachingPlanRow> teachingPlan) {
+            @JsonInclude(JsonInclude.Include.NON_NULL) @Size(max = 400) List<@NotNull @Valid TeachingPlanRow> teachingPlan,
+            // A15 0.3 선택 확장(contract03-ext-0.1, §39-12): 원문 근거(구간 문맥·'N학년' 제목)가 있는 학년만. 없으면 생략(추정 금지)
+            @JsonInclude(JsonInclude.Include.NON_NULL) @Size(min = 1, max = 6) List<@NotNull @Min(1) @Max(6) Integer> grades) {
 
         /** 0.2 모양. */
         public Subject(String subjectName, PageRange pageRange, WrittenEvaluation writtenEvaluation,
                 PerformanceEvaluation performanceEvaluation, List<Locator> sources) {
-            this(subjectName, pageRange, writtenEvaluation, performanceEvaluation, sources, null, null);
+            this(subjectName, pageRange, writtenEvaluation, performanceEvaluation, sources, null, null, null);
+        }
+
+        /** 0.3 기본 모양(확장 필드 없음). */
+        public Subject(String subjectName, PageRange pageRange, WrittenEvaluation writtenEvaluation,
+                PerformanceEvaluation performanceEvaluation, List<Locator> sources, Extraction extraction,
+                List<TeachingPlanRow> teachingPlan) {
+            this(subjectName, pageRange, writtenEvaluation, performanceEvaluation, sources, extraction, teachingPlan, null);
         }
     }
 
@@ -188,7 +197,15 @@ public record AnalysisImportRequest(
     public record RubricCriterion(
             @NotBlank @Size(max = 300) String element,
             @Size(max = 10) List<@NotNull @Valid RubricLevel> levels,
-            @Size(max = 10) List<@NotNull @Valid Locator> sources) {
+            @Size(max = 10) List<@NotNull @Valid Locator> sources,
+            // A15 0.3 선택 확장(§39-12): 요소 배점(원문에 있을 때만, 수준 점수 levels[].score와 다름) · 연결 사람 확인 표시
+            @JsonInclude(JsonInclude.Include.NON_NULL) @DecimalMin("0") @DecimalMax("1000") BigDecimal maxScore,
+            @JsonInclude(JsonInclude.Include.NON_NULL) @Pattern(regexp = "REVIEW_REQUIRED") String linkReview) {
+
+        /** 기존 모양(확장 필드 없음). */
+        public RubricCriterion(String element, List<RubricLevel> levels, List<Locator> sources) {
+            this(element, levels, sources, null, null);
+        }
     }
 
     public record RubricLevel(@NotBlank @Size(max = 1000) String description,

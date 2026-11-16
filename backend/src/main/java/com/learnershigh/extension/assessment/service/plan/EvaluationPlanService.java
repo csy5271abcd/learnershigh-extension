@@ -297,6 +297,11 @@ public class EvaluationPlanService {
                 ReviewFieldRules.checkOptionalSubjectIndex(pdfAnalysisSubjectCount, subject.analysisSubjectIndex(),
                         subjectPath + ".analysisSubjectIndex", usedIndexes, violations::add);
             }
+            if (run.isPresent() && ReviewFieldRules.gradeConflict(mapper.readTree(run.get().resultJson()),
+                    subject.analysisSubjectIndex(), plan.grade())) {
+                // A15: 원문 근거상 다른 학년 과목 → 이 학년 학생에게 공개하지 않는다
+                violations.add(new FieldViolation(subjectPath + ".analysisSubjectIndex", "grade_conflict"));
+            }
             for (int f = 0; f < subject.confirmedFields().size(); f++) {
                 PlanReviewRequest.ConfirmedField field = subject.confirmedFields().get(f);
                 String path = subjectPath + ".confirmedFields[" + f + "]";

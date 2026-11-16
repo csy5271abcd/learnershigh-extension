@@ -91,13 +91,22 @@ public class AnalysisImportValidator {
             errors.add(new FieldViolation("subjects", "required"));
         }
 
-        Set<String> subjectNames = new HashSet<>();
+        java.util.Map<String, List<List<Integer>>> subjectNames = new java.util.HashMap<>();
         for (int i = 0; i < request.subjects().size(); i++) {
             Subject subject = request.subjects().get(i);
             String path = "subjects[" + i + "]";
-            if (!subjectNames.add(subject.subjectName().strip())) {
+            if (subject.grades() != null && new HashSet<>(subject.grades()).size() != subject.grades().size()) {
+                errors.add(new FieldViolation(path + ".grades", "duplicate"));
+            }
+            // A15 과목 중복 판정(§39-12): 같은 이름이면 거절. 단 양쪽 모두 원문 근거 학년(grades)이 있고 학년이 겹치지 않으면
+            // 다른 학년의 같은 과목으로 따로 받는다. 같은 학년 반복·학년 근거 없음은 지금처럼 거절(합치지 않음)
+            List<List<Integer>> sameName = subjectNames.computeIfAbsent(subject.subjectName().strip(), k -> new ArrayList<>());
+            boolean distinctGrade = subject.grades() != null && sameName.stream()
+                    .allMatch(other -> other != null && java.util.Collections.disjoint(other, subject.grades()));
+            if (!sameName.isEmpty() && !distinctGrade) {
                 errors.add(new FieldViolation(path + ".subjectName", "duplicate"));
             }
+            sameName.add(subject.grades());
             new SubjectCheck(path, subject, format, pageCount, multiformat, request.contract03(), errors, warnings).run();
         }
         return new Result(errors, warnings);

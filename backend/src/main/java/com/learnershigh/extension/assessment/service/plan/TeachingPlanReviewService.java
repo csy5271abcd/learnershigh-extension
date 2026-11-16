@@ -123,6 +123,10 @@ public class TeachingPlanReviewService {
                 violations.add(new FieldViolation(at + ".rowKey", "unknown"));
                 continue;
             }
+            if (ReviewFieldRules.gradeConflict(subjects, row.subjectIndex(), plan.grade())) {
+                // A15: 원문 근거상 다른 학년 과목의 운영계획은 이 학년 학생에게 공개하지 않는다
+                violations.add(new FieldViolation(at + ".subjectIndex", "grade_conflict"));
+            }
             if (!seen.add(row.subjectIndex() + "|" + row.rowKey())) {
                 violations.add(new FieldViolation(at + ".rowKey", "duplicate"));
             }
@@ -169,6 +173,9 @@ public class TeachingPlanReviewService {
             if (held.subjectIndex() != row.subjectIndex()) {
                 violations.add(new FieldViolation(at + ".subjectIndex", "conflict"));
                 continue;
+            }
+            if (ReviewFieldRules.gradeConflict(subjects, row.subjectIndex(), plan.grade())) {
+                violations.add(new FieldViolation(at + ".subjectIndex", "grade_conflict"));
             }
             if (!seen.add(row.subjectIndex() + "|" + row.rowKey())) {
                 violations.add(new FieldViolation(at + ".rowKey", "duplicate"));

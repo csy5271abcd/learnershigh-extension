@@ -99,6 +99,25 @@ public class AnalysisImportParser {
             if (subject.teachingPlan() != null) {
                 violations.add(new FieldViolation("subjects[" + i + "].teachingPlan", "unknown_field"));
             }
+            // A15: 0.3 선택 확장 필드도 0.2에서는 지금처럼 unknown_field
+            if (subject.grades() != null) {
+                violations.add(new FieldViolation("subjects[" + i + "].grades", "unknown_field"));
+            }
+            List<AnalysisImportRequest.PerformanceItem> items = subject.performanceEvaluation() == null
+                    || subject.performanceEvaluation().items() == null ? List.of() : subject.performanceEvaluation().items();
+            for (int n = 0; n < items.size(); n++) {
+                List<AnalysisImportRequest.RubricCriterion> rubric = items.get(n) == null || items.get(n).rubric() == null
+                        ? List.of() : items.get(n).rubric();
+                for (int r = 0; r < rubric.size(); r++) {
+                    String at = "subjects[" + i + "].performanceEvaluation.items[" + n + "].rubric[" + r + "]";
+                    if (rubric.get(r) != null && rubric.get(r).maxScore() != null) {
+                        violations.add(new FieldViolation(at + ".maxScore", "unknown_field"));
+                    }
+                    if (rubric.get(r) != null && rubric.get(r).linkReview() != null) {
+                        violations.add(new FieldViolation(at + ".linkReview", "unknown_field"));
+                    }
+                }
+            }
         }
         return violations;
     }

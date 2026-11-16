@@ -193,7 +193,28 @@ final class ReviewFieldRules {
     }
 
     /**
+     * A15 과목 학년 문맥(§39-12): 분석 과목에 원문 근거 학년(grades)이 있는데 문서 학년이 그 안에 없으면 true.
+     * 다른 학년의 평가정보·운영계획을 이 문서(학년) 학생에게 공개하지 않게 확정을 막는다. 학년이 없으면 판단하지 않는다(false).
+     */
+    static boolean gradeConflict(tools.jackson.databind.JsonNode subjects, Integer index, int documentGrade) {
+        if (subjects == null || !subjects.isArray() || index == null || index < 0 || index >= subjects.size()) {
+            return false;
+        }
+        tools.jackson.databind.JsonNode grades = subjects.get(index).get("grades");
+        if (grades == null || !grades.isArray() || grades.isEmpty()) {
+            return false;
+        }
+        for (tools.jackson.databind.JsonNode grade : grades) {
+            if (grade.isInt() && grade.intValue() == documentGrade) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * A12 채점표 값 모양: [{ element: 글자 1~200, levels: [{ description: 글자 1~500, score: 0~1000 숫자 또는 null }] (0~10개) }] 1~30개.
+     * A15: 기준마다 선택 maxScore(요소 배점, 0~1000 또는 null)를 더할 수 있다.
      * 분석 결과 rubric과 같은 모양이다(학생 화면이 같은 방식으로 읽는다). 맞지 않으면 rubric_shape.
      */
     static void checkRubricValue(tools.jackson.databind.JsonNode value, String path, Consumer<FieldViolation> out) {
@@ -202,8 +223,11 @@ final class ReviewFieldRules {
             tools.jackson.databind.JsonNode criterion = value.get(i);
             tools.jackson.databind.JsonNode element = criterion.get("element");
             tools.jackson.databind.JsonNode levels = criterion.get("levels");
-            ok = criterion.isObject() && criterion.size() <= 2 && element != null && element.isTextual()
+            // A15: 요소 배점(maxScore, 선택, 0~1000 숫자 또는 null)을 받는다. 그 밖의 키는 받지 않는다
+            tools.jackson.databind.JsonNode maxScore = criterion.get("maxScore");
+            ok = criterion.isObject() && criterion.size() <= (criterion.has("maxScore") ? 3 : 2) && element != null && element.isTextual()
                     && !element.asText().isBlank() && element.asText().length() <= 200
+                    && (maxScore == null || maxScore.isNull() || (maxScore.isNumber() && maxScore.asDouble() >= 0 && maxScore.asDouble() <= 1000))
                     && levels != null && levels.isArray() && levels.size() <= RUBRIC_MAX_LEVELS;
             for (int j = 0; ok && j < levels.size(); j++) {
                 tools.jackson.databind.JsonNode level = levels.get(j);

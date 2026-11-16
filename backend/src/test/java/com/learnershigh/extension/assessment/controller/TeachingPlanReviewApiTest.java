@@ -738,4 +738,104 @@ class TeachingPlanReviewApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.review.rows.length()").value(1));
     }
+
+    // ---------------- A15 §39-12 0.3 선택 확장 필드 (실제 HTTP 수신 흐름, 같은 Stub·같은 시험 Context 재사용) ----------------
+    // 분석기 응답 = 합성 0.3 Fixture + 확장 필드. 과목 0 = 원문 1학년·첫 채점 요소 배점 75·연결 확인 필요, 과목 1 = 같은 이름의 원문 2학년 과목.
+    // 계정 B 실제 서비스는 아직 이 필드를 보내지 않는다.
+
+    /** 같은 Revision을 확장 필드가 들어간 응답으로 다시 분석한다(새 분석 결과가 최신). */
+    void reanalyzeExtended() throws Exception {
+        tools.jackson.databind.json.JsonMapper json = tools.jackson.databind.json.JsonMapper.builder().build();
+        tools.jackson.databind.node.ObjectNode root = (tools.jackson.databind.node.ObjectNode) json.readTree(payload);
+        tools.jackson.databind.node.ArrayNode subjects = (tools.jackson.databind.node.ArrayNode) root.get("subjects");
+        tools.jackson.databind.node.ObjectNode first = (tools.jackson.databind.node.ObjectNode) subjects.get(0);
+        first.putArray("grades").add(1);
+        tools.jackson.databind.node.ObjectNode criterion = (tools.jackson.databind.node.ObjectNode)
+                first.get("performanceEvaluation").get("items").get(0).get("rubric").get(0);
+        criterion.put("maxScore", 75);
+        criterion.put("linkReview", "REVIEW_REQUIRED");
+        tools.jackson.databind.node.ObjectNode second = first.deepCopy();
+        second.putArray("grades").add(2);
+        ((tools.jackson.databind.node.ObjectNode) second.get("performanceEvaluation").get("items").get(0).get("rubric").get(0))
+                .remove("linkReview");
+        subjects.add(second);
+        payload = root.toString();
+        analysisId = JsonPath.read(mvc.perform(asAdmin(post(revisionPath() + "/analysis"), "adm_plan_operator"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString(), "$.analysisId");
+    }
+
+    String confirmExtended(int subjectIndex, String rubric) {
+        return """
+                {"analysisId":"%s","decision":"CONFIRM","reviewedSubjects":[{"subjectId":"subj_02","analysisSubjectIndex":%d,"confirmedFields":[
+                  {"fieldPath":"performanceEvaluation.weightPercent","value":60,"pdfPageNumber":1}%s]}]}"""
+                .formatted(analysisId, subjectIndex, rubric == null ? ""
+                        : ",{\"fieldPath\":\"performanceEvaluation.items[0].rubric\",\"value\":" + rubric + ",\"pdfPageNumber\":1}");
+    }
+
+    @Test
+    void A15_확장_필드는_저장되고_관리자_분석_화면에_그대로_나가며_같은_이름_다른_학년_과목은_따로_받는다() throws Exception {
+        reanalyzeExtended();
+        mvc.perform(asAdmin(get(revisionPath() + "/analysis"), "adm_plan_operator"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.analysisId").value(analysisId))
+                .andExpect(jsonPath("$.subjects.length()").value(2))
+                .andExpect(jsonPath("$.subjects[0].grades[0]").value(1))
+                .andExpect(jsonPath("$.subjects[1].grades[0]").value(2))
+                .andExpect(jsonPath("$.subjects[1].subjectName").value(JsonPath.<String>read(payload, "$.subjects[0].subjectName")))
+                .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[0].rubric[0].maxScore").value(75))
+                .andExpect(jsonPath("$.subjects[0].performanceEvaluation.items[0].rubric[0].linkReview").value("REVIEW_REQUIRED"))
+                .andExpect(jsonPath("$.subjects[1].performanceEvaluation.items[0].rubric[0].linkReview").doesNotExist());
+        String stored = jdbc.queryForObject("select result_json from assessment_plan_analysis_run where id = ?", String.class, analysisId);
+        assertThat(stored).contains("\"grades\":[1]").contains("\"grades\":[2]").contains("\"maxScore\":75")
+                .contains("\"linkReview\":\"REVIEW_REQUIRED\"");
+    }
+
+    @Test
+    void A15_요소_배점을_확정하면_학생에게_보이고_연결_확인_표시와_학년은_학생에게_나가지_않는다() throws Exception {
+        reanalyzeExtended();
+        String rubric = "[{\"element\":\"유창성\",\"levels\":[],\"maxScore\":75},{\"element\":\"태도\",\"levels\":[{\"description\":\"성실\",\"score\":5}]}]";
+        mvc.perform(asAdmin(put(revisionPath() + "/review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(confirmExtended(0, rubric)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reviewStatus").value("CONFIRMED"));
+        String student = mvc.perform(asStudent(get(STUDENT + planId), "stu_001"))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertThat(JsonPath.<java.util.List<Object>>read(student, "$.confirmedFields[?(@.fieldPath == 'performanceEvaluation.items[0].rubric')].value[0].maxScore"))
+                .containsExactly(75);
+        assertThat(student).doesNotContain("linkReview").doesNotContain("grades").doesNotContain("REVIEW_REQUIRED");
+        // 잘못된 요소 배점(음수)은 rubric_shape로 거절 — 재검토를 열고 다시 확정해 본다
+        mvc.perform(asAdmin(post(revisionPath() + "/review-draft/reopen"), "adm_gangnam")).andExpect(status().isOk());
+        mvc.perform(asAdmin(put(revisionPath() + "/review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(confirmExtended(0, "[{\"element\":\"유창성\",\"levels\":[],\"maxScore\":-5}]")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[?(@.reason == 'rubric_shape')]").isNotEmpty());
+    }
+
+    @Test
+    void A15_원문상_다른_학년_과목은_평가정보도_운영계획도_확정할_수_없다() throws Exception {
+        reanalyzeExtended();
+        // 문서는 1학년 슬롯, 과목 1은 원문 2학년 → grade_conflict, 아무것도 저장되지 않는다
+        mvc.perform(asAdmin(put(revisionPath() + "/review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(confirmExtended(1, null)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[?(@.reason == 'grade_conflict')].field")
+                        .value("reviewedSubjects[0].analysisSubjectIndex"));
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"analysisId":"%s","rows":[{"subjectIndex":1,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""
+                                .formatted(analysisId)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[?(@.reason == 'grade_conflict')]").isNotEmpty());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
+        // 같은 문서의 1학년 과목(과목 0)은 확정된다
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"analysisId":"%s","rows":[{"subjectIndex":0,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""
+                                .formatted(analysisId)))
+                .andExpect(status().isOk());
+        mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(jsonPath("$.rows.length()").value(1));
+    }
 }
