@@ -146,7 +146,9 @@ public class AnalysisImportValidator {
                 errors.add(new FieldViolation(path + ".pageRange", "out_of_range"));
                 range = null;
             }
-            locators(path + ".sources", subject.sources(), range);
+            // 과목 확인 근거는 공통 머리글·요약표 쪽일 수 있어 과목 본문 범위(pageRange)를 적용하지 않는다.
+            // 문서 쪽 수(1~pageCount) 검사는 pdfLocator가 그대로 한다 (api-contract §39-3 근거 쪽 범위 규칙, A16).
+            locators(path + ".sources", subject.sources(), null);
             WrittenEvaluation written = subject.writtenEvaluation();
             PerformanceEvaluation performance = subject.performanceEvaluation();
             if (written != null) {

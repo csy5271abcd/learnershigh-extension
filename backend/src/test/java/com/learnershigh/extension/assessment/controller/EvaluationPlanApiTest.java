@@ -303,6 +303,42 @@ class EvaluationPlanApiTest {
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_analysis_run", Integer.class)).isZero();
     }
 
+    @Test
+    void A16_과목_본문_밖_머리글_근거는_그대로_저장하고_문서_밖_쪽과_평가_근거_범위_위반은_거절한다() throws Exception {
+        byte[] bytes = pdf(3, "a16-subject-locator");
+        Uploaded uploaded = register(bytes);
+        String valid = analysis(sha256(bytes), 3);
+        // 과목 근거 줄 (시험 근거 줄은 뒤에 }]}가 붙어 겹치지 않음)
+        String subjectSources = "\"sources\":[{\"pdfPageNumber\":2}]\n";
+
+        // 평가 근거는 과목 본문 범위(2~3쪽) 밖이면 계속 거절
+        expectRejected(uploaded, valid.replace("\"sources\":[{\"pdfPageNumber\":2,\"printedPageLabel\":\"1\"",
+                                "\"sources\":[{\"pdfPageNumber\":1,\"printedPageLabel\":\"1\""),
+                "subjects[0].writtenEvaluation.sources[0].pdfPageNumber", "out_of_range");
+        // 과목 근거라도 문서 쪽 수(3) 밖이면 거절
+        expectRejected(uploaded, valid.replace(subjectSources,
+                        "\"sources\":[{\"pdfPageNumber\":2},{\"pdfPageNumber\":4}]\n"),
+                "subjects[0].sources[1].pdfPageNumber", "out_of_range");
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_analysis_run", Integer.class)).isZero();
+
+        // F01664 모양: 과목 본문 2~3쪽, 과목 근거에 1쪽 공통 머리글 포함 → 받는다
+        String header = valid.replace(subjectSources,
+                "\"sources\":[{\"pdfPageNumber\":2},{\"pdfPageNumber\":1,\"extractedText\":\"과목 머리글\"}]\n");
+        assertThat(header).isNotEqualTo(valid);
+        mvc.perform(asAdmin(post(importPath(uploaded)), OPERATOR).contentType(MediaType.APPLICATION_JSON).content(header))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.analysisStatus").value("REVIEW_REQUIRED"));
+        // 재조회: 근거·과목 범위를 받은 그대로 보존 (범위를 넓히거나 근거를 지우지 않음)
+        mvc.perform(asAdmin(get(importPath(uploaded).replace("/analysis-imports", "/analysis")), OPERATOR))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.subjects[0].pageRange.from").value(2))
+                .andExpect(jsonPath("$.subjects[0].pageRange.to").value(3))
+                .andExpect(jsonPath("$.subjects[0].sources.length()").value(2))
+                .andExpect(jsonPath("$.subjects[0].sources[1].pdfPageNumber").value(1))
+                .andExpect(jsonPath("$.subjects[0].sources[1].extractedText").value("과목 머리글"));
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_analysis_run", Integer.class)).isEqualTo(1);
+    }
+
     void expectRejected(Uploaded uploaded, String body, String field, String reason) throws Exception {
         var result = mvc.perform(asAdmin(post(importPath(uploaded)), OPERATOR)
                         .contentType(MediaType.APPLICATION_JSON).content(body))
