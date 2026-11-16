@@ -152,9 +152,18 @@ typecheck·lint·build 통과, Harness 통과, Student Care Node 92/92. **Assess
 | `8404b17` | 가이드 2개 |
 | (이 보고서) | A23 보고서 |
 
-## 22~24. Push · PR · CI
+## 22. GitHub Push
 
-(Push·갱신·CI 후 기록)
+`54a0acf..5c307a3` Fast-forward(Force 없음, Push 직전 원격이 `54a0acf` 그대로임을 확인). GitHub Push Protection 차단 없음. 원격 `main` `c03a1a4` 그대로.
+
+## 23. PR #17 업데이트
+
+본문 맨 위에 A23 절을 추가하고 'Railway 설정' 절을 YAML 방식으로 바꿨다. 토큰 공개 사실과 Git 이력에 남는다는 점을 명시했다. 제목 유지, **Draft 유지**, Merge·Ready 전환 없음.
+
+## 24. 최종 GitHub CI 결과
+
+**`5c307a3`에서 모두 success**(Workflow 실행 2회 — push·pull_request): Harness / Repository Rules ×2, Frontend ×2, **Backend ×2**(Testcontainers — 로컬 환경 실패 2건은 재현되지 않음), **E2E (Playwright) ×2**(Student Care X′ 인수 + Admin Shell, YAML 변경 뒤 Backend로 실행), CI Result ×2.
+(이 기록을 담은 문서 전용 Commit은 그 뒤에 Push된다.)
 
 ## 25. 미해결 사항
 
