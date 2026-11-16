@@ -1507,6 +1507,33 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teac
 - 관리자 응답: 확정 행 `RowView`에 `origin` 추가(`candidate`는 추가 행이면 `null`) — §39-6 GET·§39-10 이력. 학생(§10-1-2): 응답 모양 변경 없음. 추가 행도 같은 `rows[]`에 나오고, `pdfPageNumber`는 관리자 확인 쪽(없으면 `null`). 버전·출처·제외 행은 보내지 않는다. 운영계획 행으로 수행평가 과제를 만들지 않는다.
 
 
+### 39-12. analysis-import-0.3 선택 확장 필드 (A15, 2026-11-16 사용자 지시 · DRAFT — 계정 A 수신 구현됨, 계정 B 출력 미활성)
+
+계정 B `contract03-ext-0.1`(B13 변경 요청서·B14 인수인계)의 선택 필드 3종을 **0.3에서만** 받는다. 모두 생략 가능(생략 = 기존 0.3과 같음, 저장 JSON에 키가 생기지 않음). 0.2(`contractVersion` 없음)에 오면 지금처럼 `unknown_field`. 그 밖의 새 필드(예: `rubric[].confidence`, `subjects[].semester`)도 계속 `unknown_field`.
+
+| 필드 | 형태 | 계정 A 처리 |
+|---|---|---|
+| `subjects[].performanceEvaluation.items[].rubric[].maxScore?` | 0~1000 숫자 | 요소 배점. 수준 점수(`levels[].score`)와 별개로 저장·표시. Wizard 후보 표 '요소 배점 N점', 채점기준 수동 보완(§39-9)에서 수정·입력, 확정 채점표 값(`performanceEvaluation.items[n].rubric`)의 기준마다 선택 `maxScore`(0~1000 또는 null, 그 밖 키는 `rubric_shape`) → 학생 확정 채점표 '배점 N점'. Migration 없음(확정값은 기존 JSON 값) |
+| `…rubric[].linkReview?` | `"REVIEW_REQUIRED"`만 | 분석 후보에만 저장. Wizard 채점 요소에 '연결 확인 필요 · 간접 근거' 배지(원문 근거 버튼 그대로). 확정값·학생 응답에는 나가지 않는다 |
+| `subjects[].grades?` | 정수 1~6 배열(1~6개, 중복 `grades: duplicate`) | 원문 근거 학년만(추정 금지 — 계정 A도 만들지 않음). Wizard 과목 카드·운영계획 과목 머리에 '원문 N학년'. 학생 응답에 나가지 않는다 |
+
+**과목 중복 판정(§39-7 `duplicate` 개정)**: 같은 과목명(앞뒤 공백 제거)이 다시 나오면 거절. 단 **양쪽 모두 `grades`가 있고 학년이 겹치지 않으면** 다른 학년의 같은 과목으로 둘 다 받는다(과목 번호 `analysisSubjectIndex`로 구분 — 이름으로 합치지 않음).
+
+| 경우 | 판정 |
+|---|---|
+| 다른 학년(양쪽 근거, 겹침 없음) | 둘 다 받음 |
+| 같은 학년 반복·학년 일부 겹침 | `subjects[n].subjectName: duplicate` |
+| 한쪽이라도 학년 근거 없음 | `duplicate`(같은 과목인지 판단 불가) |
+| 같은 학년·다른 학기 | 받지 않음(학기 필드 없음, 문서 단위 학기와 충돌 가능 — 별도 결정) |
+
+계정 A는 계정 B가 보내지 않은 과목을 만들지 않는다(B14 표본: 중복 탈락 287과목 중 다른 학년 근거 7과목, 2%).
+
+**학년 문맥 충돌(학생 노출 방지)**: 분석 과목에 `grades`가 있고 문서 학년(평가계획서 슬롯의 학년)이 그 안에 없으면 그 과목은 확정할 수 없다 — 평가 정보 `reviewedSubjects[n].analysisSubjectIndex: grade_conflict`, 운영계획 `rows[n].subjectIndex`·`manualRows[n].subjectIndex: grade_conflict`(400, 아무것도 저장 안 함). `grades`가 없으면 판단하지 않는다(기존과 같음).
+
+**계정 B 출력 활성화 조건(제안)**: ① 이 절의 계정 A 구현이 공유 Branch에 들어감 ② B가 실험 Flag(예: `--enable-contract03-ext`)·실험 버전에서만 출력 ③ 계정 A 개발 환경에서 실제 HTTP 응답으로 수신 확인 ④ 합의 후 기본값. 되돌리기 = B Flag OFF(계정 A는 생략을 그대로 받는다).
+
+**과목 수 상한 40(검토만, 변경 안 함)**: `subjects` `@Size(max=40)`, 확정값 `analysis_subject_index` CHECK 0~39(V202611111600), 초안·운영계획 요청 `subjectIndex` `@Max(49)`, 업로드 101MB·요청 본문 한도 충분, 80과목 예상 payload 약 3.1MB(p95 5.1MB, B14). 상향하려면 DTO 상한·CHECK 교체 Migration·Wizard 과목 목록(검색·학년 묶음) 함께 필요 — A15 보고서의 제안대로 사용자 결정 후 진행.
+
 ### 39-6. 월별 교수·학습 운영계획 검토·확정 (A6, 2026-11-15 DRAFT — 구현됨)
 
 ```http
