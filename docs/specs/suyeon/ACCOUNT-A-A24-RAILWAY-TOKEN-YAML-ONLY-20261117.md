@@ -170,15 +170,22 @@ IT 환경 실패의 원인은 시험용 MySQL 컨테이너가 기동 중 종료�
 
 ## 14. GitHub CI
 
-(Push 후 기록)
+**`1841b3c`에서 모두 success**(push·pull_request 2회): Harness ×2, Frontend ×2, Backend ×2(Testcontainers — 로컬 환경 실패 2건은 재현되지 않음), E2E (Playwright) ×2, CI Result ×2.
+이 기록을 담은 문서 전용 Commit은 그 뒤에 Push되며 CI 결과는 확인하지 않는다(미확인 Commit).
 
 ## 15. Commit 및 Push
 
-(기록 예정)
+| Commit | 내용 |
+|---|---|
+| `757ab0a` | `fix(assessment)`: 토큰 YAML 전용(`AnalyzerTokenSource`, Config, 시험, Stub E2E 설정) |
+| `1841b3c` | 가이드 2개 + 이 보고서 |
+| (이 기록) | CI 결과 기록 |
+
+`0c4c071..1841b3c` Fast-forward(Force 없음, Push 직전 원격이 `0c4c071` 그대로임을 확인). 원격 `main` `c03a1a4` 그대로.
 
 ## 16. PR #17 갱신
 
-(기록 예정)
+본문 맨 위에 A24 절을 추가하고 'Railway 설정' 절에 토큰 정책을 반영했다. 제목 유지, **Draft 유지**, Merge·Ready 전환 없음.
 
 ## 17. 남은 문제
 
