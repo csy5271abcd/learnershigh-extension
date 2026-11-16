@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
-import { readFileSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
-import { dirname, resolve, sep } from 'node:path'
+import { dirname, isAbsolute, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'vite'
 
@@ -23,10 +23,17 @@ interface ExamManifestEntry {
  * - Manifest(universityExamManifest.json)에 등록된 문서 ID만 받는다. 임의 파일 경로를 받지 않는다.
  * - 원본(references/previous-exam-questions)은 읽기만 하고, 크기·SHA-256이 Manifest와 다르면 내보내지 않는다(409).
  * 실제 서비스 제공은 서버 계약·권한·이용 허락 확인 뒤 별도로 정한다.
+ *
+ * A25(2026-11-17): 원본 PDF는 Git에 없다(재배포 권한 미확인, 개발 PC에만 있는 미추적 자료). 그래서 다른 폴더(예: 통합 Worktree)에서 실행하면
+ * 저장소 안 references/previous-exam-questions가 비어 404가 났다. 이제 자료 폴더를 {@code ASSESSMENT_UNIVERSITY_EXAM_ROOT}(절대 경로, .env.local 가능)로
+ * 지정할 수 있다. 없으면 기존처럼 저장소 안 폴더를 쓴다. 폴더 자체가 없으면 파일 없음(404 FILE_NOT_FOUND)과 구분해
+ * 404 SOURCE_FOLDER_MISSING + 헤더 X-University-Exam-Source: missing 으로 알린다. Manifest에 있는 문서 ID만 받는 규칙은 그대로다.
  */
-export function universityExamPdfDevServer(): Plugin {
+export function universityExamPdfDevServer(options: { sourceRoot?: string } = {}): Plugin {
   const manifestPath = resolve(studentDir, 'src/features/assessment/api/mock/universityExamManifest.json')
-  const sourceRoot = resolve(studentDir, '../../references/previous-exam-questions')
+  const configured = options.sourceRoot?.trim()
+  const sourceRoot = configured && isAbsolute(configured) ? resolve(configured) : resolve(studentDir, '../../references/previous-exam-questions')
+  const sourceFolderExists = () => existsSync(sourceRoot) && statSync(sourceRoot).isDirectory()
   const idPattern = /^[a-z0-9-]{1,64}$/
   const hashCache = new Map<string, { mtimeMs: number; size: number; sha256: string }>()
 
@@ -65,6 +72,10 @@ export function universityExamPdfDevServer(): Plugin {
     name: 'learnershigh-university-exam-pdf-dev-server',
     apply: 'serve',
     configureServer(server) {
+      if (configured && !isAbsolute(configured)) {
+        server.config.logger.warn('[university-exams] ASSESSMENT_UNIVERSITY_EXAM_ROOT는 절대 경로여야 해요. 저장소 안 기본 폴더를 씁니다.')
+      }
+      server.config.logger.info(`[university-exams] 원본 PDF 폴더: ${sourceFolderExists() ? '연결됨' : '없음 — 대학별 자료 PDF가 열리지 않아요(ASSESSMENT_UNIVERSITY_EXAM_ROOT 확인)'} (${configured ? '설정값' : '저장소 기본 위치'})`)
       server.middlewares.use('/__dev/university-exams', (request, response, next) => {
         void (async () => {
           const sendJson = (status: number, body: unknown) => {
@@ -83,7 +94,7 @@ export function universityExamPdfDevServer(): Plugin {
           if (path === '/status') {
             const documents = []
             for (const entry of entries.values()) documents.push({ documentId: entry.documentId, state: (await fileState(entry)).state })
-            sendJson(200, { documents })
+            sendJson(200, { sourceFolder: sourceFolderExists() ? 'AVAILABLE' : 'MISSING', documents })
             return
           }
           const match = /^\/files\/([^/]+)\.pdf$/.exec(path)
@@ -100,6 +111,11 @@ export function universityExamPdfDevServer(): Plugin {
           }
           const { state, filePath } = await fileState(entry)
           if (state === 'MISSING' || !filePath) {
+            if (!sourceFolderExists()) {
+              response.setHeader('X-University-Exam-Source', 'missing')
+              sendJson(404, { code: 'SOURCE_FOLDER_MISSING' })
+              return
+            }
             sendJson(404, { code: 'FILE_NOT_FOUND' })
             return
           }

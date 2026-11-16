@@ -8,7 +8,7 @@ type LoadState =
   | { kind: 'loading' }
   | { kind: 'ready'; pdf: PDFDocumentProxy }
   /** detail: 진단용 원인 (HTTP 상태·PDF 엔진 오류 이름). 화면에 작게 보여 원인을 바로 구분한다 */
-  | { kind: 'error'; reason: 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE'; detail?: string }
+  | { kind: 'error'; reason: 'SOURCE_FOLDER' | 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE'; detail?: string }
 
 const zoomSteps = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3]
 /** 폭 맞춤의 최대 배율 (넓은 화면에서 글자가 지나치게 커지지 않게) */
@@ -25,7 +25,8 @@ interface PdfViewerProps {
   onPageChange: (page: number) => void
 }
 
-const errorText: Record<'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE', { title: string; body: string }> = {
+const errorText: Record<'SOURCE_FOLDER' | 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE', { title: string; body: string }> = {
+  SOURCE_FOLDER: { title: '원본 자료 폴더가 연결되지 않았어요', body: '대학별 자료 PDF는 저장소에 없고 개발 PC 폴더에서 읽어요. 실행 가이드의 ASSESSMENT_UNIVERSITY_EXAM_ROOT 설정을 확인해 주세요.' },
   MISSING: { title: '원본 PDF 파일을 찾을 수 없어요', body: '목록에는 있지만 개발 환경 폴더에 파일이 없어요. 다른 자료는 계속 볼 수 있어요.' },
   CHANGED: { title: '원본 파일이 목록과 달라요', body: '파일 내용이 바뀌어 문항 위치가 맞지 않을 수 있어 열지 않았어요. 자료 목록을 다시 확인해야 해요.' },
   CORRUPT: { title: 'PDF를 열 수 없어요', body: '파일이 손상되었거나 PDF 형식이 아니에요. 다른 자료는 계속 볼 수 있어요.' },
@@ -69,7 +70,7 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
           return
         }
         if (!head.ok) {
-          if (!cancelled) setLoad({ kind: 'error', reason: head.status === 404 ? 'MISSING' : head.status === 409 ? 'CHANGED' : 'UNAVAILABLE', detail: `PDF 서버 응답 ${head.status}` })
+          if (!cancelled) setLoad({ kind: 'error', reason: head.status === 404 && head.headers.get('X-University-Exam-Source') === 'missing' ? 'SOURCE_FOLDER' : head.status === 404 ? 'MISSING' : head.status === 409 ? 'CHANGED' : 'UNAVAILABLE', detail: `PDF 서버 응답 ${head.status}` })
           return
         }
       }

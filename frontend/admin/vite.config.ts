@@ -38,7 +38,7 @@ export default defineConfig(({mode}) => {
     },
     react(),
     // 대학별 기출 PDF: Student와 같은 Plugin·같은 Manifest·같은 원본 폴더를 직접 읽는다 (Student 서버 없이도 열림, dev 전용)
-    universityExamPdfDevServer(),
+    universityExamPdfDevServer({ sourceRoot: process.env.ASSESSMENT_UNIVERSITY_EXAM_ROOT ?? env.ASSESSMENT_UNIVERSITY_EXAM_ROOT }),
   ],
   // student-preview.html: 학생 Desktop 화면 미리보기 iframe 전용 페이지 (Assessment 관리 학생 화면 보기·수행평가 상세)
   build: {
