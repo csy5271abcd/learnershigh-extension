@@ -1520,7 +1520,9 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/teac
 - 관리자 응답: 확정 행 `RowView`에 `origin` 추가(`candidate`는 추가 행이면 `null`) — §39-6 GET·§39-10 이력. 학생(§10-1-2): 응답 모양 변경 없음. 추가 행도 같은 `rows[]`에 나오고, `pdfPageNumber`는 관리자 확인 쪽(없으면 `null`). 버전·출처·제외 행은 보내지 않는다. 운영계획 행으로 수행평가 과제를 만들지 않는다.
 
 
-### 39-12. analysis-import-0.3 선택 확장 필드 (A15, 2026-11-16 사용자 지시 · DRAFT — 계정 A 수신 구현됨, 계정 B 출력 미활성)
+### 39-12. analysis-import-0.3 선택 확장 필드 (A15, 2026-11-16 사용자 지시 · DRAFT — 계정 A 수신 구현됨, 계정 B 실험 프로필 `v21.10-b16-dev` 실제 HTTP 수신 확인(A17), 운영 기본값 아님)
+
+**실제 출력 확인 (A17, 2026-11-16)**: 계정 B B16(`aa58cb0`) 분석기를 세 Flag(`--enable-contract03 --enable-contract03-b13 --enable-contract03-ext`)로 실행하고 계정 A `assessment.analyzer.contract03-version=v21.10-b16-dev`로 요청 — 요청 모양은 같다. 확장 필드를 뺀 응답은 같은 문서의 `v21.9-b13-dev`와 같았다(9/9). 확장 Flag가 꺼진 분석기에 B16을 요청하면 `422 PLAN_ANALYSIS_UNSUPPORTED (analyzer_rejected:contract03_experimental_disabled)`, 저장 없음 — B13으로 대체하지 않는다. 계약 변경 없음.
 
 계정 B `contract03-ext-0.1`(B13 변경 요청서·B14 인수인계)의 선택 필드 3종을 **0.3에서만** 받는다. 모두 생략 가능(생략 = 기존 0.3과 같음, 저장 JSON에 키가 생기지 않음). 0.2(`contractVersion` 없음)에 오면 지금처럼 `unknown_field`. 그 밖의 새 필드(예: `rubric[].confidence`, `subjects[].semester`)도 계속 `unknown_field`.
 
