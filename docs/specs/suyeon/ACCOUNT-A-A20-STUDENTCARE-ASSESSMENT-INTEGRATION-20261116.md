@@ -156,11 +156,13 @@ Draft PR 차단 사항으로 표시했다.
 
 ## 17. GitHub Push 결과
 
-(Push 후 기록)
+- `git push -u origin integration/assessment-studentcare-20261116`(Force 없음) → 원격에 **새 브랜치**로 생성됐다(최초 `a5f7c93`, 이 기록 Commit으로 Fast-forward).
+- 원격 `main`은 `c03a1a4` 그대로다(Push·Merge 없음). 다른 브랜치는 건드리지 않았다.
+- `gh` CLI가 없어서 PR은 Git 자격 증명 관리자의 기존 GitHub 자격 증명으로 REST API를 호출해 만들었다(값 출력 없음).
 
 ## 18. Draft PR URL
 
-(PR 생성 후 기록)
+**https://github.com/csy5271abcd/learnershigh-extension/pull/17** — `main` 대상, Draft, 제목 'Integrate Assessment with Student Care and remove legacy Mentor'. Ready 전환·병합은 하지 않았다.
 
 ## 19. 원본 작업 폴더 미Commit 파일 보존
 
