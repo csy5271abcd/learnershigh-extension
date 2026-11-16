@@ -37,6 +37,8 @@ export function analysisFailureOf(error: { status?: number; code?: string; messa
     case 'PLAN_ANALYZER_NOT_CONFIGURED':
       return { kind: 'configuration', title: '분석 서비스가 이 서버에 설정되지 않았어요. 운영 담당자에게 알려 주세요.', diagnostic }
     case 'PLAN_ANALYZER_BAD_RESPONSE':
+      // A18: 분석기 처리 시간 제한 초과(분석기 504 ANALYSIS_TIMEOUT)는 계약 불일치가 아니다 — 시간 초과로 안내한다.
+      if (reason === 'analyzer_error:analysis_timeout') return { kind: 'temporary', title: '분석기 처리 시간 제한을 넘겨 분석을 멈췄어요. 결과를 저장하지 않았어요. 잠시 뒤 다시 시도하고, 계속되면 운영 담당자에게 알려 주세요.', diagnostic }
       if (reason === 'sha_mismatch') return { kind: 'contract', title: '분석기가 다른 파일을 분석한 결과를 보냈어요. 결과를 저장하지 않았어요. 다시 시도해 주세요.', diagnostic }
       if (reason.startsWith('not_importable')) return { kind: 'contract', title: '분석기가 가져올 수 없는 결과라고 알렸어요. 결과를 저장하지 않았어요. 원문을 직접 확인해 주세요.', diagnostic }
       return { kind: 'contract', title: '분석 결과 형식이 약속(계약)과 달라 저장하지 않았어요. 분석기 담당자 확인이 필요해요.', diagnostic }

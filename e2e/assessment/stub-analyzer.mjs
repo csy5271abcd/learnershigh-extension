@@ -2,6 +2,7 @@
 // 실제 문서를 분석하지 않는다. Backend가 보낸 원문 파일 이름의 표식으로 응답을 고른다:
 //   *contract03*  → Envelope PARTIAL + 합성 analysis-import-0.3 payload (backend/src/test/resources/assessment/contract03)
 //   *noresult*    → Envelope NO_ASSESSMENTS_EXTRACTED + payload FAILED (실제 분석기 v21.1이 평가계획서가 아닌 문서에 보내는 모양)
+//   *analyzertimeout* → 504 errors[ANALYSIS_TIMEOUT] (A18, 실제 분석기 처리 시간 제한 초과 응답 모양)
 //   그 밖         → Envelope OK_REVIEW_REQUIRED + 계정 B v21.1 0.2 결과 Fixture
 // payload의 source.sha256은 받은 원문 SHA로 바꾼다(서버의 원문 일치 검사를 통과시키기 위해 — 내용은 합성 Fixture 그대로).
 // A8: Backend가 multipart contract=0.3을 보내면(0.3 Gate ON) 모든 응답을 0.3으로 답한다(계정 B B6 규칙): 0.2 Fixture에는
@@ -78,6 +79,13 @@ createServer((request, response) => {
     const requested03 = field(raw, 'contract') === '0.3'
     const sha = createHash('sha256').update(bytes).digest('hex')
     let body
+    if (fileName.includes('analyzertimeout')) {
+      // A18: *analyzertimeout* → 분석기 처리 시간 제한 초과(계정 B 공개 API: 504 ANALYSIS_TIMEOUT). 실제로 기다리지 않는다.
+      response.writeHead(504, { 'Content-Type': 'application/json; charset=utf-8' })
+        .end(JSON.stringify({ service: 'e2e-stub', requestId: null, ok: false, status: 'ERROR',
+          errors: [{ code: 'ANALYSIS_TIMEOUT', message: 'E2E Stub: 처리 시간 제한 초과(합성)' }] }))
+      return
+    }
     if (fileName.includes('noresult')) {
       const failed = {
         analyzer: { name: 'curriculum-analysis', version: 'e2e-stub/backend-adapter-0.2' }, source: { sha256: sha, pageCount: 2 },

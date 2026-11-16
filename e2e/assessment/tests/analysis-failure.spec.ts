@@ -32,3 +32,29 @@ test('평가항목을 찾지 못한 문서는 실패로 저장되고 관리자�
   })
   expect(confirm.status()).toBe(400)
 })
+
+// A18: 분석기 처리 시간 제한 초과(분석기 504 ANALYSIS_TIMEOUT → Backend 502 analyzer_error:analysis_timeout).
+// 계약 불일치가 아니라 시간 초과로 안내하고, 분석 결과를 저장하지 않는다(다른 프로필로 대체 없음).
+test('분석기 처리 시간이 넘으면 시간 초과로 안내하고 분석 결과를 저장하지 않는다', async ({ page, request }) => {
+  const tag = runTag()
+  const fileName = `e2e-analyzertimeout-${tag}.pdf`
+  const created = await request.post(PLANS, {
+    headers: { 'X-Assessment-Admin-Id': ADMIN_ID },
+    multipart: { file: { name: fileName, mimeType: 'application/pdf', buffer: uniquePdf(tag) }, schoolId: 'school_001', academicYear: '2026', grade: '1', semester: '1' },
+  })
+  expect(created.status()).toBe(201)
+  const plan = await created.json()
+
+  await page.goto(`${ADMIN}/assessment/evaluation-plans?school=school_001&year=2026`)
+  const row = page.getByTestId('plan-row').filter({ hasText: fileName })
+  await expect(row).toBeVisible()
+  await row.getByTestId('plan-analyze-button').click()
+  await expect(page.getByText(/처리 시간 제한을 넘겨 분석을 멈췄어요/)).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByText(/약속\(계약\)과 달라/)).toHaveCount(0)
+  await expect(page.getByText(/analyzer_error:analysis_timeout/)).toBeVisible()
+
+  const analysis = await request.get(`${PLANS}/${plan.planId}/revisions/${plan.documentRevisionId}/analysis`, { headers: { 'X-Assessment-Admin-Id': ADMIN_ID } })
+  const body = await analysis.json()
+  expect(body.analysisId ?? null).toBeNull()
+  expect(body.analysisStatus).toBe('NOT_REQUESTED')
+})
