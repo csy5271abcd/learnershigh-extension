@@ -75,6 +75,24 @@ assessment:
     # 외부 평가계획서 분석기 결과 수신 Endpoint (PROPOSED, api-contract.md 미반영). 기본 off → 404.
     # 로컬 연동 시험에서만 ASSESSMENT_ANALYSIS_IMPORT_ENABLED=true로 켠다.
     enabled: ${ASSESSMENT_ANALYSIS_IMPORT_ENABLED:false}
+    # analysis-import-0.3(계정 B Contract 0.3 · B16 확장 필드 maxScore·linkReview·grades) 결과 수신. 2026-11-16 A23: 기본 켬.
+    contract03-enabled: true
+  multiformat:
+    # HWP·HWPX 업로드·분석·원문 구조 위치(A10). 2026-11-16 A23: 기본 켬.
+    # 평가정보 '공식 확정'은 별개다 — plan-review.structured-confirm-dev(기본 false = verified_auth_required)를 그대로 따른다.
+    experimental: true
+  analyzer:
+    # 평가계획서 분석기(계정 B, Railway). 2026-11-16 A23 사용자 결정: 환경 변수 없이 이 값으로 바로 연결한다.
+    # 환경 변수(ASSESSMENT_ANALYZER_*)·실행 인자를 주면 Spring 규칙대로 이 값보다 우선한다.
+    # 주의(사용자 승인 사항): token은 실제 Railway 인증 값이며 이 저장소(Public)와 Git 이력에 공개된다. 교체 시 이 파일과 Railway CURRICULUM_ANALYSIS_TOKEN을 함께 바꾼다.
+    # 주의: 기본 주소가 Railway이므로, 실제 학교 문서·기존 코퍼스로 시험할 때는 반드시 ASSESSMENT_ANALYZER_BASE_URL을 로컬 분석기로 덮어쓴다(원격 전송 금지).
+    base-url: https://learnershigh-assessment-analyzer-production.up.railway.app
+    # 0.2 기본 분석기 프로필(그대로)과 0.3 B16 확장 프로필 — 서로 다른 값이어야 한다(PlanAnalysisService가 같으면 시작 거부)
+    version: v21.1
+    contract03-version: v21.10-b16-dev
+    # 분석기 120초 + 30초 여유(A18). Timeout은 재시도하지 않는다.
+    timeout-millis: 150000
+    token: 99b9707553cedbe5fb18a99b1a367e42bb79d93892e44350e453bc1432f1f657
 
 learnershigh:
   integration:
