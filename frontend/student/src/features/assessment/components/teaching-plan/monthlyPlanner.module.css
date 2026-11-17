@@ -707,3 +707,28 @@
   padding: 0;
   box-shadow: none;
 }
+
+.closeButton,
+.primaryButton {
+  flex: none;
+  white-space: nowrap;
+}
+
+.primaryButton {
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton:disabled {
+  background: var(--as-color-disabled-bg);
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}

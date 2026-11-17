@@ -123,7 +123,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
         </div>
         <ul className={styles.legend} aria-label="표시 기준">
           <li>날짜가 적힌 계획 → 날짜 칸</li>
-          <li>&lsquo;n월 n주&rsquo; → 그 달의 주차 줄 (학교 주차 그대로)</li>
+          <li>&lsquo;n월 m주&rsquo; → 그 달 달력 m번째 줄(일요일 시작)에 임시 배치 · 점선 칸</li>
           <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
           <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
           <li>달을 알 수 없음 → 아래 따로 모음</li>
@@ -283,7 +283,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
       </section>
 
       {dayList && !selected && (
-        <Modal compact title={`${dateLabel(dayList)} 계획`} onRequestClose={() => setDayList(null)} footer={<button type="button" className={styles.sourceButton} onClick={() => setDayList(null)}>닫기</button>}>
+        <Modal compact title={`${dateLabel(dayList)} 계획`} onRequestClose={() => setDayList(null)} footer={<button type="button" className={styles.closeButton} onClick={() => setDayList(null)}>닫기</button>}>
           <ul className={styles.dayList} data-testid="planner-day-list">
             {(placement.cells.find((cell) => cell?.iso === dayList)?.entries ?? []).map((entry) => (
               <li key={entry.id}>
@@ -353,7 +353,7 @@ function EntryDetail({
           </button>
           <button
             type="button"
-            className={styles.sourceButton}
+            className={styles.primaryButton}
             disabled={!entry.sourcePdfPageNumber || !onOpenSource}
             onClick={() => entry.sourcePdfPageNumber && onOpenSource?.(entry.sourcePdfPageNumber)}
             data-testid="planner-open-source"
