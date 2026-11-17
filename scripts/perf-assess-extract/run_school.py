@@ -217,6 +217,7 @@ def run(cli, query, out, semester=2):
                         ctx_by_file.setdefault(fname, []).append(row.get("ctx") or "")
         tpath = tf.name
     built = SL.build([tpath], schools=None, dic=dic or None)
+    units = gate_units(tpath)
     os.unlink(tpath)
     entries = next(iter(built.values()), {}) if built else {}
     for k, e in sorted(entries.items(), key=lambda kv: kv[1]["name"]):
@@ -235,8 +236,117 @@ def run(cli, query, out, semester=2):
     res["messages"] += msgs
     for n in toc_miss:   # 목차에만 있는 과목은 후보로 넣고 확인 필요 표시
         res["subjects"].append({"name": n, "evidence": ["T"], "files": [], "warnings": [{"code": "NAME_CHECK", "text": "목차에서만 확인 — 확인 필요"}]})
+    attach_values(res, units, toc_pages(use, res.get("school") or query))
     res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED", "FILE_NO_SUBJECTS", "TOC_MISSING") for m in res["messages"]) else "OK"
     return res
+
+
+FAMILIES = ["COL", "ROW", "HEAD+KV", "KV", "SUM"]
+
+
+def gate_units(tpath):
+    """평가표 게이트(gates.py)를 돌려 표 단위 결과(과목·지필/수행 비율·수행 항목)를 받는다."""
+    import subprocess
+    out = tpath + ".gates.json"
+    try:
+        subprocess.run([sys.executable, "-P", os.path.join(HERE, "gates.py"), tpath, out], capture_output=True, timeout=600,
+                       env={**os.environ, "CODE_MAP_BASE": os.path.join(HERE, "code_map_base.json")})
+        units = json.load(open(out, encoding="utf-8"))["units"]
+    except Exception:  # noqa: BLE001 - 값 추출 실패는 과목 목록에 영향 주지 않음
+        return []
+    finally:
+        if os.path.exists(out):
+            os.unlink(out)
+    return units
+
+
+def _best(u):
+    """검증을 통과한 게이트 결과가 있으면 그것, 없으면 결과가 있는 첫 게이트(검증 실패 사유와 함께)."""
+    for f in FAMILIES:
+        t = u["tried"].get(f) or {}
+        if t.get("ok"):
+            return t["result"], []
+    for f in FAMILIES:
+        t = u["tried"].get(f) or {}
+        if t.get("result"):
+            return t["result"], t.get("reasons") or []
+    return None, ["표 구조 해석 실패"]
+
+
+TOC_PAGE = re.compile(r"(?:^|\s)\d{1,2}\s*[.)]\s*([가-힣][^·…\n]{1,26}?)\s*[·…\.]{2,}\s*(\d{1,3})(?=\s|$)")
+
+
+def toc_pages(use, sc):
+    """PDF 목차의 과목 시작 쪽(인쇄 쪽수)과 인쇄 쪽수↔PDF 쪽 차이. {파일명: (차이, [(시작 쪽, 과목)])}"""
+    import collections
+    import pymupdf
+    out = {}
+    for p, k in use:
+        if k != "pdf":
+            continue
+        d = pymupdf.open(p)
+        entries = []
+        for i in range(min(4, len(d))):
+            t = re.sub(r"[ \t]+", " ", d[i].get_text())
+            for m in TOC_PAGE.finditer(t):
+                n = SL.ok_name(m.group(1), sc)
+                if n:
+                    entries.append((int(m.group(2)), n))
+        if len(entries) < 5:
+            continue
+        diffs = collections.Counter()
+        for i in range(len(d)):
+            t = d[i].get_text().strip()
+            m = re.search(r"-\s*(\d{1,3})\s*-", t[:40] + " " + t[-40:])
+            if m:
+                diffs[(i + 1) - int(m.group(1))] += 1
+        if diffs:
+            out[os.path.basename(p)] = (diffs.most_common(1)[0][0], sorted(entries))
+    return out
+
+
+def attach_values(res, units, tocs=None):
+    """과목마다 지필·수행 비율과 수행 항목을 붙인다. 과목을 못 정한 평가표는 목차 쪽수로 과목을 정하고,
+    그래도 못 정하면 '과목명 미확인 (파일 p.N)' 후보로 남긴다."""
+    import difflib
+    tocs = tocs or {}
+    sim = lambda a, b: a == b or (len(a) >= 3 and (a in b or b in a)) or difflib.SequenceMatcher(None, a, b).ratio() >= 0.85
+    keyed = [(SL.skey(s["name"]), s) for s in res["subjects"]]
+    unnamed = []
+    for u in units:
+        result, reasons = _best(u)
+        if not result:
+            continue
+        val = {"examPercent": result.get("exam_total"), "performancePercent": result.get("perf_total"),
+               "items": [{"name": it.get("label") or f"수행 {n}", "weightPercent": it.get("weightPercent"), "maxScore": it.get("maxScore")}
+                         for n, it in enumerate(result.get("items") or [], 1)],
+               "source": f"{os.path.basename(u['file'].replace(chr(92), '/'))} p.{u.get('page')}", "check": reasons}
+        k = SL.skey(SL.ok_name(u.get("subject") or "", res.get("school") or "") or u.get("subject") or "")
+        target = next((s for kk, s in keyed if k and sim(k, kk)), None) if k else None
+        fname = os.path.basename(u["file"].replace(chr(92), "/"))
+        if target is None and fname in tocs and isinstance(u.get("page"), int):
+            off, entries = tocs[fname]
+            printed = u["page"] - off
+            name = next((n for start, n in reversed(entries) if start <= printed), None)
+            if name:
+                tk = SL.skey(name)
+                target = next((s for kk, s in keyed if sim(tk, kk)), None)
+                if target is None:
+                    target = next((s for s in res["subjects"] if SL.skey(s["name"]) == tk), None)
+                    if target:
+                        keyed.append((tk, target))
+                if target is not None:
+                    val["source"] += " (목차 쪽수로 과목 판단)"
+        if target is None:
+            unnamed.append(val); continue
+        old = target.get("evaluation")
+        if old is None or (old["check"] and not reasons):   # 검증 통과한 표를 우선
+            target["evaluation"] = val
+    for v in unnamed:
+        if not v["items"]:
+            continue
+        res["subjects"].append({"name": f"과목명 미확인 ({v['source']})", "evidence": ["U"], "files": [v["source"].rsplit(" p.", 1)[0]],
+                                "warnings": [{"code": "NAME_CHECK", "text": "평가표는 읽었지만 과목을 못 정함 — 과목명 입력 필요"}], "evaluation": v})
 
 
 TOC_LINE = re.compile(r"(?:^|\s)\d{1,2}\s*[.)]\s*([가-힣][^·…\n]{1,26}?)\s*[·…\.]{2,}\s*\d{1,3}(?=\s|$)")
