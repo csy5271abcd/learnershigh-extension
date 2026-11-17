@@ -45,7 +45,7 @@ TEXT = {
     "UNREADABLE_FILE": "읽을 수 없는 파일입니다: {file}",
     "NO_SUBJECTS": "파일은 받았지만 과목을 찾지 못했습니다. 직접 입력해 주세요.",
     "FILE_NO_SUBJECTS": "과목을 하나도 찾지 못한 파일이 {n}개 있습니다 ({files}). 빠진 과목이 있을 수 있으니 확인해 주세요.",
-    "TOC_MISSING": "목차에는 있지만 찾지 못한 과목 {n}개: {names}. 추가해 주세요.",
+    "TOC_MISSING": "목차에만 있고 본문에서 찾지 못한 과목 {n}개를 후보로 넣었습니다: {names}. 확인해 주세요.",
     "NAME_CHECK": "과목명 확인 필요",
     "OCR_USED": "스캔 파일을 OCR로 읽어 과목 {n}개를 찾았습니다: {file}. OCR 결과라 과목명을 확인해 주세요.",
 }
@@ -231,8 +231,11 @@ def run(cli, query, out, semester=2):
                                     "warnings": [{"code": "NAME_CHECK", "text": TEXT["NAME_CHECK"] + " (OCR)"}]})
     if not res["subjects"]:
         res["messages"].append(msg("NO_SUBJECTS", "error")); return res
-    res["messages"] += missing_checks(use, res["subjects"], n_tables, ctx_by_file, sc=res.get("school") or query)
-    res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED") for m in res["messages"]) else "OK"
+    msgs, toc_miss = missing_checks(use, res["subjects"], n_tables, ctx_by_file, sc=res.get("school") or query)
+    res["messages"] += msgs
+    for n in toc_miss:   # 목차에만 있는 과목은 후보로 넣고 확인 필요 표시
+        res["subjects"].append({"name": n, "evidence": ["T"], "files": [], "warnings": [{"code": "NAME_CHECK", "text": "목차에서만 확인 — 확인 필요"}]})
+    res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED", "FILE_NO_SUBJECTS", "TOC_MISSING") for m in res["messages"]) else "OK"
     return res
 
 
@@ -274,7 +277,7 @@ def missing_checks(use, subjects, n_tables, ctx_by_file, sc):
     miss = [n for n in toc if not any(sim(SL.skey(n), h) for h in have)]
     if miss:
         out.append(msg("TOC_MISSING", "warning", n=len(miss), names=", ".join(miss[:8]) + (" 외" if len(miss) > 8 else "")))
-    return out
+    return out, miss
 
 
 def show(r):

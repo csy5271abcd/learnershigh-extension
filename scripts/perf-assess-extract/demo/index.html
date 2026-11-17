@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평가계획서 과목 불러오기 (데모)</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--fg:#191f28;--muted:#6b7684;--line:#e5e8eb;--blue:#3182f6;--blue-soft:#e8f3ff;
+--red:#d22030;--red-soft:#ffeeee;--amber:#b25e00;--amber-soft:#fff5e6;--green:#0a7c4a;--green-soft:#e6f6ee}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,BlinkMacSystemFont,"Pretendard","Malgun Gothic",sans-serif}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 24px;font-weight:700}
+header span{color:var(--muted);font-weight:400;font-size:13px;margin-left:8px}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+h1{font-size:20px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.search{display:flex;gap:8px;flex-wrap:wrap}
+.search input{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-size:15px}
+.search select{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:15px;background:#fff}
+button{border:0;border-radius:10px;padding:11px 18px;font-size:15px;font-weight:600;cursor:pointer}
+.primary{background:var(--blue);color:#fff}.primary:disabled{opacity:.5;cursor:default}
+.ghost{background:#f2f4f6;color:var(--fg)}
+.loading{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.spin{width:20px;height:20px;border:3px solid var(--blue-soft);border-top-color:var(--blue);border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:600}
+.b-ok{background:var(--green-soft);color:var(--green)}.b-part{background:var(--amber-soft);color:var(--amber)}.b-err{background:var(--red-soft);color:var(--red)}
+.msg{border-radius:10px;padding:11px 14px;margin:8px 0;font-size:14px}
+.msg.error{background:var(--red-soft);color:#8a1420}.msg.warning{background:var(--amber-soft);color:#6b3a00}
+.msg b{margin-right:6px}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:13.5px;margin:6px 0 2px}
+.stats strong{color:var(--fg)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:13px}
+tr.flag td:first-child{border-left:3px solid var(--amber)}
+.ev{display:inline-block;background:#f2f4f6;color:#4e5968;border-radius:6px;padding:1px 7px;font-size:12px;margin-right:4px}
+.warn{color:var(--amber);font-size:12.5px;font-weight:600}
+.file{color:var(--muted);font-size:12.5px;max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.x{background:none;color:var(--muted);padding:2px 8px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.empty{color:var(--muted);text-align:center;padding:28px 0}
+.tablewrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header>학습관 관리자 · 학교 평가계획서<span>데모 — 과목 목록 자동 불러오기</span></header>
+<main>
+  <section class="card">
+    <h1>학교 평가계획서 불러오기</h1>
+    <p class="sub">학교 이름을 넣으면 학교알리미에 공시된 2학기 평가계획서를 받아 과목 목록을 채웁니다. 자동으로 채운 목록은 확인 후 저장하세요.</p>
+    <form class="search" id="f">
+      <input id="q" name="q" placeholder="학교 이름 (예: 신원고등학교)" autocomplete="off" aria-label="학교 이름">
+      <select aria-label="학기"><option>2026학년도 2학기</option></select>
+      <button class="primary" id="go" type="submit">불러오기</button>
+    </form>
+  </section>
+  <section id="out"></section>
+</main>
+<script>
+const EV = {A: '머리 표', S: '요약 표', B: '제목 줄', F: '파일명', O: 'OCR', U: '평가표', T: '목차'};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+let current = null;
+
+$('#f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = $('#q').value.trim();
+  if (!name) { $('#q').focus(); return; }
+  $('#go').disabled = true;
+  $('#out').innerHTML = `<div class="card loading"><div class="spin"></div><div>학교알리미에서 <b>${esc(name)}</b> 평가계획서를 받아 읽는 중입니다…</div></div>`;
+  try {
+    const r = await fetch('/api/school?name=' + encodeURIComponent(name));
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || '요청 실패');
+    current = data; render();
+  } catch (err) {
+    $('#out').innerHTML = `<div class="card"><div class="msg error"><b>오류</b>${esc(err.message)}. 잠시 뒤 다시 시도해 주세요.</div></div>`;
+  } finally { $('#go').disabled = false; }
+});
+
+function render() {
+  const d = current;
+  const badge = d.status === 'OK' ? '<span class="badge b-ok">자동 채움</span>'
+    : d.status === 'PARTIAL' ? '<span class="badge b-part">일부 확인 필요</span>' : '<span class="badge b-err">자동 채움 실패</span>';
+  const msgs = (d.messages || []).map(m => `<div class="msg ${m.level}"><b>${m.level === 'error' ? '오류' : '확인'}</b>${esc(m.text)}</div>`).join('');
+  const flagged = d.subjects.filter(s => s.warnings.length).length;
+  const rows = d.subjects.map((s, i) => `<tr class="${s.warnings.length ? 'flag' : ''}">
+      <td><input value="${esc(s.name)}" aria-label="과목명" style="border:0;font:inherit;width:100%;background:transparent"></td>
+      <td>${s.evidence.map(x => `<span class="ev">${EV[x] || x}</span>`).join('')}</td>
+      <td class="file" title="${esc(s.files.join(', '))}">${esc(s.files[0] || '')}</td>
+      <td>${s.warnings.map(w => `<span class="warn">${esc(w.text)}</span>`).join('')}</td>
+      <td><button class="x" onclick="del(${i})" aria-label="${esc(s.name)} 삭제">삭제</button></td></tr>`).join('');
+  const table = d.subjects.length ? `<div class="tablewrap"><table><thead><tr><th>과목명</th><th>찾은 곳</th><th>원문 파일</th><th>확인</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : '<div class="empty">자동으로 채운 과목이 없습니다. 직접 입력하거나 캡처를 올려 주세요.</div>';
+  $('#out').innerHTML = `<div class="card">
+    <div class="top"><div><h1>${esc(d.school || d.query)} ${badge}</h1>
+      <div class="stats"><span>과목 <strong>${d.subjects.length}</strong>개</span><span>확인 필요 <strong>${flagged}</strong>개</span><span>원문 파일 <strong>${(d.files || []).length}</strong>개</span></div></div>
+      <a href="https://www.schoolinfo.go.kr" target="_blank" rel="noopener" class="sub">학교알리미 원문 보기 ↗</a></div>
+    ${msgs}${table}
+    <div class="actions"><button class="ghost" onclick="addRow()">과목 직접 추가</button><button class="ghost" disabled title="데모에서는 동작하지 않음">캡처 올리기</button><button class="primary" disabled title="데모에서는 저장하지 않음">확인 후 저장</button></div>
+  </div>`;
+}
+function del(i) { current.subjects.splice(i, 1); render(); }
+function addRow() { current.subjects.push({name: '', evidence: [], files: [], warnings: [{text: '직접 입력'}]}); render(); }
+</script>
+</body>
+</html>
