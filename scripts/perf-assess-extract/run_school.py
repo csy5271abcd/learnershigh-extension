@@ -172,7 +172,10 @@ def run(cli, query, out, semester=2):
         if k.startswith("other"):
             res["messages"].append(msg("UNREADABLE_FILE", "warning", file=name)); continue
         if k == "pdf" and is_scanned(p):
-            scanned.append(p); res["files"].append({"file": name, "state": "scanned"}); continue
+            scanned.append(p); res["files"].append({"file": name, "state": "scanned"})
+            if USE_OCR:
+                use.append((p, k))   # 스캔본도 표 선 복원 + OCR 로 비율·평가표를 읽는다
+            continue
         use.append((p, k))
         res["files"].append({"file": name, "state": "read"})
     dic = set(json.load(open(DICT_PATH, encoding="utf-8"))) if os.path.exists(DICT_PATH) else set()
@@ -205,7 +208,7 @@ def run(cli, query, out, semester=2):
         return res
 
     root = os.path.dirname(sdir)
-    n_tables, ctx_by_file = {}, {}
+    n_tables, ctx_by_file, eval_files = {}, {}, set()
     with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False, encoding="utf-8") as tf:
         for p, k in use:
             fname = os.path.basename(p)
@@ -215,6 +218,9 @@ def run(cli, query, out, semester=2):
                     n_tables[fname] = n_tables.get(fname, 0) + 1
                     if n_tables[fname] <= 5:
                         ctx_by_file.setdefault(fname, []).append(row.get("ctx") or "")
+                    flat = " ".join(" ".join(r) for r in row["grid"])
+                    if "수행" in flat and re.search(r"정기|지필|중간|기말", flat) and re.search(r"\d\s*%|비율", flat):
+                        eval_files.add(fname)
         tpath = tf.name
     built = SL.build([tpath], schools=None, dic=dic or None)
     units = gate_units(tpath)
@@ -240,11 +246,13 @@ def run(cli, query, out, semester=2):
     attach_values(res, units, toc_pages(use, res.get("school") or query))
     for s in res["subjects"]:
         s.pop("_pages", None)
+        if not s.get("evaluation") and s["files"] and not any(f in eval_files for f in s["files"]):
+            s["valueNote"] = "원문에 지필·수행 비율 표 없음"   # 추출 실패가 아니라 원문에 없는 경우를 구분
     res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED", "FILE_NO_SUBJECTS", "TOC_MISSING") for m in res["messages"]) else "OK"
     return res
 
 
-FAMILIES = ["COL", "ROW", "HEAD+KV", "KV", "SUM"]
+FAMILIES = ["COL", "ROW", "AREA", "HEAD+KV", "KV", "SUM"]
 
 
 def gate_units(tpath):
@@ -327,9 +335,22 @@ def _best(u):
             if not reasons:
                 return r, [], notes
     for f in FAMILIES:
+        # 항목 칸이 모두 '서·논술형/그 외' 같은 방식별 비율이고 그 합이 수행 총비율과 같으면: 비율만 채운다
+        t = u["tried"].get(f) or {}
+        res = t.get("result") or {}
+        its, perf = res.get("items") or [], res.get("perf_total")
+        ws = [it.get("weightPercent") for it in its]
+        if its and perf and 0 < perf <= 100 and all(w is not None for w in ws) and abs(sum(ws) - perf) <= 0.6 \
+                and all(NOT_ITEM.match(re.sub(r"\s+", " ", (it.get("label") or "").strip())) for it in its):
+            ex = res.get("exam_total")
+            if ex is None or abs(ex + perf - 100) > 0.6:
+                continue   # 지필+수행이 표 안에서 100으로 맞아야만 믿는다 (방식별 칸을 잘못 읽은 결과 배제)
+            return dict(res, items=[], ratio_only=True), [], ["방식별 비율만 있는 표"]
+    for f in FAMILIES:
         t = u["tried"].get(f) or {}
         if t.get("result"):
-            return t["result"], t.get("reasons") or ["표 해석 실패"], []
+            r, _, notes = _clean(t["result"])   # 확인이 필요한 결과도 '소계'·'서논술형' 같은 항목이 아닌 칸은 뺀다
+            return r, t.get("reasons") or ["표 해석 실패"], notes
     return None, ["표 구조 해석 실패"], []
 
 
@@ -372,6 +393,15 @@ def attach_values(res, units, tocs=None):
     tocs = tocs or {}
     sim = lambda a, b: a == b or (len(a) >= 3 and (a in b or b in a)) or difflib.SequenceMatcher(None, a, b).ratio() >= 0.85
     keyed = [(SL.skey(s["name"]), s) for s in res["subjects"]]
+
+    def match(k):   # 같은 이름 먼저, 없으면 비슷한 이름 중 가장 비슷한 것 (부분 문자열 첫 일치로 '경제수학'이 '경제'에 붙는 문제)
+        if not k:
+            return None
+        exact = next((s for kk, s in keyed if kk == k), None)
+        if exact is not None:
+            return exact
+        cands = [(difflib.SequenceMatcher(None, k, kk).ratio(), s) for kk, s in keyed if sim(k, kk)]
+        return max(cands, key=lambda x: x[0])[1] if cands else None
     unnamed = []
     for u in units:
         result, reasons, notes = _best(u)
@@ -381,8 +411,15 @@ def attach_values(res, units, tocs=None):
                "items": [{"name": it.get("label") or f"수행 {n}", "weightPercent": it.get("weightPercent"), "maxScore": it.get("maxScore")}
                          for n, it in enumerate(result.get("items") or [], 1)],
                "source": f"{os.path.basename(u['file'].replace(chr(92), '/'))} p.{u.get('page')}", "check": reasons, "notes": notes}
+        if result.get("ratio_only"):
+            val["ratioOnly"] = True
+        elif val["items"] and not any((it.get("label") or "").strip() for it in result.get("items") or []):
+            # 항목 이름을 하나도 못 읽은 표(서·논술형/기타 같은 방식별 비율만 있는 표 등): 비율만 채우고 항목은 비운다
+            val["items"], val["ratioOnly"] = [], True
         k = SL.skey(SL.ok_name(u.get("subject") or "", res.get("school") or "") or u.get("subject") or "")
-        target = next((s for kk, s in keyed if k and sim(k, kk)), None) if k else None
+        target = match(k)
+        if target is not None and u.get("subject_src") == "carried" and u.get("subject_from") != "code_map" and target.get("evaluation") and not target["evaluation"]["check"]:
+            target = None   # 앞 과목 머리를 이어받은 표가 이미 값이 있는 과목에 또 붙는 경우: 다른 과목의 표일 가능성이 큼
         fname = os.path.basename(u["file"].replace(chr(92), "/"))
         if target is None and fname in tocs and isinstance(u.get("page"), int):
             off, entries = tocs[fname]
@@ -390,7 +427,7 @@ def attach_values(res, units, tocs=None):
             name = next((n for start, n in reversed(entries) if start <= printed), None)
             if name:
                 tk = SL.skey(name)
-                target = next((s for kk, s in keyed if sim(tk, kk)), None)
+                target = match(tk)
                 if target is None:
                     target = next((s for s in res["subjects"] if SL.skey(s["name"]) == tk), None)
                     if target:
@@ -407,6 +444,23 @@ def attach_values(res, units, tocs=None):
             if best and u["page"] - best[0] <= 40:
                 target = best[1]
                 val["source"] += " (쪽 순서로 과목 판단)"
+        # 수행 항목마다 세부 표(과제·성취수준·채점 기준·기본 점수·유의사항)를 공통 형식으로 붙인다
+        if not val["items"] and u.get("details"):
+            import detail_parse
+            made = detail_parse.items_from_details(u["details"])
+            if made:
+                val["items"] = [{"name": it["name"], "weightPercent": it["weightPercent"], "maxScore": it["maxScore"], "detail": it["detail"]} for it in made]
+                val["ratioOnly"] = False
+                val["notes"] = (val.get("notes") or []) + ["세부 표에서 수행 항목을 만듦 — 항목 비율 확인 필요"]
+        elif val["items"] and u.get("details"):
+            import detail_parse
+            groups = detail_parse.split_by_items(u["details"], [it["name"] for it in val["items"]])
+            for it, ts in zip(val["items"], groups):
+                if ts:
+                    it["detail"] = detail_parse.detail_for(ts)
+        for it in val["items"]:   # 원문 확인용: 세부 표가 있는 파일 이름 (PDF면 화면에서 그 표를 잘라 보여 준다)
+            if it.get("detail"):
+                it["detail"]["sourceFile"] = os.path.basename(u["file"].replace(chr(92), "/"))
         if target is None:
             unnamed.append(val); continue
         old = target.get("evaluation")

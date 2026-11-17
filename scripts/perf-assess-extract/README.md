@@ -37,6 +37,36 @@ OCR은 `ocr_win.ps1`이 Windows 내장 OCR(Windows.Media.Ocr, 한국어)을 Powe
 
 `capture_screens.py`는 Playwright로 학교알리미 학교 상세·평가계획 공시 항목 화면을 캡처한다 (보고서용).
 
+### 수행 항목 세부 (`detail_parse.py`)
+
+과목마다 지필·수행 비율과 수행 항목(이름·비율·만점)을 채우고, 수행 항목마다 원문의 세부 표를 공통 형식으로 붙인다(`items[].detail`).
+형식은 113개 학교 세부 표를 조사해 정했다. 블록별 학교 수: 성취수준 108, 과제 머리 103, 채점 기준 97, 기본 점수 86, 유의사항 72 (110곳 기준).
+
+```json
+{
+  "task": {"name": "작가와 소통하는 독후 활동", "maxScore": 100, "timing": "9월", "method": ["논술"], "description": "…"},
+  "rubric": [
+    {"element": "주제 및 줄거리 작성", "maxScore": 25, "kind": "levels",
+     "levels": [{"level": null, "score": 25, "scoreTo": null, "description": "주제 및 줄거리를 우수하게 작성"}]}
+  ],
+  "baseScore": [{"score": 40, "condition": "200자 미만으로 작성"}],
+  "achievement": [{"standard": "[12문학02-01] …", "levels": [{"level": "상", "description": "…"}]}],
+  "notes": ["…"],
+  "check": ["채점 요소 만점 합 33점 ≠ 과제 만점 25점"],
+  "sourceTables": [[["원문 표 칸", "…"]]]
+}
+```
+
+- `kind`: `levels`는 점수 중 하나를 고르는 채점(25/20/15), `sum`은 부분 점수를 더하는 채점(5+5+5=15)이다.
+- 요소 이름 `큰 요소 › 세부 요소`: 세부 요소가 있는 표는 두 이름을 이어 붙인다.
+- `check`: 요소 만점 합(+기본 점수)이 과제 만점과 다르면 남긴다.
+- `sourceTables`: 원문 표를 칸 그대로 담는다. 형식으로 옮기지 못한 내용도 화면에서 표로 보여 준다.
+
+### 붙여넣기 (`paste_parse.py`)
+
+관리자가 평가표를 복사해 붙여넣거나(표·글자) 캡처를 붙여넣으면 비율과 수행 항목을 읽는다. 캡처는 OpenCV로 표 선을 찾아 칸을 복원한 뒤 OCR 글자를 칸에 넣는다. OCR 엔진은 Windows에서는 내장 OCR, `OCR_ENGINE=tesseract`이거나 Linux이면 Tesseract(`kor`)다.
+처음 보는 학교 원문 평가표 25개 측정: 표 붙여넣기 25/25, 캡처 + Tesseract 14/25, 캡처 + Windows OCR 10/25.
+
 ## 단계별로 돌리기 (측정용)
 
 ```bash

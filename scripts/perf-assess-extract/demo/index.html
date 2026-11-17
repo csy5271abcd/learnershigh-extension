@@ -50,6 +50,40 @@ td{vertical-align:top}
 .src{color:var(--muted);font-size:11.5px;margin-top:4px}
 .none{color:var(--muted);font-size:13px}
 .name .warn{margin-top:4px}
+.dedit{margin:2px 0 8px 12px;padding:6px 8px;border-left:2px solid var(--line)}
+.erow,.lrow{display:flex;align-items:center;gap:4px;margin:3px 0}.lrow{margin-left:14px}
+.lbl{color:var(--muted);font-size:12.5px;margin-left:6px}
+.eblk{margin:4px 0}
+.itm{display:flex;align-items:baseline;gap:6px;padding:3px 0;font-size:13.5px;flex-wrap:wrap}
+.itm b{color:var(--blue)}
+.exp{background:none;color:var(--muted);padding:0 4px;font-size:13px;width:22px}
+.exp:disabled{cursor:default}
+.imeta{color:var(--muted);font-size:12.5px}
+.detail{margin:4px 0 10px 26px;padding:10px 12px;background:#fafbfc;border:1px solid var(--line);border-radius:10px;font-size:13px}
+.detail table{width:100%;border-collapse:collapse;margin:4px 0 8px}
+.detail th,.detail td{border:1px solid var(--line);padding:5px 7px;vertical-align:top;font-size:12.5px}
+.detail .kv th{width:80px;background:#f2f4f6;color:var(--muted);font-weight:600}
+.detail .rb .el{width:150px;font-weight:600}.detail .rb .sc{width:70px;white-space:nowrap}
+.detail .sub{color:var(--muted);font-weight:400;font-size:12px}
+.detail .dh{font-weight:700;margin:8px 0 2px}
+.detail details{margin:6px 0}.detail summary{cursor:pointer;font-weight:600}
+.detail .raw td{font-size:11.5px;color:#4e5968}
+.detail ul{margin:2px 0 6px;padding-left:18px}
+.snap{display:block;max-width:100%;border:1px solid var(--line);border-radius:6px;margin:6px 0}
+.sname{border:1px solid var(--line);border-radius:6px;padding:4px 6px;font:inherit;font-weight:600;width:100%}
+.sname-v{font-weight:600}
+.btns{white-space:nowrap;text-align:right}
+.sm{padding:5px 12px;font-size:13px}
+.dl{background:var(--blue);color:#fff;border-radius:10px;padding:9px 16px;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap}
+.ratio .ipct{width:52px}
+.ipct,.iname{border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit;font-size:13.5px}
+.ipct{width:52px;text-align:right}
+.irow{display:flex;align-items:center;gap:4px;margin:3px 0}
+.iname{flex:1;min-width:0}
+.link{background:none;color:var(--blue);padding:4px 0;font-size:13px;font-weight:600}
+.paste{margin-top:8px;border:1.5px dashed var(--line);border-radius:8px;padding:8px 10px;color:var(--muted);font-size:12.5px;cursor:text}
+.paste.on,.paste:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+.pmsg{font-size:12.5px;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
@@ -95,30 +129,194 @@ function render() {
   const msgs = (d.messages || []).map(m => `<div class="msg ${m.level}"><b>${m.level === 'error' ? '오류' : '확인'}</b>${esc(m.text)}</div>`).join('');
   const flagged = d.subjects.filter(s => s.warnings.length).length;
   const withVal = d.subjects.filter(s => s.evaluation && !s.evaluation.check.length).length;
-  const pct = (v) => v == null ? '–' : `${+v}%`;
-  const evalCell = (ev) => {
-    if (!ev) return '<span class="none">평가표 못 찾음 — 직접 입력</span>';
-    const items = ev.items.map(it => `<span class="item">${esc(it.name)} <b>${pct(it.weightPercent)}</b></span>`).join('');
-    const chk = ev.check.length ? `<div class="warn">확인: ${esc(ev.check.join(', '))}</div>` : '';
-    return `<div class="ratio">지필 <b>${pct(ev.examPercent)}</b> · 수행 <b>${pct(ev.performancePercent)}</b></div><div class="items">${items}</div>${chk}<div class="src">${esc(ev.source)}</div>`;
-  };
-  const rows = d.subjects.map((s, i) => `<tr class="${s.warnings.length ? 'flag' : ''}">
-      <td class="name"><input value="${esc(s.name)}" aria-label="과목명" style="border:0;font:inherit;font-weight:600;width:100%;background:transparent">
-        <div>${s.evidence.map(x => `<span class="ev">${EV[x] || x}</span>`).join('')}</div>${s.warnings.map(w => `<div class="warn">${esc(w.text)}</div>`).join('')}</td>
-      <td>${evalCell(s.evaluation)}</td>
-      <td><button class="x" onclick="del(${i})" aria-label="${esc(s.name)} 삭제">삭제</button></td></tr>`).join('');
-  const table = d.subjects.length ? `<div class="tablewrap"><table><thead><tr><th style="width:250px">과목</th><th>평가 비율 · 수행평가 항목</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+  const rows = d.subjects.map((s, i) => `<tr id="row-${i}" class="${s.warnings.length ? 'flag' : ''}">${rowHtml(i)}</tr>`).join('');
+  const table = d.subjects.length ? `<div class="tablewrap"><table><thead><tr><th style="width:220px">과목</th><th>평가 비율 · 수행평가 항목</th><th style="width:90px"></th></tr></thead><tbody>${rows}</tbody></table></div>`
     : '<div class="empty">자동으로 채운 과목이 없습니다. 직접 입력하거나 캡처를 올려 주세요.</div>';
   $('#out').innerHTML = `<div class="card">
     <div class="top"><div><h1>${esc(d.school || d.query)} ${badge}</h1>
       <div class="stats"><span>과목 <strong>${d.subjects.length}</strong>개</span><span>비율·항목 채움 <strong>${withVal}</strong>개</span><span>확인 필요 <strong>${flagged}</strong>개</span><span>원문 파일 <strong>${(d.files || []).length}</strong>개</span></div></div>
-      <a href="https://www.schoolinfo.go.kr" target="_blank" rel="noopener" class="sub">학교알리미 원문 보기 ↗</a></div>
+      ${(d.files || []).length ? `<a class="dl" href="/api/download?school=${encodeURIComponent(d.school || d.query)}" download>평가표 다운로드</a>` : ''}</div>
     ${msgs}${table}
-    <div class="actions"><button class="ghost" onclick="addRow()">과목 직접 추가</button><button class="ghost" disabled title="데모에서는 동작하지 않음">캡처 올리기</button><button class="primary" disabled title="데모에서는 저장하지 않음">확인 후 저장</button></div>
+    <div class="actions"><button class="ghost" onclick="addRow()">과목 직접 추가</button><button class="primary" disabled title="데모에서는 저장하지 않음">확인 후 저장</button></div>
   </div>`;
 }
-function del(i) { current.subjects.splice(i, 1); render(); }
-function addRow() { current.subjects.push({name: '', evidence: [], files: [], warnings: [{text: '직접 입력'}]}); render(); }
+const num = (v) => (v === '' || v == null || isNaN(+v)) ? null : +v;
+const blankEval = () => ({examPercent: null, performancePercent: null, items: [], check: []});
+
+// 과목 한 줄: 평소에는 보기, '수정'을 누르면 과목명·비율·수행 항목을 고치고 평가표·캡처를 붙여넣을 수 있다
+const editing = new Set();
+function rowHtml(i) {
+  const s = current.subjects[i];
+  const ed = editing.has(i);
+  const name = ed ? `<input class="sname" value="${esc(s.name)}" aria-label="과목명" oninput="current.subjects[${i}].name=this.value">`
+    : `<div class="sname-v">${esc(s.name) || '<span class="none">과목명 없음</span>'}</div>`;
+  const warn = s.warnings.map(w => `<div class="warn">${esc(w.text)}</div>`).join('');
+  const btns = ed ? `<button class="ghost sm" onclick="toggleEdit(${i})">완료</button>`
+    : `<button class="ghost sm" onclick="toggleEdit(${i})">수정</button><button class="x" onclick="del(${i})" aria-label="${esc(s.name)} 삭제">삭제</button>`;
+  return `<td class="name">${name}${warn}</td><td>${ed ? editCell(i) : viewCell(i)}</td><td class="btns">${btns}</td>`;
+}
+function toggleEdit(i) {
+  if (editing.has(i)) editing.delete(i); else { editing.add(i); if (!current.subjects[i].evaluation) current.subjects[i].evaluation = blankEval(); }
+  $('#row-' + i).innerHTML = rowHtml(i);
+}
+const pct = (v) => v == null ? '–' : `${+v}%`;
+function viewCell(i) {
+  const s = current.subjects[i], ev = s.evaluation;
+  if (!ev || (ev.examPercent == null && ev.performancePercent == null && !ev.items.length))
+    return `<span class="none">${esc(s.valueNote || '평가표를 찾지 못했습니다')} — 수정을 눌러 평가표를 붙여넣거나 입력하세요</span>`;
+  const items = ev.items.length ? ev.items.map((it, k) => itemView(i, k)).join('')
+    : '<span class="none">수행 항목 없음 — 수정을 눌러 추가하세요</span>';
+  const chk = checkText(ev);
+  return `<div class="ratio">지필 <b>${pct(ev.examPercent)}</b> · 수행 <b>${pct(ev.performancePercent)}</b></div><div class="ilist">${items}</div>${chk ? `<div class="warn">${chk}</div>` : ''}`;
+}
+// 수행 항목 한 줄 + 펼치면 과제·채점 기준·기본 점수·성취수준·유의사항·원문 표
+const opened = new Set();
+function itemView(i, k) {
+  const it = current.subjects[i].evaluation.items[k], d = it.detail;
+  const key = i + ':' + k, open = opened.has(key);
+  const meta = d ? [d.task.maxScore != null ? `만점 ${+d.task.maxScore}점` : '', d.task.timing || '', d.rubric.length ? `채점 요소 ${d.rubric.length}개` : ''].filter(Boolean).join(' · ') : '세부 내용 없음';
+  return `<div class="itm${open ? ' open' : ''}">
+    <button class="exp" onclick="toggleItem(${i},${k})" aria-expanded="${open}" ${d ? '' : 'disabled'}>${d ? (open ? '▾' : '▸') : '·'}</button>
+    <span class="iname-v">${esc(it.name || '이름 없음')}</span> <b>${pct(it.weightPercent)}</b>
+    <span class="imeta">${esc(meta)}</span>${d && d.check && d.check.length ? `<span class="warn"> · 확인: ${esc(d.check.join(', '))}</span>` : ''}
+  </div>${open && d ? `<div class="detail">${detailView(d)}</div>` : ''}`;
+}
+function toggleItem(i, k) { const key = i + ':' + k; opened.has(key) ? opened.delete(key) : opened.add(key); $('#row-' + i).innerHTML = rowHtml(i); }
+function detailView(d) {
+  const t = d.task, parts = [];
+  const info = [['과제', t.name], ['내용', t.description], ['시기', t.timing], ['평가 방법', (t.method || []).join(', ')], ['평가 요소', t.elements]]
+    .filter(([, v]) => v).map(([k, v]) => `<tr><th>${k}</th><td>${esc(v)}</td></tr>`).join('');
+  if (info) parts.push(`<table class="kv">${info}</table>`);
+  if (d.rubric.length) {
+    const rows = d.rubric.map(e => e.levels.map((lv, j) => `<tr>${j === 0 ? `<td rowspan="${e.levels.length}" class="el">${elName(e.element)}${e.maxScore != null ? `<div class="sub">${+e.maxScore}점${e.kind === 'sum' ? ' (합산)' : ''}</div>` : ''}${e.description ? `<div class="sub">${esc(e.description)}</div>` : ''}</td>` : ''}
+        <td class="sc">${lv.level ? esc(lv.level) + ' ' : ''}${lv.score != null ? +lv.score + (lv.scoreTo != null ? '~' + +lv.scoreTo : '') + '점' : ''}</td><td>${esc(lv.description || '')}</td></tr>`).join('')).join('');
+    parts.push(`<div class="dh">채점 기준</div><table class="rb"><thead><tr><th>채점 요소</th><th>점수</th><th>기준</th></tr></thead><tbody>${rows}</tbody></table>`);
+  }
+  if (d.baseScore.length) parts.push(`<div class="dh">기본 점수</div><ul>${d.baseScore.map(b => `<li>${+b.score}점${b.condition ? ' — ' + esc(b.condition) : ''}</li>`).join('')}</ul>`);
+  if (d.achievement.length) parts.push(`<details><summary>성취기준별 성취수준 (${d.achievement.length})</summary><table class="rb">${d.achievement.map(a => a.levels.map((lv, j) => `<tr>${j === 0 ? `<td rowspan="${a.levels.length}" class="el">${esc(a.standard)}</td>` : ''}<td class="sc">${esc(lv.level)}</td><td>${esc(lv.description)}</td></tr>`).join('')).join('')}</table></details>`);
+  if (d.notes.length) parts.push(`<details><summary>유의사항</summary><ul>${d.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul></details>`);
+  if (d.info) parts.push(`<div class="none">${esc(d.info)}</div>`);
+  const need = d.check && d.check.length;
+  const isPdf = /\.pdf$/i.test(d.sourceFile || '');
+  if (need && isPdf) {
+    // 확인이 필요하면 원문 채점표를 그대로 잘라 보여 준다 (PDF)
+    const refs = (d.sourceRefs || []).filter(r => r.hasRubric && r.page);
+    const school = encodeURIComponent(current.school || current.query);
+    parts.unshift(`<div class="dh warn">확인: ${esc(d.check.join(', '))} — 원문과 비교하세요</div>${refs.map(r =>
+      `<img class="snap" loading="lazy" alt="원문 채점표" src="/api/snapshot?school=${school}&file=${encodeURIComponent(d.sourceFile)}&page=${r.page}&ti=${encodeURIComponent(r.ti)}">`).join('')}`);
+  } else if (need) {
+    parts.unshift(`<div class="dh warn">확인: ${esc(d.check.join(', '))} — 아래 원문 표와 비교하세요</div>`);
+  }
+  if (d.sourceTables && d.sourceTables.length) parts.push(`<details${need && !isPdf ? ' open' : ''}><summary>원문 표 (${d.sourceTables.length})</summary>${d.sourceTables.map(g => `<table class="raw">${g.map(r => `<tr>${dedupe(r).map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table>`).join('')}</details>`);
+  return parts.join('') || '<span class="none">세부 내용 없음</span>';
+}
+const elName = (n) => { const p = (n || '채점 기준').split(' › '); return (p.length > 1 ? `<div class="sub">${esc(p.slice(0, -1).join(' › '))}</div>` : '') + esc(p[p.length - 1]); };
+const dedupe = (r) => r.filter((x, j) => j === 0 || x !== r[j - 1]);
+function editCell(i) {
+  const s = current.subjects[i];
+  const ev = s.evaluation;
+  const paste = `<div class="paste" tabindex="0" role="button" aria-label="${esc(s.name)} 평가표 붙여넣기"
+      onpaste="onPaste(event, ${i})" onfocus="this.classList.add('on')" onblur="this.classList.remove('on')">
+      평가표를 복사해 여기에 붙여넣기 (Ctrl+V) · 표·글자·캡처 모두 가능</div><div class="pmsg" id="pm-${i}"></div>`;
+  const items = ev.items.map((it, k) => `<div class="irow">
+      <input class="iname" value="${esc(it.name)}" placeholder="수행평가 이름" aria-label="수행 항목 이름" oninput="setItem(${i},${k},'name',this.value)">
+      <input class="ipct" value="${it.weightPercent ?? ''}" inputmode="decimal" aria-label="반영 비율" oninput="setItem(${i},${k},'weightPercent',this.value)"><span>%</span>
+      <button class="x" onclick="delItem(${i},${k})" aria-label="항목 삭제">×</button></div>${detailEdit(i, k)}`).join('');
+  return `<div class="ratio">지필 <input class="ipct" value="${ev.examPercent ?? ''}" inputmode="decimal" aria-label="지필 비율" oninput="setTotal(${i},'examPercent',this.value)">%
+      · 수행 <input class="ipct" value="${ev.performancePercent ?? ''}" inputmode="decimal" aria-label="수행 비율" oninput="setTotal(${i},'performancePercent',this.value)">%</div>
+    <div class="ilist">${items}</div>
+    <button class="link" onclick="addItem(${i})">+ 수행 항목</button>
+    <div class="warn" id="ck-${i}">${checkText(ev)}</div>${paste}`;
+}
+
+// 수정 모드: 항목의 과제 정보와 채점 기준을 칸에서 고친다
+const blankDetail = () => ({task: {}, achievement: [], rubric: [], baseScore: [], notes: [], check: [], sourceTables: []});
+function detailEdit(i, k) {
+  const it = current.subjects[i].evaluation.items[k];
+  const d = it.detail;
+  if (!d) return `<div class="dedit"><button class="link" onclick="addDetail(${i},${k})">+ 채점 기준 입력</button></div>`;
+  const p = `${i},${k}`;
+  const rub = d.rubric.map((e, a) => `<div class="eblk">
+      <div class="erow"><input class="iname" value="${esc(e.element || '')}" placeholder="채점 요소" oninput="setD(${p},['rubric',${a},'element'],this.value)">
+        <input class="ipct" value="${e.maxScore ?? ''}" placeholder="만점" oninput="setD(${p},['rubric',${a},'maxScore'],num(this.value))"><span>점</span>
+        <button class="x" onclick="spliceD(${p},['rubric'],${a})" aria-label="요소 삭제">×</button></div>
+      ${e.levels.map((lv, b) => `<div class="lrow"><input class="ipct" value="${lv.score ?? ''}" placeholder="점수" oninput="setD(${p},['rubric',${a},'levels',${b},'score'],num(this.value))"><span>점</span>
+        <input class="iname" value="${esc(lv.description || '')}" placeholder="기준" oninput="setD(${p},['rubric',${a},'levels',${b},'description'],this.value)">
+        <button class="x" onclick="spliceD(${p},['rubric',${a},'levels'],${b})" aria-label="수준 삭제">×</button></div>`).join('')}
+      <button class="link" onclick="pushD(${p},['rubric',${a},'levels'],{level:null,score:null,scoreTo:null,description:''})">+ 점수 기준</button></div>`).join('');
+  return `<div class="dedit">
+    <div class="erow"><span class="lbl">만점</span><input class="ipct" value="${d.task.maxScore ?? ''}" oninput="setD(${p},['task','maxScore'],num(this.value))"><span>점</span>
+      <span class="lbl">시기</span><input class="iname" value="${esc(d.task.timing || '')}" oninput="setD(${p},['task','timing'],this.value)"></div>
+    ${rub}<button class="link" onclick="pushD(${p},['rubric'],{element:'',maxScore:null,kind:'levels',levels:[{level:null,score:null,scoreTo:null,description:''}]})">+ 채점 요소</button></div>`;
+}
+function addDetail(i, k) { current.subjects[i].evaluation.items[k].detail = blankDetail(); $('#row-' + i).innerHTML = rowHtml(i); }
+function dig(i, k, path) { let o = current.subjects[i].evaluation.items[k].detail; for (const p of path) o = o[p]; return o; }
+function setD(i, k, path, v) { const o = dig(i, k, path.slice(0, -1)); o[path[path.length - 1]] = v; }
+function spliceD(i, k, path, j) { dig(i, k, path).splice(j, 1); $('#row-' + i).innerHTML = rowHtml(i); }
+function pushD(i, k, path, v) { dig(i, k, path).push(v); $('#row-' + i).innerHTML = rowHtml(i); }
+function checkText(ev) {
+  const p = ev.performancePercent, e = ev.examPercent;
+  const ws = ev.items.map(it => it.weightPercent);
+  const out = [];
+  if (p != null && e != null && Math.abs(p + e - 100) > 0.6) out.push(`지필+수행 = ${p + e}%`);
+  if (p != null && ws.length && ws.every(w => w != null) && Math.abs(ws.reduce((a, b) => a + b, 0) - p) > 0.6)
+    out.push(`항목 합 ${ws.reduce((a, b) => a + b, 0)}% ≠ 수행 ${p}%`);
+  return out.length ? '확인: ' + out.join(', ') : '';
+}
+function refreshCheck(i) { const el = $('#ck-' + i); if (el) el.textContent = checkText(current.subjects[i].evaluation); }
+function setTotal(i, k, v) { current.subjects[i].evaluation[k] = num(v); refreshCheck(i); }
+function setItem(i, k, f, v) { current.subjects[i].evaluation.items[k][f] = f === 'name' ? v : num(v); refreshCheck(i); }
+function delItem(i, k) { current.subjects[i].evaluation.items.splice(k, 1); $('#row-' + i).innerHTML = rowHtml(i); }
+function addItem(i) { current.subjects[i].evaluation.items.push({name: '', weightPercent: null}); $('#row-' + i).innerHTML = rowHtml(i); }
+
+// 붙여넣은 HTML 표 → 칸 목록 (병합 칸은 같은 값으로 펼친다)
+function tableToGrid(table) {
+  const grid = [];
+  [...table.rows].forEach((tr, r) => {
+    grid[r] = grid[r] || [];
+    let c = 0;
+    [...tr.cells].forEach(td => {
+      while (grid[r][c] !== undefined) c++;
+      const t = td.innerText.replace(/\s+/g, ' ').trim();
+      for (let dr = 0; dr < (td.rowSpan || 1); dr++) for (let dc = 0; dc < (td.colSpan || 1); dc++) {
+        grid[r + dr] = grid[r + dr] || [];
+        grid[r + dr][c + dc] = t;
+      }
+      c += td.colSpan || 1;
+    });
+  });
+  return grid.map(row => [...row].map(x => x ?? ''));
+}
+async function onPaste(e, i) {
+  e.preventDefault();
+  const cd = e.clipboardData, pm = $('#pm-' + i);
+  let body = null;
+  const img = [...cd.items].find(it => it.type.startsWith('image/'));
+  const html = cd.getData('text/html'), text = cd.getData('text/plain');
+  if (html && /<table/i.test(html)) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const grid = [...doc.querySelectorAll('table')].flatMap(t => { document.body.appendChild(t); const g = tableToGrid(t); t.remove(); return g; });
+    body = {grid, text};
+  } else if (img) {
+    const dataUrl = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(img.getAsFile()); });
+    body = {image: dataUrl};
+  } else if (text.trim()) {
+    body = {text: text.includes('\t') ? undefined : text, grid: text.includes('\t') ? text.split(/\r?\n/).map(l => l.split('\t')) : undefined};
+  }
+  if (!body) { pm.textContent = '붙여넣은 내용이 없습니다.'; return; }
+  pm.textContent = body.image ? '캡처에서 글자를 읽는 중…' : '평가표를 읽는 중…';
+  try {
+    const r = await fetch('/api/parse', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || '해석 실패');
+    current.subjects[i].evaluation = {examPercent: data.examPercent, performancePercent: data.performancePercent,
+      items: data.items.map(it => ({name: it.name, weightPercent: it.weightPercent, maxScore: it.maxScore})), check: [], pasted: true};
+    $('#row-' + i).innerHTML = rowHtml(i);
+    $('#pm-' + i).textContent = `붙여넣은 ${body.image ? '캡처' : '표'}에서 채웠습니다 — 값을 확인하세요.`;
+  } catch (err) { pm.textContent = err.message; }
+}
+function del(i) { current.subjects.splice(i, 1); editing.clear(); render(); }
+function addRow() { current.subjects.push({name: '', evidence: [], files: [], warnings: []}); editing.add(current.subjects.length - 1); render(); }
 </script>
 </body>
 </html>

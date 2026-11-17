@@ -229,7 +229,7 @@ def code_prefixes(g):
 
 
 # ---------- 패밀리 ----------
-PLACEHOLDER = re.compile(r"^(평가)?영역\s*\d+$|^수행\s*평가\s*\d*$|^\d+\s*(차|회)(\s*시험)?$|^[\d.]+\s*[%점]?$|^[•▸⦁∙·Ÿ\-–―_]|^(합계|계|미실시|해당\s*없음)$")
+PLACEHOLDER = re.compile(r"^(평가)?영역\s*\d+$|^수행\s*평가\s*\d*$|^\d+\s*(차|회)(\s*시험)?$|^\d+\s*순위$|^[\d.]+\s*[%점]?$|^[•▸⦁∙·Ÿ\-–―_]|^(합계|계|미실시|해당\s*없음)$")
 
 
 def acceptable_label(s):
@@ -240,6 +240,9 @@ def acceptable_label(s):
 def drop_dup_label_col(g):
     """라벨 열이 병합돼 첫 두 열이 거의 모든 행에서 같으면 첫 열을 버린다.
     첫 열 값이 모든 행에서 같으면('2학기' 등 구분 머리) 그 열도 버린다."""
+    # 앞에 과목 열이 붙은 표('과목 | 구분 | 수행평가 | 중간고사 …'): 과목 열을 버리고 '구분' 열을 라벨 열로
+    if any(len(r) > 2 and norm(r[0]) in ("과목", "과목명") and STRIP.sub("", r[1]) in TYPE_LABELS for r in g):
+        g = [r[1:] if len(r) > 1 else r for r in g]
     first = {norm(r[0]) for r in g if r}
     if len(g) >= 3 and len(first) == 1 and next(iter(first)) and all(len(r) > 2 for r in g):
         g = [r[1:] for r in g]
@@ -254,7 +257,8 @@ def empty(x):
     return norm(x) in ("", "-", "·", "․", "ㆍ", "•", "‧", "－", "—")
 
 
-TYPE_LABELS = ("평가유형", "평가종류", "종류", "구분", "유형", "평가구분", "평가유형및반영비율", "평가방법반영비율")
+TYPE_LABELS = ("평가유형", "평가종류", "종류", "구분", "유형", "평가구분", "평가유형및반영비율", "평가방법반영비율",
+               "평가종류반영비율", "평가종류및반영비율", "평가유형반영비율")
 
 
 def perf_only_row(r):
@@ -658,6 +662,25 @@ def summary_rows(g):
     return out or None
 
 
+AREA_CELL = re.compile(r"^(?P<name>.+?)\s*[(（]\s*(?P<w>\d{1,3}(?:\.\d+)?)\s*%\s*[)）]\s*$")
+
+
+def area_items(g):
+    """수행평가 세부 표의 항목 행: '평가영역 | 항목 이름 (20%) | 항목 이름 (10%) …'.
+    첫 칸이 이름 라벨(영역·평가명·과제)이고 나머지 칸이 모두 '이름 (N%)' 꼴일 때만. 시기 행이 있으면 같이 읽는다."""
+    for i, r in enumerate(g):
+        if len(r) < 2 or label_of(r[0]) != "name":
+            continue
+        cells = [(c, re.sub(r"\s+", " ", x).strip()) for c, x in enumerate(r) if c > 0 and norm(x) and x != r[c - 1]]   # 병합 칸 복제 제외
+        ms = [(c, AREA_CELL.match(x)) for c, x in cells]
+        if not ms or not all(m for _, m in ms):
+            continue
+        timing = next((row for row in g[i + 1:] if row and label_of(row[0]) == "timing"), None)
+        return [{"label": m.group("name").strip(), "weightPercent": float(m.group("w")), "maxScore": None,
+                 "timing": clean(timing[c], 40) if timing and c < len(timing) else None, "method": None} for c, m in ms]
+    return None
+
+
 def is_perf_only_unit(g):
     """수행평가만 있는 과목 표: 종류 행이 수행뿐이고 비율 라벨이 있으며, 해석한 항목 합이 100."""
     gg = drop_dup_label_col(g)
@@ -690,7 +713,10 @@ def is_unit(g):
         return False
     has_ratio_label = any(label_of(x) in ("ratio", "max_ratio") for r in g for x in r)
     has_perf_pct = any(is_perf(x) and pct(x) is not None for r in g for x in r)
-    return has_ratio_label or has_perf_pct
+    # 라벨 없는 비율 행: 수행 머리 칸 바로 아래 칸이 '40%'
+    below_pct = any(is_perf(x) and i + 1 < len(g) and c < len(g[i + 1]) and pct(g[i + 1][c]) is not None
+                    for i, r in enumerate(g) for c, x in enumerate(r))
+    return has_ratio_label or has_perf_pct or below_pct
 
 
 def main():
@@ -780,8 +806,29 @@ def main():
                     if it:
                         head["items"].append(it)
             tried["HEAD+KV"] = (head, validate(head, subj))
+            # 비율 표 + 뒤따르는 세부 표의 항목 행('평가영역 | 이름 (20%) | …'): 비율은 앞 표, 항목은 세부 표에서
+            base = next((v[0] for v in (tried["COL"], tried["ROW"]) if v[0] and v[0].get("perf_total")), None)
+            area = None
+            if base is not None:
+                for j in range(i, min(nxt, i + 4)):
+                    its = area_items(ts[j]["grid"]) if ts[j]["grid"] else None
+                    if its and abs(sum(x["weightPercent"] for x in its) - base["perf_total"]) <= 0.6:
+                        area = {"perf_total": base["perf_total"], "exam_total": base.get("exam_total"), "items": its}
+                        break
+            tried["AREA"] = (area, validate(area, subj)) if area else (None, ["표 구조 해석 실패"])
+            # 이 평가표 뒤 다음 평가표 전까지의 표: 수행평가 세부(과제·성취수준·채점 기준·유의사항). 최대 40개
+            # 다음 과목의 머리 표(학년·과목명 표)나 다른 과목 제목이 나오면 끊는다
+            details = []
+            for j in range(i + 1, min(nxt, i + 41)):
+                gj = ts[j]["grid"]
+                if not gj:
+                    continue
+                hj = tidy_subject(subject_from_header_table(gj))
+                if hj and not bad_subject(hj, school) and (not subj or norm(hj) != norm(subj)):
+                    break
+                details.append({"ti": ts[j]["ti"], "page": ts[j]["page"], "ctx": (ts[j].get("ctx") or "")[-200:], "grid": gj})
             units.append({"src": src, "school": r["school"], "file": file, "kind": r["kind"], "ti": r["ti"], "page": r["page"],
-                          "subject": subj, "subject_src": subj_src, "grid": g,
+                          "subject": subj, "subject_src": subj_src, "grid": g, "details": details,
                           "tried": {k: {"ok": not v[1], "reasons": v[1], "result": v[0]} for k, v in tried.items()}})
     # 4차 게이트(KV): 평가표가 하나도 없는 파일에서 항목별 세부표를 과목별로 모은다.
     unit_files = {(u["src"], u["file"]) for u in units}
@@ -838,6 +885,7 @@ def main():
     for u in units:
         u["tried"].setdefault("KV", {"ok": False, "reasons": ["표 구조 해석 실패"], "result": None})
         u["tried"].setdefault("SUM", {"ok": False, "reasons": ["표 구조 해석 실패"], "result": None})
+        u["tried"].setdefault("AREA", {"ok": False, "reasons": ["표 구조 해석 실패"], "result": None})
 
     # 성취기준 코드 앞부분 -> 과목명 대응표를 학습. 학교 단위로 한 표씩만 세고(같은 학교 반복 억제),
     # 서로 다른 학교 3곳 이상이 같은 과목을 가리키고 70% 이상 일치할 때만 믿는다.

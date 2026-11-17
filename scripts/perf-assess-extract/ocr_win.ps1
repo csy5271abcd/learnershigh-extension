@@ -1,6 +1,6 @@
 # Windows 내장 OCR(Windows.Media.Ocr, 한국어)로 이미지 글자를 읽는다. 설치 없이 동작.
 # 사용: powershell -NoProfile -ExecutionPolicy Bypass -File ocr_win.ps1 <이미지 경로> [<이미지 경로> ...]
-# 출력: 이미지마다 "===FILE <경로>" 줄 뒤에 인식한 줄들 (UTF-8)
+# 출력: 이미지마다 "===FILE <경로>" 줄 뒤에 인식한 줄들 (UTF-8). OCR_WORDS=1 이면 단어마다 "W x y w h 글자"
 param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Paths)
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -26,6 +26,14 @@ foreach ($p in $Paths) {
     $bitmap = Await ($decoder.GetSoftwareBitmapAsync()) ([Windows.Graphics.Imaging.SoftwareBitmap])
     $result = Await ($engine.RecognizeAsync($bitmap)) ([Windows.Media.Ocr.OcrResult])
     Write-Output "===FILE $p"
-    foreach ($line in $result.Lines) { Write-Output $line.Text }
+    foreach ($line in $result.Lines) {
+        if ($env:OCR_WORDS -eq '1') {
+            # 단어마다 위치: "W x y 너비 높이 글자" (표 칸 복원용)
+            foreach ($w in $line.Words) {
+                $r = $w.BoundingRect
+                Write-Output ("W {0} {1} {2} {3} {4}" -f [int]$r.X, [int]$r.Y, [int]$r.Width, [int]$r.Height, $w.Text)
+            }
+        } else { Write-Output $line.Text }
+    }
     $stream.Dispose()
 }

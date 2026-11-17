@@ -3,6 +3,7 @@
 table = {"rows", "cols", "cells": [{"r","c","rs","cs","text"}], "page": int|None, "ctx": 표 앞 본문 텍스트(최대 400자)}
 grid(table) -> 2차원 리스트 (병합 셀 값은 병합 범위 전체에 복제)
 """
+import os
 import re
 import struct
 import zipfile
@@ -142,6 +143,23 @@ def hwpx_tables(path):
 
 
 # ---------- PDF ----------
+OCR_SCANNED = os.environ.get("NO_OCR") != "1"
+
+
+def _ocr_page_grid(page):
+    """스캔 쪽 그림 → 표 칸. paste_parse 의 표 선 복원 + OCR(Windows 내장 또는 Tesseract)을 쓴다. 실패하면 None."""
+    import tempfile
+    try:
+        import paste_parse
+        with tempfile.TemporaryDirectory() as td:
+            p = os.path.join(td, "page.png")
+            page.get_pixmap(dpi=200).save(p)
+            words = paste_parse._ocr_words(p)
+            return paste_parse.grid_from_image(p, words) if words else None
+    except Exception:  # noqa: BLE001 - OCR 실패는 그 쪽만 건너뛴다
+        return None
+
+
 def pdf_tables(path):
     import pymupdf
     tables = []
@@ -153,6 +171,12 @@ def pdf_tables(path):
             found = page.find_tables().tables
         except Exception:  # noqa: BLE001
             found = []
+        if not found and OCR_SCANNED and not page.get_text().strip():
+            g = _ocr_page_grid(page)   # 스캔 쪽: 표 선으로 칸을 복원하고 OCR 글자를 넣는다
+            if g:
+                tables.append({"rows": len(g), "cols": max(len(r) for r in g), "page": pno + 1, "ctx": prev_tail[-CTX_LEN:],
+                               "cells": [{"r": r, "c": c, "rs": 1, "cs": 1, "text": v} for r, row in enumerate(g) for c, v in enumerate(row) if v],
+                               "ocr": True})
         for tb in found:
             y0 = tb.bbox[1]
             above = [b[4] for b in blocks if b[3] <= y0 + 1]
