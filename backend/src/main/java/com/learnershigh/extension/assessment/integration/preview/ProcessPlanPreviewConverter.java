@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * LibreOffice(headless) + H2Orestart로 HWP·HWPX → PDF (A25). 두 가지 실행 방식:
  * <ul>
- *   <li>{@code docker}: {@code docker run --rm --network none --memory --cpus} 일회용 컨테이너(tools/plan-preview-converter). 네트워크 차단.</li>
+ *   <li>{@code docker}: {@code docker run --rm --network none --memory --cpus} 일회용 컨테이너(이미지: resources/assessment/preview-converter/Dockerfile, A26 자동 준비). 네트워크 차단.</li>
  *   <li>{@code soffice}: 같은 프로그램이 설치된 서버(예: Backend Docker 이미지)에서 직접 실행.</li>
  * </ul>
  * 안전: 원본 파일명은 쓰지 않고 임시 폴더의 {@code source.hwp|hwpx}로만 넘긴다(명령 삽입 방지, 셸 없이 인자 목록 실행).
@@ -33,16 +33,17 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
 
     private final Mode mode;
     private final String executable;
-    private final String dockerImage;
+    private final ConverterImageProvisioner images;
     private final Duration timeout;
     private final long maxSourceBytes;
     private final Semaphore slots;
 
-    public ProcessPlanPreviewConverter(Mode mode, String executable, String dockerImage, Duration timeout,
+    /** images: DOCKER 방식의 이미지 준비(A26 자동 준비). SOFFICE 방식은 null */
+    public ProcessPlanPreviewConverter(Mode mode, String executable, ConverterImageProvisioner images, Duration timeout,
             long maxSourceBytes, int maxConcurrent) {
         this.mode = mode;
         this.executable = executable;
-        this.dockerImage = dockerImage;
+        this.images = images;
         this.timeout = timeout;
         this.maxSourceBytes = maxSourceBytes;
         this.slots = new Semaphore(Math.max(1, maxConcurrent));
@@ -55,7 +56,7 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
 
     @Override
     public String id() {
-        return mode == Mode.DOCKER ? "docker:" + dockerImage : "soffice";
+        return mode == Mode.DOCKER ? "docker:" + images.image() : "soffice";
     }
 
     List<String> command(Path work, String extension) {
@@ -63,7 +64,7 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
         if (mode == Mode.DOCKER) {
             command.addAll(List.of(executable, "run", "--rm", "--network", "none", "--memory", "1g", "--cpus", "2",
                     "--pids-limit", "256", "-v", work.resolve("in").toAbsolutePath() + ":/work/in:ro",
-                    "-v", work.resolve("out").toAbsolutePath() + ":/work/out", dockerImage, "in/source." + extension));
+                    "-v", work.resolve("out").toAbsolutePath() + ":/work/out", images.image(), "in/source." + extension));
         } else {
             command.addAll(List.of(executable, "-env:UserInstallation=" + work.resolve("profile").toUri(), "--headless",
                     "--norestore", "--nolockcheck", "--convert-to", "pdf", "--outdir", work.resolve("out").toString(),
@@ -79,6 +80,14 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
         }
         if (source.length == 0 || source.length > maxSourceBytes) {
             return Result.failure("source_too_large");
+        }
+        if (mode == Mode.DOCKER && !images.readyOrStart()) {
+            // 이미지 준비 전(처음 한 번 만드는 중·Docker 꺼짐·Build 실패) — 일시 원인이라 실패로 기록하지 않는다
+            return Result.failure(switch (images.state()) {
+                case DOCKER_UNAVAILABLE -> "docker_unavailable";
+                case BUILD_FAILED -> "converter_image_failed";
+                default -> "converter_preparing";
+            });
         }
         boolean acquired = false;
         Path work = null;

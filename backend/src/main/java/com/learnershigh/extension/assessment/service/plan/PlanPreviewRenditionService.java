@@ -61,8 +61,7 @@ public class PlanPreviewRenditionService {
                 Files.createDirectories(cacheRoot);
                 if (!result.ok()) {
                     // 일시적인 원인(바쁨·실행 불가·중단)은 기록하지 않아 다음 요청에서 다시 시도한다
-                    if (!result.failure().equals("busy") && !result.failure().equals("converter_unavailable")
-                            && !result.failure().equals("interrupted")) {
+                    if (!TRANSIENT.contains(result.failure())) {
                         Files.writeString(failed, result.failure(), StandardCharsets.UTF_8);
                     }
                     throw failure(result.failure());
@@ -87,7 +86,24 @@ public class PlanPreviewRenditionService {
         }
     }
 
+    /** 일시 원인: 실패로 기록하지 않아 다음 요청에서 다시 시도한다 */
+    static final java.util.Set<String> TRANSIENT = java.util.Set.of("busy", "converter_unavailable", "interrupted",
+            "converter_preparing", "docker_unavailable", "converter_image_failed");
+
     private static BusinessException failure(String reason) {
+        switch (reason) {
+            case "converter_preparing":
+                return new BusinessException(AssessmentErrorCode.PLAN_PREVIEW_PREPARING,
+                        "PDF 변환기를 처음 준비하고 있어요(한 번만, 몇 분 걸려요). 잠시 후 다시 열어 주세요.");
+            case "docker_unavailable":
+                return new BusinessException(AssessmentErrorCode.PLAN_PREVIEW_PREPARING,
+                        "PDF 변환기를 쓰려면 Docker가 실행 중이어야 해요. Docker Desktop을 켠 뒤 다시 열어 주세요.");
+            case "converter_image_failed":
+                return new BusinessException(AssessmentErrorCode.PLAN_PREVIEW_PREPARING,
+                        "PDF 변환기를 준비하지 못했어요. 잠시 후 다시 시도하고, 계속되면 Backend 로그를 확인해 주세요.");
+            default:
+                break;
+        }
         return new BusinessException(AssessmentErrorCode.PLAN_PREVIEW_FAILED,
                 "원문을 PDF로 변환하지 못했어요(" + reason + "). 원본을 내려받아 한글 프로그램에서 확인해 주세요.");
     }

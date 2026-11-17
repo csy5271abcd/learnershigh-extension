@@ -18,3 +18,4 @@ assessment:
   preview:
     converter:
       mode: none
+      auto-provision: false

@@ -112,7 +112,7 @@ function OriginalBody({ planId, file, page, onPageChange }: { planId: string; fi
   if (preview?.kind === 'error') {
     return (
       <p className={styles.unsupported} role="alert" data-testid="plan-original-error">
-        {converted && preview.status === 422 ? `${file.documentFormat} 문서를 미리보기로 바꾸지 못했어요. 원본을 내려받아 한글 프로그램에서 열어 주세요.` : `원문을 불러오지 못했어요. ${preview.message}`}
+        {converted && preview.status === 422 ? `${file.documentFormat} 문서를 미리보기로 바꾸지 못했어요. 원본을 내려받아 한글 프로그램에서 열어 주세요.` : converted && preview.status === 503 ? `미리보기를 준비하고 있어요. 잠시 후 다시 열거나 원본을 내려받아 확인해 주세요.` : `원문을 불러오지 못했어요. ${preview.message}`}
       </p>
     )
   }

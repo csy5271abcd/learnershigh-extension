@@ -76,6 +76,9 @@ export default defineConfig({
         // A10: 합성 수신 JSON(HWPX Locator·다과목 PDF)을 넣으려고 이 일회용 E2E Backend에서만 켠다. 애플리케이션 기본값은 계속 false다.
         ASSESSMENT_ANALYSIS_IMPORT_ENABLED: 'true',
         ASSESSMENT_MULTIFORMAT_EXPERIMENTAL: 'true',
+        // A26: 변환기 기본값이 docker(자동 이미지 준비)라, 시험에서는 끄고 '변환기 미설정(415)' 경로를 확인한다
+        ASSESSMENT_PREVIEW_CONVERTER: 'none',
+        ASSESSMENT_PREVIEW_CONVERTER_AUTO_PROVISION: 'false',
       },
     },
     {
