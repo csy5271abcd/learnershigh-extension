@@ -147,9 +147,10 @@ def _merge(d, k, k2):
     d[k2]["how"] |= d[k]["how"]; d[k2]["files"] |= d[k]["files"]; del d[k]
 
 
-def build(tables, units=None, schools=None, dic_tables=None):
+def build(tables, units=None, schools=None, dic_tables=None, dic=None):
     raw = _raw(tables, schools)
-    dic = dictionary(_raw(dic_tables, None)) if dic_tables else dictionary(raw)
+    if dic is None:
+        dic = dictionary(_raw(dic_tables, None)) if dic_tables else dictionary(raw)
     for u in (units or []) if os.environ.get("USE_UNITS", "0") == "1" else []:
         if schools and u["school"] not in schools or not u.get("subject"):
             continue

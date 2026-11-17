@@ -2,7 +2,35 @@
 
 학교알리미 공시 "교과별(학년별) 교수·학습 및 평가계획" 파일을 받아, AI·OCR 없이 규칙으로 과목 목록과 수행평가 표를 뽑는 조사용 스크립트다. 서비스 코드가 아니라 정확도 측정과 재현을 위한 것이다. 결과와 과정은 `docs/design/perf-assess-plan-extraction-report-2026-11-17.html`에 정리했다.
 
-## 흐름
+## 학교 하나 돌리기
+
+```bash
+python run_school.py OUT 신원고등학교 없는이름고등학교 --semester 2
+```
+
+```text
+■ 신원고등학교 → 신원고등학교  [OK]  과목 60개
+■ 없는이름고등학교 → -  [ERROR]  과목 0개
+   오류 SCHOOL_NOT_FOUND: 학교를 찾을 수 없습니다. 학교 이름을 확인해 주세요.
+```
+
+결과는 `OUT/<학교>.result.json`(상태, 메시지, 과목·근거·경고)으로도 남는다.
+
+| 코드 | 수준 | 뜻 |
+| --- | --- | --- |
+| `SCHOOL_NOT_FOUND` | 오류 | 학교알리미에서 학교를 못 찾음 |
+| `SCHOOL_AMBIGUOUS` | 주의 | 같은 이름 학교 여러 곳, 첫 번째로 진행 |
+| `PLAN_NOT_PUBLISHED` | 오류 | 평가계획 공시 항목·첨부 없음 |
+| `DOWNLOAD_FAILED` | 오류 | 재시도 후에도 받기 실패 |
+| `SEMESTER_MISSING` | 오류 | 요청 학기 자료 없음 (예: 1학기 자료만 공시) |
+| `SCANNED_FILE` | 주의/오류 | 글자 없는 스캔본 (읽을 파일이 하나도 없으면 오류) |
+| `UNREADABLE_FILE` | 주의 | 지원하지 않는 형식 |
+| `NO_SUBJECTS` | 오류 | 파일은 읽었지만 과목을 못 찾음 |
+| `NAME_CHECK` | 과목 경고 | 과목 사전에 없고 근거가 약한 이름 — 과목명 확인 필요 |
+
+과목 사전은 `subject_dictionary.json`(조사 표본에서 2개 학교 이상에 나온 과목 이름 542개)이다.
+
+## 단계별로 돌리기 (측정용)
 
 ```bash
 # 1) 수도권 일반고·자율고 목록 (학교알리미 지도 API + NEIS schoolInfo 유형 확인, 키 없음)
