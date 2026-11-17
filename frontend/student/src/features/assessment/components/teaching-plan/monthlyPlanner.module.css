@@ -661,3 +661,49 @@
   color: var(--as-color-text-secondary);
   font-size: 12.5px;
 }
+
+/* ---- A26 주차 임시 배치 · 상세 모달 ---- */
+.event[data-tentative] {
+  border-style: dashed;
+  background: var(--as-color-surface);
+}
+
+.dayList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.whenTable {
+  margin: 4px 0 8px;
+}
+
+.tentativeNote {
+  display: block;
+  margin-top: 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.closeButton {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 상세는 모달 안에서 보이므로 옆 패널 고정 위치를 쓰지 않는다 */
+.detail {
+  position: static;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}

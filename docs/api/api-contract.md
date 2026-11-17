@@ -484,6 +484,7 @@ GET /api/student/assessment/evaluation-plans/{planId}/teaching-plan
 - 응답: `{ planId, documentRevisionId, academicYear, grade, semester, status: CONFIRMED|NOT_CONFIRMED, confirmedAt, rows:[{ subjectId, rowKey, month, monthTo, weekLabel, weekFrom, weekTo, unit, content, note, achievementStandards, teachingMethods, assessmentMethods, specialSchedule, schedule, pdfPageNumber }] }`. 확정 전이면 `status = NOT_CONFIRMED`, `rows = []`(문서는 보이지만 운영계획은 아직 없음 — 오류가 아니다).
 - `pdfPageNumber`: 행 근거의 첫 PDF 쪽(Viewer 이동용). HWP·HWPX 근거 위치는 보내지 않는다(M-5).
 - 날짜: 원문에 적힌 만큼만(`schedule.precision`). 화면은 연도를 추정하지 않는다(학년도 3~12월 = 그 해, 1~2월은 날짜 칸 없음). 운영계획 행을 공식 수행평가 일정으로 바꾸지 않는다.
+- **주차 임시 배치 (A26, 2026-11-17 사용자 결정 — 화면 전용, 계약 Shape 변경 없음)**: `n월 m주`(WEEK_IN_MONTH, 학기 누적 주차 아님) 행은 그 달 달력(일요일 시작)의 m번째 줄 안의 날짜(월~금 우선, 과목명·id 순 결정적 분산)에 '임시 배치'로 표시한다. m~k주는 줄마다 한 번. 줄이 없거나 연도 미확정 달·학기 주차·시기 미정은 배치하지 않는다. 표시 날짜는 **저장·전송하지 않으며** 수행평가 마감·시험일·알림의 근거가 아니다. 화면은 원문 시기와 표시 날짜를 구분해 보여 준다(관리자·학생 같은 함수 `teachingPlanPlacement.tentativeWeekDates`).
 
 ## 10-2. 개인 문서 업로드
 

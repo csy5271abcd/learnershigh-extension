@@ -1,7 +1,8 @@
 // 월별 교수·학습 운영 계획 배치 규칙 (순수 함수, Student 조회·Admin 검토 공용).
 // 데이터: analysis-import-0.3 DRAFT 운영계획 행(api-contract.md §39-3)과 학생 확정 행(§10-1-2). 시간 정밀도 8종을 그대로 쓴다.
 // - 원문에 없는 날짜를 만들지 않는다: 주차는 주차 줄, 월은 월 줄, 학기 누적 주차(TERM_WEEK)는 학사력(개학일)이 없으므로 날짜로 바꾸지 않는다.
-// - "n주"는 학교가 정한 주차다. ISO 주·일요일/월요일 시작 주로 날짜를 환산하지 않는다.
+// - "n주"는 학교가 정한 주차다. A26(2026-11-17 사용자 결정): 화면에서는 그 달 달력(일요일 시작)의 n번째 줄 날짜에 "임시 배치"로 보여 준다
+//   (tentativeWeekDates — 표시용, 저장하지 않음, 원문 시기는 그대로). ISO 주·학사력으로 날짜를 확정하지 않는다.
 // - 연도: 원문에 명시된 연도(calendarYear)가 있으면 그 연도. 없으면 학년도 Y의 3~12월은 Y년(학년도 정의), 1~2월은 날짜 칸을 그리지 않는다.
 // - 달을 정할 수 없는 행(TERM_WEEK·WEEK_UNRESOLVED·UNKNOWN에 월 없음)도 버리지 않고 따로 모은다. 앞뒤 행의 월로 채우지 않는다.
 
@@ -187,12 +188,14 @@ export interface DayCell {
   day: number
   iso: string
   entries: TeachingPlanEntry[]
+  /** entries 중 '주차 기준 임시 배치'로 이 칸에 놓인 계획 id (원문 날짜가 아님) */
+  tentativeIds: string[]
 }
 
 export interface MonthPlacement {
   year: number | null
   month: number
-  /** 날짜 칸 (year가 있을 때만). null = 앞뒤 빈 칸 (일요일 시작 표시는 화면 배치일 뿐 주차 계산에 쓰지 않는다) */
+  /** 날짜 칸 (year가 있을 때만). null = 앞뒤 빈 칸. 일요일 시작 7칸 줄 = A26 임시 배치의 '달력 주차' */
   cells: (DayCell | null)[]
   /** 그 달의 N주 (WEEK_IN_MONTH) */
   weekBands: { week: number; entries: TeachingPlanEntry[] }[]
@@ -204,6 +207,8 @@ export interface MonthPlacement {
   undated: TeachingPlanEntry[]
   /** 이 달에 보이는 계획 수 */
   total: number
+  /** A26 주차 기준 임시 배치: 계획 id → 이 달 달력에 표시한 날짜(YYYY-MM-DD, 복수 주차면 주마다 하나). 저장하지 않는 표시용 */
+  tentativeDates: Record<string, string[]>
 }
 
 const order = (month: number) => academicMonths.indexOf(month)
@@ -239,6 +244,54 @@ function bands(list: TeachingPlanEntry[]): { week: number; entries: TeachingPlan
   return [...weeks].sort(([a], [b]) => a - b).map(([week, entries]) => ({ week, entries }))
 }
 
+/** 'n월 m주' 단위 계획인가 (학기 누적 주차는 아님). 주차 기준이 미확인(WEEK_UNRESOLVED)이어도 월·주가 있으면 달 안의 주로 본다 */
+export function isMonthWeek(entry: TeachingPlanEntry): boolean {
+  if (entry.month == null || entry.weekFrom == null) return false
+  if (entry.precision === 'WEEK_IN_MONTH') return entry.weekScope !== 'TERM_SEQUENCE'
+  return entry.precision === 'WEEK_UNRESOLVED' && entry.weekScope !== 'TERM_SEQUENCE'
+}
+
+/** 달력 줄(일요일 시작): rows[k] = (k+1)번째 줄의 이 달 날짜들. 다른 달 날짜는 들어가지 않는다 */
+export function calendarWeekRows(cells: (DayCell | null)[]): DayCell[][] {
+  const rows: DayCell[][] = []
+  for (let start = 0; start < cells.length; start += 7) rows.push(cells.slice(start, start + 7).filter((cell): cell is DayCell => cell !== null))
+  return rows
+}
+
+/**
+ * 주차 계획의 임시 표시 날짜 (A26). 규칙:
+ * - m주 → 그 달 달력의 m번째 줄 안의 날짜만. 줄이 없으면 배치하지 않는다.
+ * - 줄 안에서는 월~금(이 달 날짜)을 쓰고, 없으면(주말만 있는 첫·마지막 줄) 그 줄의 이 달 날짜를 쓴다.
+ * - 같은 줄의 계획을 (과목명, id) 순으로 정렬해 차례로 나눠 놓는다(난수 없음 → 다시 계산해도 같은 날짜).
+ * - 'm~k주'는 m~k번째 줄마다 한 번씩 표시한다(기간 표시, 원문 행은 하나 그대로).
+ */
+export function tentativeWeekDates(entries: TeachingPlanEntry[], cells: (DayCell | null)[]): Record<string, string[]> {
+  const rows = calendarWeekRows(cells)
+  const result: Record<string, string[]> = {}
+  const perRow = new Map<number, TeachingPlanEntry[]>()
+  for (const entry of entries.filter(isMonthWeek)) {
+    const from = entry.weekFrom as number
+    const to = entry.weekTo != null && entry.weekTo >= from ? entry.weekTo : from
+    for (let week = from; week <= to; week++) {
+      if (week < 1 || week > rows.length) continue
+      perRow.set(week, [...(perRow.get(week) ?? []), entry])
+    }
+  }
+  for (const [week, list] of perRow) {
+    const row = rows[week - 1]
+    const weekdays = row.filter((cell) => {
+      const day = new Date(`${cell.iso}T00:00:00`).getDay()
+      return day >= 1 && day <= 5
+    })
+    const slots = weekdays.length ? weekdays : row
+    const sorted = [...list].sort((a, b) => a.subjectName.localeCompare(b.subjectName, 'ko') || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    sorted.forEach((entry, index) => {
+      result[entry.id] = [...(result[entry.id] ?? []), slots[index % slots.length].iso]
+    })
+  }
+  return result
+}
+
 export function placeEntries(entries: TeachingPlanEntry[], academicYear: number, month: number): MonthPlacement {
   const here = entries.filter((entry) => monthsOf(entry).includes(month))
   const isDated = (entry: TeachingPlanEntry) => entry.precision === 'EXACT_DATE' || entry.precision === 'DATE_RANGE'
@@ -254,17 +307,31 @@ export function placeEntries(entries: TeachingPlanEntry[], academicYear: number,
     for (let blank = 0; blank < firstWeekday; blank++) cells.push(null)
     for (let day = 1; day <= days; day++) {
       const iso = `${year}-${pad(month)}-${pad(day)}`
-      cells.push({ day, iso, entries: dated.filter((entry) => inRange(entry, iso)) })
+      cells.push({ day, iso, entries: dated.filter((entry) => inRange(entry, iso)), tentativeIds: [] })
     }
     while (cells.length % 7 !== 0) cells.push(null)
   }
   const placedDated = year === null ? [] : dated.filter((entry) => cells.some((cell) => cell && cell.entries.includes(entry)))
-  const weekBands = bands(here.filter((entry) => entry.precision === 'WEEK_IN_MONTH' && entry.weekFrom != null))
+  // A26 (2026-11-17 사용자 결정): 'n월 m주'는 그 달 달력(일요일 시작)의 m번째 줄 날짜에 임시 배치한다(표시용, 저장 안 함).
+  // 줄이 없으면(예: 5주가 없는 달) 배치하지 않고 주차 줄에 남긴다. 학기 주차(TERM_WEEK)는 학사력이 없어 그대로.
+  const tentativeDates = year === null ? {} : tentativeWeekDates(here, cells)
+  for (const [id, dates] of Object.entries(tentativeDates)) {
+    const entry = here.find((candidate) => candidate.id === id) as TeachingPlanEntry
+    for (const iso of dates) {
+      const cell = cells.find((candidate) => candidate?.iso === iso)
+      if (cell) {
+        cell.entries.push(entry)
+        cell.tentativeIds.push(id)
+      }
+    }
+  }
+  const weekBands = bands(here.filter((entry) => isMonthWeek(entry) && !tentativeDates[entry.id]))
   const termWeekBands = bands(here.filter((entry) => entry.precision === 'TERM_WEEK' && entry.weekFrom != null))
   const monthSummary = here.filter((entry) => entry.precision === 'MONTH' || entry.precision === 'MONTH_RANGE')
-  const placed = new Set([...placedDated, ...weekBands.flatMap((band) => band.entries), ...termWeekBands.flatMap((band) => band.entries), ...monthSummary])
+  const placedTentative = here.filter((entry) => tentativeDates[entry.id])
+  const placed = new Set([...placedDated, ...placedTentative, ...weekBands.flatMap((band) => band.entries), ...termWeekBands.flatMap((band) => band.entries), ...monthSummary])
   const undated = here.filter((entry) => !placed.has(entry))
-  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length }
+  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length, tentativeDates }
 }
 
 /** 과목마다 고정 색 번호 (0~5). 상태 색이 아니라 과목 구분용 점에만 쓴다 */

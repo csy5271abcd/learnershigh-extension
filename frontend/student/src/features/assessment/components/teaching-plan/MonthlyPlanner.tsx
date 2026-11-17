@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '../AssessmentIcons.tsx'
+import { ChevronLeftIcon, ChevronRightIcon } from '../AssessmentIcons.tsx'
+import { Modal } from '../Modal.tsx'
 import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
 import styles from './monthlyPlanner.module.css'
 
@@ -14,7 +15,9 @@ const todayIso = () => {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
-const MAX_PER_DAY = 2
+/** A26: 날짜 칸에 보이는 일정 수 — 넓은 화면 4개, 좁은 화면 3개. 나머지는 '+N개' */
+const maxPerDay = () => (typeof window !== 'undefined' && window.matchMedia('(max-width: 1280px)').matches ? 3 : 4)
+const dateLabel = (iso: string) => `${Number(iso.slice(0, 4))}년 ${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`
 
 export interface MonthlyPlannerProps {
   academicYear: number
@@ -36,6 +39,8 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   // 좁은 화면은 주차 목록을 기본으로 (7열 Grid가 너무 좁다)
   const [view, setView] = useState<'calendar' | 'list'>(() => (typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches ? 'list' : 'calendar'))
   const [selected, setSelected] = useState<TeachingPlanEntry | null>(null)
+  const [dayList, setDayList] = useState<string | null>(null)
+  const [perDay] = useState(maxPerDay)
   const visible = entries.filter((entry) => !hidden.has(entry.subjectName))
   const placement = placeEntries(visible, academicYear, month)
   const unplaced = unplacedEntries(visible)
@@ -90,7 +95,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   ]
 
   return (
-    <div className={styles.planner} data-detail={selected ? 'true' : undefined} data-testid="monthly-planner">
+    <div className={styles.planner} data-testid="monthly-planner">
       <aside className={styles.side} aria-label="월·과목 선택">
         <div>
           <p className={styles.sideLabel}>
@@ -192,9 +197,9 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
               </p>
             ) : (
               <>
-              {placement.cells.every((cell) => !cell || cell.entries.length === 0) && placement.total > 0 && (
+              {Object.keys(placement.tentativeDates).length > 0 && (
                 <p className={styles.gridNote} data-testid="planner-grid-note">
-                  이 달 계획은 원문에 날짜가 아니라 월·주차로 적혀 있어 위 &lsquo;이 달 · n주&rsquo; 줄에 모았어요. 학교 주차를 날짜로 바꾸지 않아요.
+                  &lsquo;n월 m주&rsquo; 계획은 이 달력의 m번째 줄(일요일 시작) 날짜에 <strong>임시로</strong> 나눠 보여 줘요. 학교 학사력의 주차·실제 수업일과 다를 수 있고, 날짜를 저장하지 않아요.
                 </p>
               )}
               <div className={styles.grid} role="grid" aria-label={`${placement.year}년 ${month}월 달력`}>
@@ -207,24 +212,28 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                   cell ? (
                     <div key={cell.iso} className={styles.day} role="gridcell" data-weekday={index % 7} data-today={cell.iso === todayIso() || undefined}>
                       <span className={styles.dayNo}>{cell.day}</span>
-                      {cell.entries.slice(0, MAX_PER_DAY).map((entry) => (
+                      {cell.entries.slice(0, perDay).map((entry) => (
                         <button
                           key={entry.id}
                           type="button"
                           className={styles.event}
                           aria-pressed={selected?.id === entry.id}
                           data-candidate={mode === 'admin' && entry.status === 'CANDIDATE' ? 'true' : undefined}
+                          data-tentative={cell.tentativeIds.includes(entry.id) || undefined}
                           onClick={() => setSelected(entry)}
-                          title={`${entry.subjectName} · ${short(entry)}`}
+                          title={`${entry.subjectName} · ${short(entry)}${cell.tentativeIds.includes(entry.id) ? ` (${whenLabel(entry)} · 임시 배치)` : ''}`}
                           data-testid="planner-event"
+                          data-date={cell.iso}
                         >
                           <span className={styles.dot} data-c={color(entry)} />
-                          <span>{short(entry)}</span>
+                          <span>
+                            {entry.subjectName} · {short(entry)}
+                          </span>
                         </button>
                       ))}
-                      {cell.entries.length > MAX_PER_DAY && (
-                        <button type="button" className={styles.more} onClick={() => setSelected(cell.entries[MAX_PER_DAY])}>
-                          +{cell.entries.length - MAX_PER_DAY}개
+                      {cell.entries.length > perDay && (
+                        <button type="button" className={styles.more} onClick={() => setDayList(cell.iso)} data-testid="planner-more">
+                          +{cell.entries.length - perDay}개
                         </button>
                       )}
                     </div>
@@ -273,7 +282,35 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
         )}
       </section>
 
-      {selected && <EntryDetail entry={selected} mode={mode} colorIndex={color(selected)} onClose={() => setSelected(null)} onOpenSource={onOpenSource} />}
+      {dayList && !selected && (
+        <Modal compact title={`${dateLabel(dayList)} 계획`} onRequestClose={() => setDayList(null)} footer={<button type="button" className={styles.sourceButton} onClick={() => setDayList(null)}>닫기</button>}>
+          <ul className={styles.dayList} data-testid="planner-day-list">
+            {(placement.cells.find((cell) => cell?.iso === dayList)?.entries ?? []).map((entry) => (
+              <li key={entry.id}>
+                <button type="button" className={styles.listItem} onClick={() => setSelected(entry)} data-testid="planner-day-list-item">
+                  <span className={styles.dot} data-c={color(entry)} />
+                  <span style={{ minWidth: 0 }}>
+                    <strong>
+                      {entry.subjectName} · {short(entry)}
+                    </strong>
+                    <span className={styles.sub}>{whenLabel(entry)}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Modal>
+      )}
+      {selected && (
+        <EntryDetail
+          entry={selected}
+          mode={mode}
+          colorIndex={color(selected)}
+          shownDates={placement.tentativeDates[selected.id] ?? null}
+          onClose={() => setSelected(null)}
+          onOpenSource={onOpenSource}
+        />
+      )}
     </div>
   )
 }
@@ -282,12 +319,15 @@ function EntryDetail({
   entry,
   mode,
   colorIndex,
+  shownDates,
   onClose,
   onOpenSource,
 }: {
   entry: TeachingPlanEntry
   mode: 'student' | 'admin'
   colorIndex: string
+  /** A26: 주차 기준 임시 배치로 이 달 달력에 표시한 날짜(원문 날짜 아님). 원문 날짜·월 단위면 null */
+  shownDates: string[] | null
   onClose: () => void
   onOpenSource?: (page: number) => void
 }) {
@@ -303,18 +343,49 @@ function EntryDetail({
     )
   }
   return (
-    <aside className={styles.detail} aria-label="계획 상세" data-testid="planner-detail">
-      <button type="button" className={styles.close} onClick={onClose} aria-label="상세 닫기">
-        <CloseIcon size={16} />
-      </button>
+    <Modal
+      title={`${entry.subjectName} · 교수·학습 운영계획`}
+      onRequestClose={onClose}
+      footer={
+        <>
+          <button type="button" className={styles.closeButton} onClick={onClose} data-testid="planner-detail-close">
+            닫기
+          </button>
+          <button
+            type="button"
+            className={styles.sourceButton}
+            disabled={!entry.sourcePdfPageNumber || !onOpenSource}
+            onClick={() => entry.sourcePdfPageNumber && onOpenSource?.(entry.sourcePdfPageNumber)}
+            data-testid="planner-open-source"
+          >
+            {entry.sourcePdfPageNumber ? `원문 근거 보기 (${entry.sourcePdfPageNumber}쪽)` : '원문 쪽 정보 없음'}
+          </button>
+        </>
+      }
+    >
+    <div className={styles.detail} data-testid="planner-detail">
       <span className={styles.detailSubject}>
         <span className={styles.dot} data-c={colorIndex} />
         {entry.subjectName}
       </span>
       <h5>{entry.unit ?? '단원 미확인'}</h5>
-      <span className={styles.when} data-testid="planner-detail-when">
-        {whenLabel(entry)} · {precisionLabel[entry.precision]} 단위{entry.asWritten ? ` · 원문 “${entry.asWritten}”` : ''}
-      </span>
+      <dl className={styles.whenTable}>
+        <div className={styles.field}>
+          <dt>운영 시기(원문)</dt>
+          <dd data-testid="planner-detail-when">
+            {whenLabel(entry)} · {precisionLabel[entry.precision]} 단위{entry.asWritten ? ` · 원문 “${entry.asWritten}”` : ''}
+          </dd>
+        </div>
+        {shownDates && shownDates.length > 0 && (
+          <div className={styles.field} data-testid="planner-detail-tentative">
+            <dt>달력 표시 날짜</dt>
+            <dd>
+              {shownDates.map(dateLabel).join(', ')}
+              <span className={styles.tentativeNote}>주차 기준 임시 배치 · 실제 수업일 미확정 · 저장되지 않는 표시용 날짜</span>
+            </dd>
+          </div>
+        )}
+      </dl>
       {mode === 'admin' && (
         <p className={styles.statusLine} data-tone={entry.status === 'CONFIRMED' ? 'neutral' : undefined}>
           {entry.status === 'CONFIRMED' ? '확정됨 · 학생에게 공개' : `분석 후보 · 검토 필요${entry.missingFields.length ? ` (읽지 못한 칸 ${entry.missingFields.length}개)` : ''}`}
@@ -329,15 +400,7 @@ function EntryDetail({
         {field('특별 일정', entry.specialSchedule, 'specialSchedule')}
         {field('비고', entry.note, 'note')}
       </dl>
-      <button
-        type="button"
-        className={styles.sourceButton}
-        disabled={!entry.sourcePdfPageNumber || !onOpenSource}
-        onClick={() => entry.sourcePdfPageNumber && onOpenSource?.(entry.sourcePdfPageNumber)}
-        data-testid="planner-open-source"
-      >
-        {entry.sourcePdfPageNumber ? `원문 ${entry.sourcePdfPageNumber}쪽 보기` : '원문 쪽 정보 없음'}
-      </button>
-    </aside>
+    </div>
+    </Modal>
   )
 }
