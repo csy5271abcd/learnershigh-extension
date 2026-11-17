@@ -22,8 +22,8 @@
 | 7 | 과목 ID 제거 | **PASS** | Select·확정 체크리스트·검토 표에서 기술 ID 제거 |
 | 8 | 최종 확정 파일 선택 UI | **PASS** | 카드형 선택(버튼+끌어 놓기), 대조 규칙 그대로 |
 | 9 | PDF AI 분석 버튼 제거 | **PASS** | 버튼·Route·화면·미사용 API 함수 제거, 등록 분석 보존 |
-| 10 | 기존 기능 보존 | **PASS** | Stub E2E 23/23, Railway 4/4, Student Care IT 85/85(단독), Node 92/92 — Student Care Playwright는 CI(§24) |
-| 11 | 회귀·사용자 실행 준비 | **PARTIAL** | 전체 IT 1회차 80건 환경 실패(컨테이너 기동) → 단독 재실행 통과. 가이드 갱신 |
+| 10 | 기존 기능 보존 | **PASS** | Stub E2E 23/23, Railway 4/4, Student Care IT 85/85(단독), Node 92/92, GitHub CI Backend·E2E(Student Care 인수) success |
+| 11 | 회귀·사용자 실행 준비 | **PASS** | 로컬 전체 IT 80건 환경 실패(컨테이너 기동) → 단독 재실행 85/85, GitHub CI 전체 IT·E2E success. 가이드 갱신 |
 
 ## 1. 시작 Git 상태
 
@@ -299,9 +299,20 @@ A24 설정 그대로다(토큰은 YAML만, 덮어쓰기 무시 로그 확인). �
 | `dc7e9fe` | 근거 위치와 함께 열 때 구조 탭 + E2E 갱신 |
 | (이 보고서) | A25 보고서 |
 
-## 29~30. Push · CI · PR
+## 29. Push · CI
 
-(Push·CI·PR 갱신 후 기록)
+`59c4a2f..d74f975` Fast-forward(Force 없음, Push 직전 원격 일치 확인). 원격 `main` `c03a1a4` 그대로.
+**GitHub CI — `d74f975`에서 모두 success**(push·pull_request 2회):
+- Harness ×2, Frontend ×2.
+- **Backend ×2**: Testcontainers 전체 Integration. 로컬 환경 실패 80건은 재현되지 않았다.
+- **E2E (Playwright) ×2**: Student Care X′ 인수 + Admin Shell.
+- CI Result ×2.
+
+이 기록을 담은 문서 Commit은 그 뒤에 Push된다(CI 미확인 Commit).
+
+## 30. PR #17
+
+본문 맨 위에 A25 절을 추가했다(PARTIAL 이유 포함). 제목 유지, **Draft 유지**, Merge·Ready 전환 없음.
 
 ## 31. 사용자 직접 확인 필요
 
