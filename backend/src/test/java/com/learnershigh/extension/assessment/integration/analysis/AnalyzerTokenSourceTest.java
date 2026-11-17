@@ -72,6 +72,7 @@ class AnalyzerTokenSourceTest {
         app.setEnvironment(new FakeEnvironment(env, sys));
         app.setLogStartupInfo(false);
         List<String> args = new ArrayList<>(List.of(extraArgs));
+        args.add("--assessment.analyzer.mode=http");   // 이 시험은 외부 분석기(http) 방식의 토큰 규칙을 본다 (기본은 서버 안 분석 local)
         if (mainOnly) args.add("--spring.config.location=classpath:/application.yml");
         ConfigurableApplicationContext context = app.run(args.toArray(String[]::new));
         return new Built(context.getBean(PlanAnalyzerClient.class), context);

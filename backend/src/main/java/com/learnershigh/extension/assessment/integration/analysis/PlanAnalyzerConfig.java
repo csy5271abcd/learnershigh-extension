@@ -27,6 +27,7 @@ public class PlanAnalyzerConfig {
 
     @Bean
     PlanAnalyzerClient planAnalyzerClient(
+            @Value("${assessment.analyzer.mode:local}") String mode,
             @Value("${assessment.analyzer.base-url:}") String baseUrl,
             @Value("${assessment.analyzer.connect-timeout-seconds:5}") long connectTimeoutSeconds,
             @Value("${assessment.analyzer.timeout-millis:130000}") long timeoutMillis,
@@ -34,6 +35,14 @@ public class PlanAnalyzerConfig {
             @Value("${assessment.analyzer.retry-delay-millis:500}") long retryDelayMillis,
             ConfigurableEnvironment environment,
             JsonMapper mapper) {
+        // local(기본): 서버 안에서 표를 읽어 분석한다 — 외부 분석기·토큰이 필요 없고 원문이 밖으로 나가지 않는다.
+        // http: 예전 외부 분석기(/analyze-preview) 호출. none: 분석기 미설정(503).
+        if ("local".equalsIgnoreCase(mode)) {
+            return new com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer(mapper, timeoutMillis);
+        }
+        if ("none".equalsIgnoreCase(mode)) {
+            return new UnconfiguredPlanAnalyzerClient();
+        }
         String token = AnalyzerTokenSource.resolve(environment);
         if (AnalyzerTokenSource.overrideAttempted(environment)) {
             // 값은 출력하지 않는다 — 이름만 알린다

@@ -10,6 +10,8 @@ assessment:
   multiformat:
     experimental: false
   analyzer:
+    # 시험 기본값: 분석기 미설정(503) 경로를 그대로 시험한다. 서버 안 분석기 시험은 properties 로 mode=local 을 준다
+    mode: none
     base-url: ""
     token: ""
     version: v21.1
