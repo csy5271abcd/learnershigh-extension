@@ -1,0 +1,122 @@
+[
+ {
+  "id": "9d97d88e-0fc5-435b-86d3-04b62fc6c317",
+  "name": "양일고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "94bd916b-c7da-413b-b26c-96c5b1b90eac",
+  "name": "숙명여자고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "7334aee9-119c-4735-8a26-d5e582e146be",
+  "name": "경복고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "0fc9d0f0-fb30-4ee9-a00a-8eab46dba570",
+  "name": "경문고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "728aaab3-38a8-4b01-bf75-fe10eb65b8e2",
+  "name": "교하고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "46bd5c05-56ce-4c70-800a-ec13892b87d0",
+  "name": "사우고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "0aee3f1b-3020-49f5-a145-8def149b6535",
+  "name": "인천운남고등학교",
+  "region": "인천",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "ffd5b5e6-74ca-43e2-ad98-5e89f6a50e52",
+  "name": "광남고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "2758ed25-a598-46ae-91bd-79358897cb59",
+  "name": "소래고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "5936a985-6437-4141-b791-bcc1df5e4037",
+  "name": "광신고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "f6d0d487-1a04-46eb-be26-7b396698b4e0",
+  "name": "화곡고등학교",
+  "region": "서울",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "3b8ee35d-2c26-4145-82ee-f4eca6e3a666",
+  "name": "역곡고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "6859068b-5fb0-4164-8c47-07e0a4822018",
+  "name": "동백고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "6c4733a9-355f-4148-8fbc-7e0061daefb1",
+  "name": "남한고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "f7c02ce2-5d09-4fa9-a05d-0253458af6b2",
+  "name": "상일고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "f56d4a05-262c-4a0a-b303-666955907fd0",
+  "name": "창의고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "159cdf7a-69c0-4062-b6ec-9edb74c03cae",
+  "name": "청평고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "e0f9d93d-b1c9-4829-8764-54fdd8fbfd60",
+  "name": "서연고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "2f7bd0a7-4158-461b-8deb-3d35c5ca6a3d",
+  "name": "저현고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ },
+ {
+  "id": "9544070f-7acb-4d0c-a7cd-7a17a8a3e2cb",
+  "name": "불곡고등학교",
+  "region": "경기",
+  "hs_type": "일반고"
+ }
+]

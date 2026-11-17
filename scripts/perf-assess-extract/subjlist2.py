@@ -151,8 +151,10 @@ def _raw(tables, schools):
                 k = skey(v2)
                 if len(k) < 2 or re.fullmatch(r"[가-힣]{1,5}\d{4,6}", k):
                     continue
-                e = res[sc].setdefault(k, {"name": v2, "how": set(), "files": set()})
+                e = res[sc].setdefault(k, {"name": v2, "how": set(), "files": set(), "pages": set()})
                 e["how"].add(how); e["files"].add(fname)
+                if how in ("A", "B", "S") and isinstance(r.get("page"), int):
+                    e.setdefault("pages", set()).add((fname, r["page"]))   # 과목이 시작되는 쪽 (평가표를 쪽 순서로 붙일 때 씀)
     return res
 
 
@@ -166,7 +168,8 @@ def dictionary(raw):
 
 
 def _merge(d, k, k2):
-    d[k2]["how"] |= d[k]["how"]; d[k2]["files"] |= d[k]["files"]; del d[k]
+    d[k2]["how"] |= d[k]["how"]; d[k2]["files"] |= d[k]["files"]
+    d[k2].setdefault("pages", set()).update(d[k].get("pages") or set()); del d[k]
 
 
 def build(tables, units=None, schools=None, dic_tables=None, dic=None):

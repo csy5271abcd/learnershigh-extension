@@ -224,7 +224,8 @@ def run(cli, query, out, semester=2):
         warn = []
         if dic and k not in dic and not (e["how"] & {"A", "S"}):
             warn.append({"code": "NAME_CHECK", "text": TEXT["NAME_CHECK"]})
-        res["subjects"].append({"name": e["name"], "evidence": sorted(e["how"]), "files": sorted(e["files"]), "warnings": warn})
+        res["subjects"].append({"name": e["name"], "evidence": sorted(e["how"]), "files": sorted(e["files"]), "warnings": warn,
+                                "_pages": sorted(e.get("pages") or [])})
     have = set(entries)
     for k, e in sorted(ocr_found.items(), key=lambda kv: kv[1]["name"]):   # 스캔 파일에서만 나온 과목
         if k not in have:
@@ -237,6 +238,8 @@ def run(cli, query, out, semester=2):
     for n in toc_miss:   # 목차에만 있는 과목은 후보로 넣고 확인 필요 표시
         res["subjects"].append({"name": n, "evidence": ["T"], "files": [], "warnings": [{"code": "NAME_CHECK", "text": "목차에서만 확인 — 확인 필요"}]})
     attach_values(res, units, toc_pages(use, res.get("school") or query))
+    for s in res["subjects"]:
+        s.pop("_pages", None)
     res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED", "FILE_NO_SUBJECTS", "TOC_MISSING") for m in res["messages"]) else "OK"
     return res
 
@@ -260,17 +263,74 @@ def gate_units(tpath):
     return units
 
 
+NOT_ITEM = re.compile(r"^(서\s*[ㆍ·･]?\s*논술형?|논술형|선택형|단답형|구술형?|그\s*외(\s*유형)?.*|서\s*[ㆍ·･]?\s*논술형?\s*.*형|소계|합계|계|총점|"
+                      r"학기말\s*반영\s*비율.*|반영\s*비율|중간(고사|평가)?|기말(고사|평가)?|정기\s*시험|지필(평가)?|수행\s*평가\s*환산.*|"
+                      r"듣기|말하기|읽기|쓰기|어휘|문법|\d+|없음|-|수행\s*\d+)$")
+CODE = re.compile(r"^\[?\s*\d{1,2}\s*[가-힣ⅠⅡ]{1,6}\s*\d?\s*-?\s*\d{2}\s*-\s*\d{2}")
+
+
+def _clean(result):
+    """게이트 결과 정리: 항목이 아닌 칸 제거, 병합 칸으로 두 번 읽힌 항목 합치기, 상대 비율 환산, 지필 비율 재계산.
+    반환: (정리된 결과, 검증 사유 목록, 적용한 정리 목록)"""
+    import copy
+    r = copy.deepcopy(result)
+    notes = []
+    items = r.get("items") or []
+    keep = [it for it in items if not (NOT_ITEM.match(re.sub(r"\s+", " ", (it.get("label") or "").strip()))
+                                       or CODE.match((it.get("label") or "").strip()))]
+    if len(keep) != len(items):
+        notes.append("항목이 아닌 칸 제외")
+    items = keep
+    sig = [(re.sub(r"\s", "", it.get("label") or ""), it.get("weightPercent")) for it in items]
+    if items and len(items) % 2 == 0 and all(sig.count(x) == 2 for x in sig):
+        seen, uniq = set(), []
+        for it, s in zip(items, sig):
+            if s not in seen:
+                seen.add(s); uniq.append(it)
+        items = uniq; notes.append("두 번 읽힌 항목 합침")
+    ws = [it.get("weightPercent") for it in items]
+    perf, exam = r.get("perf_total"), r.get("exam_total")
+    if items and all(w is not None for w in ws):
+        s = sum(ws)
+        mismatch = False
+        if perf is None and 0 < s <= 100:
+            perf = s; notes.append("수행 총비율을 항목 합으로")
+        elif perf is not None and abs(perf - s) > 0.6 and abs(s - 100) > 0.6:
+            mismatch = True   # 항목을 덜 읽었을 수 있으니 자동 보정하지 않음
+        if not mismatch and perf is not None and (exam is None or abs(exam + perf - 100) > 0.6):
+            exam = round(100 - perf, 2); notes.append("지필 비율 = 100 - 수행")
+    else:
+        mismatch = False
+    r["items"], r["perf_total"], r["exam_total"] = items, perf, exam
+    reasons = ["항목 비율 합 불일치"] if mismatch else []
+    if not items:
+        reasons.append("수행 항목 없음")
+    elif any(w is None for w in (it.get("weightPercent") for it in items)):
+        reasons.append("항목 비율 빠짐")
+    if perf is None or not (0 < perf <= 100):
+        reasons.append("수행 총비율 없음")
+    return r, reasons, notes
+
+
 def _best(u):
-    """검증을 통과한 게이트 결과가 있으면 그것, 없으면 결과가 있는 첫 게이트(검증 실패 사유와 함께)."""
+    """게이트 결과를 정리한 뒤 검증을 통과한 첫 결과, 없으면 정리 전 결과 중 첫 결과(검증 실패 사유와 함께)."""
     for f in FAMILIES:
         t = u["tried"].get(f) or {}
         if t.get("ok"):
-            return t["result"], []
+            r, reasons, notes = _clean(t["result"])
+            if not reasons:
+                return r, [], notes
     for f in FAMILIES:
         t = u["tried"].get(f) or {}
         if t.get("result"):
-            return t["result"], t.get("reasons") or []
-    return None, ["표 구조 해석 실패"]
+            r, reasons, notes = _clean(t["result"])
+            if not reasons:
+                return r, [], notes
+    for f in FAMILIES:
+        t = u["tried"].get(f) or {}
+        if t.get("result"):
+            return t["result"], t.get("reasons") or ["표 해석 실패"], []
+    return None, ["표 구조 해석 실패"], []
 
 
 TOC_PAGE = re.compile(r"(?:^|\s)\d{1,2}\s*[.)]\s*([가-힣][^·…\n]{1,26}?)\s*[·…\.]{2,}\s*(\d{1,3})(?=\s|$)")
@@ -314,13 +374,13 @@ def attach_values(res, units, tocs=None):
     keyed = [(SL.skey(s["name"]), s) for s in res["subjects"]]
     unnamed = []
     for u in units:
-        result, reasons = _best(u)
+        result, reasons, notes = _best(u)
         if not result:
             continue
         val = {"examPercent": result.get("exam_total"), "performancePercent": result.get("perf_total"),
                "items": [{"name": it.get("label") or f"수행 {n}", "weightPercent": it.get("weightPercent"), "maxScore": it.get("maxScore")}
                          for n, it in enumerate(result.get("items") or [], 1)],
-               "source": f"{os.path.basename(u['file'].replace(chr(92), '/'))} p.{u.get('page')}", "check": reasons}
+               "source": f"{os.path.basename(u['file'].replace(chr(92), '/'))} p.{u.get('page')}", "check": reasons, "notes": notes}
         k = SL.skey(SL.ok_name(u.get("subject") or "", res.get("school") or "") or u.get("subject") or "")
         target = next((s for kk, s in keyed if k and sim(k, kk)), None) if k else None
         fname = os.path.basename(u["file"].replace(chr(92), "/"))
@@ -337,6 +397,16 @@ def attach_values(res, units, tocs=None):
                         keyed.append((tk, target))
                 if target is not None:
                     val["source"] += " (목차 쪽수로 과목 판단)"
+        if target is None and isinstance(u.get("page"), int):
+            # 같은 파일에서 이 표보다 앞쪽에서 시작한 과목 중 가장 가까운 과목 (과목 머리 → 평가표 순서)
+            best = None
+            for s in res["subjects"]:
+                for f2, p2 in s.get("_pages") or []:
+                    if f2 == fname and p2 <= u["page"] and (best is None or p2 > best[0]):
+                        best = (p2, s)
+            if best and u["page"] - best[0] <= 40:
+                target = best[1]
+                val["source"] += " (쪽 순서로 과목 판단)"
         if target is None:
             unnamed.append(val); continue
         old = target.get("evaluation")
