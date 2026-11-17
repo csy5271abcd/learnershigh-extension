@@ -1369,7 +1369,34 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 
 `decision=CONFIRM`은 **공통 평가정보 확인**이지 학생 과제 승인/반려가 아니다. PDF 비율 합계가 원본과 다르면 경고하며 자동 재배분하지 않는다. 확인 결과의 공개 범위는 학교·학년도·학년·학기로 제한된다. 추출 실패/부분 성공/수동 정정·확인 상태를 구분한다.
 
+### 38-11. 학교알리미에서 평가계획서 불러오기 (2026-11-18 DRAFT — 구현됨)
+
+`POST /api/admin/assessment/evaluation-plans/import-from-schoolinfo` (평가계획서 운영 권한, §38-2)
+
+```json
+{ "schoolId": "school_001", "schoolName": "신원고등학교", "academicYear": 2026, "semester": 2, "defaultGrade": 1 }
+```
+
+- Backend가 학교알리미(schoolinfo.go.kr) 공시 항목 '교과별 교수·학습 및 평가 계획'의 첨부 파일을 받아(zip 이면 풀어서) 파일마다 §38 등록 → §39-1 서버 분석을 차례로 한다. 응답은 파일마다 결과다.
+- 학년: 파일 이름의 'N학년'. 없거나 여러 학년이면 `defaultGrade`(없으면 1). 다른 학기 파일('1학기'만 있는 이름)·평가계획이 아닌 파일(성적관리규정·부록 등)·PDF/HWP/HWPX 가 아닌 파일은 등록하지 않고 `skipped=true`·`message`로 알린다.
+- `sourceUrl`은 `https://www.schoolinfo.go.kr`로 남는다. 등록한 문서는 일반 업로드와 같다(검토·확정·삭제 동일).
+
+```json
+{ "schoolName": "신원고등학교",
+  "files": [ { "fileName": "1학년 평가계획.pdf", "grade": 1, "planId": "plan_…", "documentRevisionId": "rev_…",
+               "analysisStatus": "REVIEW_REQUIRED", "subjects": 12, "skipped": false, "message": null } ] }
+```
+
+| 상황 | 응답 |
+|---|---|
+| 학교를 못 찾음 | `404 SCHOOLINFO_SCHOOL_NOT_FOUND` |
+| 평가계획 공시·첨부 없음 | `404 SCHOOLINFO_PLAN_NOT_PUBLISHED` |
+| 학교알리미 연결 실패(일시 오류 3번 재시도 후) | `503 SCHOOLINFO_UNAVAILABLE` |
+| 파일 하나의 등록·분석 실패 | 200, 그 파일만 `message`에 사유 (다른 파일은 계속) |
+
 ### 39-1. 서버 분석 실행 (A3, 2026-11-13 구현)
+
+**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `http`: 아래 외부 분석기 방식 그대로. `none`: 분석기 미설정(503).
 
 `POST .../analysis`: 본문 없음. Backend가 보관 원문(§38-1)을 SHA-256 재검증 뒤 분석기(`POST /analyze-preview`, `X-Analysis-Token`, 환경 변수 설정)로 보내고, `backendImport.payload`를 외부 수신과 같은 검증기(backend-adapter-0.2, 알 수 없는 필드 거절)로 검사해 AnalysisRun으로 저장한다. 응답은 `GET .../analysis`와 같은 모양(`analyzer.origin = "SERVER_ANALYZER"`). `201` 새 Run / `200` 같은 내용의 Run이 이미 있음(새 Run 없음).
 

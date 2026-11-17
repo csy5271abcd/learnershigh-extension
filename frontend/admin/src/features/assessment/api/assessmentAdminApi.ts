@@ -50,6 +50,11 @@ export const uploadEvaluationPlan = useMock ? mock.uploadEvaluationPlanMock : ht
 export const addPlanRevision = useMock ? mock.addPlanRevisionMock : http.addPlanRevisionHttp
 /** §39 서버 분석 실행: http는 미구현 이유로 거절 */
 export const requestPlanAnalysis = useMock ? mock.requestPlanAnalysisMock : http.requestPlanAnalysisHttp
+/** 학교 이름으로 학교알리미 평가계획 불러오기 (등록 + 서버 분석). Mock 모드에는 학교알리미 연결이 없다. */
+export const importFromSchoolInfo = useMock
+  ? (_request: { schoolId: string; schoolName: string; academicYear: number; semester: number; defaultGrade: number | null }): Promise<import('./types.ts').SchoolInfoImportResult> =>
+      Promise.reject(new Error('Mock 모드에서는 학교알리미 불러오기를 쓰지 않아요.'))
+  : http.importFromSchoolInfoHttp
 /** 로컬 분석기 결과 수신 (PROPOSED C-10, 개발 Flag 전용). Mock 모드에는 수신 대상 Revision이 없어 연결하지 않는다. */
 export const importPlanAnalysis = useMock
   ? (_planId: string, _revisionId: string, _payload: unknown): Promise<unknown> => Promise.reject(new Error('Mock 모드에서는 분석 결과 수신을 쓰지 않아요.'))

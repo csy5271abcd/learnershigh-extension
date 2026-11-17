@@ -766,3 +766,18 @@ export interface PlanArchiveDetail {
   subjectLinks: Record<number, string>
   teachingPlan: TeachingPlanReviewView | null
 }
+
+/** 학교알리미 불러오기 결과 (POST evaluation-plans/import-from-schoolinfo). 파일마다 등록·분석 결과 또는 건너뛴 이유. */
+export interface SchoolInfoImportResult {
+  schoolName: string | null
+  files: {
+    fileName: string
+    grade: number | null
+    planId: string | null
+    documentRevisionId: string | null
+    analysisStatus: string | null
+    subjects: number | null
+    skipped: boolean
+    message: string | null
+  }[]
+}
