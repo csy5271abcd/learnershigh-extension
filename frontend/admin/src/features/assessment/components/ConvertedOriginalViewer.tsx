@@ -16,7 +16,8 @@ export function ConvertedOriginalViewer({ planId, revisionId, file, focus, onDow
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const [attempt, setAttempt] = useState(0)
   const [page, setPage] = useState(1)
-  const [tab, setTab] = useState<'pdf' | 'structure'>('pdf')
+  // 근거 위치와 함께 열면 처음부터 '분석용 구조' 탭(변환 PDF 쪽을 추측하지 않는다)
+  const [tab, setTab] = useState<'pdf' | 'structure'>(focus && file.structurePreviewAvailable ? 'structure' : 'pdf')
   const [lastFocus, setLastFocus] = useState(focus)
   if (focus !== lastFocus) {
     // 분석 근거로 이동 요청 → 위치를 정확히 보여 줄 수 있는 구조 탭으로 (쪽 번호로 추측하지 않는다)

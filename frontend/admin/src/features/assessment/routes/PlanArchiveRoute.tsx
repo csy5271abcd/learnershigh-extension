@@ -304,7 +304,7 @@ function DocumentDetail({
           {format !== 'PDF' && (
             <p className={styles.notice} data-testid="archive-hwp-notice">
               {structureViewable
-                ? `${format} 원본을 직접 읽은 화면이에요(PDF 변환 없음). ${source.focus ? '분석 근거 위치를 표시해요.' : '근거 위치 버튼을 누르면 그 칸·문단을 표시해요.'}`
+                ? `${format} 원문은 'PDF 미리보기'(변환본)로 보고, 분석 근거 위치는 '분석용 구조' 탭에서 확인해요. ${source.focus ? '근거 위치를 표시했어요.' : '근거 위치 버튼을 누르면 그 칸·문단을 표시해요.'}`
                 : `${format} 원문은 앱 안에서 미리 볼 수 없어요. 내려받아 한글 프로그램으로 확인해 주세요.`}
             </p>
           )}
