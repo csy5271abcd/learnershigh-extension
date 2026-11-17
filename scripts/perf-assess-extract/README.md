@@ -26,9 +26,16 @@ python run_school.py OUT 신원고등학교 없는이름고등학교 --semester 
 | `SCANNED_FILE` | 주의/오류 | 글자 없는 스캔본 (읽을 파일이 하나도 없으면 오류) |
 | `UNREADABLE_FILE` | 주의 | 지원하지 않는 형식 |
 | `NO_SUBJECTS` | 오류 | 파일은 읽었지만 과목을 못 찾음 |
+| `OCR_USED` | 주의 | 스캔본을 Windows 내장 OCR(한국어)로 읽어 과목을 찾음 — 과목명 확인 필요 |
+| `FILE_NO_SUBJECTS` | 주의 | 표가 있는데 과목을 하나도 못 찾은 파일 — 빠진 과목이 있을 수 있음 |
+| `TOC_MISSING` | 주의 | 목차에는 있는데 결과에 없는 과목 (이름 표시) |
 | `NAME_CHECK` | 과목 경고 | 과목 사전에 없고 근거가 약한 이름 — 과목명 확인 필요 |
 
 과목 사전은 `subject_dictionary.json`(조사 표본에서 2개 학교 이상에 나온 과목 이름 542개)이다.
+
+OCR은 `ocr_win.ps1`이 Windows 내장 OCR(Windows.Media.Ocr, 한국어)을 PowerShell로 부른다. 설치가 필요 없지만 Windows에서만 동작하고, 스캔 PDF 1쪽에 약 0.6초 걸린다. 끄려면 `NO_OCR=1`. 서버(Linux)에 올릴 때는 다른 OCR 엔진으로 바꿔야 한다.
+
+`capture_screens.py`는 Playwright로 학교알리미 학교 상세·평가계획 공시 항목 화면을 캡처한다 (보고서용).
 
 ## 단계별로 돌리기 (측정용)
 

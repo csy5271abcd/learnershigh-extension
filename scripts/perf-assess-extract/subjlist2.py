@@ -16,14 +16,15 @@ import gates  # noqa: E402
 
 SEP = r"\s*[․·ㆍ‧･・∙⦁]?\s*"
 END = r"(?![은는을이의에])"
-LEAD = r"(?:2\s*\)?\s*학기|\(?\s*[123]\s*\)?\s*학년|^|\s[1-3I]\s)"
+LEAD = r"(?:2\s*\)?\s*학기|\(?\s*[123]\s*\)?\s*학년|학년도|^|\s[1-3I]\s|\s[1-3](?=\())"   # r4: '2026학년도 (X)과', '1(대수) 교수'
 TITLES = [
-    re.compile(LEAD + r"\s*\(?\s*([^\s\d()\[\]<>][^()\[\]<>\n]{0,24}?)\s*\)?\s*(?:과목|교과|과)?\s*교수" + SEP + r"학습\s*(?:및\s*평가\s*)?(?:운영\s*)?계획" + END),
+    # r4: 과 뒤 '2학기', 학습 뒤 '-평가' 허용 — '( 고전과 윤리)과 2학기 교수학습 및 평가계획', '( 확률과 통계 )과목 교수학습-평가 운영계획'
+    re.compile(LEAD + r"\s*\(?\s*([^\s\d()\[\]<>][^()\[\]<>\n]{0,24}?)\s*\)?\s*(?:과목|교과|과)?\s*(?:\(?\s*2\s*\)?\s*학기\s*)?교수" + SEP + r"학습\s*(?:[-‐–]\s*|및\s*)?(?:평가\s*)?(?:운영\s*)?계획" + END),
     re.compile(r"학년도\s*\(?\s*2\s*\)?\s*학기\s*(?:[^\n]{0,15}?\(?\s*[123]\s*\)?\s*학년\s*)?\(?\s*([^\s\d()\[\]<>][^()\[\]<>\n]{0,24}?)\s*\)?\s*(?:과목\s*)?평가\s*(?:운영\s*)?계획" + END),
     re.compile(r"(?:^|\s)[가-하]\s*\.\s*([^\s\d()][^()\n]{1,24}?)\s*\(\s*[123]\s*학년\s*\)"),   # '가. 공통국어2(1학년)' 목록형 제목
     re.compile(r"[\[<「]\s*([^\[\]<>「」\n]{2,25}?)\s*[\]>」]\s*(?:과목|교과)?\s*(?:-\s*[ⅠⅡ\d]\s*)?(?:교수|평가)"),
 ]
-GROUP = re.compile(r"(국어|국어한문|수학|영어|사회|역사|도덕|사회역사|일반사회|과학|과학정보|과학기술|예체능|예술|체육|체육예술|음악미술|기술가정정보|생활교양|교양|외국어|제2외국어|직업)과?")
+GROUP = re.compile(r"(국어|국어한문|수학|영어|사회|역사|도덕|사회역사|일반사회|과학|과학정보|과학기술|예체능|예술|체육|체육예술|예술체육|음악미술|기술가정정보|생활교양|교양|외국어|제2외국어|직업)과?")
 NOISE = re.compile(r"※|■|위의|^획|피드백|전략$|교과목|^첨부\d*$|^본문$|^붙임|^별첨|^활용$|\d+\s*(점|등급)$|학기\s*\d$|수립된|^관찰$|범교과|^(말하기|읽기|쓰기|듣기)$|듣기\s*,|단위|단계|분할|산출|해당\s*없음|합본|\d\s*반|반\s*\d|00$|○|^[가-힣]\d?$|[가-힣]{1,4}\d{4,6}$")
 
 
@@ -55,6 +56,7 @@ def ok_name(v, sc):
     v = re.sub(r"\.(hwpx?|pdf|docx?)$", "", v, flags=re.I)
     v = re.sub(r"[<>「」『』]", " ", v).strip(" _-")
     v = re.sub(r"\s*과목\s*\(?\s*2\s*\)?\s*학기.*$", "", v)          # '미술 감상과 비평 과목 2학기'
+    v = re.sub(r"\s*\(?\s*(?:주당\s*)?\d+\s*(?:시간|학점|단위)\s*\)?\s*$", "", v)   # r4: '경제수학 (주당 3시간)'
     v = re.sub(r"\s+\(?\s*2\s*\)?\s*학기\s*\d.*$", "", v)              # '경제 2학기 8반 이00'
     v = re.sub(r"^\d+\s*(?=[가-힣])", "", v)
     v = re.sub(r"^[가-하]\s*[.)]\s*", "", v)                          # '가. 정보A'
@@ -82,6 +84,17 @@ def ok_name(v, sc):
     if sc.endswith("고등학교") and GROUP.fullmatch(gkey(v)):
         return None
     return v
+
+
+def header_below(g):
+    """머리 행에 '학교명'과 '과목'이 함께 있으면, 그 바로 아래 행의 '과목' 열 값."""
+    for ri, row in enumerate(g[:2]):
+        cells = [re.sub(r"\s", "", c) for c in row]
+        if ("과목" in cells or "과목명" in cells) and ("학교명" in cells or "학년" in cells or "학기" in cells) and ri + 1 < len(g):   # r5: 학교명 없는 '학년|과목|학기' 머리 행
+            ci = cells.index("과목") if "과목" in cells else cells.index("과목명")
+            nxt = g[ri + 1]
+            return nxt[ci] if ci < len(nxt) and nxt[ci].strip() else None
+    return None
 
 
 def summary_subjects(g):
@@ -115,6 +128,9 @@ def _raw(tables, schools):
             a = gates.subject_from_header_table(g) if g else None
             if a:
                 cands.append((a, "A"))
+            a2 = header_below(g) if g else None   # r4: '학교명|학년|과목' 머리 행 바로 아래 값 ('수학과제탐구'를 평가 항목으로 오인하던 문제)
+            if a2 and a2 != a:
+                cands.append((a2, "A"))
             cands += [(v, "S") for v in summary_subjects(g)] if g else []
             head = (r.get("ctx") or "")[-250:] + " " + (" ".join(dict.fromkeys(g[0])) if g and g[0] else "")
             cands += [(v, "B") for v in titles_in(re.sub(r"\s+", " ", head))]
@@ -122,6 +138,9 @@ def _raw(tables, schools):
             f = gates.subject_from_filename(fn)
             if f:
                 cands.append((f, "F"))
+            m = re.search(r"계획\s*[-_]\s*[123]\s*학년\s+([^\\/]+?)\.(?:hwpx?|pdf)$", r["file"], re.I)   # r4: '…운영 계획-1학년 통합과학2.hwp'
+            if m:
+                cands.append((re.sub(r"^과목명\s*\((.+)\)$", r"\1", m.group(1).strip()), "F"))
             for v, how in cands:
                 v2 = ok_name(v, sc)
                 if not v2:

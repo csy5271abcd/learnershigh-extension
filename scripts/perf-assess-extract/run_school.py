@@ -13,9 +13,12 @@
   PLAN_NOT_PUBLISHED    평가계획 공시 항목 또는 첨부 파일 없음
   DOWNLOAD_FAILED       재시도 후에도 받기 실패
   SEMESTER_MISSING      요청 학기 자료가 없음 (예: 1학기 자료만 공시)
-  SCANNED_FILE          글자가 없는 스캔본 파일 — 캡처 업로드·직접 입력 필요
+  SCANNED_FILE          글자가 없는 스캔본 파일이고 OCR로도 과목을 못 찾음 — 캡처 업로드·직접 입력 필요
+  OCR_USED              스캔본을 Windows 내장 OCR(한국어)로 읽어 과목을 찾음 — 과목명 확인 필요 (NO_OCR=1이면 끔)
   UNREADABLE_FILE       지원하지 않는 형식이거나 열 수 없는 파일
   NO_SUBJECTS           파일은 읽었지만 과목을 찾지 못함
+  FILE_NO_SUBJECTS      표가 있는데 과목을 하나도 못 찾은 파일 — 빠진 과목이 있을 수 있음
+  TOC_MISSING           목차에는 있는데 결과에 없는 과목 (이름을 함께 보여 줌)
 과목 단위 경고 (subjects[].warnings)
   NAME_CHECK            과목 사전에 없는 이름이고 근거가 약함 — 과목명 확인 필요
 """
@@ -41,8 +44,12 @@ TEXT = {
     "SCANNED_FILE": "글자를 읽을 수 없는 스캔 파일입니다: {file}. 캡처를 올리거나 직접 입력해 주세요.",
     "UNREADABLE_FILE": "읽을 수 없는 파일입니다: {file}",
     "NO_SUBJECTS": "파일은 받았지만 과목을 찾지 못했습니다. 직접 입력해 주세요.",
+    "FILE_NO_SUBJECTS": "과목을 하나도 찾지 못한 파일이 {n}개 있습니다 ({files}). 빠진 과목이 있을 수 있으니 확인해 주세요.",
+    "TOC_MISSING": "목차에는 있지만 찾지 못한 과목 {n}개: {names}. 추가해 주세요.",
     "NAME_CHECK": "과목명 확인 필요",
+    "OCR_USED": "스캔 파일을 OCR로 읽어 과목 {n}개를 찾았습니다: {file}. OCR 결과라 과목명을 확인해 주세요.",
 }
+USE_OCR = os.environ.get("NO_OCR") != "1"
 
 
 def msg(code, level, **kw):
@@ -61,6 +68,59 @@ def first_text(path, kind):
         d = pymupdf.open(path)
         return "".join(d[i].get_text() for i in range(min(2, len(d))))
     return ""
+
+
+OCR_PS = os.path.join(HERE, "ocr_win.ps1")
+
+
+def ocr_images(paths):
+    """Windows 내장 OCR(한국어)로 이미지들을 읽어 {경로: 글자} 반환. Windows가 아니거나 실패하면 빈 dict."""
+    import subprocess
+    if os.name != "nt" or not paths:
+        return {}
+    out = {}
+    for i in range(0, len(paths), 25):
+        chunk = paths[i:i + 25]
+        try:
+            r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", OCR_PS, *chunk],
+                               capture_output=True, timeout=600)
+        except (OSError, subprocess.TimeoutExpired):
+            return out
+        cur = None
+        for line in r.stdout.decode("utf-8", "replace").splitlines():
+            if line.startswith("===FILE "):
+                cur = line[8:].strip(); out[cur] = []
+            elif cur:
+                out[cur].append(line)
+    return {k: "\n".join(v) for k, v in out.items()}
+
+
+def ocr_pdf_text(path, tmpdir):
+    """스캔 PDF 쪽마다 그림으로 바꿔 OCR. 쪽별 글자 목록."""
+    import pymupdf
+    d = pymupdf.open(path)
+    imgs = []
+    for i in range(len(d)):
+        p = os.path.join(tmpdir, f"p{i:04d}.png")
+        d[i].get_pixmap(matrix=pymupdf.Matrix(2, 2)).save(p)
+        imgs.append(p)
+    got = ocr_images(imgs)
+    return [got.get(p, "") for p in imgs]
+
+
+def ocr_subjects(page_texts, sc, dic):
+    """OCR 글자에서 과목 제목을 찾는다. OCR 오인식('2'→'기')은 사전에 있으면 고친다."""
+    found = {}
+    for t in page_texts:
+        t = re.sub(r"[\[\]{}|]", " ", t)
+        for v in SL.titles_in(re.sub(r"\s+", " ", t)):
+            v = SL.ok_name(v, sc)
+            if not v:
+                continue
+            if v.endswith("기") and SL.skey(v[:-1] + "2") in dic:
+                v = v[:-1] + "2"
+            found.setdefault(SL.skey(v), v)
+    return found
 
 
 def is_scanned(path):
@@ -93,7 +153,7 @@ def run(cli, query, out, semester=2):
     for dp, _, fs in os.walk(sdir):
         for fn in fs:
             p = os.path.join(dp, fn)
-            if fn.lower().endswith((".zip", ".json")) or "성적관리" in fn.replace(" ", ""):
+            if fn.lower().endswith((".zip", ".json")) or re.search(r"성적관리|규정", fn.replace(" ", "")):   # r5: 제규정집·평가규정 등 평가계획이 아닌 파일 제외
                 continue
             k = dump_tables.kind_of(p)
             if k:
@@ -104,7 +164,7 @@ def run(cli, query, out, semester=2):
     if sems and semester not in sems:
         res["messages"].append(msg("SEMESTER_MISSING", "error", sem=semester, have=", ".join(f"{x}학기" for x in sorted(sems))))
         return res
-    use = []
+    use, scanned = [], []
     for p, k in jobs:
         name = os.path.basename(p)
         if sems_by[p] and semester not in sems_by[p]:
@@ -112,25 +172,50 @@ def run(cli, query, out, semester=2):
         if k.startswith("other"):
             res["messages"].append(msg("UNREADABLE_FILE", "warning", file=name)); continue
         if k == "pdf" and is_scanned(p):
-            res["messages"].append(msg("SCANNED_FILE", "warning", file=name)); res["files"].append({"file": name, "state": "scanned"}); continue
+            scanned.append(p); res["files"].append({"file": name, "state": "scanned"}); continue
         use.append((p, k))
         res["files"].append({"file": name, "state": "read"})
-    if not use:
-        scanned = [m for m in res["messages"] if m["code"] == "SCANNED_FILE"]
-        if scanned:
-            for m in scanned:
+    dic = set(json.load(open(DICT_PATH, encoding="utf-8"))) if os.path.exists(DICT_PATH) else set()
+    ocr_found = {}
+    for p in scanned:
+        name = os.path.basename(p)
+        found = {}
+        if USE_OCR:
+            with tempfile.TemporaryDirectory() as td:
+                found = ocr_subjects(ocr_pdf_text(p, td), res.get("school") or query, dic)
+        if found:
+            res["messages"].append(msg("OCR_USED", "warning", file=name, n=len(found)))
+            for k, v in found.items():
+                ocr_found.setdefault(k, {"name": v, "files": set()})["files"].add(name)
+        else:
+            res["messages"].append(msg("SCANNED_FILE", "warning", file=name))
+    if not use and not ocr_found:
+        scanned_msgs = [m for m in res["messages"] if m["code"] == "SCANNED_FILE"]
+        if scanned_msgs:
+            for m in scanned_msgs:
                 m["level"] = "error"   # 읽을 파일이 하나도 없으면 스캔본이 곧 실패 원인
         else:
             res["messages"].append(msg("NO_SUBJECTS", "error"))
         return res
+    if not use:
+        for k, e in sorted(ocr_found.items(), key=lambda kv: kv[1]["name"]):
+            res["subjects"].append({"name": e["name"], "evidence": ["O"], "files": sorted(e["files"]),
+                                    "warnings": [{"code": "NAME_CHECK", "text": TEXT["NAME_CHECK"] + " (OCR)"}]})
+        res["status"] = "PARTIAL"
+        return res
 
     root = os.path.dirname(sdir)
+    n_tables, ctx_by_file = {}, {}
     with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False, encoding="utf-8") as tf:
         for p, k in use:
+            fname = os.path.basename(p)
             for row in dump_tables.work((root, p)):
                 tf.write(json.dumps(row, ensure_ascii=False).encode("utf-8", "replace").decode("utf-8") + "\n")
+                if "grid" in row:
+                    n_tables[fname] = n_tables.get(fname, 0) + 1
+                    if n_tables[fname] <= 5:
+                        ctx_by_file.setdefault(fname, []).append(row.get("ctx") or "")
         tpath = tf.name
-    dic = set(json.load(open(DICT_PATH, encoding="utf-8"))) if os.path.exists(DICT_PATH) else set()
     built = SL.build([tpath], schools=None, dic=dic or None)
     os.unlink(tpath)
     entries = next(iter(built.values()), {}) if built else {}
@@ -139,10 +224,57 @@ def run(cli, query, out, semester=2):
         if dic and k not in dic and not (e["how"] & {"A", "S"}):
             warn.append({"code": "NAME_CHECK", "text": TEXT["NAME_CHECK"]})
         res["subjects"].append({"name": e["name"], "evidence": sorted(e["how"]), "files": sorted(e["files"]), "warnings": warn})
+    have = set(entries)
+    for k, e in sorted(ocr_found.items(), key=lambda kv: kv[1]["name"]):   # 스캔 파일에서만 나온 과목
+        if k not in have:
+            res["subjects"].append({"name": e["name"], "evidence": ["O"], "files": sorted(e["files"]),
+                                    "warnings": [{"code": "NAME_CHECK", "text": TEXT["NAME_CHECK"] + " (OCR)"}]})
     if not res["subjects"]:
         res["messages"].append(msg("NO_SUBJECTS", "error")); return res
-    res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE") for m in res["messages"]) else "OK"
+    res["messages"] += missing_checks(use, res["subjects"], n_tables, ctx_by_file, sc=res.get("school") or query)
+    res["status"] = "PARTIAL" if any(m["code"] in ("SCANNED_FILE", "UNREADABLE_FILE", "OCR_USED") for m in res["messages"]) else "OK"
     return res
+
+
+TOC_LINE = re.compile(r"(?:^|\s)\d{1,2}\s*[.)]\s*([가-힣][^·…\n]{1,26}?)\s*[·…\.]{2,}\s*\d{1,3}(?=\s|$)")
+
+
+def toc_subjects(texts, sc):
+    """목차('1. 공통국어2 …… 3')에서 과목 이름. 줄 5개 이상이고 절반 이상이 과목 이름처럼 보일 때만."""
+    out = []
+    for t in texts:
+        names = [SL.ok_name(m.group(1), sc) for m in TOC_LINE.finditer(t)]
+        good = [n for n in names if n]
+        if len(names) >= 5 and len(good) >= 0.5 * len(names):
+            out += good
+    return list(dict.fromkeys(out))
+
+
+def missing_checks(use, subjects, n_tables, ctx_by_file, sc):
+    """과목이 빠졌을 수 있는 신호: 과목을 하나도 못 찾은 파일, 목차에는 있는데 결과에 없는 과목."""
+    import difflib
+    out = []
+    found_in = {}
+    for s in subjects:
+        for f in s["files"]:
+            found_in[f] = found_in.get(f, 0) + 1
+    empty = [f for f, n in n_tables.items() if n >= 3 and not found_in.get(f)]
+    if empty:
+        out.append(msg("FILE_NO_SUBJECTS", "warning", n=len(empty), files=", ".join(empty[:3]) + (" 외" if len(empty) > 3 else "")))
+    texts = []
+    for p, k in use:
+        if k == "pdf":
+            import pymupdf
+            d = pymupdf.open(p)
+            texts += [d[i].get_text() for i in range(min(4, len(d)))]
+        texts += ctx_by_file.get(os.path.basename(p), [])
+    toc = toc_subjects([re.sub(r"[ \t]+", " ", t) for t in texts], sc)
+    have = [SL.skey(s["name"]) for s in subjects]
+    sim = lambda a, b: a in b or b in a or difflib.SequenceMatcher(None, a, b).ratio() >= 0.75
+    miss = [n for n in toc if not any(sim(SL.skey(n), h) for h in have)]
+    if miss:
+        out.append(msg("TOC_MISSING", "warning", n=len(miss), names=", ".join(miss[:8]) + (" 외" if len(miss) > 8 else "")))
+    return out
 
 
 def show(r):
