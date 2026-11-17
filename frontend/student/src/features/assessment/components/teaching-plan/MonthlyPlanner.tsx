@@ -9,6 +9,11 @@ import styles from './monthlyPlanner.module.css'
 // 날짜 규칙은 teachingPlanPlacement.ts (원문에 없는 날짜를 만들지 않음).
 
 const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+/** 오늘(브라우저 날짜) — 표시용 강조·'이번 달' 이동에만 쓴다. 일정 배치에는 쓰지 않는다 */
+const todayIso = () => {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
 const MAX_PER_DAY = 2
 
 export interface MonthlyPlannerProps {
@@ -129,6 +134,16 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
           <button type="button" className={styles.navButton} onClick={() => setMonth(months[position + 1])} disabled={position >= months.length - 1} aria-label="다음 달">
             <ChevronRightIcon size={16} />
           </button>
+          <button
+            type="button"
+            className={styles.todayButton}
+            onClick={() => setMonth(Number(todayIso().slice(5, 7)))}
+            disabled={!months.includes(Number(todayIso().slice(5, 7))) || month === Number(todayIso().slice(5, 7))}
+            title={months.includes(Number(todayIso().slice(5, 7))) ? '이번 달로 이동' : '이번 달은 이 학기 밖이에요'}
+            data-testid="planner-today"
+          >
+            이번 달
+          </button>
           <h4 data-testid="planner-title">{placement.year === null ? `${academicYear}학년도 ${month}월` : `${placement.year}년 ${month}월`}</h4>
           <span className={styles.count}>{placement.total}개</span>
           <div className={styles.views} role="group" aria-label="보기 방식">
@@ -176,6 +191,12 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                 {academicYear}학년도 {month}월은 학사일정으로 실제 연도를 확인하기 전이라 날짜 칸을 그리지 않아요. 원문의 주차·월 정보만 위에 보여 줘요.
               </p>
             ) : (
+              <>
+              {placement.cells.every((cell) => !cell || cell.entries.length === 0) && placement.total > 0 && (
+                <p className={styles.gridNote} data-testid="planner-grid-note">
+                  이 달 계획은 원문에 날짜가 아니라 월·주차로 적혀 있어 위 &lsquo;이 달 · n주&rsquo; 줄에 모았어요. 학교 주차를 날짜로 바꾸지 않아요.
+                </p>
+              )}
               <div className={styles.grid} role="grid" aria-label={`${placement.year}년 ${month}월 달력`}>
                 {weekdays.map((day) => (
                   <div key={day} className={styles.weekday} role="columnheader">
@@ -184,7 +205,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                 ))}
                 {placement.cells.map((cell, index) =>
                   cell ? (
-                    <div key={cell.iso} className={styles.day} role="gridcell">
+                    <div key={cell.iso} className={styles.day} role="gridcell" data-weekday={index % 7} data-today={cell.iso === todayIso() || undefined}>
                       <span className={styles.dayNo}>{cell.day}</span>
                       {cell.entries.slice(0, MAX_PER_DAY).map((entry) => (
                         <button
@@ -203,7 +224,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                       ))}
                       {cell.entries.length > MAX_PER_DAY && (
                         <button type="button" className={styles.more} onClick={() => setSelected(cell.entries[MAX_PER_DAY])}>
-                          +{cell.entries.length - MAX_PER_DAY}개 더
+                          +{cell.entries.length - MAX_PER_DAY}개
                         </button>
                       )}
                     </div>
@@ -212,6 +233,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                   ),
                 )}
               </div>
+              </>
             )}
           </>
         ) : byWeekList.length === 0 ? (

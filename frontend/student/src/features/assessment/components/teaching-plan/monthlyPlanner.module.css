@@ -604,3 +604,60 @@
     font-size: 16px;
   }
 }
+
+/* ---- A25 달력 다듬기 (네이버 캘린더·PlanB 사용성 참고, Daglo 무채색 + 블루) ----
+   데이터 규칙은 그대로: 날짜가 있는 행만 날짜 칸, 월·주차 행은 달력 위 '종일 줄'(이 달 · n주). 학교 주차를 날짜로 바꾸지 않는다. */
+.todayButton {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.todayButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.todayButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: default;
+}
+
+.bands {
+  background: var(--as-color-subtle);
+}
+
+.band .chip {
+  border-left: 3px solid currentColor;
+}
+
+.day[data-weekday='0'] .dayNo,
+.day[data-weekday='6'] .dayNo {
+  color: var(--as-color-text-tertiary);
+}
+
+.day[data-today] .dayNo {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font-weight: 700;
+}
+
+.gridNote {
+  margin: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--as-color-line);
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
