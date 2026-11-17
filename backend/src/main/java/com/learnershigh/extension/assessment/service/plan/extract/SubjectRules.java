@@ -52,6 +52,7 @@ public final class SubjectRules {
         if (s == null) {
             return null;
         }
+        s = s.replaceAll("[\\u00A0\\u2007\\u202F\\u3000]", " ").strip();   // 줄바꿈 없는 공백·전각 공백
         Matcher m = Pattern.compile("\\(\\s*(.+?)\\s*\\)\\s*(?:과목|교과)?").matcher(s);
         if (m.matches()) {
             s = m.group(1);
@@ -81,6 +82,9 @@ public final class SubjectRules {
         }
         if (Pattern.compile("학교|부설|방송고|전교|주차|차시|^과정$|담당|교사|학급|학번|시수|단위수|학점|채점|별$|^\\d+차|평가|항목").matcher(n).find()) {
             return true;
+        }
+        if (Pattern.compile("범교과|창의적체험|자율활동|동아리|봉사활동|진로활동|학교자율|교육과정|운영계획|안전교육").matcher(n).find()) {
+            return true;   // 교과가 아닌 교육활동 이름
         }
         if (n.matches("제2외국어|교양|전문교과|공통과목|선택과목|일반선택|진로선택|융합선택|기초교과|탐구교과|체육예술|생활교양|전문일반")) {
             return true;

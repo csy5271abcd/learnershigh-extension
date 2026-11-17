@@ -66,9 +66,10 @@ public final class PdfTables {
             @Override
             protected void writeString(String text, List<TextPosition> positions) {
                 for (TextPosition t : positions) {
-                    if (!t.getUnicode().isBlank() || t.getUnicode().equals(" ")) {
+                    String u = t.getUnicode() == null ? "" : t.getUnicode().replaceAll("\\p{Cntrl}", "");   // 글꼴의 NUL 등 제어 문자
+                    if (!u.isEmpty() && (!u.isBlank() || u.equals(" "))) {
                         out.add(new Glyph(t.getXDirAdj(), t.getYDirAdj() - t.getHeightDir(), t.getWidthDirAdj(),
-                                t.getHeightDir(), t.getUnicode()));
+                                t.getHeightDir(), u));
                     }
                 }
             }
