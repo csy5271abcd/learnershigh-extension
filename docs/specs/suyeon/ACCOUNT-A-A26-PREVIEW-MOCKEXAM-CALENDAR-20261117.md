@@ -176,9 +176,20 @@ Student Care 제품 코드 변경은 0이다.
 | `1c47240` | 실행 가이드 |
 | (이 보고서) | A26 보고서 |
 
-## 38~39. Push · CI · PR
+## 38. Push · CI
 
-(Push·CI·PR 갱신 후 기록)
+`890a5f0..fde4085` Fast-forward(Force 없음, Push 직전 원격 일치 확인). 원격 `main`은 `c03a1a4` 그대로.
+**GitHub CI — `fde4085`에서 모두 success**(push·pull_request 2회):
+- Harness ×2, Frontend ×2.
+- **Backend ×2**: 전체 Unit·Integration.
+- **E2E (Playwright) ×2**: Student Care 인수 + Admin Shell. 변환기 `none`으로 Build 없음.
+- CI Result ×2.
+
+이 기록 Commit은 그 뒤에 Push된다(CI 미확인).
+
+## 39. PR #17
+
+본문 맨 위에 A26 절을 추가했다. Draft 유지, Merge·Ready 전환 없음.
 
 ## 40. 사용자 직접 확인 항목
 
