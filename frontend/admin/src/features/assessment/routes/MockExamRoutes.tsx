@@ -15,7 +15,7 @@ import { MockExamAiPanel } from '../ai/MockExamAiPanel.tsx'
 import { examLine, mockExamSubjectName, mockExamSubjects } from '../api/canonicalSource.ts'
 import type { AdminMockExamMaterial, PublishState } from '../api/types.ts'
 import { DetailHead, ListEmpty, PublishBadge, RemoteView, SearchBox } from '../components/AdminParts.tsx'
-import { AlertIcon, InfoIcon, PlusIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
+import { AlertIcon, InfoIcon, MockExamPassage, PlusIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
 import { dateTimeLabel, nextToastId, splitList } from '../model/adminFormat.ts'
 import { useCommand, useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
@@ -293,9 +293,7 @@ export function MockExamDetailRoute({ materialId }: { materialId: string }) {
                     <Section title="모의고사 지문 원문 (관리자 전용)">
                       {item.adminPassage.text ? (
                         <>
-                          <pre className={styles.passageView} tabIndex={0} aria-label="모의고사 지문 원문" data-testid="passage-view">
-                            {item.adminPassage.text}
-                          </pre>
+                          <MockExamPassage passage={item.adminPassage.text} examTitle={material.research?.examTitle ?? ''} questionLabel={material.research?.questionLabel ?? ''} collapsible={false} />
                           <p className={styles.hint}>
                             {item.adminPassage.text.length.toLocaleString()}자 · {item.adminPassage.origin === 'ADMIN_INPUT' ? '관리자 입력' : '로컬 개발 파일'}
                             {item.adminPassage.updatedAt ? ` · ${dateTimeLabel(item.adminPassage.updatedAt)} 저장` : ''} · 학생에게 자동 공개하지 않아요 ·{' '}

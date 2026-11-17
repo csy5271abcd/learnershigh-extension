@@ -25,7 +25,7 @@ import {
 } from '../api/canonicalSource.ts'
 import type { ReferenceAreaKey, ReferenceSourceCategory, UniversityExamDocument } from '../api/canonicalSource.ts'
 import { DetailHead, ListEmpty, SearchBox } from '../components/AdminParts.tsx'
-import { EmptyState, ExamQuestionNavigator, InfoIcon, PdfViewer } from '../components/canonicalUi.ts'
+import { EmptyState, ExamQuestionNavigator, InfoIcon, MockExamPassage, PdfViewer } from '../components/canonicalUi.ts'
 import { fileSizeLabel } from '../model/adminFormat.ts'
 import { officialSourceOf, universityOfficialSources } from '../model/universityOfficialSources.ts'
 import styles from '../styles/assessmentAdmin.module.css'
@@ -308,18 +308,8 @@ export function StaticMockExamDetail({ materialId }: { materialId: string }) {
             <Meta label="원본 쪽" value={research ? `${research.originalFileName} · ${research.pdfPage}` : '—'} />
           </dl>
           <Section title="원문 지문 (시험 자료 원문)">
-            {research?.passage ? (
-              <>
-                <pre className={styles.passageView} tabIndex={0} aria-label="모의고사 지문 원문" data-testid="passage-view">
-                  {research.passage}
-                </pre>
-                <p className={styles.hint}>시험 자료에서 발췌한 원문이에요. 표·그림은 원본 시험 PDF에서 확인하세요. 로컬 개발 파일이 있을 때만 보여요.</p>
-              </>
-            ) : (
-              <p className={styles.mockNotice} data-testid="passage-empty">
-                <InfoIcon size={14} /> 원문 미포함 · 원문 지문은 배포 권한을 확인하기 전이라 이 환경에 포함되지 않았어요. 위 시험·문항·쪽 정보로 원본 시험지를 확인해 주세요.
-              </p>
-            )}
+            {/* A26: 원문 지문은 텍스트 데이터(PDF 아님) — 학생과 같은 컴포넌트 */}
+            <MockExamPassage passage={research?.passage} examTitle={research?.examTitle ?? ''} questionLabel={research?.questionLabel ?? ''} collapsible={false} />
           </Section>
           <p className={styles.hint} style={{ marginTop: 14 }}>
             아래는 LearnersHigh 학습용 제안이며 출제기관 공식 해설이 아니에요.

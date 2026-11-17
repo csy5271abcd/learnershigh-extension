@@ -10,6 +10,7 @@ export { EmptyState, ErrorState, LoadingRows } from '../../../../../student/src/
 export { Toast, type ToastMessage } from '../../../../../student/src/features/assessment/components/Toast.tsx'
 export * from '../../../../../student/src/features/assessment/components/AssessmentIcons.tsx'
 export { PdfViewer } from '../../../../../student/src/features/assessment/components/university/PdfViewer.tsx'
+export { MockExamPassage } from '../../../../../student/src/features/assessment/components/enrichment/MockExamPassage.tsx'
 // 학생 Assessment 화면 전체를 읽기 전용으로 그리는 Viewer (요청 ⑧, P-28). Router는 Viewer 안에서만 산다
 export { AssessmentReadOnlyViewer } from '../../../../../student/src/features/assessment/routes/AssessmentReadOnlyViewer.tsx'
 export { ExamQuestionNavigator } from '../../../../../student/src/features/assessment/components/university/ExamQuestionNavigator.tsx'

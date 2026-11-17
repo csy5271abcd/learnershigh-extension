@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link, useLocation, useParams } from 'react-router'
 import { getMockExamMaterial } from '../api/enrichmentApi.ts'
 import { ChevronLeftIcon, InfoIcon } from '../components/AssessmentIcons.tsx'
 import { EnrichmentFrame } from '../components/enrichment/EnrichmentFrame.tsx'
+import { MockExamPassage } from '../components/enrichment/MockExamPassage.tsx'
 import styles from '../components/enrichment/enrichment.module.css'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { mockExamSourceLabel, mockExamSubjectName } from '../model/enrichmentView.ts'
@@ -21,7 +22,6 @@ export function MockExamMaterialDetailRoute() {
   const { materialId = '' } = useParams()
   const location = useLocation()
   const material = useApiQuery(`ae-material|${materialId}`, () => getMockExamMaterial(materialId))
-  const [passageOpen, setPassageOpen] = useState(false)
   const item = material.data?.materialId === materialId ? material.data : undefined
 
   const frame = (content: ReactNode) => (
@@ -83,21 +83,8 @@ export function MockExamMaterialDetailRoute() {
             원문 지문
           </h3>
           {/* 원본 텍스트 그대로 (국어 2단 편집 행바꿈 포함). 길면 스크롤, "전체 펼치기"로 잘림 없이 볼 수 있다. */}
-          {research.passage ? (
-            <>
-              <pre className={mockStyles.passage} data-expanded={passageOpen} tabIndex={0} aria-label={`${item.idea.coreMaterial} 원문 지문`}>
-                {research.passage}
-              </pre>
-              <button type="button" className={mockStyles.expandButton} aria-expanded={passageOpen} onClick={() => setPassageOpen(!passageOpen)}>
-                {passageOpen ? '원문 접기' : '원문 전체 펼치기'}
-              </button>
-            </>
-          ) : (
-            <p className={mockStyles.passageMissing}>
-              <InfoIcon size={14} />
-              원문 미포함 · 원문 지문은 배포 권한을 확인하기 전이라 이 환경에 포함되지 않았어요. 아래 시험·문항·쪽 정보로 원본 시험지를 확인해 주세요.
-            </p>
-          )}
+          {/* A26: 원문 지문은 텍스트 데이터(PDF 아님). 글자·줄바꿈 그대로, 없으면 이유별 안내 */}
+          <MockExamPassage passage={research.passage} examTitle={research.examTitle} questionLabel={research.questionLabel} />
           <dl className={mockStyles.sourceTable} aria-label="시험 출처">
             <dt>시험</dt>
             <dd>{research.examTitle}</dd>
