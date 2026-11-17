@@ -98,33 +98,38 @@ $env:ASSESSMENT_STORAGE_ROOT        = "$env:USERPROFILE\.learnershigh-extension\
 # 주소·프로필·Timeout 등 다른 ASSESSMENT_ANALYZER_* 는 환경 변수가 있으면 YAML보다 우선한다 — 남은 덮어쓰기 이름만 확인:
 Get-ChildItem Env:ASSESSMENT_ANALYZER_*, Env:ASSESSMENT_ANALYSIS_*, Env:ASSESSMENT_MULTIFORMAT_* -ErrorAction SilentlyContinue | Where-Object Name -ne 'ASSESSMENT_ANALYZER_TOKEN' | Select-Object Name
 
-# HWP·HWPX 원문 PDF 미리보기 변환(A25). 먼저 §4-1에서 변환기 이미지를 한 번 만든다. 설정하지 않으면 미리보기 대신 '원본 내려받기' 안내가 나온다
-$env:ASSESSMENT_PREVIEW_CONVERTER = 'docker'
+# HWP·HWPX 원문 PDF 미리보기 변환기: 설정할 것이 없다(A26 — 기본 켬, 이미지는 Backend가 자동 준비, §4-1).
+# 예전에 넣은 ASSESSMENT_PREVIEW_CONVERTER 가 이 창에 남아 있으면 지운다(값이 none이면 변환이 꺼진다):
+Remove-Item Env:ASSESSMENT_PREVIEW_CONVERTER -ErrorAction SilentlyContinue
 
 # 설정하지 않는 것: ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV (HWP·HWPX 공식 확정 보호 — 기본 false 유지)
 ```
 
-### 4-1. HWP·HWPX 미리보기 변환기 (A25, 처음 한 번)
+### 4-1. HWP·HWPX 미리보기 변환기 (A26 — 자동 준비, 명령 입력 없음)
 
 HWP·HWPX 원문은 서버가 PDF로 변환해 PDF Viewer로 보여 준다. 변환기는 LibreOffice(무료, MPL-2.0) + H2Orestart 0.8.0(무료, GPL-3.0 — HWP 5.x·HWPX 읽기 확장)을 넣은 Docker 이미지다. **한컴오피스 등 유료 프로그램은 쓰지 않는다.** 변환은 네트워크를 끊은 일회용 컨테이너에서 한 파일씩 하며, 문서를 외부로 보내지 않는다.
 
+- **할 일: Docker Desktop만 켜 둔다.** `docker build`·환경 변수 입력은 필요 없다.
+- Backend가 기동 직후(기동은 기다리지 않음) Docker를 확인하고, 이미지 `lh-plan-preview-converter:<Dockerfile 해시 12자>`가 없으면 **백그라운드로 한 번 만든다**(처음 PC는 2~5분, 약 1.5GB 내려받기). Dockerfile: `backend/src/main/resources/assessment/preview-converter/Dockerfile`. 내용이 바뀌면 새 Tag로 다시 만든다.
+- Backend 창 로그로 확인: `plan preview converter image missing — building …` → `… image built: …` (이미 있으면 `… image ready: …`).
+
 ```powershell
-docker --version                                   # Docker Desktop이 켜져 있어야 한다
-cd $REPO
-docker build -t lh-plan-preview-converter:0.1 tools/plan-preview-converter   # 2~5분, 약 1.5GB (처음 한 번)
-docker image ls lh-plan-preview-converter          # 0.1 이 보이면 준비 완료
+docker version --format '{{.Server.Version}}'        # 숫자가 나오면 Docker 실행 중
+docker image ls lh-plan-preview-converter           # 준비 후 해시 Tag 이미지가 보인다(직접 만들 필요 없음)
 ```
 
-| 상황 | 화면 |
+| 상황 | 화면 (서버 응답) |
 |---|---|
-| `ASSESSMENT_PREVIEW_CONVERTER` 미설정 | "PDF 미리보기 변환기가 설정되지 않았어요" + 원본 내려받기 (서버 응답 415) |
-| 설정했지만 이미지가 없거나 Docker가 꺼짐 | "PDF로 변환하지 못했어요(converter_unavailable)" — Docker를 켜고 이미지를 만든 뒤 다시 열면 된다(이 경우는 실패로 기록하지 않음) |
-| 문서를 변환할 수 없음(손상·지원하지 않는 내용) | "PDF로 변환하지 못했어요(conversion_failed)" + 원본 내려받기. 같은 파일은 다시 변환하지 않는다(실패 기록) |
-| 처음 여는 문서 | 변환에 3~10초. 두 번째부터는 캐시(`ASSESSMENT_STORAGE_ROOT` 아래 `plan-documents/preview-renditions`) |
+| 이미지를 처음 만드는 중 | "PDF 변환기를 준비하고 있어요" + 다시 시도 (503 `PLAN_PREVIEW_PREPARING`) — 몇 분 뒤 다시 열면 된다 |
+| Docker Desktop이 꺼짐 | "Docker가 실행 중이어야 해요" (503) — Docker를 켜면 60초 안에 다시 확인해 준비한다(Backend 재시작 불필요) |
+| 이미지 만들기 실패(네트워크 등) | "준비하지 못했어요" (503) — 60초 뒤 다음 요청에서 다시 시도. Backend 로그에 원인 |
+| 문서를 변환할 수 없음(손상·지원하지 않는 내용) | "이 문서를 PDF로 변환하지 못했어요" + 원본 내려받기 (422). 같은 파일은 다시 변환하지 않는다 |
+| 정상 | 변환 PDF + "미리보기용 변환본" 안내. 처음 여는 문서는 2~4초, 두 번째부터(Backend 재시작 후에도) 캐시 |
+| 변환을 끄고 싶을 때 | `$env:ASSESSMENT_PREVIEW_CONVERTER = 'none'` → 415, 원본 내려받기만 |
 
 - 변환 PDF는 **원본이 아니다**: 원본 글꼴(함초롬 등) 대신 Nanum·Noto 글꼴을 쓰므로 줄바꿈·쪽 나눔이 원본과 다를 수 있다. 화면에도 그렇게 표시된다. 정확한 대조는 원본 내려받기(한글 프로그램).
 - 실측(A25, 로컬 실제 문서 30개 표본): 25개 변환(HWP 16/20, HWPX 9/10), 문서당 약 4초. 실패한 문서는 원본 내려받기로 확인한다.
-- Linux 서버 Docker에서는 컨테이너 사용자(uid 10001)가 임시 출력 폴더에 쓸 수 있어야 한다. Backend를 Docker로 배포할 때는 `soffice` 모드(`ASSESSMENT_PREVIEW_CONVERTER=soffice`, 같은 이미지 내용 설치)를 쓴다.
+- 시험·CI는 변환기를 끈다(`none`). 운영 배포는 자동 준비를 끄고(`ASSESSMENT_PREVIEW_CONVERTER_AUTO_PROVISION=false`) 미리 만든 이미지(`ASSESSMENT_PREVIEW_CONVERTER_IMAGE`)를 지정하거나 `soffice` 모드를 쓴다. Spring Boot 컨테이너에 Docker 소켓을 연결하는 방식은 쓰지 않는다.
 
 | 변수 | 의미 / 없을 때 |
 |---|---|
@@ -179,6 +184,8 @@ $env:VITE_ASSESSMENT_DEV_ADMIN_ID     = 'adm_plan_operator'       # 개발용 Mo
 $env:VITE_ASSESSMENT_DEV_CURRENT_TERM = '2026-1'                  # 시연 슬롯·합성 문서가 1학기
 # 대학별 자료 원본 PDF 폴더(A25). 원본 PDF는 Git에 없다(재배포 권한 미확인). 이 PC에 있는 폴더를 절대 경로로 지정한다
 $env:ASSESSMENT_UNIVERSITY_EXAM_ROOT  = 'C:\learnershigh-extension\references\previous-exam-questions'
+# 심화 탐구 모의고사 원문 지문(텍스트, PDF 아님 — A26). Git 밖 JSON 파일을 절대 경로로 지정한다
+$env:ASSESSMENT_MOCK_EXAM_PASSAGES_FILE = 'C:\learnershigh-extension\frontend\student\src\features\assessment\api\mock\mockExamPassages.local.json'
 npx vite --port 5174 --strictPort
 ```
 
@@ -197,6 +204,7 @@ $env:VITE_ASSESSMENT_DEV_STUDENT_ID   = 'stu_demo_001'            # 기본 학�
 $env:VITE_ASSESSMENT_DEV_CURRENT_TERM = '2026-1'
 $env:E2E_STUDENT_PORT                 = '5173'
 $env:ASSESSMENT_UNIVERSITY_EXAM_ROOT  = 'C:\learnershigh-extension\references\previous-exam-questions'   # 대학별 자료 PDF (A25)
+$env:ASSESSMENT_MOCK_EXAM_PASSAGES_FILE = 'C:\learnershigh-extension\frontend\student\src\features\assessment\api\mock\mockExamPassages.local.json'   # 모의고사 원문 텍스트 (A26)
 npx vite --config ../../e2e/assessment/vite.student.config.ts --port 5173 --strictPort
 ```
 
@@ -261,6 +269,12 @@ Get-ChildItem $OUT -Include *.pdf,*.hwp,*.hwpx -Recurse | Select-Object Name, Le
 3. **HWP·HWPX 원문**: 검토 화면 왼쪽 'PDF 미리보기' 탭(변환본 안내 문구 포함), '분석용 구조' 탭(근거 위치 강조). 근거 위치 버튼을 누르면 '분석용 구조' 탭으로 바뀐다(변환 PDF 쪽으로 추측해 이동하지 않음).
 4. **최종 확정 원본 대조**: 'PDF' 카드의 '파일 선택'(또는 끌어 놓기) → 파일 이름·크기·'같은 파일이에요'. 다른 파일이면 '이 파일로는 확정할 수 없어요'로 막힌다.
 5. 상단 'PDF AI 분석' 버튼은 없어졌다(등록 과정에서 서버 분석). 예전 주소 `/assessment/evaluation-plans/ai-analysis`는 목록으로 열린다.
+
+### 9-6. A26 변경 확인
+
+1. **HWP·HWPX 미리보기(자동 변환)**: Docker Desktop을 켠 채 Backend를 실행 → 로그에 `image ready` 또는 `building … built` → 관리자 학교별 평가계획서에서 HWP/HWPX 문서 '검토' → 왼쪽 'PDF 미리보기'에 변환본이 보인다. 이미지 준비 중이면 "준비하고 있어요" → 잠시 뒤 '다시 시도'.
+2. **모의고사 원문(텍스트)**: 학생 `http://localhost:5173/assessment/enrichment/mock-exams/KO-02`, 관리자 `http://localhost:5174/assessment/content/mock-exams/KO-02` → 문항 번호·시험 이름과 지문 원문(문단·줄바꿈 그대로)이 보인다. **PDF·문서 변환은 필요 없다.** 등록 데이터에는 지문만 있고 발문·선택지는 없으며 화면에도 그렇게 표시된다. 개발 서버 창에 `[mock-exam-passages] 모의고사 원문 지문: 60개 (설정 파일)`가 찍혀야 한다. '원문이 아직 연결되지 않았어요'가 보이면 `ASSESSMENT_MOCK_EXAM_PASSAGES_FILE` 확인. 대학별 자료 PDF(`ASSESSMENT_UNIVERSITY_EXAM_ROOT`)와는 다른 기능이다.
+3. **월별 운영계획 달력**: 학생 `http://localhost:5173/assessment/monthly-plan?devStudent=stu_demo_003`(3학년 확정 운영계획이 있을 때). 'n월 m주' 계획은 **그 달 달력의 m번째 줄(일요일 시작) 날짜에 임시 배치**된다 — 예: 2026년 3월은 1일이 일요일이라 1주차 3/1~3/7, **2주차 3/8~3/14**, 3주차 3/15~3/21. 같은 주의 여러 과목은 월~금에 나눠 놓고(새로고침해도 같은 날짜), 칸마다 최대 4개(좁은 화면 3개), 넘치면 `+N개`. 일정을 누르면 상세 창(원문 시기 · 달력 표시 날짜 · '주차 기준 임시 배치 · 실제 수업일 미확정'), Esc로 닫힘. 표시 날짜는 저장되지 않는다. 관리자 검토의 '월별 운영 계획' 단계도 같은 달력이다.
 
 ## 10. 정상 종료 (15단계)
 
