@@ -1,0 +1,233 @@
+{
+ "contractVersion": "0.3",
+ "analyzer": {
+  "name": "curriculum-analysis",
+  "version": "v21.9-b13-dev/contract03-adapter-0.3-draft",
+  "profile": "v21.9-b13-dev"
+ },
+ "source": {
+  "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "format": "PDF",
+  "pageCount": 4
+ },
+ "status": "REVIEW_REQUIRED",
+ "failureReason": null,
+ "subjects": [
+  {
+   "subjectName": "가상국어",
+   "pageRange": {
+    "from": 1,
+    "to": 4
+   },
+   "writtenEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "exams": [
+     {
+      "itemKey": "W01",
+      "round": 1,
+      "weightPercent": 25,
+      "maxScore": 100,
+      "timing": "4월",
+      "questionTypes": [],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "1차시험(100점)"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "25"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "100"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "4월"
+       }
+      ]
+     },
+     {
+      "itemKey": "W02",
+      "round": 2,
+      "weightPercent": 25,
+      "maxScore": 100,
+      "timing": "7월",
+      "questionTypes": [],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "2차시험(100점)"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "25"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "100"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "7월"
+       }
+      ]
+     }
+    ]
+   },
+   "performanceEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "items": [
+     {
+      "itemKey": "P01",
+      "label": "가상 장면 낭독하기",
+      "area": null,
+      "timing": "3~4월",
+      "weightPercent": 25,
+      "maxScore": 100,
+      "content": null,
+      "submissions": [],
+      "conditions": [],
+      "rubric": [
+       {
+        "element": "유창성",
+        "levels": [],
+        "sources": [
+         {
+          "pdfPageNumber": 2,
+          "extractedText": "유창성"
+         }
+        ]
+       },
+       {
+        "element": "태도",
+        "levels": [],
+        "sources": [
+         {
+          "pdfPageNumber": 2,
+          "extractedText": "태도"
+         }
+        ]
+       }
+      ],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "가상 장면 낭독하기"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "25"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "100"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "3~4월"
+       }
+      ]
+     },
+     {
+      "itemKey": "P02",
+      "label": "가상 의제 토론하기",
+      "area": null,
+      "timing": "5월",
+      "weightPercent": 25,
+      "maxScore": null,
+      "content": null,
+      "submissions": [],
+      "conditions": [],
+      "rubric": [
+       {
+        "element": "논증의 타당성",
+        "levels": [],
+        "sources": [
+         {
+          "pdfPageNumber": 3,
+          "extractedText": "논증의 타당성"
+         }
+        ]
+       },
+       {
+        "element": "반박 능력",
+        "levels": [],
+        "sources": [
+         {
+          "pdfPageNumber": 3,
+          "extractedText": "반박 능력"
+         }
+        ]
+       }
+      ],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "가상 의제 토론하기"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "25"
+       },
+       {
+        "pdfPageNumber": 3,
+        "extractedText": "25%"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "100"
+       },
+       {
+        "pdfPageNumber": 3,
+        "extractedText": "50"
+       },
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "5월"
+       },
+       {
+        "pdfPageNumber": 3,
+        "extractedText": "5월"
+       }
+      ]
+     }
+    ]
+   },
+   "extraction": {
+    "status": "COMPLETE",
+    "issues": [
+     {
+      "code": "FIELD_REVIEW_REQUIRED",
+      "severity": "REVIEW",
+      "fieldPath": "performanceEvaluation.items[1].maxScore",
+      "basis": "VALUE_CONFLICTING",
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "extractedText": "100"
+       },
+       {
+        "pdfPageNumber": 3,
+        "extractedText": "50"
+       }
+      ]
+     },
+     {
+      "code": "TEACHING_PLAN_PARTIAL",
+      "severity": "REVIEW",
+      "fieldPath": "teachingPlan",
+      "message": "PLAN_WORDS_WITHOUT_TEACHING_TABLE"
+     }
+    ]
+   },
+   "teachingPlan": []
+  }
+ ],
+ "warnings": [
+  "P02 maxScore: 출처마다 값·표현이 달라 비워 둠(100, 50)"
+ ]
+}

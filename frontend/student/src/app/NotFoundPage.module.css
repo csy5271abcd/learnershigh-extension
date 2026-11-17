@@ -1,0 +1,47 @@
+/* Not Found 화면. 예전에는 구형 Mentor Hub 홈 CSS를 빌려 썼고, 같은 값(전역 --lh-* Token)을 이 파일로 옮겼다 (2026-10-28). */
+.page {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: var(--lh-space-10) var(--lh-space-10) var(--lh-space-16);
+}
+
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lh-space-2);
+  padding: var(--lh-space-12) var(--lh-space-6);
+  border-radius: var(--lh-radius-xl);
+  background: var(--lh-color-surface);
+  text-align: center;
+}
+
+.title {
+  font-size: var(--lh-font-title-sm);
+  font-weight: 700;
+}
+
+.description {
+  color: var(--lh-color-text-secondary);
+}
+
+.button {
+  min-height: 44px;
+  margin-top: var(--lh-space-3);
+  padding: 0 var(--lh-space-5);
+  border: 1px solid var(--lh-color-border);
+  border-radius: var(--lh-radius-md);
+  background: var(--lh-color-surface-raised);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--lh-color-surface-hover);
+}
+
+@media (max-width: 1023px) {
+  .page {
+    padding: var(--lh-space-8) var(--lh-space-6) var(--lh-space-16);
+  }
+}

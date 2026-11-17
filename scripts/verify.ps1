@@ -57,10 +57,10 @@ function Test-RequiredHarnessFiles {
 
         "docs/specs/suyeon/domain.md",
         "docs/specs/suyeon/progress.md",
-        "docs/specs/suyeon/features/mentor-hub.md",
-        "docs/specs/suyeon/features/school-admissions.md",
-        "docs/specs/suyeon/features/student-management.md",
-        "docs/specs/suyeon/features/parent-progress.md",
+        "docs/specs/suyeon/features/assessment-student.md",
+        "docs/specs/suyeon/features/assessment-inquiry.md",
+        "docs/specs/suyeon/features/assessment-feedback.md",
+        "docs/specs/suyeon/features/assessment-admin.md",
 
         "docs/adr/README.md",
         "docs/adr/0001-separate-student-admin-mentor-surfaces.md",

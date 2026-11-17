@@ -1,0 +1,593 @@
+{
+  "note": "개발 서버 전용 시연 Context 선택 명단. 실제 로그인·계정 목록이 아니다. 생성: docs/specs/suyeon/assessment-15schools-60students-seed-202611/scripts/build-demo-roster.mjs",
+  "branches": [
+    {
+      "branchId": "br_demo_a",
+      "name": "러너스하이 시연 A지점",
+      "demo": true
+    },
+    {
+      "branchId": "br_demo_b",
+      "name": "러너스하이 시연 B지점",
+      "demo": true
+    },
+    {
+      "branchId": "br_demo_c",
+      "name": "러너스하이 시연 C지점",
+      "demo": true
+    },
+    {
+      "branchId": "br_gangnam",
+      "name": "러너스하이 강남점(기존)",
+      "demo": false
+    },
+    {
+      "branchId": "br_bundang",
+      "name": "러너스하이 분당점(기존)",
+      "demo": false
+    }
+  ],
+  "students": [
+    {
+      "studentId": "stu_demo_001",
+      "displayName": "김민서",
+      "branchId": "br_demo_a",
+      "schoolName": "운정고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_002",
+      "displayName": "이준호",
+      "branchId": "br_demo_a",
+      "schoolName": "운정고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_003",
+      "displayName": "박서연",
+      "branchId": "br_demo_a",
+      "schoolName": "운정고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_004",
+      "displayName": "최지우",
+      "branchId": "br_demo_a",
+      "schoolName": "운정고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_005",
+      "displayName": "정하윤",
+      "branchId": "br_demo_a",
+      "schoolName": "문현고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_006",
+      "displayName": "강도윤",
+      "branchId": "br_demo_a",
+      "schoolName": "문현고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_007",
+      "displayName": "한서진",
+      "branchId": "br_demo_a",
+      "schoolName": "문현고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_008",
+      "displayName": "윤지호",
+      "branchId": "br_demo_a",
+      "schoolName": "문현고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_009",
+      "displayName": "오유진",
+      "branchId": "br_demo_a",
+      "schoolName": "호서고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_010",
+      "displayName": "임현우",
+      "branchId": "br_demo_a",
+      "schoolName": "호서고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_011",
+      "displayName": "송채원",
+      "branchId": "br_demo_a",
+      "schoolName": "호서고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_012",
+      "displayName": "배시윤",
+      "branchId": "br_demo_a",
+      "schoolName": "호서고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_013",
+      "displayName": "권유나",
+      "branchId": "br_demo_a",
+      "schoolName": "인천하늘고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_014",
+      "displayName": "신도현",
+      "branchId": "br_demo_a",
+      "schoolName": "인천하늘고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_015",
+      "displayName": "장서아",
+      "branchId": "br_demo_a",
+      "schoolName": "인천하늘고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_016",
+      "displayName": "문지훈",
+      "branchId": "br_demo_a",
+      "schoolName": "인천하늘고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_017",
+      "displayName": "남수빈",
+      "branchId": "br_demo_a",
+      "schoolName": "세화고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_018",
+      "displayName": "유시현",
+      "branchId": "br_demo_a",
+      "schoolName": "세화고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_019",
+      "displayName": "조하린",
+      "branchId": "br_demo_a",
+      "schoolName": "세화고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_020",
+      "displayName": "백서준",
+      "branchId": "br_demo_a",
+      "schoolName": "세화고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_021",
+      "displayName": "서예린",
+      "branchId": "br_demo_b",
+      "schoolName": "대신고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_022",
+      "displayName": "황준서",
+      "branchId": "br_demo_b",
+      "schoolName": "대신고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_023",
+      "displayName": "안지민",
+      "branchId": "br_demo_b",
+      "schoolName": "대신고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_024",
+      "displayName": "전태윤",
+      "branchId": "br_demo_b",
+      "schoolName": "대신고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_025",
+      "displayName": "홍다인",
+      "branchId": "br_demo_b",
+      "schoolName": "한림고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_026",
+      "displayName": "고은호",
+      "branchId": "br_demo_b",
+      "schoolName": "한림고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_027",
+      "displayName": "양소율",
+      "branchId": "br_demo_b",
+      "schoolName": "한림고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_028",
+      "displayName": "손건우",
+      "branchId": "br_demo_b",
+      "schoolName": "한림고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_029",
+      "displayName": "노하은",
+      "branchId": "br_demo_b",
+      "schoolName": "진양고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_030",
+      "displayName": "구민재",
+      "branchId": "br_demo_b",
+      "schoolName": "진양고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_031",
+      "displayName": "류채아",
+      "branchId": "br_demo_b",
+      "schoolName": "진양고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_032",
+      "displayName": "차승민",
+      "branchId": "br_demo_b",
+      "schoolName": "진양고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_033",
+      "displayName": "주예서",
+      "branchId": "br_demo_b",
+      "schoolName": "삼각산고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_034",
+      "displayName": "우진혁",
+      "branchId": "br_demo_b",
+      "schoolName": "삼각산고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_035",
+      "displayName": "진가온",
+      "branchId": "br_demo_b",
+      "schoolName": "삼각산고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_036",
+      "displayName": "표하람",
+      "branchId": "br_demo_b",
+      "schoolName": "삼각산고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_037",
+      "displayName": "곽태린",
+      "branchId": "br_demo_b",
+      "schoolName": "가좌고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_038",
+      "displayName": "탁서율",
+      "branchId": "br_demo_b",
+      "schoolName": "가좌고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_039",
+      "displayName": "나윤재",
+      "branchId": "br_demo_b",
+      "schoolName": "가좌고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_040",
+      "displayName": "엄지안",
+      "branchId": "br_demo_b",
+      "schoolName": "가좌고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_041",
+      "displayName": "변주원",
+      "branchId": "br_demo_c",
+      "schoolName": "충무고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_042",
+      "displayName": "성하준",
+      "branchId": "br_demo_c",
+      "schoolName": "충무고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_043",
+      "displayName": "석다연",
+      "branchId": "br_demo_c",
+      "schoolName": "충무고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_044",
+      "displayName": "하은찬",
+      "branchId": "br_demo_c",
+      "schoolName": "충무고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_045",
+      "displayName": "도서윤",
+      "branchId": "br_demo_c",
+      "schoolName": "광명고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_046",
+      "displayName": "마지성",
+      "branchId": "br_demo_c",
+      "schoolName": "광명고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_047",
+      "displayName": "제윤서",
+      "branchId": "br_demo_c",
+      "schoolName": "광명고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_048",
+      "displayName": "길현서",
+      "branchId": "br_demo_c",
+      "schoolName": "광명고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_049",
+      "displayName": "천소민",
+      "branchId": "br_demo_c",
+      "schoolName": "세종고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_050",
+      "displayName": "방재윤",
+      "branchId": "br_demo_c",
+      "schoolName": "세종고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_051",
+      "displayName": "민도하",
+      "branchId": "br_demo_c",
+      "schoolName": "세종고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_052",
+      "displayName": "육예준",
+      "branchId": "br_demo_c",
+      "schoolName": "세종고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_053",
+      "displayName": "라시온",
+      "branchId": "br_demo_c",
+      "schoolName": "한솔고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_054",
+      "displayName": "편하진",
+      "branchId": "br_demo_c",
+      "schoolName": "한솔고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_055",
+      "displayName": "봉수아",
+      "branchId": "br_demo_c",
+      "schoolName": "한솔고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_056",
+      "displayName": "옥지환",
+      "branchId": "br_demo_c",
+      "schoolName": "한솔고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_057",
+      "displayName": "채은서",
+      "branchId": "br_demo_c",
+      "schoolName": "제주고등학교",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_demo_058",
+      "displayName": "인태경",
+      "branchId": "br_demo_c",
+      "schoolName": "제주고등학교",
+      "grade": 2
+    },
+    {
+      "studentId": "stu_demo_059",
+      "displayName": "설아린",
+      "branchId": "br_demo_c",
+      "schoolName": "제주고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_demo_060",
+      "displayName": "명준우",
+      "branchId": "br_demo_c",
+      "schoolName": "제주고등학교",
+      "grade": 3
+    },
+    {
+      "studentId": "stu_001",
+      "displayName": "김서준",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_002",
+      "displayName": "최학생",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_003",
+      "displayName": "한유진",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_004",
+      "displayName": "정예준",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_005",
+      "displayName": "윤서연",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_006",
+      "displayName": "이학생",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_007",
+      "displayName": "오시윤",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_008",
+      "displayName": "장하준",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_009",
+      "displayName": "박민지",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_010",
+      "displayName": "이도현",
+      "branchId": "br_gangnam",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_101",
+      "displayName": "강하늘",
+      "branchId": "br_bundang",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_102",
+      "displayName": "서지우",
+      "branchId": "br_bundang",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    },
+    {
+      "studentId": "stu_103",
+      "displayName": "문지호",
+      "branchId": "br_bundang",
+      "schoolName": "예시고등학교(기존 Mock)",
+      "grade": 1
+    }
+  ],
+  "admins": [
+    {
+      "adminId": "adm_demo_a01",
+      "label": "시연 A지점 관리자 01",
+      "scope": "러너스하이 시연 A지점 학생 20명 · 평가계획서 운영 권한 없음",
+      "demo": true
+    },
+    {
+      "adminId": "adm_demo_a02",
+      "label": "시연 A지점 관리자 02",
+      "scope": "러너스하이 시연 A지점 학생 20명 · 평가계획서 운영 권한 없음",
+      "demo": true
+    },
+    {
+      "adminId": "adm_demo_b01",
+      "label": "시연 B지점 관리자 01",
+      "scope": "러너스하이 시연 B지점 학생 20명 · 평가계획서 운영 권한 없음",
+      "demo": true
+    },
+    {
+      "adminId": "adm_demo_c01",
+      "label": "시연 C지점 관리자 01",
+      "scope": "러너스하이 시연 C지점 학생 20명 · 평가계획서 운영 권한 없음",
+      "demo": true
+    },
+    {
+      "adminId": "adm_demo_gangnam",
+      "label": "기존 시연 관리자",
+      "scope": "강남 지점 학생 + 예시고등학교 평가계획서 운영",
+      "demo": false
+    },
+    {
+      "adminId": "adm_plan_operator",
+      "label": "평가계획서 운영자",
+      "scope": "예시고등학교 평가계획서 운영만 (학생 기록 없음)",
+      "demo": false
+    },
+    {
+      "adminId": "adm_gangnam",
+      "label": "강남 지점 관리자",
+      "scope": "강남 지점 학생",
+      "demo": false
+    },
+    {
+      "adminId": "adm_bundang",
+      "label": "분당 지점 관리자",
+      "scope": "분당 지점 학생",
+      "demo": false
+    }
+  ]
+}

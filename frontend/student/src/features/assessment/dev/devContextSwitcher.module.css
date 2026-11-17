@@ -1,0 +1,132 @@
+/* 개발 서버 전용 시연 Context 패널. Student(--as-*)·Admin 양쪽에서 쓰므로 Token이 없을 때의 대체 색을 둔다. */
+.root {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 900;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 32px));
+  font-size: 12.5px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 7px 12px;
+  border: 1px solid var(--as-color-line, #d5d9df);
+  border-radius: 999px;
+  background: var(--as-color-surface, #fff);
+  color: var(--as-color-text, #1d1f23);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toggle:focus-visible,
+.apply:focus-visible,
+.linkButton:focus-visible,
+.fields select:focus-visible {
+  outline: 2px solid var(--as-color-primary, #2563eb);
+  outline-offset: 2px;
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #fff4d6;
+  color: #8a5a00;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel {
+  display: grid;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--as-color-line, #d5d9df);
+  border-radius: 12px;
+  background: var(--as-color-surface, #fff);
+  color: var(--as-color-text, #1d1f23);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+}
+
+.caution {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff8e6;
+  color: #6b4a00;
+  line-height: 1.5;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.fields label {
+  color: var(--as-color-text-secondary, #72777f);
+}
+
+.fields select {
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--as-color-line, #d5d9df);
+  border-radius: 7px;
+  background: var(--as-color-surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+
+.scope {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--as-color-text-secondary, #72777f);
+}
+
+.apply {
+  grid-column: 1 / -1;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--as-color-primary, #2563eb);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.apply:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.linkButton {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-primary, #2563eb);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge,
+  .caution {
+    background: #3a2f12;
+    color: #f3d9a0;
+  }
+}

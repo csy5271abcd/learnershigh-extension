@@ -1,0 +1,78 @@
+%% 평가계획서 분석기 내부 아키텍처 (현재 구현, 기본 프로필 v21.1) — 2026-11-12 코드 기준
+%% 경로 기준: C:\Users\choi suyeon\LearnersHigh-local\curriculum-analysis\tools\
+%% LLM 호출 없음: 워커가 anthropic·google.genai·httpx·requests import와 소켓 연결을 차단한다.
+flowchart TB
+    subgraph IN["입력"]
+        F1["PDF"]:::fmt
+        F2["HWP 5.x"]:::fmt
+        F3["HWPX"]:::fmt
+    end
+
+    subgraph SVC["HTTP 서비스 — service/analysis_service.py<br/>stdlib ThreadingHTTPServer · 127.0.0.1:8765"]
+        H1["POST /analyze-preview<br/>multipart(file, analyzerVersion, includeAnalysis)<br/>Host 검사 · X-Analysis-Token(hmac) · 동시 2 · 120초"]
+        G1["upload_guard.inspect<br/>매직 바이트 · 20MB 상한<br/>ZIP 경로 이탈·압축 폭탄 · CFB 헤더"]
+        SHA["SHA-256 (hashlib)"]
+        TMP["임시 폴더 lh-analyze-*<br/>finally 삭제"]
+        W["analysis_worker.py (요청별 하위 프로세스)<br/>Job Object 메모리 2048MB · KILL_ON_JOB_CLOSE<br/>네트워크 모듈·소켓 차단"]
+    end
+
+    subgraph PARSE["파싱 — docmodel/ (docmodel-0.1)"]
+        FMT{"build.actual_format<br/>매직 바이트"}
+        J["Java 17 PdfLayout.java<br/>Apache PDFBox 3.0.5<br/>단어 좌표 + 괘선 → layout.jsonl"]
+        PM["pdf_model.parse_layout<br/>괘선 격자 재구성 · 단어→칸"]
+        HM["hwp5.Cfb + hwp_model.parse_hwp<br/>자체 CFB · zlib raw deflate · 레코드 트리"]
+        XM["hwpx_model.parse_hwpx<br/>zipfile + ElementTree (OWPML)"]
+    end
+
+    subgraph IR["중간 표현 — DocumentModel"]
+        DM["blocks: paragraph · table · cell(row,col,span)<br/>pages(PDF) · grid_check · integrity"]
+        LOC["Locator (결정적 id)<br/>PDF_TEXT / PDF_TABLE_CELL{pdfPage,bbox}<br/>HWP·HWPX_PARAGRAPH / _TABLE_CELL{section,path,r,c} / CONTROL_TEXT"]
+        SEG["analyze.segments<br/>제목 정규식 · 머리표 · 인쇄 쪽 재시작 → 과목 구간"]
+    end
+
+    subgraph ANA["구조 분석 — llmprep/ (규칙 기반)"]
+        A3["assessment_assembly03 (0.3)<br/>table_role · matrix/list/sheet_entries<br/>지필·수행 분류 · 비율·만점·시기 · 문항 유형 묶음"]
+        R2["rubric_structure2 · count_bands<br/>채점표 후보 · 개수 구간"]
+        LK["link_evidence · link_confidence<br/>채점표 연결 5단계"]
+        TD["task_detail (0.1)<br/>평가 범위 고정 → 활동·제출물(STATED/INFERRED)·조건·관점·특수 규정·수준 문장"]
+        RS["resolve_subject<br/>머리표 과목명 복원"]
+    end
+
+    subgraph VAL["검증·모호성"]
+        V1["analysis_result.validate<br/>Locator 존재 · 인용 일치 · 평가 범위"]
+        V2["checks: CONFLICTING · VARIANTS · NOT_STATED<br/>NUMERIC_COINCIDENCE · TERMS_DIFFER"]
+    end
+
+    subgraph OUT["출력"]
+        RJ["분석 결과 JSON<br/>curriculum-analysis-result-0.1<br/>status · DRAFT_UNREVIEWED"]
+        BA["backend_adapter 0.2 (PDF)<br/>AnalysisImportRequest 공식"]
+        MF["multiformat_adapter 0.1-draft (HWP·HWPX)<br/>실험 DTO: source.format + documentLocator"]
+        RESP["HTTP JSON 응답<br/>summary · backendImport{variant, importable, payload, gaps 요약}"]
+    end
+
+    F1 & F2 & F3 --> H1 --> G1 --> SHA --> TMP --> W --> FMT
+    G1 -. "415/413/422" .-> RESP
+    FMT -- PDF --> J --> PM --> DM
+    FMT -- HWP --> HM --> DM
+    FMT -- HWPX --> XM --> DM
+    FMT -. "DOCX·기타 → UNSUPPORTED_FORMAT" .-> RJ
+    J -. "실패 → PARSE_FAILED" .-> RJ
+    DM --- LOC
+    DM --> SEG --> A3
+    A3 <--> R2
+    A3 --> LK --> TD
+    A3 --> RS
+    TD --> V1
+    RS --> V1
+    A3 --> V2
+    V1 --> RJ
+    V2 --> RJ
+    RJ -- PDF --> BA --> RESP
+    RJ -- HWP·HWPX --> MF --> RESP
+    W -. "시간 초과 504 · 메모리 초과 · 내부 오류 500" .-> RESP
+
+    NOLLM["LLM 단계 없음<br/>analysisMode.llmCalls = false<br/>RULE_BASED_STRUCTURE_ANALYSIS"]:::note
+    W --- NOLLM
+
+    classDef fmt fill:#eef,stroke:#669
+    classDef note fill:#fff4d6,stroke:#c90,stroke-dasharray: 4 3

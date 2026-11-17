@@ -1,0 +1,281 @@
+{
+ "analyzer": {
+  "name": "curriculum-analysis",
+  "version": "v21.1/backend-adapter-0.2"
+ },
+ "source": {
+  "sha256": "ab52297581ef154dbd0abe00a0cffcceec01513248bb60416fd2f5909173b404",
+  "pageCount": 2
+ },
+ "status": "REVIEW_REQUIRED",
+ "subjects": [
+  {
+   "subjectName": "가상과학탐구",
+   "pageRange": {
+    "from": 1,
+    "to": 2
+   },
+   "sources": [
+    {
+     "pdfPageNumber": 1,
+     "printedPageLabel": "1",
+     "extractedText": "1학년"
+    },
+    {
+     "pdfPageNumber": 1,
+     "printedPageLabel": "1",
+     "extractedText": "1학기"
+    },
+    {
+     "pdfPageNumber": 1,
+     "printedPageLabel": "1",
+     "extractedText": "가상과학탐구"
+    }
+   ],
+   "writtenEvaluation": {
+    "weightPercent": null,
+    "sources": [],
+    "exams": [
+     {
+      "itemKey": "W01",
+      "round": 1,
+      "weightPercent": 40,
+      "maxScore": null,
+      "timing": "5월",
+      "questionTypes": [
+       "선택형",
+       "서답형"
+      ],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "1차 지필평가(40%)"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "40%"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "5월"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "70점"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "30점"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "28%"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "12%"
+       }
+      ]
+     }
+    ]
+   },
+   "performanceEvaluation": {
+    "weightPercent": 60,
+    "sources": [
+     {
+      "pdfPageNumber": 1,
+      "printedPageLabel": "1",
+      "extractedText": "60%"
+     }
+    ],
+    "items": [
+     {
+      "itemKey": "P01",
+      "label": "탐구 보고서",
+      "area": null,
+      "timing": "4월",
+      "weightPercent": 30,
+      "maxScore": 100,
+      "content": "가상 하천의 수질을 측정하는 실험을 수행한다.\n측정 결과를 정리하여 탐구 보고서를 제출한다.",
+      "submissions": [
+       "탐구 보고서"
+      ],
+      "conditions": [
+       "보고서는 A4 2쪽 이상으로 작성한다.",
+       "모둠별로 실험을 수행한다."
+      ],
+      "rubric": [
+       {
+        "element": "실험 설계",
+        "levels": [
+         {
+          "description": "변인 통제가 명확함",
+          "score": 50
+         },
+         {
+          "description": "변인 통제가 일부 부족함",
+          "score": 30
+         }
+        ],
+        "sources": [
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "실험 설계"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "50"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "30"
+         }
+        ]
+       },
+       {
+        "element": "보고서 작성",
+        "levels": [
+         {
+          "description": "결과와 결론이 타당함",
+          "score": 50
+         },
+         {
+          "description": "결과 해석이 부족함",
+          "score": 30
+         }
+        ],
+        "sources": [
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "보고서 작성"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "50"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "30"
+         }
+        ]
+       }
+      ],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "탐구 보고서"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "30%"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "100점"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "4월"
+       },
+       {
+        "pdfPageNumber": 2,
+        "printedPageLabel": "2",
+        "extractedText": "1. 가상 하천의 수질을 측정하는 실험을 수행한다.\n2. 측정 결과를 정리하여 탐구 보고서를 제출한다."
+       }
+      ]
+     },
+     {
+      "itemKey": "P02",
+      "label": "토론 활동",
+      "area": null,
+      "timing": "6월",
+      "weightPercent": 30,
+      "maxScore": 100,
+      "content": "주어진 논제에 대해 찬반 토론에 참여한다.",
+      "submissions": [],
+      "conditions": [
+       "발언은 1회 3분 이내로 한다."
+      ],
+      "rubric": [
+       {
+        "element": "논증",
+        "levels": [
+         {
+          "description": "주장과 근거가 타당함",
+          "score": 100
+         },
+         {
+          "description": "근거가 부족함",
+          "score": 60
+         }
+        ],
+        "sources": [
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "논증"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "100"
+         },
+         {
+          "pdfPageNumber": 2,
+          "printedPageLabel": "2",
+          "extractedText": "60"
+         }
+        ]
+       }
+      ],
+      "sources": [
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "토론 활동"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "30%"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "100점"
+       },
+       {
+        "pdfPageNumber": 1,
+        "printedPageLabel": "1",
+        "extractedText": "6월"
+       },
+       {
+        "pdfPageNumber": 2,
+        "printedPageLabel": "2",
+        "extractedText": "주어진 논제에 대해 찬반 토론에 참여한다."
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "warnings": []
+}

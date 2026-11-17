@@ -314,7 +314,7 @@ backend/.../studentcare/
 frontend/admin/src/features/student-care/
 ```
 
-Today Board(Suyeon)와 학생 케어 신호를 어떻게 공유할지는 **제안 단계**다(Cross-owner 합의 전): 학생 케어 신호는 `studentcare`가 계산하고 Today Board가 `StudentCareQueryService`를 소비하는 방안을 제안한다. 합의되면 §17 절차로 기록한다.
+~~Today Board(Suyeon)와 학생 케어 신호 공유(제안)~~ — **철회(2026-11-16, 사용자 결정)**. Today Board는 실제 연동 없이 로컬 Fixture로만 동작하던 구형 화면이라 제거했다(A21 조사·A22). 학생 케어 신호는 계속 `studentcare`가 계산하며 다른 Feature가 소비하는 계약은 없다.
 
 상담 / 학생 케어 기능의 실제 세부 범위는:
 

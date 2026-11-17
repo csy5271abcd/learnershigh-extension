@@ -1,0 +1,18 @@
+/* 학생 Desktop 화면 미리보기 틀 (Admin). 축소한 iframe이 남기는 레이아웃 공간은 이 상자 크기로만 잡는다 */
+.box {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  border: 0;
+  transform-origin: top left;
+  background: #fff;
+}

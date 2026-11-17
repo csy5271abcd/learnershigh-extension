@@ -27,6 +27,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-mysql")
 
+    // Assessment AI 분석 (P-31 PROPOSED, API-OD-A10 미결): PDF 텍스트 추출과 Claude API 공식 Java SDK.
+    // Provider는 assessment.ai.* 설정과 ANTHROPIC_API_KEY가 있을 때만 켜진다. 없으면 분석 API는 503 AI_PROVIDER_NOT_CONFIGURED.
+    implementation("org.apache.pdfbox:pdfbox:3.0.5")
+    implementation("com.anthropic:anthropic-java:3.2.0")
+
     // Test Stack: Spring Boot BOM이 관리하는 JUnit Jupiter / AssertJ / Mockito / MockMvc
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")

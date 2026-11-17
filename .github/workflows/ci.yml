@@ -291,11 +291,15 @@ jobs:
 
     env:
       SPRING_PROFILES_ACTIVE: care-demo,e2e
-      APP_FIXED_DATE: "2026-10-28"
-      LEARNERSHIGH_MOCK_ANCHOR_DATE: "2026-10-27"
+      # 합성 원천(scripts/demo/generate-care-seed.mjs)은 AS_OF 2026-11-11까지, 화면의 오늘은 2026-11-12다(2026-11-12 원천 변경, A22에서 CI를 맞춤).
+      APP_FIXED_DATE: "2026-11-12"
+      LEARNERSHIGH_MOCK_ANCHOR_DATE: "2026-11-11"
       LEARNERSHIGH_MOCK_DATABASE_EXAMPLES: "true"
       # /api/test/**는 e2e Profile만으로 열리지 않는다. E2E Job에서만 명시적으로 켠다 (ADR-0007).
       LEARNERSHIGH_TEST_ENDPOINTS_ENABLED: "true"
+      # A26: HWP/HWPX 미리보기 변환기 기본값이 docker(이미지 자동 준비)다. CI E2E에서는 이미지 Build를 하지 않도록 끈다
+      ASSESSMENT_PREVIEW_CONVERTER: none
+      ASSESSMENT_PREVIEW_CONVERTER_AUTO_PROVISION: "false"
       DB_URL: jdbc:mysql://127.0.0.1:3306/learnershigh_extension
       DB_USERNAME: learnershigh
       DB_PASSWORD: learnershigh

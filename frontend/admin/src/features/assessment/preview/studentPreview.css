@@ -1,0 +1,12 @@
+/*
+ * 학생 Desktop 화면 미리보기 iframe 전용 (Admin). Student 앱의 상단 LearnersHigh Navigation은 로그인한 학생 계정 영역이라 그리지 않는다.
+ * 그래서 Student Layout이 Navigation 높이로 쓰는 값을 0으로 둔다 — Sidebar·본문·패널이 iframe 높이를 그대로 채운다.
+ */
+:root {
+  --lh-student-nav-height: 0px;
+}
+
+.lh-preview-standalone {
+  padding: 24px;
+  color: #4e5968;
+}

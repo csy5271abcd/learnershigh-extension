@@ -40,7 +40,7 @@ API 형식은 `docs/api/api-contract.md` §65 학생 케어를 따른다.
 
 | 대상 | 경계 |
 |---|---|
-| Today Board / Student 360 (Suyeon) | 학생 케어 신호는 `studentcare` Domain이 계산한다. Today Board와의 공유 방식(`StudentCareQueryService` 소비 등)은 Suyeon과 합의 전 **제안**이다 (`docs/OWNERSHIP.md` §17). |
+| ~~Today Board / Student 360 (Suyeon)~~ | **제거됨(2026-11-16)** — 구형 Suyeon 화면(로컬 Fixture 전용, Backend 없음)을 정리했다. 'Today Board가 `StudentCareQueryService`를 소비하는 방안' 제안은 사용자 결정으로 **철회**했다. 학생 케어 코드·데이터 모델은 바꾸지 않았다. |
 | 성적·시험 (발표자료 기능 1) | 이번 범위에서 제외. 등급 하락 / 정답률 하락 신호와 "성적·시험 현황에서 시작"은 구현하지 않는다. |
 | Existing LearnersHigh 출결·학습·계획 | `common/integration/learnershigh`의 `ExistingStudentClient` / `ExistingStudyClient`로만 읽는다. 실제 API가 확정되기 전까지 Mock 구현을 쓴다. |
 | Existing 학습계획 변경 | 학생 케어는 기존 계획을 수정하지 않는다. 약속은 케어 건에만 기록한다. |
