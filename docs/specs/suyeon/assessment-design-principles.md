@@ -12,6 +12,11 @@
 > Mockup을 최대한 정확하게 재현하며, 세부 디자인이 불명확한 경우 Daglo Reference를 참고한다.
 > 신규 Assessment에는 TDS 스타일을 혼합하지 않는다.
 
+> **A25 갱신 (2026-11-17, 사용자 최신 지시)**: Assessment 화면 전체를 **Daglo 스타일에 최대한 가깝게** 정리한다. 레이아웃·정보 구조는 Mockup을 유지하되, 색·컴포넌트 패턴이 충돌하면 Daglo 참고 이미지(`references/design/daglo/`, `additional/`)를 우선한다(로고·브랜드·원본 이미지는 복제하지 않음).
+> - 색: 흰색·연회색 Surface·차콜/검정 텍스트·회색 보조·LearnersHigh 블루(선택·주요 동작). **빨강은 실패·차단 오류와 파괴 동작(삭제)에만**, '확인 필요'는 노랑 대신 연한 블루그레이(`--as-color-warning-*` 재정의), 확정 차단 안내는 무채색 상자 + 굵은 차단 문구(검증은 그대로).
+> - 패턴: 행 보조 동작은 `⋯` 메뉴, 파일 선택은 업로드 카드(파일명·크기·진행 바), 보기 전환은 밑줄 탭, 안내는 연회색 줄, 화면에 기술 ID(subjectId·itemKey 등)를 쓰지 않는다.
+> - Student Care(완규님) 화면에는 적용하지 않는다(`--as-*` Token은 `.lh-assessment` 범위).
+
 ## 2. 원칙
 
 1. Claude Design Mockup(`references/claude-design-mockup/LearnersHighAssessment/`)은 Assessment의 **직접적인 시각 구현 기준**이다. Layout뿐 아니라 색상·Typography·Spacing·Radius·Icon·상태 표현까지 포함한다.

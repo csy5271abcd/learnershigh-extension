@@ -98,8 +98,33 @@ $env:ASSESSMENT_STORAGE_ROOT        = "$env:USERPROFILE\.learnershigh-extension\
 # 주소·프로필·Timeout 등 다른 ASSESSMENT_ANALYZER_* 는 환경 변수가 있으면 YAML보다 우선한다 — 남은 덮어쓰기 이름만 확인:
 Get-ChildItem Env:ASSESSMENT_ANALYZER_*, Env:ASSESSMENT_ANALYSIS_*, Env:ASSESSMENT_MULTIFORMAT_* -ErrorAction SilentlyContinue | Where-Object Name -ne 'ASSESSMENT_ANALYZER_TOKEN' | Select-Object Name
 
+# HWP·HWPX 원문 PDF 미리보기 변환(A25). 먼저 §4-1에서 변환기 이미지를 한 번 만든다. 설정하지 않으면 미리보기 대신 '원본 내려받기' 안내가 나온다
+$env:ASSESSMENT_PREVIEW_CONVERTER = 'docker'
+
 # 설정하지 않는 것: ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV (HWP·HWPX 공식 확정 보호 — 기본 false 유지)
 ```
+
+### 4-1. HWP·HWPX 미리보기 변환기 (A25, 처음 한 번)
+
+HWP·HWPX 원문은 서버가 PDF로 변환해 PDF Viewer로 보여 준다. 변환기는 LibreOffice(무료, MPL-2.0) + H2Orestart 0.8.0(무료, GPL-3.0 — HWP 5.x·HWPX 읽기 확장)을 넣은 Docker 이미지다. **한컴오피스 등 유료 프로그램은 쓰지 않는다.** 변환은 네트워크를 끊은 일회용 컨테이너에서 한 파일씩 하며, 문서를 외부로 보내지 않는다.
+
+```powershell
+docker --version                                   # Docker Desktop이 켜져 있어야 한다
+cd $REPO
+docker build -t lh-plan-preview-converter:0.1 tools/plan-preview-converter   # 2~5분, 약 1.5GB (처음 한 번)
+docker image ls lh-plan-preview-converter          # 0.1 이 보이면 준비 완료
+```
+
+| 상황 | 화면 |
+|---|---|
+| `ASSESSMENT_PREVIEW_CONVERTER` 미설정 | "PDF 미리보기 변환기가 설정되지 않았어요" + 원본 내려받기 (서버 응답 415) |
+| 설정했지만 이미지가 없거나 Docker가 꺼짐 | "PDF로 변환하지 못했어요(converter_unavailable)" — Docker를 켜고 이미지를 만든 뒤 다시 열면 된다(이 경우는 실패로 기록하지 않음) |
+| 문서를 변환할 수 없음(손상·지원하지 않는 내용) | "PDF로 변환하지 못했어요(conversion_failed)" + 원본 내려받기. 같은 파일은 다시 변환하지 않는다(실패 기록) |
+| 처음 여는 문서 | 변환에 3~10초. 두 번째부터는 캐시(`ASSESSMENT_STORAGE_ROOT` 아래 `plan-documents/preview-renditions`) |
+
+- 변환 PDF는 **원본이 아니다**: 원본 글꼴(함초롬 등) 대신 Nanum·Noto 글꼴을 쓰므로 줄바꿈·쪽 나눔이 원본과 다를 수 있다. 화면에도 그렇게 표시된다. 정확한 대조는 원본 내려받기(한글 프로그램).
+- 실측(A25, 로컬 실제 문서 30개 표본): 25개 변환(HWP 16/20, HWPX 9/10), 문서당 약 4초. 실패한 문서는 원본 내려받기로 확인한다.
+- Linux 서버 Docker에서는 컨테이너 사용자(uid 10001)가 임시 출력 폴더에 쓸 수 있어야 한다. Backend를 Docker로 배포할 때는 `soffice` 모드(`ASSESSMENT_PREVIEW_CONVERTER=soffice`, 같은 이미지 내용 설치)를 쓴다.
 
 | 변수 | 의미 / 없을 때 |
 |---|---|
@@ -152,6 +177,8 @@ $env:VITE_ASSESSMENT_DATA_SOURCE      = 'http'                    # Assessment�
 $env:VITE_API_TARGET                  = 'http://localhost:8080'   # /api Proxy 대상 (학생 케어도 같은 Backend)
 $env:VITE_ASSESSMENT_DEV_ADMIN_ID     = 'adm_plan_operator'       # 개발용 Mock 관리자(평가계획서 운영자) — 실제 로그인 아님
 $env:VITE_ASSESSMENT_DEV_CURRENT_TERM = '2026-1'                  # 시연 슬롯·합성 문서가 1학기
+# 대학별 자료 원본 PDF 폴더(A25). 원본 PDF는 Git에 없다(재배포 권한 미확인). 이 PC에 있는 폴더를 절대 경로로 지정한다
+$env:ASSESSMENT_UNIVERSITY_EXAM_ROOT  = 'C:\learnershigh-extension\references\previous-exam-questions'
 npx vite --port 5174 --strictPort
 ```
 
@@ -169,6 +196,7 @@ $env:VITE_API_TARGET                  = 'http://localhost:8080'
 $env:VITE_ASSESSMENT_DEV_STUDENT_ID   = 'stu_demo_001'            # 기본 학생 (운정고 1학년)
 $env:VITE_ASSESSMENT_DEV_CURRENT_TERM = '2026-1'
 $env:E2E_STUDENT_PORT                 = '5173'
+$env:ASSESSMENT_UNIVERSITY_EXAM_ROOT  = 'C:\learnershigh-extension\references\previous-exam-questions'   # 대학별 자료 PDF (A25)
 npx vite --config ../../e2e/assessment/vite.student.config.ts --port 5173 --strictPort
 ```
 
@@ -225,6 +253,14 @@ Get-ChildItem $OUT -Include *.pdf,*.hwp,*.hwpx -Recurse | Select-Object Name, Le
 3. '상담' 탭에서 상담 방법·내용·결과(계속 관리)를 넣고 **저장** → '상담 기록' 보기에서 그 학생의 관리 건 1건, 줄을 펼치면 내용.
    - **알려진 결함**: 상담 탭을 연 뒤 처음 입력한 글자 하나가 사라진다(예: 기록자 'XY' → 'Y'). 두 번째 칸부터는 정상. 완규님 확인 대기.
 4. 메뉴 '학부모 리포트' → 학부모 리포트 화면.
+
+### 9-5. A25 변경 확인
+
+1. **대학별 자료 PDF**: 관리자 '심화 탐구 콘텐츠 → 대학별 자료'와 학생 '대학별 자료'에서 문서를 열면 원본 PDF가 쪽 이동·확대·축소로 보인다. 개발 서버 창에 `[university-exams] 원본 PDF 폴더: 연결됨`이 찍혀야 한다. '원본 자료 폴더가 연결되지 않았어요'가 보이면 `ASSESSMENT_UNIVERSITY_EXAM_ROOT`를 확인한다(파일이 없는 것과 구분해 안내).
+2. **평가계획서 삭제**: 학교별 평가계획서 목록 → 행 오른쪽 `⋯` → 삭제 → 파일 이름 확인 → 삭제. 학생에게 공개 중인 문서는 '학생 화면에서도 사라지는 것을 확인했어요'를 체크해야 삭제된다. 삭제 뒤 목록·학생 화면·Monthly Planner에서 사라지고, 기록·원문 파일은 서버에 보관된다(복원 화면은 없음).
+3. **HWP·HWPX 원문**: 검토 화면 왼쪽 'PDF 미리보기' 탭(변환본 안내 문구 포함), '분석용 구조' 탭(근거 위치 강조). 근거 위치 버튼을 누르면 '분석용 구조' 탭으로 바뀐다(변환 PDF 쪽으로 추측해 이동하지 않음).
+4. **최종 확정 원본 대조**: 'PDF' 카드의 '파일 선택'(또는 끌어 놓기) → 파일 이름·크기·'같은 파일이에요'. 다른 파일이면 '이 파일로는 확정할 수 없어요'로 막힌다.
+5. 상단 'PDF AI 분석' 버튼은 없어졌다(등록 과정에서 서버 분석). 예전 주소 `/assessment/evaluation-plans/ai-analysis`는 목록으로 열린다.
 
 ## 10. 정상 종료 (15단계)
 
