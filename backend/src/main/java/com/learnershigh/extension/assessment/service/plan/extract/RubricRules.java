@@ -338,7 +338,18 @@ public final class RubricRules {
             }
             double[] s = scol != null ? scoreOf(r.get(scol)) : null;
             String desc = dc != null ? r.get(dc) : "";
-            if (headLabels.contains(ns(desc))) {
+            if (dc != null && scol != null && scol > dc + 1) {
+                // 칸 안 줄바꿈이 선으로 잘려 설명이 옆 칸까지 나뉜 경우: 설명~점수 사이 칸 조각을 잇는다
+                StringBuilder sb = new StringBuilder(fragment(desc) ? "" : desc);
+                for (int c = dc + 1; c < scol; c++) {
+                    String v = r.get(c);
+                    if (!fragment(v) && !v.equals(r.get(c - 1)) && scoreOf(v) == null && sb.indexOf(v) < 0) {
+                        sb.append(sb.length() == 0 || sb.toString().matches("(?s).*[·ㆍ]$") ? "" : " ").append(v);
+                    }
+                }
+                desc = sb.toString();
+            }
+            if (fragment(desc) || headLabels.contains(ns(desc))) {
                 desc = "";
             }
             String lab = null;
@@ -391,8 +402,19 @@ public final class RubricRules {
                 groups.add(new ArrayList<>());
             }
             double[] s = (double[]) row[2];
-            groups.get(groups.size() - 1).add(new Level((String) row[1], s != null ? s[0] : null,
-                    s != null && !Double.isNaN(s[1]) ? s[1] : null, (String) row[3]));
+            Level lv = new Level((String) row[1], s != null ? s[0] : null, s != null && !Double.isNaN(s[1]) ? s[1] : null, (String) row[3]);
+            List<Level> grp = groups.get(groups.size() - 1);
+            Level prev = grp.isEmpty() ? null : grp.get(grp.size() - 1);
+            if (prev != null && java.util.Objects.equals(prev.score(), lv.score()) && java.util.Objects.equals(prev.level(), lv.level())
+                    && continues(prev.description(), lv.description())) {
+                // 같은 수준이 여러 줄로 나뉜 경우(칸 안 줄바꿈 · 병합 칸 반복): 한 수준으로 합친다
+                String d = prev.description().isEmpty() ? lv.description()
+                        : lv.description().isEmpty() || prev.description().contains(lv.description()) ? prev.description()
+                        : prev.description() + (prev.description().matches(".*[·ㆍ]$") ? "" : " ") + lv.description();
+                grp.set(grp.size() - 1, new Level(prev.level(), prev.score(), prev.scoreTo(), d));
+                continue;
+            }
+            grp.add(lv);
         }
         dummy.clear();
         List<Element> out = new ArrayList<>();
@@ -404,6 +426,19 @@ public final class RubricRules {
         }
         LAST_BASE.set(base);
         return out;
+    }
+
+    /** 마침표·기호만 있는 조각 */
+    static boolean fragment(String s) {
+        return s == null || s.isBlank() || s.strip().matches("[.,·ㆍ。\\-–—:;]+");
+    }
+
+    /** 같은 점수의 다음 줄이 앞 수준의 이어지는 글인가: 한쪽이 비었거나, 같은 글이거나, 앞 글이 문장 끝(함·음·다·.)으로 끝나지 않았을 때. */
+    static boolean continues(String prev, String next) {
+        if (prev.isEmpty() || next.isEmpty() || prev.equals(next) || prev.contains(next)) {
+            return true;
+        }
+        return !prev.strip().matches(".*([.。]|함|음|임|됨|다|있음|없음)$");
     }
 
     /** rubric() 이 마지막으로 읽은 기본 점수 행 (같은 스레드). blocks() 가 가져간다. */

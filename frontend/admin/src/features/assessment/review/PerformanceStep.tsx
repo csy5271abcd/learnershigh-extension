@@ -123,55 +123,48 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 {item.rubric.length === 0 ? (
                   <p className={styles.muted}>분석되지 않음 — 원문을 확인해 주세요.</p>
                 ) : (
-                  <table className={styles.table} data-testid="review-rubric">
-                    <thead>
-                      <tr>
-                        <th scope="col" style={{ width: '24%' }}>평가 요소</th>
-                        <th scope="col">수행 수준</th>
-                        <th scope="col" style={{ width: 72 }}>배점</th>
-                        <th scope="col" style={{ width: 84 }}>원문</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {item.rubric.flatMap((criterion, criterionIndex) => {
-                        const levels = criterion.levels.length ? criterion.levels : [null]
-                        return levels.map((level, levelIndex) => (
-                          <tr key={`${criterionIndex}-${levelIndex}`}>
-                            {levelIndex === 0 && (
-                              <td rowSpan={levels.length} style={{ fontWeight: 600 }}>
-                                {criterion.element}
-                                {typeof criterion.maxScore === 'number' && (
-                                  <div className={styles.tiny} data-testid="review-rubric-max-score">
-                                    요소 배점 {criterion.maxScore}점
-                                  </div>
-                                )}
-                                {criterion.linkReview === 'REVIEW_REQUIRED' && (
-                                  <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
-                                    연결 확인 필요 · 간접 근거
-                                  </div>
-                                )}
-                              </td>
+                  <div className={styles.rubricList} data-testid="review-rubric">
+                    {item.rubric.map((criterion, criterionIndex) => (
+                      <section key={criterionIndex} className={styles.rubricCriterion} aria-label={`채점 요소 ${criterion.element}`}>
+                        <div className={styles.rubricHead}>
+                          <div style={{ minWidth: 0 }}>
+                            <strong>{criterion.element}</strong>
+                            {typeof criterion.maxScore === 'number' && (
+                              <span className={styles.tiny} style={{ marginLeft: 8 }} data-testid="review-rubric-max-score">
+                                요소 배점 {criterion.maxScore}점
+                              </span>
                             )}
-                            <td>{level ? level.description : '수준 분석되지 않음'}</td>
-                            <td className="num">{level && level.score !== null ? `${level.score}점` : '확인 필요'}</td>
-                            {levelIndex === 0 && (
-                              <td rowSpan={levels.length}>
-                                <EvidenceLinks
-                                  pages={criterion.sourcePages}
-                                  locators={criterion.documentLocators}
-                                  name={`채점 요소 ${criterion.element}`}
-                                  onJump={onJump}
-                                  max={2}
-                                  pageLabel={(page) => `${page}쪽`}
-                                  emptyReason="분석 결과에 이 채점 요소의 원문 위치가 없어요."
-                                />
-                              </td>
+                            {criterion.linkReview === 'REVIEW_REQUIRED' && (
+                              <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
+                                연결 확인 필요 · 간접 근거
+                              </div>
                             )}
-                          </tr>
-                        ))
-                      })}
-                    </tbody>
-                  </table>
+                          </div>
+                          <EvidenceLinks
+                            pages={criterion.sourcePages}
+                            locators={criterion.documentLocators}
+                            name={`채점 요소 ${criterion.element}`}
+                            onJump={onJump}
+                            max={2}
+                            pageLabel={(page) => `${page}쪽`}
+                            emptyReason="분석 결과에 이 채점 요소의 원문 위치가 없어요."
+                          />
+                        </div>
+                        {criterion.levels.length === 0 ? (
+                          <p className={styles.muted} style={{ margin: 0 }}>수준 분석되지 않음</p>
+                        ) : (
+                          <ul className={styles.rubricLevels}>
+                            {criterion.levels.map((level, levelIndex) => (
+                              <li key={levelIndex}>
+                                <span className={styles.rubricScore}>{level.score !== null ? `${level.score}점` : '확인 필요'}</span>
+                                <span className={styles.rubricDesc}>{level.description}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </section>
+                    ))}
+                  </div>
                 )}
                 <p className={styles.tiny} style={{ marginTop: 8 }}>
                   위 표는 분석기 후보예요. 빠졌거나 틀리면 아래에서 채점기준을 직접 입력해 확정할 수 있어요(분석 후보는 바뀌지 않아요).

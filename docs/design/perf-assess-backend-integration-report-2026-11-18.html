@@ -9,7 +9,7 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111316;--card:#1b1e22;--fg:#e9ecef;--muted:#9aa4b0;--line:#2c3138;--blue:#5aa0ff;--red:#ff6b78;--green:#4cc38a}}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Pretendard","Malgun Gothic",sans-serif}
 main{max-width:980px;margin:0 auto;padding:28px 16px 64px}
-h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 10px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 10px}h3{font-size:15px;margin:20px 0 6px}
 .sub{color:var(--muted);font-size:13.5px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0}
 table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
@@ -36,21 +36,22 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 </ul>
 </div>
 
-<h2>1. 실제 화면 (Playwright로 조작)</h2>
-<figure><img src="perf-assess-screens/real-2-import-dialog.png" alt="학교알리미에서 불러오기 대화상자"><figcaption>평가계획서 목록 → "학교알리미에서 불러오기" → 학교 이름 입력</figcaption></figure>
-<figure><img src="perf-assess-screens/real-3-import-result.png" alt="불러오기 결과"><figcaption>서연고: 파일 4개를 받아 3개 등록·분석(과목 12·24·40개), 성적관리규정 1개는 건너뜀 — 21초</figcaption></figure>
-<figure><img src="perf-assess-screens/real-3b-import-result-hwp.png" alt="HWP 학교 불러오기 결과"><figcaption>청담고(HWP·HWPX): 3개 등록·분석(과목 19·24·11개) — 3.8초. HWP 근거 위치도 수연님 검증을 통과</figcaption></figure>
-<figure><img src="perf-assess-screens/real-7-review-performance.png" alt="수행평가 검토 단계"><figcaption>수연님 검토 화면 그대로: 공통국어2 지필 60%·수행 40%, 원문 17쪽 근거, 수행 항목 목록</figcaption></figure>
-<figure><img src="perf-assess-screens/real-8-item-rubric.png" alt="수행 항목 상세"><figcaption>항목 상세: 반영비율 20%, 만점 20점, 시기 10월 4~5주, 평가 활동</figcaption></figure>
-<figure><img src="perf-assess-screens/real-9-item-rubric-scrolled.png" alt="채점기준표"><figcaption>채점기준표: 큰 요소 › 세부 요소, 요소 배점, 점수별 기준, 원문 18쪽</figcaption></figure>
-
-<h2>1-2. 정기시험 회차·월별 운영 계획 (작전고, 실제 화면)</h2>
-<p>학교 이름 '작전고등학교'로 불러오기: 파일 9개 중 8개 등록·분석, 16초. 과목 30개에서 정기시험 회차 47개, 월별 운영 계획 568행을 읽었다. 화면 코드는 바꾸지 않았다(수연님 화면 그대로).</p>
-<figure><img src="perf-assess-screens/real-10-import-jakjeon.png" alt="작전고 불러오기 결과"><figcaption>불러오기 결과: 교과별 문서 8개 등록, 예체능·공동교육과정 2개는 평가 정보를 찾지 못함, 성적관리규정은 건너뜀</figcaption></figure>
-<figure><img src="perf-assess-screens/real-11-teaching-step.png" alt="검토 4단계 월별 운영 계획"><figcaption>검토 4단계 '월별 운영 계획': 사회과 문서 후보 164행이 과목별·월별 달력에 놓인다(9월 57개 등)</figcaption></figure>
-<figure><img src="perf-assess-screens/real-12-exam-rounds.png" alt="평가 구성 정기시험 회차"><figcaption>평가계획서 열람 › 평가 구성: 통합사회2 지필 60% = 1차 30%(10월 1주) + 2차 30%(12월 2주)</figcaption></figure>
-<figure><img src="perf-assess-screens/real-13-teaching-plan-rows.png" alt="월별 운영계획 행"><figcaption>평가계획서 열람 › 월별 운영계획: 9월 1~2주 · 단원 · 성취기준 · 교수학습 방법 · 원문 쪽</figcaption></figure>
-<p class="sub">화면에서 확인한 문제: '1,2,3학년' 통합 문서가 3학년 하나로 등록된다(파일 이름의 학년 판단). 학생 월간 달력은 관리자가 과목을 연결하고 운영 계획을 확정한 뒤에만 보여 이번에는 확인하지 않았다.</p>
+<h2>1. 실제 화면 (Playwright로 조작, 검토 칸만 2배 해상도로 자름)</h2>
+<h3>학교 이름으로 불러오기</h3>
+<figure><img src="perf-assess-screens/v2-1-import.png" alt="서연고 불러오기 결과"><figcaption>서연고: 파일 4개를 받아 3개 등록·분석(과목 12·24·40개), 성적관리규정은 건너뜀</figcaption></figure>
+<figure><img src="perf-assess-screens/real-3b-import-result-hwp.png" alt="HWP 학교 불러오기 결과"><figcaption>청담고(HWP·HWPX): 3개 등록·분석 — 3.8초</figcaption></figure>
+<h3>수행평가 항목과 채점기준표 (검토 3단계)</h3>
+<figure><img src="perf-assess-screens/v2-2-item.png" alt="수행 항목 상세"><figcaption>왼쪽: 과목별 수행 항목 목록. 오른쪽: 언어와 매체 › 대중매체 비평 — 반영비율 30%, 만점 30점, 9월 2주, 평가 활동, 원문 11쪽</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-3-rubric.png" alt="채점기준표"><figcaption>채점기준표: 큰 요소 › 세부 요소, 요소 배점, 점수별 기준, 원문 12쪽</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-4-rubric-joined.png" alt="줄이 나뉜 기준을 이은 결과"><figcaption>원문 칸 안에서 줄이 나뉜 기준을 한 수준으로 이음(전에는 '4점 .', '4점 하게 요약함'처럼 조각으로 나왔음)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-5-rubric-joined2.png" alt="자신의 주장 제시하기"><figcaption>같은 표의 '자신의 주장 제시하기' 5·4·3·2점</figcaption></figure>
+<p class="sub">채점기준표는 표 대신 요소별 묶음(점수 | 기준)으로 바꿨다. 검토 칸이 좁으면 표의 기준 칸이 두세 글자 폭으로 줄어 읽을 수 없었다.</p>
+<h3>정기시험 회차·월별 운영 계획 (작전고)</h3>
+<p>작전고: 파일 9개 중 8개 등록·분석, 16초. 과목 30개에서 정기시험 회차 47개, 월별 운영 계획 568행.</p>
+<figure><img src="perf-assess-screens/v2-6-teaching.png" alt="검토 4단계 월별 운영 계획"><figcaption>검토 4단계: 사회과 문서 후보 164행이 과목별·월별 달력에 놓인다(9월 57개)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-7-exams.png" alt="평가 구성 정기시험 회차"><figcaption>평가계획서 열람 › 평가 구성: 통합사회2 지필 60% = 1차 30%(10월 1주) + 2차 30%(12월 2주)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-8-plan-rows.png" alt="월별 운영계획 행"><figcaption>평가계획서 열람 › 월별 운영계획: 주차·단원·성취기준·교수학습 방법·원문 쪽</figcaption></figure>
+<p class="sub">확인한 문제: '1,2,3학년' 통합 문서가 3학년 하나로 등록된다. 학생 월간 달력은 관리자 확정 뒤에만 보여 확인하지 않았다.</p>
 
 <h2>2. 정확도·속도 (받아 둔 학교 113곳 전체)</h2>
 <p>Java로 옮긴 백엔드 분석과, 그동안 측정한 Python 추출기 결과를 같은 원문으로 비교했다.</p>
