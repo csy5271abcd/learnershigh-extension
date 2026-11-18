@@ -1402,7 +1402,7 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 
 ### 39-1. 서버 분석 실행 (A3, 2026-11-13 구현)
 
-**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `http`: 아래 외부 분석기 방식 그대로. `none`: 분석기 미설정(503). `local`은 정기시험 회차(`writtenEvaluation.exams`, 회차 비율 합이 지필 비율과 맞을 때만)와 월별 운영 계획(`teachingPlan`)도 채운다. 글자 정보가 없는 스캔 PDF 쪽은 `assessment.analyzer.ocr`(auto·tesseract·windows·none)로 OCR 해 같은 규칙으로 읽는다(엔진이 없으면 그 쪽은 건너뜀). 응답 Shape은 바뀌지 않는다.
+**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `none`: 분석기 미설정(503). **2026-11-19: 외부 분석기(`http`, `/analyze-preview`) 연결은 걷어 냈다** — 아래 외부 분석기 관련 서술(토큰·재시도·시간 제한 두 단계)은 기록으로만 남는다. 응답·오류 모양은 그대로다. `local`은 정기시험 회차(`writtenEvaluation.exams`, 회차 비율 합이 지필 비율과 맞을 때만)와 월별 운영 계획(`teachingPlan`)도 채운다. 글자 정보가 없는 스캔 PDF 쪽은 `assessment.analyzer.ocr`(auto·tesseract·windows·none)로 OCR 해 같은 규칙으로 읽는다(엔진이 없으면 그 쪽은 건너뜀). 응답 Shape은 바뀌지 않는다.
 
 `POST .../analysis`: 본문 없음. Backend가 보관 원문(§38-1)을 SHA-256 재검증 뒤 분석기(`POST /analyze-preview`, `X-Analysis-Token`, 환경 변수 설정)로 보내고, `backendImport.payload`를 외부 수신과 같은 검증기(backend-adapter-0.2, 알 수 없는 필드 거절)로 검사해 AnalysisRun으로 저장한다. 응답은 `GET .../analysis`와 같은 모양(`analyzer.origin = "SERVER_ANALYZER"`). `201` 새 Run / `200` 같은 내용의 Run이 이미 있음(새 Run 없음).
 

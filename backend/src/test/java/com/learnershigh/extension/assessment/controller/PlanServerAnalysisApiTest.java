@@ -13,15 +13,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
+import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerException;
+import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,42 +37,38 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * A3 서버 분석 실행 (§39 POST .../analysis, 2026-11-13). Backend가 보관한 원문을 분석기로 보내고 결과를 저장한다.
- * 실제 분석기 대신 `/analyze-preview` 계약 모양을 돌려주는 Stub HTTP 서버를 쓴다. payload는 계정 B 분석기 v21.1이 합성 PDF에 대해
+ * 실제 분석기 대신 분석기 Envelope 모양을 돌려주는 시험용 분석기(StubPlanAnalyzer)를 쓴다. payload는 계정 B 분석기 v21.1이 합성 PDF에 대해
  * 실제로 낸 결과 Fixture(analyzer-v21_1/analysis-import.json)다. 실제 학교 문서는 쓰지 않는다.
  */
 @Tag("integration")
 @SpringBootTest(properties = {
-    "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage",
-    "assessment.analyzer.token=it-token-not-a-secret-0123456789abcdef",
-    "assessment.analyzer.timeout-millis=1500",
-    "assessment.analyzer.retry-delay-millis=10",
-    "assessment.analyzer.max-retries=2"})
+    "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
 @Import(MySqlContainerConfig.class)
 class PlanServerAnalysisApiTest {
 
     static final String PLANS = "/api/admin/assessment/evaluation-plans";
-    static final String TOKEN = "it-token-not-a-secret-0123456789abcdef";
 
     enum Mode { OK, PARTIAL, PARTIAL_FAILED_PAYLOAD, NO_RESULT, SHA_MISMATCH, NOT_JSON, NOT_IMPORTABLE, UNKNOWN_FIELD, BUSY, SLOW, DELAYED_OK }
 
     static volatile Mode mode = Mode.OK;
-    static final AtomicInteger calls = new AtomicInteger();
-    static final AtomicReference<String> receivedToken = new AtomicReference<>();
     static final AtomicReference<String> receivedFileSha = new AtomicReference<>();
-    static final HttpServer ANALYZER = startStub();
+    static final StubPlanAnalyzer ANALYZER = new StubPlanAnalyzer(PlanServerAnalysisApiTest::respond);
+    static final AtomicInteger calls = ANALYZER.calls;
 
-    @DynamicPropertySource
-    static void analyzer(DynamicPropertyRegistry registry) {
-        registry.add("assessment.analyzer.mode", () -> "http");   // 외부 분석기 Stub 경로 시험 (기본은 local)
-        registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
+    /** 서버 분석기 자리에 Envelope 를 돌려주는 시험용 분석기를 넣는다(실제 분석 규칙은 LocalPlanAnalyzer 시험이 본다). */
+    @TestConfiguration
+    static class AnalyzerStub {
+        @Bean
+        @Primary
+        PlanAnalyzerClient stubPlanAnalyzer() {
+            return ANALYZER;
+        }
     }
 
     @Autowired
@@ -97,7 +95,6 @@ class PlanServerAnalysisApiTest {
         pdfSha = sha256(pdf);
         mode = Mode.OK;
         calls.set(0);
-        receivedToken.set(null);
         receivedFileSha.set(null);
     }
 
@@ -105,66 +102,47 @@ class PlanServerAnalysisApiTest {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 
-    static HttpServer startStub() {
+    static StubPlanAnalyzer.Reply respond(PlanAnalyzerClient.Request request) {
         try {
-            HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            server.setExecutor(Executors.newCachedThreadPool());
-            server.createContext("/analyze-preview", exchange -> {
-                calls.incrementAndGet();
-                receivedToken.set(exchange.getRequestHeaders().getFirst("X-Analysis-Token"));
-                byte[] body = exchange.getRequestBody().readAllBytes();
-                receivedFileSha.set(filePartSha(body, exchange.getRequestHeaders().getFirst("Content-Type")));
-                int status = 200;
-                String response;
-                try {
-                    response = switch (mode) {
-                        case OK, DELAYED_OK -> {
-                            if (mode == Mode.DELAYED_OK) {
-                                Thread.sleep(1000);
-                            }
-                            // 받은 원문의 SHA로 답한다(개정본 시험). 기본 원문이면 pdfSha와 같다.
-                            String sha = receivedFileSha.get() == null ? pdfSha : receivedFileSha.get();
-                            yield envelope("OK_REVIEW_REQUIRED", sha, true, payload.replace(pdfSha, sha));
-                        }
-                        case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload)
-                                .replace("\"errors\":[]", "\"errors\":[{\"code\":\"SUBJECT_SECTION_NOT_FOUND\"}]");
-                        case PARTIAL_FAILED_PAYLOAD -> envelope("PARTIAL", pdfSha, true, failedPayload());
-                        // 실제 분석기 v21.1이 평가계획서가 아닌 문서에 보내는 응답 모양 (A6 실분석기 확인)
-                        case NO_RESULT -> envelope("NO_ASSESSMENTS_EXTRACTED", pdfSha, true, failedPayload());
-                        case SHA_MISMATCH -> envelope("OK_REVIEW_REQUIRED", "0".repeat(64), true, payload);
-                        case NOT_JSON -> "<html>gateway</html>";
-                        case NOT_IMPORTABLE -> envelope("OK_REVIEW_REQUIRED", pdfSha, false, payload)
-                                .replace("\"blockers\":[]", "\"blockers\":[{\"code\":\"LOCAL_VALIDATION\"}]");
-                        case UNKNOWN_FIELD -> envelope("OK_REVIEW_REQUIRED", pdfSha, true,
-                                payload.replaceFirst("\\{", "{\"confidence\":\"HIGH\","));
-                        case BUSY -> {
-                            status = 503;
-                            yield "{\"ok\":false,\"status\":\"ERROR\",\"errors\":[{\"code\":\"BUSY\"}]}";
-                        }
-                        case SLOW -> {
-                            Thread.sleep(3000);
-                            yield envelope("OK_REVIEW_REQUIRED", pdfSha, true, payload);
-                        }
-                    };
-                } catch (InterruptedException interrupted) {
-                    Thread.currentThread().interrupt();
-                    response = "{}";
+            receivedFileSha.set(sha256(request.bytes()));
+        } catch (Exception broken) {
+            receivedFileSha.set(null);
+        }
+        int status = 200;
+        String response = switch (mode) {
+            case OK, DELAYED_OK -> {
+                if (mode == Mode.DELAYED_OK) {
+                    sleep(1000);
                 }
-                byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
-                try {
-                    exchange.sendResponseHeaders(status, bytes.length);
-                    exchange.getResponseBody().write(bytes);
-                } catch (IOException clientGone) {
-                    // Timeout 시험: Client가 먼저 끊는다
-                } finally {
-                    exchange.close();
-                }
-            });
-            server.start();
-            return server;
-        } catch (IOException failure) {
-            throw new IllegalStateException(failure);
+                // 받은 원문의 SHA로 답한다(개정본 시험). 기본 원문이면 pdfSha와 같다.
+                String sha = receivedFileSha.get() == null ? pdfSha : receivedFileSha.get();
+                yield envelope("OK_REVIEW_REQUIRED", sha, true, payload.replace(pdfSha, sha));
+            }
+            case PARTIAL -> envelope("PARTIAL", pdfSha, true, payload)
+                    .replace("\"errors\":[]", "\"errors\":[{\"code\":\"SUBJECT_SECTION_NOT_FOUND\"}]");
+            case PARTIAL_FAILED_PAYLOAD -> envelope("PARTIAL", pdfSha, true, failedPayload());
+            // 분석기가 평가계획서가 아닌 문서에 보내는 응답 모양 (A6)
+            case NO_RESULT -> envelope("NO_ASSESSMENTS_EXTRACTED", pdfSha, true, failedPayload());
+            case SHA_MISMATCH -> envelope("OK_REVIEW_REQUIRED", "0".repeat(64), true, payload);
+            case NOT_JSON -> "<html>gateway</html>";
+            case NOT_IMPORTABLE -> envelope("OK_REVIEW_REQUIRED", pdfSha, false, payload)
+                    .replace("\"blockers\":[]", "\"blockers\":[{\"code\":\"LOCAL_VALIDATION\"}]");
+            case UNKNOWN_FIELD -> envelope("OK_REVIEW_REQUIRED", pdfSha, true,
+                    payload.replaceFirst("\\{","{\"confidence\":\"HIGH\","));
+            case BUSY -> {
+                status = 503;
+                yield "{\"ok\":false,\"status\":\"ERROR\",\"errors\":[{\"code\":\"BUSY\"}]}";
+            }
+            case SLOW -> throw new PlanAnalyzerException(PlanAnalyzerException.Kind.TIMEOUT, null, "analyzer timeout");
+        };
+        return new StubPlanAnalyzer.Reply(status, response);
+    }
+
+    static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -185,19 +163,6 @@ class PlanServerAnalysisApiTest {
                  "warnings":[]}""".formatted(pdfSha);
     }
 
-    /** multipart 본문에서 file 부분 바이트의 SHA-256 (Backend가 보관 원문을 그대로 보냈는지 확인). */
-    static String filePartSha(byte[] body, String contentType) {
-        try {
-            String boundary = "--" + contentType.substring(contentType.indexOf("boundary=") + 9);
-            String text = new String(body, StandardCharsets.ISO_8859_1);
-            int part = text.indexOf("name=\"file\"");
-            int start = text.indexOf("\r\n\r\n", part) + 4;
-            int end = text.indexOf("\r\n" + boundary, start);
-            return sha256(text.substring(start, end).getBytes(StandardCharsets.ISO_8859_1));
-        } catch (Exception broken) {
-            return null;
-        }
-    }
 
     record Uploaded(String planId, String revisionId) {
         String analysis() {
@@ -236,8 +201,6 @@ class PlanServerAnalysisApiTest {
                 .andReturn().getResponse().getContentAsString();
         // Backend가 보관한 원문을 그대로, 토큰과 함께 보냈다
         assertThat(receivedFileSha.get()).isEqualTo(pdfSha);
-        assertThat(receivedToken.get()).isEqualTo(TOKEN);
-        assertThat(created).doesNotContain(TOKEN);
         assertThat(jdbc.queryForMap("select origin, status, received_by from assessment_plan_analysis_run"))
                 .containsEntry("origin", "SERVER_ANALYZER").containsEntry("status", "REVIEW_REQUIRED")
                 .containsEntry("received_by", "adm_bundang");
@@ -412,10 +375,10 @@ class PlanServerAnalysisApiTest {
     }
 
     @Test
-    void BUSY는_재시도_후_503_Timeout은_재시도_없이_503() throws Exception {
+    void BUSY와_Timeout은_503() throws Exception {
         Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf);
         expectFailure(uploaded, Mode.BUSY, 503, "PLAN_ANALYZER_UNAVAILABLE", "busy");
-        assertThat(calls.get()).isEqualTo(3);
+        assertThat(calls.get()).isEqualTo(1);
         calls.set(0);
         expectFailure(uploaded, Mode.SLOW, 503, "PLAN_ANALYZER_UNAVAILABLE", "timeout");
         assertThat(calls.get()).isEqualTo(1);
@@ -486,6 +449,5 @@ class PlanServerAnalysisApiTest {
                 .andExpect(jsonPath("$.code").value(code))
                 .andExpect(jsonPath("$.details.fields[0].reason").value(reason))
                 .andReturn().getResponse().getContentAsString();
-        assertThat(body).doesNotContain(TOKEN);
     }
 }

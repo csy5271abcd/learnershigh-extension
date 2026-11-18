@@ -11,13 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.jayway.jsonpath.JsonPath;
 import com.learnershigh.extension.assessment.service.plan.PlanAnalysisService;
+import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
+import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -29,8 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -41,9 +39,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @Tag("integration")
 @SpringBootTest(properties = {
     "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage",
-    "assessment.analyzer.token=it-token-not-a-secret-0123456789abcdef",
-    "assessment.analyzer.timeout-millis=3000",
-    "assessment.analyzer.retry-delay-millis=10",
     "assessment.analysis-import.contract03-enabled=true"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
@@ -55,16 +50,19 @@ class PlanAnalysisContract03ClientApiTest {
     enum Mode { OK03, FAILED_422, PAYLOAD_02, REJECT_400, NO_RESULT_200 }
 
     static volatile Mode mode = Mode.OK03;
-    static final AtomicReference<String> lastBody = new AtomicReference<>();
-    static final HttpServer ANALYZER = startStub();
+    static final StubPlanAnalyzer ANALYZER = new StubPlanAnalyzer(PlanAnalysisContract03ClientApiTest::respond);
     static String payload03;
     static String payload02;
     static byte[] pdf;
 
-    @DynamicPropertySource
-    static void analyzer(DynamicPropertyRegistry registry) {
-        registry.add("assessment.analyzer.mode", () -> "http");   // 외부 분석기 Stub 경로 시험 (기본은 local)
-        registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
+    /** 서버 분석기 자리에 Envelope 를 돌려주는 시험용 분석기를 넣는다. */
+    @TestConfiguration
+    static class AnalyzerStub {
+        @Bean
+        @Primary
+        PlanAnalyzerClient stubPlanAnalyzer() {
+            return ANALYZER;
+        }
     }
 
     @Autowired
@@ -89,40 +87,24 @@ class PlanAnalysisContract03ClientApiTest {
                 .formatted(sha, reason);
     }
 
-    static HttpServer startStub() {
+    static StubPlanAnalyzer.Reply respond(PlanAnalyzerClient.Request request) {
+        String sha;
         try {
-            HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            server.setExecutor(Executors.newCachedThreadPool());
-            server.createContext("/analyze-preview", exchange -> {
-                byte[] body = exchange.getRequestBody().readAllBytes();
-                lastBody.set(new String(body, StandardCharsets.ISO_8859_1));
-                String sha = PlanServerAnalysisApiTest.filePartSha(body, exchange.getRequestHeaders().getFirst("Content-Type"));
-                int status = 200;
-                String response = switch (mode) {
-                    case OK03 -> envelope03("PARTIAL", "PARTIAL", sha, swap(payload03, sha));
-                    case FAILED_422 -> {
-                        status = 422;
-                        yield envelope03("PARSE_FAILED", "PARSE_FAILED", sha, failed03(sha, "PARSE_FAILED"));
-                    }
-                    case NO_RESULT_200 -> envelope03("NO_ASSESSMENTS_EXTRACTED", "NO_ASSESSMENTS_EXTRACTED", sha,
-                            failed03(sha, "NO_ASSESSMENTS_EXTRACTED"));
-                    case PAYLOAD_02 -> PlanServerAnalysisApiTest.envelope("OK_REVIEW_REQUIRED", sha, true, swap(payload02, sha));
-                    case REJECT_400 -> {
-                        status = 400;
-                        yield "{\"ok\":false,\"status\":\"ERROR\",\"errors\":[{\"code\":\"CONTRACT_PROFILE_MISMATCH\"}]}";
-                    }
-                };
-                byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
-                exchange.sendResponseHeaders(status, bytes.length);
-                exchange.getResponseBody().write(bytes);
-                exchange.close();
-            });
-            server.start();
-            return server;
-        } catch (IOException failure) {
-            throw new IllegalStateException(failure);
+            sha = PlanServerAnalysisApiTest.sha256(request.bytes());
+        } catch (Exception broken) {
+            throw new IllegalStateException(broken);
         }
+        return switch (mode) {
+            case OK03 -> StubPlanAnalyzer.Reply.ok(envelope03("PARTIAL", "PARTIAL", sha, swap(payload03, sha)));
+            case FAILED_422 -> new StubPlanAnalyzer.Reply(422,
+                    envelope03("PARSE_FAILED", "PARSE_FAILED", sha, failed03(sha, "PARSE_FAILED")));
+            case NO_RESULT_200 -> StubPlanAnalyzer.Reply.ok(envelope03("NO_ASSESSMENTS_EXTRACTED", "NO_ASSESSMENTS_EXTRACTED", sha,
+                    failed03(sha, "NO_ASSESSMENTS_EXTRACTED")));
+            case PAYLOAD_02 -> StubPlanAnalyzer.Reply.ok(
+                    PlanServerAnalysisApiTest.envelope("OK_REVIEW_REQUIRED", sha, true, swap(payload02, sha)));
+            case REJECT_400 -> new StubPlanAnalyzer.Reply(400,
+                    "{\"ok\":false,\"status\":\"ERROR\",\"errors\":[{\"code\":\"CONTRACT_PROFILE_MISMATCH\"}]}");
+        };
     }
 
     static String swap(String payload, String sha) {
@@ -171,8 +153,8 @@ class PlanAnalysisContract03ClientApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.analysisStatus").value("PARTIAL"))
                 .andExpect(jsonPath("$.analyzer.contractVersion").value("0.3"));
-        String sent = lastBody.get();
-        assertThat(sent).contains("name=\"contract\"\r\n\r\n0.3\r\n").contains("name=\"analyzerVersion\"\r\n\r\nv21.4-dev\r\n");
+        assertThat(ANALYZER.lastRequest.get().contract()).isEqualTo("0.3");
+        assertThat(ANALYZER.lastRequest.get().analyzerVersion()).isEqualTo("v21.4-dev");
     }
 
     @Test
@@ -225,7 +207,7 @@ class PlanAnalysisContract03ClientApiTest {
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.details.fields[0].reason").value("analyzer_rejected:contract_profile_mismatch"));
         assertThat(runs()).isZero();
-        assertThat(lastBody.get()).contains("name=\"contract\"\r\n\r\n0.3\r\n");
+        assertThat(ANALYZER.lastRequest.get().contract()).isEqualTo("0.3");
     }
 
     @Test

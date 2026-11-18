@@ -13,12 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
+import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -42,9 +41,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @Tag("integration")
 @SpringBootTest(properties = {
     "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage",
-    "assessment.analyzer.token=it-token-not-a-secret-0123456789abcdef",
-    "assessment.analyzer.timeout-millis=3000",
-    "assessment.analyzer.retry-delay-millis=10",
     "assessment.analysis-import.contract03-enabled=true"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
@@ -53,14 +49,18 @@ class TeachingPlanReviewApiTest {
 
     static final String PLANS = "/api/admin/assessment/evaluation-plans";
     static final String STUDENT = "/api/student/assessment/evaluation-plans/";
-    static final HttpServer ANALYZER = startStub();
+    static final StubPlanAnalyzer ANALYZER = new StubPlanAnalyzer(TeachingPlanReviewApiTest::respond);
     static String payload;
     static byte[] pdf;
 
-    @DynamicPropertySource
-    static void analyzer(DynamicPropertyRegistry registry) {
-        registry.add("assessment.analyzer.mode", () -> "http");   // 외부 분석기 Stub 경로 시험 (기본은 local)
-        registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
+    /** 서버 분석기 자리에 Envelope 를 돌려주는 시험용 분석기를 넣는다. */
+    @TestConfiguration
+    static class AnalyzerStub {
+        @Bean
+        @Primary
+        PlanAnalyzerClient stubPlanAnalyzer() {
+            return ANALYZER;
+        }
     }
 
     @Autowired
@@ -73,30 +73,14 @@ class TeachingPlanReviewApiTest {
     String revisionId;
     String analysisId;
 
-    static HttpServer startStub() {
-        try {
-            HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            server.setExecutor(Executors.newCachedThreadPool());
-            server.createContext("/analyze-preview", exchange -> {
-                exchange.getRequestBody().readAllBytes();
-                String sha = com.jayway.jsonpath.JsonPath.read(payload, "$.source.sha256");
-                String body = """
-                        {"service":{"name":"stub-analyzer"},"requestId":"stub03","ok":true,"status":"PARTIAL",
-                         "analyzerVersion":"synthetic","source":{"sha256":"%s"},
-                         "backendImport":{"contract":"AnalysisImportRequest","variant":"OFFICIAL_PDF","importable":true,
-                           "blockers":[],"payload":%s},"warnings":[],"errors":[{"code":"TEACHING_PLAN_PARTIAL"}],
-                         "elapsedMs":3}""".formatted(sha, payload);
-                byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
-                exchange.sendResponseHeaders(200, bytes.length);
-                exchange.getResponseBody().write(bytes);
-                exchange.close();
-            });
-            server.start();
-            return server;
-        } catch (IOException failure) {
-            throw new IllegalStateException(failure);
-        }
+    static StubPlanAnalyzer.Reply respond(PlanAnalyzerClient.Request request) {
+        String sha = com.jayway.jsonpath.JsonPath.read(payload, "$.source.sha256");
+        return StubPlanAnalyzer.Reply.ok("""
+                {"service":{"name":"stub-analyzer"},"requestId":"stub03","ok":true,"status":"PARTIAL",
+                 "analyzerVersion":"synthetic","source":{"sha256":"%s"},
+                 "backendImport":{"contract":"AnalysisImportRequest","variant":"OFFICIAL_PDF","importable":true,
+                   "blockers":[],"payload":%s},"warnings":[],"errors":[{"code":"TEACHING_PLAN_PARTIAL"}],
+                 "elapsedMs":3}""".formatted(sha, payload));
     }
 
     @BeforeEach

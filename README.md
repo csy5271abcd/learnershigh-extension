@@ -984,7 +984,7 @@ npm run lint
 npm run build
 ```
 
-Assessment 평가계획서 분석기(Railway) 연결 환경 변수: [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md)
+Assessment 평가계획서 분석기 설정(서버 안 분석 · OCR): [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md)
 
 ### Backend
 
