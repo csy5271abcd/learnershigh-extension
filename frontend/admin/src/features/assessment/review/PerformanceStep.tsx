@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { CheckIcon } from '../components/canonicalUi.ts'
-import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
+import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeConflict, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
 import { RubricEditor } from './RubricEditor.tsx'
 import styles from './review.module.css'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
@@ -43,10 +43,12 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
     onDecide(field, { kind: 'confirmed', value: candidateText(field.candidate), page: field.sourcePages[0] ? String(field.sourcePages[0]) : '' }))
   const subjectLeft = confirmable(subjectFields(selection.subjectIndex)).length
 
-  return (
-    <div className={styles.master} data-testid="review-step-performance">
-      <nav className={styles.nav} aria-label="수행평가 목록">
-        {view.subjects.map((entry, index) => {
+  // 여러 학년 공통 문서: 원문 학년이 이 문서 학년이 아닌 과목은 아래에 접어 둔다(확정 불가 §39-12)
+  const own: number[] = []
+  const other: number[] = []
+  view.subjects.forEach((_, index) => (gradeConflict(view.subjectGrades?.[index], view.slot?.grade) ? other : own).push(index))
+
+  const navGroup = (entry: EvaluationPlanAnalysisView['subjects'][number], index: number) => {
           const common = subjectFields(index).filter(isCommonField)
           return (
             <div key={`${entry.subjectName}-${index}`} className={styles.navGroup}>
@@ -73,7 +75,20 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
               {items(index).length === 0 && <p className={styles.tiny} style={{ margin: '4px 10px' }}>추출된 수행평가 없음</p>}
             </div>
           )
-        })}
+  }
+
+  return (
+    <div className={styles.master} data-testid="review-step-performance">
+      <nav className={styles.nav} aria-label="수행평가 목록">
+        {own.map((index) => navGroup(view.subjects[index], index))}
+        {other.length > 0 && (
+          <details className={styles.navGroup} data-testid="performance-other-grades" open={other.includes(selection.subjectIndex)}>
+            <summary className={styles.navSubject} style={{ cursor: 'pointer' }}>
+              다른 학년 과목 {other.length}개 · 이 문서에서는 확정하지 않아요
+            </summary>
+            {other.map((index) => navGroup(view.subjects[index], index))}
+          </details>
+        )}
       </nav>
 
       <section className={styles.detail} aria-label="선택한 항목 상세">
