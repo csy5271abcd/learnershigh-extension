@@ -37,6 +37,11 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
   const current = subjectFields(selection.subjectIndex).filter((field) => (selection.item === 'common' ? isCommonField(field) : isItemField(field, selection.item)))
   const item = selection.item === 'common' ? null : items(selection.subjectIndex).find((detail) => detail.itemIndex === selection.item) ?? null
   const subject = view.subjects[selection.subjectIndex]
+  // 일괄 확인: 아직 정하지 않았고 후보 값이 있는 칸만, 한 칸씩 누른 것과 같은 결정(후보 값 + 첫 근거 쪽)을 남긴다
+  const confirmable = (list: ReviewFieldCandidate[]) => list.filter((field) => !decisions[fieldKey(field)] && field.candidate !== null)
+  const confirmAll = (list: ReviewFieldCandidate[]) => confirmable(list).forEach((field) =>
+    onDecide(field, { kind: 'confirmed', value: candidateText(field.candidate), page: field.sourcePages[0] ? String(field.sourcePages[0]) : '' }))
+  const subjectLeft = confirmable(subjectFields(selection.subjectIndex)).length
 
   return (
     <div className={styles.master} data-testid="review-step-performance">
@@ -88,6 +93,21 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 {current.length === 0 ? '' : remaining(current) === 0 ? '모두 확인했어요' : `확인 ${remaining(current)}개 남음`}
               </span>
             </div>
+            {!readOnly && (confirmable(current).length > 0 || subjectLeft > 0) && (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }} data-testid="review-bulk-confirm">
+                {confirmable(current).length > 0 && (
+                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(current)} data-testid="review-confirm-current">
+                    이 항목 후보 {confirmable(current).length}개 그대로 확인
+                  </button>
+                )}
+                {subjectLeft > confirmable(current).length && (
+                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(subjectFields(selection.subjectIndex))} data-testid="review-confirm-subject">
+                    {subject.subjectName} 남은 후보 {subjectLeft}개 그대로 확인
+                  </button>
+                )}
+                <span className={styles.tiny} style={{ alignSelf: 'center' }}>원문과 대조한 뒤 누르세요. 확인 뒤에도 칸마다 수정·취소할 수 있어요.</span>
+              </div>
+            )}
 
             <ul className={styles.rows} style={{ marginTop: 16 }} data-testid="review-field-list">
               {current.length === 0 ? (

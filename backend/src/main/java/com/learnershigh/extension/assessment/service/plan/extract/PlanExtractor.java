@@ -28,6 +28,8 @@ public final class PlanExtractor {
         /** 비율을 읽은 원문 표 */
         public SourceTable source;
         public List<ExamRules.Exam> exams = List.of();
+        /** 과목 머리 표에 적힌 학년 (없으면 빈 목록) */
+        public List<Integer> grades = List.of();
         /** 진도표 행과 그 행이 있는 표 */
         public final List<TeachingPlanRules.Row> plan = new ArrayList<>();
         public final List<SourceTable> planSource = new ArrayList<>();
@@ -44,13 +46,20 @@ public final class PlanExtractor {
         boolean[] header = new boolean[tables.size()];
         int[] setAt = new int[tables.size()];   // 과목명이 정해진 표 번호 (같은 머리를 이어받은 평가표 구분용)
         int curAt = -1;
+        List<List<Integer>> gradeAt = new ArrayList<>();
+        List<Integer> curGrades = List.of();
         for (int i = 0; i < tables.size(); i++) {
             String s = SubjectRules.forTable(tables.get(i), school);
             if (s != null) {
+                header[i] = SubjectRules.tidy(SubjectRules.fromHeaderTable(tables.get(i).cells())) != null;
+                List<Integer> g = header[i] ? SubjectRules.gradesFromHeaderTable(tables.get(i).cells()) : List.of();
+                if (!g.isEmpty() || !SubjectRules.norm(s).equals(SubjectRules.norm(cur == null ? "" : cur))) {
+                    curGrades = g;   // 학년은 머리 표에서만 바뀐다 — 같은 과목의 다음 표(제목 줄)는 학년을 지우지 않는다
+                }
                 cur = s;
                 curAt = i;
-                header[i] = SubjectRules.tidy(SubjectRules.fromHeaderTable(tables.get(i).cells())) != null;
             }
+            gradeAt.add(curGrades);
             subjAt[i] = cur;
             setAt[i] = curAt;
         }
@@ -90,19 +99,22 @@ public final class PlanExtractor {
             Subject s = interpret(t, details);
             // 앞 과목 머리를 이어받은 평가표가 이미 값이 찬 과목에 또 붙으려 하면: 다른 과목의 표일 가능성이 커 따로 둔다
             boolean carried = setAt[i] >= 0 && !usedHead.add(setAt[i]);
-            Subject prev = bySubject.get(SubjectRules.norm(subj));
+            Subject prev = bySubject.get(key(subj, gradeAt.get(i)));
             if (carried && prev != null && prev.check.isEmpty()) {
                 subj = "과목명 미확인 (" + (t.page() != null ? "p." + t.page() : "표 " + (i + 1)) + ")";
             }
             s.name = subj;
-            Subject old = bySubject.get(SubjectRules.norm(subj));
+            if (!subj.startsWith("과목명 미확인")) {
+                s.grades = gradeAt.get(i);
+            }
+            Subject old = bySubject.get(key(subj, s.grades));
             if (old == null || (!old.check.isEmpty() && s.check.isEmpty())) {
-                bySubject.put(SubjectRules.norm(subj), s);   // 검증 통과한 표를 우선
+                bySubject.put(key(subj, s.grades), s);   // 검증 통과한 표를 우선
             }
         }
         // (5) 진도표: 표가 속한 과목(머리 표·제목 기준)에 붙인다
         for (int i = 0; i < tables.size(); i++) {
-            Subject s = subjAt[i] == null ? null : bySubject.get(SubjectRules.norm(subjAt[i]));
+            Subject s = subjAt[i] == null ? null : bySubject.get(key(subjAt[i], gradeAt.get(i)));
             if (s == null || s.plan.size() >= 400) {
                 continue;
             }
@@ -120,6 +132,11 @@ public final class PlanExtractor {
             }
         }
         return new ArrayList<>(bySubject.values());
+    }
+
+    /** 과목 구분: 이름 + 원문 학년(같은 이름이라도 학년이 다르면 다른 과목, 계약 §39-12). */
+    private static String key(String name, List<Integer> grades) {
+        return SubjectRules.norm(name) + "|" + grades;
     }
 
     /** 평가표 하나(+ 세부 표) 해석. */

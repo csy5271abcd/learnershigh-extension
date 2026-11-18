@@ -115,6 +115,17 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <figure><img src="perf-assess-screens/v3-1-import-running.png" alt="분석 진행 중"><figcaption>등록 직후: 분석 0/3, 파일별 '분석 대기'</figcaption></figure>
 <figure><img src="perf-assess-screens/v3-2-import-done.png" alt="분석 완료"><figcaption>완료: 3/3, 학년별 과목 12·24·40개</figcaption></figure>
 
+<h2>5-2. 병목·사용감 개선 (2026-11-19)</h2>
+<table>
+<tr><th>문제 (측정)</th><th>바꾼 것</th><th>결과</th></tr>
+<tr><td>'1,2,3학년' 파일을 학년마다 다시 분석 — 작전고 8개 파일을 22번</td><td>같은 원문(SHA·파일 이름·계약·버전)은 최근 결과 8개를 재사용</td><td>분석 8번 + 재사용 14번, 불러오기 29초 → 18초</td></tr>
+<tr><td>학년별 문서에 다른 학년 과목이 섞임</td><td>과목 머리 표의 '학년' 칸을 읽어 계약 <code>subjects[].grades</code>로 보냄 — 기존 규칙대로 다른 학년 문서에서는 확정되지 않고 '원문 N학년'으로 보임</td><td>작전고 사회과: 1학년 2 · 2학년 4 · 3학년 4과목</td></tr>
+<tr><td>검토 칸 184~635개를 하나씩 클릭</td><td>'이 항목 후보 그대로 확인' · '과목 남은 후보 그대로 확인' · 운영계획 '남은 n행 모두 확인'</td><td>통합사회2 18칸을 한 번에(칸마다 수정·되돌리기 유지)</td></tr>
+<tr><td>스캔본 문서당 약 55초, 쪽 그림을 모두 메모리에 보관(80쪽이면 약 300MB)</td><td>쪽마다 표 선만 남기고 그림은 바로 버림, 표 없는 쪽은 OCR 생략, 픽셀 한 줄씩 읽기</td><td>메모리 해결. 시간은 OCR 자체(쪽당 약 0.45초)라 그대로 — 비동기라 기다리지 않음. 150dpi는 10% 빠르지만 결과가 달라져 쓰지 않음</td></tr>
+</table>
+<figure><img src="perf-assess-screens/v4-1-bulk-confirm.png" alt="일괄 확인 버튼"><figcaption>검토 3단계: 항목·과목 일괄 확인 버튼, 과목 옆 '원문 1학년'</figcaption></figure>
+<figure><img src="perf-assess-screens/v4-2-teaching-bulk.png" alt="운영계획 일괄 확인"><figcaption>검토 4단계: 과목마다 '남은 17행 모두 확인'</figcaption></figure>
+
 <h2>6. 남은 일</h2>
 <ul>
 <li>여러 학년 공통 문서('1,2,3학년'·'1~3학년'·'전학년')는 이제 학년마다 등록한다. 한 학년 문서에 다른 학년 과목도 들어 있어 관리자가 과목 확인 단계에서 걸러야 한다.</li>

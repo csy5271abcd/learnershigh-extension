@@ -75,23 +75,26 @@ public final class PdfTables {
             List<List<float[]>> hs, List<List<float[]>> vs, List<List<Glyph>> gs) throws IOException {
         java.nio.file.Path dir = java.nio.file.Files.createTempDirectory("lh-scan");
         try {
+            // 쪽마다 그려서 표 선만 남기고 그림은 바로 버린다(메모리). 표 선이 없는 쪽은 OCR 하지 않는다(시간).
             List<java.nio.file.Path> images = new ArrayList<>();
-            List<java.awt.image.BufferedImage> rendered = new ArrayList<>();
+            List<Integer> withTables = new ArrayList<>();
             for (int p : pages) {
                 if (System.nanoTime() > deadlineNanos) {
                     break;
                 }
                 java.awt.image.BufferedImage img = ScanOcr.render(doc, p);
-                rendered.add(img);
+                ScanOcr.PageScan lines = ScanOcr.scan(img, List.of());
+                if (lines.h().size() < 2 || lines.v().size() < 2) {
+                    continue;
+                }
+                hs.set(p, lines.h());
+                vs.set(p, lines.v());
+                withTables.add(p);
                 images.add(ScanOcr.png(img, dir, p + 1));
             }
             List<List<ScanOcr.Word>> words = ocr.words(images, deadlineNanos);
-            for (int i = 0; i < rendered.size() && i < words.size(); i++) {
-                ScanOcr.PageScan s = ScanOcr.scan(rendered.get(i), words.get(i));
-                int p = pages.get(i);
-                hs.set(p, s.h());
-                vs.set(p, s.v());
-                gs.set(p, s.glyphs());
+            for (int i = 0; i < withTables.size() && i < words.size(); i++) {
+                gs.set(withTables.get(i), ScanOcr.glyphs(words.get(i)));
             }
         } finally {
             try (var files = java.nio.file.Files.list(dir)) {

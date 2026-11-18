@@ -92,11 +92,12 @@ class ExamAndTeachingPlanRulesTest {
     @Test
     void 추출_결과가_수신_계약_0_3_검증을_통과한다() {
         List<SourceTable> tables = List.of(
-                new SourceTable(1, null, null, List.of(List.of("과목명", "공통국어1", "학점", "4")), null, ""),
+                new SourceTable(1, null, null, List.of(List.of("과목", "학년", "학급", "학점수"), List.of("공통국어1", "1학년", "1~7반", "4")), null, ""),
                 new SourceTable(1, null, null, PLAN, null, ""),
                 new SourceTable(2, null, null, UNIT, null, ""));
         List<PlanExtractor.Subject> subjects = PlanExtractor.extract(tables, "plan.pdf", "");
         assertThat(subjects).hasSize(1);
+        assertThat(subjects.getFirst().grades).containsExactly(1);
         String sha = "a".repeat(64);
         Map<String, Object> payload = ImportPayload.build(subjects, PlanDocumentFormat.PDF, sha, 2, true, "test");
         JsonMapper mapper = JsonMapper.builder().build();
@@ -108,6 +109,14 @@ class ExamAndTeachingPlanRulesTest {
         AnalysisImportRequest.Subject s = request.subjects().getFirst();
         assertThat(s.writtenEvaluation().exams()).hasSize(2);
         assertThat(s.teachingPlan()).hasSize(3);
+        assertThat(s.grades()).containsExactly(1);
         assertThat(s.teachingPlan().getFirst().schedule().precision()).isEqualTo("WEEK_IN_MONTH");
+    }
+
+    @Test
+    void 머리_표의_학년_칸을_읽는다() {
+        assertThat(SubjectRules.gradesFromHeaderTable(List.of(List.of("과목", "학년"), List.of("통합사회2", "1학년")))).containsExactly(1);
+        assertThat(SubjectRules.gradesFromHeaderTable(List.of(List.of("과목", "통합사회2", "학년", "2·3")))).containsExactly(2, 3);
+        assertThat(SubjectRules.gradesFromHeaderTable(List.of(List.of("과목", "학년"), List.of("통합사회2", "전체")))).isEmpty();
     }
 }

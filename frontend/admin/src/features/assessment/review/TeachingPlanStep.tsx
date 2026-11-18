@@ -313,6 +313,22 @@ export function TeachingPlanStep({
                     </select>
                   )}
                 </div>
+                {!lockedReview && draftEditable && rows.some((ref) => !decisionOf(keyOf(ref))) && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '6px 0' }}>
+                    <button
+                      type="button"
+                      className={`${styles.button} ${styles.small}`}
+                      onClick={() => rows.filter((ref) => !decisionOf(keyOf(ref))).forEach((ref) => {
+                        const page = firstPage(ref.row)
+                        decide(keyOf(ref), { kind: 'confirmed', value: '', page: page ? String(page) : '' })
+                      })}
+                      data-testid={`teaching-plan-confirm-all-${subject.subjectIndex}`}
+                    >
+                      남은 {rows.filter((ref) => !decisionOf(keyOf(ref))).length}행 모두 확인
+                    </button>
+                    <span className={styles.tiny}>원문과 대조한 뒤 누르세요. 행마다 수정·제외로 바꿀 수 있어요.</span>
+                  </div>
+                )}
                 {subject.issues.length > 0 && (
                   <ul className={styles.tiny} style={{ margin: '6px 0', paddingLeft: 18 }} data-testid="teaching-plan-issues">
                     {subject.issues.map((issue, index) => (

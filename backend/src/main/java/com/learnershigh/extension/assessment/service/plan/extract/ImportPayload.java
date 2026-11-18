@@ -30,14 +30,18 @@ public final class ImportPayload {
                 "format", format == PlanDocumentFormat.PDF ? null : format.name());
         out.put("source", source);
         List<Map<String, Object>> subs = new ArrayList<>();
-        java.util.Set<String> names = new java.util.HashSet<>();
+        Map<String, List<List<Integer>>> byName = new LinkedHashMap<>();
         for (PlanExtractor.Subject s : subjects) {
             if (s.examPercent == null && s.performancePercent == null && s.items.isEmpty()) {
                 continue;
             }
-            if (!names.add(s.name.strip()) || subs.size() >= 40) {
-                continue;   // 계약: 과목 이름 중복 불가, 과목 40개 이하
+            List<List<Integer>> same = byName.computeIfAbsent(s.name.strip(), k -> new ArrayList<>());
+            List<Integer> gs = contract03 ? s.grades : List.of();   // 0.2 는 grades 를 보내지 않는다
+            boolean clash = same.stream().anyMatch(g -> g.isEmpty() || gs.isEmpty() || !java.util.Collections.disjoint(g, gs));
+            if (clash || subs.size() >= 40) {
+                continue;   // 계약: 같은 이름은 양쪽 학년이 있고 겹치지 않을 때만(§39-12), 과목 40개 이하
             }
+            same.add(gs);
             subs.add(subject(s, format, contract03, subs.size() + 1));
         }
         out.put("status", subs.isEmpty() ? "FAILED" : "REVIEW_REQUIRED");
@@ -58,6 +62,9 @@ public final class ImportPayload {
             pages.add(t.page());
         }
         m.put("sources", List.of(loc(t, s.name, f)));
+        if (c03 && !s.grades.isEmpty()) {
+            m.put("grades", s.grades);   // 원문 머리 표의 학년 — 다른 학년 문서에서는 확정되지 않는다(§39-12)
+        }
         if (s.examPercent != null) {
             List<Map<String, Object>> exams = new ArrayList<>();
             for (ExamRules.Exam e : s.exams) {

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public final class ScanOcr {
 
     private static final Logger log = LoggerFactory.getLogger(ScanOcr.class);
-    static final float DPI = 200f;
+    static final float DPI = 200f;   // 150 은 10% 빠르지만 과목·항목 결과가 달라져(실측 2개 문서) 200 유지
     static final int MAX_PAGES = 80;
 
     private ScanOcr() {
@@ -64,9 +64,12 @@ public final class ScanOcr {
         float k = 72f / DPI;   // 그림 픽셀 → 쪽 좌표
         int w = img.getWidth(), h = img.getHeight();
         boolean[][] dark = new boolean[h][w];
+        int[] row = new int[w];
+        java.awt.image.Raster raster = img.getRaster();
         for (int y = 0; y < h; y++) {
+            raster.getSamples(0, y, w, 1, 0, row);   // 한 줄씩 한 번에 읽는다(픽셀마다 읽으면 쪽당 수백 ms)
             for (int x = 0; x < w; x++) {
-                dark[y][x] = (img.getRaster().getSample(x, y, 0)) < 160;
+                dark[y][x] = row[x] < 160;
             }
         }
         int minH = Math.max(40, w / 40), minV = Math.max(40, h / 60);   // 글자 획(약 30px)보다 길어야 선
@@ -106,13 +109,20 @@ public final class ScanOcr {
                 vs.add(new float[] {x * k, start * k, (last + 1) * k});
             }
         }
+        List<PdfTables.Glyph> glyphs = glyphs(words);
+        return new PageScan(hs, vs, glyphs);
+    }
+
+    /** OCR 단어(그림 픽셀) → 쪽 좌표 글자. */
+    static List<PdfTables.Glyph> glyphs(List<Word> words) {
+        float k = 72f / DPI;
         List<PdfTables.Glyph> glyphs = new ArrayList<>();
         for (Word wd : words) {
             if (!wd.text().isBlank()) {
                 glyphs.add(new PdfTables.Glyph(wd.x() * k, wd.y() * k, wd.w() * k, wd.h() * k, fix(wd.text())));
             }
         }
-        return new PageScan(hs, vs, glyphs);
+        return glyphs;
     }
 
     /** 평가계획서 표 머리에서 자주 틀리는 OCR 글자 (실측: 인명여고·명신여고 스캔본). */

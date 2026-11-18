@@ -26,6 +26,13 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
     public static final String NAME = "learnershigh-plan-extract";
     private final JsonMapper mapper;
     private final long timeoutMillis;
+    /** 최근 분석 결과 8개 (원문 SHA·파일 이름·계약·버전 기준). 메모리 상한을 위해 오래된 것부터 버린다. */
+    private final Map<String, Result> recent = new java.util.LinkedHashMap<>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Result> eldest) {
+            return size() > 8;
+        }
+    };
     private final com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr;
 
     public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis) {
@@ -55,6 +62,15 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
         }
         String sha = sha256(bytes);
         boolean c03 = "0.3".equals(request.contract());
+        // 같은 원문(여러 학년 공통 문서를 학년마다 등록할 때 등)은 다시 읽지 않는다 — 규칙이 같으면 결과도 같다
+        String key = sha + "|" + request.fileName() + "|" + request.contract() + "|" + request.analyzerVersion();
+        synchronized (recent) {
+            Result hit = recent.get(key);
+            if (hit != null) {
+                log.info("plan extract reused sha={}", sha.substring(0, 12));
+                return hit;
+            }
+        }
         try {
             List<SourceTable> tables = PlanTableReader.read(bytes, format, timeoutMillis, ocr);
             List<PlanExtractor.Subject> subjects = PlanExtractor.extract(tables, request.fileName(), "");
@@ -64,10 +80,14 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
             int elapsed = (int) ((System.nanoTime() - t0) / 1_000_000);
             log.info("plan extract done format={} tables={} subjects={} elapsedMs={} sha={}", format, tables.size(),
                     ((List<?>) payload.get("subjects")).size(), elapsed, sha.substring(0, 12));
-            return new Result("local-" + sha.substring(0, 12), ok ? "OK_REVIEW_REQUIRED" : "NO_ASSESSMENTS_EXTRACTED",
+            Result result = new Result("local-" + sha.substring(0, 12), ok ? "OK_REVIEW_REQUIRED" : "NO_ASSESSMENTS_EXTRACTED",
                     request.analyzerVersion(), "LOCAL", sha, elapsed,
                     format == PlanDocumentFormat.PDF ? "OFFICIAL_PDF" : "EXPERIMENTAL_MULTIFORMAT", true, List.of(),
                     mapper.writeValueAsString(payload), List.of(), List.of(), 200, c03 ? "0.3" : null, null);
+            synchronized (recent) {
+                recent.put(key, result);
+            }
+            return result;
         } catch (IOException | RuntimeException e) {
             log.warn("plan extract failed format={} sha={} cause={}", format, sha.substring(0, 12), e.getClass().getSimpleName());
             throw new PlanAnalyzerException(PlanAnalyzerException.Kind.SERVER_ERROR, "EXTRACT_FAILED", "plan extract failed");

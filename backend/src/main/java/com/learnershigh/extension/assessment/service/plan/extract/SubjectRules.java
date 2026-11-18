@@ -98,6 +98,40 @@ public final class SubjectRules {
     static final Set<String> SUBJ_LABELS = Set.of("과목", "과목명", "교과목", "교과목명", "교과(목)", "교과(목)명", "과목명항목");
 
     /** 머리 표 '과목 | 공통국어2' 또는 '과목 (아래) 공통국어2'. */
+    private static final Pattern GRADE_VALUE = Pattern.compile("^([1-3])(?:\\s*[,·ㆍ~∼-]\\s*([1-3]))*\\s*(?:학년)?$");
+
+    /**
+     * 과목 머리 표의 '학년' 칸 값(예: 학년 | 1학년, 학년 | 1·2). 원문에 적힌 학년만 — 없으면 빈 목록.
+     * 여러 학년 공통 문서에서 다른 학년 과목을 학생에게 확정하지 않게 쓰인다(계약 subjects[].grades).
+     */
+    public static List<Integer> gradesFromHeaderTable(List<List<String>> g) {
+        for (int ri = 0; ri < Math.min(2, g.size()); ri++) {
+            List<String> r = g.get(ri);
+            for (int ci = 0; ci < r.size(); ci++) {
+                if (!norm(r.get(ci)).equals("학년")) {
+                    continue;
+                }
+                String right = ci + 1 < r.size() ? r.get(ci + 1) : "";
+                String below = ri + 1 < g.size() && ci < g.get(ri + 1).size() ? g.get(ri + 1).get(ci) : "";
+                for (String v : List.of(below, right)) {
+                    String n = norm(v);
+                    if (GRADE_VALUE.matcher(n).matches()) {
+                        java.util.TreeSet<Integer> out = new java.util.TreeSet<>();
+                        java.util.regex.Matcher range = Pattern.compile("([1-3])[~∼-]([1-3])").matcher(n);
+                        while (range.find()) {
+                            for (int k = Integer.parseInt(range.group(1)); k <= Integer.parseInt(range.group(2)); k++) {
+                                out.add(k);
+                            }
+                        }
+                        n.chars().filter(ch -> ch >= '1' && ch <= '3').forEach(ch -> out.add(ch - '0'));
+                        return List.copyOf(out);
+                    }
+                }
+            }
+        }
+        return List.of();
+    }
+
     public static String fromHeaderTable(List<List<String>> g) {
         for (int ri = 0; ri < Math.min(2, g.size()); ri++) {
             List<String> r = g.get(ri);

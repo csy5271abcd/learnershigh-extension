@@ -43,6 +43,7 @@ class ExtractSampleTest {
                         }
                         sb.append("; ");
                     }
+                    sb.append(" | grades ").append(s.grades);
                     sb.append(" | exams ");
                     s.exams.forEach(e -> sb.append(e.round()).append(':').append(e.label()).append('=').append(e.weightPercent()).append(' '));
                     sb.append("| plan ").append(s.plan.size());
