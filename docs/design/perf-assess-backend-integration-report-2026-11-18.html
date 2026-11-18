@@ -44,6 +44,14 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <figure><img src="perf-assess-screens/real-8-item-rubric.png" alt="수행 항목 상세"><figcaption>항목 상세: 반영비율 20%, 만점 20점, 시기 10월 4~5주, 평가 활동</figcaption></figure>
 <figure><img src="perf-assess-screens/real-9-item-rubric-scrolled.png" alt="채점기준표"><figcaption>채점기준표: 큰 요소 › 세부 요소, 요소 배점, 점수별 기준, 원문 18쪽</figcaption></figure>
 
+<h2>1-2. 정기시험 회차·월별 운영 계획 (작전고, 실제 화면)</h2>
+<p>학교 이름 '작전고등학교'로 불러오기: 파일 9개 중 8개 등록·분석, 16초. 과목 30개에서 정기시험 회차 47개, 월별 운영 계획 568행을 읽었다. 화면 코드는 바꾸지 않았다(수연님 화면 그대로).</p>
+<figure><img src="perf-assess-screens/real-10-import-jakjeon.png" alt="작전고 불러오기 결과"><figcaption>불러오기 결과: 교과별 문서 8개 등록, 예체능·공동교육과정 2개는 평가 정보를 찾지 못함, 성적관리규정은 건너뜀</figcaption></figure>
+<figure><img src="perf-assess-screens/real-11-teaching-step.png" alt="검토 4단계 월별 운영 계획"><figcaption>검토 4단계 '월별 운영 계획': 사회과 문서 후보 164행이 과목별·월별 달력에 놓인다(9월 57개 등)</figcaption></figure>
+<figure><img src="perf-assess-screens/real-12-exam-rounds.png" alt="평가 구성 정기시험 회차"><figcaption>평가계획서 열람 › 평가 구성: 통합사회2 지필 60% = 1차 30%(10월 1주) + 2차 30%(12월 2주)</figcaption></figure>
+<figure><img src="perf-assess-screens/real-13-teaching-plan-rows.png" alt="월별 운영계획 행"><figcaption>평가계획서 열람 › 월별 운영계획: 9월 1~2주 · 단원 · 성취기준 · 교수학습 방법 · 원문 쪽</figcaption></figure>
+<p class="sub">화면에서 확인한 문제: '1,2,3학년' 통합 문서가 3학년 하나로 등록된다(파일 이름의 학년 판단). 학생 월간 달력은 관리자가 과목을 연결하고 운영 계획을 확정한 뒤에만 보여 이번에는 확인하지 않았다.</p>
+
 <h2>2. 정확도·속도 (받아 둔 학교 113곳 전체)</h2>
 <p>Java로 옮긴 백엔드 분석과, 그동안 측정한 Python 추출기 결과를 같은 원문으로 비교했다.</p>
 <table>
@@ -93,6 +101,8 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <ul>
 <li>스캔본 OCR은 백엔드로 옮기지 않았다(스캔본은 126곳 중 2~3곳). 필요하면 Tesseract 연결.</li>
 <li>113곳 일괄 측정의 파일 오류 2건(선부고 등) 원인 확인.</li>
+<li>여러 학년이 섞인 문서(예: 1,2,3학년)의 학년 처리.</li>
+<li>학생 월간 달력까지 이어지는 확정 흐름 실제 화면 확인.</li>
 </ul>
 </main>
 </body>

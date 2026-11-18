@@ -204,7 +204,7 @@ public final class TeachingPlanRules {
         List<String> out = new ArrayList<>();
         for (String p : s.split("\\s*[,，/]\\s*")) {
             String t = ImportPayload.trim(p, 300);
-            if (t != null && out.size() < 20) {
+            if (t != null && !t.matches("[○●◯◎OoVv✓√■□\\-]+") && out.size() < 20) {   // 표시 기호만 있는 칸은 값이 아니다
                 out.add(t);
             }
         }

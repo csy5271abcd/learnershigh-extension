@@ -71,6 +71,12 @@ class ExamAndTeachingPlanRulesTest {
     }
 
     @Test
+    void 표시_기호만_있는_칸은_방법으로_넣지_않는다() {
+        assertThat(TeachingPlanRules.list("○")).isEmpty();
+        assertThat(TeachingPlanRules.list("강의, ○")).containsExactly("강의");
+    }
+
+    @Test
     void 월_칸의_주_표기와_월_범위() {
         assertThat(TeachingPlanRules.month("8월 2~3주")).containsExactly(8, 8);
         assertThat(TeachingPlanRules.month("3~4월")).containsExactly(3, 4);
