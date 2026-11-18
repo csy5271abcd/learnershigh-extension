@@ -12,6 +12,7 @@ import styles from '../styles/assessmentAdmin.module.css'
 import review from '../review/review.module.css'
 import { devCurrentTerm } from '../api/http/adminRecordsHttp.ts'
 import { PlanAnalysisPreviewPanel } from './PlanAnalysisPreviewPanel.tsx'
+import { SchoolInfoImportModal } from './SchoolInfoImportModal.tsx'
 import { paths } from './paths.ts'
 
 // PDF·HWP·HWPX 원문 등록 (S-4·S-5, 2026-11-13): http에서는 세 형식 모두 서버가 원문 그대로 보관한다.
@@ -68,6 +69,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const [upload, setUpload] = useState<{ grade: number; semester: number; planId?: string } | null>(null)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const [deleting, setDeleting] = useState<AdminEvaluationPlan | null>(null)
+  const [schoolInfo, setSchoolInfo] = useState(false)
   const { run, pending } = useCommand()
 
   const setParams = (entries: Record<string, string | null>) => {
@@ -116,6 +118,11 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
         {!isAdminMockDataSource && (
           <button type="button" className={review.button} onClick={() => navigate(paths.planArchive(schoolId || undefined))} data-testid="open-plan-archive">
             학년도별 열람
+          </button>
+        )}
+        {!isAdminMockDataSource && (
+          <button type="button" className={review.button} onClick={() => setSchoolInfo(true)} disabled={!schoolId} data-testid="schoolinfo-open">
+            학교알리미에서 불러오기
           </button>
         )}
         <button type="button" className={review.buttonPrimary} onClick={() => setUpload({ grade: gradeFilter ?? 1, semester: semesterFilter ?? 2 })} disabled={!schoolId || !year} data-testid="plan-upload-open">
@@ -319,6 +326,22 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
                 : `원문은 서버에 보관했어요. 분석은 실행하지 못했어요${analysisError ? ` — ${analysisError}` : ''}. 목록에서 다시 분석할 수 있어요.`
               : analysis === 'FAILED' || analysis === null ? '분석하지 못했어요 — 실제 AI 분석이 연결되지 않아 시연 결과가 있는 문서만 분석돼요.' : '분석 결과가 준비됐어요.'
             setToast({ id: nextToastId(), tone: analysis === 'FAILED' || analysis === null ? 'info' : 'success', text: `${revision ? `개정본 v${revision}을 올렸어요 (기존 버전 보존).` : '평가계획서를 등록했어요.'} ${analysisText}` })
+          }}
+        />
+      )}
+      {schoolInfo && schoolId && (
+        <SchoolInfoImportModal
+          schoolId={schoolId}
+          schoolName={schoolLabel}
+          academicYear={year || devCurrentTerm().academicYear}
+          onClose={() => setSchoolInfo(false)}
+          onDone={(result) => {
+            setSchoolInfo(false)
+            plans.reload()
+            schools.reload()
+            registered.reload()
+            const n = result.files.filter((f) => f.planId).length
+            setToast({ id: nextToastId(), tone: n ? 'success' : 'info', text: n ? `학교알리미 평가계획서 ${n}개를 등록하고 분석했어요. 목록의 "검토"에서 확인해 주세요.` : '등록한 문서가 없어요.' })
           }}
         />
       )}

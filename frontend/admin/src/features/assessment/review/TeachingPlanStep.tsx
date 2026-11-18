@@ -9,7 +9,7 @@ import { manualRowErrorText } from './manualRowErrors.ts'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
-import type { Decision } from './reviewModel.ts'
+import { gradeConflict, type Decision } from './reviewModel.ts'
 import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
 import { useServerDraft } from './useServerDraft.ts'
 import { TeachingPlanHistoryPanel } from './TeachingPlanHistoryPanel.tsx'
@@ -65,6 +65,9 @@ export function TeachingPlanStep({
 }) {
   const slot = view.slot
   const candidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
+  // 여러 학년 공통 문서: 원문 학년이 이 문서 학년이 아닌 과목은 뒤로 보내고 접어 둔다(확정 불가 §39-12)
+  const otherGrade = candidates.filter((subject) => gradeConflict(subject.grades, view.slot?.grade))
+  const [showOther, setShowOther] = useState(false)
   const refs: RowRef[] = useMemo(
     () => candidates.flatMap((subject) => (subject.rows ?? []).map((row, rowIndex) => ({ subjectIndex: subject.subjectIndex, rowIndex, subjectName: subject.subjectName, row }))),
     [candidates],
@@ -280,7 +283,13 @@ export function TeachingPlanStep({
 
       {candidates.some((subject) => subject.rows !== null || subject.issues.length > 0) && (
         <div style={{ marginTop: 20, display: 'grid', gap: 18 }} data-testid="teaching-plan-rows">
-          {candidates.map((subject) => {
+          {otherGrade.length > 0 && (
+            <button type="button" className={styles.link} style={{ justifySelf: 'start' }} onClick={() => setShowOther((value) => !value)} aria-expanded={showOther} data-testid="teaching-plan-other-grades">
+              {showOther ? '다른 학년 과목 접기' : `다른 학년 과목 ${otherGrade.length}개 보기 (이 문서에서는 확정하지 않아요)`}
+            </button>
+          )}
+          {[...candidates].sort((a, b) => Number(otherGrade.includes(a)) - Number(otherGrade.includes(b))).map((subject) => {
+            if (otherGrade.includes(subject) && !showOther) return null
             const rows = refs.filter((ref) => ref.subjectIndex === subject.subjectIndex)
             const linked = (subjectIds[subject.subjectIndex] ?? '').trim()
             return (
@@ -313,6 +322,22 @@ export function TeachingPlanStep({
                     </select>
                   )}
                 </div>
+                {!lockedReview && draftEditable && rows.some((ref) => !decisionOf(keyOf(ref))) && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '6px 0' }}>
+                    <button
+                      type="button"
+                      className={`${styles.button} ${styles.small}`}
+                      onClick={() => rows.filter((ref) => !decisionOf(keyOf(ref))).forEach((ref) => {
+                        const page = firstPage(ref.row)
+                        decide(keyOf(ref), { kind: 'confirmed', value: '', page: page ? String(page) : '' })
+                      })}
+                      data-testid={`teaching-plan-confirm-all-${subject.subjectIndex}`}
+                    >
+                      남은 {rows.filter((ref) => !decisionOf(keyOf(ref))).length}행 모두 확인
+                    </button>
+                    <span className={styles.tiny}>원문과 대조한 뒤 누르세요. 행마다 수정·제외로 바꿀 수 있어요.</span>
+                  </div>
+                )}
                 {subject.issues.length > 0 && (
                   <ul className={styles.tiny} style={{ margin: '6px 0', paddingLeft: 18 }} data-testid="teaching-plan-issues">
                     {subject.issues.map((issue, index) => (

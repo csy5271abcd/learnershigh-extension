@@ -1369,7 +1369,40 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 
 `decision=CONFIRM`은 **공통 평가정보 확인**이지 학생 과제 승인/반려가 아니다. PDF 비율 합계가 원본과 다르면 경고하며 자동 재배분하지 않는다. 확인 결과의 공개 범위는 학교·학년도·학년·학기로 제한된다. 추출 실패/부분 성공/수동 정정·확인 상태를 구분한다.
 
+### 38-11. 학교알리미에서 평가계획서 불러오기 (2026-11-18 DRAFT — 구현됨)
+
+`POST /api/admin/assessment/evaluation-plans/import-from-schoolinfo` (평가계획서 운영 권한, §38-2)
+
+```json
+{ "schoolId": "school_001", "schoolName": "신원고등학교", "academicYear": 2026, "semester": 2, "defaultGrade": 1 }
+```
+
+- Backend가 학교알리미(schoolinfo.go.kr) 공시 항목 '교과별 교수·학습 및 평가 계획'의 첨부 파일을 받아(zip 이면 풀어서) 파일마다 §38 등록을 요청 안에서 끝내고 `202`로 작업 번호를 준다. §39-1 서버 분석은 서버 작업 1개가 차례로 돌린다(서버 사양 고려, 여러 관리자의 작업도 한 줄로). 화면은 `GET …/import-from-schoolinfo/{jobId}`를 다시 읽어 진행바(`done`/`total`)를 그린다.
+- 학년: 파일 이름의 학년 표기('3학년'·'1,2,3학년'·'1~3학년'·'전학년'). 여러 학년 공통 문서는 **학년마다 따로 등록·분석**해 `files[]`에 학년별로 한 줄씩 나온다(같은 파일 이름, 다른 `grade`). 학년 표기가 없으면 `defaultGrade`(없으면 1). '2023학년도'의 숫자는 학년으로 보지 않는다. 다른 학기 파일('1학기'만 있는 이름)·평가계획이 아닌 파일(성적관리규정·부록 등)·PDF/HWP/HWPX 가 아닌 파일은 등록하지 않고 `skipped=true`·`message`로 알린다.
+- `sourceUrl`은 `https://www.schoolinfo.go.kr`로 남는다. 등록한 문서는 일반 업로드와 같다(검토·확정·삭제 동일).
+
+```json
+{ "jobId": "schoolinfo_job_…", "state": "RUNNING", "schoolName": "신원고등학교", "done": 1, "total": 3,
+  "files": [ { "fileName": "1학년 평가계획.pdf", "grade": 1, "planId": "plan_…", "documentRevisionId": "rev_…",
+               "analysisStatus": "REVIEW_REQUIRED", "subjects": 12, "skipped": false, "message": null },
+             { "fileName": "2학년 평가계획.pdf", "grade": 2, "planId": "plan_…", "documentRevisionId": "rev_…",
+               "analysisStatus": "ANALYZING", "subjects": null, "skipped": false, "message": null } ] }
+```
+
+- `analysisStatus`: `QUEUED`(대기) → `ANALYZING` → §39 분석 상태(`REVIEW_REQUIRED`·`PARTIAL`·`FAILED`), 분석 오류는 `FAILED` + `message`. `state`: 모든 등록 문서가 끝나면 `DONE`.
+- `GET /api/admin/assessment/evaluation-plans/import-from-schoolinfo/{jobId}` → 같은 모양. 작업을 시작한 관리자만 본다. 작업 기록은 서버 메모리(최근 50개)라 서버를 다시 켜면 `404 SCHOOLINFO_JOB_NOT_FOUND` — 분석 결과는 각 문서(§39)에 남는다.
+
+| 상황 | 응답 |
+|---|---|
+| 학교를 못 찾음 | `404 SCHOOLINFO_SCHOOL_NOT_FOUND` |
+| 평가계획 공시·첨부 없음 | `404 SCHOOLINFO_PLAN_NOT_PUBLISHED` |
+| 학교알리미 연결 실패(일시 오류 3번 재시도 후) | `503 SCHOOLINFO_UNAVAILABLE` |
+| 파일 하나의 등록·분석 실패 | 202/200, 그 파일만 `message`에 사유 (다른 파일은 계속) |
+| 모르는 작업 번호 · 다른 관리자의 작업 | `404 SCHOOLINFO_JOB_NOT_FOUND` |
+
 ### 39-1. 서버 분석 실행 (A3, 2026-11-13 구현)
+
+**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `none`: 분석기 미설정(503). **2026-11-19: 외부 분석기(`http`, `/analyze-preview`) 연결은 걷어 냈다** — 아래 외부 분석기 관련 서술(토큰·재시도·시간 제한 두 단계)은 기록으로만 남는다. 응답·오류 모양은 그대로다. `local`은 정기시험 회차(`writtenEvaluation.exams`, 회차 비율 합이 지필 비율과 맞을 때만)와 월별 운영 계획(`teachingPlan`)도 채운다. 글자 정보가 없는 스캔 PDF 쪽은 `assessment.analyzer.ocr`(auto·tesseract·windows·none)로 OCR 해 같은 규칙으로 읽는다(엔진이 없으면 그 쪽은 건너뜀). 응답 Shape은 바뀌지 않는다.
 
 `POST .../analysis`: 본문 없음. Backend가 보관 원문(§38-1)을 SHA-256 재검증 뒤 분석기(`POST /analyze-preview`, `X-Analysis-Token`, 환경 변수 설정)로 보내고, `backendImport.payload`를 외부 수신과 같은 검증기(backend-adapter-0.2, 알 수 없는 필드 거절)로 검사해 AnalysisRun으로 저장한다. 응답은 `GET .../analysis`와 같은 모양(`analyzer.origin = "SERVER_ANALYZER"`). `201` 새 Run / `200` 같은 내용의 Run이 이미 있음(새 Run 없음).
 

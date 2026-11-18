@@ -26,6 +26,10 @@ public enum AssessmentErrorCode implements ErrorCode {
     /** A10 §38-6: HWP·HWPX 원문 구조를 읽지 못함. details.fields[file].reason = parse_failed·limit_exceeded·timeout·protected */
     PLAN_PREVIEW_FAILED(HttpStatus.UNPROCESSABLE_CONTENT, "원문을 화면에 표시하지 못했어요. 원본을 내려받아 확인해 주세요."),
     PLAN_PREVIEW_PREPARING(HttpStatus.SERVICE_UNAVAILABLE, "PDF 변환기를 준비하고 있어요. 잠시 후 다시 열어 주세요."),
+    SCHOOLINFO_SCHOOL_NOT_FOUND(HttpStatus.NOT_FOUND, "학교알리미에서 학교를 찾지 못했어요. 학교 이름을 확인해 주세요."),
+    SCHOOLINFO_PLAN_NOT_PUBLISHED(HttpStatus.NOT_FOUND, "학교알리미에 교과별 평가계획 공시가 없어요."),
+    SCHOOLINFO_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "학교알리미에서 파일을 받지 못했어요. 잠시 후 다시 시도해 주세요."),
+    SCHOOLINFO_JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "불러오기 작업을 찾지 못했어요. 서버가 다시 시작됐다면 평가계획서 목록에서 분석 상태를 확인해 주세요."),
     PLAN_ANALYZER_NOT_CONFIGURED(HttpStatus.SERVICE_UNAVAILABLE, "평가계획서 분석기가 서버에 설정되지 않았어요."),
     PLAN_ANALYZER_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "평가계획서 분석기에 연결하지 못했거나 응답이 늦어요. 잠시 후 다시 시도해 주세요."),
     PLAN_ANALYZER_BAD_RESPONSE(HttpStatus.BAD_GATEWAY, "분석기 결과를 저장할 수 없어요. 결과 형식이 계약과 맞지 않아요."),
