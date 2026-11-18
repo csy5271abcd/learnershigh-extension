@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평가계획서 분석 실제 적용 보고</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--fg:#191f28;--muted:#6b7684;--line:#e5e8eb;--blue:#3182f6;--red:#d22030;--green:#0a7c4a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111316;--card:#1b1e22;--fg:#e9ecef;--muted:#9aa4b0;--line:#2c3138;--blue:#5aa0ff;--red:#ff6b78;--green:#4cc38a}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Pretendard","Malgun Gothic",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 10px}
+.sub{color:var(--muted);font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+img{max-width:100%;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+.good{color:var(--green);font-weight:600}.bad{color:var(--red);font-weight:600}
+ul{margin:6px 0;padding-left:20px}
+figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>평가계획서 분석 — 실제 백엔드·관리자 화면 적용</h1>
+<p class="sub">2026-11-18 · PR #17(수연님) 위에 쌓은 #18 · 실측: Playwright, 학교알리미 공개 원문</p>
+
+<div class="card">
+<b>핵심</b>
+<ul>
+<li>평가계획서 분석을 외부 분석기(Railway) 대신 <b>백엔드 안에서</b> 한다. 원문이 서버 밖으로 나가지 않고, 토큰·외부 서비스가 필요 없다.</li>
+<li>관리자가 <b>학교 이름</b>만 넣으면 학교알리미에서 평가계획서를 받아 학년별로 등록하고 바로 분석한다.</li>
+<li>과목·지필/수행 비율·수행 항목에 더해 <b>항목별 채점 기준(요소·배점·점수별 기준)</b>을 읽어 수연님 검토 화면에 그대로 띄운다. 화면 코드는 버튼 하나만 더했다.</li>
+<li>같은 공개 PDF로 비교하면 Railway 분석기는 비율 4과목·채점 기준 0건, 이 분석은 비율 98과목·채점 기준 69건이다.</li>
+</ul>
+</div>
+
+<h2>1. 실제 화면 (Playwright로 조작)</h2>
+<figure><img src="perf-assess-screens/real-2-import-dialog.png" alt="학교알리미에서 불러오기 대화상자"><figcaption>평가계획서 목록 → "학교알리미에서 불러오기" → 학교 이름 입력</figcaption></figure>
+<figure><img src="perf-assess-screens/real-3-import-result.png" alt="불러오기 결과"><figcaption>서연고: 파일 4개를 받아 3개 등록·분석(과목 12·24·40개), 성적관리규정 1개는 건너뜀 — 21초</figcaption></figure>
+<figure><img src="perf-assess-screens/real-3b-import-result-hwp.png" alt="HWP 학교 불러오기 결과"><figcaption>청담고(HWP·HWPX): 3개 등록·분석(과목 19·24·11개) — 3.8초. HWP 근거 위치도 수연님 검증을 통과</figcaption></figure>
+<figure><img src="perf-assess-screens/real-7-review-performance.png" alt="수행평가 검토 단계"><figcaption>수연님 검토 화면 그대로: 공통국어2 지필 60%·수행 40%, 원문 17쪽 근거, 수행 항목 목록</figcaption></figure>
+<figure><img src="perf-assess-screens/real-8-item-rubric.png" alt="수행 항목 상세"><figcaption>항목 상세: 반영비율 20%, 만점 20점, 시기 10월 4~5주, 평가 활동</figcaption></figure>
+<figure><img src="perf-assess-screens/real-9-item-rubric-scrolled.png" alt="채점기준표"><figcaption>채점기준표: 큰 요소 › 세부 요소, 요소 배점, 점수별 기준, 원문 18쪽</figcaption></figure>
+
+<h2>2. 정확도·속도 (받아 둔 학교 113곳 전체)</h2>
+<p>Java로 옮긴 백엔드 분석과, 그동안 측정한 Python 추출기 결과를 같은 원문으로 비교했다.</p>
+<table>
+<tr><th>항목</th><th class="n">백엔드(Java)</th><th class="n">Python</th><th class="n">비율</th></tr>
+<tr><td>값 있는 과목</td><td class="n">5,045</td><td class="n">4,794</td><td class="n">105%</td></tr>
+<tr><td>검증 통과 과목 (항목 비율 합 = 수행 비율)</td><td class="n">4,087</td><td class="n">4,001</td><td class="n">102%</td></tr>
+<tr><td>수행 항목</td><td class="n">13,175</td><td class="n">12,148</td><td class="n">108%</td></tr>
+<tr><td>채점 기준이 붙은 항목</td><td class="n">7,487</td><td class="n">7,202</td><td class="n">104%</td></tr>
+<tr><td>채점 요소 만점 합 = 과제 만점</td><td class="n">7,167</td><td class="n">6,845</td><td class="n">105%</td></tr>
+</table>
+<p>학교 하나(평가계획 파일 전부) 처리 시간: 중앙 2.0초, 상위 10% 9.1초, 최대 29.1초. 원문 표본 대조(Python 기준 측정): 비율·항목 값 100건 중 95~99건 일치, 채점 기준 합 일치 95%.</p>
+<p class="sub">알려진 차이: 선부고는 파일 단독으로 돌리면 56과목이 나오지만 113곳을 한 번에 돌린 측정에서는 파일 오류 1건(메모리)이 났다. 창의·청명·성덕고 등 몇 곳은 Python보다 검증 통과 과목이 적다(과목명 이어받기 규칙 차이).</p>
+
+<h2>3. 수연님 분석기(Railway)와 같은 파일 비교</h2>
+<p>학교알리미 공개 PDF 14개(학교당 1개, 120쪽 이하)를 두 분석기에 같은 계약(0.3)으로 보냈다. 큰 문서(120쪽 초과) 6개 묶음은 따로 측정 중이다.</p>
+<table>
+<tr><th>항목 (14개 합계)</th><th class="n">Railway</th><th class="n">이 분석</th></tr>
+<tr><td>지필·수행 비율이 있는 과목</td><td class="n bad">4</td><td class="n good">98</td></tr>
+<tr><td>수행 항목 / 비율 있는 항목</td><td class="n">28 / 3</td><td class="n">189 / 179</td></tr>
+<tr><td>채점 기준이 붙은 항목</td><td class="n bad">0</td><td class="n good">69</td></tr>
+<tr><td>정기시험 회차(writtenEvaluation.exams)</td><td class="n good">18</td><td class="n bad">0</td></tr>
+<tr><td>월별 운영 계획 행(teachingPlan)</td><td class="n good">1,317</td><td class="n bad">0</td></tr>
+<tr><td>처리 시간 중앙값</td><td class="n">3.5초</td><td class="n">1.5~3.8초</td></tr>
+</table>
+<p class="sub">이 비교의 '이 분석'은 Python 판(같은 규칙). Python 판은 도형이 매우 많은 쪽에서 표 찾기가 느려 113쪽 문서 하나가 260초 걸렸다. 백엔드(Java) 판은 같은 문서를 포함한 113곳 측정에서 학교당 최대 29초였다.</p>
+
+<h2>4. 바꾼 것</h2>
+<table>
+<tr><th>곳</th><th>내용</th></tr>
+<tr><td>백엔드 분석</td><td><code>assessment.analyzer.mode</code> = <b>local</b>(기본) · http(예전 외부 분석기) · none. local은 PDF(PDFBox 선 읽기)·HWP/HWPX(기존 구조 리더) 표를 읽어 규칙으로 분석하고 기존 수신 계약(analysis-import 0.3) 모양으로 넘긴다. 이후 검증·저장·검토·확정은 그대로.</td></tr>
+<tr><td>학교 이름 불러오기</td><td><code>POST /api/admin/assessment/evaluation-plans/import-from-schoolinfo</code> — 학교알리미 받기 → 학년별 등록 → 분석. API 계약 §38-11에 적음.</td></tr>
+<tr><td>관리자 화면</td><td>평가계획서 목록에 "학교알리미에서 불러오기" 버튼·대화상자.</td></tr>
+<tr><td>시험</td><td>백엔드 단위 시험 전부 통과(기존 시험은 mode=none·http로 그대로 유지), 관리자 타입 검사·lint 통과.</td></tr>
+</table>
+
+<h2>5. 수연님 로직 간소화 의견 (의견만, 아직 바꾸지 않음)</h2>
+<ul>
+<li><b>외부 분석기 경계 걷어내기</b>: 분석이 백엔드 안으로 들어왔으니 HTTP 분석기 Client·토큰(공개 저장소에 노출된 상태)·분석기 프로필 두 벌(0.2/0.3) 검사를 없앨 수 있다. 시험이 이 경계에 묶여 있어(Stub 분석기 E2E) 시험부터 local로 옮겨야 한다.</li>
+<li><b>계약 한 벌로</b>: 0.2와 0.3을 함께 받는 파서·검증기·상태 판정이 분기마다 갈린다. 0.3 하나로 줄이면 수신·검증 코드가 크게 준다.</li>
+<li><b>초안 저장 단순화</b>: 검토 초안(버전·이벤트·충돌 409)과 확정값(필드 경로별 행)이 따로 있다. 관리자 한 명이 한 문서를 검토하는 실제 사용에서는 '초안 JSON 한 덩어리 저장 → 확정'으로 충분할 수 있다(동시 편집 요구 확인 필요).</li>
+<li><b>빼면 안 되는 것</b>: Railway가 읽는 월별 운영 계획(진도표)·정기시험 회차는 이 분석이 아직 못 읽는다. 학생 화면이 이 값을 쓰면 먼저 옮겨야 한다.</li>
+</ul>
+
+<h2>6. 남은 일</h2>
+<ul>
+<li>월별 운영 계획(진도표)·정기시험 회차 읽기 — Railway 대비 빠진 부분.</li>
+<li>스캔본 OCR은 백엔드로 옮기지 않았다(스캔본은 126곳 중 2~3곳). 필요하면 Tesseract 연결.</li>
+<li>113곳 일괄 측정의 파일 오류 2건(선부고 등) 원인 확인.</li>
+<li>큰 문서 6개 비교 결과 반영.</li>
+</ul>
+</main>
+</body>
+</html>
