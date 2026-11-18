@@ -25,15 +25,39 @@ public final class PdfTables {
 
     /** 문서의 모든 표. 쪽 번호는 1부터. */
     public static List<Table> read(byte[] pdf) throws IOException {
+        return read(pdf, null, Long.MAX_VALUE);
+    }
+
+    /**
+     * ocr 가 있으면 글자 정보가 거의 없는 쪽(스캔본)을 그림으로 읽는다(쪽 수 상한 {@link ScanOcr#MAX_PAGES}, deadline 까지).
+     * 결과 표는 OCR 글자라 틀릴 수 있다 — 어차피 관리자 검토를 거친다.
+     */
+    public static List<Table> read(byte[] pdf, ScanOcr.Engine ocr, long deadlineNanos) throws IOException {
         List<Table> out = new ArrayList<>();
         try (PDDocument doc = Loader.loadPDF(pdf)) {
-            String prevTail = "";
-            for (int p = 0; p < doc.getNumberOfPages(); p++) {
+            int n = doc.getNumberOfPages();
+            List<List<float[]>> hs = new ArrayList<>(), vs = new ArrayList<>();
+            List<List<Glyph>> gs = new ArrayList<>();
+            List<Integer> scanned = new ArrayList<>();
+            for (int p = 0; p < n; p++) {
                 PDPage page = doc.getPage(p);
                 Lines lines = new Lines(page);
                 lines.processPage(page);
                 List<Glyph> glyphs = glyphs(doc, p + 1);
-                for (Table t : Grid.build(lines.h, lines.v, glyphs, p + 1)) {
+                hs.add(lines.h);
+                vs.add(lines.v);
+                gs.add(glyphs);
+                if (ocr != null && glyphs.size() < 15 && scanned.size() < ScanOcr.MAX_PAGES) {
+                    scanned.add(p);
+                }
+            }
+            if (!scanned.isEmpty()) {
+                ocrPages(doc, scanned, ocr, deadlineNanos, hs, vs, gs);
+            }
+            String prevTail = "";
+            for (int p = 0; p < n; p++) {
+                List<Glyph> glyphs = gs.get(p);
+                for (Table t : Grid.build(hs.get(p), vs.get(p), glyphs, p + 1)) {
                     t.ctx = (prevTail + "\n" + Grid.textAbove(glyphs, t.top)).strip();
                     if (t.ctx.length() > 400) {
                         t.ctx = t.ctx.substring(t.ctx.length() - 400);
@@ -45,6 +69,38 @@ public final class PdfTables {
             }
         }
         return out;
+    }
+
+    private static void ocrPages(PDDocument doc, List<Integer> pages, ScanOcr.Engine ocr, long deadlineNanos,
+            List<List<float[]>> hs, List<List<float[]>> vs, List<List<Glyph>> gs) throws IOException {
+        java.nio.file.Path dir = java.nio.file.Files.createTempDirectory("lh-scan");
+        try {
+            List<java.nio.file.Path> images = new ArrayList<>();
+            List<java.awt.image.BufferedImage> rendered = new ArrayList<>();
+            for (int p : pages) {
+                if (System.nanoTime() > deadlineNanos) {
+                    break;
+                }
+                java.awt.image.BufferedImage img = ScanOcr.render(doc, p);
+                rendered.add(img);
+                images.add(ScanOcr.png(img, dir, p + 1));
+            }
+            List<List<ScanOcr.Word>> words = ocr.words(images, deadlineNanos);
+            for (int i = 0; i < rendered.size() && i < words.size(); i++) {
+                ScanOcr.PageScan s = ScanOcr.scan(rendered.get(i), words.get(i));
+                int p = pages.get(i);
+                hs.set(p, s.h());
+                vs.set(p, s.v());
+                gs.set(p, s.glyphs());
+            }
+        } finally {
+            try (var files = java.nio.file.Files.list(dir)) {
+                for (java.nio.file.Path f : files.toList()) {
+                    java.nio.file.Files.deleteIfExists(f);
+                }
+            }
+            java.nio.file.Files.deleteIfExists(dir);
+        }
     }
 
     /** 쪽 글자 수 (스캔본 판단용). */

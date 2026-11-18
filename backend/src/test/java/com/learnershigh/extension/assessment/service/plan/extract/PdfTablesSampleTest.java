@@ -27,7 +27,8 @@ class PdfTablesSampleTest {
                 long t0 = System.nanoTime();
                 String name = p.getFileName().toString().toLowerCase();
                 PlanDocumentFormat format = PlanDocumentFormat.valueOf(name.substring(name.lastIndexOf('.') + 1).toUpperCase());
-                List<SourceTable> tables = PlanTableReader.read(Files.readAllBytes(p), format, 60_000);
+                List<SourceTable> tables = PlanTableReader.read(Files.readAllBytes(p), format, 120_000,
+                        System.getenv("EXTRACT_OCR") != null ? ScanOcr.engine(System.getenv("EXTRACT_OCR")) : null);
                 sb.append("FILE ").append(p.getFileName()).append(" tables=").append(tables.size())
                         .append(" ms=").append((System.nanoTime() - t0) / 1_000_000).append('\n');
                 for (SourceTable t : tables) {

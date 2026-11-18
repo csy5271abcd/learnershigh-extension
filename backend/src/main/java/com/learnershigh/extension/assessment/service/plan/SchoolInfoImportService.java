@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SchoolInfoImportService {
 
-    private static final Pattern GRADE = Pattern.compile("([1-3])\\s*학년");
+    private static final Pattern GRADE = Pattern.compile("(?<!\\d)([1-3])\\s*학년(?!도)");
     private static final Pattern SEMESTER = Pattern.compile("([12])\\s*학기");
     private static final Pattern NOT_PLAN = Pattern.compile("성적관리|규정|부록|범교과|안전교육");
 
@@ -65,36 +65,55 @@ public class SchoolInfoImportService {
                 out.add(skip(name, sm.group(1) + "학기 자료"));
                 continue;
             }
-            Integer grade = gradeOf(compact);
-            if (grade == null) {
-                grade = request.defaultGrade() != null ? request.defaultGrade() : 1;
+            List<Integer> grades = gradesOf(compact);
+            if (grades.isEmpty()) {
+                grades = List.of(request.defaultGrade() != null ? request.defaultGrade() : 1);
             }
-            try {
-                PlanUploadResponse up = plans.register(admin, request.schoolId(), request.academicYear(), grade, request.semester(),
-                        new EvaluationPlanService.UploadedPdf(name, null, f.bytes(), SchoolInfoClient.BASE_URL));
-                PlanAnalysisResponse a = analysis.analyze(admin, up.planId(), up.documentRevisionId()).analysis();
-                Integer n = a.subjects() instanceof List<?> l ? l.size() : null;
-                out.add(new SchoolInfoImportResponse.File(name, grade, up.planId(), up.documentRevisionId(), a.analysisStatus(), n, false, null));
-            } catch (BusinessException | PlanAnalyzerException e) {
-                out.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false,
-                        e instanceof BusinessException be ? be.getMessage() : "분석 실패"));
+            // 여러 학년 공통 문서(예: '1,2,3학년')는 학년마다 등록한다 — 학생은 자기 학년 문서만 본다
+            for (Integer grade : grades) {
+                try {
+                    PlanUploadResponse up = plans.register(admin, request.schoolId(), request.academicYear(), grade, request.semester(),
+                            new EvaluationPlanService.UploadedPdf(name, null, f.bytes(), SchoolInfoClient.BASE_URL));
+                    PlanAnalysisResponse a = analysis.analyze(admin, up.planId(), up.documentRevisionId()).analysis();
+                    Integer n = a.subjects() instanceof List<?> l ? l.size() : null;
+                    out.add(new SchoolInfoImportResponse.File(name, grade, up.planId(), up.documentRevisionId(), a.analysisStatus(), n, false, null));
+                } catch (BusinessException | PlanAnalyzerException e) {
+                    out.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false,
+                            e instanceof BusinessException be ? be.getMessage() : "분석 실패"));
+                }
             }
         }
         return new SchoolInfoImportResponse(fetched.schoolName(), out);
     }
 
-    /** 파일 이름의 학년. 여러 학년이 섞여 있으면 null. */
-    static Integer gradeOf(String compact) {
-        Matcher m = GRADE.matcher(compact);
-        Integer g = null;
-        while (m.find()) {
-            int v = Integer.parseInt(m.group(1));
-            if (g != null && g != v) {
-                return null;
-            }
-            g = v;
+    private static final Pattern GRADE_LIST = Pattern.compile("(?<!\\d)([1-3](?:[,·ㆍ~∼-]|및)+[1-3](?:(?:[,·ㆍ~∼-]|및)+[1-3])*)학년(?!도)");
+
+    /** 파일 이름(공백 제거)이 가리키는 학년들. '1,2,3학년'·'1~3학년'·'전학년'·'1학년…3학년'을 모두 펼친다. 없으면 빈 목록. */
+    static List<Integer> gradesOf(String compact) {
+        java.util.TreeSet<Integer> out = new java.util.TreeSet<>();
+        if (compact.contains("전학년")) {
+            return List.of(1, 2, 3);
         }
-        return g;
+        Matcher lm = GRADE_LIST.matcher(compact);
+        while (lm.find()) {
+            String g = lm.group(1);
+            Matcher r = Pattern.compile("([1-3])[~∼-]([1-3])").matcher(g);
+            while (r.find()) {
+                for (int v = Integer.parseInt(r.group(1)); v <= Integer.parseInt(r.group(2)); v++) {
+                    out.add(v);
+                }
+            }
+            for (char ch : g.toCharArray()) {
+                if (ch >= '1' && ch <= '3') {
+                    out.add(ch - '0');
+                }
+            }
+        }
+        Matcher m = GRADE.matcher(compact);
+        while (m.find()) {
+            out.add(Integer.parseInt(m.group(1)));
+        }
+        return List.copyOf(out);
     }
 
     private static SchoolInfoImportResponse.File skip(String name, String why) {

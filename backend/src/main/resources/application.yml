@@ -96,6 +96,8 @@ assessment:
   analyzer:
     # 분석 방식: local(기본) = 서버 안에서 표를 읽어 분석(외부 전송 없음) · http = 아래 외부 분석기 호출 · none = 미설정
     mode: ${ASSESSMENT_ANALYZER_MODE:local}
+    # (local 방식) 스캔본 PDF OCR: auto(Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR) · tesseract · windows · none
+    ocr: ${ASSESSMENT_ANALYZER_OCR:auto}
     # (http 방식일 때만) 평가계획서 분석기(계정 B, Railway). 2026-11-16 A23 사용자 결정: 환경 변수 없이 이 값으로 바로 연결한다.
     # 환경 변수(ASSESSMENT_ANALYZER_*)·실행 인자를 주면 Spring 규칙대로 이 값보다 우선한다 — 단 token은 예외(A24):
     # token은 설정 파일의 값만 쓴다. ASSESSMENT_ANALYZER_TOKEN·-Dassessment.analyzer.token·--assessment.analyzer.token은 무시된다(AnalyzerTokenSource).

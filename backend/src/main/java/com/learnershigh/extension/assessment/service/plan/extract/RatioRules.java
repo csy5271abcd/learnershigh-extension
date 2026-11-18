@@ -133,7 +133,7 @@ public final class RatioRules {
             return false;
         }
         n = n.replace("학기말", "");
-        return n.contains("정기") || n.contains("지필") || n.contains("중간") || n.contains("기말");
+        return n.contains("정기") || n.contains("지필") || n.contains("중간") || n.contains("기말") || n.matches(".*[1-4](차|회)(시험|고사).*");
     }
 
     static boolean acceptableLabel(String s) {
@@ -520,7 +520,7 @@ public final class RatioRules {
             }
         }
         if (tcol < 0) {
-            return null;
+            return noTypeColumn(g, hi, body);
         }
         for (int i = 1; i < body.size(); i++) {
             List<String> r = body.get(i);
@@ -572,6 +572,32 @@ public final class RatioRules {
         List<Double> ev = examRows.stream().map(r -> pctLoose(cell(r, rc))).filter(Objects::nonNull).toList();
         Double examTotal = examRows.isEmpty() ? null : sum(ev);
         return new Result(total, examTotal, items, 0);
+    }
+
+    /**
+     * '지필/수행' 구분 열이 없는 행 방향 표(스캔본에서 세로 글자 칸을 OCR 이 못 읽은 경우 등): 첫 열이 평가 영역 이름이고
+     * '1차시험·중간고사' 같은 시험 행과 그 밖의 행이 함께 있으면, 시험 행은 지필·나머지는 수행으로 보고 다시 읽는다.
+     */
+    private static Result noTypeColumn(List<List<String>> g, int hi, List<List<String>> body) {
+        if (!"name".equals(labelOf(cell(g.get(hi), 0)))) {
+            return null;
+        }
+        List<List<String>> named = body.stream().filter(r -> !norm(cell(r, 0)).isEmpty() && labelOf(cell(r, 0)) == null
+                && !norm(cell(r, 0)).matches(".*합계.*|^계$|.*총계.*|.*합$")).toList();
+        long exams = named.stream().filter(r -> isExam(cell(r, 0))).count();
+        if (exams == 0 || exams == named.size()) {
+            return null;
+        }
+        List<List<String>> ng = new ArrayList<>();
+        List<String> head = new ArrayList<>(g.get(hi));
+        head.add(0, "구분");
+        ng.add(head);
+        for (List<String> r : named) {
+            List<String> nr = new ArrayList<>(r);
+            nr.add(0, isExam(cell(r, 0)) ? "지필평가" : "수행평가");
+            ng.add(nr);
+        }
+        return famRow(ng);
     }
 
     private static boolean hasContent(List<String> r, int tcol) {
@@ -645,6 +671,15 @@ public final class RatioRules {
         boolean hasExam = g.stream().flatMap(List::stream).anyMatch(RatioRules::isExam);
         if (flat.contains("수행") && !hasExam) {
             return perfOnlyUnit(g);
+        }
+        if (!flat.contains("수행") && hasExam) {
+            // 구분 열 없이 '1차시험 · 과제명…' 행만 있는 표 (noTypeColumn)
+            try {
+                Result r = famRow(g);
+                return r != null && r.perfTotal() != null && r.perfTotal() > 0 && r.examTotal() != null;
+            } catch (RuntimeException e) {
+                return false;
+            }
         }
         if (!flat.contains("수행") || !hasExam) {
             return false;

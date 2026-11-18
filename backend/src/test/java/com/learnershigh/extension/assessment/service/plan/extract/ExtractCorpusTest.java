@@ -21,6 +21,7 @@ class ExtractCorpusTest {
         }
         Path out = Path.of(System.getenv().getOrDefault("EXTRACT_OUT", "extract_corpus.tsv"));
         java.util.Set<String> seen = new java.util.HashSet<>();
+        StringBuilder errLog = new StringBuilder();
         StringBuilder sb = new StringBuilder("school\tfiles\tsubjects\tok\titems\trubric\trubricOk\tms\terrors\texamSubjects\texams\tplanSubjects\tplanRows\n");
         for (String root : roots.split(";")) {
             List<Path> schools;
@@ -40,10 +41,11 @@ class ExtractCorpusTest {
                 long t0 = System.nanoTime();
                 int subjects = 0, ok = 0, items = 0, rubric = 0, rubricOk = 0, errors = 0, exSubj = 0, exams = 0, planSubj = 0, planRows = 0;
                 for (Path f : files) {
-                    String low = f.getFileName().toString().toLowerCase();
-                    PlanDocumentFormat format = PlanDocumentFormat.valueOf(low.substring(low.lastIndexOf('.') + 1).toUpperCase());
                     try {
-                        List<SourceTable> tables = PlanTableReader.read(Files.readAllBytes(f), format, 120_000);
+                        byte[] bytes = Files.readAllBytes(f);
+                        // 제품과 같이 내용으로 형식을 정한다(.hwp 이름의 HWPX 가 있다)
+                        PlanDocumentFormat format = com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer.formatOf(bytes);
+                        List<SourceTable> tables = PlanTableReader.read(bytes, format, 120_000);
                         for (PlanExtractor.Subject s : PlanExtractor.extract(tables, f.getFileName().toString(), name)) {
                             if (s.name.startsWith("과목명 미확인")) {
                                 continue;
@@ -72,6 +74,8 @@ class ExtractCorpusTest {
                         }
                     } catch (Exception | OutOfMemoryError e) {
                         errors++;
+                        errLog.append(name).append('\t').append(f.getFileName()).append('\t').append(e).append('\n');
+                        Files.writeString(Path.of(out + ".errors"), errLog.toString());
                     }
                 }
                 sb.append(name).append('\t').append(files.size()).append('\t').append(subjects).append('\t').append(ok).append('\t')

@@ -22,7 +22,8 @@ class ExtractSampleTest {
                 String name = p.getFileName().toString();
                 String low = name.toLowerCase();
                 PlanDocumentFormat format = PlanDocumentFormat.valueOf(low.substring(low.lastIndexOf('.') + 1).toUpperCase());
-                List<SourceTable> tables = PlanTableReader.read(Files.readAllBytes(p), format, 120_000);
+                List<SourceTable> tables = PlanTableReader.read(Files.readAllBytes(p), format, 120_000,
+                        System.getenv("EXTRACT_OCR") != null ? ScanOcr.engine(System.getenv("EXTRACT_OCR")) : null);
                 List<PlanExtractor.Subject> subjects = PlanExtractor.extract(tables, name, "");
                 long items = subjects.stream().mapToLong(s -> s.items.size()).sum();
                 long rubric = subjects.stream().flatMap(s -> s.items.stream()).filter(i -> i.detail() != null && !i.detail().rubric.isEmpty()).count();

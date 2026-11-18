@@ -26,10 +26,18 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
     public static final String NAME = "learnershigh-plan-extract";
     private final JsonMapper mapper;
     private final long timeoutMillis;
+    private final com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr;
 
     public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis) {
+        this(mapper, timeoutMillis, null);
+    }
+
+    /** ocr: 스캔본 PDF 용 OCR 엔진(null 이면 스캔 쪽은 읽지 않는다). */
+    public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis,
+            com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr) {
         this.mapper = mapper;
         this.timeoutMillis = timeoutMillis;
+        this.ocr = ocr;
     }
 
     @Override
@@ -48,7 +56,7 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
         String sha = sha256(bytes);
         boolean c03 = "0.3".equals(request.contract());
         try {
-            List<SourceTable> tables = PlanTableReader.read(bytes, format, timeoutMillis);
+            List<SourceTable> tables = PlanTableReader.read(bytes, format, timeoutMillis, ocr);
             List<PlanExtractor.Subject> subjects = PlanExtractor.extract(tables, request.fileName(), "");
             Integer pages = format == PlanDocumentFormat.PDF ? pageCount(bytes) : null;
             Map<String, Object> payload = ImportPayload.build(subjects, format, sha, pages, c03, request.analyzerVersion());
@@ -66,7 +74,7 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
         }
     }
 
-    static PlanDocumentFormat formatOf(byte[] b) {
+    public static PlanDocumentFormat formatOf(byte[] b) {
         if (b.length >= 5 && b[0] == '%' && b[1] == 'P' && b[2] == 'D' && b[3] == 'F') {
             return PlanDocumentFormat.PDF;
         }

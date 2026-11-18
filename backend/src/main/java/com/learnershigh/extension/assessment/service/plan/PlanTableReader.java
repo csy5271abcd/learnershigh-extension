@@ -21,9 +21,16 @@ public final class PlanTableReader {
     }
 
     public static List<SourceTable> read(byte[] bytes, PlanDocumentFormat format, long timeoutMillis) throws IOException {
+        return read(bytes, format, timeoutMillis, null);
+    }
+
+    /** ocr: 스캔본 PDF 쪽을 읽을 OCR 엔진(없으면 스캔 쪽은 건너뛴다). */
+    public static List<SourceTable> read(byte[] bytes, PlanDocumentFormat format, long timeoutMillis,
+            com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr) throws IOException {
         if (format == PlanDocumentFormat.PDF) {
             List<SourceTable> out = new ArrayList<>();
-            for (PdfTables.Table t : PdfTables.read(bytes)) {
+            long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(Math.max(1000, timeoutMillis - 10_000));
+            for (PdfTables.Table t : PdfTables.read(bytes, ocr, deadline)) {
                 out.add(new SourceTable(t.page, null, null, t.cells, null, t.ctx));
             }
             return out;

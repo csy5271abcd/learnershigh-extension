@@ -1378,7 +1378,7 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 ```
 
 - Backend가 학교알리미(schoolinfo.go.kr) 공시 항목 '교과별 교수·학습 및 평가 계획'의 첨부 파일을 받아(zip 이면 풀어서) 파일마다 §38 등록 → §39-1 서버 분석을 차례로 한다. 응답은 파일마다 결과다.
-- 학년: 파일 이름의 'N학년'. 없거나 여러 학년이면 `defaultGrade`(없으면 1). 다른 학기 파일('1학기'만 있는 이름)·평가계획이 아닌 파일(성적관리규정·부록 등)·PDF/HWP/HWPX 가 아닌 파일은 등록하지 않고 `skipped=true`·`message`로 알린다.
+- 학년: 파일 이름의 학년 표기('3학년'·'1,2,3학년'·'1~3학년'·'전학년'). 여러 학년 공통 문서는 **학년마다 따로 등록·분석**해 `files[]`에 학년별로 한 줄씩 나온다(같은 파일 이름, 다른 `grade`). 학년 표기가 없으면 `defaultGrade`(없으면 1). '2023학년도'의 숫자는 학년으로 보지 않는다. 다른 학기 파일('1학기'만 있는 이름)·평가계획이 아닌 파일(성적관리규정·부록 등)·PDF/HWP/HWPX 가 아닌 파일은 등록하지 않고 `skipped=true`·`message`로 알린다.
 - `sourceUrl`은 `https://www.schoolinfo.go.kr`로 남는다. 등록한 문서는 일반 업로드와 같다(검토·확정·삭제 동일).
 
 ```json
@@ -1396,7 +1396,7 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 
 ### 39-1. 서버 분석 실행 (A3, 2026-11-13 구현)
 
-**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `http`: 아래 외부 분석기 방식 그대로. `none`: 분석기 미설정(503).
+**2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `http`: 아래 외부 분석기 방식 그대로. `none`: 분석기 미설정(503). `local`은 정기시험 회차(`writtenEvaluation.exams`, 회차 비율 합이 지필 비율과 맞을 때만)와 월별 운영 계획(`teachingPlan`)도 채운다. 글자 정보가 없는 스캔 PDF 쪽은 `assessment.analyzer.ocr`(auto·tesseract·windows·none)로 OCR 해 같은 규칙으로 읽는다(엔진이 없으면 그 쪽은 건너뜀). 응답 Shape은 바뀌지 않는다.
 
 `POST .../analysis`: 본문 없음. Backend가 보관 원문(§38-1)을 SHA-256 재검증 뒤 분석기(`POST /analyze-preview`, `X-Analysis-Token`, 환경 변수 설정)로 보내고, `backendImport.payload`를 외부 수신과 같은 검증기(backend-adapter-0.2, 알 수 없는 필드 거절)로 검사해 AnalysisRun으로 저장한다. 응답은 `GET .../analysis`와 같은 모양(`analyzer.origin = "SERVER_ANALYZER"`). `201` 새 Run / `200` 같은 내용의 Run이 이미 있음(새 Run 없음).
 

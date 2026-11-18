@@ -33,12 +33,16 @@ public class PlanAnalyzerConfig {
             @Value("${assessment.analyzer.timeout-millis:130000}") long timeoutMillis,
             @Value("${assessment.analyzer.max-retries:2}") int maxRetries,
             @Value("${assessment.analyzer.retry-delay-millis:500}") long retryDelayMillis,
+            @Value("${assessment.analyzer.ocr:auto}") String ocrMode,
             ConfigurableEnvironment environment,
             JsonMapper mapper) {
         // local(기본): 서버 안에서 표를 읽어 분석한다 — 외부 분석기·토큰이 필요 없고 원문이 밖으로 나가지 않는다.
         // http: 예전 외부 분석기(/analyze-preview) 호출. none: 분석기 미설정(503).
         if ("local".equalsIgnoreCase(mode)) {
-            return new com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer(mapper, timeoutMillis);
+            // 스캔본 PDF: auto = Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR, 둘 다 없으면 읽지 않음
+            var ocr = com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.engine(ocrMode);
+            log.info("plan analyzer: local (ocr={})", ocr == null ? "none" : ocr.name());
+            return new com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer(mapper, timeoutMillis, ocr);
         }
         if ("none".equalsIgnoreCase(mode)) {
             return new UnconfiguredPlanAnalyzerClient();
