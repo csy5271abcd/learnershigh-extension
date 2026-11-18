@@ -58,7 +58,6 @@ class PlanReviewDraftApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_school_assessment");
-        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_plan_confirmed_value");
         jdbc.update("delete from assessment_plan_review");
@@ -177,7 +176,7 @@ class PlanReviewDraftApiTest {
         List<Integer> statuses = calls.stream().map(CompletableFuture::join).sorted().toList();
         assertThat(statuses).containsExactly(200, 409);
         assertThat(jdbc.queryForObject("select version from assessment_plan_review_draft", Long.class)).isEqualTo(1L);
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review_draft_event", Integer.class)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("select json_length(history_json) from assessment_plan_review_draft", Integer.class)).isEqualTo(2);
     }
 
     @Test

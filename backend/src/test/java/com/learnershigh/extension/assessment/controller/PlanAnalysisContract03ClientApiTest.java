@@ -63,6 +63,7 @@ class PlanAnalysisContract03ClientApiTest {
 
     @DynamicPropertySource
     static void analyzer(DynamicPropertyRegistry registry) {
+        registry.add("assessment.analyzer.mode", () -> "http");   // 외부 분석기 Stub 경로 시험 (기본은 local)
         registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
     }
 
@@ -131,8 +132,7 @@ class PlanAnalysisContract03ClientApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_plan_teaching_plan_row");
-        jdbc.update("delete from assessment_plan_teaching_plan_review");
-        jdbc.update("delete from assessment_plan_review_draft_event");
+        jdbc.update("delete from assessment_plan_review where scope = 'TEACHING_PLAN'");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");

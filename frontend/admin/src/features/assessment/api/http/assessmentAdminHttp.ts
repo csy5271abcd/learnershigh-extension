@@ -623,3 +623,7 @@ export async function getPlanArchiveDetailHttp(planId: string, revisionId: strin
 export function importFromSchoolInfoHttp(request: { schoolId: string; schoolName: string; academicYear: number; semester: number; defaultGrade: number | null }): Promise<import('../types.ts').SchoolInfoImportResult> {
   return adminHttp(`${plansPath}/import-from-schoolinfo`, { method: 'POST', json: request })
 }
+
+export function getSchoolInfoImportHttp(jobId: string): Promise<import('../types.ts').SchoolInfoImportResult> {
+  return adminHttp(`${plansPath}/import-from-schoolinfo/${encodeURIComponent(jobId)}`)
+}

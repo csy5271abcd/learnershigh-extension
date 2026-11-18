@@ -9,7 +9,13 @@ import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerEx
 import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.integration.schoolinfo.SchoolInfoClient;
 import com.learnershigh.extension.common.error.BusinessException;
-import java.util.ArrayList;
+import jakarta.annotation.PreDestroy;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +36,14 @@ public class SchoolInfoImportService {
     private final EvaluationPlanService plans;
     private final PlanAnalysisService analysis;
     private final PlanAccess access;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SchoolInfoImportService.class);
+    /** 분석은 한 번에 하나씩(서버 사양) — 여러 관리자가 불러와도 차례로 돈다. */
+    private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "schoolinfo-import");
+        t.setDaemon(true);
+        return t;
+    });
+    private final Map<String, Job> jobs = java.util.Collections.synchronizedMap(new LinkedHashMap<>());
 
     public SchoolInfoImportService(SchoolInfoClient client, EvaluationPlanService plans, PlanAnalysisService analysis, PlanAccess access) {
         this.client = client;
@@ -38,6 +52,10 @@ public class SchoolInfoImportService {
         this.access = access;
     }
 
+    /**
+     * 받기·등록은 요청 안에서 끝내고(학교 없음 등 오류를 바로 알린다), 분석은 서버 작업 1개가 차례로 돌린다(서버 사양 고려).
+     * 응답은 작업 번호와 파일별 상태(QUEUED → ANALYZING → 분석 상태)이고, 화면은 {@link #status} 를 다시 불러 진행바를 그린다.
+     */
     public SchoolInfoImportResponse importFromSchoolInfo(AdminActor admin, SchoolInfoImportRequest request) {
         access.requireOperator(admin);
         SchoolInfoClient.Fetched fetched = client.fetch(request.schoolName().strip());
@@ -48,21 +66,21 @@ public class SchoolInfoImportService {
                 default -> AssessmentErrorCode.SCHOOLINFO_UNAVAILABLE;
             });
         }
-        List<SchoolInfoImportResponse.File> out = new ArrayList<>();
+        Job job = new Job(admin.adminId(), fetched.schoolName());
         for (SchoolInfoClient.PlanFile f : fetched.files()) {
             String name = f.fileName();
             String compact = name.replace(" ", "");
             if (LocalPlanAnalyzer.formatOf(f.bytes()) == null) {
-                out.add(skip(name, "PDF·HWP·HWPX 가 아님"));
+                job.add(skip(name, "PDF·HWP·HWPX 가 아님"));
                 continue;
             }
             if (NOT_PLAN.matcher(compact).find()) {
-                out.add(skip(name, "평가계획 파일이 아님"));
+                job.add(skip(name, "평가계획 파일이 아님"));
                 continue;
             }
             Matcher sm = SEMESTER.matcher(compact);
             if (sm.find() && Integer.parseInt(sm.group(1)) != request.semester() && !compact.contains(request.semester() + "학기")) {
-                out.add(skip(name, sm.group(1) + "학기 자료"));
+                job.add(skip(name, sm.group(1) + "학기 자료"));
                 continue;
             }
             List<Integer> grades = gradesOf(compact);
@@ -74,16 +92,89 @@ public class SchoolInfoImportService {
                 try {
                     PlanUploadResponse up = plans.register(admin, request.schoolId(), request.academicYear(), grade, request.semester(),
                             new EvaluationPlanService.UploadedPdf(name, null, f.bytes(), SchoolInfoClient.BASE_URL));
-                    PlanAnalysisResponse a = analysis.analyze(admin, up.planId(), up.documentRevisionId()).analysis();
-                    Integer n = a.subjects() instanceof List<?> l ? l.size() : null;
-                    out.add(new SchoolInfoImportResponse.File(name, grade, up.planId(), up.documentRevisionId(), a.analysisStatus(), n, false, null));
-                } catch (BusinessException | PlanAnalyzerException e) {
-                    out.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false,
-                            e instanceof BusinessException be ? be.getMessage() : "분석 실패"));
+                    job.add(new SchoolInfoImportResponse.File(name, grade, up.planId(), up.documentRevisionId(), QUEUED, null, false, null));
+                } catch (BusinessException e) {
+                    job.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false, e.getMessage()));
                 }
             }
         }
-        return new SchoolInfoImportResponse(fetched.schoolName(), out);
+        synchronized (jobs) {
+            jobs.put(job.id, job);
+            while (jobs.size() > 50) {
+                jobs.remove(jobs.keySet().iterator().next());   // 오래된 작업부터 잊는다(메모리 상한)
+            }
+        }
+        worker.submit(() -> run(admin, job));
+        return job.view();
+    }
+
+    /** 불러오기 작업 상태. 작업을 시작한 관리자만 본다. 서버를 다시 켜면 잊는다(분석 결과는 각 문서에 남는다). */
+    public SchoolInfoImportResponse status(AdminActor admin, String jobId) {
+        access.requireOperator(admin);
+        Job job = jobs.get(jobId);
+        if (job == null || !job.adminId.equals(admin.adminId())) {
+            throw new BusinessException(AssessmentErrorCode.SCHOOLINFO_JOB_NOT_FOUND);
+        }
+        return job.view();
+    }
+
+    private void run(AdminActor admin, Job job) {
+        for (int i = 0; i < job.files.size(); i++) {
+            SchoolInfoImportResponse.File f = job.files.get(i);
+            if (!QUEUED.equals(f.analysisStatus())) {
+                continue;
+            }
+            job.files.set(i, with(f, ANALYZING, null, null));
+            try {
+                PlanAnalysisResponse a = analysis.analyze(admin, f.planId(), f.documentRevisionId()).analysis();
+                job.files.set(i, with(f, a.analysisStatus(), a.subjects() instanceof List<?> l ? l.size() : null, null));
+            } catch (BusinessException | PlanAnalyzerException e) {
+                job.files.set(i, with(f, "FAILED", null, e instanceof BusinessException be ? be.getMessage() : "분석 실패"));
+            } catch (RuntimeException e) {
+                log.warn("schoolinfo import analysis failed plan={} cause={}", f.planId(), e.getClass().getSimpleName());
+                job.files.set(i, with(f, "FAILED", null, "분석 실패"));
+            }
+        }
+        job.finished = true;
+    }
+
+    private static SchoolInfoImportResponse.File with(SchoolInfoImportResponse.File f, String status, Integer subjects, String message) {
+        return new SchoolInfoImportResponse.File(f.fileName(), f.grade(), f.planId(), f.documentRevisionId(), status, subjects, false, message);
+    }
+
+    @PreDestroy
+    void stop() {
+        worker.shutdownNow();
+    }
+
+    static final String QUEUED = "QUEUED";
+    static final String ANALYZING = "ANALYZING";
+
+    /** 불러오기 작업 하나(메모리). */
+    static final class Job {
+        final String id = "schoolinfo_job_" + UUID.randomUUID();
+        final String adminId;
+        final String schoolName;
+        final List<SchoolInfoImportResponse.File> files = new CopyOnWriteArrayList<>();
+        volatile boolean finished;
+
+        Job(String adminId, String schoolName) {
+            this.adminId = adminId;
+            this.schoolName = schoolName;
+        }
+
+        void add(SchoolInfoImportResponse.File f) {
+            files.add(f);
+        }
+
+        SchoolInfoImportResponse view() {
+            List<SchoolInfoImportResponse.File> snap = List.copyOf(files);
+            int total = (int) snap.stream().filter(f -> f.planId() != null).count();
+            int done = (int) snap.stream().filter(f -> f.planId() != null && !QUEUED.equals(f.analysisStatus())
+                    && !ANALYZING.equals(f.analysisStatus())).count();
+            boolean running = !finished && done < total;
+            return new SchoolInfoImportResponse(id, running ? "RUNNING" : "DONE", schoolName, done, total, snap);
+        }
     }
 
     private static final Pattern GRADE_LIST = Pattern.compile("(?<!\\d)([1-3](?:[,·ㆍ~∼-]|및)+[1-3](?:(?:[,·ㆍ~∼-]|및)+[1-3])*)학년(?!도)");

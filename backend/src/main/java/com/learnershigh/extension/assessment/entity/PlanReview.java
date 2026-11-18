@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.Persistable;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(name = "assessment_plan_review")
+@SQLRestriction("scope = 'EVALUATION'")
 public class PlanReview implements Persistable<String> {
 
     public static final String DECISION_CONFIRM = "CONFIRM";

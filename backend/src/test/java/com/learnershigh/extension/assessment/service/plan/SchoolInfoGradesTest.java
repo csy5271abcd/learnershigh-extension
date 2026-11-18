@@ -26,4 +26,20 @@ class SchoolInfoGradesTest {
         assertThat(g("2023학년도 2학기 평가계획.pdf")).isEmpty();
         assertThat(g("2031학년도 2학년 평가계획.pdf")).containsExactly(2);
     }
+
+    @Test
+    void 진행_상황은_등록된_문서_중_분석이_끝난_수다() {
+        SchoolInfoImportService.Job job = new SchoolInfoImportService.Job("adm", "신원고등학교");
+        job.add(new com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse.File("a.pdf", 1, "p1", "r1", "QUEUED", null, false, null));
+        job.add(new com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse.File("b.pdf", 2, "p2", "r2", "QUEUED", null, false, null));
+        job.add(new com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse.File("규정.pdf", null, null, null, null, null, true, "평가계획 파일이 아님"));
+        var v = job.view();
+        assertThat(v.state()).isEqualTo("RUNNING");
+        assertThat(v.done()).isZero();
+        assertThat(v.total()).isEqualTo(2);
+        job.files.set(0, new com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse.File("a.pdf", 1, "p1", "r1", "REVIEW_REQUIRED", 12, false, null));
+        job.files.set(1, new com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse.File("b.pdf", 2, "p2", "r2", "FAILED", null, false, "분석 실패"));
+        assertThat(job.view().done()).isEqualTo(2);
+        assertThat(job.view().state()).isEqualTo("DONE");
+    }
 }

@@ -69,6 +69,7 @@ class PlanServerAnalysisApiTest {
 
     @DynamicPropertySource
     static void analyzer(DynamicPropertyRegistry registry) {
+        registry.add("assessment.analyzer.mode", () -> "http");   // 외부 분석기 Stub 경로 시험 (기본은 local)
         registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
     }
 
