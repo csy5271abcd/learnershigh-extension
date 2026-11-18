@@ -38,7 +38,7 @@ public final class ImportPayload {
             if (!names.add(s.name.strip()) || subs.size() >= 40) {
                 continue;   // 계약: 과목 이름 중복 불가, 과목 40개 이하
             }
-            subs.add(subject(s, format, contract03));
+            subs.add(subject(s, format, contract03, subs.size() + 1));
         }
         out.put("status", subs.isEmpty() ? "FAILED" : "REVIEW_REQUIRED");
         if (subs.isEmpty()) {
@@ -49,7 +49,7 @@ public final class ImportPayload {
         return out;
     }
 
-    private static Map<String, Object> subject(PlanExtractor.Subject s, PlanDocumentFormat f, boolean c03) {
+    private static Map<String, Object> subject(PlanExtractor.Subject s, PlanDocumentFormat f, boolean c03, int index) {
         SourceTable t = s.source;
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("subjectName", trim(s.name, 100));
@@ -59,8 +59,14 @@ public final class ImportPayload {
         }
         m.put("sources", List.of(loc(t, s.name, f)));
         if (s.examPercent != null) {
+            List<Map<String, Object>> exams = new ArrayList<>();
+            for (ExamRules.Exam e : s.exams) {
+                exams.add(map("itemKey", String.format("W%02d", e.round()), "round", e.round(), "weightPercent", e.weightPercent(),
+                        "maxScore", e.maxScore(), "timing", trim(e.timing(), 100), "questionTypes", List.of(),
+                        "sources", List.of(loc(t, e.label(), f))));
+            }
             m.put("writtenEvaluation", map("weightPercent", s.examPercent, "sources", List.of(loc(t, fmt(s.examPercent) + "%", f)),
-                    "exams", List.of()));
+                    "exams", exams));
         }
         List<Map<String, Object>> items = new ArrayList<>();
         int k = 0;
@@ -104,10 +110,52 @@ public final class ImportPayload {
         }
         m.put("performanceEvaluation", map("weightPercent", s.performancePercent,
                 "sources", s.performancePercent != null ? List.of(loc(t, fmt(s.performancePercent) + "%", f)) : List.of(), "items", items));
+        if (c03 && !s.plan.isEmpty()) {
+            m.put("teachingPlan", plan(s, f, index));
+        }
         if (f == PlanDocumentFormat.PDF && !pages.isEmpty()) {
             m.put("pageRange", map("from", pages.stream().min(Integer::compare).get(), "to", pages.stream().max(Integer::compare).get()));
         }
         return m;
+    }
+
+    /** 진도표 행 → 계약 teachingPlan[] (시기 정밀도는 원문이 준 만큼만: 월+월 안 주 · 월 · 월 범위 · 주만 · 모름). */
+    private static List<Map<String, Object>> plan(PlanExtractor.Subject s, PlanDocumentFormat f, int index) {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (int k = 0; k < s.plan.size(); k++) {
+            TeachingPlanRules.Row r = s.plan.get(k);
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("rowKey", String.format("S%02d.T%03d", index, k + 1));
+            putIf(m, "month", r.month());
+            putIf(m, "monthTo", r.monthTo());
+            putIf(m, "weekLabel", r.weekLabel());
+            putIf(m, "weekFrom", r.weekFrom());
+            putIf(m, "weekTo", r.weekTo());
+            putIf(m, "unit", r.unit());
+            putIf(m, "content", r.content());
+            putIf(m, "note", r.note());
+            List<Map<String, Object>> std = new ArrayList<>();
+            for (TeachingPlanRules.Standard st : r.standards()) {
+                std.add(map("code", st.code(), "text", st.text()));
+            }
+            m.put("achievementStandards", std);
+            m.put("teachingMethods", r.teachingMethods());
+            m.put("assessmentMethods", r.assessmentMethods());
+            putIf(m, "specialSchedule", r.specialSchedule());
+            String precision = r.month() != null && r.weekFrom() != null && r.weekTo() <= 5 ? "WEEK_IN_MONTH"
+                    : r.month() != null && r.monthTo() != null && !r.month().equals(r.monthTo()) ? "MONTH_RANGE"
+                    : r.month() != null ? "MONTH" : r.weekFrom() != null ? "WEEK_UNRESOLVED" : "UNKNOWN";
+            Map<String, Object> sc = map("precision", precision, "monthFrom", r.month(), "monthTo", r.monthTo(),
+                    "monthBasis", r.month() != null ? "MONTH" : null, "weekLabel", r.weekLabel(), "weekFrom", r.weekFrom(), "weekTo", r.weekTo());
+            if ("WEEK_IN_MONTH".equals(precision)) {
+                sc.put("weekScope", "IN_MONTH");
+                sc.put("weekScopeBasis", "TABLE_PATTERN");
+            }
+            m.put("schedule", sc);
+            m.put("sources", List.of(loc(s.planSource.get(k), r.evidence(), f)));
+            rows.add(m);
+        }
+        return rows;
     }
 
     /** 근거: PDF 는 표가 있는 쪽, HWP·HWPX 는 글자가 들어 있는 칸(없으면 표 첫 칸)의 위치. */

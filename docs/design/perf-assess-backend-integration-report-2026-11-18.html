@@ -32,7 +32,7 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <li>평가계획서 분석을 외부 분석기(Railway) 대신 <b>백엔드 안에서</b> 한다. 원문이 서버 밖으로 나가지 않고, 토큰·외부 서비스가 필요 없다.</li>
 <li>관리자가 <b>학교 이름</b>만 넣으면 학교알리미에서 평가계획서를 받아 학년별로 등록하고 바로 분석한다.</li>
 <li>과목·지필/수행 비율·수행 항목에 더해 <b>항목별 채점 기준(요소·배점·점수별 기준)</b>을 읽어 수연님 검토 화면에 그대로 띄운다. 화면 코드는 버튼 하나만 더했다.</li>
-<li>같은 공개 PDF로 비교하면 Railway 분석기는 비율 4과목·채점 기준 0건, 이 분석은 비율 98과목·채점 기준 69건이다.</li>
+<li>같은 공개 PDF로 비교하면 Railway 분석기는 비율 4과목·채점 기준 0건, 이 분석은 비율 98과목·채점 기준 69건이다. 정기시험 회차·월별 운영 계획(진도표)도 이제 읽는다(Railway 18회차·1,317행, 이 분석 54회차·1,329행).</li>
 </ul>
 </div>
 
@@ -53,8 +53,10 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <tr><td>수행 항목</td><td class="n">13,175</td><td class="n">12,148</td><td class="n">108%</td></tr>
 <tr><td>채점 기준이 붙은 항목</td><td class="n">7,487</td><td class="n">7,202</td><td class="n">104%</td></tr>
 <tr><td>채점 요소 만점 합 = 과제 만점</td><td class="n">7,167</td><td class="n">6,845</td><td class="n">105%</td></tr>
+<tr><td>정기시험 회차 (과목 수)</td><td class="n">2,704 (1,643)</td><td class="n">—</td><td class="n"></td></tr>
+<tr><td>월별 운영 계획 행 (과목 수)</td><td class="n">71,303 (3,864)</td><td class="n">—</td><td class="n"></td></tr>
 </table>
-<p>학교 하나(평가계획 파일 전부) 처리 시간: 중앙 2.0초, 상위 10% 9.1초, 최대 29.1초. 원문 표본 대조(Python 기준 측정): 비율·항목 값 100건 중 95~99건 일치, 채점 기준 합 일치 95%.</p>
+<p>학교 하나(평가계획 파일 전부) 처리 시간: 중앙 2.7초, 상위 10% 12.5초, 최대 36.7초(회차·진도표 포함). 원문 표본 대조(Python 기준 측정): 비율·항목 값 100건 중 95~99건 일치, 채점 기준 합 일치 95%.</p>
 <p class="sub">알려진 차이: 선부고는 파일 단독으로 돌리면 56과목이 나오지만 113곳을 한 번에 돌린 측정에서는 파일 오류 1건(메모리)이 났다. 창의·청명·성덕고 등 몇 곳은 Python보다 검증 통과 과목이 적다(과목명 이어받기 규칙 차이).</p>
 
 <h2>3. 수연님 분석기(Railway)와 같은 파일 비교</h2>
@@ -64,11 +66,11 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <tr><td>지필·수행 비율이 있는 과목</td><td class="n bad">4</td><td class="n good">98</td></tr>
 <tr><td>수행 항목 / 비율 있는 항목</td><td class="n">28 / 3</td><td class="n">189 / 179</td></tr>
 <tr><td>채점 기준이 붙은 항목</td><td class="n bad">0</td><td class="n good">69</td></tr>
-<tr><td>정기시험 회차(writtenEvaluation.exams)</td><td class="n good">18</td><td class="n bad">0</td></tr>
-<tr><td>월별 운영 계획 행(teachingPlan)</td><td class="n good">1,317</td><td class="n bad">0</td></tr>
+<tr><td>정기시험 회차(writtenEvaluation.exams)</td><td class="n">18</td><td class="n good">54</td></tr>
+<tr><td>월별 운영 계획 행(teachingPlan) / 과목</td><td class="n">1,317 / 113</td><td class="n">1,329 / 106</td></tr>
 <tr><td>처리 시간 중앙값</td><td class="n">3.5초</td><td class="n">1.5~3.8초</td></tr>
 </table>
-<p class="sub">이 비교의 '이 분석'은 Python 판(같은 규칙). Python 판은 도형이 매우 많은 쪽에서 표 찾기가 느려 113쪽 문서 하나가 260초 걸렸다. 백엔드(Java) 판은 같은 문서를 포함한 113곳 측정에서 학교당 최대 29초였다.</p>
+<p class="sub">회차·운영 계획 두 줄은 백엔드(Java) 판, 나머지 줄은 Python 판(같은 규칙). 회차는 회차 비율 합이 지필 비율과 맞을 때만 낸다. Python 판은 도형이 매우 많은 쪽에서 표 찾기가 느려 113쪽 문서 하나가 260초 걸렸다. 백엔드(Java) 판은 같은 문서를 포함한 113곳 측정에서 학교당 최대 37초였다.</p>
 
 <h2>4. 바꾼 것</h2>
 <table>
@@ -84,12 +86,11 @@ figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
 <li><b>외부 분석기 경계 걷어내기</b>: 분석이 백엔드 안으로 들어왔으니 HTTP 분석기 Client·토큰(공개 저장소에 노출된 상태)·분석기 프로필 두 벌(0.2/0.3) 검사를 없앨 수 있다. 시험이 이 경계에 묶여 있어(Stub 분석기 E2E) 시험부터 local로 옮겨야 한다.</li>
 <li><b>계약 한 벌로</b>: 0.2와 0.3을 함께 받는 파서·검증기·상태 판정이 분기마다 갈린다. 0.3 하나로 줄이면 수신·검증 코드가 크게 준다.</li>
 <li><b>초안 저장 단순화</b>: 검토 초안(버전·이벤트·충돌 409)과 확정값(필드 경로별 행)이 따로 있다. 관리자 한 명이 한 문서를 검토하는 실제 사용에서는 '초안 JSON 한 덩어리 저장 → 확정'으로 충분할 수 있다(동시 편집 요구 확인 필요).</li>
-<li><b>빼면 안 되는 것</b>: Railway가 읽는 월별 운영 계획(진도표)·정기시험 회차는 이 분석이 아직 못 읽는다. 학생 화면이 이 값을 쓰면 먼저 옮겨야 한다.</li>
+<li><b>빼면 안 되는 것</b>: 월별 운영 계획(진도표)·정기시험 회차는 학생 월간 달력·확정 계획 화면이 쓴다. 이 분석도 이제 읽으므로 외부 분석기를 걷어내도 빠지지 않는다.</li>
 </ul>
 
 <h2>6. 남은 일</h2>
 <ul>
-<li>월별 운영 계획(진도표)·정기시험 회차 읽기 — Railway 대비 빠진 부분.</li>
 <li>스캔본 OCR은 백엔드로 옮기지 않았다(스캔본은 126곳 중 2~3곳). 필요하면 Tesseract 연결.</li>
 <li>113곳 일괄 측정의 파일 오류 2건(선부고 등) 원인 확인.</li>
 </ul>

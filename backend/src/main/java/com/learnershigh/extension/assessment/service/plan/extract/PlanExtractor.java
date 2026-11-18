@@ -27,6 +27,10 @@ public final class PlanExtractor {
         public boolean ratioOnly;
         /** 비율을 읽은 원문 표 */
         public SourceTable source;
+        public List<ExamRules.Exam> exams = List.of();
+        /** 진도표 행과 그 행이 있는 표 */
+        public final List<TeachingPlanRules.Row> plan = new ArrayList<>();
+        public final List<SourceTable> planSource = new ArrayList<>();
     }
 
     public static List<Subject> extract(List<SourceTable> tables, String fileName, String school) {
@@ -96,6 +100,25 @@ public final class PlanExtractor {
                 bySubject.put(SubjectRules.norm(subj), s);   // 검증 통과한 표를 우선
             }
         }
+        // (5) 진도표: 표가 속한 과목(머리 표·제목 기준)에 붙인다
+        for (int i = 0; i < tables.size(); i++) {
+            Subject s = subjAt[i] == null ? null : bySubject.get(SubjectRules.norm(subjAt[i]));
+            if (s == null || s.plan.size() >= 400) {
+                continue;
+            }
+            List<TeachingPlanRules.Row> rows;
+            try {
+                rows = TeachingPlanRules.rows(tables.get(i).cells());
+            } catch (RuntimeException e) {
+                rows = null;   // 서식이 안 맞는 표
+            }
+            if (rows != null) {
+                for (TeachingPlanRules.Row r : rows.subList(0, Math.min(rows.size(), 400 - s.plan.size()))) {
+                    s.plan.add(r);
+                    s.planSource.add(tables.get(i));
+                }
+            }
+        }
         return new ArrayList<>(bySubject.values());
     }
 
@@ -143,6 +166,7 @@ public final class PlanExtractor {
         s.performancePercent = r.perfTotal();
         s.check = chosen.reasons();
         s.ratioOnly = chosen.ratioOnly();
+        s.exams = ExamRules.exams(g, s.examPercent);
         List<String> names = r.items().stream().map(it -> it.label() == null ? "" : it.label()).toList();
         if (!r.items().isEmpty() && !details.isEmpty()) {
             List<List<SourceTable>> groups = RubricRules.splitByItems(details, names);

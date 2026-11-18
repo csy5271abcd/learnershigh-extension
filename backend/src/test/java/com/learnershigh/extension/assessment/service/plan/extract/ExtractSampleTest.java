@@ -42,6 +42,12 @@ class ExtractSampleTest {
                         }
                         sb.append("; ");
                     }
+                    sb.append(" | exams ");
+                    s.exams.forEach(e -> sb.append(e.round()).append(':').append(e.label()).append('=').append(e.weightPercent()).append(' '));
+                    sb.append("| plan ").append(s.plan.size());
+                    s.plan.stream().limit(2).forEach(r -> sb.append(" [").append(r.month()).append('~').append(r.monthTo()).append(" w")
+                            .append(r.weekFrom()).append('-').append(r.weekTo()).append(' ').append(r.unit()).append(" std")
+                            .append(r.standards().size()).append(']'));
                     sb.append('\n');
                 }
             }

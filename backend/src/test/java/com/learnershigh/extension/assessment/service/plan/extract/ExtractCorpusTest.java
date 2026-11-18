@@ -21,7 +21,7 @@ class ExtractCorpusTest {
         }
         Path out = Path.of(System.getenv().getOrDefault("EXTRACT_OUT", "extract_corpus.tsv"));
         java.util.Set<String> seen = new java.util.HashSet<>();
-        StringBuilder sb = new StringBuilder("school\tfiles\tsubjects\tok\titems\trubric\trubricOk\tms\terrors\n");
+        StringBuilder sb = new StringBuilder("school\tfiles\tsubjects\tok\titems\trubric\trubricOk\tms\terrors\texamSubjects\texams\tplanSubjects\tplanRows\n");
         for (String root : roots.split(";")) {
             List<Path> schools;
             try (var s = Files.list(Path.of(root))) {
@@ -38,7 +38,7 @@ class ExtractCorpusTest {
                             .filter(f -> !f.getFileName().toString().replace(" ", "").matches(".*(성적관리|규정).*")).forEach(files::add);
                 }
                 long t0 = System.nanoTime();
-                int subjects = 0, ok = 0, items = 0, rubric = 0, rubricOk = 0, errors = 0;
+                int subjects = 0, ok = 0, items = 0, rubric = 0, rubricOk = 0, errors = 0, exSubj = 0, exams = 0, planSubj = 0, planRows = 0;
                 for (Path f : files) {
                     String low = f.getFileName().toString().toLowerCase();
                     PlanDocumentFormat format = PlanDocumentFormat.valueOf(low.substring(low.lastIndexOf('.') + 1).toUpperCase());
@@ -51,6 +51,14 @@ class ExtractCorpusTest {
                             subjects++;
                             if (s.check.isEmpty()) {
                                 ok++;
+                            }
+                            if (!s.exams.isEmpty()) {
+                                exSubj++;
+                                exams += s.exams.size();
+                            }
+                            if (!s.plan.isEmpty()) {
+                                planSubj++;
+                                planRows += s.plan.size();
                             }
                             for (PlanExtractor.Item it : s.items) {
                                 items++;
@@ -68,7 +76,8 @@ class ExtractCorpusTest {
                 }
                 sb.append(name).append('\t').append(files.size()).append('\t').append(subjects).append('\t').append(ok).append('\t')
                         .append(items).append('\t').append(rubric).append('\t').append(rubricOk).append('\t')
-                        .append((System.nanoTime() - t0) / 1_000_000).append('\t').append(errors).append('\n');
+                        .append((System.nanoTime() - t0) / 1_000_000).append('\t').append(errors).append('\t').append(exSubj).append('\t')
+                        .append(exams).append('\t').append(planSubj).append('\t').append(planRows).append('\n');
                 Files.writeString(out, sb.toString());
             }
         }
