@@ -1243,3 +1243,10 @@
 - 실행 중 8080(PID 25796, 18:40 시작 — A28-24 재시작)은 **A28-27 이전 분석기 코드**(시작 시점 작업 트리)로 떠 있다 — 보라고 재분석 전에 재시작 필요. 재시작해도 Migration 적용 없음(28 = 28).
 - 재시작: 8080 창을 닫고 PowerShell 에서 `C:\learnershigh-local-run\start-backend.ps1` (학생 5173·관리자 5174 는 그대로).
 - 보라고 반영(사용자 조작): A28-27 K-8 순서 — 관리자 http://localhost:5174/assessment?devAdmin=adm_demo_b01&school=sch_demo_bora&year=2026&grade=1&semester=2 → 분석 탭 '다시 분석' → 검토 4단계 후보 195행 확인 → 최종 확정 단계 '월별 운영계획 최종 승인'(평가 정보 185 재확정 없음) → 전체 현황·월별 운영계획·학생(`stu_demo_073`) 확인.
+
+## L-8. 최신 head CI · 불안정 시험 기록 (추가)
+
+- 문서 커밋 `854d1b1`(문서만) push 뒤 CI: push 실행 전부 통과, PR 실행 1회차 **Backend 실패** — 통합 시험 1건 `SchoolInfoSelectionClassificationApiTest.출처_학년도가_확인된_미분류_원본만_관리자가_여러_칸에_분류하고_이력이_쌓인다`(285행, `YEAR_MISMATCH` 결과 1건 기대, 284 tests 중 1 실패). E2E 는 그 때문에 건너뜀.
+- 같은 코드로 CI 3회(`d35b9f2` push·PR, `854d1b1` push) 통과, 로컬 이 클래스 단독 3회 연속 8/8 통과, A28-27 전체 통합 246/246 통과 → **간헐 실패(FLAKY), 원인 미확정**. 실패한 작업만 재실행(run 45031325923 attempt 2) → Harness · Frontend · Backend · E2E · CI Result 모두 통과. 보호 규칙 우회 없음.
+- 확인한 가설: 시험 파일 이름의 임의 tag(base36)에 `20dd` 가 끼면 파일 이름 연도가 둘이 되어 `FILE_YEAR_CONFLICT`(→ `NEEDS_SOURCE_VERIFICATION`)가 될 수 있다(규칙 `(?<!\d)(20\d{2})(?!\d)`). 확률이 낮아(실행당 약 0.03%) 단정하지 않는다. 후속: 실패 시 결과 본문을 남기도록 단언 메시지 보강 · tag 를 숫자 없는 문자로 바꾸는 시험 수정 검토(제품 코드 영향 없음).
+- PR #17: Draft 유지 · mergeable(`main` 충돌 없음). Draft 해제하지 않은 이유: 설명의 '완규님 검토 사항'(Student Care 인수 시험 교체·상담 입력 결함 등)·시연 DB Migration 결정이 아직 열려 있음.
