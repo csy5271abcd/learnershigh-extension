@@ -50,6 +50,7 @@ features/assessment/
 - 기본값은 보수적으로 정한다.
   - Stage 1 개발 서버: `mock`
   - Production Build: `http` 또는 Build 실패. Mock 코드가 실제 배포물에서 실행되지 않게 한다.
+- **변경 (A27-UX 부록 N2, 2026-11-21 사용자 요청 '운영형 Mock 제거'):** 지정이 없으면 **개발 서버도 `http`**. `mock`은 개발 서버에서 `VITE_ASSESSMENT_DATA_SOURCE=mock`을 **명시**했을 때만 쓰고, Production Build는 `mock`을 지정해도 `http`다(학생 `dataSource.ts`, 관리자 `adminMockRuntime.ts`). Backend 오류·401·Proxy 오류는 오류로 보여 주고 Mock으로 바꾸지 않는다. Mock Adapter·Canonical Fixture 코드는 개발·시험용으로 남긴다(삭제하지 않음).
 - Stage 2 전환은 **Resource 단위**로 한다 (예: SchoolAssessment만 먼저 `http`). Resource별 전환 상태는 `progress.md`에 기록한다.
 - 전환 완료 기준: 같은 화면이 Real API로 동작하고, Contract Test와 Cross-Surface 검증을 통과한 상태.
 
