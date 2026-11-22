@@ -55,7 +55,6 @@ class AnalyzerV211ImportAndItemKeyApiTest {
     @org.junit.jupiter.api.AfterEach
     void setUp() {
         // A12: 재검토 시작이 초안을 만들므로 분석 Run보다 먼저 지운다(끝난 뒤에도 지워 다른 시험 클래스의 정리를 막지 않는다)
-        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");

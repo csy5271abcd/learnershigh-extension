@@ -1574,3 +1574,52 @@ details.more code {
 .pickStatus[data-tone='danger'] {
   color: var(--as-color-danger);
 }
+
+/* 채점기준표: 좁은 검토 칸에서도 읽히도록 표 대신 요소별 묶음(점수 | 기준) */
+.rubricList {
+  display: grid;
+  gap: 10px;
+}
+
+.rubricCriterion {
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.rubricHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.rubricLevels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.rubricLevels li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--as-color-line);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rubricScore {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rubricDesc {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}

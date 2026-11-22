@@ -13,12 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
+import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
-import com.sun.net.httpserver.HttpServer;
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,8 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
@@ -42,9 +41,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @Tag("integration")
 @SpringBootTest(properties = {
     "assessment.plan-storage.root=${java.io.tmpdir}/learnershigh-it-plan-storage",
-    "assessment.analyzer.token=it-token-not-a-secret-0123456789abcdef",
-    "assessment.analyzer.timeout-millis=3000",
-    "assessment.analyzer.retry-delay-millis=10",
     "assessment.analysis-import.contract03-enabled=true"})
 @AutoConfigureMockMvc
 @ActiveProfiles("e2e")
@@ -53,13 +49,18 @@ class TeachingPlanReviewApiTest {
 
     static final String PLANS = "/api/admin/assessment/evaluation-plans";
     static final String STUDENT = "/api/student/assessment/evaluation-plans/";
-    static final HttpServer ANALYZER = startStub();
+    static final StubPlanAnalyzer ANALYZER = new StubPlanAnalyzer(TeachingPlanReviewApiTest::respond);
     static String payload;
     static byte[] pdf;
 
-    @DynamicPropertySource
-    static void analyzer(DynamicPropertyRegistry registry) {
-        registry.add("assessment.analyzer.base-url", () -> "http://127.0.0.1:" + ANALYZER.getAddress().getPort());
+    /** 서버 분석기 자리에 Envelope 를 돌려주는 시험용 분석기를 넣는다. */
+    @TestConfiguration
+    static class AnalyzerStub {
+        @Bean
+        @Primary
+        PlanAnalyzerClient stubPlanAnalyzer() {
+            return ANALYZER;
+        }
     }
 
     @Autowired
@@ -72,37 +73,20 @@ class TeachingPlanReviewApiTest {
     String revisionId;
     String analysisId;
 
-    static HttpServer startStub() {
-        try {
-            HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-            server.setExecutor(Executors.newCachedThreadPool());
-            server.createContext("/analyze-preview", exchange -> {
-                exchange.getRequestBody().readAllBytes();
-                String sha = com.jayway.jsonpath.JsonPath.read(payload, "$.source.sha256");
-                String body = """
-                        {"service":{"name":"stub-analyzer"},"requestId":"stub03","ok":true,"status":"PARTIAL",
-                         "analyzerVersion":"synthetic","source":{"sha256":"%s"},
-                         "backendImport":{"contract":"AnalysisImportRequest","variant":"OFFICIAL_PDF","importable":true,
-                           "blockers":[],"payload":%s},"warnings":[],"errors":[{"code":"TEACHING_PLAN_PARTIAL"}],
-                         "elapsedMs":3}""".formatted(sha, payload);
-                byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-                exchange.getResponseHeaders().add("Content-Type", "application/json; charset=utf-8");
-                exchange.sendResponseHeaders(200, bytes.length);
-                exchange.getResponseBody().write(bytes);
-                exchange.close();
-            });
-            server.start();
-            return server;
-        } catch (IOException failure) {
-            throw new IllegalStateException(failure);
-        }
+    static StubPlanAnalyzer.Reply respond(PlanAnalyzerClient.Request request) {
+        String sha = com.jayway.jsonpath.JsonPath.read(payload, "$.source.sha256");
+        return StubPlanAnalyzer.Reply.ok("""
+                {"service":{"name":"stub-analyzer"},"requestId":"stub03","ok":true,"status":"PARTIAL",
+                 "analyzerVersion":"synthetic","source":{"sha256":"%s"},
+                 "backendImport":{"contract":"AnalysisImportRequest","variant":"OFFICIAL_PDF","importable":true,
+                   "blockers":[],"payload":%s},"warnings":[],"errors":[{"code":"TEACHING_PLAN_PARTIAL"}],
+                 "elapsedMs":3}""".formatted(sha, payload));
     }
 
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_plan_teaching_plan_row");
-        jdbc.update("delete from assessment_plan_teaching_plan_review");
-        jdbc.update("delete from assessment_plan_review_draft_event");
+        jdbc.update("delete from assessment_plan_review where scope = 'TEACHING_PLAN'");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");
@@ -236,7 +220,7 @@ class TeachingPlanReviewApiTest {
                                 {"analysisId":"analysis_unknown","rows":[{"subjectIndex":0,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("analysisId"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
     }
 
     String draftBody(Long baseVersion, String decisions) {
@@ -455,10 +439,10 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.reReviewOpen").value(false));
         // 같은 Revision에 같은 버전은 DB가 거절한다(동시 재확정 방지)
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 3", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 3", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
-                insert into assessment_plan_teaching_plan_review (id, revision_id, analysis_id, version_no, row_count, reviewed_by, reviewed_at)
-                select 'dup_version', revision_id, analysis_id, 3, 0, 'x', reviewed_at from assessment_plan_teaching_plan_review where id = ?""", reviewId))
+                insert into assessment_plan_review (id, revision_id, analysis_id, scope, version_no, row_count, decision, reviewed_by, reviewed_at)
+                select 'dup_version', revision_id, analysis_id, 'TEACHING_PLAN', 3, 0, 'CONFIRM', 'x', reviewed_at from assessment_plan_review where scope = 'TEACHING_PLAN' and id = ?""", reviewId))
                 .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
     }
 
@@ -637,7 +621,7 @@ class TeachingPlanReviewApiTest {
         assertThat(jdbc.queryForObject("select result_json from assessment_plan_analysis_run where id = ?", String.class, analysisId))
                 .doesNotContain("manual_").doesNotContain("세포 분열");
         // DB 제약: 관리자 추가 행에 후보를 넣거나 분석 행의 후보를 비울 수 없다
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 4", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 4", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
                 insert into assessment_plan_teaching_plan_row (id, review_id, sort_order, subject_id, analysis_subject_index, row_key, row_origin, decision, row_json, candidate_json)
                 values ('bad_manual', ?, 9, 'subj_02', 0, 'manual_x', 'MANUAL', 'EDITED', '{}', null)""", reviewId))
@@ -731,7 +715,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.draft.version").value(version))
                 .andExpect(jsonPath("$.draft.manualRows.length()").value(1))
                 .andExpect(jsonPath("$.draft.manualRows[0].unit").value("세포 분열"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
         // 추가 행만으로도 확정할 수 있다(후보 행 0개) — 분석 결과에 운영계획 후보가 있는 문서에서
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content(confirmWith("", manual(m1, "CONFIRMED"))))
@@ -828,7 +812,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[?(@.reason == 'grade_conflict')]").isNotEmpty());
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
         // 같은 문서의 1학년 과목(과목 0)은 확정된다
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content("""

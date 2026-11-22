@@ -11,7 +11,7 @@ import { paths } from '../routes/paths.ts'
 import { ConfirmStep, type HashState } from './ConfirmStep.tsx'
 import { OverviewStep } from './OverviewStep.tsx'
 import { PerformanceStep, type PerformanceSelection } from './PerformanceStep.tsx'
-import { analysisStatusText, blockersOf, confirmRequestOf, fieldKey, steps, type Decision, type StepId } from './reviewModel.ts'
+import { analysisStatusText, blockersOf, confirmRequestOf, fieldKey, gradeConflict, steps, type Decision, type StepId } from './reviewModel.ts'
 import { SourcePane } from './SourcePane.tsx'
 import type { OnJump } from './evidence.ts'
 import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
@@ -55,7 +55,11 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const draft = useServerDraft(view)
   const { decisions, subjectIds, sync } = draft
   const [step, setStep] = useState<StepId>('overview')
-  const [selection, setSelection] = useState<PerformanceSelection>({ subjectIndex: 0, item: 'common' })
+  // 처음 여는 과목: 이 문서 학년 과목(다른 학년 과목은 목록에서 접혀 있다)
+  const [selection, setSelection] = useState<PerformanceSelection>(() => {
+    const own = view.subjects.findIndex((_, index) => !gradeConflict(view.subjectGrades?.[index], view.slot?.grade))
+    return { subjectIndex: own >= 0 ? own : 0, item: 'common' }
+  })
   const [hash, setHash] = useState<HashState>({ status: 'none' })
   const [attested, setAttested] = useState(false)
   const [partialAcknowledged, setPartialAcknowledged] = useState(false)

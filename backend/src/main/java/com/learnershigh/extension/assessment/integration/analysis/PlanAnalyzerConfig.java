@@ -1,24 +1,22 @@
 package com.learnershigh.extension.assessment.integration.analysis;
 
-import java.time.Duration;
+import com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer;
+import com.learnershigh.extension.assessment.service.plan.extract.ScanOcr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.ConfigurableEnvironment;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * 평가계획서 분석기 Client 선택 (A3, 2026-11-13 · A23·A24 2026-11-16 갱신).
+ * 평가계획서 분석기 선택.
  * <ul>
- *   <li>연결값은 {@code application.yml}의 {@code assessment.analyzer.*}에 있다(A23). 주소가 비면 "미설정" Client(503).</li>
- *   <li><b>인증 토큰({@code assessment.analyzer.token})은 설정 파일에서만 읽는다(A24 사용자 결정)</b> — {@link AnalyzerTokenSource}.
- *       {@code ASSESSMENT_ANALYZER_TOKEN} 환경 변수·시스템 속성·실행 인자는 무시한다. 토큰이 비면 "미설정".</li>
- *   <li>그 밖의 키({@code base-url}·{@code version}·{@code contract03-version}·{@code timeout-millis}·{@code max-retries} …)는
- *       Spring 기본 우선순위 그대로다(환경 변수 {@code ASSESSMENT_ANALYZER_*}로 덮어쓸 수 있다 — 로컬 분석기 시험용).</li>
+ *   <li>{@code local}(기본): 서버 안에서 표를 읽어 분석한다. 원문이 밖으로 나가지 않고 토큰도 필요 없다.</li>
+ *   <li>{@code none}: 분석기 미설정(503). 시험 기본값.</li>
  * </ul>
- * A18 시연 결정: 원격(Railway) 분석기 120초 + 이 Backend 150000ms(30초 여유). Timeout은 재시도하지 않는다(최대 대기 = 이 값).
+ * 예전 외부 분석기(HTTP {@code /analyze-preview}) 연결은 2026-11-19 에 걷어 냈다 — 같은 공개 PDF 에서 서버 안 분석이
+ * 더 많이 읽고(비율을 읽은 과목 4 → 113), 원문을 외부로 보내지 않기 때문이다.
  */
 @Configuration
 public class PlanAnalyzerConfig {
@@ -27,22 +25,19 @@ public class PlanAnalyzerConfig {
 
     @Bean
     PlanAnalyzerClient planAnalyzerClient(
-            @Value("${assessment.analyzer.base-url:}") String baseUrl,
-            @Value("${assessment.analyzer.connect-timeout-seconds:5}") long connectTimeoutSeconds,
+            @Value("${assessment.analyzer.mode:local}") String mode,
             @Value("${assessment.analyzer.timeout-millis:130000}") long timeoutMillis,
-            @Value("${assessment.analyzer.max-retries:2}") int maxRetries,
-            @Value("${assessment.analyzer.retry-delay-millis:500}") long retryDelayMillis,
-            ConfigurableEnvironment environment,
+            @Value("${assessment.analyzer.ocr:auto}") String ocrMode,
             JsonMapper mapper) {
-        String token = AnalyzerTokenSource.resolve(environment);
-        if (AnalyzerTokenSource.overrideAttempted(environment)) {
-            // 값은 출력하지 않는다 — 이름만 알린다
-            log.info("plan analyzer token override ignored ({} / {}): the token comes from the config file (application.yml) only", AnalyzerTokenSource.IGNORED_ENV, AnalyzerTokenSource.KEY);
-        }
-        if (baseUrl == null || baseUrl.isBlank() || token.isBlank()) {
+        if ("none".equalsIgnoreCase(mode)) {
             return new UnconfiguredPlanAnalyzerClient();
         }
-        return new HttpPlanAnalyzerClient(baseUrl.strip(), token, Duration.ofSeconds(connectTimeoutSeconds),
-                Duration.ofMillis(timeoutMillis), maxRetries, retryDelayMillis, mapper);
+        if (!"local".equalsIgnoreCase(mode)) {
+            throw new IllegalStateException("assessment.analyzer.mode 는 local 또는 none 이어야 합니다: " + mode);
+        }
+        // 스캔본 PDF: auto = Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR, 둘 다 없으면 읽지 않음
+        var ocr = ScanOcr.engine(ocrMode);
+        log.info("plan analyzer: local (ocr={})", ocr == null ? "none" : ocr.name());
+        return new LocalPlanAnalyzer(mapper, timeoutMillis, ocr);
     }
 }

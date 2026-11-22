@@ -8,12 +8,10 @@ import com.learnershigh.extension.assessment.entity.PlanAnalysisRun;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisStatus;
 import com.learnershigh.extension.assessment.entity.PlanReview;
 import com.learnershigh.extension.assessment.entity.PlanReviewDraft;
-import com.learnershigh.extension.assessment.entity.PlanReviewDraftEvent;
 import com.learnershigh.extension.assessment.entity.PlanRevision;
 import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
 import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
-import com.learnershigh.extension.assessment.repository.PlanReviewDraftEventRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewRepository;
 import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
@@ -35,7 +33,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -66,19 +63,17 @@ public class PlanReviewDraftService {
     private final PlanReviewDraftRepository drafts;
     private static final Pattern TEACHING_PLAN_ROW = Pattern.compile("teachingPlan\\[(0|[1-9]\\d{0,2})]");
 
-    private final PlanReviewDraftEventRepository events;
     private final TeachingPlanReviewRepository teachingPlanReviews;
     private final PlanReviewRepository reviews;
     private final AssessmentTimes times;
     private final JsonMapper mapper;
 
     public PlanReviewDraftService(PlanAccess access, PlanAnalysisRunRepository runs, PlanReviewDraftRepository drafts,
-            PlanReviewDraftEventRepository events, TeachingPlanReviewRepository teachingPlanReviews,
+            TeachingPlanReviewRepository teachingPlanReviews,
             PlanReviewRepository reviews, AssessmentTimes times, JsonMapper mapper) {
         this.access = access;
         this.runs = runs;
         this.drafts = drafts;
-        this.events = events;
         this.teachingPlanReviews = teachingPlanReviews;
         this.reviews = reviews;
         this.times = times;
@@ -182,6 +177,7 @@ public class PlanReviewDraftService {
             draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(), payloadJson,
                     payload.decisions().size(), admin.adminId(), now);
             changed = changedPaths(new Payload(List.of(), List.of()), payload);
+            history(draft, admin.adminId(), now, changed.size(), changed.stream().limit(CHANGED_PATHS_LIMIT).toList());
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
@@ -199,10 +195,9 @@ public class PlanReviewDraftService {
             }
             changed = changedPaths(read(draft), payload);
             draft.replace(payloadJson, payload.decisions().size(), admin.adminId(), now);
+            history(draft, admin.adminId(), now, changed.size(), changed.stream().limit(CHANGED_PATHS_LIMIT).toList());
             draft = drafts.saveAndFlush(draft);
         }
-        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, changed.size(),
-                mapper.writeValueAsString(changed.stream().limit(CHANGED_PATHS_LIMIT).toList())));
         return view(plan, revision, Optional.of(run), scope);
     }
 
@@ -246,20 +241,20 @@ public class PlanReviewDraftService {
                         new FieldViolation("draft", "already_open"));
             }
             draft.reopenForReReview(admin.adminId(), now);
+            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             draft = drafts.saveAndFlush(draft);
         } else {
             Payload payload = confirmed.get().analysisId().equals(run.id())
                     ? prefillFromTeachingPlan(confirmed.get(), run) : new Payload(List.of(), List.of());
             draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_TEACHING_PLAN, revision.id(), run.id(), revision.sha256(),
                     run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
+            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
                 throw conflict(null);
             }
         }
-        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
-                mapper.writeValueAsString(List.of("reopened"))));
         return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_TEACHING_PLAN);
     }
 
@@ -359,19 +354,19 @@ public class PlanReviewDraftService {
                         new FieldViolation("draft", "already_open"));
             }
             draft.reopenForReReview(admin.adminId(), now);
+            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             draft = drafts.saveAndFlush(draft);
         } else {
             Payload payload = prefillFromLatestReview(revision, run);
             draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_EVALUATION, revision.id(), run.id(), revision.sha256(),
                     run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
+            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
                 throw conflict(null);
             }
         }
-        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
-                mapper.writeValueAsString(List.of("reopened"))));
         return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_EVALUATION);
     }
 
@@ -496,6 +491,7 @@ public class PlanReviewDraftService {
         if (existing.isEmpty()) {
             draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(),
                     payloadJson, payload.decisions().size(), admin.adminId(), now);
+            history(draft, admin.adminId(), now, 1, List.of(request.row().subjectIndex() + "|manual:" + key));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
@@ -504,10 +500,9 @@ public class PlanReviewDraftService {
         } else {
             draft = existing.get();
             draft.replace(payloadJson, payload.decisions().size(), admin.adminId(), now);
+            history(draft, admin.adminId(), now, 1, List.of(request.row().subjectIndex() + "|manual:" + key));
             draft = drafts.saveAndFlush(draft);
         }
-        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 1,
-                mapper.writeValueAsString(List.of(request.row().subjectIndex() + "|manual:" + key))));
         return view(plan, revision, Optional.of(run), scope);
     }
 
@@ -637,16 +632,30 @@ public class PlanReviewDraftService {
         return new ArrayList<>(changed);
     }
 
+    /** 초안 저장 이력 한 건 (초안 행의 history_json, 최근 {@link #HISTORY_LIMIT}건, 최신이 앞). */
+    record HistoryItem(long draftVersion, String savedBy, String savedAt, int changedCount, List<String> changedPaths) {
+    }
+
+    private List<HistoryItem> historyOf(PlanReviewDraft d) {
+        return d.historyJson() == null ? List.of() : Arrays.asList(mapper.readValue(d.historyJson(), HistoryItem[].class));
+    }
+
+    /** 다음 저장(flush) 뒤의 version 으로 이력을 남긴다 — 새 초안은 0, 바뀐 초안은 지금 + 1(JPA @Version). */
+    private void history(PlanReviewDraft d, String adminId, Instant now, int changedCount, List<String> paths) {
+        List<HistoryItem> list = new ArrayList<>(historyOf(d));
+        list.add(0, new HistoryItem(d.isNew() ? d.version() : d.version() + 1, adminId, now.toString(), changedCount, paths));
+        d.recordHistory(mapper.writeValueAsString(list.subList(0, Math.min(HISTORY_LIMIT, list.size()))));
+    }
+
     private PlanReviewDraftResponse view(EvaluationPlan plan, PlanRevision revision, Optional<PlanAnalysisRun> latest,
             String scope) {
         List<PlanReviewDraft> all = drafts.findByRevisionId(revision.id(), scope);
         Optional<PlanReviewDraft> current = latest.flatMap(run -> all.stream().filter(d -> d.analysisId().equals(run.id())).findFirst());
         PlanReviewDraftResponse.Draft draft = current.map(this::draftView).orElse(null);
         List<PlanReviewDraftResponse.HistoryEntry> history = current
-                .map(d -> events.findRecent(d.id(), PageRequest.of(0, HISTORY_LIMIT)).stream()
+                .map(d -> historyOf(d).stream()
                         .map(e -> new PlanReviewDraftResponse.HistoryEntry(e.draftVersion(), e.savedBy(),
-                                times.toOffset(e.savedAt()), e.changedCount(),
-                                Arrays.asList(mapper.readValue(e.changedPathsJson(), String[].class))))
+                                times.toOffset(Instant.parse(e.savedAt())), e.changedCount(), e.changedPaths()))
                         .toList())
                 .orElse(List.of());
         List<PlanReviewDraftResponse.PreviousDraft> previous = all.stream()

@@ -618,3 +618,12 @@ export async function getPlanArchiveDetailHttp(planId: string, revisionId: strin
     teachingPlan: teaching,
   }
 }
+
+/** 학교 이름으로 학교알리미 평가계획 파일을 받아 학년·학기 문서로 등록하고 서버 분석까지 한다 (문서가 많으면 1~2분). */
+export function importFromSchoolInfoHttp(request: { schoolId: string; schoolName: string; academicYear: number; semester: number; defaultGrade: number | null }): Promise<import('../types.ts').SchoolInfoImportResult> {
+  return adminHttp(`${plansPath}/import-from-schoolinfo`, { method: 'POST', json: request })
+}
+
+export function getSchoolInfoImportHttp(jobId: string): Promise<import('../types.ts').SchoolInfoImportResult> {
+  return adminHttp(`${plansPath}/import-from-schoolinfo/${encodeURIComponent(jobId)}`)
+}

@@ -71,6 +71,7 @@ export default defineConfig({
         DB_PASSWORD: process.env.E2E_ASSESSMENT_DB_PASSWORD ?? '',
         SERVER_PORT: String(ports.backend),
         ASSESSMENT_STORAGE_ROOT: join(tmpdir(), 'lh-e2e-assessment-storage'),
+        ASSESSMENT_ANALYZER_MODE: 'http',   // 합성 Stub 분석기로 화면 흐름만 시험한다 (기본은 서버 안 분석 local)
         ASSESSMENT_ANALYZER_BASE_URL: `http://127.0.0.1:${ports.analyzer}`,
         ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED: 'true',
         // A10: 합성 수신 JSON(HWPX Locator·다과목 PDF)을 넣으려고 이 일회용 E2E Backend에서만 켠다. 애플리케이션 기본값은 계속 false다.

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { CheckIcon } from '../components/canonicalUi.ts'
-import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
+import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeConflict, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
 import { RubricEditor } from './RubricEditor.tsx'
 import styles from './review.module.css'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
@@ -37,11 +37,18 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
   const current = subjectFields(selection.subjectIndex).filter((field) => (selection.item === 'common' ? isCommonField(field) : isItemField(field, selection.item)))
   const item = selection.item === 'common' ? null : items(selection.subjectIndex).find((detail) => detail.itemIndex === selection.item) ?? null
   const subject = view.subjects[selection.subjectIndex]
+  // 일괄 확인: 아직 정하지 않았고 후보 값이 있는 칸만, 한 칸씩 누른 것과 같은 결정(후보 값 + 첫 근거 쪽)을 남긴다
+  const confirmable = (list: ReviewFieldCandidate[]) => list.filter((field) => !decisions[fieldKey(field)] && field.candidate !== null)
+  const confirmAll = (list: ReviewFieldCandidate[]) => confirmable(list).forEach((field) =>
+    onDecide(field, { kind: 'confirmed', value: candidateText(field.candidate), page: field.sourcePages[0] ? String(field.sourcePages[0]) : '' }))
+  const subjectLeft = confirmable(subjectFields(selection.subjectIndex)).length
 
-  return (
-    <div className={styles.master} data-testid="review-step-performance">
-      <nav className={styles.nav} aria-label="수행평가 목록">
-        {view.subjects.map((entry, index) => {
+  // 여러 학년 공통 문서: 원문 학년이 이 문서 학년이 아닌 과목은 아래에 접어 둔다(확정 불가 §39-12)
+  const own: number[] = []
+  const other: number[] = []
+  view.subjects.forEach((_, index) => (gradeConflict(view.subjectGrades?.[index], view.slot?.grade) ? other : own).push(index))
+
+  const navGroup = (entry: EvaluationPlanAnalysisView['subjects'][number], index: number) => {
           const common = subjectFields(index).filter(isCommonField)
           return (
             <div key={`${entry.subjectName}-${index}`} className={styles.navGroup}>
@@ -68,7 +75,20 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
               {items(index).length === 0 && <p className={styles.tiny} style={{ margin: '4px 10px' }}>추출된 수행평가 없음</p>}
             </div>
           )
-        })}
+  }
+
+  return (
+    <div className={styles.master} data-testid="review-step-performance">
+      <nav className={styles.nav} aria-label="수행평가 목록">
+        {own.map((index) => navGroup(view.subjects[index], index))}
+        {other.length > 0 && (
+          <details className={styles.navGroup} data-testid="performance-other-grades" open={other.includes(selection.subjectIndex)}>
+            <summary className={styles.navSubject} style={{ cursor: 'pointer' }}>
+              다른 학년 과목 {other.length}개 · 이 문서에서는 확정하지 않아요
+            </summary>
+            {other.map((index) => navGroup(view.subjects[index], index))}
+          </details>
+        )}
       </nav>
 
       <section className={styles.detail} aria-label="선택한 항목 상세">
@@ -88,6 +108,21 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 {current.length === 0 ? '' : remaining(current) === 0 ? '모두 확인했어요' : `확인 ${remaining(current)}개 남음`}
               </span>
             </div>
+            {!readOnly && (confirmable(current).length > 0 || subjectLeft > 0) && (
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }} data-testid="review-bulk-confirm">
+                {confirmable(current).length > 0 && (
+                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(current)} data-testid="review-confirm-current">
+                    이 항목 후보 {confirmable(current).length}개 그대로 확인
+                  </button>
+                )}
+                {subjectLeft > confirmable(current).length && (
+                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(subjectFields(selection.subjectIndex))} data-testid="review-confirm-subject">
+                    {subject.subjectName} 남은 후보 {subjectLeft}개 그대로 확인
+                  </button>
+                )}
+                <span className={styles.tiny} style={{ alignSelf: 'center' }}>원문과 대조한 뒤 누르세요. 확인 뒤에도 칸마다 수정·취소할 수 있어요.</span>
+              </div>
+            )}
 
             <ul className={styles.rows} style={{ marginTop: 16 }} data-testid="review-field-list">
               {current.length === 0 ? (
@@ -123,55 +158,48 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 {item.rubric.length === 0 ? (
                   <p className={styles.muted}>분석되지 않음 — 원문을 확인해 주세요.</p>
                 ) : (
-                  <table className={styles.table} data-testid="review-rubric">
-                    <thead>
-                      <tr>
-                        <th scope="col" style={{ width: '24%' }}>평가 요소</th>
-                        <th scope="col">수행 수준</th>
-                        <th scope="col" style={{ width: 72 }}>배점</th>
-                        <th scope="col" style={{ width: 84 }}>원문</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {item.rubric.flatMap((criterion, criterionIndex) => {
-                        const levels = criterion.levels.length ? criterion.levels : [null]
-                        return levels.map((level, levelIndex) => (
-                          <tr key={`${criterionIndex}-${levelIndex}`}>
-                            {levelIndex === 0 && (
-                              <td rowSpan={levels.length} style={{ fontWeight: 600 }}>
-                                {criterion.element}
-                                {typeof criterion.maxScore === 'number' && (
-                                  <div className={styles.tiny} data-testid="review-rubric-max-score">
-                                    요소 배점 {criterion.maxScore}점
-                                  </div>
-                                )}
-                                {criterion.linkReview === 'REVIEW_REQUIRED' && (
-                                  <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
-                                    연결 확인 필요 · 간접 근거
-                                  </div>
-                                )}
-                              </td>
+                  <div className={styles.rubricList} data-testid="review-rubric">
+                    {item.rubric.map((criterion, criterionIndex) => (
+                      <section key={criterionIndex} className={styles.rubricCriterion} aria-label={`채점 요소 ${criterion.element}`}>
+                        <div className={styles.rubricHead}>
+                          <div style={{ minWidth: 0 }}>
+                            <strong>{criterion.element}</strong>
+                            {typeof criterion.maxScore === 'number' && (
+                              <span className={styles.tiny} style={{ marginLeft: 8 }} data-testid="review-rubric-max-score">
+                                요소 배점 {criterion.maxScore}점
+                              </span>
                             )}
-                            <td>{level ? level.description : '수준 분석되지 않음'}</td>
-                            <td className="num">{level && level.score !== null ? `${level.score}점` : '확인 필요'}</td>
-                            {levelIndex === 0 && (
-                              <td rowSpan={levels.length}>
-                                <EvidenceLinks
-                                  pages={criterion.sourcePages}
-                                  locators={criterion.documentLocators}
-                                  name={`채점 요소 ${criterion.element}`}
-                                  onJump={onJump}
-                                  max={2}
-                                  pageLabel={(page) => `${page}쪽`}
-                                  emptyReason="분석 결과에 이 채점 요소의 원문 위치가 없어요."
-                                />
-                              </td>
+                            {criterion.linkReview === 'REVIEW_REQUIRED' && (
+                              <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
+                                연결 확인 필요 · 간접 근거
+                              </div>
                             )}
-                          </tr>
-                        ))
-                      })}
-                    </tbody>
-                  </table>
+                          </div>
+                          <EvidenceLinks
+                            pages={criterion.sourcePages}
+                            locators={criterion.documentLocators}
+                            name={`채점 요소 ${criterion.element}`}
+                            onJump={onJump}
+                            max={2}
+                            pageLabel={(page) => `${page}쪽`}
+                            emptyReason="분석 결과에 이 채점 요소의 원문 위치가 없어요."
+                          />
+                        </div>
+                        {criterion.levels.length === 0 ? (
+                          <p className={styles.muted} style={{ margin: 0 }}>수준 분석되지 않음</p>
+                        ) : (
+                          <ul className={styles.rubricLevels}>
+                            {criterion.levels.map((level, levelIndex) => (
+                              <li key={levelIndex}>
+                                <span className={styles.rubricScore}>{level.score !== null ? `${level.score}점` : '확인 필요'}</span>
+                                <span className={styles.rubricDesc}>{level.description}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </section>
+                    ))}
+                  </div>
                 )}
                 <p className={styles.tiny} style={{ marginTop: 8 }}>
                   위 표는 분석기 후보예요. 빠졌거나 틀리면 아래에서 채점기준을 직접 입력해 확정할 수 있어요(분석 후보는 바뀌지 않아요).

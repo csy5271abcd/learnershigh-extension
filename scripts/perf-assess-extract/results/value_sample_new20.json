@@ -1,0 +1,2775 @@
+[
+ {
+  "school": "해성여자고등학교",
+  "subject": "과목명 미확인 (6_2026학년도 2학년 2학기 평가계획.pdf p.62)",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서·논술형",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    }
+   ],
+   "source": "6_2026학년도 2학년 2학기 평가계획.pdf p.62",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "과목명 미확인 (1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.265)",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "탁구 단식 리그전 수행하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "탁구 포핸드 스트로크 수행하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "탁구 백핸드 스트로크 수행하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "스포츠 과학 원리 탐색 및 서술하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.265",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "한국지리",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서ㆍ논술형",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "그 외 유형",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 및 평가 계획 (전과목)-정보공시.pdf p.62",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "경신고등학교",
+  "subject": "수학과제탐구",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "문제 개념 탐구 및 문제 만들기 1",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "문제 개념 탐구 및 문제 만들기 2",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "4_2026학년도 경신고 2학기 수학과 교수·학습 및 평가 계획.hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "문제 개념 탐구 및 문제 만 25%; 문제 개념 탐구 및 문제 만 25%; 수행 총비율 50%",
+  "manual": "미확정"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "사회와 문화",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "사회 논쟁 문제 스피치 및 토론",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "사회 논쟁 문제 스피치 및 토론",
+     "weightPercent": 20.0,
+     "maxScore": null
+    }
+   ],
+   "source": "2_2026학년도 2학년 2학기 교수학습 평가 계획서및 최소성취수준보장지도 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "도시의 미래 탐구",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "도시 공간구조",
+     "weightPercent": 40.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(2학년_도시의 미래 탐구).pdf p.5",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "도시 공간구조 40%; 수행 총비율 40%",
+  "manual": "미확정"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "한국사2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "현대사 주요 사건의 내용 서술하기",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "역사적 인물에 대한 가상 인터뷰 기사 쓰기",
+     "weightPercent": 20.0,
+     "maxScore": null
+    }
+   ],
+   "source": "1_2026학년도 1학년 2학기 교수학습 평가 계획서및 최소성취수준보장지도 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "일본어",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "일본어 문자 및 문장 쓰기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "일본어로 자기 소개, 나의 미래 말하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "진로 관련 일본문화 탐구",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "일본 여행 계획 세우기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "2026학년도 2학기 2학년 교수학습 및 평가 운영 계획(일본어).hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "일본어 문자 및 문장 쓰기 20%; 일본어로 자기 소개, 나의  20%; 진로 관련 일본문화 탐구 10%; 수행 총비율 60%",
+  "manual": "미확정"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "중국 문화",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 30.0,
+   "items": [
+    {
+     "name": "한중 화폐 및 결제 방식의 변화 요인 비교",
+     "weightPercent": 50.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "중국 여행 팜플렛 제작",
+     "weightPercent": 50.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "6_2026학년도 홍대부속여고 2학기 생활·교양과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "한중 화폐 및 결제 방식의  50%; 중국 여행 팜플렛 제작 50%; 수행 총비율 30%",
+  "manual": "WRONG",
+  "note": "항목 비율이 수행 안 상대 비율(50/50)로 들어감"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "생물의유전",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서ㆍ논술형",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "그 외 유형 (실험/구술)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 및 평가 계획 (전과목)-정보공시.pdf p.133",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 50%",
+  "manual": "WRONG",
+  "note": "평가 유형(서ㆍ논술형/그 외)을 항목으로, 비율 불일치"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "화법과 언어",
+  "evaluation": {
+   "examPercent": 70.0,
+   "performancePercent": 30.0,
+   "items": [
+    {
+     "name": "공동체 문제 분석과 해결방안 제시하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "국어 피동·사동 표현의 오용과 언어 윤리 비평하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 평가계획.pdf p.13",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "해성여자고등학교",
+  "subject": "과목명 미확인 (6_2026학년도 2학년 2학기 평가계획.pdf p.136)",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "드로잉의 탐구",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    },
+    {
+     "name": "전공기초의 탐구",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    }
+   ],
+   "source": "6_2026학년도 2학년 2학기 평가계획.pdf p.136",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "물리학Ⅱ",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "서·논술형",
+     "weightPercent": 100.0,
+     "maxScore": 100.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 3학년 물리학Ⅱ 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "생명과학Ⅱ",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "생명 공학 기술과 생명 윤리 쟁점에 대한 의사 결정하기",
+     "weightPercent": 60.0,
+     "maxScore": 60.0
+    }
+   ],
+   "source": "4_2026학년도 홍대부속여고 2학기 과학과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "중국어회화",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "서·논술형 구술형",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "서·논술형 실기·시연",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "포트폴리오",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(2학년_중국어 회화).pdf p.4",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 60%",
+  "manual": "미확정"
+ },
+ {
+  "school": "새솔고등학교",
+  "subject": "일본문화",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "나만의 일본 문화 모음집 만들기 프로젝트",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "일본 주거 형태 이해하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "일본 연중행사 탐구하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "일본 노래 가사지 만들기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    }
+   ],
+   "source": "0_2026학년도 새솔고 3학년 2학기 전과목 교수학습 및 평가계획.pdf p.254",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "일본어 회화",
+  "evaluation": {
+   "examPercent": 30.0,
+   "performancePercent": 70.0,
+   "items": [
+    {
+     "name": "읽고 쓰기, 말하기",
+     "weightPercent": 70.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(2학년_일본어 회화).pdf p.4",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "새솔고등학교",
+  "subject": "물리학Ⅱ",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "생활 속 상호유도 사례 탐구",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "도서 속 물리학 개념 탐구",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "물리학 탐구 내용 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": null
+    }
+   ],
+   "source": "0_2026학년도 새솔고 3학년 2학기 전과목 교수학습 및 평가계획.pdf p.140",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "과목명 미확인 (1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.31)",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "논리문제 해결하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "문제해결과정 정리하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "미적분으로 탐구하는 지속가능한 미래 글쓰기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.31",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "간호의 기초",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "문제 분석 및 상태공간 구조화하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "알고리즘 설계하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "알고리즘 시공간 복잡도 분석하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "컴퓨터과학 기반 문제해결하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "6_7. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(생활교양과).pdf p.55 (목차 쪽수로 과목 판단)",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "과학탐구 실험2",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "생활 제품 속 과학의 유용성 조사활동 (논술형)",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "일상생활 과학원리 적용사례 발표(논술형)",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "(실험활동) 현미경 구조 및 상 이동 조작 능력",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "(실험활동) 양파 표피 세포 표본 제작",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "2_2026학년도 2학기 교수학습 및 평가운영계획(과학과).pdf p.17",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "스포츠 생활",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "공간 탐색 및 킥의 정교성 평가",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "라켓 조정을 활용한 랠리 지속 능력 평가",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "신체 부위별 조절을 통한 볼 제어 능력 평가",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "스포츠의 가치 논술",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "3_2026학년도 세교고등학교 2학기 3학년 교수학습 및 평가운영계획서.pdf p.41",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "동아시아사",
+  "evaluation": {
+   "examPercent": 80.0,
+   "performancePercent": 20.0,
+   "items": [
+    {
+     "name": "동아시아 역사의 전개",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(3학년_동아시아사).pdf p.5",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "중국문화",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서·논술형",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 2학년 중국 문화 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "인공지능수학",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "손실함수식과 경사하강법을 이용한 추세선 최적화하기",
+     "weightPercent": 28.0,
+     "maxScore": 28.0
+    },
+    {
+     "name": "산점도와 추세선을 해석하고 값을 추정하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "텍스트자료를 다양한 유사도로 분석하기",
+     "weightPercent": 24.0,
+     "maxScore": 24.0
+    },
+    {
+     "name": "조건부확률을 확장하여 활동 추천하기",
+     "weightPercent": 23.0,
+     "maxScore": 23.0
+    }
+   ],
+   "source": "5_2026학년도_2학기_3학년 교수학습 및 평가 운영 계획.pdf p.99",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "공통영어2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "어휘력 향상 챌린지(논술형)",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "심층 독해 포트폴리오 작성",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "독해 지문 리빌드하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "6_2026학년도 2학기 교수학습 및 평가운영계획(외국어과).pdf p.14",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "과목명 미확인 (5_2026학년도_2학기_3학년 교수학습 및 평가 운영 계획.pdf p.298)",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "기조력 이해하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "푄 이해하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "회전 수조를 이용한 편서풍 파동 실험하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "우주관의 변천 이해하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "5_2026학년도_2학기_3학년 교수학습 및 평가 운영 계획.pdf p.298",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "도시의미래탐구",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "살기 좋은 도시 만들기 정책 제안",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "세계도시 공간분석",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 2학기 2학년 교수학습 및 평가 운영 계획(도시의미래탐구).hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "살기 좋은 도시 만들기 정책 20%; 세계도시 공간분석 20%; 수행 총비율 40%",
+  "manual": "미확정"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "공통국어2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "주체적 감상하기와 작품의 수용과 비평",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "수행 2",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "작품을 통한 현대 사회 문제 탐구하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "0_2026학년도 1학년 2학기 교수학습 평가계획 및 최소성취수준 보장지도 계획.pdf p.15",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 2 20%",
+  "manual": "미확정"
+ },
+ {
+  "school": "새솔고등학교",
+  "subject": "기하",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "수학 개념 학습일지 작성하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "문제해결과정 탐구하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    }
+   ],
+   "source": "0_2026학년도 새솔고 3학년 2학기 전과목 교수학습 및 평가계획.pdf p.29",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "정보",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "프로그램 설계하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "사물인터넷 설계하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "알고리즘 분석하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "0_2026학년도 2학기 1학년 교수학습 및 평가 운영 계획.pdf p.203",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "과목명 미확인 (1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.174)",
+  "evaluation": {
+   "examPercent": 37.0,
+   "performancePercent": 63.0,
+   "items": [
+    {
+     "name": "경제 자유 주제 탐구하여 발표하기",
+     "weightPercent": 34.0,
+     "maxScore": 34.0
+    },
+    {
+     "name": "주택 시장에 대해 탐구하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "경제 학습 활동 내용 정리하기",
+     "weightPercent": 14.0,
+     "maxScore": 14.0
+    }
+   ],
+   "source": "1_2026학년도 2학기 2학년 교수학습 및 평가 운영 계획.pdf p.174",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "사회문제 탐구",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "Ⅵ. 사회문제 사례 연구",
+     "weightPercent": 100.0,
+     "maxScore": 100.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(3학년_사회문제 탐구).pdf p.4",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "통합과학2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "Ⅰ. 변화와 다양성 01. 지질 시대의 환경과 생물",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "Ⅰ. 변화와 다양성 02. 산과 염기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "Ⅰ. 변화와 다양성 02. 산과 염기",
+     "weightPercent": 5.0,
+     "maxScore": 5.0
+    }
+   ],
+   "source": "4_2026학년도 홍대부속여고 2학기 과학과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "생활과 윤리",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "환경보호 활동",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    }
+   ],
+   "source": "3_2026학년도 홍대부속여고 2학기 사회과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "공통영어2",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "영어 청해 능력 측정",
+     "weightPercent": 10.0,
+     "maxScore": null
+    },
+    {
+     "name": "쓰기",
+     "weightPercent": 30.0,
+     "maxScore": null
+    },
+    {
+     "name": "말하기",
+     "weightPercent": 10.0,
+     "maxScore": null
+    }
+   ],
+   "source": "1_2026학년도 1학년 2학기 교수학습 평가 계획서및 최소성취수준보장지도 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "쓰기 30%; 수행 총비율 50%",
+  "manual": "미확정"
+ },
+ {
+  "school": "인헌고등학교",
+  "subject": "사회문제탐구",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "그 외 유형",
+     "weightPercent": 100.0,
+     "maxScore": null
+    }
+   ],
+   "source": "인헌고_2026학년도 2학기 교수학습 및 평가운영 계획_3학년_사회 문제 탐구 최종.hwp p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "청명고등학교",
+  "subject": "체육2",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "피클볼 서브",
+     "weightPercent": 100.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "0_청명고 2026학년도 2학기 1학년 교수학습 및 평가계획.pdf p.257",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "해성여자고등학교",
+  "subject": "과목명 미확인 (6_2026학년도 2학년 2학기 평가계획.pdf p.114)",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "1. 세포",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "1. 세포 2. 물질대사와 에너지 3. 세포호흡과 광합성",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "6_2026학년도 2학년 2학기 평가계획.pdf p.114",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "새솔고등학교",
+  "subject": "공통영어2",
+  "evaluation": {
+   "examPercent": 70.0,
+   "performancePercent": 30.0,
+   "items": [
+    {
+     "name": "생활 속 문제를 해결하는 미래 기술 디자인하기",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "아웃풋 포트폴리오 완성하기",
+     "weightPercent": 10.0,
+     "maxScore": null
+    }
+   ],
+   "source": "1_2026학년도 새솔고 2학년 2학기 전과목 교수학습 및 평가계획.pdf p.46",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "선정고등학교",
+  "subject": "중국어Ⅱ",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "쓰기, 말하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "쓰기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "말하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "32_2026학년도 선정고 2학기 제2외국어과 교수학습 및 평가계획(정보공시).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "화학 실험",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "화학 실험의 기초 탐구하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "어는점 내림으로 화학식량 측정하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "여러 화학 반응의 반응열 측정하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "화학 전지 제작하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "아스피린 합성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 세교고등학교 2학기 2학년 교수학습 및 평가운영계획서.pdf p.429",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "영어 독해와 작문",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "듣기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "어휘",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 홍대부속여고 2학기 영어과 교수학습 및 평가운영계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "듣기 20%; 어휘 20%",
+  "manual": "WRONG",
+  "note": "정기시험 영역(듣기·어휘)을 수행 항목으로"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "지구시스템과학",
+  "evaluation": {
+   "examPercent": 55.0,
+   "performancePercent": 45.0,
+   "items": [
+    {
+     "name": "지구시스템 리포트",
+     "weightPercent": 45.0,
+     "maxScore": null
+    }
+   ],
+   "source": "2_2026학년도 세교고등학교 2학기 2학년 교수학습 및 평가운영계획서.pdf p.337",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "정보",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "상황 맥락별 의사소통 대화하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "중국 문화 북 트레일러 발표하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "협력적 배움 활동 성찰하여 중국어 회화 포트폴리오 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "6_7. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(생활교양과).pdf p.21 (목차 쪽수로 과목 판단)",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "경제 수학",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "학습 내용 통합 정리 및 이해하기",
+     "weightPercent": 30.0,
+     "maxScore": null
+    },
+    {
+     "name": "균형가격과 시장 균형 분석하기",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "부등식 영역과 최적화 문제",
+     "weightPercent": 20.0,
+     "maxScore": null
+    },
+    {
+     "name": "컨설팅 프로젝트",
+     "weightPercent": 30.0,
+     "maxScore": null
+    }
+   ],
+   "source": "3_2026학년도 3학년 2학기 교수학습 평가 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "선정고등학교",
+  "subject": "일본어Ⅱ",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "쓰기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "쓰기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "쓰기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "32_2026학년도 선정고 2학기 제2외국어과 교수학습 및 평가계획(정보공시).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "쓰기 30%; 수행 총비율 50%",
+  "manual": "WRONG",
+  "note": "항목 이름이 영역명(\"쓰기\")만"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "화학",
+  "evaluation": {
+   "examPercent": 40.0,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "1.물질의 세가지 상태와 용액- 4. 전기화학과 이용",
+     "weightPercent": 60.0,
+     "maxScore": 60.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(3학년_화학Ⅱ).pdf p.4",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "미술과 매체",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "수묵 표현을 활용한 디지털 이미지 재구성",
+     "weightPercent": 50.0,
+     "maxScore": null
+    },
+    {
+     "name": "의상 디자인과 미니어처 의상 제작",
+     "weightPercent": 50.0,
+     "maxScore": null
+    }
+   ],
+   "source": "2_2026학년도 2학년 2학기 교수학습 평가 계획서및 최소성취수준보장지도 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수묵 표현을 활용한 디지털  50%; 의상 디자인과 미니어처 의상 50%; 수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "세포와 물질대사",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "Ⅰ. 세포∼Ⅱ. 물질대사와 에너지",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "Ⅲ. 세포호흡과 광합성 03. 광합성",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "Ⅲ. 세포호흡과 광합성 03. 광합성",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "4_2026학년도 홍대부속여고 2학기 과학과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "심화영어독해Ⅰ",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "예술작품 소개 글쓰기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "건강한 삶을 위한 실천 방안 제안 글쓰기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "관심분야 영문기사 분석하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "3_2026학년도 세교고등학교 2학기 3학년 교수학습 및 평가운영계획서.pdf p.114",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "경신고등학교",
+  "subject": "고급수학1",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "문제 개념 탐구 및 문제 만들기1",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "단원 평가1",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "문제 개념 탐구 및 문제 만들기2",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "단원 평가2",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "4_2026학년도 경신고 2학기 수학과 교수·학습 및 평가 계획.hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "문제 개념 탐구 및 문제 만 25%; 단원 평가1 25%; 문제 개념 탐구 및 문제 만 25%; 단원 평가2 25%; 수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "청명고등학교",
+  "subject": "물리학실험",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "시간에 따른 물체의 등가속도 직선 운동 해석",
+     "weightPercent": 100.0,
+     "maxScore": 14.0
+    }
+   ],
+   "source": "1_청명고 2026학년도 2학기 2학년 교수학습 및 평가계획.pdf p.419",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "솔샘고등학교",
+  "subject": "인공지능 기초",
+  "evaluation": {
+   "examPercent": 30.0,
+   "performancePercent": 70.0,
+   "items": [
+    {
+     "name": "문제 해결과 탐색·추론",
+     "weightPercent": 70.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "2026학년도 2학기 교수학습 및 평가계획(2학년_인공지능 기초).pdf p.5",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "해성여자고등학교",
+  "subject": "과목명 미확인 (5_2026학년도 1학년 2학기 평가계획.pdf p.60)",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 60.0,
+   "items": [
+    {
+     "name": "서·논술형",
+     "weightPercent": 60.0,
+     "maxScore": 60.0
+    },
+    {
+     "name": "그외",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    }
+   ],
+   "source": "5_2026학년도 1학년 2학기 평가계획.pdf p.60",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "청명고등학교",
+  "subject": "윤리",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "동굴의 비유 분석을 통한 참된 인식과 주체적 삶의 성찰 논술",
+     "weightPercent": 40.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "1_청명고 2026학년도 2학기 2학년 교수학습 및 평가계획.pdf p.233",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "문학과 매체",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "독서 감상문 작성하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "대상의 특성을 살린 광고 문구 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "글을 읽고 관련된 매체(영화,드라마,연극) 비평문 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "구술형",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "나의 문학 소개하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 3학년 2학기 교수학습 평가계획.pdf p.80",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "해성여자고등학교",
+  "subject": "영미 문학 읽기",
+  "evaluation": {
+   "examPercent": 30.0,
+   "performancePercent": 70.0,
+   "items": [
+    {
+     "name": "영어 창작시 구성 및 작성",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "영어 창작시 낭독 및 표현",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "영어 시 낭독 감상 및 핵심 내용 파악",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "6_2026학년도 2학년 2학기 평가계획.pdf p.49",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 70%",
+  "manual": "미확정"
+ },
+ {
+  "school": "홍익대학교사범대학부속여자고등학교",
+  "subject": "체육탐구",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "다트",
+     "weightPercent": 100.0,
+     "maxScore": 100.0
+    }
+   ],
+   "source": "5_2026학년도 홍대부속여고 2학기 체육·예술과 교수학습 및 평가운영계획.hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "다트 100%; 수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "과학탐구실험2",
+  "evaluation": {
+   "examPercent": 0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "주제탐구",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    },
+    {
+     "name": "디지털 센서 활용 실험",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "포트폴리오",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    }
+   ],
+   "source": "2026학년도 2학기 1학년 교수학습 및 평가 운영 계획(과학탐구실험2).hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "주제탐구 40%; 디지털 센서 활용 실험 30%; 포트폴리오 30%; 수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "윤리와 사상",
+  "evaluation": {
+   "examPercent": 70.0,
+   "performancePercent": 30.0,
+   "items": [
+    {
+     "name": "자본주의 문제와 해결방안 작성하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    }
+   ],
+   "source": "2_2026학년도 3학년 2학기 교수학습 평가계획.pdf p.150",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "해성여자고등학교",
+  "subject": "과목명 미확인 (6_2026학년도 2학년 2학기 평가계획.pdf p.77)",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "사회현상의 이해와 탐구",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "사회 불평등과 사회복지",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "6_2026학년도 2학년 2학기 평가계획.pdf p.77",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "상명대학교사범대학부속여자고등학교",
+  "subject": "화학",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "화학반응에서 양적 관계 탐색하기",
+     "weightPercent": 15.0,
+     "maxScore": null
+    },
+    {
+     "name": "진로 연계 과학 독서 보고서",
+     "weightPercent": 10.0,
+     "maxScore": null
+    },
+    {
+     "name": "물질 속 산의 함량 구하기",
+     "weightPercent": 15.0,
+     "maxScore": null
+    },
+    {
+     "name": "문제 해결을 위한 과학 탐구 설계",
+     "weightPercent": 10.0,
+     "maxScore": null
+    }
+   ],
+   "source": "2_2026학년도 2학년 2학기 교수학습 평가 계획서및 최소성취수준보장지도 계획서(이름삭제).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "일본어회화",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "진로 관련 일본어 회화 포트폴리오 만들기(논술형)",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "자기소개 말하기(논술형)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "발표 및 수업 활동",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "6_2026학년도 2학기 교수학습 및 평가운영계획(외국어과).pdf p.70",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "과목명 미확인 (2_3. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(영어과).pdf p.23)",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "문화 비교 에세이 쓰기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "영어권 문화 탐구 및 에세이 개요 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "어휘 추론하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "2_3. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(영어과).pdf p.23",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "공통국어2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "서·논술형",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 1학년 공통국어2 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "확률과 통계",
+  "evaluation": {
+   "examPercent": 55.0,
+   "performancePercent": 45.0,
+   "items": [
+    {
+     "name": "독서 기반 경우의 수 탐구와 적용",
+     "weightPercent": 15.0,
+     "maxScore": null
+    },
+    {
+     "name": "확률 정보의 해석과 타탕성 검증",
+     "weightPercent": 15.0,
+     "maxScore": null
+    },
+    {
+     "name": "모평균 추정 실험",
+     "weightPercent": 15.0,
+     "maxScore": null
+    }
+   ],
+   "source": "2_2026학년도 세교고등학교 2학기 2학년 교수학습 및 평가운영계획서.pdf p.80",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "과목명 미확인 (0_1. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(국어과).pdf p.23)",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "소설비평문쓰기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "디카시짓기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "0_1. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(국어과).pdf p.23",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "가정과학",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "마음건강 감정 성찰 포트폴리오",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "건강위협 상황 전문 의사소통 매뉴얼 설계 및 역할극 시연",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "보건안전 이슈 신문 제작",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    }
+   ],
+   "source": "6_7. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(생활교양과).pdf p.70 (목차 쪽수로 과목 판단)",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "한국사2",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "독립운동가 팸플릿 만들기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "한국 근현대사 독서 프로젝트",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "배움기록",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "2026학년도 2학기 1학년 교수학습 및 평가 운영 계획(한국사2).hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "독립운동가 팸플릿 만들기 20%; 한국 근현대사 독서 프로젝트 20%; 배움기록 10%; 수행 총비율 50%",
+  "manual": "미확정"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "공통영어",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "영어문장완성",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "독서서평",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "V-Build up",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "2026학년도 2학기 1학년 교수학습 및 평가 운영 계획(공통영어2).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "독서서평 15%; V-Build up 15%; 수행 총비율 40%",
+  "manual": "미확정"
+ },
+ {
+  "school": "청명고등학교",
+  "subject": "과학탐구실험2",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "생활제품 속 활용된 과학 원리 탐구하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "논술형",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "과학 이슈 탐구 상호질문 프로젝트",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "충격 흡수 장치 제작 및 시험",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "소리의 파형 분석 및 창의적 악기 만들기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "논술형",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "0_청명고 2026학년도 2학기 1학년 교수학습 및 평가계획.pdf p.150",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "통합과학2",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "변이와 자연선택 에 의한 진화의 원리 이해",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "산과 염기의 중화반응 이용 및 중화반응 파악",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "0_2026학년도 1학년 2학기 교수학습 평가계획 및 최소성취수준 보장지도 계획.pdf p.127",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "생명과학Ⅱ",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "유전자 발현과정탐구 논술형 평가",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "생명과학 키워드 포트폴리오",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 2학기 교수학습 및 평가운영계획(과학과).pdf p.81",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "스포츠생활",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "배드민턴 셔틀콕 기능평가",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "배드민턴 단식 경기 평가",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "배드민턴 기능(스트로크) 평가",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "스포츠와 장애를 주제로 논술하기(논술형)",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    }
+   ],
+   "source": "7_2026학년도 2학기 교수학습 및 평가운영계획(체육과).pdf p.28",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "언어와 매체",
+  "evaluation": {
+   "examPercent": 65.0,
+   "performancePercent": 35.0,
+   "items": [
+    {
+     "name": "서ㆍ논술형",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "그 외 유형",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 3학년 교수학습 및 평가 계획 (전과목-2학기)-정보공시.pdf p.13",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 35%",
+  "manual": "WRONG",
+  "note": "평가 유형을 항목으로, 비율 불일치"
+ },
+ {
+  "school": "청명고등학교",
+  "subject": "역학과 에너지",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "단열 건축물 만들기 및 보고서 작성하기",
+     "weightPercent": 5.0,
+     "maxScore": 5.0
+    },
+    {
+     "name": "논술형",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "정상파 실험 및 보고서 작성하기",
+     "weightPercent": 5.0,
+     "maxScore": 5.0
+    },
+    {
+     "name": "논술형",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "1_청명고 2026학년도 2학기 2학년 교수학습 및 평가계획.pdf p.346",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "선정고등학교",
+  "subject": "확률과통계",
+  "evaluation": {
+   "examPercent": 90.0,
+   "performancePercent": 10.0,
+   "items": [
+    {
+     "name": "경우의 수 확률 통계",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "28_2026학년도 선정고 2학기 수학과 교수학습 및 평가계획(정보공시).hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "동아시아사",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "역사소설로 냉전의 역사 탐구하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "동아시아사 문화 상품 기획하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "동아시아 현대사 배움노트 작성하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "5_2026학년도_2학기_3학년 교수학습 및 평가 운영 계획.pdf p.225",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "선정고등학교",
+  "subject": "기하",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "이차곡선",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "주제별 탐구활동",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "28_2026학년도 선정고 2학기 수학과 교수학습 및 평가계획(정보공시).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 40%",
+  "manual": "미확정"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "물질과 에너지",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "용액의 총괄성 실험보고서 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "화학 기술 동향 연구 및 발표하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "구술형",
+     "weightPercent": 5.0,
+     "maxScore": 5.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 평가계획.pdf p.203",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "데이터과학",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서 ‧ 논술형",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 2학년 데이터 과학 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "경신고등학교",
+  "subject": "과목명 미확인 (3_2026학년도 경신고 2학기 사회과 교수·학습 및 평가 계획.hwp p.None)",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "일제 강점기와 오늘, 비교·분석과 대안",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "민족 유일당 운동과 신간회 평가하기",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "3_2026학년도 경신고 2학기 사회과 교수·학습 및 평가 계획.hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 40%",
+  "manual": "미확정"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "생태와 환경",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "대기오염 탐구",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "수질오염 탐구",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "탄소중립실천 포스터 제작",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "기후변화 대응 탐구",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "3_2026학년도 세교고등학교 2학기 3학년 교수학습 및 평가운영계획서.pdf p.464",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "문학",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "그 외",
+     "weightPercent": 50.0,
+     "maxScore": 50.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 3학년 영미문학읽기 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "정치",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "바람직하고 안전한 여행 계획하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "공항패션쇼와 가상 여행하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "여행지 문제 해결을 위한 독서 탐구",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "여행 버킷리스트 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "3_4. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(사회과).pdf p.72 (목차 쪽수로 과목 판단)",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "새솔고등학교",
+  "subject": "언어와 매체",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "대중문화 비평하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "문법의 원리 탐구하기",
+     "weightPercent": 25.0,
+     "maxScore": null
+    }
+   ],
+   "source": "0_2026학년도 새솔고 3학년 2학기 전과목 교수학습 및 평가계획.pdf p.9",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "세교고등학교",
+  "subject": "경제",
+  "evaluation": {
+   "examPercent": 55.0,
+   "performancePercent": 45.0,
+   "items": [
+    {
+     "name": "경제문제해결 프로젝트",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "시장가격 변동과 정책 제안",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "경제 기사 분석",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "2_2026학년도 세교고등학교 2학기 2학년 교수학습 및 평가운영계획서.pdf p.236",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "사회문제탐구",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "서ㆍ논술형",
+     "weightPercent": 100.0,
+     "maxScore": 100.0
+    }
+   ],
+   "source": "2_2026학년도 3학년 교수학습 및 평가 계획 (전과목-2학기)-정보공시.pdf p.134",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "서ㆍ논술형 100%",
+  "manual": "WRONG",
+  "note": "평가 유형을 항목으로"
+ },
+ {
+  "school": "선정고등학교",
+  "subject": "공통수학2",
+  "evaluation": {
+   "examPercent": 55.0,
+   "performancePercent": 45.0,
+   "items": [
+    {
+     "name": "Ⅰ. 평면좌표와 직선의 방정식 Ⅱ. 원의 방정식과 도형의 이동 Ⅲ. 집합 Ⅳ. 명제 Ⅴ. 함수와 그래프 Ⅵ. 유리함수와 무리함수",
+     "weightPercent": 19.0,
+     "maxScore": 19.0
+    },
+    {
+     "name": "Ⅰ. 평면좌표와 직선의 방정식 Ⅱ. 원의 방정식과 도형의 이동 Ⅲ. 집합 Ⅳ. 명제 Ⅴ. 함수와 그래프 Ⅵ. 유리함수와 무리함수",
+     "weightPercent": 26.0,
+     "maxScore": 26.0
+    }
+   ],
+   "source": "28_2026학년도 선정고 2학기 수학과 교수학습 및 평가계획(정보공시).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "Ⅰ. 평면좌표와 직선의 방정 26%; 수행 총비율 45%",
+  "manual": "WRONG",
+  "note": "항목 이름이 단원명"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "통합과학",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "중화반응 (논술형)",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "개념 정리 포트폴리오",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    }
+   ],
+   "source": "2_2026학년도 2학기 교수학습 및 평가운영계획(과학과).pdf p.9",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "서울여자고등학교",
+  "subject": "정보",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "서 ‧ 논술형",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "그 외",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 서울여고 2학기 1학년 정보 교수학습 및 평가운영 계획.hwpx p.None",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "송내고등학교",
+  "subject": "미적분",
+  "evaluation": {
+   "examPercent": 34.0,
+   "performancePercent": 66.0,
+   "items": [
+    {
+     "name": "구분구적법으로 적분의 원리 파악하기",
+     "weightPercent": 25.0,
+     "maxScore": 25.0
+    },
+    {
+     "name": "미적분 성취 과제 해결 전략 세우기",
+     "weightPercent": 21.0,
+     "maxScore": 21.0
+    },
+    {
+     "name": "미적분 개념을 담은 기사문 완성 및 재구조화하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "5_2026학년도_2학기_3학년 교수학습 및 평가 운영 계획.pdf p.61",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "선사고등학교",
+  "subject": "영어발표와토론",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "수행 평가 환산점",
+     "weightPercent": 25.0,
+     "maxScore": null
+    },
+    {
+     "name": "5",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "5",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "5",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "5",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2026학년도 2학기 영어발표와토론과 교수학습 및 평가 계획 (2학년).hwp p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 평가 환산점 25%",
+  "manual": "WRONG",
+  "note": "항목 이름이 \"수행 평가 환산점\", \"5\""
+ },
+ {
+  "school": "풍산고등학교",
+  "subject": "현대사회와 윤리",
+  "evaluation": {
+   "examPercent": 50.0,
+   "performancePercent": 50.0,
+   "items": [
+    {
+     "name": "지리적 사고력 성장일지 작성하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "지리탐구 보고서 작성하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    },
+    {
+     "name": "세계 자연유산 등재 과정 탐구하기",
+     "weightPercent": 15.0,
+     "maxScore": 15.0
+    }
+   ],
+   "source": "3_4. 2026학년도 2학기 풍산고등학교 교수학습 및 평가 운영 계획(사회과).pdf p.28 (목차 쪽수로 과목 판단)",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "효명고등학교",
+  "subject": "체육2",
+  "evaluation": {
+   "examPercent": null,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "스포츠 스태킹 수행",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "배구 언더핸드패스 수행",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "줄넘기 수행",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "자신의 체력일지 작성하기(논술형)",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    }
+   ],
+   "source": "7_2026학년도 2학기 교수학습 및 평가운영계획(체육과).pdf p.12",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "성일고등학교",
+  "subject": "철학",
+  "evaluation": {
+   "examPercent": 0.0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "세계에 대한 철학적 질 문을 선정하여 자신의 생각을 논술하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "공존과 규범의 딜레마 를 분석하여 자신의 입 장을 토론하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "인간 존엄성 딜레마 사 례를 분석하여 자신의 입장을 토론하기",
+     "weightPercent": 30.0,
+     "maxScore": 30.0
+    },
+    {
+     "name": "정의로운 공동체의 조건 을 탐구하여 실천 방안 을 논술하기",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    }
+   ],
+   "source": "2_2026학년도 3학년 2학기 교수학습 평가계획.pdf p.313",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "작전여자고등학교",
+  "subject": "체육2",
+  "evaluation": {
+   "examPercent": 0,
+   "performancePercent": 100.0,
+   "items": [
+    {
+     "name": "근지구력(1)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "근지구력(2)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "탁구 기능 도전(1)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "탁구 기능 도전((2)",
+     "weightPercent": 20.0,
+     "maxScore": 20.0
+    },
+    {
+     "name": "페어플레이",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    },
+    {
+     "name": "탁구 표현 활동",
+     "weightPercent": 10.0,
+     "maxScore": 10.0
+    }
+   ],
+   "source": "2026학년도 2학기 1학년 교수학습 및 평가 운영 계획(체육2).hwpx p.None",
+   "check": []
+  },
+  "auto": "REVIEW",
+  "why": "근지구력(1) 20%; 근지구력(2) 20%; 탁구 기능 도전(1) 20%; 탁구 기능 도전((2) 20%; 페어플레이 10%; 탁구 표현 활동 10%; 수행 총비율 100%",
+  "manual": "미확정"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "인공지능기초",
+  "evaluation": {
+   "examPercent": 30.0,
+   "performancePercent": 70.0,
+   "items": [
+    {
+     "name": "그 외 유형",
+     "weightPercent": 70.0,
+     "maxScore": 70.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 및 평가 계획 (전과목)-정보공시.pdf p.180",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ },
+ {
+  "school": "불암고등학교",
+  "subject": "세계사",
+  "evaluation": {
+   "examPercent": 60.0,
+   "performancePercent": 40.0,
+   "items": [
+    {
+     "name": "서ㆍ논술형",
+     "weightPercent": 40.0,
+     "maxScore": 40.0
+    }
+   ],
+   "source": "1_2026학년도 2학년 2학기 교수학습 및 평가 계획 (전과목)-정보공시.pdf p.70",
+   "check": []
+  },
+  "auto": "PASS",
+  "why": "",
+  "manual": "PASS(자동)"
+ }
+]
