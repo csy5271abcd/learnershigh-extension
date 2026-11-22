@@ -17,8 +17,6 @@ export function AssessmentTipsRoute() {
 
   const resolveAction = (action: TipAction): TipActionTarget => {
     switch (action) {
-      case 'TOPIC_SUGGESTION':
-        return { reason: '주제명 추천은 수행평가 상세 화면에서 과제를 고른 뒤 열 수 있어요. 추천 실행은 AI 기능이 연결되는 단계(Stage 3)에서 제공돼요.' }
       case 'NOTE':
         return { run: () => navigate(schoolAssessmentsPath) }
       case 'RESOURCES':

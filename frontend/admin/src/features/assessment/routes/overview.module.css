@@ -1,0 +1,382 @@
+/* A27-UX 전체 현황 Dashboard — Toss Payments 대시보드(이미지 01·03) 구조를 번안:
+   제목 → 필터 → 한 카드 안 KPI 4칸(얇은 세로 구분선 + 컬러 원형 아이콘) → Calendar + 오른쪽 보조 패널(바로가기·최근 활동) → 담당 학생.
+   파란색은 선택·주요 동작, 컬러 아이콘은 지표 구분용 포인트로만 쓴다. 왼쪽 강조선 없음. */
+.page {
+  --dash-blue: #3182f6;
+  --dash-violet: #7b61ff;
+  --dash-teal: #14b8a6;
+  --dash-orange: #f97316;
+  display: grid;
+  gap: 18px;
+  padding: 28px 32px 40px;
+}
+
+.head {
+  display: grid;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+}
+
+/* 탭 행 바로 아래에 붙지 않게: 제목 아래 별도 행 */
+.filters {
+  padding-bottom: 2px;
+}
+
+.filters > * {
+  margin-bottom: 0;
+}
+
+/* KPI: 한 카드 안 4칸, 칸 사이 얇은 세로선 (Toss 03) */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--as-color-line);
+  border-radius: 16px;
+  background: var(--as-color-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+  overflow: hidden;
+}
+
+.kpi {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px 22px;
+  border: 0;
+  background: transparent;
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kpi + .kpi::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 0;
+  width: 1px;
+  background: var(--as-color-line);
+}
+
+.kpi:hover {
+  background: var(--as-color-subtle);
+}
+
+.kpi:focus-visible,
+.linkButton:focus-visible,
+.activityRow:focus-visible,
+.shortcuts button:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: -2px;
+}
+
+.kpiText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kpiLabel {
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.kpiValue {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.kpiValue small {
+  margin-left: 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.kpiMeta {
+  overflow: hidden;
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kpiIcon,
+.shortcutIcon,
+.emptyIcon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  border-radius: 999px;
+}
+
+.kpiIcon {
+  width: 44px;
+  height: 44px;
+}
+
+[data-tone='blue'] {
+  --tone: var(--dash-blue);
+}
+
+[data-tone='violet'] {
+  --tone: var(--dash-violet);
+}
+
+[data-tone='teal'] {
+  --tone: var(--dash-teal);
+}
+
+[data-tone='orange'] {
+  --tone: var(--dash-orange);
+}
+
+.kpiIcon[data-tone],
+.shortcutIcon[data-tone] {
+  background: color-mix(in srgb, var(--tone) 14%, var(--as-color-surface));
+  color: var(--tone);
+}
+
+/* Calendar + 보조 패널 */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  align-items: start;
+}
+
+.side {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  min-width: 0;
+  padding: 20px 22px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 16px;
+  background: var(--as-color-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHead h2 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: 16px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkButton {
+  flex: none;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.linkButton:hover {
+  background: var(--as-color-fill);
+}
+
+.muted {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 16px;
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.emptyState strong {
+  color: var(--as-color-text);
+  font-size: 14.5px;
+}
+
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+}
+
+/* 바로가기 (Toss '서비스 바로가기') */
+.shortcuts {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shortcuts button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shortcuts button:hover {
+  background: var(--as-color-fill);
+}
+
+.shortcutIcon {
+  width: 28px;
+  height: 28px;
+}
+
+/* 최근 활동 */
+.activity {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity li + li {
+  border-top: 1px solid var(--as-color-line);
+}
+
+.activityRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 4px;
+  border: 0;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+}
+
+button.activityRow {
+  cursor: pointer;
+}
+
+button.activityRow:hover .activityTitle {
+  text-decoration: underline;
+}
+
+.activityDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--tone, var(--as-color-idle));
+}
+
+.activityText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.activityTitle {
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityMeta {
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+}
+
+@media (max-width: 1440px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kpi:nth-child(3)::before {
+    display: none;
+  }
+
+  .kpi:nth-child(n + 3) {
+    border-top: 1px solid var(--as-color-line);
+  }
+
+}
+
+@media (max-width: 900px) {
+  .page {
+    padding: 20px 16px 32px;
+  }
+
+  .side {
+    grid-template-columns: 1fr;
+  }
+}

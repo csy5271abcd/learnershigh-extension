@@ -14,7 +14,7 @@ interface StatusSelectProps {
   disabled?: boolean
 }
 
-// 학생 자기 관리 상태 선택 (§13). 되돌리기 선택지는 정책 확정 전이라 비활성 + 사유 표시 (MM-01).
+// 학생 자기 관리 상태 선택 (§13). A27-UX: 앞으로·되돌리기 모두 고를 수 있다(서버가 변경 이력을 남긴다).
 export function StatusSelect({ status, assessmentTitle, pending, onChange, disabled = false }: StatusSelectProps) {
   const hintId = useId()
   const hasLockedOption = schoolAssessmentStatuses.some((option) => !isStatusTransitionAllowed(status, option))
@@ -36,7 +36,7 @@ export function StatusSelect({ status, assessmentTitle, pending, onChange, disab
           return (
             <option key={option} value={option} disabled={!allowed}>
               {statusLabels[option]}
-              {allowed ? '' : ' (되돌리기 준비 중)'}
+              {allowed ? '' : ' (선택할 수 없음)'}
             </option>
           )
         })}
@@ -44,7 +44,7 @@ export function StatusSelect({ status, assessmentTitle, pending, onChange, disab
       <ChevronDownIcon className={styles.chevron} size={13} />
       {hasLockedOption && (
         <span id={hintId} className="lh-visually-hidden">
-          이전 상태로 되돌리는 기능은 정책 확정 전이라 아직 사용할 수 없어요.
+          지금은 고를 수 없는 상태가 있어요.
         </span>
       )}
     </span>

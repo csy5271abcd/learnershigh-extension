@@ -7,7 +7,8 @@
  * 관련 기능 (§15 `relatedActions`). 계약 예시는 `NOTE`·`TOPIC_SUGGESTION`뿐이라 나머지 값은 후보다 (MM-44).
  * 실제로 어디로 가는지는 화면이 정한다 (상세 안에서는 노트·주제명 추천 Modal, 꿀팁 화면에서는 각 메뉴).
  */
-export type TipAction = 'TOPIC_SUGGESTION' | 'NOTE' | 'RESOURCES' | 'ENRICHMENT' | 'MOCK_EXAM'
+// A27-UX: 학생 AI 주제명 추천 제거 — TOPIC_SUGGESTION 동작을 쓰지 않는다
+export type TipAction = 'NOTE' | 'RESOURCES' | 'ENRICHMENT' | 'MOCK_EXAM'
 
 export type TipExample =
   | { kind: 'rows'; rows: { label: string; value: string }[] }
@@ -25,7 +26,6 @@ export interface TipContent {
 }
 
 export const tipActionLabels: Record<TipAction, string> = {
-  TOPIC_SUGGESTION: '주제명 추천받기',
   NOTE: '탐구 노트 열기',
   RESOURCES: '참고자료 찾아보기',
   ENRICHMENT: '심화 탐구 살펴보기',
@@ -47,7 +47,7 @@ export const tips: TipContent[] = [
         { label: '탐구 방향', value: '지수함수 모델을 활용한 세균 증식 패턴 분석' },
       ],
     },
-    relatedActions: ['TOPIC_SUGGESTION', 'NOTE'],
+    relatedActions: ['NOTE', 'RESOURCES'],
   },
   {
     tipId: 'TIP02',
@@ -56,7 +56,7 @@ export const tips: TipContent[] = [
     title: '진로를 억지로 연결하지 않아도 괜찮아요',
     body: '모든 수행평가 주제에 희망 진로를 넣을 필요는 없어요. 교과 개념을 깊이 이해하고 탐구하는 것만으로도 의미 있는 활동이에요. 관심사나 진로가 교과 내용과 자연스럽게 이어질 때만 골라서 반영해 보세요.',
     example: null,
-    relatedActions: ['TOPIC_SUGGESTION'],
+    relatedActions: ['RESOURCES'],
   },
   {
     tipId: 'TIP03',
@@ -71,7 +71,7 @@ export const tips: TipContent[] = [
         { label: '개선 후', value: '지수함수 모델을 활용한 세균 증식 패턴 분석' },
       ],
     },
-    relatedActions: ['TOPIC_SUGGESTION'],
+    relatedActions: ['RESOURCES'],
   },
   {
     tipId: 'TIP04',

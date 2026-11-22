@@ -4,7 +4,6 @@ import { EvaluationPlansRoute } from './EvaluationPlansRoute.tsx'
 import { MonthlyPlanRoute } from './MonthlyPlanRoute.tsx'
 import { Navigate, type RouteObject } from 'react-router'
 import { AcademicInfoRoute } from './AcademicInfoRoute.tsx'
-import { AnalysisPreviewResultRoute } from './AnalysisPreviewResultRoute.tsx'
 import { ArchiveRoute } from './ArchiveRoute.tsx'
 import { AssessmentHomeRoute } from './AssessmentHomeRoute.tsx'
 import { AssessmentLayout } from './AssessmentLayout.tsx'
@@ -15,11 +14,10 @@ import { GrowthRecordDetailRoute, GrowthRecordNewRoute } from './GrowthRecordFor
 import { GrowthRecordsRoute } from './GrowthRecordsRoute.tsx'
 import { MockExamMaterialDetailRoute } from './MockExamMaterialDetailRoute.tsx'
 import { MockExamMaterialsRoute } from './MockExamMaterialsRoute.tsx'
-import { PdfImportReviewRoute } from './PdfImportReviewRoute.tsx'
 import { ReferenceLinksRoute } from './ReferenceLinksRoute.tsx'
 import { ResourceDetailRoute } from './ResourceDetailRoute.tsx'
 import { ResourceLibraryRoute } from './ResourceLibraryRoute.tsx'
-import { assessmentRoutePattern, enrichmentPath } from './paths.ts'
+import { assessmentRoutePattern, enrichmentPath, schoolAssessmentsPath } from './paths.ts'
 import { SchoolAssessmentDetailRoute } from './SchoolAssessmentDetailRoute.tsx'
 import { SchoolAssessmentListRoute } from './SchoolAssessmentListRoute.tsx'
 import { UniversityExamDocumentRoute } from './UniversityExamDocumentRoute.tsx'
@@ -33,11 +31,10 @@ export const assessmentRoute: RouteObject = {
     { index: true, element: <AssessmentHomeRoute /> },
     { path: 'school-assessments', element: <SchoolAssessmentListRoute /> },
     { path: 'school-assessments/:assessmentId', element: <SchoolAssessmentDetailRoute /> },
-    { path: 'school-assessments/pdf-import/:documentRevisionId', element: <PdfImportReviewRoute /> },
-    // 개발 Flag 전용 분석 미리보기 결과 페이지. 빌드 시점 상수라 운영 Build에서는 Route·화면 코드가 빠진다.
-    ...(import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true'
-      ? [{ path: 'school-assessments/analysis-preview/:previewId', element: <AnalysisPreviewResultRoute /> }]
-      : []),
+    // A27-UX 학생(2026-11-19): 학생 평가계획서 PDF 가져오기·AI 분석 화면은 없앴다(공식 원문 열람·확정 공개값 열람만).
+    // 예전 주소는 수행평가 목록으로 보낸다. 관리자 분석 기능·공용 결과 컴포넌트(components/pdf-import)는 그대로다.
+    { path: 'school-assessments/pdf-import/:documentRevisionId', element: <Navigate to={schoolAssessmentsPath} replace /> },
+    { path: 'school-assessments/analysis-preview/:previewId', element: <Navigate to={schoolAssessmentsPath} replace /> },
     { path: 'artifacts/:artifactId/viewer', element: <ArtifactViewerRoute /> },
     { path: 'evaluation-plans', element: <EvaluationPlansRoute /> },
     { path: 'monthly-plan', element: <MonthlyPlanRoute /> },

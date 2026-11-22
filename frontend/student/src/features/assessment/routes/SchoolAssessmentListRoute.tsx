@@ -6,9 +6,9 @@ import { assessmentToday } from '../api/runtimeInfo.ts'
 import { changeSchoolAssessmentStatus, listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
 import type { SchoolAssessment, SchoolAssessmentStatus, SubjectRef } from '../api/types.ts'
 import { AddSchoolAssessmentModal } from '../components/AddSchoolAssessmentModal.tsx'
-import { AlertIcon, ChatIcon, ChevronDownIcon, ClockIcon, FileIcon, LinkIcon, NoteIcon, PencilIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, ChatIcon, ChevronDownIcon, ClockIcon, LinkIcon, NoteIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
-import { PdfImportModal } from '../components/pdf-import/PdfImportModal.tsx'
+import { assessmentTypeText } from '../model/personalDetails.ts'
 import { FavoriteButton } from '../components/FavoriteButton.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { StatusSelect } from '../components/StatusSelect.tsx'
@@ -27,7 +27,6 @@ import {
   parseStatus,
   schoolAssessmentStatuses,
   sortOptions,
-  sourceLabel,
   statusLabels,
   subjectNameOf,
   upcomingDeadlines,
@@ -70,7 +69,6 @@ export function SchoolAssessmentListRoute() {
   }
   const [pageSize, setPageSize] = useState(pageSizeStep)
   const [modalOpen, setModalOpen] = useState(false)
-  const [pdfOpen, setPdfOpen] = useState(false)
   const [pendingStatusId, setPendingStatusId] = useState<string>()
   const [createdId, setCreatedId] = useState<string>()
   const [toast, setToast] = useState<ToastMessage | null>(null)
@@ -193,13 +191,10 @@ export function SchoolAssessmentListRoute() {
             onChange={(event) => setSearchInput(event.target.value)}
           />
         </label>
-        {/* 관리자 읽기 전용 보기(P-28)에서도 같은 자리에 두고, 여는 Modal이 읽기 전용 안내로 바뀐다 */}
+        {/* 관리자 읽기 전용 보기(P-28)에서도 같은 자리에 두고, 여는 Modal이 읽기 전용 안내로 바뀐다.
+            A27-UX 학생(2026-11-19): 학생 평가계획서 PDF 가져오기·AI 분석 진입점은 없앴다(공식 원문 열람·확정 공개값 열람만). 추가 버튼은 중립 outline */}
         <div className={styles.toolbarActions}>
-          <button type="button" className={styles.secondaryButton} onClick={() => setPdfOpen(true)}>
-            <FileIcon size={16} />
-            {(import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true') ? '평가계획서 가져오기' : 'PDF로 가져오기'}
-          </button>
-          <button type="button" className={styles.primaryButton} onClick={() => setModalOpen(true)}>
+          <button type="button" className={styles.secondaryButton} onClick={() => setModalOpen(true)} data-testid="list-add-assessment">
             <PlusIcon size={16} />
             수행평가 추가
           </button>
@@ -297,13 +292,18 @@ export function SchoolAssessmentListRoute() {
       </div>
 
       <section className={styles.table} aria-label="수행평가 목록" aria-busy={rows.isRefreshing || rows.status === 'loading'}>
+        {/* A27-UX 학생(2026-11-19): 수행평가 · 평가일 · 제출 마감 · 평가 유형 · 반영 비율 · 진행 상태 · 기록 수 · 피드백 수.
+            기록 수 = 탐구 노트 저장 기록(§21 Revision) 수, 피드백 수 = 그 기록을 가리키는 요청 수. 열이 좁아 숫자가 줄바꿈되던 문제(이미지 05 '2/0' = 20)를 고쳤다 */}
         <div className={styles.tableHead} aria-hidden="true">
           <span />
           <span>수행평가</span>
-          <span>평가일 · 마감</span>
-          <span>정보 출처</span>
+          <span>평가일</span>
+          <span>제출 마감</span>
+          <span className={styles.colOptional}>평가 유형</span>
+          <span className={styles.colOptional}>반영 비율</span>
           <span>진행 상태</span>
-          <span>기록</span>
+          <span className={styles.colNumber}>기록 수</span>
+          <span className={styles.colNumber}>피드백 수</span>
         </div>
 
         {(rows.status === 'loading' || (rows.status === 'success' && !listReady)) && <LoadingRows label="수행평가 목록을 불러오는 중" />}
@@ -357,7 +357,6 @@ export function SchoolAssessmentListRoute() {
       </section>
       </div>
 
-      {pdfOpen && <PdfImportModal onClose={() => setPdfOpen(false)} onManualAdd={() => setModalOpen(true)} />}
       {modalOpen && (
         <AddSchoolAssessmentModal
           context={selectedContext}
@@ -404,10 +403,18 @@ interface AssessmentRowProps {
   records: QueryResult<Record<string, AssessmentRecordSummary>>
 }
 
+/** 반영 비율: 학생이 넣은 값, 없으면 학교 확정 값(A28-20) */
+function weightOf(item: SchoolAssessment): number | null {
+  return item.weightPercent ?? item.official?.weightPercent ?? null
+}
+
 function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange, favorite, favoritePending, onToggleFavorite, records }: AssessmentRowProps) {
-  const days = item.deadlineDate ? daysUntil(item.deadlineDate, assessmentToday()) : undefined
+  const today = assessmentToday()
+  const days = item.deadlineDate ? daysUntil(item.deadlineDate, today) : undefined
+  const evaluationDays = item.evaluationDate ? daysUntil(item.evaluationDate, today) : undefined
+  const typeText = assessmentTypeText(item)
   return (
-    <li className={styles.row} data-highlighted={highlighted} data-status={item.status}>
+    <li className={styles.row} data-highlighted={highlighted} data-status={item.status} data-testid="assessment-row">
       {/* Mockup의 ★ 열. §30 즐겨찾기와 같은 값이다 (목록 중요 필터는 §12 Query가 없어 두지 않음, MM-07). */}
       <span className={styles.cellLead}>
         <FavoriteButton favorite={favorite} pending={favoritePending} title={item.title} onToggle={onToggleFavorite} />
@@ -416,9 +423,40 @@ function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange, f
         <Link to={schoolAssessmentDetailPath(item.assessmentId)} className={styles.rowLink}>
           {item.title}
         </Link>
-        <span className={styles.rowMeta}>{subjectNameOf(subjects, item.subjectId)}</span>
+        <span className={styles.rowMeta}>
+          {subjectNameOf(subjects, item.subjectId)}
+          {/* A28-20: 관리자 최종 승인으로 자동 등록된 학교 확정 수행평가 */}
+          {item.official ? (
+            <span className={styles.linkedTag} data-testid="row-official" data-official-status={item.official.status}>
+              <LinkIcon size={11} />
+              {item.official.status === 'WITHDRAWN' ? '학교 확정에서 빠짐' : '학교 확정'}
+              {item.official.timing ? ` · 시기 ${item.official.timing}` : ''}
+            </span>
+          ) : null}
+          {/* 학교 공개 평가와 연결된 항목만 작게 구분한다(직접 등록이 기본) */}
+          {!item.official && item.evaluationItemRef && (
+            <span className={styles.linkedTag}>
+              <LinkIcon size={11} />
+              학교 공개 평가
+            </span>
+          )}
+          {/* 좁은 화면에서 숨긴 열(유형·비율)을 제목 아래에 보인다 */}
+          <span className={styles.metaCompact}>{[typeText, weightOf(item) != null ? `${weightOf(item)}%` : null].filter(Boolean).join(' · ')}</span>
+        </span>
       </div>
-      <div className={styles.cellDate}>
+      <div className={styles.cellDate} data-testid="row-evaluation-date">
+        {item.evaluationDate && evaluationDays !== undefined ? (
+          <>
+            <span className={styles.date}>{formatDateWithWeekday(item.evaluationDate)}</span>
+            {item.status !== 'COMPLETED' && evaluationDays >= 0 && (
+              <span className={styles.dateSub}>{formatDday(evaluationDays)}</span>
+            )}
+          </>
+        ) : (
+          <span className={styles.dateUnknown}>미정</span>
+        )}
+      </div>
+      <div className={styles.cellDate} data-testid="row-deadline">
         {item.deadlineDate && days !== undefined ? (
           <>
             <span className={styles.date}>{formatDateWithWeekday(item.deadlineDate)}</span>
@@ -433,65 +471,73 @@ function AssessmentRow({ item, subjects, highlighted, pending, onStatusChange, f
             )}
           </>
         ) : (
-          <span className={styles.dateUnknown}>날짜 미정</span>
+          <span className={styles.dateUnknown}>미정</span>
         )}
       </div>
-      <div className={styles.cellSource}>
-        <span className={styles.sourceBadge} data-linked={item.evaluationItemRef !== null}>
-          {item.evaluationItemRef ? <LinkIcon size={13} /> : <PencilIcon size={13} />}
-          {sourceLabel(item)}
-        </span>
+      <div className={`${styles.cellText} ${styles.colOptional}`} data-testid="row-type">
+        {typeText ?? <span className={styles.dateUnknown}>미입력</span>}
+      </div>
+      <div className={`${styles.cellText} ${styles.colOptional}`} data-testid="row-weight">
+        {weightOf(item) != null ? `${weightOf(item)}%` : <span className={styles.dateUnknown}>미입력</span>}
       </div>
       <div className={styles.cellStatus}>
         <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={isAssessmentReadOnlyView()} />
       </div>
-      <div className={styles.cellTrail}>
-        <RecordCell assessment={item} records={records} />
-      </div>
+      <RecordCells assessment={item} records={records} />
     </li>
   )
 }
 
 /**
- * 기록 열 (Mockup SA-LIST-01): 노트 수정 이력 수 + 선생님 피드백 말풍선(답변 도착은 파란색).
- * 아이콘을 누르면 상세의 수정 이력 / 피드백 탭으로 간다. 조회 실패는 "없음"으로 보이지 않게 따로 표시한다.
+ * 기록 수 · 피드백 수 (A27-UX 학생): 숫자는 서버 목록 길이로 센다(노트 버전 번호를 그대로 쓰지 않는다).
+ * 누르면 상세의 수정 이력 / 피드백으로 간다. 조회 실패는 0으로 보이지 않게 따로 표시한다.
  */
 const feedbackSummaryText = (summary: AssessmentRecordSummary) =>
-  [summary.deliveredCount > 0 && `답변 도착 ${summary.deliveredCount}건`, summary.pendingCount > 0 && `답변 대기 ${summary.pendingCount}건`].filter(Boolean).join(', ')
+  [summary.deliveredCount > 0 && `답변 도착 ${summary.deliveredCount}건`, summary.pendingCount > 0 && `답변 대기 ${summary.pendingCount}건`].filter(Boolean).join(', ') || '피드백 요청 없음'
 
-function RecordCell({ assessment, records }: { assessment: SchoolAssessment; records: QueryResult<Record<string, AssessmentRecordSummary>> }) {
+function RecordCells({ assessment, records }: { assessment: SchoolAssessment; records: QueryResult<Record<string, AssessmentRecordSummary>> }) {
   if (records.status === 'error') {
     return (
-      <button type="button" className={styles.recordButton} data-tone="error" aria-label={`${assessment.title} 기록을 불러오지 못했어요. 다시 시도`} title="기록을 불러오지 못했어요. 눌러서 다시 시도" onClick={records.retry}>
-        <AlertIcon size={14} />
-      </button>
+      <div className={styles.cellRecords}>
+        <button type="button" className={styles.recordButton} data-tone="error" aria-label={`${assessment.title} 기록을 불러오지 못했어요. 다시 시도`} title="기록을 불러오지 못했어요. 눌러서 다시 시도" onClick={records.retry}>
+          <AlertIcon size={14} />
+        </button>
+      </div>
     )
   }
   const summary = records.data?.[assessment.assessmentId]
-  if (!summary) return <span className={styles.recordLoading} aria-label="기록을 불러오는 중" role="status" />
+  if (!summary) {
+    return (
+      <div className={styles.cellRecords}>
+        <span className={styles.recordLoading} aria-label="기록을 불러오는 중" role="status" />
+      </div>
+    )
+  }
+  const feedbackTotal = summary.deliveredCount + summary.pendingCount
   return (
-    <>
+    <div className={styles.cellRecords}>
       <Link
         to={schoolAssessmentHistoryPath(assessment.assessmentId)}
         className={styles.recordButton}
-        aria-label={`${assessment.title} 노트 수정 이력 ${summary.revisionCount}개 보기`}
-        title={`노트 수정 이력 ${summary.revisionCount}개`}
+        aria-label={`${assessment.title} 기록 ${summary.revisionCount}개 보기`}
+        title={`탐구 노트 저장 기록 ${summary.revisionCount}개`}
+        data-testid="row-record-count"
       >
         <NoteIcon size={14} />
         <span>{summary.revisionCount}</span>
       </Link>
-      {(summary.deliveredCount > 0 || summary.pendingCount > 0) && (
-        <Link
-          to={schoolAssessmentFeedbackPath(assessment.assessmentId)}
-          className={styles.recordButton}
-          data-tone={summary.deliveredCount > 0 ? 'delivered' : 'pending'}
-          aria-label={`${assessment.title} 선생님 피드백 보기 (${feedbackSummaryText(summary)})`}
-          title={`선생님 피드백 · ${feedbackSummaryText(summary)}`}
-        >
-          <ChatIcon size={15} />
-        </Link>
-      )}
-    </>
+      <Link
+        to={schoolAssessmentFeedbackPath(assessment.assessmentId)}
+        className={styles.recordButton}
+        data-tone={summary.deliveredCount > 0 ? 'delivered' : feedbackTotal > 0 ? 'pending' : undefined}
+        aria-label={`${assessment.title} 선생님 피드백 ${feedbackTotal}건 보기 (${feedbackSummaryText(summary)})`}
+        title={`선생님 피드백 · ${feedbackSummaryText(summary)}`}
+        data-testid="row-feedback-count"
+      >
+        <ChatIcon size={14} />
+        <span>{feedbackTotal}</span>
+      </Link>
+    </div>
   )
 }
 

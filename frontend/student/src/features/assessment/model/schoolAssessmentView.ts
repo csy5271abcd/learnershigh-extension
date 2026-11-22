@@ -16,8 +16,9 @@ const statusOrder: Record<SchoolAssessmentStatus, number> = { BEFORE_START: 0, I
  * 되돌리기(역전이)는 정책 확정 전이라 막는다 (api-contract.md §13, assessment-screen-map.md MM-01).
  * 앞으로 건너뛰는 전이(시작 전 → 완료)는 §13 "완료 처리 가능"에 따라 허용한다.
  */
+/** A27-UX(사용자 결정 2026-11-17, §13): 학생 자기 관리 상태라 이전 단계로 되돌리기도 허용한다(서버가 이력을 남긴다). */
 export function isStatusTransitionAllowed(from: SchoolAssessmentStatus, to: SchoolAssessmentStatus): boolean {
-  return statusOrder[to] >= statusOrder[from]
+  return from in statusOrder && to in statusOrder
 }
 
 export const sortOptions: { value: SchoolAssessmentSort; label: string }[] = [

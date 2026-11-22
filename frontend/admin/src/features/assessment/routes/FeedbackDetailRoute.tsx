@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
-import { deliverReply, getFeedbackRequest, listCatalog, listMockExamMaterials, listScraps, saveReplyDraft } from '../api/assessmentAdminApi.ts'
+import { deliverReply, getFeedbackRequest, listScraps, saveReplyDraft } from '../api/assessmentAdminApi.ts'
 import type { AdminFeedbackDetail, FeedbackRecommendation, FeedbackReplyDraft, NoteBlock } from '../api/types.ts'
 import { DetailHead, ReadOnlyMark, RemoteView } from '../components/AdminParts.tsx'
 import { AlertIcon, CloseIcon, Modal, SendIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
@@ -337,10 +337,8 @@ function SnapshotFile({
 
 /** AD-16 후속 추천 (§46 recommendations[]). 학생이 하지 않아도 되는 선택 사항이다 */
 function Recommendations({ value, onChange }: { value: FeedbackRecommendation[]; onChange: (next: FeedbackRecommendation[]) => void }) {
-  const catalog = useRemote(() => listCatalog({ status: 'PUBLISHED' }), [])
   const scraps = useRemote(() => listScraps(), [])
-  const materials = useRemote(() => listMockExamMaterials(), [])
-  const [taskMode, setTaskMode] = useState<'none' | 'library'>(value.some((item) => item.type === 'ENRICHMENT_TASK') ? 'library' : 'none')
+  const legacy = value.filter((item) => item.type === 'ENRICHMENT_TASK' || item.type === 'MOCK_EXAM_MATERIAL')
   const has = (predicate: (item: FeedbackRecommendation) => boolean) => value.some(predicate)
   const toggle = (item: FeedbackRecommendation, predicate: (entry: FeedbackRecommendation) => boolean) => onChange(has(predicate) ? value.filter((entry) => !predicate(entry)) : [...value, item])
 
@@ -349,12 +347,13 @@ function Recommendations({ value, onChange }: { value: FeedbackRecommendation[];
       <div className={styles.field}>
         <span className={styles.label}>내 스크랩에서 참고자료 추천</span>
         <span className={styles.hint}>스크랩의 공개 가능한 제목·주소만 학생에게 보여요. 관리자 메모는 전달되지 않아요.</span>
+        {/* §43-1: 학생에게 전달할 주소가 있는(링크) 스크랩만 추천한다. 파일만 있는 스크랩은 관리자 전용 */}
         {scraps.state.status === 'success' &&
-          (scraps.state.data.items.length === 0 ? (
+          (scraps.state.data.items.filter((scrap) => scrap.sourceUrl).length === 0 ? (
             <span className={styles.hint}>저장한 스크랩이 없어요. 관리자 참고자료실에서 저장할 수 있어요.</span>
           ) : (
             <div className={styles.chips}>
-              {scraps.state.data.items.map((scrap) => {
+              {scraps.state.data.items.flatMap((scrap) => (scrap.sourceUrl ? [{ ...scrap, sourceUrl: scrap.sourceUrl }] : [])).map((scrap) => {
                 const match = (entry: FeedbackRecommendation) => entry.type === 'RESOURCE' && entry.note.includes(scrap.sourceUrl)
                 return (
                   <button key={scrap.scrapId} type="button" className={styles.chip} aria-pressed={has(match)} onClick={() => toggle({ type: 'RESOURCE', note: `${scrap.title} — ${scrap.sourceUrl}` }, match)}>
@@ -365,72 +364,21 @@ function Recommendations({ value, onChange }: { value: FeedbackRecommendation[];
             </div>
           ))}
       </div>
-      <div className={styles.field}>
-        <span className={styles.label}>
-          심화 탐구 Task 추천 <span className={styles.hint}>선택 · 학생이 하지 않아도 돼요</span>
-        </span>
-        <div className={styles.chips} role="group" aria-label="심화 탐구 Task 추천 방식">
-          <button
-            type="button"
-            className={styles.chip}
-            aria-pressed={taskMode === 'none'}
-            onClick={() => {
-              setTaskMode('none')
-              onChange(value.filter((entry) => entry.type !== 'ENRICHMENT_TASK'))
-            }}
-          >
-            추천 안 함
-          </button>
-          <button type="button" className={styles.chip} aria-pressed={taskMode === 'library'} onClick={() => setTaskMode('library')}>
-            라이브러리에서 선택
-          </button>
-        </div>
-        {taskMode === 'library' && catalog.state.status === 'success' && (
-          <select
-            className={styles.select}
-            aria-label="추천할 공개 심화 Task"
-            value={value.find((entry) => entry.type === 'ENRICHMENT_TASK')?.catalogTaskId ?? ''}
-            onChange={(event) => {
-              const rest = value.filter((entry) => entry.type !== 'ENRICHMENT_TASK')
-              const task = catalog.state.status === 'success' ? catalog.state.data.items.find((item) => item.catalogTaskId === event.target.value) : undefined
-              onChange(task ? [...rest, { type: 'ENRICHMENT_TASK', catalogTaskId: task.catalogTaskId, note: `${task.title}로 이어서 탐구해 볼 수 있어요.` }] : rest)
-            }}
-          >
-            <option value="">공개 Task 고르기</option>
-            {catalog.state.data.items.map((task) => (
-              <option key={task.catalogTaskId} value={task.catalogTaskId}>
-                {task.title}
-              </option>
+      {/* [07] A27-UX: 이 화면에서 '심화 탐구 Task 추천'·'모의고사 탐구 소재 추천' 입력을 제거했다(기능 자체·다른 화면은 그대로).
+          이전 초안에 이미 들어 있던 추천은 숨긴 채 보내지 않도록 목록으로 보여 주고 뺄 수 있게 한다. */}
+      {legacy.length > 0 && (
+        <div className={styles.field} data-testid="feedback-legacy-recommendations">
+          <span className={styles.label}>이전에 고른 추천</span>
+          <span className={styles.hint}>이 초안에 저장돼 있던 추천이에요. 보내지 않으려면 빼 주세요.</span>
+          <div className={styles.chips}>
+            {legacy.map((entry) => (
+              <button key={`${entry.type}-${entry.resourceId ?? entry.note}`} type="button" className={styles.chip} aria-pressed="true" onClick={() => onChange(value.filter((item) => item !== entry))}>
+                {entry.note} ✕
+              </button>
             ))}
-          </select>
-        )}
-      </div>
-      <div className={styles.field}>
-        <label className={styles.label} htmlFor="recommend-material">
-          모의고사 탐구 소재 추천 <span className={styles.hint}>선택</span>
-        </label>
-        {materials.state.status === 'success' && (
-          <select
-            id="recommend-material"
-            className={styles.select}
-            value={value.find((entry) => entry.type === 'MOCK_EXAM_MATERIAL')?.resourceId ?? ''}
-            onChange={(event) => {
-              const rest = value.filter((entry) => entry.type !== 'MOCK_EXAM_MATERIAL')
-              const item = materials.state.status === 'success' ? materials.state.data.items.find((entry) => entry.material.materialId === event.target.value) : undefined
-              onChange(item ? [...rest, { type: 'MOCK_EXAM_MATERIAL', resourceId: item.material.materialId, note: `모의고사 소재 '${item.material.idea.topicTitle}'를 참고해 보세요.` }] : rest)
-            }}
-          >
-            <option value="">추천 안 함</option>
-            {materials.state.data.items
-              .filter((item) => item.publishState === 'PUBLISHED')
-              .map((item) => (
-                <option key={item.material.materialId} value={item.material.materialId}>
-                  [{item.material.materialId}] {item.material.idea.topicTitle}
-                </option>
-              ))}
-          </select>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

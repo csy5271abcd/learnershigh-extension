@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       strictPort: true,
+      // 2026-11-21: http 데이터 모드(VITE_ASSESSMENT_DATA_SOURCE=http)에서 /api 를 Backend 로 보낸다(관리자 vite.config 와 같은 기본값).
+      // 개발 서버 전용 — Build 결과물에는 영향 없음. Mock 모드에서는 /api 요청 자체가 없다.
+      proxy: { '/api': process.env.VITE_API_TARGET ?? env.VITE_API_TARGET ?? 'http://localhost:8080' },
     },
   }
 })

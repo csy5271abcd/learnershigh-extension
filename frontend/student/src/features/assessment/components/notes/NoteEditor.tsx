@@ -27,6 +27,9 @@ import {
   toNoteBlocks,
 } from '../../model/noteEditorModel.ts'
 import { noteTemplates } from '../../model/noteTemplates.ts'
+import { emptyHistory, record, redo, undo, type NoteHistory } from '../../model/noteHistory.ts'
+import { marksOf, safeHref, toggleMark, withMarks, type MarkType } from '../../model/noteInlineMarks.ts'
+import { textBlockTypes } from '../../model/noteEditorModel.ts'
 import type { QueryResult } from '../../model/useApiQuery.ts'
 import { useNoteDraft, type NoteSaveStatus } from '../../model/useNoteDraft.ts'
 import formStyles from '../AddSchoolAssessmentModal.module.css'
@@ -47,6 +50,8 @@ export interface NoteEditorState {
   noteId: string | undefined
   baseRevisionId: string | undefined
   baseRevisionNumber: number | undefined
+  /** A27-UX(계정 B): 지금 노트(저장 전 변경 포함)에 출처 카드로 연결된 내 자료 — 자료 찾기 Modal의 '연결된 자료' */
+  linkedResources: { resourceId: string; title: string }[]
 }
 
 /** 자료 탭·대학 기출 PDF 화면의 "노트에 추가" 요청. nonce가 바뀔 때마다 한 번 넣는다. 둘 중 하나만 넣는다. */
@@ -55,6 +60,8 @@ export interface NoteInsertRequest {
   resource?: StudentResource
   /** 대학 기출 PDF 출처 (P-25) */
   examSource?: ExamSourcePick
+  /** A27-UX(계정 B) 연결 해제: 이 자료의 출처 카드를 노트에서 뺀다(자료함의 자료는 그대로). 저장은 자동 저장으로 */
+  removeResourceId?: string
 }
 
 interface NoteEditorProps {
@@ -138,6 +145,10 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
   const unsaved = draft.dirty || draft.status === 'saving' || draft.status === 'error' || draft.status === 'conflict'
   const displayStatus: NoteSaveStatus = draft.status === 'dirty' && !draft.dirty ? (draft.base ? 'saved' : 'clean') : draft.status
 
+  // 노트에 연결된 자료(출처 카드). 같은 자료가 여러 번 들어 있어도 한 번만. 목록이 바뀔 때만 부모에게 알린다
+  const linkedKey = JSON.stringify(
+    [...new Map(draft.blocks.filter((block) => block.type === 'RESOURCE_LINK' && block.attrs?.resource?.resourceId).map((block) => [block.attrs!.resource!.resourceId, block.attrs!.resource!.title])).entries()],
+  )
   useEffect(() => {
     onStateChange({
       status: displayStatus,
@@ -145,8 +156,9 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
       noteId: draft.noteId,
       baseRevisionId: draft.base?.revisionId,
       baseRevisionNumber: draft.base?.revisionNumber,
+      linkedResources: (JSON.parse(linkedKey) as [string, string][]).map(([resourceId, title]) => ({ resourceId, title })),
     })
-  }, [displayStatus, draft.base?.revisionId, draft.base?.revisionNumber, draft.noteId, onStateChange, unsaved])
+  }, [displayStatus, draft.base?.revisionId, draft.base?.revisionNumber, draft.noteId, onStateChange, unsaved, linkedKey])
 
   // 저장되지 않은 변경이 있으면 다른 화면으로 가기 전에 묻는다 (앱 안 이동).
   const blocker = useBlocker(({ currentLocation, nextLocation }) => unsaved && currentLocation.pathname !== nextLocation.pathname)
@@ -165,6 +177,78 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
     blocksRef.current = blocks
   })
 
+  // A27-UX 되돌리기·다시 하기: 블록 변화마다 이전 상태를 기록한다(되돌리기로 생긴 변화는 기록하지 않는다).
+  const historyRef = useRef<NoteHistory>(emptyHistory())
+  const previousBlocksRef = useRef(blocks)
+  const travelingRef = useRef(false)
+  const [historySize, setHistorySize] = useState({ past: 0, future: 0 })
+  useEffect(() => {
+    const previous = previousBlocksRef.current
+    previousBlocksRef.current = blocks
+    if (travelingRef.current) {
+      travelingRef.current = false
+      return
+    }
+    if (previous === blocks) return
+    historyRef.current = record(historyRef.current, previous, blocks, Date.now())
+    setHistorySize({ past: historyRef.current.past.length, future: historyRef.current.future.length })
+  }, [blocks])
+  const travel = (direction: 'undo' | 'redo') => {
+    const result = direction === 'undo' ? undo(historyRef.current, blocksRef.current) : redo(historyRef.current, blocksRef.current)
+    if (!result) return false
+    historyRef.current = result.history
+    travelingRef.current = true
+    setBlocks(() => result.blocks)
+    setHistorySize({ past: result.history.past.length, future: result.history.future.length })
+    return true
+  }
+  const onHistoryKey = (event: React.KeyboardEvent) => {
+    if (event.nativeEvent.isComposing || !(event.ctrlKey || event.metaKey) || event.altKey) return
+    const key = event.key.toLowerCase()
+    if (key === 'z' && !event.shiftKey) {
+      if (travel('undo')) event.preventDefault()
+    } else if ((key === 'z' && event.shiftKey) || key === 'y') {
+      if (travel('redo')) event.preventDefault()
+    }
+  }
+
+  // A27-UX(계정 B) 인라인 서식: 지금 편집 중인 글 블록의 선택 범위에 굵게·기울임·밑줄·링크를 켜고 끈다.
+  // 서식은 attrs.marks에만 저장하고 text는 바꾸지 않는다. 바꾼 뒤 같은 선택 범위를 되돌려 이어서 편집한다.
+  const [formatHint, setFormatHint] = useState<string | null>(null)
+  const [linkTarget, setLinkTarget] = useState<{ blockId: string; start: number; end: number; current: string | null } | null>(null)
+  const activeSelection = () => {
+    const element = document.activeElement
+    const blockId = lastFocusedRef.current
+    if (!(element instanceof HTMLTextAreaElement) || !blockId) return null
+    const block = blocksRef.current.find((item) => item.blockId === blockId)
+    if (!block || !textBlockTypes.has(block.type) || element.value !== block.text) return null
+    return { element, block, start: element.selectionStart, end: element.selectionEnd }
+  }
+  const setMark = (blockId: string, start: number, end: number, type: MarkType, href?: string, element?: HTMLTextAreaElement | null) => {
+    setBlocks((previous) =>
+      previous.map((item) => (item.blockId === blockId ? withMarks(item, toggleMark(marksOf(item), type, start, end, item.text.length, href)) : item)),
+    )
+    window.requestAnimationFrame(() => {
+      const target = element && element.isConnected ? element : null
+      target?.focus()
+      target?.setSelectionRange(start, end)
+    })
+  }
+  const format = (type: MarkType) => {
+    const selection = activeSelection()
+    if (!selection || selection.start === selection.end) {
+      setFormatHint('서식을 넣을 글자를 먼저 선택해 주세요.')
+      return
+    }
+    setFormatHint(null)
+    if (type === 'link') {
+      const current = marksOf(selection.block).find((mark) => mark.type === 'link' && mark.start <= selection.start && mark.end >= selection.end)
+      setLinkTarget({ blockId: selection.block.blockId, start: selection.start, end: selection.end, current: current?.href ?? null })
+      return
+    }
+    setMark(selection.block.blockId, selection.start, selection.end, type, undefined, selection.element)
+  }
+
   /** 블록 동작 결과를 반영하고 다음 포커스를 요청한다 */
   const apply = (edit: BlockEdit) => {
     if (edit.blocks !== blocks) setBlocks(() => edit.blocks)
@@ -182,6 +266,13 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
   useEffect(() => {
     if (!insertRequest || insertRequest.nonce === handledInsertRef.current) return
     handledInsertRef.current = insertRequest.nonce
+    if (insertRequest.removeResourceId) {
+      const removeId = insertRequest.removeResourceId
+      const remaining = blocksRef.current.filter((block) => !(block.type === 'RESOURCE_LINK' && block.attrs?.resource?.resourceId === removeId))
+      // 노트에 블록이 하나도 남지 않으면 빈 본문 한 줄을 둔다
+      applyRef.current({ blocks: remaining.length > 0 ? remaining : [createBlock('PARAGRAPH', '')] })
+      return
+    }
     const card = insertRequest.examSource
       ? createExamSourceBlock(insertRequest.examSource, insertRequest.examSource.title)
       : insertRequest.resource
@@ -217,7 +308,37 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
       <div className={styles.header}>
         <NoteHeading revisionNumber={draft.base?.revisionNumber} />
         <div className={styles.headerRight}>
-          <span className={styles.hint}>/ 블록 메뉴 · Enter 새 블록 · Shift+Enter 줄바꿈</span>
+          <span className={styles.hint}>/ 블록 메뉴 · # · - · 1. · [] · &gt; 바로 입력 · Ctrl+Z 되돌리기</span>
+          <span className={styles.formatBar} role="group" aria-label="글자 서식 (글자를 선택한 뒤 눌러요)">
+            {(
+              [
+                ['bold', <b key="b">B</b>, '굵게 (Ctrl+B)'],
+                ['italic', <i key="i">I</i>, '기울임 (Ctrl+I)'],
+                ['underline', <u key="u">U</u>, '밑줄 (Ctrl+U)'],
+                ['link', '링크', '링크 (Ctrl+K)'],
+              ] as const
+            ).map(([type, label, title]) => (
+              <button
+                key={type}
+                type="button"
+                className={styles.formatButton}
+                title={title}
+                aria-label={title}
+                // 선택 범위를 잃지 않게 누를 때 입력칸 포커스를 빼앗지 않는다
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => format(type)}
+                data-testid={`note-format-${type}`}
+              >
+                {label}
+              </button>
+            ))}
+          </span>
+          <button type="button" className={detailStyles.smallOutlineButton} onClick={() => travel('undo')} disabled={historySize.past === 0} data-testid="note-undo" aria-label="되돌리기 (Ctrl+Z)">
+            되돌리기
+          </button>
+          <button type="button" className={detailStyles.smallOutlineButton} onClick={() => travel('redo')} disabled={historySize.future === 0} data-testid="note-redo" aria-label="다시 하기 (Ctrl+Shift+Z)">
+            다시 하기
+          </button>
           <button type="button" className={detailStyles.smallOutlineButton} onClick={() => setModal({ kind: 'template' })}>
             <TemplateIcon size={14} />
             템플릿 선택
@@ -291,7 +412,12 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
         </p>
       )}
 
-      <ul className={styles.blocks} aria-label="노트 본문">
+      {formatHint && (
+        <p className={styles.hint} role="status" data-testid="note-format-hint">
+          {formatHint}
+        </p>
+      )}
+      <ul className={styles.blocks} aria-label="노트 본문" onKeyDownCapture={onHistoryKey}>
         {blocks.map((block, index) => (
           <NoteBlockEditor
             key={block.blockId}
@@ -306,6 +432,7 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
               lastFocusedRef.current = block.blockId
             }}
             onChange={(next) => setBlocks((previous) => previous.map((item) => (item.blockId === block.blockId ? next : item)))}
+            onFormat={format}
             onSplit={(before, after) => apply(splitBlock(blocks, block.blockId, before, after))}
             onInsertAbove={() => apply(insertAbove(blocks, block.blockId))}
             onMergePrevious={() => apply(mergeWithPrevious(blocks, block.blockId))}
@@ -359,6 +486,22 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
         </div>
       )}
 
+      {linkTarget && (
+        <LinkModal
+          current={linkTarget.current}
+          onClose={() => {
+            const target = linkTarget
+            setLinkTarget(null)
+            apply({ blocks, focus: { blockId: target.blockId, caret: target.end } })
+          }}
+          onSubmit={(href) => {
+            const target = linkTarget
+            setLinkTarget(null)
+            const element = document.querySelector<HTMLTextAreaElement>(`[data-note-block-id="${CSS.escape(target.blockId)}"] textarea[data-focus-target="text"]`)
+            setMark(target.blockId, target.start, target.end, 'link', href ?? undefined, element)
+          }}
+        />
+      )}
       {modal?.kind === 'template' && (
         <TemplateModal
           hasContent={!blank}
@@ -452,5 +595,74 @@ export function NoteSaveStatusLabel({ state }: { state: NoteEditorState | undefi
     <span className={styles.saveStatus} data-status={state.status} role="status" aria-live="polite">
       {label}
     </span>
+  )
+}
+
+/** A27-UX(계정 B) 링크 넣기: http(s) 주소만 받는다. 이미 링크가 있으면 바꾸거나 뺄 수 있다 */
+function LinkModal({ current, onClose, onSubmit }: { current: string | null; onClose: () => void; onSubmit: (href: string | null) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [value, setValue] = useState(current ?? '')
+  const [error, setError] = useState<string | null>(null)
+  const submit = () => {
+    const href = safeHref(value)
+    if (!href) {
+      setError('http:// 또는 https:// 로 열 수 있는 주소를 넣어 주세요.')
+      return
+    }
+    onSubmit(href)
+  }
+  return (
+    <Modal
+      title={current ? '링크 바꾸기' : '링크 넣기'}
+      description="선택한 글자에 연결할 주소를 넣어요."
+      compact
+      onRequestClose={onClose}
+      initialFocusRef={inputRef}
+      footer={
+        <>
+          {current && (
+            <button type="button" className={formStyles.ghostButton} onClick={() => onSubmit(null)} data-testid="note-link-remove">
+              링크 빼기
+            </button>
+          )}
+          <button type="button" className={formStyles.ghostButton} onClick={onClose}>
+            취소
+          </button>
+          <button type="button" className={formStyles.primaryButton} onClick={submit} data-testid="note-link-save">
+            넣기
+          </button>
+        </>
+      }
+    >
+      <form
+        className={styles.linkForm}
+        onSubmit={(event) => {
+          event.preventDefault()
+          submit()
+        }}
+      >
+        <label className="lh-visually-hidden" htmlFor="note-link-input">
+          링크 주소
+        </label>
+        <input
+          id="note-link-input"
+          ref={inputRef}
+          className={styles.linkInput}
+          value={value}
+          placeholder="https://"
+          inputMode="url"
+          onChange={(event) => {
+            setValue(event.target.value)
+            setError(null)
+          }}
+          data-testid="note-link-input"
+        />
+        {error && (
+          <p className={styles.linkError} role="alert">
+            {error}
+          </p>
+        )}
+      </form>
+    </Modal>
   )
 }

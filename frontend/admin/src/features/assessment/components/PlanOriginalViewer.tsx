@@ -1,3 +1,4 @@
+import { isAdminMockDataSource } from '../api/mock/adminMockRuntime.ts'
 import { useEffect, useState } from 'react'
 import { downloadPlanRevision, previewPlanRevision } from '../api/assessmentAdminApi.ts'
 import type { PlanFileMeta } from '../api/types.ts'
@@ -111,7 +112,8 @@ export function PlanOriginalViewer({
       )}
       {!file ? (
         <p className={styles.muted} data-testid="plan-original-unknown">
-          <InfoIcon size={14} /> 원문 정보를 받지 못했어요. (시연 데이터에는 실제 원문 파일이 없어요)
+          {/* 부록 P: 운영(HTTP)에서는 '시연 데이터' 문구를 보이지 않는다 */}
+          <InfoIcon size={14} /> 원문 정보를 받지 못했어요.{isAdminMockDataSource ? ' (시연 데이터에는 실제 원문 파일이 없어요)' : ' 목록을 새로고침해 주세요.'}
         </p>
       ) : !file.available ? (
         <p className={styles.muted} data-testid="plan-original-missing">

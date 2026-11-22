@@ -30,6 +30,8 @@ interface DetailTopBarProps {
   onBack: () => void
   /** 없으면 피드백 요청 버튼을 숨긴다 (심화 탐구 상세 Mockup AE-DETAIL에는 없음) */
   onRequestFeedback?: () => void
+  /** A27-UX 피드백 요청 옆 '자료 찾기' (없으면 숨김) */
+  onFindResources?: () => void
   onUnavailable: (message: string) => void
   /** Breadcrumb 첫 단계 (기본: 학교 수행평가) */
   root?: { label: string; path: string; subjectPath: (subjectId: string) => string; backLabel: string }
@@ -53,6 +55,7 @@ export function DetailTopBar({
   noteId,
   onBack,
   onRequestFeedback,
+  onFindResources,
   onUnavailable,
   root = { label: '학교 수행평가', path: schoolAssessmentsPath, subjectPath: subjectAssessmentsPath, backLabel: '학교 수행평가로 돌아가기' },
   menuItems = [],
@@ -91,9 +94,14 @@ export function DetailTopBar({
           initialOpen={initialHistoryOpen}
         />
         {onRequestFeedback && (
-          <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
+          <button type="button" className={styles.outlineButton} onClick={onRequestFeedback} data-testid="open-feedback">
             <ChatIcon size={15} />
             선생님께 피드백 요청
+          </button>
+        )}
+        {onFindResources && (
+          <button type="button" className={styles.outlineButton} onClick={onFindResources} data-testid="open-find-resources">
+            자료 찾기
           </button>
         )}
         <MoreMenu items={menuItems} onUnavailable={onUnavailable} />

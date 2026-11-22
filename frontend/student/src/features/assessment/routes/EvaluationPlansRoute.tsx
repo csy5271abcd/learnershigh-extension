@@ -7,6 +7,10 @@ import { termLabel } from '../model/academicTerm.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { firstPageOf, groupConfirmedFields, unitOf, type ConfirmedItem, type ConfirmedSubject, type ConfirmedValue } from '../model/confirmedPlanView.ts'
 import { useApiQuery } from '../model/useApiQuery.ts'
+import { getOfficialPlan } from '../api/evaluationPlansApi.ts'
+import { useOfficialEnsure } from '../model/useOfficialEnsure.ts'
+import { officialEmptyText } from '../model/officialEmptyText.ts'
+import { OfficialDocumentList, OfficialEnsureNotice } from '../components/official/OfficialDocuments.tsx'
 import styles from './EvaluationPlansRoute.module.css'
 import { evaluationPlanOriginalPath, monthlyPlanPath } from './paths.ts'
 
@@ -79,6 +83,8 @@ export function EvaluationPlansRoute() {
         <InfoIcon size={14} />
         확정되지 않은 항목은 &lsquo;미확정&rsquo;으로 표시해요. 평가 일정·기준은 학교 공지가 우선이니 원문과 함께 확인해 주세요.
       </p>
+      <OfficialSourcesSection academicYear={selectedContext.academicYear} semester={selectedContext.semester} />
+      <h2 className={styles.sectionTitle}>확정된 평가 정보</h2>
       {plans.data.length === 0 ? (
         <EmptyState title="아직 확정된 평가계획서가 없어요" description="관리자가 이 학기 평가계획서를 확인하면 여기에 보여요." />
       ) : (
@@ -178,7 +184,8 @@ function SubjectCard({ subject, plan }: { subject: ConfirmedSubject; plan: Evalu
   )
 }
 
-function ItemTable({ title, items, plan, namePrefix }: { title: string; items: ConfirmedItem[]; plan: EvaluationPlan; namePrefix: string }) {
+// A27-UX 학생: 수행평가 상세 평가 기준(확정 공개값)도 같은 표를 쓴다
+export function ItemTable({ title, items, plan, namePrefix }: { title: string; items: ConfirmedItem[]; plan: EvaluationPlan; namePrefix: string }) {
   return (
     <div className={styles.items}>
       <p className={styles.itemsTitle}>{title}</p>
@@ -236,7 +243,8 @@ function ItemTable({ title, items, plan, namePrefix }: { title: string; items: C
   )
 }
 
-function Fact({ label, value, unit, plan }: { label: string; value: ConfirmedValue; unit: string; plan: EvaluationPlan }) {
+// A27-UX 학생: 수행평가 상세 평가 기준(확정 공개값)도 같은 표를 쓴다
+export function Fact({ label, value, unit, plan }: { label: string; value: ConfirmedValue; unit: string; plan: EvaluationPlan }) {
   return (
     <span className={styles.fact}>
       <span className={styles.factLabel}>{label}</span>
@@ -245,7 +253,8 @@ function Fact({ label, value, unit, plan }: { label: string; value: ConfirmedVal
   )
 }
 
-function ValueText({ value, unit, plan }: { value: ConfirmedValue; unit: string; plan: EvaluationPlan }) {
+// A27-UX 학생: 수행평가 상세 평가 기준(확정 공개값)도 같은 표를 쓴다
+export function ValueText({ value, unit, plan }: { value: ConfirmedValue; unit: string; plan: EvaluationPlan }) {
   if (value.state === 'missing') {
     return (
       <span className={styles.missing} data-state="missing">
@@ -268,5 +277,44 @@ function ValueText({ value, unit, plan }: { value: ConfirmedValue; unit: string;
         </Link>
       )}
     </>
+  )
+}
+
+/**
+ * A27-UX 부록 K: 학교알리미 공식 공개 원본(원문 파일). 위 '확정된 평가 정보'(관리자 확정값)와 다른 자료다 —
+ * 원본은 학교가 공개한 원문이라 바로 열람하고, 분석 결과·채점기준은 확정된 것만 아래에 보인다.
+ */
+function OfficialSourcesSection({ academicYear, semester }: { academicYear: number; semester: number }) {
+  const { ensure, version } = useOfficialEnsure()
+  const query = useApiQuery(`plans-official|${academicYear}|${semester}|${version}`, () => getOfficialPlan(academicYear, semester))
+  return (
+    <section className={styles.official} aria-labelledby="official-sources" data-testid="official-sources">
+      <h2 id="official-sources" className={styles.sectionTitle}>
+        학교알리미 평가계획서 원본
+      </h2>
+      <p className={styles.officialCaption}>학교가 학교알리미에 공개한 원문 파일이에요. 아래 평가 정보와 달리 선생님 확인 전에도 볼 수 있어요.</p>
+      <OfficialEnsureNotice ensure={ensure} />
+      {query.status === 'error' && query.error ? (
+        <ErrorState title="원본 정보를 불러오지 못했어요" error={query.error} onRetry={query.retry} />
+      ) : !query.data ? (
+        <LoadingRows rows={2} label="원본 정보를 불러오는 중" />
+      ) : !query.data.contextFound && !query.data.schoolId ? (
+        <p className={styles.officialCaption} data-testid="official-sources-no-context">
+          {academicYear}학년도 {semester}학기 학적 정보가 없고 조회할 학교도 정하지 못했어요.
+        </p>
+      ) : query.data.documents.length === 0 ? (
+        <p className={styles.officialCaption} data-testid="official-sources-empty">
+          {officialEmptyText(query.data, ensure)}
+        </p>
+      ) : (
+        <>
+          <p className={styles.officialCaption} data-testid="official-sources-scope">
+            {query.data.schoolName} · {academicYear}학년도 고{query.data.grade} {semester}학기 · 원본 {query.data.documents.length}개
+            {query.data.basis === 'SCHOOL_PUBLIC' && (query.data.contextFound ? ' · 같은 학교 다른 학년 공개 원본' : ' · 현재 학교 공개 원본(이 학년도 학적 정보 없음 · 재학 기록 아님)')}
+          </p>
+          <OfficialDocumentList slot={query.data} />
+        </>
+      )}
+    </section>
   )
 }

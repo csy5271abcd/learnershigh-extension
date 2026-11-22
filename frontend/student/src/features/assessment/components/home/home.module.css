@@ -382,7 +382,8 @@
 .dday {
   flex: none;
   width: 50px;
-  color: var(--as-color-primary);
+  /* A27-UX(계정 B): 파란색은 주요 동작·선택 상태만. D-day는 정보라 차콜, 임박(urgent)만 빨강 */
+  color: var(--as-color-text);
   font-weight: 700;
 }
 
@@ -493,4 +494,39 @@
   .aiHint {
     margin: 0 8px;
   }
+}
+
+/* A27-UX Dashboard 카드 영역 (공식 원본 3개년 · 월별 운영계획): 본문 열보다 넓게 쓴다 */
+.dashboard {
+  display: grid;
+  gap: 16px;
+  width: min(1120px, 100%);
+  margin: 8px auto 24px;
+}
+
+/* A27-UX(계정 B): 학교 공개 수행평가(날짜 미정) — 무채색, D-day 대신 '미정' */
+.officialUpcoming {
+  margin-top: 16px;
+}
+
+.officialHead {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dday[data-tone='none'] {
+  color: var(--as-color-text-tertiary);
+  font-weight: 600;
+}
+
+.inlineLink {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }

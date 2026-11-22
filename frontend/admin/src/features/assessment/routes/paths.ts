@@ -3,7 +3,8 @@
 
 export const assessmentAdminPath = '/assessment'
 
-export type AssessmentTab = 'overview' | 'students' | 'feedback' | 'plans' | 'content' | 'references'
+// A27-UX: 상단 탭 8개 — 전체 현황·학생 Assessment·피드백 관리·평가계획서(원본)·분석·월별 운영계획·심화 콘텐츠·관리자 참고자료실
+export type AssessmentTab = 'overview' | 'students' | 'feedback' | 'plans' | 'analysis' | 'monthly' | 'content' | 'references'
 export type ContentTab = 'tasks' | 'mock-exams' | 'universities' | 'sources'
 export type RecordKind = 'school' | 'enrichment'
 
@@ -17,9 +18,13 @@ export type AssessmentRoute =
   | { tab: 'feedback'; view: 'feedback' }
   | { tab: 'feedback'; view: 'feedback-detail'; requestId: string }
   | { tab: 'plans'; view: 'plans' }
-  | { tab: 'plans'; view: 'plan-review'; planId: string; revisionId: string }
-  /** A9 학년도별 평가계획서 열람 (?school=&year=&grade=&semester=&plan=&subject=&tab=&item=) */
-  | { tab: 'plans'; view: 'plan-archive' }
+  | { tab: 'analysis'; view: 'plan-review'; planId: string; revisionId: string }
+  /** A27-UX 분석 탭: 분석·검토·확정 상태별 문서 목록 (?school=&year=&grade=&semester=&status=&q=&plan=) */
+  | { tab: 'analysis'; view: 'analysis' }
+  /** A27-UX 분석·검토 결과 읽기 전용 조회 (AI 후보·검토 중·확정 결과·이력) */
+  | { tab: 'analysis'; view: 'plan-result'; planId: string; revisionId: string }
+  /** A27-UX 월별 운영계획 독립 탭 (?school=&year=&grade=&semester=&scope=) */
+  | { tab: 'monthly'; view: 'monthly' }
   | { tab: 'content'; view: 'tasks' }
   | { tab: 'content'; view: 'task-edit'; catalogTaskId: string | null }
   | { tab: 'content'; view: 'mock-exams' }
@@ -36,6 +41,12 @@ export type AssessmentRoute =
 export const isAssessmentAdminPath = (pathname: string) => pathname === assessmentAdminPath || pathname.startsWith(`${assessmentAdminPath}/`)
 
 const enc = encodeURIComponent
+const withQuery = (base: string, query?: Record<string, string | number | null | undefined>) => {
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(query ?? {})) if (value !== null && value !== undefined && value !== '') params.set(key, String(value))
+  const text = params.toString()
+  return text ? `${base}?${text}` : base
+}
 
 export const paths = {
   overview: assessmentAdminPath,
@@ -46,10 +57,12 @@ export const paths = {
   feedback: `${assessmentAdminPath}/feedback`,
   feedbackDetail: (requestId: string) => `${assessmentAdminPath}/feedback/${enc(requestId)}`,
   plans: `${assessmentAdminPath}/evaluation-plans`,
+  analysis: (query?: Record<string, string | number | null | undefined>) => withQuery(`${assessmentAdminPath}/analysis`, query),
+  planResult: (planId: string, revisionId: string) => `${assessmentAdminPath}/analysis/${enc(planId)}/revisions/${enc(revisionId)}/result`,
+  monthly: (query?: Record<string, string | number | null | undefined>) => withQuery(`${assessmentAdminPath}/monthly-plan`, query),
   /** page: 원문 근거 쪽 (검토 Workspace PDF Viewer를 그 쪽으로 연다) */
   planReview: (planId: string, revisionId: string, page?: number) =>
     `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}${page ? `?page=${page}` : ''}`,
-  planArchive: (school?: string) => `${assessmentAdminPath}/evaluation-plans/archive${school ? `?school=${enc(school)}` : ''}`,
   tasks: `${assessmentAdminPath}/content/tasks`,
   taskNew: `${assessmentAdminPath}/content/tasks/new`,
   task: (catalogTaskId: string) => `${assessmentAdminPath}/content/tasks/${enc(catalogTaskId)}`,
@@ -69,6 +82,8 @@ const tabPaths: Record<AssessmentTab, string> = {
   students: paths.students,
   feedback: paths.feedback,
   plans: paths.plans,
+  analysis: `${assessmentAdminPath}/analysis`,
+  monthly: `${assessmentAdminPath}/monthly-plan`,
   content: paths.tasks,
   references: paths.references,
 }
@@ -99,9 +114,17 @@ export function matchAssessmentRoute(pathname: string): AssessmentRoute {
     if (!a) return { tab: 'plans', view: 'plans' }
     // A25: 'PDF AI 분석' 별도 화면 제거(등록 과정의 서버 분석과 중복). 예전 주소는 목록으로 연다
     if (a === 'ai-analysis' && !b) return { tab: 'plans', view: 'plans' }
-    if (a === 'archive' && !b) return { tab: 'plans', view: 'plan-archive' }
-    if (b === 'revisions' && c && !d) return { tab: 'plans', view: 'plan-review', planId: a, revisionId: c }
+    // [08] A27-UX: '학년도별 열람' 화면 제거 — 예전 주소는 평가계획서 6칸으로 연다(학교 Query는 그대로 유지)
+    if (a === 'archive' && !b) return { tab: 'plans', view: 'plans' }
+    // 예전 검토 주소(A25까지)는 그대로 열린다 — 검토는 이제 분석 탭에 속한다
+    if (b === 'revisions' && c && !d) return { tab: 'analysis', view: 'plan-review', planId: a, revisionId: c }
   }
+  if (section === 'analysis') {
+    if (!a) return { tab: 'analysis', view: 'analysis' }
+    if (b === 'revisions' && c && !d) return { tab: 'analysis', view: 'plan-review', planId: a, revisionId: c }
+    if (b === 'revisions' && c && d === 'result') return { tab: 'analysis', view: 'plan-result', planId: a, revisionId: c }
+  }
+  if (section === 'monthly-plan' && !a) return { tab: 'monthly', view: 'monthly' }
   if (section === 'content') {
     if (!a || a === 'tasks') {
       if (!b) return { tab: 'content', view: 'tasks' }

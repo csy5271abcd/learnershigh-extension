@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { replaceSearch } from '../../../app/adminLocation.ts'
-import { adminRecordsHttpConnected, catalogSubjectOptions, deleteScrap, getReferenceCatalog, listCatalog, listScrapTrash, listScraps, restoreScrap, saveScrap, setScrapPublished, subjectNameOf } from '../api/assessmentAdminApi.ts'
+import { adminRecordsHttpConnected, catalogSubjectOptions, deleteScrap, getReferenceCatalog, listScrapTrash, listScraps, restoreScrap, saveScrap, setScrapPublished, subjectNameOf, uploadScrap } from '../api/assessmentAdminApi.ts'
 import { areasOfSource, type ReferenceCatalog, type ReferenceSource } from '../api/canonicalSource.ts'
 import type { ReferenceScrap, ScrapRequest, ScrapType } from '../api/types.ts'
 import { FieldError, ListEmpty, RemoteView, SearchBox } from '../components/AdminParts.tsx'
-import { AlertIcon, LinkIcon, LockIcon, Modal, ReferenceCategoryIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
+import { AlertIcon, LinkIcon, LockIcon, Modal, ReferenceCategoryIcon, Toast, UploadIcon, type ToastMessage } from '../components/canonicalUi.ts'
+import { ScrapFileView } from '../components/ScrapFileView.tsx'
+import { fileSizeText, isVideoFileName, SCRAP_FILE_ACCEPT, scrapFileKind, scrapFileKindLabel, scrapFileProblem, titleFromFileName } from '../model/scrapFiles.ts'
 import { dateTimeLabel, nextToastId, splitList } from '../model/adminFormat.ts'
 import { useCommand, useRemote } from '../model/useRemote.ts'
 import styles from '../styles/assessmentAdmin.module.css'
+import modalStyles from './scrapModal.module.css'
 import { TextField } from './CatalogTaskRoutes.tsx'
 
 const scrapTypeLabels: Record<ScrapType, string> = { SITE: '사이트', ARTICLE: '기사', PAPER: '논문', VIDEO: '영상', STATISTICS: '통계', OTHER: '기타' }
@@ -19,7 +22,7 @@ export function ReferenceLibraryRoute({ search }: { search: URLSearchParams }) {
   const tab = search.get('tab') === 'scraps' ? 'scraps' : 'sources'
   const catalog = useRemote(() => getReferenceCatalog(), [])
   const scraps = useRemote(() => listScraps(), [])
-  const [editor, setEditor] = useState<{ scrap?: ReferenceScrap; initial: ScrapRequest } | null>(null)
+  const [editor, setEditor] = useState<{ scrap?: ReferenceScrap; initial: ScrapRequest; upload?: boolean } | null>(null)
   const [toast, setToast] = useState<ToastMessage | null>(null)
 
   const setTab = (value: string) => {
@@ -40,9 +43,15 @@ export function ReferenceLibraryRoute({ search }: { search: URLSearchParams }) {
         <button type="button" className={styles.subTab} aria-current={tab === 'scraps' ? 'page' : undefined} onClick={() => setTab('scraps')}>
           내 스크랩 {scraps.state.status === 'success' ? scraps.state.data.items.length : ''}
         </button>
-        <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} style={{ margin: '8px 0 8px auto' }} onClick={() => setEditor({ initial: blank })}>
-          <LinkIcon size={14} /> 링크 직접 저장
-        </button>
+        {/* [17] A27-UX §43-1: 영상·사진·문서를 직접 올려 스크랩한다(서버 저장·관리자 전용). 링크 저장은 그대로 */}
+        <span className={modalStyles.navActions}>
+          <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={() => setEditor({ initial: { ...blank, type: 'OTHER' }, upload: true })} data-testid="scrap-upload-open">
+            <UploadIcon size={14} /> 자료 업로드
+          </button>
+          <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={() => setEditor({ initial: blank })}>
+            <LinkIcon size={14} /> 링크 직접 저장
+          </button>
+        </span>
       </nav>
       {tab === 'sources' ? (
         <RemoteView state={catalog.state} label="추천 사이트" onRetry={catalog.reload}>
@@ -69,7 +78,7 @@ export function ReferenceLibraryRoute({ search }: { search: URLSearchParams }) {
           catalog={catalog.state.status === 'success' ? catalog.state.data : null}
           search={search}
           reload={scraps.reload}
-          onEdit={(scrap) => setEditor({ scrap, initial: { ...scrap } })}
+          onEdit={(scrap) => setEditor({ scrap, initial: { ...scrap, sourceUrl: scrap.sourceUrl ?? '' } })}
           onAddToSource={(source) => setEditor({ initial: { ...blank, sourceUrl: source.url, sourceName: source.name, referenceSourceId: source.sourceId } })}
           onToast={setToast}
         />
@@ -78,6 +87,7 @@ export function ReferenceLibraryRoute({ search }: { search: URLSearchParams }) {
         <ScrapModal
           scrap={editor.scrap}
           initial={editor.initial}
+          upload={editor.upload}
           onClose={() => setEditor(null)}
           onSaved={(saved, created) => {
             setEditor(null)
@@ -211,7 +221,7 @@ function SourcesView({
           ))
       )}
       <p className={styles.hint}>
-        자료원 {catalog.sources.length}곳 · 기준 문서 {catalog.basis.document} ({catalog.basis.checkedOn} 확인). 주소가 실제로 열리는지는 이 앱에서 확인하지 않아요. ScienceON(KISTI)은 과학기술 논문·연구정보 플랫폼이에요.
+        자료원 {catalog.sources.length}곳 · {catalog.basis.document} ({catalog.basis.checkedOn} 확인) · 주소 연결은 확인하지 않아요.
       </p>
     </div>
   )
@@ -339,9 +349,12 @@ function ScrapsView({
                         {(scrap.authorOrOrg || scrap.publishedDate) && (
                           <span className={styles.cellSub}>{[scrap.authorOrOrg, scrap.publishedDate].filter(Boolean).join(' · ')}</span>
                         )}
-                        <a className={styles.linkButton} href={scrap.sourceUrl} target="_blank" rel="noreferrer noopener">
-                          {scrap.sourceName ?? scrap.sourceUrl} ↗
-                        </a>
+                        {scrap.sourceUrl && (
+                          <a className={styles.linkButton} href={scrap.sourceUrl} target="_blank" rel="noreferrer noopener">
+                            {scrap.sourceName ?? scrap.sourceUrl} ↗
+                          </a>
+                        )}
+                        {scrap.file && <ScrapFileView scrap={scrap} onChanged={reload} onToast={onToast} />}
                       </td>
                       <td>{scrapTypeLabels[scrap.type]}</td>
                       <td>
@@ -367,9 +380,15 @@ function ScrapsView({
                           <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={() => onEdit(scrap)}>
                             수정
                           </button>
-                          {adminRecordsHttpConnected && (
-                            <PublishButton scrap={scrap} onDone={reload} onToast={onToast} />
-                          )}
+                          {/* §43-1: 링크 없는 업로드 스크랩은 학생에게 공개하지 않는다(학생은 관리자 파일을 내려받을 수 없다) */}
+                          {adminRecordsHttpConnected &&
+                            (scrap.sourceUrl || (scrap as { published?: boolean }).published ? (
+                              <PublishButton scrap={scrap} onDone={reload} onToast={onToast} />
+                            ) : (
+                              <span className={styles.hint} title="학생은 관리자 파일을 내려받을 수 없어요. 링크를 추가하면 공개할 수 있어요." data-testid="scrap-publish-unavailable">
+                                관리자 전용
+                              </span>
+                            ))}
                           <button type="button" className={`${styles.dangerButton} ${styles.smallButton}`} onClick={() => setDeleting(scrap)}>
                             삭제
                           </button>
@@ -406,28 +425,50 @@ function ScrapsView({
   )
 }
 
-function ScrapModal({ scrap, initial, onClose, onSaved }: { scrap?: ReferenceScrap; initial: ScrapRequest; onClose: () => void; onSaved: (scrap: ReferenceScrap, created: boolean) => void }) {
+function ScrapModal({ scrap, initial, upload = false, onClose, onSaved }: { scrap?: ReferenceScrap; initial: ScrapRequest; upload?: boolean; onClose: () => void; onSaved: (scrap: ReferenceScrap, created: boolean) => void }) {
   const [input, setInput] = useState<ScrapRequest>(initial)
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const [dragging, setDragging] = useState(false)
+  const fileInput = useRef<HTMLInputElement>(null)
+  // §43-1: 업로드 스크랩(새로 올리거나 이미 파일이 있는 스크랩)은 링크가 선택이다
+  const urlOptional = upload || Boolean(scrap?.file)
+  const pickFile = (next: File | undefined) => {
+    if (!next) return
+    const problem = scrapFileProblem(next)
+    setFileError(problem)
+    if (problem) return
+    setFile(next)
+    setInput((previous) => ({
+      ...previous,
+      title: previous.title.trim() ? previous.title : titleFromFileName(next.name),
+      type: isVideoFileName(next.name) ? 'VIDEO' : previous.type,
+    }))
+  }
   const [tags, setTags] = useState(initial.tags.join(', '))
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const { run, pending } = useCommand()
   const subjects = catalogSubjectOptions()
   const fromSource = Boolean(initial.referenceSourceId)
-  const catalog = useRemote(() => listCatalog(), [])
 
   const submit = async () => {
     setFormError(null)
-    const outcome = await run(() => saveScrap(scrap?.scrapId ?? null, { ...input, tags: splitList(tags) }))
+    if (upload && !scrap && !file) {
+      setFileError('올릴 파일을 골라 주세요.')
+      return
+    }
+    const request: ScrapRequest = { ...input, tags: splitList(tags), sourceUrl: urlOptional && !input.sourceUrl?.trim() ? null : input.sourceUrl }
+    const outcome = await run(() => (upload && !scrap && file ? uploadScrap(request, file) : saveScrap(scrap?.scrapId ?? null, request)))
     if (!outcome) return
     if (outcome.ok) onSaved(outcome.value, !scrap)
     else if (outcome.error.code === 'VALIDATION_ERROR') setErrors(outcome.error.fieldReasons())
-    else setFormError(`${outcome.error.message} (${outcome.error.code})`)
+    else setFormError(outcome.error.message)
   }
 
   return (
     <Modal
-      title={scrap ? '스크랩 수정' : fromSource ? '자료 저장' : '링크 직접 저장'}
+      title={scrap ? '스크랩 수정' : upload ? '자료 업로드' : fromSource ? '자료 저장' : '링크 직접 저장'}
       onRequestClose={() => !pending && onClose()}
       footer={
         <>
@@ -435,26 +476,75 @@ function ScrapModal({ scrap, initial, onClose, onSaved }: { scrap?: ReferenceScr
             취소
           </button>
           <button type="button" className={styles.primaryButton} onClick={submit} disabled={pending} aria-busy={pending}>
-            {pending ? '저장 중…' : scrap ? '저장' : '내 스크랩에 저장'}
+            {pending ? (upload && !scrap ? '올리는 중…' : '저장 중…') : scrap ? '저장' : upload ? '올리고 스크랩에 저장' : '내 스크랩에 저장'}
           </button>
         </>
       }
     >
-      <div className={styles.form}>
+      <div className={`${styles.form} ${modalStyles.form}`} data-testid="scrap-modal-form">
         {formError && (
           <p className={styles.formError} role="alert">
             <AlertIcon size={15} /> {formError}
           </p>
         )}
+        {upload && !scrap && (
+          <fieldset className={modalStyles.group}>
+            <legend className={modalStyles.groupTitle}>파일</legend>
+            <div
+              className={modalStyles.dropZone}
+              data-dragging={dragging || undefined}
+              data-has-file={file ? 'true' : undefined}
+              onDragOver={(event) => {
+                event.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(event) => {
+                event.preventDefault()
+                setDragging(false)
+                pickFile(event.dataTransfer.files?.[0])
+              }}
+              data-testid="scrap-upload-drop"
+            >
+              <UploadIcon size={20} />
+              {file ? (
+                <span className={modalStyles.dropText}>
+                  <strong>{file.name}</strong>
+                  <span>
+                    {scrapFileKindLabel[scrapFileKind(file.type || (isVideoFileName(file.name) ? 'video/' : ''))]} · {fileSizeText(file.size)}
+                  </span>
+                </span>
+              ) : (
+                <span className={modalStyles.dropText}>
+                  <strong>파일을 여기로 끌어 놓거나 골라 주세요</strong>
+                  <span>영상(MP4·MOV·WEBM)·사진(JPG·PNG·GIF·WEBP)·문서(PDF·HWP·HWPX·오피스) · 50MB 이하</span>
+                </span>
+              )}
+              <button type="button" className={`${styles.secondaryButton} ${styles.smallButton}`} onClick={() => fileInput.current?.click()}>
+                {file ? '다른 파일' : '파일 선택'}
+              </button>
+              <input ref={fileInput} type="file" accept={SCRAP_FILE_ACCEPT} hidden onChange={(event) => pickFile(event.target.files?.[0])} aria-label="올릴 파일" data-testid="scrap-upload-input" />
+            </div>
+            {fileError && (
+              <p className={styles.formError} role="alert" data-testid="scrap-upload-error">
+                <AlertIcon size={15} /> {fileError}
+              </p>
+            )}
+            <p className={styles.hint}>파일은 관리자만 열 수 있어요. 학생에게 공개해도 파일은 전달되지 않아요.</p>
+          </fieldset>
+        )}
+        <fieldset className={modalStyles.group}>
+        <legend className={modalStyles.groupTitle}>자료 정보</legend>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="scrap-url">
-            URL<span className={styles.required}>*</span>
+            {urlOptional ? '관련 링크 (선택)' : 'URL'}
+            {!urlOptional && <span className={styles.required}>*</span>}
           </label>
           <input
             id="scrap-url"
             className={styles.input}
             type="url"
-            value={input.sourceUrl}
+            value={input.sourceUrl ?? ''}
 
             aria-invalid={errors.sourceUrl ? true : undefined}
             placeholder="https://"
@@ -468,7 +558,7 @@ function ScrapModal({ scrap, initial, onClose, onSaved }: { scrap?: ReferenceScr
           )}
         </div>
         <TextField id="scrap-title" label="자료 제목" required value={input.title} error={errors.title} onChange={(value) => setInput((previous) => ({ ...previous, title: value }))} />
-        <div className={styles.formGrid}>
+        <div className={modalStyles.grid}>
           <TextField id="scrap-source" label="출처 이름" value={input.sourceName ?? ''} onChange={(value) => setInput((previous) => ({ ...previous, sourceName: value || null }))} />
           <label className={styles.field}>
             <span className={styles.label}>종류</span>
@@ -481,6 +571,13 @@ function ScrapModal({ scrap, initial, onClose, onSaved }: { scrap?: ReferenceScr
             </select>
           </label>
         </div>
+        <div className={modalStyles.grid}>
+          <TextField id="scrap-author" label="작성자·기관" value={input.authorOrOrg ?? ''} onChange={(value) => setInput((previous) => ({ ...previous, authorOrOrg: value || null }))} />
+          <TextField id="scrap-date" label="발행일 (YYYY-MM-DD)" value={input.publishedDate ?? ''} error={errors.publishedDate} placeholder="2026-05-01" onChange={(value) => setInput((previous) => ({ ...previous, publishedDate: value.trim() || null }))} />
+        </div>
+        </fieldset>
+        <fieldset className={modalStyles.group}>
+        <legend className={modalStyles.groupTitle}>분류</legend>
         <div className={styles.field}>
           <span className={styles.label}>관련 과목</span>
           <div className={styles.chips}>
@@ -502,29 +599,14 @@ function ScrapModal({ scrap, initial, onClose, onSaved }: { scrap?: ReferenceScr
             ))}
           </div>
         </div>
-        <div className={styles.formGrid}>
-          <TextField id="scrap-author" label="작성자·기관" value={input.authorOrOrg ?? ''} onChange={(value) => setInput((previous) => ({ ...previous, authorOrOrg: value || null }))} />
-          <TextField id="scrap-date" label="발행일 (YYYY-MM-DD)" value={input.publishedDate ?? ''} error={errors.publishedDate} placeholder="2026-05-01" onChange={(value) => setInput((previous) => ({ ...previous, publishedDate: value.trim() || null }))} />
-        </div>
-        <label className={styles.field}>
-          <span className={styles.label}>관련 심화 Task</span>
-          <select
-            className={styles.select}
-            value={input.relatedCatalogTaskIds[0] ?? ''}
-            onChange={(event) => setInput((previous) => ({ ...previous, relatedCatalogTaskIds: event.target.value ? [event.target.value] : [] }))}
-          >
-            <option value="">연결 안 함</option>
-            {catalog.state.status === 'success' &&
-              catalog.state.data.items.map((task) => (
-                <option key={task.catalogTaskId} value={task.catalogTaskId}>
-                  {task.title}
-                </option>
-              ))}
-          </select>
-        </label>
+        {/* A27-UX: '관련 심화 Task' 입력 제거(이미지 14). 기존 자료의 연결 값은 요청에 그대로 보존한다(선택 필드, 서버 계약 변경 없음) */}
         <TextField id="scrap-tags" label="태그 · 쉼표로 구분" value={tags} onChange={setTags} />
+        </fieldset>
+        <fieldset className={modalStyles.group}>
+        <legend className={modalStyles.groupTitle}>관리자 메모</legend>
         <TextField id="scrap-memo" label="관리자 메모 (학생 비공개)" multiline value={input.memo ?? ''} onChange={(value) => setInput((previous) => ({ ...previous, memo: value || null }))} />
         <p className={styles.hint}>실제로 확인한 자료만 저장해 주세요. 존재하지 않는 논문·기사 주소를 만들지 않아요.</p>
+        </fieldset>
       </div>
     </Modal>
   )

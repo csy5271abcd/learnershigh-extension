@@ -98,8 +98,11 @@
 }
 
 .controlText {
-  padding-left: 8px;
-  border-left: 2px solid var(--as-color-line);
+  /* A27-UX: 왼쪽 강조선 대신 얇은 전체 테두리의 회색 박스 (글상자 등 HWP 컨트롤 안 글) */
+  padding: 4px 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-xs, 4px);
+  background: var(--as-color-subtle);
   color: var(--as-color-text-secondary);
 }
 

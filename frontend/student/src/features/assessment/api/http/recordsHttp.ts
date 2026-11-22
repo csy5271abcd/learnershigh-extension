@@ -110,6 +110,15 @@ export interface SharedResource {
   subjectIds: string[]
   publishedAt: string
 }
+/** A27-UX §22-1 DRAFT 자료 파일 첨부·삭제·내려받기·미리보기 */
+export const attachResourceFileHttp = (resourceId: string, file: File) => {
+  const form = new FormData()
+  form.append('file', file)
+  return assessmentHttp<StudentResource>(`${base}/resources/${enc(resourceId)}/file`, { method: 'POST', form })
+}
+export const detachResourceFileHttp = (resourceId: string) => assessmentHttp<StudentResource>(`${base}/resources/${enc(resourceId)}/file`, { method: 'DELETE' })
+export const downloadResourceFileHttp = (resourceId: string) => downloadFile(`${base}/resources/${enc(resourceId)}/file`)
+export const previewResourceFileHttp = (resourceId: string) => downloadFile(`${base}/resources/${enc(resourceId)}/file/preview`)
 export const listSharedResourcesHttp = () => assessmentHttp<{ items: SharedResource[] }>(`${base}/shared-resources`)
 
 // ---- §26 미리보기 · §25-1 비교 · 휴지통(2026-11-11) ----

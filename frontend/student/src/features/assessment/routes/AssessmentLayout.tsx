@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useMemo, useState, type ComponentType, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router'
 import { getAcademicContext } from '../api/academicContextApi.ts'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
@@ -38,6 +38,7 @@ import '../styles/assessmentTheme.css'
 import styles from './AssessmentLayout.module.css'
 import { isMockDataSource } from '../api/dataSource.ts'
 import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { devPanelEnabled } from '../dev/devContext.ts'
 
 // 개발 서버(http 모드) 전용 시연 학생 전환 패널. Production 번들에서는 import.meta.env.DEV=false라 모듈째 빠진다.
 const DevContextSwitcher = import.meta.env.DEV ? lazy(() => import('../dev/DevContextSwitcher.tsx')) : null
@@ -82,6 +83,10 @@ export function AssessmentLayout() {
   const [dataVersion, setDataVersion] = useState(0)
   const [chosenTerm, setChosenTerm] = useState<AcademicTermQuery>()
   const [navOpen, setNavOpen] = useState(false)
+  // 2026-11-21 복원(부록 M 요청): 데스크톱 메뉴 전체 접기(부록 E S1)를 없애고 기존 고정 너비 Shell 로 되돌린다.
+  // 좁은 화면 Drawer 는 그대로. 예전에 저장된 접힘 기억(lh.assessment.student.sidebarCollapsed)은 읽지 않는다.
+  const sidebarRef = useRef<HTMLElement>(null)
+  const mobileButtonRef = useRef<HTMLButtonElement>(null)
 
   const terms = useApiQuery(`terms:${dataVersion}`, loadTerms)
   const selectedTerm = chosenTerm ?? terms.data?.currentTerm
@@ -138,9 +143,47 @@ export function AssessmentLayout() {
   const subjectFilter = pathname === schoolAssessmentsPath ? searchParams.get('subject') : null
   const closeNav = () => setNavOpen(false)
 
+  // 좁은 화면 Drawer: 열리면 첫 항목에 Focus·Tab 가두기·배경 스크롤 잠금, Esc 로 닫고 메뉴 버튼으로 Focus 를 돌려준다
+  useEffect(() => {
+    if (!navOpen) return
+    const sidebar = sidebarRef.current
+    const focusables = () =>
+      sidebar ? Array.from(sidebar.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])')).filter((el) => el.offsetParent !== null) : []
+    // 열 때는 visibility 를 바로 보이게 둔다(CSS .sidebarOpen) — 그래서 여기서 바로 Focus 를 옮길 수 있다
+    focusables()[0]?.focus()
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setNavOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    const button = mobileButtonRef.current
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = previousOverflow
+      button?.focus()
+    }
+  }, [navOpen])
+
   return (
     <AssessmentWorkspaceContext.Provider value={workspace}>
-      <div className={`lh-assessment ${styles.root}`}>
+      <div className={`lh-assessment ${styles.root}`} data-sidebar="fixed">
         <div
           className={`${styles.scrim} ${navOpen ? styles.scrimVisible : ''}`}
           aria-hidden="true"
@@ -148,6 +191,7 @@ export function AssessmentLayout() {
         />
         <aside
           id="assessment-sidebar"
+          ref={sidebarRef}
           className={`${styles.sidebar} ${navOpen ? styles.sidebarOpen : ''}`}
           aria-label="Assessment"
         >
@@ -155,7 +199,7 @@ export function AssessmentLayout() {
             <TermSelector terms={terms} selectedTerm={selectedTerm} onSelect={setChosenTerm} onNavigate={closeNav} />
           </div>
 
-          <nav className={styles.nav} aria-label="Assessment 메뉴">
+          <nav className={styles.nav} id="assessment-sidebar-menu" aria-label="Assessment 메뉴">
             <ul className={styles.menu}>
               <MenuLink to={assessmentPath} icon={HomeIcon} active={pathname === assessmentPath} onNavigate={closeNav}>
                 홈
@@ -235,6 +279,7 @@ export function AssessmentLayout() {
           <div className={styles.mobileBar}>
             <button
               type="button"
+              ref={mobileButtonRef}
               className={styles.mobileMenuButton}
               aria-controls="assessment-sidebar"
               aria-expanded={navOpen}
@@ -267,7 +312,7 @@ export function AssessmentLayout() {
           />
         )}
         <Toast message={toast} onDismiss={dismissToast} />
-        {DevContextSwitcher && !isMockDataSource && !isAssessmentReadOnlyView() && (
+        {DevContextSwitcher && !isMockDataSource && !isAssessmentReadOnlyView() && devPanelEnabled() && (
           <Suspense fallback={null}>
             <DevContextSwitcher kind="student" landingPath="/assessment" />
           </Suspense>
@@ -306,6 +351,8 @@ function MenuLink({ to, icon: Icon, active, count, countLabel, onNavigate, child
         to={to}
         className={`${styles.menuItem} ${active ? styles.menuItemActive : ''}`}
         aria-current={active ? 'page' : undefined}
+        // 접힌 메뉴(아이콘만)에서도 마우스를 올리면 이름이 보인다. 읽기 이름은 숨김 처리된 글자로 그대로 남는다
+        title={typeof children === 'string' ? children : undefined}
         onClick={onNavigate}
       >
         <Icon className={styles.menuIcon} size={17} />

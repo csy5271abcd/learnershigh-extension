@@ -1,6 +1,7 @@
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { AlertIcon, ChevronLeftIcon, ChevronRightIcon, LinkIcon } from '../AssessmentIcons.tsx'
+import { devPanelEnabled } from '../../dev/devContext.ts'
 import { openPdfDocument } from './pdfjsLoader.ts'
 import styles from './university.module.css'
 
@@ -23,11 +24,14 @@ interface PdfViewerProps {
   /** 현재 쪽 (PDF 물리 쪽, 1부터). 상위가 URL에 둔다 */
   page: number
   onPageChange: (page: number) => void
+  /** A28-16: 부모 높이를 채우고 문서 영역만 스크롤한다(도구 막대는 위에 고정, 문서와 겹치지 않음). 모달 Viewer 에서 쓴다 */
+  contained?: boolean
 }
 
 const errorText: Record<'SOURCE_FOLDER' | 'MISSING' | 'CHANGED' | 'CORRUPT' | 'UNAVAILABLE', { title: string; body: string }> = {
-  SOURCE_FOLDER: { title: '원본 자료 폴더가 연결되지 않았어요', body: '대학별 자료 PDF는 저장소에 없고 개발 PC 폴더에서 읽어요. 실행 가이드의 ASSESSMENT_UNIVERSITY_EXAM_ROOT 설정을 확인해 주세요.' },
-  MISSING: { title: '원본 PDF 파일을 찾을 수 없어요', body: '목록에는 있지만 개발 환경 폴더에 파일이 없어요. 다른 자료는 계속 볼 수 있어요.' },
+  // A27-UX: 실행 환경 설정 안내(ASSESSMENT_UNIVERSITY_EXAM_ROOT)는 devPanel에서만 '원인'으로 보인다
+  SOURCE_FOLDER: { title: '원본 PDF를 지금 볼 수 없어요', body: '원본 자료를 확인할 수 없어요. 문항 정보와 다른 자료는 계속 볼 수 있어요.' },
+  MISSING: { title: '원본 PDF 파일을 찾을 수 없어요', body: '목록에는 있지만 원본 파일을 확인할 수 없어요. 다른 자료는 계속 볼 수 있어요.' },
   CHANGED: { title: '원본 파일이 목록과 달라요', body: '파일 내용이 바뀌어 문항 위치가 맞지 않을 수 있어 열지 않았어요. 자료 목록을 다시 확인해야 해요.' },
   CORRUPT: { title: 'PDF를 열 수 없어요', body: '파일이 손상되었거나 PDF 형식이 아니에요. 다른 자료는 계속 볼 수 있어요.' },
   UNAVAILABLE: { title: 'PDF를 불러오지 못했어요', body: '잠시 뒤 다시 시도해 주세요.' },
@@ -36,7 +40,7 @@ const errorText: Record<'SOURCE_FOLDER' | 'MISSING' | 'CHANGED' | 'CORRUPT' | 'U
 // 대학별 기출 PDF 원문 뷰어 (pdf.js 캔버스, 한 쪽씩). 원문을 바꾸거나 글자를 따로 복사해 두지 않는다.
 // 직접 구현: 이전·다음, 쪽 번호 이동, 확대·축소·폭 맞춤, 키보드(←→ PageUp/PageDown), 로딩·오류 구분.
 // 브라우저 기본 PDF 뷰어는 "새 탭에서 열기"로만 쓴다 (인쇄·검색 등은 그 뷰어 기능).
-export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }: PdfViewerProps) {
+export function PdfViewer({ url, title, expectedPageCount, page, onPageChange, contained = false }: PdfViewerProps) {
   const [load, setLoad] = useState<LoadState>({ kind: 'loading' })
   const [attempt, setAttempt] = useState(0)
   const [zoom, setZoom] = useState<'fit' | number>('fit')
@@ -185,7 +189,7 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
         <AlertIcon size={20} />
         <p className={styles.viewerStateTitle}>{text.title}</p>
         <p className={styles.viewerStateBody}>{text.body}</p>
-        {load.detail && (
+        {load.detail && devPanelEnabled() && (
           <p className={styles.viewerStateBody} data-testid="pdf-error-detail">
             원인: {load.detail}
           </p>
@@ -207,7 +211,7 @@ export function PdfViewer({ url, title, expectedPageCount, page, onPageChange }:
   }
 
   return (
-    <div className={styles.viewer}>
+    <div className={contained ? `${styles.viewer} ${styles.viewerContained}` : styles.viewer} data-contained={contained || undefined}>
       <div className={styles.viewerToolbar} role="toolbar" aria-label="PDF 보기 도구">
         <div className={styles.toolbarGroup}>
           <button type="button" className={styles.iconButton} aria-label="이전 쪽" disabled={!pdf || currentPage <= 1} onClick={() => goTo(currentPage - 1)}>

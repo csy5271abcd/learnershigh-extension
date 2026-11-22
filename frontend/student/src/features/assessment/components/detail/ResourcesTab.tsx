@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { listRecommendedSources, listResources } from '../../api/resourcesApi.ts'
 import type { StudentResource } from '../../api/types.ts'
 import { isHttpUrl } from '../../model/noteEditorModel.ts'
-import { resourceMetaLine } from '../../model/resourceLibraryView.ts'
+import { resourceMetaLine, resourceTypes } from '../../model/resourceLibraryView.ts'
 import { useApiQuery } from '../../model/useApiQuery.ts'
 import { referenceAreaForSubject } from '../../model/referenceAreas.ts'
 import { referenceLinksAreaPath, referenceLinksPath, resourcesPath } from '../../routes/paths.ts'
@@ -25,6 +25,9 @@ interface ResourcesTabProps {
   /** 노트 편집기가 준비됐는지. 아니면 "노트에 추가"를 막고 이유를 보여준다 */
   canInsert: boolean
   onInsert: (resource: StudentResource) => void
+  /** A27-UX(계정 B): 이 수행평가 노트에 출처 카드로 연결된 자료와 연결 해제 (없으면 연결 표시를 하지 않는다) */
+  linked?: { resourceId: string; title: string }[]
+  onUnlink?: (resourceId: string, title: string) => void
   onNotify: (tone: 'success' | 'info' | 'error', text: string) => void
 }
 
@@ -34,7 +37,9 @@ interface ResourcesTabProps {
 //    주소가 없는 자료원은 링크를 만들지 않는다 (기사 제목·URL을 지어내지 않는다). "전체 참고자료 보기"는 이 과목 영역을 고른 채로 연다.
 // ② 내 자료함 검색: §22 GET 목록. "노트에 추가"는 원문을 복사하지 않고 출처 카드(RESOURCE_LINK)를 노트에 넣는다.
 // ③ URL로 자료 등록: 자료함 등록 Modal(§22 POST)을 그대로 쓴다.
-export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInsert, onNotify }: ResourcesTabProps) {
+export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInsert, onNotify, linked, onUnlink }: ResourcesTabProps) {
+  const [typeFilter, setTypeFilter] = useState<string | undefined>()
+  const linkedIds = new Set((linked ?? []).map((item) => item.resourceId))
   const ids = { search: useId(), reason: useId() }
   const [category, setCategory] = useState<string>()
   const [searchInput, setSearchInput] = useState('')
@@ -49,8 +54,8 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
   }, [searchInput, query])
 
   const recommended = useApiQuery(`detail-recommend|${subjectId}`, () => listRecommendedSources({ subjectId }))
-  const mine = useApiQuery(`detail-my-resources|${query}|${version}`, () =>
-    listResources({ query: query || undefined, page: 0, size: myResourcePageSize }),
+  const mine = useApiQuery(`detail-my-resources|${query}|${typeFilter ?? ''}|${version}`, () =>
+    listResources({ query: query || undefined, type: typeFilter, page: 0, size: myResourcePageSize }),
   )
   const sources = recommended.data?.items ?? []
   const categories = [...new Set(sources.map((source) => source.category))]
@@ -145,6 +150,39 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
           <span className="lh-visually-hidden">내 자료 검색</span>
           <input id={ids.search} type="search" value={searchInput} placeholder="자료명·출처·태그 검색" onChange={(event) => setSearchInput(event.target.value)} />
         </label>
+        <div className={contextStyles.filterChips} role="group" aria-label="자료 유형" data-testid="resource-type-filter">
+          <button type="button" className={contextStyles.filterChip} aria-pressed={!typeFilter} onClick={() => setTypeFilter(undefined)}>
+            전체
+          </button>
+          {resourceTypes.map((item) => (
+            <button key={item.type} type="button" className={contextStyles.filterChip} aria-pressed={typeFilter === item.type} onClick={() => setTypeFilter(item.type)}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {linked && (
+          <div className={contextStyles.linkedBox} data-testid="resource-linked">
+            <p className={contextStyles.subTitle}>이 수행평가 노트에 연결된 자료 {linked.length}개</p>
+            {linked.length === 0 ? (
+              <p className={contextStyles.muted}>아직 연결한 자료가 없어요. 아래 목록에서 &lsquo;노트에 추가&rsquo;를 누르면 출처 카드로 연결돼요.</p>
+            ) : (
+              <ul className={contextStyles.myList}>
+                {linked.map((item) => (
+                  <li key={item.resourceId} className={contextStyles.myRow} data-testid="resource-linked-row">
+                    <span className={contextStyles.myText}>
+                      <span className={contextStyles.myTitle}>{item.title}</span>
+                    </span>
+                    {onUnlink && (
+                      <button type="button" className={contextStyles.smallButton} disabled={!canInsert} onClick={() => onUnlink(item.resourceId, item.title)} aria-label={`${item.title} 연결 해제`} data-testid="resource-unlink">
+                        연결 해제
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
         {!canInsert && (
           <p id={ids.reason} className={contextStyles.muted}>
             노트를 불러온 뒤 노트에 추가할 수 있어요.
@@ -155,8 +193,8 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
         ) : !mine.data ? (
           <LoadingRows rows={2} label="내 자료를 불러오는 중" />
         ) : mine.data.items.length === 0 ? (
-          query ? (
-            <EmptyState title={`'${query}'에 맞는 자료가 없어요`} description="다른 검색어로 찾거나 주소로 새로 등록해 보세요." />
+          query || typeFilter ? (
+            <EmptyState title={query ? `'${query}'에 맞는 자료가 없어요` : '이 유형의 자료가 없어요'} description="다른 검색어·유형으로 찾거나 주소로 새로 등록해 보세요." />
           ) : (
             <EmptyState title="자료함이 비어 있어요" description="찾은 기사·영상·논문을 주소로 등록하면 노트에 출처 카드로 넣을 수 있어요." />
           )
@@ -177,8 +215,9 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
                   aria-label={`${resource.title} 노트에 추가`}
                   onClick={() => onInsert(resource)}
                 >
-                  노트에 추가
+                  {linkedIds.has(resource.resourceId) ? '한 번 더 넣기' : '노트에 추가'}
                 </button>
+                {linkedIds.has(resource.resourceId) && <span className={contextStyles.linkedTag}>연결됨</span>}
               </li>
             ))}
           </ul>

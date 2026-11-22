@@ -82,7 +82,8 @@
 }
 
 .chipIconBlue {
-  color: var(--as-color-primary);
+  /* A27-UX(계정 B 2차): 파란색은 주요 동작·선택·포커스만 */
+  color: var(--as-color-text);
 }
 
 .props {
@@ -129,7 +130,8 @@
 .dday {
   font-size: var(--as-text-meta);
   font-weight: 700;
-  color: var(--as-color-primary);
+  /* A27-UX(계정 B 2차): 파란색은 주요 동작·선택·포커스만 */
+  color: var(--as-color-text);
 }
 
 .dday[data-urgent='true'] {
@@ -169,6 +171,11 @@
   color: var(--as-color-text-tertiary);
   font-size: var(--as-text-meta);
   cursor: pointer;
+}
+
+/* A27-UX(계정 B): '평가 정보 수정'·'휴지통으로 이동'이 붙어 한 단어처럼 읽히지 않게 띄운다 */
+.editInfoButton + .editInfoButton {
+  margin-left: 16px;
 }
 
 .editInfoButton:hover {
@@ -237,4 +244,57 @@
   .editInfoButton {
     min-height: 24px;
   }
+}
+
+/* A27-UX 오른쪽 패널 제거: 본문 한 열을 넓게 쓴다 (평가 기준은 본문 Section, 피드백·자료는 Modal) */
+.body[data-layout='single'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.column[data-wide='true'] {
+  width: min(820px, 100% - 48px);
+}
+
+.criteriaSection {
+  margin: 28px 0 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg, 14px);
+  background: var(--as-color-surface);
+}
+
+.criteriaToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.criteriaToggle h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.criteriaSection[data-testid] > :not(button) {
+  margin-top: 12px;
+}
+
+.sheetClose {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }

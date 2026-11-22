@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import type { EvaluationPlanAnalysisView, ReviewFieldCandidate } from '../api/types.ts'
 import { CheckIcon } from '../components/canonicalUi.ts'
-import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeConflict, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
+import { candidateText, displayValue, fieldKey, fieldName, fieldUnit, gradeText, rubricFieldPath, type Decision } from './reviewModel.ts'
 import { RubricEditor } from './RubricEditor.tsx'
 import styles from './review.module.css'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
+import { attentionReasons, filterCounts, filterLabels, matchesFilter, nextMatchingCell, type ReviewFilter } from './reviewFilter.ts'
 
 // 3단계 수행평가 세부기준 검토: 왼쪽 목록(과목 → 평가 비율 · 수행평가) | 오른쪽 선택 항목 상세.
 // 필드는 "이름 · 값 · 원문 쪽 · [확인][수정]" 한 줄. 수정할 때만 입력을 펼친다. 항목이 100개여도 한 번에 한 수행평가만 본다.
@@ -37,58 +38,60 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
   const current = subjectFields(selection.subjectIndex).filter((field) => (selection.item === 'common' ? isCommonField(field) : isItemField(field, selection.item)))
   const item = selection.item === 'common' ? null : items(selection.subjectIndex).find((detail) => detail.itemIndex === selection.item) ?? null
   const subject = view.subjects[selection.subjectIndex]
-  // 일괄 확인: 아직 정하지 않았고 후보 값이 있는 칸만, 한 칸씩 누른 것과 같은 결정(후보 값 + 첫 근거 쪽)을 남긴다
-  const confirmable = (list: ReviewFieldCandidate[]) => list.filter((field) => !decisions[fieldKey(field)] && field.candidate !== null)
-  const confirmAll = (list: ReviewFieldCandidate[]) => confirmable(list).forEach((field) =>
-    onDecide(field, { kind: 'confirmed', value: candidateText(field.candidate), page: field.sourcePages[0] ? String(field.sourcePages[0]) : '' }))
-  const subjectLeft = confirmable(subjectFields(selection.subjectIndex)).length
-
-  // 여러 학년 공통 문서: 원문 학년이 이 문서 학년이 아닌 과목은 아래에 접어 둔다(확정 불가 §39-12)
-  const own: number[] = []
-  const other: number[] = []
-  view.subjects.forEach((_, index) => (gradeConflict(view.subjectGrades?.[index], view.slot?.grade) ? other : own).push(index))
-
-  const navGroup = (entry: EvaluationPlanAnalysisView['subjects'][number], index: number) => {
-          const common = subjectFields(index).filter(isCommonField)
-          return (
-            <div key={`${entry.subjectName}-${index}`} className={styles.navGroup}>
-              <span className={styles.navSubject} title={entry.subjectName}>
-                {entry.subjectName}
-                {/* A15: 같은 이름의 다른 학년 과목을 구분한다(원문 근거 학년만) */}
-                {gradeText(view.subjectGrades?.[index]) && <span className={styles.tiny}> · 원문 {gradeText(view.subjectGrades?.[index])}</span>}
-              </span>
-              {common.length > 0 && (
-                <NavItem label="평가 비율" left={remaining(common)} current={selection.subjectIndex === index && selection.item === 'common'} onClick={() => onSelect({ subjectIndex: index, item: 'common' })} />
-              )}
-              {items(index).map((detail) => {
-                const list = subjectFields(index).filter((field) => isItemField(field, detail.itemIndex ?? -1))
-                return (
-                  <NavItem
-                    key={`${detail.itemKey}-${detail.itemIndex}`}
-                    label={detail.label || '이름 미확인 수행평가'}
-                    left={remaining(list)}
-                    current={selection.subjectIndex === index && selection.item === detail.itemIndex}
-                    onClick={() => onSelect({ subjectIndex: index, item: detail.itemIndex ?? 0 })}
-                  />
-                )
-              })}
-              {items(index).length === 0 && <p className={styles.tiny} style={{ margin: '4px 10px' }}>추출된 수행평가 없음</p>}
-            </div>
-          )
-  }
+  // 부록 N5-3: 보기 필터(화면만). 기본 '전체' — AI 후보는 모두 보이고, 관리자가 고른 값만 확인·수정·원문에 없음으로 기록된다
+  const [filter, setFilter] = useState<ReviewFilter>('all')
+  const counts = filterCounts(fields, decisions)
+  const shown = current.filter((field) => matchesFilter(field, decisions[fieldKey(field)], filter))
+  const next = filter === 'all' ? null : nextMatchingCell(fields, decisions, filter, selection)
 
   return (
     <div className={styles.master} data-testid="review-step-performance">
-      <nav className={styles.nav} aria-label="수행평가 목록">
-        {own.map((index) => navGroup(view.subjects[index], index))}
-        {other.length > 0 && (
-          <details className={styles.navGroup} data-testid="performance-other-grades" open={other.includes(selection.subjectIndex)}>
-            <summary className={styles.navSubject} style={{ cursor: 'pointer' }}>
-              다른 학년 과목 {other.length}개 · 이 문서에서는 확정하지 않아요
-            </summary>
-            {other.map((index) => navGroup(view.subjects[index], index))}
-          </details>
-        )}
+      {/* A27-UX: 과목 → 그 과목의 수행평가 → 필드. 고른 과목만 펼쳐 수행평가를 보여 주고, 다른 과목은 접어 둔다 */}
+      <nav className={styles.nav} aria-label="과목과 수행평가">
+        <p className={styles.navHeading}>과목</p>
+        {view.subjects.map((entry, index) => {
+          const common = subjectFields(index).filter(isCommonField)
+          const open = selection.subjectIndex === index
+          const left = remaining(subjectFields(index))
+          return (
+            <div key={`${entry.subjectName}-${index}`} className={styles.navGroup} data-open={open || undefined}>
+              <button
+                type="button"
+                className={styles.navSubjectButton}
+                aria-expanded={open}
+                onClick={() => onSelect({ subjectIndex: index, item: items(index)[0]?.itemIndex ?? 'common' })}
+                title={entry.subjectName}
+                data-testid="performance-nav-subject"
+              >
+                <span>
+                  {entry.subjectName}
+                  {gradeText(view.subjectGrades?.[index]) && <span className={styles.tiny}> · 원문 {gradeText(view.subjectGrades?.[index])}</span>}
+                </span>
+                <span className={styles.navCount}>{subjectFields(index).length === 0 ? '' : left === 0 ? '완료' : `${left}개 남음`}</span>
+              </button>
+              {open && (
+                <div className={styles.navItems} role="group" aria-label={`${entry.subjectName} 수행평가`}>
+                  {common.length > 0 && (
+                    <NavItem label="평가 비율" left={remaining(common)} current={selection.item === 'common'} onClick={() => onSelect({ subjectIndex: index, item: 'common' })} />
+                  )}
+                  {items(index).map((detail) => {
+                    const list = subjectFields(index).filter((field) => isItemField(field, detail.itemIndex ?? -1))
+                    return (
+                      <NavItem
+                        key={`${detail.itemKey}-${detail.itemIndex}`}
+                        label={detail.label || '이름 미확인 수행평가'}
+                        left={remaining(list)}
+                        current={selection.item === detail.itemIndex}
+                        onClick={() => onSelect({ subjectIndex: index, item: detail.itemIndex ?? 0 })}
+                      />
+                    )
+                  })}
+                  {items(index).length === 0 && <p className={styles.tiny} style={{ margin: '4px 10px' }}>추출된 수행평가 없음</p>}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
 
       <section className={styles.detail} aria-label="선택한 항목 상세">
@@ -101,27 +104,42 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
           <p className={styles.muted}>분석기가 인식한 과목이 없어요. 원문을 직접 확인해 주세요.</p>
         ) : (
           <>
-            <span className={styles.tiny}>{subject.subjectName}</span>
+            <p className={styles.crumb} data-testid="performance-crumb">
+              <span>{subject.subjectName}</span>
+              <span aria-hidden="true">›</span>
+              <span>{item ? '수행평가' : '평가 비율'}</span>
+            </p>
             <div className={styles.detailHead}>
               <h4>{item ? item.label || '이름 미확인 수행평가' : '평가 비율'}</h4>
               <span className={styles.statusText} data-tone={remaining(current) === 0 ? undefined : 'neutral'}>
                 {current.length === 0 ? '' : remaining(current) === 0 ? '모두 확인했어요' : `확인 ${remaining(current)}개 남음`}
               </span>
             </div>
-            {!readOnly && (confirmable(current).length > 0 || subjectLeft > 0) && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }} data-testid="review-bulk-confirm">
-                {confirmable(current).length > 0 && (
-                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(current)} data-testid="review-confirm-current">
-                    이 항목 후보 {confirmable(current).length}개 그대로 확인
-                  </button>
-                )}
-                {subjectLeft > confirmable(current).length && (
-                  <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => confirmAll(subjectFields(selection.subjectIndex))} data-testid="review-confirm-subject">
-                    {subject.subjectName} 남은 후보 {subjectLeft}개 그대로 확인
-                  </button>
-                )}
-                <span className={styles.tiny} style={{ alignSelf: 'center' }}>원문과 대조한 뒤 누르세요. 확인 뒤에도 칸마다 수정·취소할 수 있어요.</span>
-              </div>
+
+            <div className={styles.filterBar} role="group" aria-label="검토 항목 보기" data-testid="review-filter">
+              <span className={styles.tiny}>이 문서 전체</span>
+              {(Object.keys(filterLabels) as ReviewFilter[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={styles.filterChip}
+                  aria-pressed={filter === key}
+                  onClick={() => setFilter(key)}
+                  data-testid={`review-filter-${key}`}
+                >
+                  {filterLabels[key]} {counts[key]}
+                </button>
+              ))}
+            </div>
+            {filter === 'attention' && (
+              <p className={styles.tiny} data-testid="review-filter-hint">
+                값이나 원문 위치가 없어 최종 승인에 넣을 수 없는 항목이에요. 원문에서 확인해 값을 고치거나 '원문에 없음'으로 표시해 주세요. 나머지 항목은 기본 승인 대상이에요.
+              </p>
+            )}
+            {next && (
+              <button type="button" className={styles.filterChip} style={{ marginTop: 8 }} onClick={() => onSelect(next)} data-testid="review-filter-next">
+                다음 '{filterLabels[filter]}' 칸으로 · {view.subjects[next.subjectIndex]?.subjectName ?? '과목'}
+              </button>
             )}
 
             <ul className={styles.rows} style={{ marginTop: 16 }} data-testid="review-field-list">
@@ -129,8 +147,16 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 <li className={styles.row}>
                   <span className={styles.muted}>확인할 값이 없어요. 원문을 직접 확인해 주세요.</span>
                 </li>
+              ) : shown.length === 0 ? (
+                <li className={styles.row}>
+                  <span className={styles.muted} data-testid="review-filter-empty">
+                    이 항목에는 '{filterLabels[filter]}' 값이 없어요. 왼쪽에서 다른 과목·수행평가를 고르거나 '전체'로 바꿔 보세요.
+                  </span>
+                </li>
               ) : (
-                current.map((field) => <FieldRow key={fieldKey(field)} field={field} view={view} decision={decisions[fieldKey(field)]} onDecide={onDecide} onJump={onJump} readOnly={readOnly} />)
+                shown.map((field) => (
+                  <FieldRow key={fieldKey(field)} field={field} view={view} decision={decisions[fieldKey(field)]} onDecide={onDecide} onJump={onJump} readOnly={readOnly} />
+                ))
               )}
             </ul>
 
@@ -158,6 +184,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                 {item.rubric.length === 0 ? (
                   <p className={styles.muted}>분석되지 않음 — 원문을 확인해 주세요.</p>
                 ) : (
+                  // PR #18 통합(A27-UX 부록 D): 좁은 검토 칸에서도 읽히도록 표 대신 채점 요소별 묶음(점수 | 기준). 없으면 '수준 분석되지 않음'
                   <div className={styles.rubricList} data-testid="review-rubric">
                     {item.rubric.map((criterion, criterionIndex) => (
                       <section key={criterionIndex} className={styles.rubricCriterion} aria-label={`채점 요소 ${criterion.element}`}>
@@ -186,7 +213,9 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                           />
                         </div>
                         {criterion.levels.length === 0 ? (
-                          <p className={styles.muted} style={{ margin: 0 }}>수준 분석되지 않음</p>
+                          <p className={styles.muted} style={{ margin: 0 }}>
+                            수준 분석되지 않음 · 관리자 확인 필요
+                          </p>
                         ) : (
                           <ul className={styles.rubricLevels}>
                             {criterion.levels.map((level, levelIndex) => (
@@ -320,8 +349,16 @@ function FieldRow({
   }
 
   return (
-    <li className={styles.row} data-state={state} data-testid="review-field" data-field-path={field.fieldPath}>
-      <span className={styles.rowLabel}>{name}</span>
+    <li className={styles.row} data-layout="field" data-state={state} data-testid="review-field" data-field-path={field.fieldPath}>
+      <span className={styles.rowLabel}>
+        {name}
+        {/* 부록 N5-3: 미확인 상태에서 값·원문 위치가 없으면 먼저 볼 이유를 붙인다(결정 아님) */}
+        {!decision && attentionReasons(field).length > 0 && (
+          <span className={styles.statusText} data-tone="warning" data-testid="review-field-attention" style={{ display: 'block' }}>
+            확인 필요 · {attentionReasons(field).join(' · ')}
+          </span>
+        )}
+      </span>
       <span className={styles.rowValue}>
         {decision?.kind === 'edited' && <s>{displayValue(candidate, field.fieldPath)}</s>}
         {decision?.kind === 'absent' ? '원문에 없음' : !decision && field.candidate === null ? <span className={styles.tiny} data-testid="review-field-missing" data-reason={issue?.code ?? 'NONE'}>{missingText}</span> : displayValue(decision ? decision.value : candidate, field.fieldPath).replace('확인 필요', '값을 읽지 못함')}
@@ -331,7 +368,13 @@ function FieldRow({
       </span>
       {decision && (
         <span className={styles.check} data-testid="review-field-state">
-          <CheckIcon size={14} /> {decision.kind === 'edited' ? '수정함' : decision.kind === 'absent' ? '없음 확인' : '확인함'}
+          <CheckIcon size={14} /> {decision.kind === 'edited' ? '관리자 수정' : decision.kind === 'absent' ? '원문에 없음' : '직접 확인함'}
+        </span>
+      )}
+      {/* A28-03: 결정 없이 값·근거가 있는 후보는 최종 승인에 AI 값 그대로 들어간다(관리자 확인 기록이 아니다) */}
+      {!decision && attentionReasons(field).length === 0 && (
+        <span className={styles.tiny} data-testid="review-field-default">
+          기본 승인
         </span>
       )}
       {!readOnly && (

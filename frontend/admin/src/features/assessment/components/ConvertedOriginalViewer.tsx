@@ -77,7 +77,7 @@ export function ConvertedOriginalViewer({ planId, revisionId, file, focus, onDow
           <div>
             <strong>{result.status === 415 ? 'PDF 미리보기 변환기가 설정되지 않았어요' : result.status === 422 ? '이 문서를 PDF로 변환하지 못했어요' : result.status === 503 ? 'PDF 변환기를 준비하고 있어요' : '미리보기를 불러오지 못했어요'}</strong>
             <p style={{ margin: '4px 0 8px' }}>
-              {result.status === 415 ? '원본은 서버에 그대로 보관되어 있어요. 원본을 내려받아 한글 프로그램에서 확인해 주세요. (개발 환경: 실행 가이드의 ASSESSMENT_PREVIEW_CONVERTER 설정)' : result.message}
+              {result.status === 415 ? '원본은 서버에 그대로 보관되어 있어요. 원본을 내려받아 한글 프로그램에서 확인해 주세요.' : result.message}
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
               <button type="button" className={styles.secondaryButton} onClick={onDownload} data-testid="plan-converted-download">

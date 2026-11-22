@@ -346,8 +346,8 @@
 }
 
 .badge[data-tone='blue'] {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
 }
 
 .badge[data-tone='green'] {
@@ -612,11 +612,12 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: var(--as-text-body);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 

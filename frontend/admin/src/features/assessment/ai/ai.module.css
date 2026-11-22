@@ -317,7 +317,7 @@
 .editedTag {
   composes: badge;
   background: #eef3ff;
-  color: #1b64da;
+  color: var(--as-color-text, #1d1f23);
 }
 
 .card {

@@ -253,6 +253,99 @@
   display: none;
 }
 
+/*
+ * A27-UX 부록 E S1: 데스크톱 메뉴 전체 접기(Notion식 동작만 참고 — 로고·아이콘·문구 복제 없음).
+ * 접으면 Sidebar 열을 아이콘 폭으로 줄여 본문이 실제로 넓어진다. 과목 그룹 접기(.groupToggle)와는 별개 상태다.
+ */
+.root {
+  transition: grid-template-columns 0.18s ease;
+}
+
+.collapseRow {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  padding: 8px 11px 0;
+}
+
+.collapseButton {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--as-radius-sm);
+  background: transparent;
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.collapseButton:hover {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.collapseButton:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.collapseIcon {
+  transition: transform 0.18s ease;
+}
+
+@media (min-width: 960px) {
+  .rootCollapsed {
+    grid-template-columns: var(--as-sidebar-collapsed-width, 60px) minmax(0, 1fr);
+  }
+
+  .rootCollapsed .collapseRow {
+    justify-content: center;
+    padding: 8px 0 4px;
+  }
+
+  .rootCollapsed .collapseIcon {
+    transform: rotate(180deg);
+  }
+
+  .rootCollapsed .termArea,
+  .rootCollapsed .groupLabel,
+  .rootCollapsed .groupLabelRow,
+  .rootCollapsed .groupHeader,
+  .rootCollapsed .subjectSearch,
+  .rootCollapsed .groupEmpty {
+    display: none;
+  }
+
+  .rootCollapsed .nav,
+  .rootCollapsed .sidebarFooter {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .rootCollapsed .menuItem {
+    justify-content: center;
+    padding: 0;
+  }
+
+  /* 글자는 화면에서만 숨긴다 — 읽기 프로그램은 메뉴 이름·건수를 그대로 읽는다 */
+  .rootCollapsed .menuLabel,
+  .rootCollapsed .menuCount {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .rootCollapsed .menuItem:focus-visible {
+    outline: 2px solid var(--as-color-primary);
+    outline-offset: -2px;
+  }
+}
+
 /* Tablet 이하: Sidebar를 Drawer로 바꾼다 (frontend-student.md §16). Mockup은 Desktop만 있어 Daglo Drawer 패턴을 따른다. */
 @media (max-width: 959px) {
   .root {
@@ -278,6 +371,10 @@
   .sidebarOpen {
     transform: none;
     visibility: visible;
+    /* 부록 E: 열 때는 바로 보이게(Focus 이동 가능), 닫을 때만 visibility 를 늦춘다 */
+    transition:
+      transform 0.2s ease,
+      visibility 0s;
   }
 
   .scrim {
@@ -294,6 +391,11 @@
   .scrimVisible {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  /* 좁은 화면은 Drawer — 전체 접기 단추를 숨기고 접힘 상태를 적용하지 않는다 */
+  .collapseRow {
+    display: none;
   }
 
   .mobileBar {
@@ -330,6 +432,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .root,
+  .collapseIcon,
   .sidebar,
   .scrim,
   .groupChevron {

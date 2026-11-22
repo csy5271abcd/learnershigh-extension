@@ -1,5 +1,7 @@
 import type { NoteBlock } from '../api/types.ts'
 import styles from '../styles/assessmentAdmin.module.css'
+// A27-UX(계정 B): 학생 노트 인라인 서식(attrs.marks)을 학생 화면과 같은 렌더러로 그린다. 서식이 없으면 글 그대로
+import { InlineText } from '../../../../../student/src/features/assessment/components/notes/InlineText.tsx'
 
 interface NoteReadViewProps {
   blocks: NoteBlock[]
@@ -17,7 +19,7 @@ export function NoteReadView({ blocks, onCommentBlock, commentedBlockIds }: Note
   return (
     <div className={styles.note}>
       {blocks.map((block) => (
-        <div key={block.blockId} className={styles.noteBlock} data-commented={commentedBlockIds?.has(block.blockId) ? 'true' : undefined}>
+        <div key={block.blockId} className={styles.noteBlock} data-commentable={onCommentBlock && block.text.trim() ? 'true' : undefined} data-commented={commentedBlockIds?.has(block.blockId) ? 'true' : undefined}>
           <BlockBody block={block} />
           {onCommentBlock && block.text.trim() && (
             <button type="button" className={`${styles.secondaryButton} ${styles.smallButton} ${styles.noteBlockAction}`} onClick={() => onCommentBlock(block)} aria-label={`이 블록에 의견 달기: ${block.text.slice(0, 30)}`}>
@@ -32,31 +34,37 @@ export function NoteReadView({ blocks, onCommentBlock, commentedBlockIds }: Note
 
 function BlockBody({ block }: { block: NoteBlock }) {
   const attrs = block.attrs ?? {}
+  const text = <InlineText text={block.text} marks={(attrs as { marks?: unknown }).marks} />
   switch (block.type) {
     case 'HEADING':
       return (
         <h3 className={styles.noteHeading} data-level={attrs.level ?? 1}>
           {attrs.emoji ? `${attrs.emoji} ` : ''}
-          {block.text}
+          {text}
         </h3>
       )
     case 'BULLET':
     case 'NUMBERED':
-      return <p className={styles.notePara} style={{ paddingLeft: 18 + (attrs.indent ?? 0) * 16 }}>{`${block.type === 'BULLET' ? '•' : '–'} ${block.text}`}</p>
+      return (
+        <p className={styles.notePara} style={{ paddingLeft: 18 + (attrs.indent ?? 0) * 16 }}>
+          {`${block.type === 'BULLET' ? '•' : '–'} `}
+          {text}
+        </p>
+      )
     case 'CHECKLIST':
       return (
         <p className={styles.notePara}>
-          <span aria-label={attrs.checked ? '완료' : '미완료'}>{attrs.checked ? '☑' : '☐'}</span> {block.text}
+          <span aria-label={attrs.checked ? '완료' : '미완료'}>{attrs.checked ? '☑' : '☐'}</span> {text}
         </p>
       )
     case 'QUOTE':
-      return <blockquote className={styles.noteQuote}>{block.text}</blockquote>
+      return <blockquote className={styles.noteQuote}>{text}</blockquote>
     case 'CALLOUT':
     case 'TOGGLE':
       return (
         <p className={styles.noteCallout}>
           {attrs.emoji ? `${attrs.emoji} ` : ''}
-          {block.text}
+          {text}
           {attrs.body ? `\n${attrs.body}` : ''}
         </p>
       )
@@ -133,6 +141,6 @@ function BlockBody({ block }: { block: NoteBlock }) {
         </div>
       )
     default:
-      return <p className={styles.notePara}>{block.text}</p>
+      return <p className={styles.notePara}>{text}</p>
   }
 }

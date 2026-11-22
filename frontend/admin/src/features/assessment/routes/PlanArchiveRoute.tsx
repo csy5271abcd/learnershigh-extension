@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
-import { downloadPlanRevision, getPlanArchiveDetail, listEvaluationPlans, listPlanYearsRegistered, searchSchools } from '../api/assessmentAdminApi.ts'
+import { navigate } from '../../../app/adminLocation.ts'
+import { downloadPlanRevision, getPlanArchiveDetail } from '../api/assessmentAdminApi.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, ArchiveItem, ArchiveLocator, ArchiveSubject, PlanArchiveDetail, TeachingPlanRowCandidate } from '../api/types.ts'
 import { RemoteView } from '../components/AdminParts.tsx'
 import { Modal, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
@@ -11,14 +11,13 @@ import { useRemote } from '../model/useRemote.ts'
 import styles from './archive.module.css'
 import { paths } from './paths.ts'
 
-// A9 학년도별 평가계획서 열람 (2026-11-15). 학교 → 학년도 → 학년·학기 → 원문 파일 → 과목 → 수행평가·채점기준·월별 운영계획.
+// A9 평가계획서 문서 상세(DocumentDetail): 과목 → 수행평가·채점기준·월별 운영계획·평가 구성. (학년도별 열람 화면은 A27-UX에서 제거)
 // - 학년도는 비교 대상이 아니라 독립된 열람 단위다. 한 번에 한 학년도의 문서만 보여 준다(다른 학년도 정보와 섞지 않음).
 // - 값마다 상태를 나눈다: 관리자 확정 / 원문에 없음(관리자 확인) / 원문에 없음(분석) / 분석하지 못함 / 미확정 분석 후보. 값을 만들지 않는다.
 // - 기존 API만 쓴다(§39 analysis · §39-4 review-draft · §39-6 teaching-plan-review). 학생 화면과 무관한 관리자 전용 화면이다.
 
-type Tab = 'performance' | 'teaching' | 'overview'
+export type Tab = 'performance' | 'teaching' | 'overview'
 const tabLabel: Record<Tab, string> = { performance: '수행평가 · 채점기준', teaching: '월별 운영계획', overview: '평가 구성' }
-const analysisText: Record<string, string> = { NOT_REQUESTED: '분석 전', REVIEW_REQUIRED: '검토 필요', PARTIAL: '일부 분석', FAILED: '분석 실패', PROCESSING: '분석 중', COMPLETED: '분석 완료' }
 
 type FieldState =
   | { kind: 'confirmed'; value: unknown; page: number | null }
@@ -47,180 +46,19 @@ const locatorsOf = (sources: ArchiveLocator[] | null | undefined) => {
 const locatorLabel = (locator: NonNullable<ArchiveLocator['documentLocator']>) =>
   `구역 ${locator.section + 1}${locator.table != null ? ` · 표 ${locator.table + 1}` : ''}${locator.row != null ? ` · ${locator.row + 1}행` : ''}${locator.col != null ? ` ${locator.col + 1}열` : ''}`
 
-type OpenSource = (page: number | null, label: string, focus?: StructureFocus | null) => void
+export type OpenSource = (page: number | null, label: string, focus?: StructureFocus | null) => void
 
-export function PlanArchiveRoute({ search }: { search: URLSearchParams }) {
-  const schoolId = search.get('school') ?? ''
-  const year = Number(search.get('year') ?? '') || null
-  const grade = Number(search.get('grade') ?? '') || null
-  const semester = Number(search.get('semester') ?? '') || null
-  const planId = search.get('plan') ?? ''
-  const revisionId = search.get('revision') ?? ''
-  const subjectIndex = Number(search.get('subject') ?? 0) || 0
-  const tab = (search.get('tab') as Tab | null) ?? 'performance'
-  const itemIndex = Number(search.get('item') ?? 0) || 0
-
-  const setParams = (patch: Record<string, string | number | null>) => {
-    const params = new URLSearchParams(search)
-    for (const [key, value] of Object.entries(patch)) {
-      if (value === null || value === '') params.delete(key)
-      else params.set(key, String(value))
-    }
-    replaceSearch(params.toString())
-  }
-
-  const schools = useRemote(() => searchSchools(), [])
-  const years = useRemote(() => (schoolId ? listPlanYearsRegistered(schoolId) : Promise.resolve([] as number[])), [schoolId])
-  const yearList = years.state.status === 'success' ? years.state.data : []
-  const activeYear = year ?? yearList[0] ?? null
-  const plans = useRemote(() => (schoolId && activeYear ? listEvaluationPlans({ schoolId, academicYear: activeYear }) : Promise.resolve({ items: [] as AdminEvaluationPlan[] })), [schoolId, activeYear])
-
-  return (
-    <div className={styles.page} data-testid="plan-archive">
-      <nav className={styles.crumbs} aria-label="위치">
-        <button type="button" className={styles.crumbLink} onClick={() => navigate(paths.plans)}>
-          학교별 평가계획서
-        </button>
-        <span aria-hidden="true">/</span>
-        <span>학년도별 열람</span>
-      </nav>
-      <h2 className={styles.title}>평가계획서 열람</h2>
-      <p className={styles.lead}>학교와 학년도를 고르면 그 학년도 평가계획서의 원문과 과목별 수행평가·채점기준·월별 운영계획을 볼 수 있어요. 학년도는 하나씩 따로 열람해요.</p>
-
-      <div className={styles.filters}>
-        <label className={styles.field}>
-          <span>학교</span>
-          <select className={styles.select} value={schoolId} onChange={(event) => setParams({ school: event.target.value, year: null, plan: null, revision: null, subject: null, item: null })} data-testid="archive-school">
-            <option value="">학교 선택</option>
-            {schools.state.status === 'success' &&
-              schools.state.data.items.map((school) => (
-                <option key={school.schoolId} value={school.schoolId}>
-                  {school.name ?? `학교 코드 ${school.schoolId}`}
-                </option>
-              ))}
-            {schoolId && schools.state.status === 'success' && !schools.state.data.items.some((school) => school.schoolId === schoolId) && <option value={schoolId}>학교 코드 {schoolId}</option>}
-          </select>
-        </label>
-        {schoolId && (
-          <div className={styles.field}>
-            <span>학년도</span>
-            <div className={styles.segments} role="group" aria-label="학년도" data-testid="archive-years">
-              {yearList.length === 0 ? (
-                <span className={styles.muted}>{years.state.status === 'loading' ? '불러오는 중…' : '등록된 학년도가 없어요'}</span>
-              ) : (
-                yearList.map((value) => (
-                  <button key={value} type="button" className={styles.segment} aria-pressed={value === activeYear} onClick={() => setParams({ year: value, plan: null, revision: null, subject: null, item: null })} data-testid={`archive-year-${value}`}>
-                    {value}학년도
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-        {schoolId && activeYear && (
-          <>
-            <div className={styles.field}>
-              <span>학년</span>
-              <div className={styles.segments} role="group" aria-label="학년">
-                {[null, 1, 2, 3].map((value) => (
-                  <button key={String(value)} type="button" className={styles.segment} aria-pressed={grade === value} onClick={() => setParams({ grade: value, plan: null, revision: null, subject: null, item: null })}>
-                    {value ? `${value}학년` : '전체'}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.field}>
-              <span>학기</span>
-              <div className={styles.segments} role="group" aria-label="학기">
-                {[null, 1, 2].map((value) => (
-                  <button key={String(value)} type="button" className={styles.segment} aria-pressed={semester === value} onClick={() => setParams({ semester: value, plan: null, revision: null, subject: null, item: null })}>
-                    {value ? `${value}학기` : '전체'}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {!schoolId ? (
-        <div className={styles.empty}>
-          <strong>학교를 골라 주세요</strong>
-          <span>평가계획서가 등록된 학교만 목록에 보여요(전체 학교 목록은 아직 연결되지 않았어요).</span>
-        </div>
-      ) : !activeYear ? (
-        <div className={styles.empty}>
-          <strong>이 학교에 등록된 평가계획서가 없어요</strong>
-        </div>
-      ) : (
-        <RemoteView state={plans.state} onRetry={plans.reload} label="평가계획서 목록">
-          {(data) => {
-            const docs = data.items
-              .filter((plan) => plan.academicYear === activeYear && (!grade || plan.grade === grade) && (!semester || plan.semester === semester))
-              .sort((a, b) => a.grade - b.grade || a.semester - b.semester)
-            const selected = docs.find((plan) => plan.planId === planId) ?? docs[0]
-            if (!selected) {
-              return (
-                <div className={styles.empty} data-testid="archive-empty">
-                  <strong>
-                    {activeYear}학년도{grade ? ` ${grade}학년` : ''}
-                    {semester ? ` ${semester}학기` : ''} 평가계획서가 없어요
-                  </strong>
-                  <span>학교 홈페이지·학교알리미의 원문을 &lsquo;학교별 평가계획서&rsquo;에서 등록해 주세요.</span>
-                </div>
-              )
-            }
-            const revision = selected.revisions.find((item) => item.documentRevisionId === revisionId) ?? selected.revisions[selected.revisions.length - 1]
-            return (
-              <div className={styles.layout}>
-                <aside className={styles.docs} aria-label={`${activeYear}학년도 평가계획서`} data-testid="archive-docs">
-                  <p className={styles.sideLabel}>
-                    {activeYear}학년도 문서 {docs.length}건
-                  </p>
-                  <ul>
-                    {docs.map((plan) => {
-                      const latest = plan.revisions[plan.revisions.length - 1]
-                      return (
-                        <li key={plan.planId}>
-                          <button type="button" className={styles.doc} aria-pressed={plan.planId === selected.planId} onClick={() => setParams({ plan: plan.planId, revision: null, subject: null, item: null })} data-testid="archive-doc">
-                            <strong>{latest.fileName}</strong>
-                            <span className={styles.docMeta}>
-                              {plan.grade}학년 {plan.semester}학기 · {latest.documentFormat ?? 'PDF'} · {dateLabel(latest.uploadedAt)}
-                            </span>
-                            <span className={styles.docStatus} data-tone={latest.reviewStatus === 'CONFIRMED' ? 'done' : undefined}>
-                              {analysisText[latest.analysisStatus] ?? latest.analysisStatus} · {latest.reviewStatus === 'CONFIRMED' ? '관리자 확정' : '미확정'}
-                            </span>
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </aside>
-                <DocumentDetail
-                  key={`${selected.planId}/${revision.documentRevisionId}`}
-                  plan={selected}
-                  revision={revision}
-                  subjectIndex={subjectIndex}
-                  tab={tab}
-                  itemIndex={itemIndex}
-                  setParams={setParams}
-                />
-              </div>
-            )
-          }}
-        </RemoteView>
-      )}
-    </div>
-  )
-}
-
-function DocumentDetail({
+// [08] A27-UX: '학년도별 열람' 화면(PlanArchiveRoute)은 제거했다. 평가계획서는 6칸(PlanSlotsRoute)에서, 문서별 상세는
+// 분석 결과 조회(PlanResultRoute)에서 이 파일의 DocumentDetail로 연다.
+export function DocumentDetail({
   plan,
   revision,
   subjectIndex,
   tab,
   itemIndex,
   setParams,
+  hideHeader = false,
+  onSource: externalSource,
 }: {
   plan: AdminEvaluationPlan
   revision: AdminEvaluationPlanRevision
@@ -228,13 +66,17 @@ function DocumentDetail({
   tab: Tab
   itemIndex: number
   setParams: (patch: Record<string, string | number | null>) => void
+  /** A27-UX 결과 조회 화면은 자기 머리글을 쓴다 */
+  hideHeader?: boolean
+  /** A27-UX(계정 B): 결과 조회 화면의 왼쪽 고정 원문으로 근거를 보낸다. 주면 Modal을 쓰지 않는다 */
+  onSource?: OpenSource
 }) {
   const detail = useRemote(() => getPlanArchiveDetail(plan.planId, revision.documentRevisionId), [plan.planId, revision.documentRevisionId])
   const [source, setSource] = useState<{ page: number; label: string; focus: StructureFocus | null } | null>(null)
   const [downloadError, setDownloadError] = useState<string | null>(null)
   const format = revision.documentFormat ?? 'PDF'
   const structureViewable = Boolean(revision.file?.available && revision.file.structurePreviewAvailable)
-  const openSource: OpenSource = (page, label, focus = null) => setSource({ page: page ?? 1, label, focus })
+  const openSource: OpenSource = externalSource ?? ((page, label, focus = null) => setSource({ page: page ?? 1, label, focus }))
   const download = () => {
     setDownloadError(null)
     downloadPlanRevision(plan.planId, revision.documentRevisionId).then(
@@ -252,46 +94,51 @@ function DocumentDetail({
 
   return (
     <section className={styles.detail} aria-label={revision.fileName} data-testid="archive-detail">
-      <header className={styles.docHead}>
-        <div>
-          <p className={styles.docPath}>
-            {plan.academicYear}학년도 · {plan.grade}학년 {plan.semester}학기 · {format}
-            {plan.revisions.length > 1 && (
-              <select className={styles.inlineSelect} value={revision.documentRevisionId} onChange={(event) => setParams({ revision: event.target.value, subject: null, item: null })} aria-label="개정본">
-                {[...plan.revisions].reverse().map((item) => (
-                  <option key={item.documentRevisionId} value={item.documentRevisionId}>
-                    v{item.revisionNumber} · {dateLabel(item.uploadedAt)}
-                  </option>
-                ))}
-              </select>
+      {/* 결과 조회 화면(외부 원문 패널)은 자기 머리글·원문 막대를 쓴다 */}
+      {!externalSource && (
+        <header className={styles.docHead}>
+          <div>
+            <p className={styles.docPath}>
+              {plan.academicYear}학년도 · {plan.grade}학년 {plan.semester}학기 · {format}
+              {plan.revisions.length > 1 && (
+                <select className={styles.inlineSelect} value={revision.documentRevisionId} onChange={(event) => setParams({ revision: event.target.value, subject: null, item: null })} aria-label="개정본">
+                  {[...plan.revisions].reverse().map((item) => (
+                    <option key={item.documentRevisionId} value={item.documentRevisionId}>
+                      v{item.revisionNumber} · {dateLabel(item.uploadedAt)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </p>
+            {!hideHeader && <h3 className={styles.docTitle}>{revision.fileName}</h3>}
+          </div>
+          <div className={styles.docActions}>
+            <button type="button" className={styles.button} onClick={() => openSource(1, '원문')} disabled={!revision.file?.available} data-testid="archive-open-original">
+              원문 보기
+            </button>
+            <button type="button" className={styles.button} onClick={download} disabled={!revision.file?.available}>
+              내려받기
+            </button>
+            {!hideHeader && (
+              <button type="button" className={styles.buttonPrimary} onClick={() => navigate(paths.planReview(plan.planId, revision.documentRevisionId))}>
+                검토 화면
+              </button>
             )}
-          </p>
-          <h3 className={styles.docTitle}>{revision.fileName}</h3>
-        </div>
-        <div className={styles.docActions}>
-          <button type="button" className={styles.button} onClick={() => openSource(1, '원문')} disabled={!revision.file?.available} data-testid="archive-open-original">
-            원문 보기
-          </button>
-          <button type="button" className={styles.button} onClick={download} disabled={!revision.file?.available}>
-            내려받기
-          </button>
-          <button type="button" className={styles.buttonPrimary} onClick={() => navigate(paths.planReview(plan.planId, revision.documentRevisionId))}>
-            검토 화면
-          </button>
-        </div>
-        {downloadError && (
-          <p className={styles.error} role="alert">
-            {downloadError}
-          </p>
-        )}
-      </header>
+          </div>
+          {downloadError && (
+            <p className={styles.error} role="alert">
+              {downloadError}
+            </p>
+          )}
+        </header>
+      )}
 
       <RemoteView state={detail.state} onRetry={detail.reload} label="분석 결과">
         {(data) =>
           data.subjects.length === 0 ? (
             <div className={styles.empty}>
               <strong>{data.analysisStatus === 'NOT_REQUESTED' ? '아직 분석하지 않은 문서예요' : '분석 결과에 과목이 없어요'}</strong>
-              <span>원문은 &lsquo;원문 보기&rsquo;로 확인할 수 있어요. 분석은 &lsquo;학교별 평가계획서&rsquo; 목록에서 실행해요.</span>
+              <span>원문은 &lsquo;원문 보기&rsquo;로 확인할 수 있어요. 분석은 &lsquo;분석&rsquo; 탭에서 실행해요.</span>
             </div>
           ) : (
             <DetailBody data={data} subjectIndex={Math.min(subjectIndex, data.subjects.length - 1)} tab={tab} itemIndex={itemIndex} setParams={setParams} onSource={openSource} academicYear={plan.academicYear} semester={plan.semester} />
@@ -299,7 +146,7 @@ function DocumentDetail({
         }
       </RemoteView>
 
-      {source && (
+      {source && !externalSource && (
         <Modal title={`${revision.fileName} · ${source.label}`} wide onRequestClose={() => setSource(null)} footer={<button type="button" className={styles.button} onClick={() => setSource(null)}>닫기</button>}>
           {format !== 'PDF' && (
             <p className={styles.notice} data-testid="archive-hwp-notice">
@@ -352,17 +199,14 @@ function DetailBody({
 
   return (
     <div className={styles.body}>
-      <div className={styles.subjects} role="tablist" aria-label="과목" data-testid="archive-subjects">
-        {data.subjects.map((item, index) => (
-          <button key={`${item.subjectName}-${index}`} type="button" role="tab" aria-selected={index === subjectIndex} className={styles.chip} onClick={() => setParams({ subject: index, item: null })} data-testid="archive-subject">
-            {item.subjectName}
-          </button>
-        ))}
+      {/* [06] A27-UX: 과목 칩 띠를 없앴다 — 분석 결과 조회 화면 위의 검색형 단일 과목 선택(ResultSubjectPicker)이 대신한다 */}
+      <div className={styles.legend}>
+        <span>{data.reviewStatus === 'CONFIRMED' ? '관리자가 확정한 문서예요.' : '아직 확정 전이에요. 값은 분석 후보예요.'}</span>
+        <span className={styles.legendItems} aria-label="값 표시">
+          <em className={styles.badgeDone}>확정</em> 관리자 확정 <em className={styles.badge}>후보</em> 미확정 분석값
+        </span>
+        {subject.extraction?.status === 'MISSING_SECTION' && <span>이 과목은 평가 목록을 찾지 못하고 운영계획만 읽었어요.</span>}
       </div>
-      <p className={styles.statusLine}>
-        {data.reviewStatus === 'CONFIRMED' ? '관리자가 확정한 문서예요.' : '아직 관리자가 확정하지 않았어요. 아래 값은 분석 후보예요.'} 값 옆 표시: <b>확정</b> = 관리자 확정, <b>후보</b> = 미확정 분석값.
-        {subject.extraction?.status === 'MISSING_SECTION' && ' 이 과목은 평가 목록을 찾지 못하고 운영계획만 읽었어요.'}
-      </p>
 
       <div className={styles.tabs} role="tablist" aria-label="보기">
         {(Object.keys(tabLabel) as Tab[]).map((value) => (

@@ -28,9 +28,12 @@ export interface MonthlyPlannerProps {
   emptyState: ReactNode
   /** 원문 쪽 보기 (PDF 쪽 근거가 있을 때) */
   onOpenSource?: (page: number) => void
+  /** A27-UX 관리자 화면 전용: 달력 아래 묶음(Outside This Term·달 미확정)을 관리자 표기(영어 라벨·왼쪽 여백)로. 학생 화면은 쓰지 않는다(기본 false) */
+  adminBands?: boolean
 }
 
-export function MonthlyPlanner({ academicYear, semester, entries, mode, emptyState, onOpenSource }: MonthlyPlannerProps) {
+export function MonthlyPlanner({ academicYear, semester, entries, mode, emptyState, onOpenSource, adminBands = false }: MonthlyPlannerProps) {
+  const adminBandStyle = mode === 'admin' || adminBands
   const months = semesterMonths(semester)
   const subjects = useMemo(() => [...new Set(entries.map((entry) => entry.subjectName))], [entries])
   const firstWithData = months.find((month) => entries.some((entry) => monthsOf(entry).includes(month))) ?? months[0]
@@ -121,14 +124,28 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
             ))}
           </div>
         </div>
-        <ul className={styles.legend} aria-label="표시 기준">
-          <li>날짜가 적힌 계획 → 날짜 칸</li>
-          <li>&lsquo;n월 m주&rsquo; → 그 달 달력 m번째 줄(일요일 시작)에 임시 배치 · 점선 칸</li>
-          <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
-          <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
-          <li>달을 알 수 없음 → 아래 따로 모음</li>
-          {mode === 'admin' && <li>점선 = 분석 후보(미확정)</li>}
-        </ul>
+        {/* A28-19: 관리자 화면은 표시 기준을 접어 둔다(펼치면 같은 내용). 학생 화면은 그대로 */}
+        {adminBandStyle ? (
+          <details className={styles.legendDetails}>
+            <summary>표시 기준</summary>
+            <ul className={styles.legend} aria-label="표시 기준">
+              <li>날짜가 적힌 계획 → 날짜 칸</li>
+              <li>&lsquo;n월 m주&rsquo; → 그 달 달력 m번째 줄(일요일 시작)에 임시 배치 · 점선 칸</li>
+              <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
+              <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
+              <li>달을 알 수 없음 → 아래 따로 모음</li>
+              {mode === 'admin' && <li>점선 = 분석 후보(미확정)</li>}
+            </ul>
+          </details>
+        ) : (
+          <ul className={styles.legend} aria-label="표시 기준">
+            <li>날짜가 적힌 계획 → 날짜 칸</li>
+            <li>&lsquo;n월 m주&rsquo; → 그 달 달력 m번째 줄(일요일 시작)에 임시 배치 · 점선 칸</li>
+            <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
+            <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
+            <li>달을 알 수 없음 → 아래 따로 모음</li>
+          </ul>
+        )}
       </aside>
 
       <section className={styles.main} aria-label={`${month}월 운영 계획`}>
@@ -269,14 +286,18 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
           </ul>
         )}
         {outsideTerm.length > 0 && (
-          <div className={styles.band} data-testid="planner-outside-term">
-            <span className={styles.bandLabel}>이 학기 달 밖의 계획 {outsideTerm.length}개</span>
+          // [12] A27-UX: 관리자 검토(mode='admin')에서는 왼쪽 구분선과 띄운다(data-inset). 학생 화면은 그대로
+          <div className={styles.band} data-inset={adminBandStyle ? 'true' : undefined} data-testid="planner-outside-term">
+            <span className={styles.bandLabel}>Outside This Term {outsideTerm.length}개</span>
             <div className={styles.bandItems}>{outsideTerm.map(chip)}</div>
           </div>
         )}
         {unplaced.length > 0 && (
-          <div className={styles.band} data-testid="planner-unplaced">
-            <span className={styles.bandLabel}>달을 정할 수 없는 계획 {unplaced.length}개</span>
+          // [13] A27-UX: 관리자 검토(mode='admin')에서는 영어 라벨 'Plans Without a Fixed Month'(Outside This Term과 같은 표기). 학생 화면 문구는 그대로
+          <div className={styles.band} data-inset={adminBandStyle ? 'true' : undefined} data-testid="planner-unplaced">
+            <span className={styles.bandLabel}>
+              {adminBandStyle ? 'Plans Without a Fixed Month' : '달을 정할 수 없는 계획'} {unplaced.length}개
+            </span>
             <div className={styles.bandItems}>{unplaced.map(chip)}</div>
           </div>
         )}

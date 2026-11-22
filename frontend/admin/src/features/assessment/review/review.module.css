@@ -79,7 +79,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -123,8 +123,13 @@
   font-size: 12.5px;
 }
 
+/* [09] A27-UX: 등록일이 '2026. 11. / 12.'로 꺾이지 않게 */
+.tiny[data-col='date'] {
+  white-space: nowrap;
+}
+
 .statusText {
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font-size: 13px;
   font-weight: 600;
 }
@@ -501,6 +506,59 @@
   gap: 6px;
 }
 
+/* [11] A27-UX: 수행평가 필드 행 — 1줄: 항목 · 값 · 상태 · 버튼 / 2줄: 원문 근거(회색 보조 링크). 버튼은 같은 높이·최소 너비 */
+.row[data-layout='field'] {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    'label value check actions'
+    '. meta meta meta';
+  gap: 6px 16px;
+  padding: 14px 0;
+}
+
+.row[data-layout='field'] .rowLabel {
+  grid-area: label;
+}
+
+.row[data-layout='field'] .rowValue {
+  grid-area: value;
+  min-width: 0;
+}
+
+.row[data-layout='field'] .rowMeta {
+  grid-area: meta;
+  gap: 4px 12px;
+}
+
+.row[data-layout='field'] .check {
+  grid-area: check;
+}
+
+.row[data-layout='field'] .rowActions {
+  grid-area: actions;
+}
+
+.row[data-layout='field'] .rowActions button {
+  min-width: 64px;
+  height: 34px;
+}
+
+.row[data-layout='field'] .page + .page {
+  margin-left: 0;
+}
+
+@container (max-width: 560px) {
+  .row[data-layout='field'] {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'label label'
+      'value check'
+      'meta meta'
+      'actions actions';
+  }
+}
+
 .row[data-state='missing'] .rowValue {
   color: var(--as-color-text-tertiary);
   font-weight: 500;
@@ -601,7 +659,7 @@ details.more {
 }
 
 details.more summary {
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font-weight: 600;
   cursor: pointer;
 }
@@ -632,7 +690,7 @@ details.more code {
 }
 
 .navGroup + .navGroup {
-  margin-top: 18px;
+  margin-top: 4px;
 }
 
 .navSubject {
@@ -746,7 +804,11 @@ details.more code {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  /* A27-UX: 원문 위치 링크는 회색(눌러 이동하는 것은 밑줄·Hover로 알린다) */
+  color: var(--as-color-text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--as-color-line);
+  text-underline-offset: 3px;
   font: inherit;
   font-size: 13px;
   font-weight: 600;
@@ -859,8 +921,8 @@ details.more code {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
   font-size: 22px;
 }
 
@@ -1036,8 +1098,8 @@ details.more code {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
   font-size: 11px;
   font-weight: 800;
 }
@@ -1443,7 +1505,7 @@ details.more code {
   gap: 2px;
   margin-top: 8px;
   padding: 10px 12px;
-  border-left: 3px solid var(--as-color-ink);
+  border: 1px solid var(--as-color-line);
   border-radius: var(--as-radius-sm);
   background: var(--as-color-fill);
   color: var(--as-color-text-secondary);
@@ -1575,37 +1637,633 @@ details.more code {
   color: var(--as-color-danger);
 }
 
-/* 채점기준표: 좁은 검토 칸에서도 읽히도록 표 대신 요소별 묶음(점수 | 기준) */
+.page:hover {
+  color: var(--as-color-text);
+  text-decoration-color: currentColor;
+}
+
+/* ── A27-UX 최종 확정 4단계 (Daglo 퀴즈식: 한 번에 질문 하나, 진행 막대, 이전·다음) ── */
+.quizHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.quizCount {
+  color: var(--as-color-text-tertiary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.quizTrack {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  margin: 10px 0 12px;
+}
+
+.quizTrack span {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--as-color-fill);
+}
+
+.quizTrack span[data-done],
+.quizTrack span[data-current] {
+  background: var(--as-color-ink, #191f28);
+}
+
+.quizSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.quizStep {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quizStep[aria-current='step'] {
+  border-color: var(--as-color-ink, #191f28);
+  color: var(--as-color-text);
+}
+
+.quizCard {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.quizQuestion {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.quizStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quizStats span {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
+
+.quizStats strong {
+  color: var(--as-color-text);
+  font-size: 20px;
+}
+
+.quizTableWrap {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.quizCheck {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--as-color-text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.quizCheck input {
+  margin-top: 4px;
+}
+
+.quizCheck[data-disabled] {
+  color: var(--as-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+.quizSummary {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.quizSummary div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--as-color-line);
+  font-size: 14px;
+}
+
+.quizSummary dt {
+  color: var(--as-color-text-secondary);
+}
+
+.quizSummary dd {
+  margin: 0;
+  color: var(--as-color-text);
+  overflow-wrap: anywhere;
+}
+
+.quizNav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* A27-UX 수행평가 검토: 과목 → 수행평가 계층 */
+.navHeading {
+  margin: 0 8px 8px;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.navSubjectButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navSubjectButton span:first-child {
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navSubjectButton:hover {
+  background: var(--as-color-subtle);
+}
+
+.navGroup[data-open] .navSubjectButton {
+  border-color: var(--as-color-line);
+  background: var(--as-color-subtle);
+}
+
+.navItems {
+  display: grid;
+  gap: 2px;
+  margin: 6px 0 4px 10px;
+  padding-left: 8px;
+}
+
+.crumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+}
+
+.crumb span:first-child {
+  color: var(--as-color-text-secondary);
+  font-weight: 600;
+}
+
+/* [14] A27-UX: 운영계획 단계 — 상세를 볼 과목 선택 (달력 전체 일정과 구분) */
+.detailPicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-subtle);
+}
+
+.detailPicker label {
+  display: grid;
+  gap: 2px;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.detailPicker .select {
+  min-width: 260px;
+}
+
+/* ── [15] A27-UX 최종 확정 세부 단계 Stepper (TDS StepperRow 번안: 번호 아이콘 · 제목/설명 · 연결선) ── */
+.stepperFrame {
+  container-type: inline-size;
+}
+
+.stepperLayout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.stepper {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stepperItem {
+  position: relative;
+}
+
+/* 행 사이 연결선 — 마지막 행은 선 없음(TDS hideLine) */
+.stepperItem:not([data-last])::after {
+  content: '';
+  position: absolute;
+  top: 40px;
+  bottom: -4px;
+  left: 23px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--as-color-line);
+}
+
+.stepperItem[data-state='done']:not([data-last])::after {
+  background: color-mix(in srgb, var(--as-color-primary) 45%, var(--as-color-line));
+}
+
+.stepperRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stepperRow:hover {
+  background: var(--as-color-subtle);
+}
+
+.stepperRow[aria-current='step'] {
+  background: color-mix(in srgb, var(--as-color-primary) 7%, var(--as-color-surface));
+}
+
+.stepperRow:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.stepperIcon {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stepperItem[data-state='current'] .stepperIcon {
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+.stepperItem[data-state='done'] .stepperIcon {
+  background: color-mix(in srgb, var(--as-color-primary) 14%, var(--as-color-surface));
+  color: var(--as-color-primary);
+}
+
+.stepperTexts {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 3px;
+}
+
+.stepperTexts strong {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.stepperTexts span {
+  overflow-wrap: anywhere;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
+
+.stepperBody {
+  min-width: 0;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@container (max-width: 760px) {
+  .stepperLayout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 좁은 검토 패널: 4단계를 한 줄 4칸으로(3+1로 꺾이지 않게) */
+  .stepper {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .stepperRow {
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    padding: 8px;
+  }
+
+  .stepperItem::after {
+    display: none;
+  }
+}
+
+/* [15] HWP·HWPX 필드 검토 카드: 큰 클릭 영역 · 상태 · 과목별 묶음 */
+.fieldGroups {
+  display: grid;
+  gap: 18px;
+}
+
+.fieldGroupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fieldCards {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fieldCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-surface);
+}
+
+.fieldCard[data-checked='true'] {
+  border-color: color-mix(in srgb, var(--as-color-primary) 55%, var(--as-color-line));
+  background: color-mix(in srgb, var(--as-color-primary) 4%, var(--as-color-surface));
+}
+
+.fieldCardHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fieldCardTitle {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fieldCardTitle strong {
+  font-size: 14.5px;
+}
+
+.fieldCardTitle span {
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.fieldToggle {
+  flex: none;
+  min-width: 120px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fieldToggle[aria-pressed='true'] {
+  border-color: var(--as-color-primary);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+}
+
+.fieldToggle:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.fieldCardBody {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 10px 16px;
+  align-items: start;
+}
+
+.locatorChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.locatorChoices label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.locatorChoices label:has(input:checked) {
+  border-color: var(--as-color-primary);
+  color: var(--as-color-primary);
+  font-weight: 600;
+}
+
+.subjectJump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+@container (max-width: 560px) {
+  .fieldCardBody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container (max-width: 420px) {
+  .stepper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* [01] A27-UX 과목 제외 (삭제 아님) */
+.row[data-excluded='true'] {
+  background: var(--as-color-subtle);
+}
+
+.row[data-excluded='true'] .rowValue {
+  color: var(--as-color-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: var(--as-color-line);
+}
+
+.excludedBadge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.excludeDialog {
+  display: grid;
+  gap: 12px;
+}
+
+.excludeReasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.excludeReasons legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.excludeReasons label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.excludeReasons label:has(input:checked) {
+  border-color: var(--as-color-primary);
+  color: var(--as-color-primary);
+  font-weight: 600;
+}
+
+.excludeNote {
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* PR #18 통합(A27-UX 부록 D): 채점기준표 — 좁은 검토 칸에서도 읽히도록 표 대신 요소별 묶음(점수 | 기준) */
 .rubricList {
   display: grid;
   gap: 10px;
 }
 
 .rubricCriterion {
+  padding: 10px 12px;
   border: 1px solid var(--as-color-line);
   border-radius: 10px;
-  padding: 10px 12px;
 }
 
 .rubricHead {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 8px;
   margin-bottom: 6px;
   font-size: 14px;
 }
 
 .rubricLevels {
-  list-style: none;
+  display: grid;
   margin: 0;
   padding: 0;
-  display: grid;
+  list-style: none;
 }
 
 .rubricLevels li {
   display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 8px;
   padding: 6px 0;
   border-top: 1px solid var(--as-color-line);
@@ -1622,4 +2280,176 @@ details.more code {
 .rubricDesc {
   overflow-wrap: anywhere;
   white-space: pre-line;
+}
+
+/* A27-UX 부록 D (2026-11-19): 1366 등 좁은 화면에서 원문 패널을 열면 검토 칸이 좁아 값이 한 글자씩 꺾이던 문제.
+   검토 패널(.review)과 상세 칸(.detail)을 컨테이너로 두어, 좁으면 과목·항목 목록을 위로 올리고 필드 행은 위아래로 쌓는다. */
+.review {
+  container: reviewpane / inline-size;
+}
+
+.detail {
+  container-type: inline-size;
+}
+
+@container reviewpane (max-width: 760px) {
+  .master {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .master > .nav {
+    max-height: 220px;
+    overflow-y: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+}
+
+/* 부록 N5-3: 검토 보기 필터 (화면만, 결정 기록 없음) */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.filterChip {
+  padding: 4px 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 999px;
+  background: var(--as-color-surface, #ffffff);
+  color: var(--as-color-text-secondary, inherit);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filterChip[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink, #ffffff);
+}
+
+.filterChip:focus-visible {
+  outline: 2px solid var(--as-color-primary, #3182f6);
+  outline-offset: 2px;
+}
+
+/* 부록 O §39-13 한 번에 확정 */
+.bulkPanel {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.bulkPanel h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.bulkSummary {
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.bulkSummary li[data-attention] {
+  color: var(--as-color-warning, #c77700);
+}
+
+.bulkBlockers {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  color: var(--as-color-danger, #f04452);
+  font-size: 13px;
+}
+
+/* 부록 Q: 분석 문서 표 — 좁은 화면에서 페이지 대신 표 영역만 가로 스크롤 */
+.docTableScroll {
+  position: relative; /* 화면 판독기용 숨김 글자(절대 위치)도 이 영역 안에 둔다 */
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* A28-03 기본 승인 요약 (분석 요약 단계 · 최종 승인 패널 공용, 무채색) */
+.approvalSummary {
+  margin: 20px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--as-color-line, #e5e8eb);
+  border-radius: 12px;
+  background: var(--as-color-surface, #fff);
+}
+
+.approvalLead {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.approvalCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--as-color-text-secondary, #4e5968);
+}
+
+.approvalCounts strong {
+  color: var(--as-color-text, #191f28);
+}
+
+.approvalCounts li[data-attention] {
+  color: var(--as-color-warning, #c77700);
+}
+
+.approvalCounts li[data-attention] strong {
+  color: inherit;
+}
+
+/* A28-05 원클릭 최종 승인 */
+.approvalWarnings {
+  margin: 12px 0;
+  padding: 12px 16px 12px 32px;
+  border-radius: 10px;
+  background: var(--as-color-fill, #f2f4f6);
+  color: var(--as-color-text-secondary, #4e5968);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.approvalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* A28-22 운영계획 미확정·분석 결과 없는 문서 목록(전체 현황·월별 운영계획) */
+.pendingDocs {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  text-align: left;
+}
+
+.pendingDocs li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding: 6px 10px;
+  border: 1px solid var(--lh-color-line, #e5e8eb);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
 }

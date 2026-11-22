@@ -6,10 +6,11 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { getResource, trashResource, updateResource } from '../api/resourcesApi.ts'
 import type { StudentResource, UpdateResourceRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
-import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon, SparkleIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import styles from '../components/resources/resources.module.css'
+import { ResourceFileRow } from '../components/resources/ResourceFileRow.tsx'
 import { ResourceTypeIcon } from '../components/resources/ResourceTypeIcon.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -120,15 +121,6 @@ export function ResourceDetailRoute() {
               <NoteIcon size={14} />
               노트에 추가
             </button>
-            <button
-              type="button"
-              className={enrichmentStyles.outlineButton}
-              aria-disabled="true"
-              onClick={() => notify('info', 'AI 요약은 AI 기능이 연결되는 단계(Stage 3)에서 제공돼요.')}
-            >
-              <SparkleIcon size={14} />
-              AI 요약
-            </button>
             {!isAssessmentReadOnlyView() && !isMockDataSource && (
               <button
                 type="button"
@@ -172,11 +164,9 @@ export function ResourceDetailRoute() {
                 <span className={styles.muted}>링크 없음</span>
               )}
             </PropRow>
-            {resource.fileRef && (
-              <PropRow label="첨부 파일">
-                <span className={styles.muted}>파일 저장소가 연결되기 전이라 열 수 없어요. (시연 데이터)</span>
-              </PropRow>
-            )}
+            <PropRow label="첨부 파일">
+              <ResourceFileRow resource={resource} readOnly={isAssessmentReadOnlyView()} onChanged={() => setVersion((value) => value + 1)} notify={notify} />
+            </PropRow>
             <PropRow label="메모">{resource.memo ?? <span className={styles.muted}>메모 없음</span>}</PropRow>
             <PropRow label="태그">
               {resource.tags.length > 0 ? (

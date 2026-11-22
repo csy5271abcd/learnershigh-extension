@@ -1,0 +1,199 @@
+/* A27-UX 학생 Dashboard 카드 (Toss식: 흰 카드·얇은 전체 테두리·무채색, 왼쪽 강조선 없음) */
+.card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px 22px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 16px;
+  background: var(--as-color-surface);
+  box-shadow: 0 1px 3px rgb(29 31 35 / 0.06); /* 부록 L: 흰 홈 바탕에서 카드 구분 */
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardHead h2 {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.textLink {
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--as-color-line);
+  text-underline-offset: 3px;
+}
+
+.textLink:hover {
+  color: var(--as-color-text);
+}
+
+.caption {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.yearSlots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.yearSlot {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--as-color-fill, #f2f4f6);
+}
+
+.slotYear {
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slotSchool {
+  margin: 0;
+  overflow: hidden;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slotEmpty {
+  margin: 6px 0 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+}
+
+.slotDocs {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+
+.slotDocs li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.slotDocs a,
+.slotDocs span:not(.slotFormat) {
+  overflow: hidden;
+  color: var(--as-color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slotFormat {
+  flex: none;
+  color: var(--as-color-text-tertiary);
+  font-size: 11.5px;
+}
+
+.dates {
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .yearSlots {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A28-01 3개년 원본: 조회 학년·학기 · 재학 기록 아님 표시 · 긴 목록은 칸 안에서 스크롤 */
+.slotFilters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.slotFilters label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
+
+.slotFilters select {
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface, #fff);
+  color: var(--as-color-text);
+  font-size: 13px;
+}
+
+.slotReset,
+.slotRetry {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface, #fff);
+  color: var(--as-color-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.slotRetry {
+  justify-self: start;
+}
+
+.slotBadge {
+  justify-self: start;
+  margin: 2px 0 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--as-color-surface, #fff);
+  color: var(--as-color-text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.slotNote {
+  margin: 2px 0 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.slotCount {
+  margin: 6px 0 0;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.slotDocScroll {
+  /* A28-07: 전체 폭 카드라 내부 스크롤 없이 펼친다(처음 몇 개 + '전체 보기') */
+  min-width: 0;
+}

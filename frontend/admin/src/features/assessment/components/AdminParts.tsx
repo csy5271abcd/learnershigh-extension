@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { goBack, navigate } from '../../../app/adminLocation.ts'
-import { activeScenarioLabel, adminDevAuthLabel, isAdminMockDataSource, mockAsOfDate } from '../api/assessmentAdminApi.ts'
+import { activeScenarioLabel, isAdminMockDataSource, mockAsOfDate } from '../api/assessmentAdminApi.ts'
 import type { PublishState } from '../api/types.ts'
 import { publishLabels, statusLabels } from '../model/adminFormat.ts'
 import type { Remote } from '../model/useRemote.ts'
@@ -11,13 +11,8 @@ import { ChevronLeftIcon, EmptyState, ErrorState, EyeIcon, InfoIcon, LoadingRows
 export function MockNotice() {
   if (!isAdminMockDataSource) {
     // http 개발 서버: 데이터는 실제 Backend에 저장되지만 인증·학교·학생·학업 정보 원천은 개발용 Mock이다. Production에는 표시하지 않는다.
-    const auth = import.meta.env.DEV ? adminDevAuthLabel() : null
-    return auth ? (
-      <p className={styles.mockNotice} data-testid="dev-http-notice" title="실제 관리자 인증·지점 권한·학교·학생 정보 연동 전이에요 (API-OD-A01).">
-        <InfoIcon size={13} />
-        개발 서버 · 실제 Backend 저장 · {auth} · 학교·학생·학업 정보는 개발용 Mock
-      </p>
-    ) : null
+    // A27-UX: 개발용 인증·계정 ID 문구는 사용자 화면에 보이지 않는다(개발자 확인은 ?devPanel=1 패널·로그).
+    return null
   }
   const scenario = activeScenarioLabel()
   return (

@@ -2,9 +2,9 @@ import { useId, useRef, useState, type FormEvent } from 'react'
 import { isAssessmentReadOnlyView } from '../../api/viewMode.ts'
 import { ReadOnlyBlockedModal } from '../ReadOnlyBlockedModal.tsx'
 import { toApiError, type ApiError } from '../../api/apiError.ts'
-import { createResource } from '../../api/resourcesApi.ts'
+import { attachResourceFile, createResource } from '../../api/resourcesApi.ts'
 import type { StudentResource } from '../../api/types.ts'
-import { isValidUrlFormat, publishedDatePattern, resourceTypes } from '../../model/resourceLibraryView.ts'
+import { acceptFor, fileResourceTypes, fileSizeText, isValidUrlFormat, localFileProblem, publishedDatePattern, resourceTypes } from '../../model/resourceLibraryView.ts'
 import formStyles from '../AddSchoolAssessmentModal.module.css'
 import { AlertIcon } from '../AssessmentIcons.tsx'
 import enrichmentStyles from '../enrichment/enrichment.module.css'
@@ -33,7 +33,8 @@ const reasonMessages: Record<Field, Record<string, string>> = {
 
 // 자료 추가 (Mockup RL-ADD-01, inquiry §7-2, api-contract.md §22 POST).
 // 계약 예시에서 값이 있는 type·title만 필수로 본다. 나머지는 선택이다.
-// 링크는 형식만 확인하고 실제로 열리는지는 확인하지 않는다. 파일 첨부는 저장소가 정해지지 않아 받지 않는다 (API-OD-A03).
+// 링크는 형식만 확인하고 실제로 열리는지는 확인하지 않는다.
+// A27-UX: PDF·이미지·파일 유형은 파일을 첨부한다(§22-1 DRAFT). 자료를 먼저 만든 뒤 파일을 올리고, 파일만 실패하면 자료는 남기고 다시 올릴 수 있게 한다.
 // 메모·태그는 Mockup 등록 화면에 없어 자료 상세에서 고친다.
 function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalProps) {
   const ids = { title: useId(), author: useId(), source: useId(), date: useId(), url: useId() }
@@ -49,9 +50,24 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [confirmingClose, setConfirmingClose] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const [dragging, setDragging] = useState(false)
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'failed'>('idle')
+  /** 자료는 만들었지만 파일 업로드만 실패한 경우 — 다시 시도는 파일만 올린다 */
+  const [createdId, setCreatedId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const wantsFile = fileResourceTypes.has(type)
+  const pickFile = (picked: File | undefined) => {
+    if (!picked) return
+    const problem = localFileProblem(picked, type)
+    setFileError(problem)
+    setFile(problem ? null : picked)
+    if (!problem && title.trim() === '') setTitle(picked.name.replace(/\.[^.]+$/, ''))
+  }
 
-  const isDirty = type !== 'LINK' || title !== '' || author !== '' || sourceName !== initialSource || publishedDate !== '' || sourceUrl !== ''
-  const canSubmit = title.trim() !== '' && !submitting
+  const isDirty = type !== 'LINK' || title !== '' || author !== '' || sourceName !== initialSource || publishedDate !== '' || sourceUrl !== '' || file !== null
+  const canSubmit = title.trim() !== '' && !submitting && (!wantsFile || file !== null)
 
   const requestClose = () => {
     if (submitting) return
@@ -80,6 +96,7 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
     if (submittingRef.current) return
     const next: FieldErrors = {}
     if (title.trim() === '') next.title = reasonMessages.title.required
+    if (wantsFile && !file) next.form = '올릴 파일을 골라 주세요.'
     if (sourceUrl.trim() && !isValidUrlFormat(sourceUrl)) next.sourceUrl = reasonMessages.sourceUrl.format
     if (publishedDate.trim() && !publishedDatePattern.test(publishedDate.trim())) next.publishedDate = reasonMessages.publishedDate.format
     if (Object.keys(next).length > 0) {
@@ -92,7 +109,13 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
     setErrors({})
     setConfirmingClose(false)
     try {
-      const resource = await createResource({
+      if (createdId && file) {
+        // 파일만 다시 올린다(자료는 이미 저장됨)
+        setUploadState('uploading')
+        onCreated(await attachResourceFile(createdId, file))
+        return
+      }
+      const created = await createResource({
         type,
         title: title.trim(),
         sourceName: sourceName.trim() || null,
@@ -103,7 +126,21 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
         tags: [],
         fileRef: null,
       })
-      onCreated(resource)
+      if (wantsFile && file) {
+        setCreatedId(created.resourceId)
+        setUploadState('uploading')
+        try {
+          onCreated(await attachResourceFile(created.resourceId, file))
+        } catch (uploadError) {
+          const apiError = toApiError(uploadError)
+          setUploadState('failed')
+          setErrors({ form: `자료는 저장했지만 파일을 올리지 못했어요. ${apiError.message}` })
+          submittingRef.current = false
+          setSubmitting(false)
+        }
+        return
+      }
+      onCreated(created)
     } catch (error) {
       applyServerError(toApiError(error))
       submittingRef.current = false
@@ -141,8 +178,8 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
             <button type="button" className={formStyles.ghostButton} onClick={requestClose} disabled={submitting}>
               취소
             </button>
-            <button type="submit" form="add-resource-form" className={formStyles.primaryButton} disabled={!canSubmit} aria-busy={submitting}>
-              {submitting ? '저장 중…' : '저장'}
+            <button type="submit" form="add-resource-form" className={formStyles.primaryButton} disabled={!canSubmit} aria-busy={submitting} data-testid="resource-save">
+              {submitting ? (uploadState === 'uploading' ? '파일 올리는 중…' : '저장 중…') : uploadState === 'failed' ? '파일 다시 올리기' : '저장'}
             </button>
           </>
         )
@@ -232,16 +269,81 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
           {fieldError('publishedDate', ids.date)}
         </div>
 
+        {wantsFile && (
+          <div className={formStyles.field}>
+            <span className={formStyles.label}>파일</span>
+            <div
+              className={styles.dropZone}
+              data-dragging={dragging || undefined}
+              data-testid="resource-file-drop"
+              onDragOver={(event) => {
+                event.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(event) => {
+                event.preventDefault()
+                setDragging(false)
+                if (!submitting) pickFile(event.dataTransfer.files[0])
+              }}
+            >
+              {file ? (
+                <div className={styles.fileRow} data-testid="resource-file-selected">
+                  <span className={styles.fileName} title={file.name}>
+                    {file.name}
+                  </span>
+                  <span className={styles.fileMeta}>
+                    {file.name.split('.').pop()?.toUpperCase()} · {fileSizeText(file.size)}
+                    {uploadState === 'uploading' ? ' · 올리는 중…' : uploadState === 'failed' ? ' · 올리지 못함' : ''}
+                  </span>
+                  <button
+                    type="button"
+                    className={formStyles.ghostButton}
+                    disabled={submitting || createdId !== null}
+                    onClick={() => {
+                      setFile(null)
+                      setUploadState('idle')
+                    }}
+                  >
+                    빼기
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className={styles.dropText}>파일을 여기로 끌어 놓거나</p>
+                  <button type="button" className={formStyles.ghostButton} onClick={() => fileInputRef.current?.click()} disabled={submitting} data-testid="resource-file-pick">
+                    파일 고르기
+                  </button>
+                </>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                hidden
+                accept={acceptFor(type)}
+                data-testid="resource-file-input"
+                onChange={(event) => {
+                  pickFile(event.target.files?.[0])
+                  event.target.value = ''
+                }}
+              />
+            </div>
+            <p className={fileError ? formStyles.fieldError : formStyles.hint}>
+              {fileError ?? (type === 'IMAGE' ? 'JPG·PNG·GIF·WEBP · 100MB 이하. GIF는 움직이는 그대로 보관해요.' : type === 'PDF' ? 'PDF · 100MB 이하' : '문서(PDF·HWP·HWPX·Word·Excel·PowerPoint)와 이미지 · 100MB 이하. PDF·이미지만 앱에서 바로 볼 수 있어요.')}
+            </p>
+          </div>
+        )}
+
         <div className={formStyles.field}>
           <label htmlFor={ids.url} className={formStyles.label}>
-            링크 또는 파일
+            링크
           </label>
           <input
             id={ids.url}
             type="url"
             className={formStyles.input}
             value={sourceUrl}
-            placeholder="https:// (파일 첨부는 준비 중)"
+            placeholder="https://"
             disabled={submitting}
             aria-invalid={errors.sourceUrl ? true : undefined}
             aria-describedby={errors.sourceUrl ? `${ids.url}-error` : `${ids.url}-hint`}
@@ -254,7 +356,7 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
             fieldError('sourceUrl', ids.url)
           ) : (
             <p id={`${ids.url}-hint`} className={formStyles.hint}>
-              주소 형식만 확인해요. 링크가 실제로 열리는지는 확인하지 않아요. 파일 첨부는 저장소가 정해진 뒤 제공돼요.
+              주소 형식만 확인해요. 링크가 실제로 열리는지는 확인하지 않아요.
             </p>
           )}
         </div>

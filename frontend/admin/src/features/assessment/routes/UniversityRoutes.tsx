@@ -84,7 +84,7 @@ export function UniversityListView({ search }: { search: URLSearchParams }) {
     <div className={styles.body}>
       <p className={styles.infoBar}>
         <InfoIcon size={14} />
-        학생 자율 심화 탐구용 참고자료예요. 면접 연습 기능은 없어요. 공식 게시 주소·확인일·이용 조건을 확인한 자료만 공개할 수 있어요. 원본 PDF는 배포 권한 확인 전이라 개발 환경 로컬 파일로만 열려요
+        학생 자율 심화 탐구용 참고자료예요. 면접 연습 기능은 없어요. 공식 게시 주소·확인일·이용 조건을 확인한 자료만 공개할 수 있어요. 원본 PDF는 배포 권한 확인 전이라 이 환경에서만 열려요
         {fileStates === null ? ' (지금은 원문 PDF 서버에 연결되지 않았어요)' : ''}.
       </p>
       <RemoteView state={list.state} label="대학별 자료" onRetry={list.reload}>
@@ -343,7 +343,7 @@ export function UniversityDetailRoute({ documentId, search }: { documentId: stri
                 <div className={styles.pdfPane}>
                   <PdfViewer url={universityExamFileUrl(document.documentId)} title={document.title} expectedPageCount={document.pageCount} page={Math.min(page, document.pageCount)} onPageChange={(next) => goTo(next)} />
                   <p className={styles.hint} style={{ marginTop: 8 }}>
-                    원문은 개발 환경 로컬 파일이에요 (Admin 개발 서버가 직접 제공). 배포 권한 확인 전이라 저장소·Build에 PDF가 없어요.
+                    원문 PDF는 배포 권한 확인 전이라 이 환경에서만 열려요.
                   </p>
                 </div>
                 <aside className={styles.side} aria-label="문항 목차와 자료 정보">

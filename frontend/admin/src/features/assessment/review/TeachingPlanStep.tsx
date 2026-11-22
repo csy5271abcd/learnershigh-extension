@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { subjectOptionLabel } from '../model/subjectOptionLabel.ts'
+import { devPanelEnabled } from '../../../../../student/src/features/assessment/dev/devContext.ts'
 import { navigate } from '../../../app/adminLocation.ts'
 import { confirmTeachingPlan, createTeachingPlanManualRow, getPlanSubjects, getTeachingPlanReview, updateTeachingPlanManualRow } from '../api/assessmentAdminApi.ts'
 import type { EvaluationPlanAnalysisView, PlanSubjects, ReviewDocumentLocator, TeachingPlanEdits, TeachingPlanManualRow, TeachingPlanManualRowInput, TeachingPlanReviewView, TeachingPlanRowCandidate } from '../api/types.ts'
@@ -9,11 +9,12 @@ import { manualRowErrorText } from './manualRowErrors.ts'
 import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
-import { gradeConflict, type Decision } from './reviewModel.ts'
+import { confirmedSubjectLinks, type Decision } from './reviewModel.ts'
 import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
 import { useServerDraft } from './useServerDraft.ts'
 import { TeachingPlanHistoryPanel } from './TeachingPlanHistoryPanel.tsx'
 import styles from './review.module.css'
+import { actorLabel } from '../model/actorLabel.ts'
 
 // 4단계 월별 교수·학습 운영 계획 (A6, api-contract.md §39-3 · §39-6 DRAFT).
 // - 0.3 분석 결과의 운영계획 후보 행을 과목별로 보여 주고, 행마다 확인 · 수정 · 제외를 정한 뒤 별도로 확정한다(평가 정보 확정과 별개).
@@ -28,6 +29,15 @@ const firstPage = (row: TeachingPlanRowCandidate) => {
   return pages.length ? Math.min(...pages) : null
 }
 const severityText: Record<string, string> = { BLOCKING: '먼저 확인', REVIEW: '확인 필요', INFO: '참고' }
+
+/** 분석기 확인 항목 문구. 'ROWS_WITHOUT_TIME:4/42' 같은 내부 코드는 사람이 읽는 문장으로 바꾸고, 원래 코드는 진단 모드에서만 보인다 */
+function issueText(issue: { code: string; message?: string | null }): string {
+  const raw = issue.message ?? issue.code
+  const rows = /^ROWS_WITHOUT_TIME:(\d+)\/(\d+)/.exec(raw)
+  if (rows) return `시기를 알 수 없는 계획 ${rows[1]}개 (전체 ${rows[2]}개) — 원문에서 시기를 확인해 주세요${devPanelEnabled() ? ` · ${raw}` : ''}`
+  if (/^[A-Z][A-Z0-9_]+(:[^\s]*)?$/.test(raw.trim())) return `분석기가 확인을 요청한 항목이 있어요. 원문과 대조해 주세요${devPanelEnabled() ? ` · ${raw}` : ''}`
+  return raw
+}
 /** A14: 관리자 추가 행 → Planner 행 모양 (월·주차 칸은 관리자가 고른 schedule 값 그대로, 분석 근거 없음) */
 const manualAsRow = (row: TeachingPlanManualRow): TeachingPlanRowCandidate => ({
   rowKey: row.rowKey,
@@ -57,17 +67,22 @@ export function TeachingPlanStep({
   view,
   onJump,
   subjectIds: evaluationSubjectIds,
+  excludedSubjects,
+  onGoSubjects,
 }: {
   view: EvaluationPlanAnalysisView
   onJump: OnJump
-  /** 평가 정보 초안의 과목 연결 (운영계획 초안에 연결이 없을 때 기본값으로 쓴다) */
+  /** 평가 정보 초안의 과목 연결 (2단계 과목 확인 — 운영계획 과목 연결의 기준) */
   subjectIds: Record<number, string>
+  /** A27-UX: 2단계에서 이 문서 검토 대상에서 뺀 분석 과목 (운영계획에서도 빠진다) */
+  excludedSubjects?: ReadonlySet<number>
+  /** 2단계 과목 확인으로 이동 (과목 연결을 바꿀 때) */
+  onGoSubjects?: () => void
 }) {
   const slot = view.slot
-  const candidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
-  // 여러 학년 공통 문서: 원문 학년이 이 문서 학년이 아닌 과목은 뒤로 보내고 접어 둔다(확정 불가 §39-12)
-  const otherGrade = candidates.filter((subject) => gradeConflict(subject.grades, view.slot?.grade))
-  const [showOther, setShowOther] = useState(false)
+  const allCandidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
+  const candidates = useMemo(() => allCandidates.filter((subject) => !excludedSubjects?.has(subject.subjectIndex)), [allCandidates, excludedSubjects])
+  const excludedCount = allCandidates.length - candidates.length
   const refs: RowRef[] = useMemo(
     () => candidates.flatMap((subject) => (subject.rows ?? []).map((row, rowIndex) => ({ subjectIndex: subject.subjectIndex, rowIndex, subjectName: subject.subjectName, row }))),
     [candidates],
@@ -101,6 +116,11 @@ export function TeachingPlanStep({
   const reReview = Boolean(confirmedReview) && draft.reopened
   const lockedReview = confirmedReview && !reReview ? confirmedReview : null
   const [subjectOptions, setSubjectOptions] = useState<PlanSubjects | null>(null)
+  const subjectNameOf = (id: string) => (subjectOptions?.items.find((item) => item.subjectId === id)?.name ?? '목록에 없는 과목')
+  // [14] A27-UX: 달력 아래 상세 목록은 고른 과목 하나만 보인다(달력은 전체 그대로). 처음에는 운영계획 행이나 확인 항목이 있는 첫 과목
+  const detailSubjects = candidates.filter((subject) => subject.rows !== null || subject.issues.length > 0)
+  const [detailPick, setDetailPick] = useState<number | null>(null)
+  const detailIndex = detailPick !== null && detailSubjects.some((subject) => subject.subjectIndex === detailPick) ? detailPick : (detailSubjects[0]?.subjectIndex ?? null)
   useEffect(() => {
     let cancelled = false
     getPlanSubjects(view.planId).then(
@@ -113,13 +133,28 @@ export function TeachingPlanStep({
   }, [view.planId])
   const draftEditable = !lockedReview && draft.sync.kind !== 'closed' && draft.sync.kind !== 'loading' && draft.sync.kind !== 'load-error' && draft.sync.kind !== 'stale' && !draft.choice
   const decisions = draft.decisions
-  const subjectIds: Record<number, string> = { ...evaluationSubjectIds, ...Object.fromEntries(Object.entries(draft.subjectIds).filter(([, id]) => id.trim() !== '')) }
+  // A27-UX [02]: 과목 연결의 기준은 2단계 과목 확인이다. 순서: ① 평가 정보 초안 연결 ② 확정된 평가 정보의 연결(A10 규칙)
+  // ③ 운영계획 초안에 남은 연결(①②가 없을 때만). 예전에는 운영계획 초안이 첫 결정 때 복사한 연결이 이후 2단계 수정보다 우선해
+  // '통합과학2 → 공통영어2'처럼 낡은 연결이 남을 수 있었다 — 이제 ①②가 있으면 ③을 쓰지 않고, 다르면 화면에 알린다.
+  const confirmedLinks = confirmedSubjectLinks(view)
+  const upstreamLink = (index: number) => (evaluationSubjectIds[index] ?? '').trim() || confirmedLinks[index] || ''
+  const subjectIds: Record<number, string> = {}
+  for (const subject of allCandidates) {
+    const link = upstreamLink(subject.subjectIndex) || (draft.subjectIds[subject.subjectIndex] ?? '').trim()
+    if (link) subjectIds[subject.subjectIndex] = link
+  }
+  const staleLink = (index: number) => {
+    const held = (draft.subjectIds[index] ?? '').trim()
+    const upstream = upstreamLink(index)
+    return held && upstream && held !== upstream ? held : null
+  }
   const decisionOf = (key: string): Decision | undefined => decisions[key]
   const decide = (key: string, decision: Decision | null) => {
     if (!draftEditable) return
     const subjectIndex = Number(key.slice(0, key.indexOf('|')))
-    // 평가 정보 쪽에서 연결한 과목은 운영계획 초안에도 함께 남긴다 (평가 정보 확정 뒤에도 운영계획 확정에 필요)
-    if (!draft.subjectIds[subjectIndex] && evaluationSubjectIds[subjectIndex]) draft.setSubjectId(subjectIndex, evaluationSubjectIds[subjectIndex])
+    // 2단계 연결을 운영계획 초안에도 남긴다(평가 정보 확정 뒤에도 운영계획 확정에 필요). 낡은 연결이 있으면 2단계 연결로 맞춘다
+    const upstream = upstreamLink(subjectIndex)
+    if (upstream && (draft.subjectIds[subjectIndex] ?? '').trim() !== upstream) draft.setSubjectId(subjectIndex, upstream)
     draft.setDecision(key, decision)
   }
   const editsOf = (decision: Decision | undefined): TeachingPlanEdits => {
@@ -132,7 +167,8 @@ export function TeachingPlanStep({
   }
 
   // A14 관리자 직접 추가 행: 편집 중이면 서버 초안, 잠긴 확정본이면 확정 행(origin MANUAL)
-  const manualRows = draft.manualRows
+  // 제외한 과목의 관리자 추가 행은 보이지 않고 확정에도 보내지 않는다(초안에는 그대로 남아 복원하면 돌아온다)
+  const manualRows = draft.manualRows.filter((row) => !excludedSubjects?.has(row.subjectIndex))
   const pageCount = view.revisionFile?.documentFormat === 'PDF' ? (view.revisionFile.pageCount ?? null) : null
   const manualDisabledReason = !draftEditable ? '지금은 운영계획 초안을 고칠 수 없어요.' : !draft.manualRowReady ? '행 결정을 서버에 저장하는 중이에요. 저장된 뒤 다시 눌러 주세요.' : null
 
@@ -143,8 +179,9 @@ export function TeachingPlanStep({
       ? await updateTeachingPlanManualRow(view.planId, view.documentRevisionId, rowKey, request)
       : await createTeachingPlanManualRow(view.planId, view.documentRevisionId, request)
     draft.adopt(result)
-    // 평가 정보 쪽에서 연결한 과목을 운영계획 초안에도 남긴다(확정에 필요)
-    if (!draft.subjectIds[input.subjectIndex] && evaluationSubjectIds[input.subjectIndex]) draft.setSubjectId(input.subjectIndex, evaluationSubjectIds[input.subjectIndex])
+    // 2단계 연결을 운영계획 초안에도 남긴다(확정에 필요)
+    const upstream = upstreamLink(input.subjectIndex)
+    if (upstream && (draft.subjectIds[input.subjectIndex] ?? '').trim() !== upstream) draft.setSubjectId(input.subjectIndex, upstream)
   }
   /** 제외·복원: 같은 내용으로 상태만 바꿔 저장 */
   const toggleManual = async (row: TeachingPlanManualRow) => {
@@ -229,7 +266,7 @@ export function TeachingPlanStep({
           ? '분석기가 운영계획을 찾지 못했거나 원문에 없을 수 있어요. 아래 과목별 상태와 원문을 확인해 주세요.'
           : '지금 분석 결과 형식(0.2)에는 운영계획이 담기지 않아요. ‘원문에 운영계획이 없음’이 아니니 원문의 해당 쪽을 직접 확인해 주세요.'}
       </span>
-      {import.meta.env.DEV && (
+      {import.meta.env.DEV && devPanelEnabled() && (
         <button type="button" className={styles.link} onClick={() => navigate('/assessment/dev/monthly-planner')} data-testid="open-planner-preview">
           샘플 데이터로 달력 미리보기 (개발 전용)
         </button>
@@ -248,7 +285,7 @@ export function TeachingPlanStep({
         <div className={styles.banner} data-testid="teaching-plan-status" style={{ marginBottom: 12 }}>
           {lockedReview ? (
             <span>
-              확정됨 · {lockedReview.reviewedBy} · {new Date(lockedReview.reviewedAt).toLocaleString('ko-KR')} · 학생 공개 {lockedReview.rows.filter((row) => row.decision !== 'EXCLUDED').length}행 · 제외 {lockedReview.rows.filter((row) => row.decision === 'EXCLUDED').length}행
+              확정됨 · {actorLabel(lockedReview.reviewedBy)} · {new Date(lockedReview.reviewedAt).toLocaleString('ko-KR')} · 학생 공개 {lockedReview.rows.filter((row) => row.decision !== 'EXCLUDED').length}행 · 제외 {lockedReview.rows.filter((row) => row.decision === 'EXCLUDED').length}행
             </span>
           ) : (
             <span>
@@ -281,15 +318,38 @@ export function TeachingPlanStep({
         <p className={styles.muted}>문서의 학년도·학기 정보를 받지 못했어요.</p>
       )}
 
-      {candidates.some((subject) => subject.rows !== null || subject.issues.length > 0) && (
+      {detailSubjects.length > 0 && (
         <div style={{ marginTop: 20, display: 'grid', gap: 18 }} data-testid="teaching-plan-rows">
-          {otherGrade.length > 0 && (
-            <button type="button" className={styles.link} style={{ justifySelf: 'start' }} onClick={() => setShowOther((value) => !value)} aria-expanded={showOther} data-testid="teaching-plan-other-grades">
-              {showOther ? '다른 학년 과목 접기' : `다른 학년 과목 ${otherGrade.length}개 보기 (이 문서에서는 확정하지 않아요)`}
-            </button>
+          {excludedCount > 0 && (
+            <p className={styles.tiny} role="note" style={{ margin: 0 }} data-testid="teaching-plan-excluded-note">
+              과목 확인에서 이 문서 검토 대상에서 뺀 과목 {excludedCount}개는 운영계획에서도 빠져요(달력·상세·확정 모두). 복원하면 다시 보여요.
+            </p>
           )}
-          {[...candidates].sort((a, b) => Number(otherGrade.includes(a)) - Number(otherGrade.includes(b))).map((subject) => {
-            if (otherGrade.includes(subject) && !showOther) return null
+          <div className={styles.detailPicker}>
+            <label htmlFor="teaching-plan-detail-subject">
+              과목별 상세 <span className={styles.tiny}>달력에는 모든 과목이 보이고, 아래에는 고른 과목의 계획만 보여요</span>
+            </label>
+            <select
+              id="teaching-plan-detail-subject"
+              className={styles.select}
+              value={detailIndex ?? ''}
+              onChange={(event) => setDetailPick(Number(event.target.value))}
+              data-testid="teaching-plan-detail-subject"
+            >
+              {detailSubjects.map((subject) => {
+                const count = refs.filter((ref) => ref.subjectIndex === subject.subjectIndex).length
+                const twin = detailSubjects.filter((other) => other.subjectName === subject.subjectName).length > 1
+                return (
+                  <option key={subject.subjectIndex} value={subject.subjectIndex}>
+                    {subject.subjectName}
+                    {subject.grades && subject.grades.length > 0 ? ` · 원문 ${subject.grades.join('·')}학년` : ''}
+                    {twin ? ` · ${subject.subjectIndex + 1}번째 과목` : ''} · {count}행
+                  </option>
+                )
+              })}
+            </select>
+          </div>
+          {detailSubjects.filter((subject) => subject.subjectIndex === detailIndex).map((subject) => {
             const rows = refs.filter((ref) => ref.subjectIndex === subject.subjectIndex)
             const linked = (subjectIds[subject.subjectIndex] ?? '').trim()
             return (
@@ -299,51 +359,28 @@ export function TeachingPlanStep({
                     {subject.subjectName}
                     {subject.grades && subject.grades.length > 0 && <span className={styles.tiny} style={{ marginLeft: 6 }}>원문 {subject.grades.join('·')}학년</span>}
                   </h4>
-                  <span className={styles.tiny}>
+                  {/* [02] A27-UX: 과목 제목 옆 두 번째 Dropdown을 없앴다. 연결은 2단계 과목 확인에서만 바꾸고, 여기서는 텍스트로만 보인다 */}
+                  <span className={styles.tiny} data-testid={`teaching-plan-subject-link-${subject.subjectIndex}`}>
                     {subject.extractionStatus ? `추출 ${subject.extractionStatus === 'COMPLETE' ? '완료' : subject.extractionStatus === 'PARTIAL' ? '일부' : '구간 없음'} · ` : ''}
-                    {linked ? `과목 ${subjectOptions?.items.find((item) => item.subjectId === linked)?.name ?? linked}` : '과목 미연결'}
+                    {linked ? `학업 과목 ${subjectNameOf(linked)}` : '학업 과목 미연결'}
                   </span>
-                  {!lockedReview && subjectOptions?.available && subjectOptions.items.length > 0 && (
-                    <select
-                      className={styles.select}
-                      style={{ maxWidth: 200, marginLeft: 'auto' }}
-                      value={linked}
-                      disabled={!draftEditable}
-                      aria-label={`${subject.subjectName} 운영계획 학업 과목`}
-                      onChange={(event) => draft.setSubjectId(subject.subjectIndex, event.target.value)}
-                      data-testid={`teaching-plan-subject-${subject.subjectIndex}`}
-                    >
-                      <option value="">과목 선택</option>
-                      {subjectOptions.items.map((item) => (
-                        <option key={item.subjectId} value={item.subjectId}>
-                          {subjectOptionLabel(subjectOptions.items, item)}
-                        </option>
-                      ))}
-                    </select>
+                  {onGoSubjects && (
+                    <button type="button" className={`${styles.link} ${styles.tiny}`} style={{ marginLeft: 'auto' }} onClick={onGoSubjects} data-testid="teaching-plan-go-subjects">
+                      {linked ? '과목 확인에서 바꾸기' : '과목 확인에서 연결하기'}
+                    </button>
                   )}
                 </div>
-                {!lockedReview && draftEditable && rows.some((ref) => !decisionOf(keyOf(ref))) && (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '6px 0' }}>
-                    <button
-                      type="button"
-                      className={`${styles.button} ${styles.small}`}
-                      onClick={() => rows.filter((ref) => !decisionOf(keyOf(ref))).forEach((ref) => {
-                        const page = firstPage(ref.row)
-                        decide(keyOf(ref), { kind: 'confirmed', value: '', page: page ? String(page) : '' })
-                      })}
-                      data-testid={`teaching-plan-confirm-all-${subject.subjectIndex}`}
-                    >
-                      남은 {rows.filter((ref) => !decisionOf(keyOf(ref))).length}행 모두 확인
-                    </button>
-                    <span className={styles.tiny}>원문과 대조한 뒤 누르세요. 행마다 수정·제외로 바꿀 수 있어요.</span>
-                  </div>
+                {staleLink(subject.subjectIndex) && (
+                  <p className={styles.tiny} role="note" style={{ margin: '6px 0' }} data-testid="teaching-plan-stale-link">
+                    운영계획 초안에 예전 연결({subjectNameOf(staleLink(subject.subjectIndex) as string)})이 남아 있어요. 과목 확인의 연결({subjectNameOf(upstreamLink(subject.subjectIndex))})을 따르고, 다음 저장 때 함께 맞춰요.
+                  </p>
                 )}
                 {subject.issues.length > 0 && (
                   <ul className={styles.tiny} style={{ margin: '6px 0', paddingLeft: 18 }} data-testid="teaching-plan-issues">
                     {subject.issues.map((issue, index) => (
                       <li key={index}>
-                        [{severityText[issue.severity ?? 'REVIEW'] ?? '확인 필요'}] {issue.message ?? issue.code}
-                        {issue.fieldPath ? ` (${issue.fieldPath})` : ''}
+                        [{severityText[issue.severity ?? 'REVIEW'] ?? '확인 필요'}] {issueText(issue)}
+                        {devPanelEnabled() && issue.fieldPath ? ` (${issue.fieldPath})` : ''}
                       </li>
                     ))}
                   </ul>

@@ -146,7 +146,8 @@ function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, 
             data-testid="artifact-preview"
             onClick={() => {
               if (isMockDataSource || !shown) {
-                onUnavailable('파일 미리보기는 파일 저장소가 연결된 뒤 제공돼요. (시연 데이터에는 실제 파일이 없어요)')
+                // 부록 P: 운영(HTTP)에서는 '시연 데이터' 문구를 보이지 않는다
+                onUnavailable(isMockDataSource ? '파일 미리보기는 파일 저장소가 연결된 뒤 제공돼요. (시연 데이터에는 실제 파일이 없어요)' : '미리 볼 파일 버전이 없어요.')
                 return
               }
               navigate(artifactViewerPath(artifact.artifactId, { versionId: shown.versionId }))

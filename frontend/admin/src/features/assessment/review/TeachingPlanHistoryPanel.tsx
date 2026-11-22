@@ -4,6 +4,7 @@ import { toApiError } from '../api/canonicalSource.ts'
 import type { TeachingPlanHistory } from '../api/types.ts'
 import { Modal } from '../components/canonicalUi.ts'
 import styles from './review.module.css'
+import { actorLabel } from '../model/actorLabel.ts'
 
 // A13 운영계획 재검토 시작·확정 이력 (§39-10). 평가 정보 확정·재검토와 따로다.
 // 확정 버전은 불변이고 재확정하면 새 버전이 쌓인다. 학생에게는 최신 버전만, 이전 버전은 관리자만 읽기 전용으로 본다.
@@ -76,7 +77,7 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
                   {dateTime(item.reviewedAt)} · 공개 {item.publishedRowCount}행 · 제외 {item.excludedRowCount}행
                 </span>
                 <span className={styles.rowMeta}>
-                  {item.current ? '학생 공개 중' : '이전 버전(보존)'} · {item.reviewedBy}
+                  {item.current ? '학생 공개 중' : '이전 버전(보존)'} · {actorLabel(item.reviewedBy)}
                 </span>
                 <button type="button" className={`${styles.buttonGhost} ${styles.small}`} aria-expanded={openVersion === item.versionNo} onClick={() => setOpenVersion(openVersion === item.versionNo ? null : item.versionNo)} data-testid="teaching-plan-history-toggle">
                   {openVersion === item.versionNo ? '닫기' : '행 보기'}

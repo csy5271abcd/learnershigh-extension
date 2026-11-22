@@ -133,7 +133,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font-size: var(--as-text-body);
   font-weight: 600;
   text-decoration: underline;
@@ -194,7 +194,8 @@
 .upcomingDday strong {
   font-size: 13.5px;
   line-height: 18px;
-  color: var(--as-color-primary);
+  /* A27-UX(계정 B 2차): 파란색은 주요 동작·선택·포커스만 */
+  color: var(--as-color-text);
 }
 
 .upcomingDday[data-urgent='true'] strong {
@@ -318,8 +319,10 @@
 .tableHead,
 .row {
   display: grid;
-  /* 실측 열 위치: 54(★ 자리) | 제목 | 124 마감 | 128 출처 | 115 상태 | 58(기록 자리) = 978 */
-  grid-template-columns: 54px minmax(0, 1fr) 124px 128px 115px 58px;
+  /* A27-UX 학생(2026-11-19): ★ | 수행평가 | 평가일 | 제출 마감 | 평가 유형 | 반영 비율 | 진행 상태 | 기록 수 | 피드백 수.
+     기록·피드백은 숫자 열을 따로 두어 '20' 같은 두 자리 수가 줄바꿈되지 않는다(이미지 05 '2/0') */
+  grid-template-columns: 40px minmax(0, 1fr) 104px 104px 84px 64px 118px 58px 64px;
+  column-gap: 6px;
   align-items: center;
 }
 
@@ -431,7 +434,8 @@
   font-size: var(--as-text-caption);
   font-weight: 700;
   line-height: 15px;
-  color: var(--as-color-primary);
+  /* A27-UX(계정 B 2차): 파란색은 주요 동작·선택·포커스만 */
+  color: var(--as-color-text);
 }
 
 .dday[data-urgent='true'] {
@@ -497,7 +501,16 @@
 
   .tableHead,
   .row {
-    grid-template-columns: 40px minmax(0, 1fr) 112px 128px 108px 58px;
+    grid-template-columns: 36px minmax(0, 1fr) 100px 100px 112px 56px 62px;
+  }
+
+  /* 좁은 폭: 평가 유형·반영 비율 열은 숨기고 제목 아래 보조 줄로 보인다 */
+  .colOptional {
+    display: none;
+  }
+
+  .metaCompact:not(:empty) {
+    display: inline;
   }
 }
 
@@ -506,13 +519,36 @@
   color: var(--as-color-star);
 }
 
-/* 기록 열: 수정 이력 수 + 피드백 말풍선 (Mockup SA-LIST-01) */
-.cellTrail {
+/* 기록 수 · 피드백 수: 각자 한 열(숫자는 줄바꿈하지 않는다) */
+.cellRecords {
   position: relative;
   z-index: 1;
-  display: flex;
+  display: contents;
+}
+
+.colNumber {
+  text-align: left;
+}
+
+.cellText {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: var(--as-text-meta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkedTag {
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
+  margin-left: 8px;
+  color: var(--as-color-text-secondary);
+}
+
+.metaCompact {
+  display: none;
+  margin-left: 8px;
 }
 
 .recordButton {
@@ -530,6 +566,10 @@
   font: inherit;
   font-size: var(--as-text-meta);
   text-decoration: none;
+  white-space: nowrap;
+  justify-self: start;
+  position: relative;
+  z-index: 1;
   cursor: pointer;
 }
 
@@ -544,7 +584,7 @@
 }
 
 .recordButton[data-tone='delivered'] {
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
 }
 
 .recordButton[data-tone='error'] {
@@ -590,43 +630,26 @@
   }
 
   .row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      'title lead'
-      'date status'
-      'source records';
-    row-gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
     height: auto;
     padding: 14px 12px;
   }
 
-  .cellTrail {
-    grid-area: records;
-    justify-self: end;
+  .cellTitle {
+    flex: 1 1 100%;
+    order: -1;
   }
 
   .cellLead {
-    grid-area: lead;
-    justify-self: end;
-  }
-
-  .cellTitle {
-    grid-area: title;
+    order: -2;
   }
 
   .cellDate {
-    grid-area: date;
     display: flex;
-    gap: 8px;
-  }
-
-  .cellSource {
-    grid-area: source;
-  }
-
-  .cellStatus {
-    grid-area: status;
-    align-self: center;
+    gap: 6px;
   }
 
   .upcomingList {

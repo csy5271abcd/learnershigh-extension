@@ -1,3 +1,4 @@
+import { currentTerm } from '../api/http/adminRecordsHttp.ts'
 import type { ReactNode } from 'react'
 import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
 import {
@@ -26,10 +27,10 @@ export function StudentDetailPane({ studentId, search }: { studentId: string; se
   return <MockStudentDetailPane studentId={studentId} search={search} />
 }
 
-/** 개발용 현재 학기(VITE_ASSESSMENT_DEV_CURRENT_TERM, 예: 2026-2). 날짜로 추측하지 않는다. */
-function devCurrentTerm(): string | null {
-  const raw: unknown = import.meta.env.DEV ? import.meta.env.VITE_ASSESSMENT_DEV_CURRENT_TERM : undefined
-  return typeof raw === 'string' && /^\d{4}-[12]$/.test(raw.trim()) ? raw.trim() : null
+/** 부록 O §9-2: 서버 현재 학기(KST 달력) — 'YYYY-S' */
+function currentTermKey(): string {
+  const term = currentTerm()
+  return `${term.academicYear}-${term.semester}`
 }
 
 function MockStudentDetailPane({ studentId, search }: { studentId: string; search: URLSearchParams }) {
@@ -40,7 +41,7 @@ function MockStudentDetailPane({ studentId, search }: { studentId: string; searc
         const contexts = [...data.academicContexts].sort((a, b) => b.academicYear - a.academicYear || b.semester - a.semester)
         const term =
           contexts.find((context) => termKey(context) === search.get('term')) ??
-          contexts.find((context) => termKey(context) === devCurrentTerm()) ??
+          contexts.find((context) => termKey(context) === currentTermKey()) ??
           contexts[0]
         return <StudentRecords studentId={studentId} student={data.student} contexts={contexts} term={term} search={search} />
       }}

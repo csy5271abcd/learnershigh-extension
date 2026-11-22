@@ -28,7 +28,7 @@ import type {
 } from '../types.ts'
 import { ApiError } from '../canonicalSource.ts'
 import { adminFile, adminHttp, notConnected } from './adminHttpClient.ts'
-import { devCurrentTerm } from './adminRecordsHttp.ts'
+import { currentTermAsync } from './adminRecordsHttp.ts'
 
 // Admin Assessment HTTP Adapter (Stage 2, 2026-11-09). 화면 함수 시그니처는 Mock과 같고, Backend 응답 Shape 차이는 여기서만 변환한다.
 // 실제 Backend Endpoint가 없는 기능은 호출하지 않고 이유를 담은 503 ASSESSMENT_API_NOT_CONNECTED로 끝낸다.
@@ -153,7 +153,7 @@ export async function listSchoolsHttp(): Promise<{ items: (AdminSchool & { regio
   const configured = typeof raw === 'string' ? raw.split(',').map((entry) => entry.trim()).filter(Boolean) : []
   const schools = new Map<string, string>()
   const studentSchools = new Map<string, number>()
-  const term = devCurrentTerm()
+  const term = await currentTermAsync()
   const managed = await adminHttp<{ items: { schoolId: string; name: string | null; studentCount: number }[] }>('/api/admin/assessment/managed-schools', {
     query: { academicYear: term.academicYear, semester: term.semester },
   })
@@ -182,15 +182,13 @@ export async function listSchoolsHttp(): Promise<{ items: (AdminSchool & { regio
   return { items }
 }
 
-/** 실제 등록된 문서의 학년도 + 개발용 현재 학기(VITE_ASSESSMENT_DEV_CURRENT_TERM)의 학년도. 날짜로 학년도를 추측하지 않는다. */
+/** 실제 등록된 문서의 학년도 + 서버 현재 학기(부록 O §9-2)의 학년도. */
 /** includeCurrentTerm=false(A9 학년도별 열람): 실제 등록 문서가 있는 학년도만 */
 export async function listPlanYearsHttp(schoolId: string, includeCurrentTerm = true): Promise<number[]> {
   const plans = await adminHttp<{ items: BackendPlan[] }>(plansPath, { query: { schoolId } })
   const years = new Set(plans.items.map((plan) => plan.academicYear))
   if (!includeCurrentTerm) return [...years].sort((a, b) => b - a)
-  const term: unknown = import.meta.env.DEV ? import.meta.env.VITE_ASSESSMENT_DEV_CURRENT_TERM : undefined
-  const match = typeof term === 'string' ? /^(\d{4})-[12]$/.exec(term.trim()) : null
-  if (match) years.add(Number(match[1]))
+  years.add((await currentTermAsync()).academicYear)
   return [...years].sort((a, b) => b - a)
 }
 
@@ -199,7 +197,7 @@ export async function listEvaluationPlansHttp(query: { schoolId: string; academi
   return { items: body.items.map(toPlan) }
 }
 
-async function getPlan(planId: string): Promise<AdminEvaluationPlan> {
+export async function getPlan(planId: string): Promise<AdminEvaluationPlan> {
   return toPlan(await adminHttp<BackendPlan>(`${plansPath}/${encodeURIComponent(planId)}`))
 }
 
@@ -475,7 +473,7 @@ export async function getPlanAnalysisHttp(planId: string, revisionId: string): P
   const subjects = body.subjects ?? []
   return {
     revisionFile: revision
-      ? { fileName: revision.fileName, pageCount: revision.pageCount, checksum: revision.checksum ?? null, documentFormat: revision.documentFormat ?? 'PDF', file: revision.file ?? null }
+      ? { fileName: revision.fileName, pageCount: revision.pageCount, checksum: revision.checksum ?? null, documentFormat: revision.documentFormat ?? 'PDF', file: revision.file ?? null, sourceUrl: revision.sourceUrl ?? null }
       : undefined,
     reviewFields: reviewFieldsOf(subjects),
     subjectPages: subjects.map((subject) => ({ subjectName: subject.subjectName, from: subject.pageRange?.from ?? null, to: subject.pageRange?.to ?? null })),
@@ -619,7 +617,7 @@ export async function getPlanArchiveDetailHttp(planId: string, revisionId: strin
   }
 }
 
-/** 학교 이름으로 학교알리미 평가계획 파일을 받아 학년·학기 문서로 등록하고 서버 분석까지 한다 (문서가 많으면 1~2분). */
+/** PR #18 §38-11: 학교 이름으로 학교알리미 평가계획 파일을 받아 학년·학기 문서로 등록하고 서버 분석까지 한다(202 + 작업 번호). */
 export function importFromSchoolInfoHttp(request: { schoolId: string; schoolName: string; academicYear: number; semester: number; defaultGrade: number | null }): Promise<import('../types.ts').SchoolInfoImportResult> {
   return adminHttp(`${plansPath}/import-from-schoolinfo`, { method: 'POST', json: request })
 }
@@ -627,3 +625,66 @@ export function importFromSchoolInfoHttp(request: { schoolId: string; schoolName
 export function getSchoolInfoImportHttp(jobId: string): Promise<import('../types.ts').SchoolInfoImportResult> {
   return adminHttp(`${plansPath}/import-from-schoolinfo/${encodeURIComponent(jobId)}`)
 }
+
+/** §38-12 (A27-UX 부록 E): 최근 3개 학년도 자동 확인 명령. 진행 중이면 같은 작업을 돌려준다. */
+export function ensureSchoolInfoSyncHttp(request: { schoolId: string; requestedAcademicYears: number[]; grades: number[]; semesters: number[]; force?: boolean }): Promise<import('../types.ts').SchoolInfoSyncResult> {
+  return adminHttp(`${plansPath}/schoolinfo-sync`, { method: 'POST', json: request })
+}
+
+/** §38-12 상태 조회(읽기 전용). */
+export function getSchoolInfoSyncHttp(jobId: string): Promise<import('../types.ts').SchoolInfoSyncResult> {
+  return adminHttp(`${plansPath}/schoolinfo-sync/${encodeURIComponent(jobId)}`)
+}
+
+/** §38-13 (부록 F): 동명 학교 후보 하나 고르기 → 그 학교만 세 학년도를 다시 확인한다. */
+export function selectSchoolInfoSchoolHttp(request: { schoolId: string; jobId: string; candidateId: string; expectedVersion: number }): Promise<import('../types.ts').SchoolInfoSyncResult> {
+  return adminHttp(`${plansPath}/schoolinfo-sync/school-selection`, { method: 'POST', json: request })
+}
+
+/** §38-14 (부록 F): 확인되지 않은 원본·분류한 원본 목록 */
+export function listSchoolInfoSourcesHttp(schoolId: string): Promise<import('../types.ts').SchoolInfoSourcesResult> {
+  return adminHttp(`${plansPath}/schoolinfo-sources`, { query: { schoolId } })
+}
+
+/** §38-14: 원본 내려받기(관리자만) */
+export function downloadSchoolInfoSourceHttp(schoolId: string, sourceFileId: string): Promise<Blob> {
+  return adminFile(`${plansPath}/schoolinfo-sources/${encodeURIComponent(sourceFileId)}/file?schoolId=${encodeURIComponent(schoolId)}`)
+}
+
+/** §38-14: 학년·학기 분류(Revision + 칸 연결) */
+export function classifySchoolInfoSourceHttp(sourceFileId: string, request: { schoolId: string; academicYear: number; grades: number[]; semesters: number[]; note: string | null; expectedVersion: number }): Promise<import('../types.ts').SchoolInfoSourceItem> {
+  return adminHttp(`${plansPath}/schoolinfo-sources/${encodeURIComponent(sourceFileId)}/classification`, { method: 'PUT', json: request })
+}
+
+// ---------------- 부록 O §38-15 학교알리미 공식 학교 검색·선택 (평가계획서 0건 학교 포함)
+export interface SchoolDirectoryItem {
+  candidateId: string
+  officialName: string
+  sido: string | null
+  sigungu: string | null
+  address: string | null
+  schoolinfoSchoolId: string
+  /** 이미 이 학교알리미 학교를 쓰는 학교 키(없으면 null) */
+  schoolId: string | null
+  selectable: boolean
+  unselectableReason: 'ADDRESS_MISSING' | 'ADDRESS_DUPLICATE' | 'SEARCH_INCOMPLETE' | null
+}
+export interface SchoolDirectorySearch {
+  query: string
+  complete: boolean
+  incompleteReason: string | null
+  items: SchoolDirectoryItem[]
+}
+export interface SchoolDirectorySelection {
+  schoolId: string
+  schoolName: string
+  sido: string | null
+  sigungu: string | null
+  address: string | null
+  schoolinfoSchoolId: string
+  sync: import('../types.ts').SchoolInfoSyncResult
+}
+export const searchSchoolDirectoryHttp = (query: string) =>
+  adminHttp<SchoolDirectorySearch>('/api/admin/assessment/schools/directory', { query: { query } })
+export const selectSchoolDirectoryHttp = (candidateId: string) =>
+  adminHttp<SchoolDirectorySelection>('/api/admin/assessment/schools/directory/selection', { method: 'POST', json: { candidateId } })

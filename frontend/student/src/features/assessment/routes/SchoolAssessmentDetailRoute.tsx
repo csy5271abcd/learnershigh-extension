@@ -1,5 +1,5 @@
 import { isMockDataSource } from '../api/dataSource.ts'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import {
@@ -21,29 +21,27 @@ import {
   CalendarIcon,
   GridIcon,
   PercentIcon,
-  UserIcon,
   ClipboardIcon,
-  LinkIcon,
   PencilIcon,
   SlidersIcon,
-  SourceIcon,
-  SparkleIcon,
   StatusIcon,
 } from '../components/AssessmentIcons.tsx'
 import { ArtifactSection, type ArtifactWithVersions } from '../components/detail/ArtifactSection.tsx'
-import { CriteriaTab } from '../components/detail/CriteriaTab.tsx'
-import { DetailPanel, type DetailPanelTab } from '../components/detail/DetailPanel.tsx'
+import { NoticeSection, OfficialCriteriaSection, OfficialSourceSection } from '../components/detail/DetailSections.tsx'
+import sectionStyles from '../components/detail/detailSections.module.css'
+import { DateEditor, InlineRow, SubmissionEditor, TypeEditor, WeightEditor } from '../components/detail/InlineMeta.tsx'
+import { dateDisplay, inlineSaver, typeDisplay } from '../model/inlineMeta.ts'
+import { Modal } from '../components/Modal.tsx'
+import { contextOf, loadOfficialCriteria } from '../model/officialCriteria.ts'
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
 import { EditSchoolAssessmentModal } from '../components/EditSchoolAssessmentModal.tsx'
 import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { ResourcesTab } from '../components/detail/ResourcesTab.tsx'
-import { TopicSuggestionModal } from '../components/detail/TopicSuggestionModal.tsx'
 import { TipsModal } from '../components/tips/TipsBrowser.tsx'
 import { UploadArtifactModal } from '../components/detail/UploadArtifactModal.tsx'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
-import { NoticeAttachments } from '../components/detail/NoticeAttachments.tsx'
 import { NoteEditor, NoteSaveStatusLabel, type NoteEditorState, type NoteInsertRequest } from '../components/notes/NoteEditor.tsx'
 import { NoteReadOnlyView } from '../components/notes/NoteReadOnlyView.tsx'
 import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
@@ -51,19 +49,15 @@ import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.ts
 import { StatusSelect } from '../components/StatusSelect.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
 import { latestVersion } from '../model/assessmentDetailView.ts'
-import { loadEvaluationItemCandidate } from '../model/evaluationItemCandidate.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import {
   daysUntil,
-  formatDateWithWeekday,
   formatDday,
-  sourceLabel,
   statusLabels,
   subjectNameOf,
   urgentDays,
 } from '../model/schoolAssessmentView.ts'
-import type { EvaluationItemLookup } from '../model/evaluationItemCandidate.ts'
-import { useApiQuery, type QueryResult } from '../model/useApiQuery.ts'
+import { useApiQuery } from '../model/useApiQuery.ts'
 import { archivePath, enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
@@ -99,8 +93,9 @@ async function loadFeedbackHistory(note: AssessmentNote | undefined): Promise<Fe
 }
 
 // 수행평가 상세 (screen-map S7·S8·S10~S13, Mockup SA-DETAIL-01~14·SN-DETAIL-01·SN-TEMPLATE-01).
-// 상단 바 + 가운데 본문(기본 정보·결과물·탐구 노트) + 오른쪽 패널(평가 기준·AI 도우미·피드백·자료).
-// Mockup의 계약 밖 속성(평가 유형·평가일·반영비율·담당 선생님)과 안내문·첨부는 MM-03 결정 전 속성 목록에 넣지 않는다.
+// A27-UX: 오른쪽 고정 패널을 없애고 본문을 넓게 쓴다. 평가 기준은 본문 접이식 Section, 피드백은 상단 '선생님께 피드백 요청' Modal,
+// 자료는 그 옆 '자료 찾기' Modal로 옮겼다. 학생 AI 도우미·주제명 추천은 제거했다. 정보 출처·담당 선생님은 학생 화면에 보이지 않는다(서버 기록은 보존).
+// 평가 유형·평가일·반영 비율·제출물·개인 메모는 학생 개인 관리 정보(§12 DRAFT)로 보여 주고, 비어 있으면 평가계획서 확정 후보를 참고로 둔다.
 // 노트 위 과제 정보는 평가계획서 분석 후보(반영비율·평가 시기)를 "후보 · 확인 필요"로, 나머지는 "미등록"으로 보여준다.
 // 연결된 심화 탐구(AUD-013)는 §18 relatedAssessmentId로 찾는다.
 export function SchoolAssessmentDetailRoute() {
@@ -121,12 +116,10 @@ export function SchoolAssessmentDetailRoute() {
   )
 
   const [pending, setPending] = useState(false)
-  // 선생님 피드백 목록에서 돌아오면(`?panel=feedback`), 홈 빠른 실행 "AI 도우미"에서 오면(`?panel=ai`) 그 탭을 연다.
+  // 선생님 피드백 목록에서 돌아오면(`?panel=feedback`) 피드백 Modal을 연다.
   const [searchParams] = useSearchParams()
-  const [panelTab, setPanelTab] = useState<DetailPanelTab>(() => {
-    const panel = searchParams.get('panel')
-    return panel === 'feedback' || panel === 'ai' ? panel : 'criteria'
-  })
+  const [sheet, setSheet] = useState<'feedback' | 'resources' | null>(() => (searchParams.get('panel') === 'feedback' ? 'feedback' : null))
+  const [criteriaOpen, setCriteriaOpen] = useState(true)
   const [selectedVersions, setSelectedVersions] = useState<Record<string, string>>({})
   const [modal, setModal] = useState<ModalState>()
   const [toast, setToast] = useState<ToastMessage | null>(null)
@@ -135,7 +128,6 @@ export function SchoolAssessmentDetailRoute() {
     (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text })),
     [],
   )
-  const panelRef = useRef<HTMLDivElement>(null)
   // 꿀팁 "탐구 노트 열기": Modal이 닫히며 Focus를 버튼으로 돌려준 뒤에 노트로 스크롤한다.
   const [noteScrollRequest, setNoteScrollRequest] = useState(0)
   useEffect(() => {
@@ -158,12 +150,18 @@ export function SchoolAssessmentDetailRoute() {
   const subjects = terms.data?.contexts.flatMap((context) => context.subjects) ?? []
   const subjectName = (subjectId: string) => (terms.status === 'loading' ? '…' : subjectNameOf(subjects, subjectId))
   const item = detail.data
-  // 평가계획서 항목 후보 (AUD-015). 과목 이름으로 분석 결과의 과목을 찾으므로 학기 정보를 받은 뒤 조회한다.
-  const refKey = item?.evaluationItemRef ? `${item.evaluationItemRef.documentRevisionId}|${item.evaluationItemRef.subjectId}|${item.evaluationItemRef.itemKey}` : 'none'
-  const criteria = useApiQuery(terms.data && item ? `sa-criteria|${assessmentId}|${refKey}` : 'sa-criteria|pending', () =>
-    terms.data && item
-      ? loadEvaluationItemCandidate(item.evaluationItemRef, subjectNameOf(subjects, item.subjectId))
-      : new Promise<never>(() => {}),
+  // A27-UX 학생(2026-11-19): 평가 기준은 관리자 확정·학생 공개값(§10-1)만. AI 분석 후보(§11)는 읽지도 요청하지도 않는다.
+  const itemContext = item ? contextOf(terms.data?.contexts ?? [], item.subjectId) : undefined
+  const criteria = useApiQuery(terms.data && item ? `sa-criteria|${assessmentId}|${item.title}|${itemContext ? `${itemContext.academicYear}-${itemContext.semester}` : 'none'}` : 'sa-criteria|pending', () =>
+    terms.data && item ? loadOfficialCriteria(item, itemContext) : new Promise<never>(() => {}),
+  )
+  const saveInline = inlineSaver(
+    assessmentId,
+    () => {
+      showToast('success', '저장했어요.')
+      // 저장 응답을 그대로 쓰지 않고 상세·목록을 서버에서 다시 읽는다
+      notifyDataChanged()
+    },
   )
 
   // 결과물마다 피드백에 보낼 버전 (UI 선택 상태, 기본은 최신)
@@ -189,10 +187,7 @@ export function SchoolAssessmentDetailRoute() {
   // 등록·업로드 Modal은 Modal이 읽기 전용 안내로 바뀐다. 노트는 저장본을 같은 틀로 보여준다. 쓰기 API는 viewMode Guard가 막는다.
   const readOnly = isAssessmentReadOnlyView()
 
-  const openFeedback = () => {
-    setPanelTab('feedback')
-    panelRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-  }
+  const openFeedback = () => setSheet('feedback')
 
   const topBar = (
     <DetailTopBar
@@ -202,6 +197,7 @@ export function SchoolAssessmentDetailRoute() {
       noteId={editorState?.noteId ?? note?.noteId}
       onBack={goBack}
       onRequestFeedback={readOnly ? undefined : openFeedback}
+      onFindResources={() => setSheet('resources')}
       onUnavailable={(message) => showToast('info', message)}
       menuItems={schoolAssessmentMenuItems(assessmentId)}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
@@ -211,15 +207,14 @@ export function SchoolAssessmentDetailRoute() {
     />
   )
 
-  const frame = (content: ReactNode, panel?: ReactNode) => (
+  const frame = (content: ReactNode) => (
     <main className={styles.page}>
       {topBar}
-      <div className={styles.body}>
+      <div className={styles.body} data-layout="single">
         <div className={styles.main}>
-          <article className={styles.column}>{content}</article>
-        </div>
-        <div ref={panelRef} id="detail-side-panel" className={styles.panelArea}>
-          {panel}
+          <article className={styles.column} data-wide="true">
+            {content}
+          </article>
         </div>
       </div>
       <Toast message={toast} onDismiss={dismissToast} />
@@ -243,9 +238,6 @@ export function SchoolAssessmentDetailRoute() {
   if (!item) return null
 
   const days = item.deadlineDate ? daysUntil(item.deadlineDate, assessmentToday()) : undefined
-  const currentSubjects = terms.data?.contexts.find((context) =>
-    context.subjects.some((subject) => subject.subjectId === item.subjectId),
-  )?.subjects ?? [{ subjectId: item.subjectId, name: subjectName(item.subjectId) }]
 
   const onStatusChange = async (next: SchoolAssessmentStatus) => {
     if (next === item.status || pending) return
@@ -262,19 +254,7 @@ export function SchoolAssessmentDetailRoute() {
     }
   }
 
-  const openCriteria = () => {
-    setPanelTab('criteria')
-    panelRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-  }
-
-  const panel = (
-    <DetailPanel
-      activeTab={panelTab}
-      onTabChange={setPanelTab}
-      assessmentTitle={item.title}
-      hasNote={note !== undefined}
-      criteriaContent={<CriteriaTab lookup={criteria} onUnavailable={(message) => showToast('info', message)} />}
-      resourcesContent={
+  const resourcesContent = (
         <ResourcesTab
           subjectId={item.subjectId}
           subjectName={subjectName(item.subjectId)}
@@ -285,9 +265,14 @@ export function SchoolAssessmentDetailRoute() {
             showToast('success', `'${resource.title}'을(를) 노트에 출처 카드로 넣었어요.`)
           }}
           onNotify={showToast}
+          linked={editorState?.linkedResources}
+          onUnlink={(resourceId, title) => {
+            setInsertRequest((previous) => ({ nonce: (previous?.nonce ?? 0) + 1, removeResourceId: resourceId }))
+            showToast('success', `'${title}' 출처 카드를 노트에서 뺐어요. 자료함의 자료는 그대로예요.`)
+          }}
         />
-      }
-      feedbackContent={
+  )
+  const feedbackContent = (
         <FeedbackTab
           assessmentId={item.assessmentId}
           note={note}
@@ -297,14 +282,13 @@ export function SchoolAssessmentDetailRoute() {
           versionsById={versionsById}
           history={history}
           onSent={(request) => {
+            setSheet(null)
             setModal({ kind: 'sent', request })
             refreshDetail()
             // 메뉴의 "대기 N"도 다시 계산한다.
             notifyDataChanged()
           }}
         />
-      }
-    />
   )
 
   const artifactSection = (
@@ -347,16 +331,6 @@ export function SchoolAssessmentDetailRoute() {
           </p>
           <h1 className={styles.title}>{item.title}</h1>
           <div className={styles.chipRow}>
-            <button
-              type="button"
-              className={styles.chipButton}
-              disabled={readOnly}
-              title={readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요' : undefined}
-              onClick={() => setModal({ kind: 'topic' })}
-            >
-              <SparkleIcon size={14} className={styles.chipIconBlue} />
-              주제명 추천받기
-            </button>
             <button type="button" className={styles.chipButton} onClick={() => setModal({ kind: 'tips' })}>
               <BulbIcon size={14} />
               수행평가 꿀팁
@@ -368,64 +342,108 @@ export function SchoolAssessmentDetailRoute() {
             <PropertyRow icon={<StatusIcon size={15} />} label="진행 상태">
               <span className={styles.statusValue}>
                 <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={readOnly} />
-                <span className={styles.hint}>내가 관리하는 상태예요. 되돌리기는 정책 확정 전이라 아직 안 돼요.</span>
+                <span className={styles.hint}>내가 관리하는 상태예요. 이전 단계로 되돌릴 수도 있어요.</span>
               </span>
             </PropertyRow>
             <PropertyRow icon={<BookIcon size={15} />} label="과목">
               {subjectName(item.subjectId)}
             </PropertyRow>
-            <PropertyRow icon={<GridIcon size={15} />} label="평가 유형">
-              <span className={styles.unknown}>미등록</span>
-            </PropertyRow>
-            <PropertyRow icon={<CalendarIcon size={15} />} label="평가일">
-              <CandidateValue lookup={criteria} value={(found) => found.item.timing} emptyHint="학교 공지로 확인해 주세요" />
-            </PropertyRow>
-            <PropertyRow icon={<CalendarIcon size={15} />} label="제출 마감">
-              {item.deadlineDate ? (
+            {/* A28-20: 관리자 최종 승인으로 자동 등록된 학교 확정 수행평가 — 공식 값(학생이 바꿀 수 없음). 날짜는 아래 내 일정에서 따로 넣는다 */}
+            {item.official && (
+              <PropertyRow icon={<BookIcon size={15} />} label="학교 확정">
+                <span data-testid="detail-official" data-official-status={item.official.status}>
+                  {[
+                    item.official.status === 'WITHDRAWN' ? '최신 확정본에서 빠졌어요(내 기록은 그대로)' : '선생님 확정 평가계획서',
+                    item.official.timing ? `시기 ${item.official.timing}` : '시기 미정',
+                    item.official.weightPercent != null ? `반영 ${item.official.weightPercent}%` : null,
+                    item.official.maxScore != null ? `만점 ${item.official.maxScore}점` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </span>
+              </PropertyRow>
+            )}
+            {/* A27-UX 학생(이미지 09): 값 자리를 눌러 그 자리에서 추가·수정 (Notion형). 한 필드씩 저장한다 */}
+            <InlineRow
+              label="평가 유형"
+              icon={<GridIcon size={15} />}
+              testId="meta-type"
+              display={typeDisplay(item)}
+              empty={!item.assessmentType}
+              emptyText="평가 유형 추가"
+              readOnly={readOnly}
+              saver={saveInline}
+              editor={({ save, cancel }) => <TypeEditor item={item} save={save} cancel={cancel} />}
+            />
+            <InlineRow
+              label="평가일"
+              icon={<CalendarIcon size={15} />}
+              testId="meta-evaluation-date"
+              display={dateDisplay(item.evaluationDate)}
+              empty={!item.evaluationDate}
+              emptyText="평가일 추가"
+              readOnly={readOnly}
+              saver={saveInline}
+              editor={({ save, cancel }) => <DateEditor field="evaluationDate" label="평가일" value={item.evaluationDate} save={save} cancel={cancel} />}
+            />
+            <InlineRow
+              label="제출 마감"
+              icon={<CalendarIcon size={15} />}
+              testId="meta-deadline"
+              display={
                 <>
-                  {formatDateWithWeekday(item.deadlineDate)}
+                  {dateDisplay(item.deadlineDate)}
                   {days !== undefined && item.status !== 'COMPLETED' && days >= 0 && (
                     <span className={styles.dday} data-urgent={days <= urgentDays}>
                       {formatDday(days)}
                     </span>
                   )}
                 </>
-              ) : (
-                <span className={styles.unknown}>날짜 미정</span>
-              )}
-            </PropertyRow>
-            <PropertyRow icon={<PercentIcon size={15} />} label="반영비율">
-              <CandidateValue lookup={criteria} value={(found) => (found.item.weightPercent === null ? null : `${found.item.weightPercent}%`)} />
-            </PropertyRow>
-            <PropertyRow icon={<SourceIcon size={15} />} label="정보 출처">
-              <span className={styles.sourceBadge} data-linked={item.evaluationItemRef !== null}>
-                {item.evaluationItemRef ? <LinkIcon size={12} /> : <PencilIcon size={12} />}
-                {sourceLabel(item)}
-              </span>
-              {criteria.data?.kind === 'found' && criteria.data.analysisStatus !== 'COMPLETED' && (
-                <span className={styles.candidateTag}>PDF 분석 후보 · 확인 필요</span>
-              )}
-              {criteria.data?.kind === 'found' && criteria.data.source && (
-                <button
-                  type="button"
-                  className={styles.sourcePage}
-                  aria-label={`원본 근거 PDF ${criteria.data.source.pdfPageNumber}쪽 보기 (평가 기준 탭)`}
-                  onClick={openCriteria}
-                >
-                  PDF p.{criteria.data.source.pdfPageNumber}
-                </button>
-              )}
-            </PropertyRow>
-            <PropertyRow icon={<UserIcon size={15} />} label="담당 선생님">
-              {/* 학교 담당 선생님. 계약 필드가 없어 학원·관리자 정보로 대체하지 않는다 (MM-49). */}
-              <span className={styles.unknown}>미등록 · 확인 필요</span>
-            </PropertyRow>
+              }
+              empty={!item.deadlineDate}
+              emptyText="제출 마감 추가"
+              readOnly={readOnly}
+              saver={saveInline}
+              editor={({ save, cancel }) => <DateEditor field="deadlineDate" label="제출 마감" value={item.deadlineDate} save={save} cancel={cancel} />}
+            />
+            <InlineRow
+              label="반영 비율"
+              icon={<PercentIcon size={15} />}
+              testId="meta-weight"
+              display={item.weightPercent != null ? `${item.weightPercent}%` : null}
+              empty={item.weightPercent == null}
+              emptyText="반영 비율 추가"
+              readOnly={readOnly}
+              saver={saveInline}
+              editor={({ save, cancel }) => <WeightEditor value={item.weightPercent} save={save} cancel={cancel} />}
+            />
+            <InlineRow
+              label="제출물"
+              icon={<ClipboardIcon size={15} />}
+              testId="meta-submissions"
+              display={item.submissions}
+              empty={!item.submissions}
+              emptyText="제출물 추가"
+              readOnly={readOnly}
+              saver={saveInline}
+              editor={({ save, cancel }) => <SubmissionEditor value={item.submissions} save={save} cancel={cancel} />}
+            />
+            {item.description && (
+              <PropertyRow icon={<BookIcon size={15} />} label="수행 내용">
+                <span style={{ whiteSpace: 'pre-wrap' }}>{item.description}</span>
+              </PropertyRow>
+            )}
+            {item.personalMemo && (
+              <PropertyRow icon={<PencilIcon size={15} />} label="개인 메모">
+                <span style={{ whiteSpace: 'pre-wrap' }}>{item.personalMemo}</span>
+              </PropertyRow>
+            )}
           </dl>
           <button
             type="button"
             className={styles.editInfoButton}
             disabled={readOnly}
-            title={readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요' : '이름·마감일·설명을 바꿀 수 있어요'}
+            title={readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요' : '평가 유형·날짜·반영 비율·제출물·메모를 바꿀 수 있어요'}
             data-testid="edit-assessment-open"
             onClick={() => setModal({ kind: 'edit' })}
           >
@@ -453,11 +471,15 @@ export function SchoolAssessmentDetailRoute() {
             </button>
           )}
 
-          <NoticeAttachments assessmentId={item.assessmentId} assessmentTitle={item.title} />
+          {/* A27-UX 학생(이미지 10·11): 다섯 Section을 같은 위계로 — 안내문·첨부 / 평가계획서 원본 / 평가 기준 / 수행평가 결과물 / 탐구 노트 */}
+          <NoticeSection assessmentId={item.assessmentId} assessmentTitle={item.title} />
+          <OfficialSourceSection context={itemContext} />
+          <OfficialCriteriaSection query={criteria} open={criteriaOpen} onToggle={() => setCriteriaOpen((value) => !value)} />
 
-          {artifactSection}
+          <div className={sectionStyles.section} data-testid="detail-artifacts">{artifactSection}</div>
 
           {/* 과제 정보는 위 속성 목록에서 보여준다. 노트 위에 같은 정보를 다시 두지 않는다 (2026-10-28 사용자 요청). */}
+          <div className={`${sectionStyles.section} ${sectionStyles.noteWrap}`} data-testid="detail-note">
           {readOnly ? (
             <NoteReadOnlyView notes={notes} />
           ) : (
@@ -471,8 +493,19 @@ export function SchoolAssessmentDetailRoute() {
             insertRequest={insertRequest}
           />
           )}
+          </div>
         </>,
-        panel,
+      )}
+
+      {sheet === 'feedback' && (
+        <Modal title="선생님께 피드백 요청" description="노트와 결과물 버전을 골라 요청하고, 이전 요청과 답변을 확인해요." wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
+          <div data-testid="feedback-modal">{feedbackContent}</div>
+        </Modal>
+      )}
+      {sheet === 'resources' && (
+        <Modal title="자료 찾기" description="참고자료를 검색해 보고, 탐구 노트에 출처 카드로 넣을 수 있어요." wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
+          <div data-testid="find-resources-modal">{resourcesContent}</div>
+        </Modal>
       )}
 
       {modal?.kind === 'upload' && (
@@ -509,8 +542,6 @@ export function SchoolAssessmentDetailRoute() {
           onClose={() => setModal(undefined)}
           resolveAction={(action) => {
             switch (action) {
-              case 'TOPIC_SUGGESTION':
-                return { run: () => setModal({ kind: 'topic' }) }
               case 'NOTE':
                 return {
                   run: () => {
@@ -528,9 +559,6 @@ export function SchoolAssessmentDetailRoute() {
           }}
         />
       )}
-      {modal?.kind === 'topic' && (
-        <TopicSuggestionModal subjects={currentSubjects} initialSubjectId={item.subjectId} onClose={() => setModal(undefined)} />
-      )}
       {modal?.kind === 'sent' && (
         <FeedbackSentModal
           assessmentTitle={item.title}
@@ -540,37 +568,6 @@ export function SchoolAssessmentDetailRoute() {
           onClose={() => setModal(undefined)}
         />
       )}
-    </>
-  )
-}
-
-/**
- * 평가계획서 분석 값 (evaluationItemRef → §11). 값이 있으면 "후보 · 확인 필요"를 붙인다.
- * 직접 등록이거나 원본에 없으면 "미등록", 조회 중이면 "불러오는 중…", 실패하면 그 사실을 보여준다.
- */
-function CandidateValue({
-  lookup,
-  value,
-  emptyHint,
-}: {
-  lookup: QueryResult<EvaluationItemLookup>
-  value: (found: Extract<EvaluationItemLookup, { kind: 'found' }>) => string | null
-  emptyHint?: string
-}) {
-  if (lookup.status === 'error') return <span className={styles.unknown}>평가계획서 정보를 불러오지 못했어요</span>
-  if (!lookup.data) return <span className={styles.unknown}>불러오는 중…</span>
-  const text = lookup.data.kind === 'found' ? value(lookup.data) : null
-  if (text === null)
-    return (
-      <>
-        <span className={styles.unknown}>미등록</span>
-        {emptyHint && <span className={styles.hint}>{emptyHint}</span>}
-      </>
-    )
-  return (
-    <>
-      {text}
-      <span className={styles.candidateTag}>평가계획서 후보 · 확인 필요</span>
     </>
   )
 }

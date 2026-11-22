@@ -118,18 +118,133 @@ export interface SchoolAssessment {
   deadlineDate: string | null
   createdAt: string
   evaluationItemRef: EvaluationItemRef | null
+  /** A27-UX 학생 개인 관리 정보 (§12 DRAFT). 모르면 null. 이전 응답·Mock에는 없을 수 있다 */
+  description?: string | null
+  assessmentType?: SchoolAssessmentType | null
+  /** YYYY-MM-DD 평가일 (제출 마감과 별도) */
+  evaluationDate?: string | null
+  /** 0~100. null = 모름(0과 구분) */
+  weightPercent?: number | null
+  submissions?: string | null
+  personalMemo?: string | null
+  updatedAt?: string
+  /** A27-UX 학생 화면(2026-11-19 DRAFT §12-b): 평가 유형 '기타' 직접 입력. OTHER가 아니면 null */
+  assessmentTypeLabel?: string | null
+  /**
+   * A28-20 §12-c 학교 확정 자동 등록(관리자 최종 승인된 공식 수행평가). 학생 직접 등록이면 null/없음.
+   * 공식 값(이름·시기·반영·만점)은 학교 확정본이고 학생이 바꾸지 않는다. 날짜(평가일·마감)는 학생 개인 값이다.
+   */
+  official?: SchoolAssessmentOfficial | null
 }
+
+export interface SchoolAssessmentOfficial {
+  planId: string
+  /** ACTIVE = 최신 확정본에 있음, WITHDRAWN = 재확정에서 빠짐(학생 기록은 그대로) */
+  status: 'ACTIVE' | 'WITHDRAWN'
+  /** 원문 공식 시기(예: '9월'). 날짜가 아니다 */
+  timing: string | null
+  weightPercent: number | null
+  maxScore: number | null
+}
+
+/**
+ * §10-1-3 (DRAFT, A27-UX) 본인 학적 슬롯의 학교 공식 공개 평가계획서 원본.
+ * 관리자가 직접 등록한 평가계획서·분석 결과와 다른 자료다(공식 원본은 관리자 분석 승인 없이 열람).
+ * contextFound=false: 그 학년도·학기 학적 기록이 없어 다른 학년 문서를 연결하지 않았다.
+ * sourceConnected=false: 공식 원본 공급자(학교알리미 수집기)가 아직 없다 — documents는 비어 있다.
+ */
+export interface StudentOfficialPlan {
+  academicYear: number
+  semester: number
+  contextFound: boolean
+  schoolId: string | null
+  schoolName: string | null
+  grade: number | null
+  sourceConnected: boolean
+  documents: {
+    sourceDocumentId: string
+    provider: string
+    fileName: string
+    documentFormat: string
+    sourceUrl: string | null
+    sha256: string | null
+    publishedAt: string | null
+    verifiedAt: string | null
+    latest: boolean
+    /** 부록 K: 원본 크기(바이트) */
+    sizeBytes?: number | null
+    /** 부록 K: 공시월 4(1학기 공시)·9(2학기 공시), 모르면 null */
+    disclosureMonth?: number | null
+  }[]
+  /**
+   * A28-01 원본 칸의 근거. ACADEMIC_RECORD = 그 해 학생 학적 칸 · SCHOOL_PUBLIC = 학교 공개 원본(학생 재학·수강 기록 아님) ·
+   * null = 칸을 정할 학교 없음. contextFound 는 학적 유무 그대로다.
+   */
+  basis?: 'ACADEMIC_RECORD' | 'SCHOOL_PUBLIC' | null
+}
+
+/**
+ * §10-1-3 부록 K POST .../official/ensure — 학생 진입 자동 확보 상태. 학교는 서버가 학적에서 정한다(요청에 학교·학년도 없음).
+ * 학교알리미 후보·주소는 오지 않는다(학교 선택은 관리자만).
+ */
+export interface StudentOfficialEnsure {
+  state: 'RUNNING' | 'READY' | 'SCHOOL_CONFIRMATION_REQUIRED' | 'SCHOOL_IDENTITY_REQUIRED' | 'NO_CONTEXT' | 'FAILED'
+  schoolSelectionRequired: boolean
+  years: { academicYear: number; status: string }[]
+  message: string | null
+  /** 부록 O: 학생이 고른 동명 학교(선생님 확인 전)의 원본을 확인한 결과 */
+  viewSelected?: boolean
+}
+
+/** 부록 O §38-16 학생 개인 '공식 원본 열람 대상' 학교 선택 (학적·선생님 매핑과 별개) */
+export interface StudentOfficialViewSelection {
+  schoolName: string
+  sido: string | null
+  sigungu: string | null
+  address: string
+  selectedAt: string
+  version: number
+  teacherConfirmed: boolean
+}
+
+export interface StudentOfficialView {
+  state: 'NO_CONTEXT' | 'NOT_REQUIRED' | 'ADMIN_CONFIRMED' | 'RUNNING' | 'SELECT_REQUIRED' | 'SELECTED' | 'UNAVAILABLE'
+  schoolName: string | null
+  candidates: {
+    candidateId: string
+    schoolName: string
+    sido: string | null
+    sigungu: string | null
+    address: string | null
+    selectable: boolean
+    unselectableReason: string | null
+  }[]
+  selection: StudentOfficialViewSelection | null
+  message: string | null
+}
+
+/** A27-UX 학생이 고르는 평가 유형 (개인 관리 정보, 공식 평가 방법 아님) */
+export type SchoolAssessmentType = 'PRESENTATION' | 'REPORT' | 'PROJECT' | 'EXPERIMENT' | 'DEBATE' | 'PORTFOLIO' | 'OTHER'
 
 /** §12 POST 직접 등록 요청 */
 export interface CreateSchoolAssessmentRequest {
   title: string
-  subjectId: string
+  /** A27-UX(§12-a): newSubjectName과 둘 중 하나만 보낸다. 이름으로 보낼 때는 null */
+  subjectId: string | null
+  /** A27-UX(§12-a): 사이드바에 없는 과목 이름 — 서버가 같은 트랜잭션에서 학생 과목으로 더한다 */
+  newSubjectName?: string | null
+  assessmentTypeLabel?: string | null
   academicYear: number
   semester: number
   deadlineDate: string | null
   description: string | null
   status: SchoolAssessmentStatus
   evaluationItemRef: EvaluationItemRef | null
+  assessmentType?: SchoolAssessmentType | null
+  evaluationDate?: string | null
+  weightPercent?: number | null
+  submissions?: string | null
+  personalMemo?: string | null
 }
 
 /**
@@ -138,8 +253,14 @@ export interface CreateSchoolAssessmentRequest {
  */
 export interface UpdateSchoolAssessmentRequest {
   title?: string
+  assessmentTypeLabel?: string | null
   description?: string | null
   deadlineDate?: string | null
+  assessmentType?: SchoolAssessmentType | null
+  evaluationDate?: string | null
+  weightPercent?: number | null
+  submissions?: string | null
+  personalMemo?: string | null
 }
 
 /**
@@ -192,6 +313,11 @@ export interface NoteBlockAttrs {
   rows?: string[][]
   resource?: { resourceId: string; title: string; type: string; sourceName: string | null; sourceUrl: string | null }
   // ---- 아래도 Mock 임시 필드 (MM-33 확장, P-22 PROPOSED). Editor 선정(OD-A05) 뒤 Schema를 다시 정한다. ----
+  /**
+   * A27-UX(계정 B) 인라인 서식: text 위 글자 범위(start 포함·end 미포함). text는 순수 글 그대로 둔다(서식을 모르는 화면은 글만 보인다).
+   * type = bold·italic·underline·link, link는 http(s) href. Editor 결정(OD-A05) 전 임시 형식.
+   */
+  marks?: { type: 'bold' | 'italic' | 'underline' | 'link'; start: number; end: number; href?: string }[]
   /** HEADING 단계 (1~3). 없으면 기존 소제목(2단계)으로 본다 */
   level?: 1 | 2 | 3
   /** 목록 들여쓰기 단계 (0~4) */
@@ -619,6 +745,16 @@ export interface StudentResource extends CreateResourceRequest {
   resourceId: string
   createdAt: string
   updatedAt: string
+  /** A27-UX §22-1 DRAFT 첨부 파일 (없으면 null). previewAvailable = PDF·이미지만 */
+  file?: StudentResourceFile | null
+}
+
+export interface StudentResourceFile {
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  uploadedAt: string
+  previewAvailable: boolean
 }
 
 /** §22 PATCH. 수정 가능 필드가 계약에 없어 요청 필드의 부분 집합으로 본다 (MM-30). */
@@ -905,4 +1041,20 @@ export interface StudentTeachingPlan {
   status: 'CONFIRMED' | 'NOT_CONFIRMED'
   confirmedAt: string | null
   rows: (PlanRowLike & { subjectId: string })[]
+}
+
+/** A27-UX 학생 홈 메모 (2026-11-19 DRAFT §30-a). 한 번도 저장하지 않았으면 body·updatedAt null, version 0 */
+export interface HomeMemo {
+  body: string | null
+  updatedAt: string | null
+  version: number
+}
+
+/** A27-UX 수행평가 안내문 첨부 (2026-11-19 DRAFT §12-c). 학생 개인 파일 */
+export interface NoticeFile {
+  fileId: string
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  uploadedAt: string
 }

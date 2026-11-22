@@ -1,0 +1,416 @@
+/* A27-UX 평가계획서 6칸 (Toss·Daglo: 흰 바탕 카드, 얇은 전체 테두리, 무채색, 왼쪽 강조선 없음) */
+.grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.headRow,
+.row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.colHead {
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rowHead {
+  padding-top: 14px;
+  color: var(--as-color-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cell {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 96px;
+  padding: 14px 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-lg);
+  background: var(--as-color-surface);
+}
+
+.cell[data-empty] {
+  background: var(--as-color-subtle);
+}
+
+.cellHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.cellHead strong {
+  color: var(--as-color-text);
+  font-weight: 600;
+}
+
+.addButton,
+.textButton {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.addButton:hover:not(:disabled),
+.textButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.addButton:disabled,
+.textButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.doc {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-fill);
+}
+
+.docTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--as-color-text-secondary);
+}
+
+.docName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docMeta,
+.docStage {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
+
+.docStage {
+  color: var(--as-color-text);
+  font-weight: 600;
+}
+
+.docActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* A27-UX(계정 B): 빈 칸 안내 · 개정 이력 · 원본 미리보기 */
+.emptyHint {
+  margin: 0;
+  color: var(--as-color-text-tertiary);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.history {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--as-color-line);
+  list-style: none;
+}
+
+.historyRow {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface);
+}
+
+.historyMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.historyMain .docName {
+  flex: 1 1 140px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.historyMeta {
+  flex-basis: 100%;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.previewBody {
+  display: grid;
+  gap: 8px;
+  height: min(72vh, 820px);
+  min-height: 0;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .headRow {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A27-UX 부록 E §38-12: 최근 3개 학년도 원본 자동 확인 — 작은 한 줄 요약(대형 배너 없음), 중립 톤 */
+.syncBar {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+}
+
+.syncLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.syncTitle {
+  color: var(--as-color-text);
+  font-weight: 600;
+}
+
+.syncYears {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.syncYear,
+.slotSync {
+  padding: 2px 8px;
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.syncYear[data-attention],
+.slotSync[data-attention] {
+  background: var(--as-color-warning-soft);
+  color: var(--as-color-warning-text);
+  font-weight: 600;
+}
+
+.syncCoverage {
+  color: var(--as-color-text-secondary);
+}
+
+.syncActions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.syncError {
+  margin: 0;
+  color: var(--as-color-danger);
+  font-size: 13px;
+}
+
+.syncUnresolved {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--as-color-line);
+  list-style: none;
+}
+
+.syncUnresolved li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.slotSync {
+  align-self: start;
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sourceBadge {
+  padding: 1px 6px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  color: var(--as-color-text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .syncUnresolved li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .syncActions {
+    margin-left: 0;
+  }
+}
+
+/* A27-UX 부록 F: 학교 선택 · 원본 분류 Modal (중립 톤) */
+.selectField {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.candidateList {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.candidate {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  cursor: pointer;
+}
+
+.candidate[data-disabled] {
+  color: var(--as-color-text-secondary);
+  cursor: not-allowed;
+}
+
+.candidateText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.classifyGroup {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.classifyGroup h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.classifyCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+}
+
+.classifyChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+}
+
+.classifyChoices legend {
+  margin-right: 8px;
+  float: left;
+  color: var(--as-color-text-secondary);
+}
+
+/* 부록 F: Modal 안 원본 목록은 이름이 0폭으로 눌리지 않게 두 줄로 쌓는다 */
+.classifyGroup .syncUnresolved li {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+/* 부록 F: Modal 안 내용은 한 열(설명 → 선택 → 목록 순서) */
+.modalStack {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* A28-02 외부 학교 조회 표시 (무채색 안내 띠) */
+.externalBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--assessment-border, #e5e8eb);
+  border-radius: 12px;
+  background: var(--assessment-surface-subtle, #f9fafb);
+  font-size: 13px;
+}
+
+.externalBanner > strong {
+  font-size: 14px;
+}
+
+.externalName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}

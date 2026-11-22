@@ -26,11 +26,39 @@ import { adminFile, adminHttp } from './adminHttpClient.ts'
 const base = '/api/admin/assessment'
 const enc = encodeURIComponent
 
-/** 개발용 현재 학기 (VITE_ASSESSMENT_DEV_CURRENT_TERM, 예: 2026-1). 날짜로 추측하지 않는다. */
-export function devCurrentTerm(): { academicYear: number; semester: number } {
-  const raw: unknown = import.meta.env.DEV ? import.meta.env.VITE_ASSESSMENT_DEV_CURRENT_TERM : undefined
-  const match = typeof raw === 'string' ? /^(\d{4})-([12])$/.exec(raw.trim()) : null
-  return match ? { academicYear: Number(match[1]), semester: Number(match[2]) } : { academicYear: new Date().getFullYear(), semester: 1 }
+type Term = { academicYear: number; semester: number }
+
+/**
+ * 부록 O §9-2: 현재 학년도·학기는 서버(GET /api/admin/assessment/current-term, KST 달력)가 정한다 — 설정(VITE_*) 불필요.
+ * 서버 응답 전·실패 시에는 서버와 같은 규칙(3~8월 1학기, 9~2월 2학기, 1·2월은 전년도)의 KST 달력 값을 쓴다.
+ */
+export function calendarTerm(now: Date = new Date()): Term {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'numeric' }).formatToParts(now)
+  const year = Number(parts.find((part) => part.type === 'year')?.value)
+  const month = Number(parts.find((part) => part.type === 'month')?.value)
+  if (month <= 2) return { academicYear: year - 1, semester: 2 }
+  return { academicYear: year, semester: month <= 8 ? 1 : 2 }
+}
+
+let serverTerm: Term | null = null
+let pendingTerm: Promise<Term> | null = null
+
+/** 서버 현재 학기(한 번 받아 둔다) */
+export function currentTermAsync(): Promise<Term> {
+  if (serverTerm) return Promise.resolve(serverTerm)
+  pendingTerm ??= adminHttp<Term>(`${base}/current-term`).then(
+    (term) => (serverTerm = { academicYear: term.academicYear, semester: term.semester }),
+    () => {
+      pendingTerm = null
+      return calendarTerm()
+    },
+  )
+  return pendingTerm
+}
+
+/** 지금 알고 있는 현재 학기(서버 값이 오기 전이면 같은 규칙의 KST 달력 값) */
+export function currentTerm(): Term {
+  return serverTerm ?? calendarTerm()
 }
 
 interface StudentListQuery {
@@ -49,14 +77,14 @@ const statusKey = { BEFORE_START: 'beforeStart', IN_PROGRESS: 'inProgress', COMP
  * 서버가 돌려준 **담당 지점 학생 목록 안에서만** 학교·학년·상태(해당 학기 수행평가가 그 상태로 1건 이상)를 거른다.
  * 서버 권한 범위를 넓히지 않는다. 과목 필터는 목록 응답에 수강 과목이 없어 http에서는 적용하지 않는다.
  */
-/** §33 Assessment 현황 (A12): 서버가 요청 시점 DB에서 계산한 값. 학기는 개발 현재 학기(devCurrentTerm)를 보낸다 */
-export function getOverviewHttp(query: { schoolId?: string; grade?: number } = {}): Promise<AssessmentOverview> {
-  const term = devCurrentTerm()
+/** §33 Assessment 현황 (A12): 서버가 요청 시점 DB에서 계산한 값. 학기는 서버 현재 학기(currentTermAsync)를 보낸다 */
+export async function getOverviewHttp(query: { schoolId?: string; grade?: number } = {}): Promise<AssessmentOverview> {
+  const term = await currentTermAsync()
   return adminHttp<AssessmentOverview>(`${base}/overview`, { query: { schoolId: query.schoolId, grade: query.grade, academicYear: term.academicYear, semester: term.semester } })
 }
 
 export async function listStudentsHttp(query: StudentListQuery = {}): Promise<{ items: AdminStudentSummary[] }> {
-  const term = query.term ?? devCurrentTerm()
+  const term = query.term ?? (await currentTermAsync())
   const response = await adminHttp<{ items: AdminStudentSummary[] }>(`${base}/students`, {
     query: { academicYear: term.academicYear, semester: term.semester, query: query.query },
   })
@@ -71,7 +99,7 @@ export async function listStudentsHttp(query: StudentListQuery = {}): Promise<{ 
 
 /** 학생 목록 필터 선택지 (http): 담당 학생 목록(서버)에서 학교를 모으고, 학기는 현재 학년도 1·2학기. 과목 선택지는 http에서 제공하지 않는다. */
 export async function getStudentFilterOptionsHttp(query: { schoolId?: string; grade?: number; term?: { academicYear: number; semester: number } } = {}) {
-  const term = query.term ?? devCurrentTerm()
+  const term = query.term ?? (await currentTermAsync())
   const list = await adminHttp<{ items: AdminStudentSummary[] }>(`${base}/students`, { query: { academicYear: term.academicYear, semester: term.semester } })
   const schools = new Map<string, string>()
   for (const item of list.items) if (item.student.school.schoolId) schools.set(item.student.school.schoolId, item.student.school.name)
@@ -92,8 +120,8 @@ export async function getStudentViewSourceHttp(studentId: string): Promise<Stude
   return { student: detail.student, snapshot: empty, httpStudentId: detail.student.studentId }
 }
 
-export function getStudentHttp(studentId: string): Promise<AdminStudentDetail> {
-  return adminHttp<AdminStudentDetail>(`${base}/students/${enc(studentId)}`, { query: { academicYear: devCurrentTerm().academicYear } })
+export async function getStudentHttp(studentId: string): Promise<AdminStudentDetail> {
+  return adminHttp<AdminStudentDetail>(`${base}/students/${enc(studentId)}`, { query: { academicYear: (await currentTermAsync()).academicYear } })
 }
 
 export async function getActivitySummaryHttp(query: { studentId: string; academicYear: number; semester: number }): Promise<ActivitySummary> {
@@ -219,6 +247,24 @@ export async function compareArtifactVersionsHttp(artifactId: string, fromVersio
     },
   }
 }
+
+// ---- §43-1 DRAFT 관리자 참고자료 파일 업로드 (영상·사진·문서, 관리자 전용) ----
+/** 메타정보(JSON part) + 파일을 한 번에 저장한다. 업로드 스크랩만 sourceUrl 선택 */
+export function uploadScrapHttp(metadata: ScrapRequest, file: File): Promise<ReferenceScrapWithVisibility> {
+  const form = new FormData()
+  form.append('metadata', new Blob([JSON.stringify({ ...metadata, sourceUrl: metadata.sourceUrl?.trim() ? metadata.sourceUrl.trim() : null })], { type: 'application/json' }))
+  form.append('file', file, file.name)
+  return adminHttp<ReferenceScrapWithVisibility>(`${base}/reference-library/uploads`, { method: 'POST', form })
+}
+export function attachScrapFileHttp(scrapId: string, file: File): Promise<ReferenceScrapWithVisibility> {
+  const form = new FormData()
+  form.append('file', file, file.name)
+  return adminHttp<ReferenceScrapWithVisibility>(`${base}/reference-library/${enc(scrapId)}/file`, { method: 'POST', form })
+}
+export const detachScrapFileHttp = (scrapId: string) =>
+  adminHttp<ReferenceScrapWithVisibility>(`${base}/reference-library/${enc(scrapId)}/file`, { method: 'DELETE' })
+export const downloadScrapFileHttp = (scrapId: string) => adminFile(`${base}/reference-library/${enc(scrapId)}/file`)
+export const previewScrapFileHttp = (scrapId: string) => adminFile(`${base}/reference-library/${enc(scrapId)}/file/preview`)
 
 /** §43 DELETE = 소프트 삭제(휴지통). 만든 관리자만. 영구 삭제는 없다 */
 export const deleteScrapHttp = (scrapId: string) => adminHttp<void>(`${base}/reference-library/${enc(scrapId)}`, { method: 'DELETE' })
