@@ -1168,3 +1168,78 @@
 2. 관리자 → 보라고 2026 1학년 2학기 → 분석 탭에서 문서 '다시 분석' — 새 분석 결과가 생긴다. 기존 평가 정보 확정(185)·확정 이력은 그대로.
 3. 검토 화면 4단계 '월별 운영 계획'에서 후보 195행 확인·제외 → 최종 확정 단계 '월별 운영계획 최종 승인'(평가 정보 재확정 없음).
 4. 2·3학년·소인수 문서도 같은 방법(평가 정보 확정 여부에 따라 '최종 승인' 또는 '월별 운영계획 최종 승인').
+
+---
+
+# A28-28 — REPLAY 최종 검증 · GitHub 통합 마무리 · main 병합 준비 (2026-11-22 22:20~)
+
+- 지시: REPLAY 재실행 명시 허용(메모리 점검 후 순차), Stage 커밋 검증 후 통합 브랜치 push, PR #18 상태 확인, PR #17 점검·설명 갱신·Draft 해제 가능, **main 병합은 하지 않음**, 완규님 메시지 작성하지 않음.
+- 원본 작업 트리(`C:\learnershigh-assessment-integration`)의 미커밋 변경은 Git 조작 없이 그대로 둠(HEAD `9755581`, 내용은 push 한 트리와 같음 — 미러 비교 차이 0).
+
+## L-1. 메모리 점검과 REPLAY
+
+- 시작 시 가용 메모리 643MB(전체 16GB, Chrome·Notion·WSL·사용자 8080 등). 사용자 앱·서버는 종료하지 않았다. 출처를 확정할 수 없는 Gradle daemon(PID 512, 11:53 시작)도 그대로 둠.
+- REPLAY 는 포그라운드·worker 1 로 실행: 시험 사본(`a28-build`)을 **Stage 트리에서** 동기화(`backend/src`·Migration 이 Stage 와 같음 확인) → 일회용 MySQL·격리 Backend(18090)·학생/관리자(5191/5192)·학교알리미 Stub. 사용자 `lh_local_run`·사용자 Storage 미연결.
+- 결과: **8/8 통과 (2.2m)** — `C:\learnershigh-local-run\a28-27-20261122\replay-a28-28.log`. 실행 뒤 일회용 컨테이너 0, 사용자 DB 확정 해시 시작과 같음.
+- 이전 결과의 유효성: A28-27 의 Backend 단위(477: 474 통과·3 skip)·통합(246)·E2E(68/68)는 최종 분석기 코드로 실행됐고, 그 뒤 바뀐 것은 줄바꿈 정규화·문서·새 파일 2개의 끝 빈 줄뿐이다. 끝 빈 줄 수정 뒤 `verify-frontend` PASS·Node 171/171 을 다시 돌렸다. push 한 SHA 는 GitHub CI 가 Backend(단위·통합)·Frontend·E2E 를 새로 실행해 모두 통과(L-4).
+- 실수 기록: 하네스 검사를 잘못된 인자로 Stage 에서 실행해 Backend 전체 검사가 기존 Gradle daemon 에서 시작됨 → 즉시 중지, Testcontainers 컨테이너는 Ryuk 가 모두 정리(사용자 컨테이너 영향 없음). 이어 CI 와 같은 명령 `scripts/verify.ps1 -SkipFrontend -SkipBackend` 로 PASS.
+
+## L-2. Push 전 감사
+
+| 항목 | 결과 |
+|---|---|
+| PR #18 22 커밋 보존 | `b09ef4a^2` 에서 22개 모두 `beans3142` 작성, `e161f15` 가 HEAD 의 조상 |
+| A28-27 커밋 | `bf3c290`·`f160e97`·`1faac3c`·`7aabd06`·`07e602e`·`00c56f6` + 이번 `d35b9f2`(새 파일 2개 끝 빈 줄 제거) |
+| 미커밋 작업 누락 | 원본 작업 트리 ↔ Stage 미러 비교: 복사할 것 0 · 지울 것 0(PR #18 연구 자료 79개만 Stage 에 추가 보존) |
+| `V202611180100` | 최종 트리에 없음. Migration 28개 = 사용자 DB `flyway_schema_history` 28건(버전 일치, 실패 0), **Flyway 체크섬 28/28 일치**(LF 정규화한 `V202611170200` 포함) |
+| 파괴적 변경 | 새 Migration 9개에 DROP TABLE·DELETE·TRUNCATE 없음. `V202611212328` 은 CHECK 제약 2개를 같은 이름으로 교체(데이터 변경 없음, 이미 사용자 DB 적용) |
+| 비밀값·덤프·개인 경로·산출물 | 비밀값 패턴 0(문자열 `e2e-stub-token-not-a-secret-…` 은 E2E Stub 고정값), DB 덤프·원본 평가계획서·빌드 산출물 0, 개인 경로·이메일 0. 예전 `application.yml` 의 Railway 분석기 토큰은 이번에 **삭제**됨(과거 Git 이력에는 남아 있음 — 교체 권장) |
+| Student Care·다른 담당 | Student Care 소스 변경 0. 공용 파일: `README.md`(분석기 문서 링크), `application.yml`(분석기 local·local-run 프로필), 시험 설정, `api-contract.md`, `e2e/tsconfig.json`, 학생 `StudentAppShell.tsx`·`vite.config.ts`(Assessment 메뉴·개발 Proxy), 독립 실행기 `e2e/student-care/run-isolated.mjs`(신규, 기존 Care 시험 코드 변경 없음) |
+| 개발 Header 인증 | `MockHeaderAssessmentActorProvider`: `learnershigh.integration.mode=mock` 일 때만, `prod`·`production`·`staging` Profile 에서는 Header 무시(401). 시험 `DemoRosterTest` |
+| `git diff --check` | 끝 빈 줄 2건 수정 후 `core.whitespace=cr-at-eol` 기준 통과(PR #18 연구 결과 파일 `r3_all_schools.txt` 의 원문 공백 제외 — 완규님 파일이라 수정하지 않음). 기본 설정 경고는 HEAD 에서 이미 CRLF 였던 파일의 줄 끝 CR |
+| 하네스(CI 첫 단계와 같은 명령) | PASS |
+
+## L-3. Push · PR #18
+
+- `git fetch` → 원격 통합 브랜치 `9755581`(변동 없음) → Stage HEAD 의 조상 확인 → `git push origin a28-27/stage:integration/assessment-studentcare-20261116` → `9755581..d35b9f2`(fast-forward, force 없음).
+- 로컬 HEAD = 원격 HEAD = `d35b9f2664eaca68c6b2f8adb1b3e27d608cc888`.
+- **PR #18: closed · merged = true** (GitHub API, merged_at 2026-11-22T13:47:44Z = 22:47 KST, merge commit `b09ef4a`). Close·재병합 조작 없음.
+
+## L-4. PR #17 점검
+
+| 항목 | 결과 |
+|---|---|
+| 방향 | `integration/assessment-studentcare-20261116` → `main`, Draft |
+| main 과의 차이 | `main`(`c03a1a4`) = 통합 브랜치의 조상(main 쪽 새 커밋 0) → 충돌 없음, 통합 쪽 164 커밋 · 1,666 파일 |
+| GitHub Actions(`d35b9f2`) | push·PR 두 실행 모두 Harness · Frontend · Backend · E2E (Playwright) · CI Result **success** |
+| 보호 규칙 | `main`·통합 브랜치 보호 규칙 없음, 필수 리뷰 없음(리뷰 0건) |
+| Flyway | 28개, 사용자 DB 와 체크섬 일치, 새 Migration 은 추가형(L-2) |
+| 개발 Header 인증 | 운영 Profile 차단(L-2) |
+| API 계약 | A28-27 은 계약 모양 변경 없음(분석기 규칙 주석만). A27·A28 의 DRAFT 계약 5건은 '사용자 승인, 팀 승인 별도' 표시 그대로 |
+
+## L-5. main 병합 전 남은 일
+
+1. PR #17 설명 최신화(이번 회차) · Draft 해제(필수 CI 통과 · 확인할 문제 없음 → 해제).
+2. **팀 확인 필요**: PR #17 은 1,666 파일 · 164 커밋 규모이고 공용 파일(`api-contract.md`, `application.yml`, `StudentAppShell.tsx`)을 바꾼다. 필수 리뷰 규칙은 없지만 Student Care 담당(완규님)과 공용 계약 DRAFT 5건 확인을 권장.
+3. Railway 분석기 토큰 교체(과거 이력에 공개됨) — 저장소 밖 작업.
+4. main 병합 실행은 사용자 지시 후(이번 회차 금지).
+
+## L-6. main 병합 뒤 문서 정리 계획 (별도 `docs/` 브랜치 · PR)
+
+| 문서 | 현재(통합 브랜치 `d35b9f2`) | 할 일 |
+|---|---|---|
+| `README.md` | 분석기 설정 문서 링크 1줄뿐 | Assessment 실행 요약: Backend(local-run)·학생/관리자 실행, 분석기 `local`·OCR, 학교알리미 자동 확인(3개 학년도·TTL 24h), Flyway 28 |
+| `docs/OWNERSHIP.md` | Assessment 절 없음 | '3-6 Assessment(평가계획서·분석기·학교알리미·학생 수행평가)' 추가: 담당 Suyeon(분석기 정확도 포함, 2026-11-22 사용자 결정), PR #18 기여 완규님 기록. 공용 문서라 팀 확인 |
+| `docs/SOURCE_OF_TRUTH.md` | Assessment 문서 위치 없음 | Assessment Source of Truth: `docs/specs/suyeon/domain.md` §30-A, `api-contract.md` §38~§39, `assessment-analyzer-setup.md`, 최신 보고서 |
+| `docs/api/api-contract.md` | A27·A28 절이 날짜별 덧붙임 | '현재 계약' 요약표 + 이력은 부록으로 분리, DRAFT 5건 상태 갱신 |
+| `docs/specs/suyeon/assessment-analyzer-setup.md` | 서버 안 분석·OCR | A28-27 월 제목 규칙, 코퍼스 회귀 방법(읽기 전용), 알려진 한계(두 달 표·조각 표) |
+| `docs/architecture/overview.md` | Assessment 분석 경계 언급 없음 | `assessment/integration/analysis`(local·none·loopback-stub)·`integration/schoolinfo` 외부 경계 |
+| `docs/adr/` | 0001~0007 | 새 ADR 제안: '서버 안 분석기 · Railway 퇴역(2026-11-19)', '검토 표 병합(V202611180100) 미채택' |
+| `docs/specs/suyeon/` 보고서 | A27·A28 보고서 여러 개 | 보고서 색인(현재 상태 vs 이력 표시) — 과거 보고서는 덮어쓰지 않음 |
+
+## L-7. 사용자 DB · Backend
+
+- 이번 회차 사용자 DB 쓰기 0, 보라고 재분석·승인 0, 새 Schema Migration 불필요(분석기 규칙만 변경).
+- 실행 중 8080(PID 25796, 18:40 시작 — A28-24 재시작)은 **A28-27 이전 분석기 코드**(시작 시점 작업 트리)로 떠 있다 — 보라고 재분석 전에 재시작 필요. 재시작해도 Migration 적용 없음(28 = 28).
+- 재시작: 8080 창을 닫고 PowerShell 에서 `C:\learnershigh-local-run\start-backend.ps1` (학생 5173·관리자 5174 는 그대로).
+- 보라고 반영(사용자 조작): A28-27 K-8 순서 — 관리자 http://localhost:5174/assessment?devAdmin=adm_demo_b01&school=sch_demo_bora&year=2026&grade=1&semester=2 → 분석 탭 '다시 분석' → 검토 4단계 후보 195행 확인 → 최종 확정 단계 '월별 운영계획 최종 승인'(평가 정보 185 재확정 없음) → 전체 현황·월별 운영계획·학생(`stu_demo_073`) 확인.
