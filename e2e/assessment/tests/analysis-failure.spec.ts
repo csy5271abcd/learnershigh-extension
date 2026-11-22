@@ -15,7 +15,7 @@ test('평가항목을 찾지 못한 문서는 실패로 저장되고 관리자�
   expect(created.status()).toBe(201)
   const plan = await created.json()
 
-  await page.goto(`${ADMIN}/assessment/evaluation-plans?school=school_001&year=2026`)
+  await page.goto(`${ADMIN}/assessment/analysis?school=school_001&year=2026`)
   const row = page.getByTestId('plan-row').filter({ hasText: fileName })
   await expect(row).toBeVisible()
   await row.getByTestId('plan-analyze-button').click()
@@ -45,7 +45,7 @@ test('분석기 처리 시간이 넘으면 시간 초과로 안내하고 분석 
   expect(created.status()).toBe(201)
   const plan = await created.json()
 
-  await page.goto(`${ADMIN}/assessment/evaluation-plans?school=school_001&year=2026`)
+  await page.goto(`${ADMIN}/assessment/analysis?school=school_001&year=2026`)
   const row = page.getByTestId('plan-row').filter({ hasText: fileName })
   await expect(row).toBeVisible()
   await row.getByTestId('plan-analyze-button').click()

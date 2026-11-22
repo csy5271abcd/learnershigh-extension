@@ -19,7 +19,9 @@ test('평가 정보를 먼저 확정한 뒤에도 운영계획 초안이 서버�
   await expect(page.getByTestId('teaching-plan-rows')).toContainText('학기 9주차')
 
   // 운영계획 과목 연결 + 행 결정 (평가 정보 확정 뒤)
-  await page.getByTestId('teaching-plan-subject-0').selectOption('subj_02')
+  // A27-UX [02]: 운영계획 단계에 과목 Dropdown이 없다. 평가 정보가 이미 확정(과목 1개)이라 그 연결을 그대로 쓴다(A10 규칙)
+  await expect(page.getByTestId('teaching-plan-subject-link-0')).toContainText('학업 과목')
+  await expect(page.getByTestId('teaching-plan-subject-link-0')).not.toContainText('미연결')
   await rows.nth(0).getByRole('button', { name: '확인' }).click()
   await rows.nth(7).getByRole('button', { name: '제외' }).click()
   await rows.nth(2).getByRole('button', { name: '수정' }).click()

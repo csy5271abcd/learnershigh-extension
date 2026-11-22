@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { ADMIN, ADMIN_ID, API, PLANS, STUDENT, STUDENT_ID, registerAndAnalyze, runTag, uniquePdf } from '../support.ts'
+import { linkSubjectThenTeaching } from '../reviewUi.ts'
 
 // A13 실제 화면 조작 E2E. 일회용 DB의 실제 Backend·Storage(분석기만 Stub 합성 0.3 결과).
 // 운영계획 재확정(A) · 노트 블록 편집기(B) · 관리자 답변 작성(C) · 성장 기록(D) · 보관함(E).
@@ -24,7 +25,8 @@ test('A: 운영계획 확정 → 재검토 → 수정 → 다시 확정 → 이�
   await expect(page.getByTestId('review-workspace')).toBeVisible({ timeout: 30_000 })
   await page.getByTestId('review-step-teaching-tab').click()
   const rows = page.getByTestId('teaching-plan-row')
-  await page.getByTestId('teaching-plan-subject-0').selectOption('subj_02')
+  // A27-UX [02]: 과목 연결은 2단계 과목 확인에서 한다(운영계획 단계의 두 번째 Dropdown 제거)
+  await linkSubjectThenTeaching(page, 0, 'subj_02')
   await rows.nth(0).getByRole('button', { name: '확인' }).click()
   await rows.nth(7).getByRole('button', { name: '제외' }).click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('서버에 임시 저장됨', { timeout: 15_000 })
@@ -148,6 +150,8 @@ test('D·E: 성장 기록을 화면에서 쓰고 저장하면 목록·상세·�
   await form.getByLabel('관련 활동').selectOption({ label: assessmentTitle })
   await form.getByLabel('배운 점').fill(`실험 설계를 다시 생각하게 됐다 ${tag}`)
   await form.getByRole('button', { name: '저장' }).click()
+  // 저장이 끝나 상세 주소로 넘어간 뒤에 확인한다(글이 아직 입력칸 안에 있을 때 바로 새로고침하면 저장 전 화면을 다시 연다)
+  await expect(page).toHaveURL(/\/assessment\/growth\/(?!new)[^/?]+$/, { timeout: 15_000 })
   await expect(page.getByText(`실험 설계를 다시 생각하게 됐다 ${tag}`)).toBeVisible({ timeout: 15_000 })
   await page.reload()
   await expect(page.getByText(`실험 설계를 다시 생각하게 됐다 ${tag}`)).toBeVisible({ timeout: 15_000 })

@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
+import { chooseSubject, confirmThroughSteps } from '../reviewUi.ts'
 import { ADMIN, ADMIN_ID, API, PLANS, STUDENT, STUDENT_ID, registerAndAnalyze, runTag, uniquePdf } from '../support.ts'
+import { pickStudentSubject } from '../studentUi.ts'
 
 // A12 관리자·학생 Assessment 실제 API 흐름. 일회용 DB의 실제 Backend·Storage를 쓴다(분석기만 Stub — 합성 결과).
 // - 화면 조작: 채점기준 수동 보완·확정·재검토·재확정(A·B), 학생 수행평가 추가·상태 변경(C), 심화탐구 열람(F), 현황(G)
@@ -9,10 +11,7 @@ const studentHeaders = { 'X-Assessment-Student-Id': STUDENT_ID }
 
 async function confirmOnScreen(page: Page, fileName: string, bytes: Buffer) {
   await page.getByTestId('review-step-confirm-tab').click()
-  await page.getByTestId('review-local-pdf').setInputFiles({ name: fileName, mimeType: 'application/pdf', buffer: bytes })
-  await page.getByTestId('review-attest').check()
-  if (await page.getByTestId('review-partial-ack').count()) await page.getByTestId('review-partial-ack').check()
-  await page.getByTestId('review-confirm').click()
+  await confirmThroughSteps(page, { name: fileName, mimeType: 'application/pdf', buffer: bytes })
 }
 
 test('A·B: 채점기준 수동 보완 → 확정 → 학생 공개 → 재검토 → 재확정 → 학생 최신값, 이전 확정 이력 보존', async ({ page, request }) => {
@@ -25,7 +24,7 @@ test('A·B: 채점기준 수동 보완 → 확정 → 학생 공개 → 재검�
   await page.goto(`${ADMIN}/assessment/evaluation-plans/${doc.planId}/revisions/${doc.revisionId}`)
   await expect(page.getByTestId('review-workspace')).toBeVisible({ timeout: 30_000 })
   await page.getByTestId('review-step-subjects-tab').click()
-  await page.getByTestId('review-subject-select-0').selectOption('subj_02')
+  await chooseSubject(page, 'review-subject-select-0', 'subj_02')
   await page.getByTestId('review-step-performance-tab').click()
   await page.getByTestId('performance-nav-item').nth(1).click()
   await page.getByTestId('rubric-edit-open').click()
@@ -90,7 +89,8 @@ test('C: 학생이 학교 수행평가를 추가하고 상태를 바꾸면 새�
   await page.getByRole('button', { name: '수행평가 추가' }).first().click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel(/수행평가 이름|제목/).fill(title)
-  await dialog.locator('label').filter({ hasText: '통합과학2' }).first().click()
+  // A27-UX 학생: 과목은 검색형 Dropdown
+  await pickStudentSubject(dialog, '통합과학2')
   await dialog.getByRole('button', { name: /^(추가|등록|저장)/ }).last().click()
   await expect(dialog).toHaveCount(0, { timeout: 15_000 })
   await page.goto(`${STUDENT}/assessment/school-assessments`)
@@ -194,9 +194,12 @@ test('G: 관리자 현황 수치는 실제 DB 집계와 같다', async ({ page, 
   const confirmed = plans.items.filter((item: { reviewStatus: string }) => item.reviewStatus === 'CONFIRMED').length
   expect(overview.evaluationPlans.evaluationConfirmed).toBeGreaterThanOrEqual(confirmed)
   expect(overview.kpi.enrichmentTasks).toBe(0)
-  await page.goto(`${ADMIN}/assessment`)
-  await expect(page.getByText(`PDF ${overview.evaluationPlans.documents}개`)).toBeVisible({ timeout: 30_000 })
-  await expect(page.getByText(`답변 대기 ${overview.kpi.feedbackPending}건`)).toBeVisible()
+  // A27 전체 현황 Dashboard는 학교·학년 Filter(기본 = 첫 학교 · 고1)로 같은 API를 부른다. 같은 조건의 API 값과 화면 수치를 맞춘다
+  const screenOverview = await (await request.get(`${API}/api/admin/assessment/overview`, { headers: admin, params: { schoolId: 'school_001', grade: '1', academicYear: '2026', semester: '2' } })).json()
+  await page.goto(`${ADMIN}/assessment?school=school_001&year=2026&grade=1&semester=2`)
+  const kpis = page.getByTestId('overview-kpis')
+  await expect(kpis).toContainText(`${screenOverview.evaluationPlans.documents}개 문서`, { timeout: 30_000 })
+  await expect(kpis).toContainText(`${screenOverview.kpi.feedbackPending}건 답변 대기`)
   await expect(page.getByTestId('overview-recent')).toBeVisible()
   await page.screenshot({ path: 'test-results/a12-admin-overview-1536.png', fullPage: true })
 })

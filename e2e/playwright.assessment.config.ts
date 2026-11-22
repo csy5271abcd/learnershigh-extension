@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test'
-import { readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -12,21 +11,11 @@ if (!/\/lh_e2e_assessment[a-z0-9_]*(\?|$)/.test(dbUrl)) {
   throw new Error('Assessment E2E는 일회용 DB(lh_e2e_assessment*)에서만 실행합니다. `npm run test:assessment`로 실행해 주세요.')
 }
 
-const ports = { backend: 18090, analyzer: 18768, student: 5191, admin: 5192 }
-// A24: Backend는 분석기 토큰을 application.yml 값만 쓴다(ASSESSMENT_ANALYZER_TOKEN 무시). 그래서 로컬 Stub이 그 값을 받아들이게 한다.
-// 값은 출력하지 않는다. Stub은 127.0.0.1에만 뜬다(원격 전송 없음).
-function yamlAnalyzerToken(): string {
-  const lines = readFileSync(new URL('../backend/src/main/resources/application.yml', import.meta.url), 'utf8').split('\n').map((line) => line.trimEnd())
-  // 첫 YAML 문서(기본 Profile)의 assessment.analyzer 블록 안에서만 찾는다
-  const docEnd = lines.indexOf('---')
-  const head = docEnd < 0 ? lines : lines.slice(0, docEnd)
-  const analyzerAt = head.indexOf('  analyzer:')
-  const tokenLine = analyzerAt < 0 ? undefined : head.slice(analyzerAt + 1).find((line) => line.startsWith('    token:'))
-  const value = tokenLine?.slice('    token:'.length).trim()
-  if (!value) throw new Error('application.yml에 assessment.analyzer.token이 없습니다')
-  return value
-}
-const token = yamlAnalyzerToken()
+const ports = { backend: 18090, analyzer: 18768, schoolinfo: 18769, student: 5191, admin: 5192 }
+// 2026-11-19 PR #18 통합(A27-UX 부록 D): 실제 분석은 서버 안(local)이고 원격 분석기(Railway) 연결은 퇴역했다.
+// E2E는 화면 흐름을 고정된 합성 결과로 시험하려고 Backend를 loopback-stub 모드로 띄워 같은 컴퓨터(127.0.0.1)의 Stub에만 연결한다.
+// 토큰은 시험용 고정 값이다(비밀값 아님, 설정 파일의 실제 토큰을 읽지 않는다).
+const token = 'e2e-stub-token-not-a-secret-0123456789'
 const windows = process.platform === 'win32'
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH
 
@@ -59,6 +48,12 @@ export default defineConfig({
       reuseExistingServer: false,
     },
     {
+      // A27-UX 부록 E: 가상 학교알리미(127.0.0.1). 기본은 연결 실패(503)라 다른 시험에서는 아무것도 등록되지 않는다
+      command: `node assessment/stub-schoolinfo.mjs ${ports.schoolinfo}`,
+      url: `http://127.0.0.1:${ports.schoolinfo}/health`,
+      reuseExistingServer: false,
+    },
+    {
       command: windows ? 'gradlew.bat bootRun --console=plain' : './gradlew bootRun --console=plain',
       cwd: '../backend',
       // 인증 없는 요청은 401 → Playwright는 401도 '떠 있음'으로 본다(actuator 없음)
@@ -71,8 +66,9 @@ export default defineConfig({
         DB_PASSWORD: process.env.E2E_ASSESSMENT_DB_PASSWORD ?? '',
         SERVER_PORT: String(ports.backend),
         ASSESSMENT_STORAGE_ROOT: join(tmpdir(), 'lh-e2e-assessment-storage'),
-        ASSESSMENT_ANALYZER_MODE: 'http',   // 합성 Stub 분석기로 화면 흐름만 시험한다 (기본은 서버 안 분석 local)
-        ASSESSMENT_ANALYZER_BASE_URL: `http://127.0.0.1:${ports.analyzer}`,
+        ASSESSMENT_ANALYZER_MODE: 'loopback-stub',
+        ASSESSMENT_ANALYZER_STUB_BASE_URL: `http://127.0.0.1:${ports.analyzer}`,
+        ASSESSMENT_ANALYZER_STUB_TOKEN: token,
         ASSESSMENT_ANALYSIS_IMPORT_CONTRACT03_ENABLED: 'true',
         // A10: 합성 수신 JSON(HWPX Locator·다과목 PDF)을 넣으려고 이 일회용 E2E Backend에서만 켠다. 애플리케이션 기본값은 계속 false다.
         ASSESSMENT_ANALYSIS_IMPORT_ENABLED: 'true',
@@ -80,6 +76,12 @@ export default defineConfig({
         // A26: 변환기 기본값이 docker(자동 이미지 준비)라, 시험에서는 끄고 '변환기 미설정(415)' 경로를 확인한다
         ASSESSMENT_PREVIEW_CONVERTER: 'none',
         ASSESSMENT_PREVIEW_CONVERTER_AUTO_PROVISION: 'false',
+        // A27-UX 부록 E: 학교알리미는 같은 컴퓨터의 가상 서버만. 연도 지정 조회 신뢰는 이 가상 서버에서만 켠다(애플리케이션 기본값 false)
+        ASSESSMENT_SCHOOLINFO_BASE_URL: `http://127.0.0.1:${ports.schoolinfo}`,
+        ASSESSMENT_SCHOOLINFO_ALLOW_LOOPBACK: 'true',
+        ASSESSMENT_SCHOOLINFO_YEAR_QUERY_VERIFIED: 'true',
+        ASSESSMENT_SCHOOLINFO_POLITE_DELAY_MILLIS: '0',
+        ASSESSMENT_SCHOOLINFO_RETRY_BASE_MILLIS: '1',
       },
     },
     {
@@ -87,11 +89,10 @@ export default defineConfig({
       cwd: '../frontend/student',
       url: `http://localhost:${ports.student}/assessment`,
       reuseExistingServer: false,
+      // 부록 O: 데이터 출처(http)·현재 학기(서버 KST)는 기본값 — 설정하지 않는다. 남은 값 = 시험 Backend 주소·개발 인증 ID
       env: {
-        VITE_ASSESSMENT_DATA_SOURCE: 'http',
         VITE_API_TARGET: `http://localhost:${ports.backend}`,
         VITE_ASSESSMENT_DEV_STUDENT_ID: 'stu_001',
-        VITE_ASSESSMENT_DEV_CURRENT_TERM: '2026-2',
         E2E_STUDENT_PORT: String(ports.student),
       },
     },
@@ -101,10 +102,8 @@ export default defineConfig({
       url: `http://localhost:${ports.admin}/`,
       reuseExistingServer: false,
       env: {
-        VITE_ASSESSMENT_DATA_SOURCE: 'http',
         VITE_API_TARGET: `http://localhost:${ports.backend}`,
         VITE_ASSESSMENT_DEV_ADMIN_ID: 'adm_plan_operator',
-        VITE_ASSESSMENT_DEV_CURRENT_TERM: '2026-2',
       },
     },
   ],

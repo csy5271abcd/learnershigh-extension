@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { chooseSubject, confirmThroughSteps } from '../reviewUi.ts'
 import { ADMIN, API, PLANS, STUDENT, registerAndAnalyze, runTag, uniquePdf } from '../support.ts'
 
 // A15 0.3 선택 확장 필드(§39-12) 화면 E2E. 일회용 DB의 실제 Backend·Storage, 분석기는 Stub(합성 0.3 + 확장 필드, 파일명 *contract03ext*).
@@ -7,10 +8,7 @@ const studentHeaders = { 'X-Assessment-Student-Id': 'stu_001' }
 
 async function confirmOnScreen(page: Page, fileName: string, bytes: Buffer) {
   await page.getByTestId('review-step-confirm-tab').click()
-  await page.getByTestId('review-local-pdf').setInputFiles({ name: fileName, mimeType: 'application/pdf', buffer: bytes })
-  await page.getByTestId('review-attest').check()
-  if (await page.getByTestId('review-partial-ack').count()) await page.getByTestId('review-partial-ack').check()
-  await page.getByTestId('review-confirm').click()
+  await confirmThroughSteps(page, { name: fileName, mimeType: 'application/pdf', buffer: bytes })
 }
 
 test('요소 배점·연결 확인 필요·원문 학년이 Wizard에 보이고, 요소 배점은 확정 뒤 학생에게, 다른 학년 과목은 확정할 수 없다', async ({ page, request }) => {
@@ -29,7 +27,7 @@ test('요소 배점·연결 확인 필요·원문 학년이 Wizard에 보이고,
   await expect(cards.nth(0).getByTestId('review-subject-grade-conflict')).toHaveCount(0)
   await expect(cards.nth(1).getByTestId('review-subject-grades')).toHaveText('원문 2학년')
   await expect(cards.nth(1).getByTestId('review-subject-grade-conflict')).toContainText('확정할 수 없어요')
-  await page.getByTestId('review-subject-select-0').selectOption('subj_02')
+  await chooseSubject(page, 'review-subject-select-0', 'subj_02')
 
   // 수행평가 검토: 분석 후보의 요소 배점·연결 확인 필요 배지
   await page.getByTestId('review-step-performance-tab').click()

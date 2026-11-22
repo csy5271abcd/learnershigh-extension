@@ -45,3 +45,48 @@ export async function confirmEvaluation(request: APIRequestContext, doc: Doc, su
   })
   expect(response.status()).toBe(200)
 }
+
+/** 부록 F: 글자가 없는 1쪽 합성 PDF(학년·학기 근거가 원문에도 없는 '미분류' 원본 시험용). 실행마다 다른 SHA */
+export function blankPdf(tag: string): Buffer {
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << >> >>',
+  ]
+  let body = '%PDF-1.4\n'
+  const offsets: number[] = []
+  objects.forEach((object, index) => {
+    offsets.push(Buffer.byteLength(body))
+    body += `${index + 1} 0 obj\n${object}\nendobj\n`
+  })
+  const xref = Buffer.byteLength(body)
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+  for (const offset of offsets) body += `${String(offset).padStart(10, '0')} 00000 n \n`
+  body += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n% e2e ${tag} ${Date.now()} ${Math.random()}\n`
+  return Buffer.from(body, 'latin1')
+}
+
+/**
+ * A27-UX 부록 K: 학생 홈 '학교 평가계획서 원본 · 3개년' 첫 칸(올해·현재 학기)이 서버 §10-1-3 응답과 같은지.
+ * 공급자는 학교알리미 수집 원본으로 연결됐다 — '확인되지 않음'(미연결) 문구는 더 나오지 않는다.
+ */
+export async function expectOfficialSlotMatchesServer(
+  page: import('@playwright/test').Page,
+  request: import('@playwright/test').APIRequestContext,
+  studentId = 'stu_001',
+  academicYear = 2026,
+  semester = 2,
+) {
+  const { expect } = await import('@playwright/test')
+  const slot = page.getByTestId('home-official-slot').first()
+  // 학교알리미 작업 줄은 서버에 하나라 앞 작업(수집·서버 분석)이 끝나야 이 학교 확인이 시작될 수 있다
+  await expect(page.locator('[data-testid="official-ensure-status"][data-state="RUNNING"]')).toHaveCount(0, { timeout: 240_000 })
+  const server = await (await request.get('http://127.0.0.1:18090/api/student/assessment/evaluation-plans/official', {
+    headers: { 'X-Assessment-Student-Id': studentId },
+    params: { academicYear: String(academicYear), semester: String(semester) },
+  })).json()
+  expect(server.sourceConnected).toBe(true)
+  await expect(slot.getByTestId('official-document')).toHaveCount(server.documents.length, { timeout: 30_000 })
+  await expect(slot).not.toContainText('공식 원본이 아직 확인되지 않았어요')
+  return server as { documents: { fileName: string }[] }
+}

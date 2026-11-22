@@ -1,0 +1,41 @@
+{
+  "rosterVersion": "e2e-appendixL",
+  "branches": [],
+  "admins": [],
+  "students": [
+    {
+      "studentId": "stu_demo_e2e_hanbit2",
+      "branchId": "br_demo_c",
+      "displayName": "E2E합성학생",
+      "academyClassName": "E2E 합성 반(실존 학생 아님)",
+      "school": {
+        "schoolId": "sch_e2e_hanbit_paju",
+        "name": "한빛고등학교"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 1,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_01",
+          "subj26_g2s1_03",
+          "subj26_g2s1_06",
+          "subj26_g2s1_15",
+          "subj26_g2s1_16",
+          "subj26_g2s1_17",
+          "subj26_g2s1_25"
+        ],
+        "2": [
+          "subj26_g2s2_01",
+          "subj26_g2s2_04",
+          "subj26_g2s2_08",
+          "subj26_g2s2_18",
+          "subj26_g2s2_19",
+          "subj26_g2s2_20",
+          "subj26_g2s2_27"
+        ]
+      }
+    }
+  ]
+}

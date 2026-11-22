@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type APIRequestContext, type Browser, type Page } from '@playwright/test'
+import { chooseSubject, confirmThroughSteps, linkSubjectThenTeaching } from '../assessment/reviewUi.ts'
 
 // A18: 실제 분석기(v21.10-b16-dev) 응답으로 1·2·3학년 개발용 시연 슬롯(api-contract §38-4)의 관리자 확정·학생 화면을 확인한다.
 // Backend는 시연 명단 ON(ASSESSMENT_DEMO_ROSTER_ENABLED=true), 학생 Vite는 1학기 문맥(VITE_ASSESSMENT_DEV_CURRENT_TERM=2026-1)으로 실행해야 한다.
@@ -62,7 +63,7 @@ test('F02099 HWPX(원문 3학년): 3학년 슬롯에서 운영계획 24행 확�
   await page.getByTestId('review-step-teaching-tab').click()
   const section = page.getByRole('region', { name: `${doc.subjects[0].subjectName} 운영계획` })
   await expect(section).toContainText('원문 3학년')
-  await page.getByTestId('teaching-plan-subject-0').selectOption(doc.slotSubject)
+  await linkSubjectThenTeaching(page, 0, doc.slotSubject) // A27-UX [02]: 과목 연결은 2단계에서
   const rows = page.getByTestId('teaching-plan-row')
   await expect(rows).toHaveCount(rowsCount)
   for (let i = 0; i < rowsCount; i++) await rows.nth(i).getByRole('button', { name: '확인' }).click()
@@ -87,7 +88,7 @@ test('F02099 HWPX(원문 3학년): 1학년 슬롯에서는 운영계획 확정�
   const doc = await registerAndAnalyze(request, 'F02099', 1)
   await openWizard(page, doc)
   await page.getByTestId('review-step-teaching-tab').click()
-  await page.getByTestId('teaching-plan-subject-0').selectOption(doc.slotSubject)
+  await linkSubjectThenTeaching(page, 0, doc.slotSubject) // A27-UX [02]: 과목 연결은 2단계에서
   await page.getByTestId('teaching-plan-row').nth(0).getByRole('button', { name: '확인' }).click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('서버에 임시 저장됨', { timeout: 20_000 })
   await page.getByTestId('teaching-plan-confirm').click()
@@ -112,7 +113,7 @@ test('F01664(1·2·3학년 혼합): 2학년 슬롯 Wizard는 다른 학년 과�
   await expect(page.getByTestId('review-subject-grade-conflict')).toHaveCount(others)
   await expect(page.getByTestId('review-subject-card').nth(target).getByTestId('review-subject-grade-conflict')).toHaveCount(0)
   await expect(page.getByTestId('review-subject-card').nth(target).getByTestId('review-subject-grades')).toHaveText('원문 2학년')
-  await page.getByTestId(`review-subject-select-${target}`).selectOption(doc.slotSubject)
+  await chooseSubject(page, `review-subject-select-${target}`, doc.slotSubject)
   await page.screenshot({ path: 'test-results/a18-real-wizard-grade2-subjects.png', fullPage: true })
 
   // 수행평가 검토: 그 2학년 과목의 첫 수행평가에서 한 값을 확인
@@ -123,10 +124,7 @@ test('F01664(1·2·3학년 혼합): 2학년 슬롯 Wizard는 다른 학년 과�
   await expect(page.getByTestId('review-draft-status')).toContainText('서버에 임시 저장됨', { timeout: 20_000 })
 
   await page.getByTestId('review-step-confirm-tab').click()
-  await page.getByTestId('review-local-pdf').setInputFiles({ name: doc.fileName, mimeType: 'application/pdf', buffer: doc.bytes })
-  await page.getByTestId('review-attest').check()
-  if (await page.getByTestId('review-partial-ack').count()) await page.getByTestId('review-partial-ack').check()
-  await page.getByTestId('review-confirm').click()
+  await confirmThroughSteps(page, { name: doc.fileName, mimeType: 'application/pdf', buffer: doc.bytes })
   await expect(page.getByTestId('review-confirmed')).toBeVisible({ timeout: 30_000 })
 
   const g2 = await asStudent(browser, studentOf(2), '/assessment/evaluation-plans')

@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 import { ADMIN, API, PLANS, STUDENT, registerAndAnalyze, runTag, uniquePdf } from '../support.ts'
+import { linkSubjectThenTeaching } from '../reviewUi.ts'
 
 // A14 운영계획 관리자 직접 추가 행 — 실제 화면 조작 E2E. 일회용 DB의 실제 Backend·Storage(분석기만 Stub 합성 0.3 결과: 과목 1개·후보 9행).
 // A: 최초 확정 전 새 행 추가 · B: 재검토 중 추가 행 수정 + 새 행 · C: 추가 행 제외 → 복원 · D: 잘못된 입력·권한·충돌.
@@ -35,7 +36,8 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   const unit1 = `세포 분열 ${tag}`
   await openTeachingStep(page, doc.planId, doc.revisionId)
   const rows = page.getByTestId('teaching-plan-row')
-  await page.getByTestId('teaching-plan-subject-0').selectOption('subj_02')
+  // A27-UX [02]: 과목 연결은 2단계 과목 확인에서 한다
+  await linkSubjectThenTeaching(page, 0, 'subj_02')
   await rows.nth(0).getByRole('button', { name: '확인' }).click()
   await rows.nth(1).getByRole('button', { name: '확인' }).click()
   await savedDraft(page)

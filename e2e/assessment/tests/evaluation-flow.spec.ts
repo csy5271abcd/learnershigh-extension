@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { chooseSubject, confirmThroughSteps } from '../reviewUi.ts'
 import { ADMIN, ADMIN_ID, PLANS, STUDENT, runTag, uniquePdf } from '../support.ts'
 
 // 평가계획서 기본 흐름 + 검토 Stepper (A7). Stub 분석기(0.2 합성 결과) 기준 — 실제 분석기 검증을 대신하지 않는다.
@@ -30,7 +31,8 @@ test('업로드 → 검토(과목 선택·수행평가 확인) → 초안 저장
 
   // 1) 업로드 (등록 후 서버 분석 → 검토 Workspace로 이동)
   await page.goto(`${ADMIN}/assessment/evaluation-plans?school=school_001&year=2026`)
-  await page.getByTestId('plan-upload-open').click()
+  // A27: 평가계획서 6칸에서 그 칸의 '+ 등록'으로 올린다. 이 시험의 학업 과목(통합과학2 = subj_02)은 고1 2학기 과목이다
+  await page.getByRole('button', { name: '고1 2학기 원본 등록' }).click()
   await page.getByTestId('plan-upload-dialog').locator('input[type="file"]').setInputFiles({ name: fileName, mimeType: 'application/pdf', buffer: bytes })
   await page.getByTestId('plan-upload-submit').click()
   await expect(page.getByTestId('review-workspace')).toBeVisible({ timeout: 30_000 })
@@ -47,7 +49,7 @@ test('업로드 → 검토(과목 선택·수행평가 확인) → 초안 저장
   // 3) 다음 → 과목 확인: 학업 과목 목록에서 선택 (직접 입력 아님)
   await page.getByRole('button', { name: '다음', exact: true }).click()
   await expect(steps.nth(1)).toHaveAttribute('aria-current', 'step')
-  await page.getByTestId('review-subject-select-0').selectOption('subj_02')
+  await chooseSubject(page, 'review-subject-select-0', 'subj_02')
 
   // 4) 수행평가 검토: 후보가 있는 값 확인
   await page.getByRole('button', { name: '다음', exact: true }).click()
@@ -63,13 +65,11 @@ test('업로드 → 검토(과목 선택·수행평가 확인) → 초안 저장
   await page.getByTestId('review-step-performance-tab').click()
   await expect(page.getByTestId('review-field-state').first()).toContainText('확인함')
   await page.getByTestId('review-step-subjects-tab').click()
-  await expect(page.getByTestId('review-subject-select-0')).toHaveValue('subj_02')
+  await expect(page.getByTestId('review-subject-select-0').locator('input')).toHaveValue('통합과학2')
 
   // 6) 최종 확정: 원본 SHA 대조 + 대조 확인
   await page.getByTestId('review-go-confirm').click()
-  await page.getByTestId('review-local-pdf').setInputFiles({ name: fileName, mimeType: 'application/pdf', buffer: bytes })
-  await page.getByTestId('review-attest').check()
-  await page.getByTestId('review-confirm').click()
+  await confirmThroughSteps(page, { name: fileName, mimeType: 'application/pdf', buffer: bytes })
   await expect(page.getByTestId('review-confirmed')).toBeVisible({ timeout: 15_000 })
   // A11: 화면 확정도 분석 과목 번호를 함께 저장한다(§39-7) — 과목 연결이 확정값에 남는다
   const [, planId, revisionId] = new URL(page.url()).pathname.match(/evaluation-plans\/([^/]+)\/revisions\/([^/?]+)/) ?? []
