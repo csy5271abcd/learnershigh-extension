@@ -49,4 +49,3 @@ export function usePlanSchoolContext(search: URLSearchParams) {
     },
   }
 }
-

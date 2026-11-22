@@ -358,4 +358,3 @@ export function SubmissionEditor({ value, save, cancel }: { value: string | null
     </div>
   )
 }
-
