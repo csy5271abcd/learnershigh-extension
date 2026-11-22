@@ -16,17 +16,15 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.Persistable;
 
 /**
  * 월별 교수·학습 운영계획 확정 (api-contract.md §39-6 DRAFT, 2026-11-15). A13: Revision마다 확정 버전 1, 2, 3 … (재검토·재확정, §39-10).
  * 최신본 = 가장 큰 versionNo.
- * 저장은 평가 정보 확정(PlanReview)과 같은 테이블(scope = TEACHING_PLAN, 2026-11-18 간소화)이고, 의미는 별도다. 분석 후보(Run)는 바꾸지 않는다. 저장 뒤 바뀌지 않는다.
+ * 평가 정보 확정(PlanReview)과 별도다. 분석 후보(Run)는 바꾸지 않는다. 저장 뒤 바뀌지 않는다.
  */
 @Entity
-@Table(name = "assessment_plan_review")
-@SQLRestriction("scope = 'TEACHING_PLAN'")
+@Table(name = "assessment_plan_teaching_plan_review")
 public class TeachingPlanReview implements Persistable<String> {
 
     @Id
@@ -38,12 +36,6 @@ public class TeachingPlanReview implements Persistable<String> {
 
     @Column(name = "analysis_id", nullable = false, length = 64, updatable = false)
     private String analysisId;
-
-    @Column(name = "scope", nullable = false, length = 20, updatable = false)
-    private String scope = "TEACHING_PLAN";
-
-    @Column(name = "decision", nullable = false, length = 20, updatable = false)
-    private String decision = PlanReview.DECISION_CONFIRM;
 
     @Column(name = "version_no", nullable = false, updatable = false)
     private int versionNo;

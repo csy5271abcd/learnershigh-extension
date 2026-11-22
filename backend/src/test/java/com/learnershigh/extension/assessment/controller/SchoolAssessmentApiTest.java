@@ -199,7 +199,7 @@ class SchoolAssessmentApiTest {
     }
 
     @Test
-    void 상태를_앞으로_바꾸고_역전이는_409() throws Exception {
+    void 상태를_앞으로_바꾸고_되돌리면_이력이_남는다_A27() throws Exception {
         String id = create(STUDENT, minimal("실험", "subj_04"));
 
         mvc.perform(asStudent(patch(BASE + "/" + id + "/status"), STUDENT).contentType(MediaType.APPLICATION_JSON)
@@ -211,17 +211,53 @@ class SchoolAssessmentApiTest {
         mvc.perform(asStudent(patch(BASE + "/" + id + "/status"), STUDENT).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"COMPLETED\"}"))
                 .andExpect(status().isOk());
+        // A27-UX: 학생 개인 진행 상태 되돌리기(완료 → 진행 중 → 시작 전) 허용, 바뀐 경우만 이력에 남는다
         mvc.perform(asStudent(patch(BASE + "/" + id + "/status"), STUDENT).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"IN_PROGRESS\"}"))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("INVALID_STATE_TRANSITION"))
-                .andExpect(jsonPath("$.details.currentState").value("COMPLETED"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+        mvc.perform(asStudent(patch(BASE + "/" + id + "/status"), STUDENT).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"status\":\"BEFORE_START\"}"))
+                .andExpect(status().isOk());
+        mvc.perform(asStudent(get(BASE + "/" + id), STUDENT)).andExpect(jsonPath("$.status").value("BEFORE_START"));
+        assertThat(jdbc.queryForList("select concat(from_status, '>', to_status) from assessment_school_assessment_status_event"
+                + " where assessment_id = ? order by changed_at, id", String.class, id))
+                .containsExactlyInAnyOrder("BEFORE_START>COMPLETED", "COMPLETED>IN_PROGRESS", "IN_PROGRESS>BEFORE_START");
         mvc.perform(asStudent(patch(BASE + "/" + id + "/status"), STUDENT).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"APPROVED\"}"))
                 .andExpect(status().isBadRequest());
 
         assertThat(jdbc.queryForObject("select status from assessment_school_assessment where id = ?",
-                String.class, id)).isEqualTo("COMPLETED");
+                String.class, id)).isEqualTo("BEFORE_START");
+    }
+
+    @Test
+    void 개인_관리_정보를_등록_수정하고_범위를_검사한다_A27() throws Exception {
+        String body = "{\"title\":\"발표 준비\",\"subjectId\":\"subj_01\",\"academicYear\":2026,\"semester\":2,"
+                + "\"assessmentType\":\"PRESENTATION\",\"evaluationDate\":\"2026-11-25\",\"deadlineDate\":\"2026-11-20\","
+                + "\"weightPercent\":0,\"submissions\":\"발표 자료\",\"personalMemo\":\"리허설 2회\"}";
+        String id = create(STUDENT, body);
+        mvc.perform(asStudent(get(BASE + "/" + id), STUDENT))
+                .andExpect(jsonPath("$.assessmentType").value("PRESENTATION"))
+                .andExpect(jsonPath("$.evaluationDate").value("2026-11-25"))
+                .andExpect(jsonPath("$.deadlineDate").value("2026-11-20"))
+                .andExpect(jsonPath("$.weightPercent").value(0))
+                .andExpect(jsonPath("$.submissions").value("발표 자료"))
+                .andExpect(jsonPath("$.personalMemo").value("리허설 2회"));
+        mvc.perform(asStudent(patch(BASE + "/" + id), STUDENT).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"weightPercent\":null,\"assessmentType\":\"REPORT\",\"evaluationDate\":null}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weightPercent").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.assessmentType").value("REPORT"));
+        mvc.perform(asStudent(patch(BASE + "/" + id), STUDENT).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"weightPercent\":101}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.details.fields[0].reason").value("range"));
+        mvc.perform(asStudent(patch(BASE + "/" + id), STUDENT).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"assessmentType\":\"QUIZ\"}"))
+                .andExpect(status().isBadRequest());
+        // 다른 학생은 개인 관리 정보도 못 본다
+        mvc.perform(asStudent(get(BASE + "/" + id), OTHER_STUDENT)).andExpect(status().isNotFound());
     }
 
     @Test

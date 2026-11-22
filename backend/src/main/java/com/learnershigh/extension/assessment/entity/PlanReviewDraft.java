@@ -54,10 +54,6 @@ public class PlanReviewDraft implements Persistable<String> {
     @Column(name = "payload_json", nullable = false, columnDefinition = "MEDIUMTEXT")
     private String payloadJson;
 
-    /** 저장 이력(최근 20건, 최신이 앞) JSON — 예전 assessment_plan_review_draft_event 테이블을 대신한다. */
-    @Column(name = "history_json", columnDefinition = "TEXT")
-    private String historyJson;
-
     @Column(name = "decision_count", nullable = false)
     private int decisionCount;
 
@@ -198,15 +194,6 @@ public class PlanReviewDraft implements Persistable<String> {
 
     public String closedReason() {
         return closedReason;
-    }
-
-    public String historyJson() {
-        return historyJson;
-    }
-
-    /** 이력은 Service 가 JSON 으로 만든다(최근 20건). 이력만 바뀌어도 version 이 오른다. */
-    public void recordHistory(String historyJson) {
-        this.historyJson = historyJson;
     }
 
     public String payloadJson() {

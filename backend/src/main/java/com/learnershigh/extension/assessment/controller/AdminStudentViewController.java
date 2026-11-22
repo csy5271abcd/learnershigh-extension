@@ -1,5 +1,7 @@
 package com.learnershigh.extension.assessment.controller;
 
+import com.learnershigh.extension.assessment.service.plan.OfficialPlanQueryService;
+import com.learnershigh.extension.assessment.dto.plan.StudentOfficialPlanResponse;
 import com.learnershigh.extension.assessment.dto.record.ArtifactDtos.ArtifactComparison;
 import com.learnershigh.extension.assessment.dto.PageResponse;
 import com.learnershigh.extension.assessment.dto.context.AcademicContextResponse;
@@ -65,11 +67,12 @@ public class AdminStudentViewController {
     private final GrowthRecordService growth;
     private final ResourceService resources;
     private final ArchiveService archive;
+    private final OfficialPlanQueryService officialPlans;
 
     public AdminStudentViewController(AdminStudentViewAccess access, AcademicContextQueryService contexts,
             SchoolAssessmentQueryService assessments, EvaluationPlanQueryService plans, NoteQueryService notes,
             ArtifactQueryService artifacts, FeedbackQueryService feedback, GrowthRecordService growth,
-            ResourceService resources, ArchiveService archive) {
+            ResourceService resources, ArchiveService archive, OfficialPlanQueryService officialPlans) {
         this.access = access;
         this.contexts = contexts;
         this.assessments = assessments;
@@ -80,6 +83,35 @@ public class AdminStudentViewController {
         this.growth = growth;
         this.resources = resources;
         this.archive = archive;
+        this.officialPlans = officialPlans;
+    }
+
+    /**
+     * §10-1-3 부록 L: 학생 공식 원본(학교알리미 수집 원본) — 학생 GET 과 같은 응답. 읽기만 한다(자동 확보 POST 는 두지 않는다 —
+     * 관리자 미리보기가 학교알리미 수집을 시작하지 않게). 담당 지점 범위 밖 학생 404.
+     */
+    @GetMapping("/evaluation-plans/official")
+    public StudentOfficialPlanResponse officialPlans(AdminActor admin, @PathVariable String studentId,
+            @RequestParam @Min(2000) @Max(2100) int academicYear, @RequestParam @Min(1) @Max(2) int semester,
+            @RequestParam(required = false) @Min(1) @Max(3) Integer grade) {
+        return officialPlans.studentGet(access.readOnlyContext(admin, studentId), academicYear, semester, grade);
+    }
+
+    /** §10-1-3 부록 L: 그 학생 학적 칸의 공식 원본 내려받기(학생 결과물 파일과 같은 읽기 전용 정책). 다른 칸·학교 404 */
+    @GetMapping(path = "/evaluation-plans/official/files/{sourceDocumentId}", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> officialFile(AdminActor admin, @PathVariable String studentId,
+            @PathVariable @Size(max = 64) String sourceDocumentId,
+            @RequestParam @Min(2000) @Max(2100) int academicYear, @RequestParam @Min(1) @Max(2) int semester,
+            @RequestParam(required = false) @Min(1) @Max(3) Integer grade) {
+        return FileResponses.attachment(officialPlans.studentFile(access.readOnlyContext(admin, studentId), academicYear, semester, grade, sourceDocumentId, false));
+    }
+
+    @GetMapping(path = "/evaluation-plans/official/files/{sourceDocumentId}/preview", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> officialPreview(AdminActor admin, @PathVariable String studentId,
+            @PathVariable @Size(max = 64) String sourceDocumentId,
+            @RequestParam @Min(2000) @Max(2100) int academicYear, @RequestParam @Min(1) @Max(2) int semester,
+            @RequestParam(required = false) @Min(1) @Max(3) Integer grade) {
+        return previewOf(officialPlans.studentPreview(access.readOnlyContext(admin, studentId), academicYear, semester, grade, sourceDocumentId));
     }
 
     @GetMapping("/academic-context")
@@ -237,5 +269,10 @@ public class AdminStudentViewController {
             @RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(500) int size) {
         return archive.list(access.readOnlyContext(admin, studentId), tab, academicYear, query, page, size);
+    }
+
+    /** A28-06: HWP·HWPX 는 변환 미리보기 PDF(X-Preview-Rendition: converted-pdf) */
+    private static ResponseEntity<InputStreamResource> previewOf(com.learnershigh.extension.assessment.service.plan.EvaluationPlanQueryService.PreviewFile preview) {
+        return FileResponses.preview(preview.file(), preview.converted());
     }
 }

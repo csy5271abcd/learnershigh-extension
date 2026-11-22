@@ -63,25 +63,54 @@ class DemoRosterTest {
     }
 
     @Test
-    void 명단은_3개_지점_20명씩_15개교_4명씩_학년별_20명이고_학교학년반번호가_겹치지_않는다() {
+    void 명단은_A_C지점_20명_B지점_72명이고_학교학년반번호가_겹치지_않는다() {
         assertThat(roster.branches()).extracting(b -> b.branchId()).containsExactly("br_demo_a", "br_demo_b", "br_demo_c");
         List<ExistingStudent> all = roster.branches().stream().flatMap(b -> roster.studentsOf(b.branchId()).stream()).toList();
-        assertThat(all).hasSize(60);
-        roster.branches().forEach(b -> assertThat(roster.studentsOf(b.branchId())).hasSize(20));
+        // A28-04: 기존 60명(지점마다 20명) + B지점 합성 학생 52명(13개 학교 × 4명)
+        assertThat(all).hasSize(112);
+        assertThat(roster.studentsOf("br_demo_a")).hasSize(20);
+        assertThat(roster.studentsOf("br_demo_b")).hasSize(72);
+        assertThat(roster.studentsOf("br_demo_c")).hasSize(20);
         Map<String, Long> bySchool = all.stream().map(s -> roster.student(s.studentId()).orElseThrow())
                 .collect(Collectors.groupingBy(s -> s.school().schoolId(), Collectors.counting()));
-        assertThat(bySchool).hasSize(15).allSatisfy((school, count) -> assertThat(count).isEqualTo(4L));
+        // 기존 15개교 + 새 10개교(광명·세화·제주는 기존 학교 키를 같은 학교로 재사용 → 8명)
+        assertThat(bySchool).hasSize(25);
+        assertThat(bySchool).containsEntry("sch_demo_gwangmyeong", 8L).containsEntry("sch_demo_sehwa", 8L).containsEntry("sch_demo_jeju", 8L)
+                .containsEntry("sch_demo_gyeongil", 4L).containsEntry("sch_demo_hyundai", 4L).containsEntry("sch_demo_unjeong", 4L);
         Map<Integer, Long> byGrade = all.stream().map(s -> roster.student(s.studentId()).orElseThrow())
                 .collect(Collectors.groupingBy(DemoRoster.Student::grade, Collectors.counting()));
-        assertThat(byGrade).containsEntry(1, 20L).containsEntry(2, 20L).containsEntry(3, 20L);
+        assertThat(byGrade).containsEntry(1, 37L).containsEntry(2, 38L).containsEntry(3, 37L);
         Set<String> seats = new HashSet<>();
         all.forEach(s -> {
             DemoRoster.Student st = roster.student(s.studentId()).orElseThrow();
             assertThat(seats.add(st.school().schoolId() + st.grade() + "-" + st.schoolClassNumber() + "-" + st.schoolStudentNumber())).isTrue();
         });
+        assertThat(all.stream().map(ExistingStudent::name).distinct().count()).as("이름 중복 없음").isEqualTo(112);
         // 기존 Mock 학생 ID와 겹치지 않는다
         existing.findBranches().forEach(b -> existing.findStudents(b.branchId())
                 .forEach(s -> assertThat(roster.student(s.studentId())).isEmpty()));
+    }
+
+    @Test
+    void A28_13개_학교는_학교알리미_고유_ID와_주소로_고정되고_동명_학교는_지정한_주소의_학교다() {
+        Map<String, String[]> expected = Map.of(
+                "sch_demo_gyeongil", new String[] {"경일고등학교", "a0e95c21-74c7-4d65-b7f1-a8a0eb951342", "부산광역시 강서구 영강길 153-42"},
+                "sch_demo_gwangmyeong", new String[] {"광명고등학교", "b277f9a9-2933-424f-9870-043119f35c36", "경기도 광명시 오리로876번길 17"},
+                "sch_demo_sehwa", new String[] {"세화고등학교", "7e0cc566-7b34-4f5f-b2ed-41765e58af22", "서울특별시 서초구 신반포로 56-7"},
+                "sch_demo_hyundai", new String[] {"현대고등학교", "e7624b61-e239-48af-b9e1-a91ccfa9b61c", "서울특별시 강남구 압구정로 127"},
+                "sch_demo_pohangsteel", new String[] {"포항제철고등학교", "e2f3e18a-b8a7-40b2-a6ba-1b808b5c0318", "경상북도 포항시 남구 지곡로212번길 40"});
+        expected.forEach((id, v) -> {
+            DemoRoster.School school = roster.school(id).orElseThrow();
+            assertThat(school.name()).isEqualTo(v[0]);
+            assertThat(school.schoolinfoSchoolId()).isEqualTo(v[1]);
+            assertThat(school.address()).isEqualTo(v[2]);
+        });
+        long pinned = roster.branches().stream().flatMap(b -> roster.studentsOf(b.branchId()).stream())
+                .map(s -> roster.student(s.studentId()).orElseThrow().school()).filter(s -> s.schoolinfoSchoolId() != null)
+                .map(DemoRoster.School::schoolId).distinct().count();
+        assertThat(pinned).as("고정된 학교 = 사용자 지정 13곳").isEqualTo(13);
+        // B지점 관리자가 새 학교 학생을 본다(같은 지점 범위), 기존 B지점 학생 유지
+        assertThat(roster.studentsOf("br_demo_b")).extracting(ExistingStudent::studentId).contains("stu_demo_037", "stu_demo_061", "stu_demo_112");
     }
 
     @Test
@@ -123,6 +152,23 @@ class DemoRosterTest {
         assertThat(directory.findStudent("br_demo_b", studentA)).isEmpty();
         // 기존 지점은 기존 Client 그대로
         assertThat(directory.findStudents("br_gangnam")).isEqualTo(existing.findStudents("br_gangnam"));
+    }
+
+    @Test
+    void 부록O_운영_이름의_Profile에서는_개발_Header를_받지_않는다() {
+        AssessmentStudentDirectory directory = new AssessmentStudentDirectory(existing, provider(null));
+        for (String profile : new String[] {"prod", "production", "staging"}) {
+            org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
+            env.setActiveProfiles(profile);
+            MockHeaderAssessmentActorProvider auth = new MockHeaderAssessmentActorProvider(directory, provider(null), env);
+            assertThat(auth.currentAdmin(admin("adm_plan_operator"))).as(profile).isEmpty();
+            MockHttpServletRequest student = new MockHttpServletRequest();
+            student.addHeader(MockHeaderAssessmentActorProvider.STUDENT_HEADER, "stu_001");
+            assertThat(auth.currentStudent(student)).as(profile).isEmpty();
+        }
+        org.springframework.mock.env.MockEnvironment local = new org.springframework.mock.env.MockEnvironment();
+        local.setActiveProfiles("local-run");
+        assertThat(new MockHeaderAssessmentActorProvider(directory, provider(null), local).currentAdmin(admin("adm_plan_operator"))).isPresent();
     }
 
     @Test
@@ -240,5 +286,22 @@ class DemoRosterTest {
     void 학교학년반번호가_겹치는_명단은_시작을_멈춘다() {
         assertThatThrownBy(() -> new DemoRoster(catalog, "assessment/demo-roster/invalid-duplicate-seat.json"))
                 .isInstanceOf(IllegalStateException.class).hasMessageContaining("중복");
+    }
+
+    /** 부록 L: E2E 전용 추가 명단(파일)은 기본 명단 뒤에 더해지고 같은 무결성 검사를 거친다. 지정하지 않으면(기본) 없다 */
+    @Test
+    void E2E_추가_명단은_지정했을_때만_더해지고_같은_검사를_거친다() throws Exception {
+        java.nio.file.Path fixture = java.nio.file.Path.of("..", "e2e", "assessment", "fixtures", "e2e-roster-hanbit-paju.json");
+        DemoRoster withExtra = new DemoRoster(catalog, DemoRoster.RESOURCE, fixture.toString());
+        assertThat(withExtra.student("stu_demo_e2e_hanbit2")).hasValueSatisfying(s -> {
+            assertThat(s.school().name()).isEqualTo("한빛고등학교");
+            assertThat(s.branchId()).isEqualTo("br_demo_c");
+        });
+        assertThat(withExtra.school("sch_e2e_hanbit_paju")).isPresent();
+        assertThat(roster.student("stu_demo_e2e_hanbit2")).as("기본 명단에는 없다").isEmpty();
+        java.nio.file.Path bad = java.nio.file.Files.createTempFile("roster-bad", ".json");
+        java.nio.file.Files.writeString(bad, java.nio.file.Files.readString(fixture).replace("stu_demo_e2e_hanbit2", "stu_real_001"));
+        assertThatThrownBy(() -> new DemoRoster(catalog, DemoRoster.RESOURCE, bad.toString())).isInstanceOf(IllegalStateException.class);
+        java.nio.file.Files.deleteIfExists(bad);
     }
 }

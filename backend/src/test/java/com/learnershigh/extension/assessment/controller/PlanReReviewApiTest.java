@@ -52,6 +52,7 @@ class PlanReReviewApiTest {
     @org.junit.jupiter.api.AfterEach // 남긴 초안이 다른 시험 클래스의 정리(분석 Run 삭제)를 막지 않게 끝난 뒤에도 지운다
     void setUp() {
         jdbc.update("delete from assessment_school_assessment");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_plan_confirmed_value");
         jdbc.update("delete from assessment_plan_review");

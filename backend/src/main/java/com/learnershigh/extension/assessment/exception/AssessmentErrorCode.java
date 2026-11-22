@@ -26,9 +26,34 @@ public enum AssessmentErrorCode implements ErrorCode {
     /** A10 §38-6: HWP·HWPX 원문 구조를 읽지 못함. details.fields[file].reason = parse_failed·limit_exceeded·timeout·protected */
     PLAN_PREVIEW_FAILED(HttpStatus.UNPROCESSABLE_CONTENT, "원문을 화면에 표시하지 못했어요. 원본을 내려받아 확인해 주세요."),
     PLAN_PREVIEW_PREPARING(HttpStatus.SERVICE_UNAVAILABLE, "PDF 변환기를 준비하고 있어요. 잠시 후 다시 열어 주세요."),
+    // PR #18 학교알리미 불러오기 (§38-11, 2026-11-19 A27-UX 통합)
     SCHOOLINFO_SCHOOL_NOT_FOUND(HttpStatus.NOT_FOUND, "학교알리미에서 학교를 찾지 못했어요. 학교 이름을 확인해 주세요."),
+    /** 부록 D: 같은 이름 학교가 여럿이면 첫 학교를 임의로 골라 다른 학교 문서를 등록하지 않는다. */
+    SCHOOLINFO_SCHOOL_AMBIGUOUS(HttpStatus.CONFLICT, "같은 이름으로 검색되는 학교가 여러 곳이에요. 학교 전체 이름으로 다시 시도해 주세요."),
     SCHOOLINFO_PLAN_NOT_PUBLISHED(HttpStatus.NOT_FOUND, "학교알리미에 교과별 평가계획 공시가 없어요."),
     SCHOOLINFO_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "학교알리미에서 파일을 받지 못했어요. 잠시 후 다시 시도해 주세요."),
+    /** 부록 E §38-12: 요청 학년도 3개·학년·학기가 서버 기대값(KST 기준 [Y, Y-1, Y-2]·[1,2,3]·[1,2])과 다름. details.expectedAcademicYears */
+    SCHOOLINFO_SYNC_YEARS_MISMATCH(HttpStatus.CONFLICT, "자동 확인할 학년도가 서버 기준과 달라요. 화면을 새로고침해 주세요."),
+    /** 부록 F §38-13 */
+    SCHOOLINFO_SELECTION_INVALID(HttpStatus.CONFLICT, "고를 수 없는 학교예요. 자동 확인을 다시 열어 후보를 확인해 주세요."),
+    SCHOOLINFO_SELECTION_CONFLICT(HttpStatus.CONFLICT, "다른 곳에서 먼저 학교를 골랐어요. 최신 선택을 확인해 주세요."),
+    /** 부록 O §38-15 학교알리미 학교 검색 */
+    SCHOOL_DIRECTORY_QUERY_INVALID(HttpStatus.BAD_REQUEST, "학교 이름을 2자 이상 입력해 주세요."),
+    SCHOOL_DIRECTORY_CANDIDATE_INVALID(HttpStatus.CONFLICT, "고를 수 없는 학교예요. 다시 검색해 후보를 확인해 주세요."),
+    SCHOOL_DIRECTORY_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "학교알리미에서 학교를 검색하지 못했어요. 잠시 뒤 다시 시도해 주세요."),
+    SCHOOL_DIRECTORY_RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "학교 검색을 너무 자주 했어요. 잠시 뒤 다시 시도해 주세요."),
+    /** 부록 O §38-16 학생 열람 선택 */
+    OFFICIAL_VIEW_NOT_ALLOWED(HttpStatus.CONFLICT, "지금은 학교를 직접 고를 수 없어요(선생님이 학교를 확인했거나 같은 이름 학교가 없어요)."),
+    OFFICIAL_VIEW_CANDIDATE_INVALID(HttpStatus.CONFLICT, "고를 수 없는 학교예요. 학교 목록을 다시 불러와 주세요."),
+    OFFICIAL_VIEW_VERSION_CONFLICT(HttpStatus.CONFLICT, "다른 화면에서 먼저 학교를 바꿨어요. 최신 선택을 확인해 주세요."),
+    /** 부록 O §39-13 한 번에 확정 */
+    BULK_CONFIRM_BLOCKED(HttpStatus.UNPROCESSABLE_ENTITY, "한 번에 확정할 수 없는 항목이 있어요. 표시된 항목을 먼저 해결해 주세요."),
+    BULK_CONFIRM_STALE(HttpStatus.CONFLICT, "검토 초안이나 원본이 그사이 바뀌었어요. 새로고침한 뒤 다시 확정해 주세요."),
+    /** 부록 F §38-14 */
+    SCHOOLINFO_SOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "학교알리미 원본을 찾지 못했어요."),
+    SCHOOLINFO_SOURCE_NOT_CLASSIFIABLE(HttpStatus.CONFLICT, "출처나 학년도가 확인되지 않은 원본이라 학년·학기를 정할 수 없어요."),
+    SCHOOLINFO_CLASSIFICATION_CONFLICT(HttpStatus.CONFLICT, "다른 곳에서 먼저 분류했어요. 최신 분류를 확인해 주세요."),
+    SCHOOLINFO_CLASSIFICATION_SLOT_REMOVAL(HttpStatus.CONFLICT, "이미 등록된 칸은 분류에서 뺄 수 없어요. 평가계획서 칸에서 문서를 삭제해 주세요."),
     SCHOOLINFO_JOB_NOT_FOUND(HttpStatus.NOT_FOUND, "불러오기 작업을 찾지 못했어요. 서버가 다시 시작됐다면 평가계획서 목록에서 분석 상태를 확인해 주세요."),
     PLAN_ANALYZER_NOT_CONFIGURED(HttpStatus.SERVICE_UNAVAILABLE, "평가계획서 분석기가 서버에 설정되지 않았어요."),
     PLAN_ANALYZER_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "평가계획서 분석기에 연결하지 못했거나 응답이 늦어요. 잠시 후 다시 시도해 주세요."),

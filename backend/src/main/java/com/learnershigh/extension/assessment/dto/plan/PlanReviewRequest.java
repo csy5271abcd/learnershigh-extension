@@ -17,11 +17,29 @@ public record PlanReviewRequest(
         @NotBlank @Size(max = 64) String analysisId,
         @NotEmpty @Size(max = 50) List<@Valid @NotNull ReviewedSubject> reviewedSubjects,
         @NotNull @Pattern(regexp = "CONFIRM") String decision,
-        @Valid SourceCheck sourceCheck) {
+        @Valid SourceCheck sourceCheck,
+        // 부록 O §39-13 한 번에 확정: 화면이 합친 결정의 바탕이 된 공유 초안 version. 서버 현재 version 과 다르면 409(BULK_CONFIRM_STALE)
+        @Min(0) Long expectedDraftVersion,
+        // 부록 O §39-13: 관리자가 '검증 가능한 후보 한 번에 확정'으로 보냈다(감사 기록용 표시. 검증 규칙은 개별 확정과 같다)
+        Boolean bulk,
+        // A28-08 통합 최종 승인: 같은 분석 결과의 월별 운영계획 확정(선택). 있으면 평가 정보 확정과 한 Transaction 으로 함께 확정하고,
+        // 어느 한쪽이라도 거절되면 둘 다 확정되지 않는다. 서버 원본 검증(SERVER_STORED_ORIGINAL) + bulk=true 일 때만 받는다.
+        @Valid TeachingPlanReviewRequest teachingPlan) {
 
     /** PDF 기존 요청 호환(sourceCheck 없음). */
     public PlanReviewRequest(String analysisId, List<ReviewedSubject> reviewedSubjects, String decision) {
-        this(analysisId, reviewedSubjects, decision, null);
+        this(analysisId, reviewedSubjects, decision, null, null, null, null);
+    }
+
+    /** A28-08 이전 모양(운영계획 동시 확정 없음). */
+    public PlanReviewRequest(String analysisId, List<ReviewedSubject> reviewedSubjects, String decision, SourceCheck sourceCheck,
+            Long expectedDraftVersion, Boolean bulk) {
+        this(analysisId, reviewedSubjects, decision, sourceCheck, expectedDraftVersion, bulk, null);
+    }
+
+    /** 부록 O 이전 모양(한 번에 확정 필드 없음). */
+    public PlanReviewRequest(String analysisId, List<ReviewedSubject> reviewedSubjects, String decision, SourceCheck sourceCheck) {
+        this(analysisId, reviewedSubjects, decision, sourceCheck, null, null, null);
     }
 
     /**

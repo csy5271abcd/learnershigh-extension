@@ -42,10 +42,13 @@ public class AdminStudentQueryService {
     private final FeedbackRequestRepository requests;
     private final AssessmentTimes times;
     private final SchoolAssessmentMapper mapper;
+    private final AcademicContextQueryService academicContexts;
 
     public AdminStudentQueryService(AdminStudents adminStudents, SchoolAssessmentRepository assessments,
-            FeedbackRequestRepository requests, AssessmentTimes times, SchoolAssessmentMapper mapper) {
+            FeedbackRequestRepository requests, AssessmentTimes times, SchoolAssessmentMapper mapper,
+            AcademicContextQueryService academicContexts) {
         this.mapper = mapper;
+        this.academicContexts = academicContexts;
         this.adminStudents = adminStudents;
         this.assessments = assessments;
         this.requests = requests;
@@ -100,7 +103,7 @@ public class AdminStudentQueryService {
                 .orElseThrow(() -> new BusinessException(AssessmentErrorCode.ASSESSMENT_NOT_FOUND, "학생 기록을 찾을 수 없습니다."));
         List<AcademicContextResponse> contexts = Stream.of(1, 2)
                 .map(semester -> adminStudents.context(studentId, academicYear, semester))
-                .flatMap(Optional::stream).map(AcademicContextQueryService::toResponse).toList();
+                .flatMap(Optional::stream).map(context -> academicContexts.response(studentId, context)).toList();
         return new StudentDetail(adminStudents.ref(studentId, student.name(), academicYear, 1), contexts);
     }
 

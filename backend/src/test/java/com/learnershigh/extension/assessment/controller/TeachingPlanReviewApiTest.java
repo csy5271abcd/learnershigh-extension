@@ -86,7 +86,8 @@ class TeachingPlanReviewApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_plan_teaching_plan_row");
-        jdbc.update("delete from assessment_plan_review where scope = 'TEACHING_PLAN'");
+        jdbc.update("delete from assessment_plan_teaching_plan_review");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");
@@ -220,7 +221,7 @@ class TeachingPlanReviewApiTest {
                                 {"analysisId":"analysis_unknown","rows":[{"subjectIndex":0,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("analysisId"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
     }
 
     String draftBody(Long baseVersion, String decisions) {
@@ -439,10 +440,10 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.reReviewOpen").value(false));
         // 같은 Revision에 같은 버전은 DB가 거절한다(동시 재확정 방지)
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 3", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 3", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
-                insert into assessment_plan_review (id, revision_id, analysis_id, scope, version_no, row_count, decision, reviewed_by, reviewed_at)
-                select 'dup_version', revision_id, analysis_id, 'TEACHING_PLAN', 3, 0, 'CONFIRM', 'x', reviewed_at from assessment_plan_review where scope = 'TEACHING_PLAN' and id = ?""", reviewId))
+                insert into assessment_plan_teaching_plan_review (id, revision_id, analysis_id, version_no, row_count, reviewed_by, reviewed_at)
+                select 'dup_version', revision_id, analysis_id, 3, 0, 'x', reviewed_at from assessment_plan_teaching_plan_review where id = ?""", reviewId))
                 .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
     }
 
@@ -621,7 +622,7 @@ class TeachingPlanReviewApiTest {
         assertThat(jdbc.queryForObject("select result_json from assessment_plan_analysis_run where id = ?", String.class, analysisId))
                 .doesNotContain("manual_").doesNotContain("세포 분열");
         // DB 제약: 관리자 추가 행에 후보를 넣거나 분석 행의 후보를 비울 수 없다
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 4", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 4", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
                 insert into assessment_plan_teaching_plan_row (id, review_id, sort_order, subject_id, analysis_subject_index, row_key, row_origin, decision, row_json, candidate_json)
                 values ('bad_manual', ?, 9, 'subj_02', 0, 'manual_x', 'MANUAL', 'EDITED', '{}', null)""", reviewId))
@@ -715,7 +716,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.draft.version").value(version))
                 .andExpect(jsonPath("$.draft.manualRows.length()").value(1))
                 .andExpect(jsonPath("$.draft.manualRows[0].unit").value("세포 분열"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
         // 추가 행만으로도 확정할 수 있다(후보 행 0개) — 분석 결과에 운영계획 후보가 있는 문서에서
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content(confirmWith("", manual(m1, "CONFIRMED"))))
@@ -812,7 +813,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[?(@.reason == 'grade_conflict')]").isNotEmpty());
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
         // 같은 문서의 1학년 과목(과목 0)은 확정된다
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content("""

@@ -19,7 +19,24 @@ public record PlanReviewDraftRequest(
         @NotBlank @Size(max = 64) String analysisId,
         @Min(0) Long baseVersion,
         @NotNull @Size(max = 600) List<@Valid @NotNull Decision> decisions,
-        @NotNull @Size(max = 50) List<@Valid @NotNull SubjectLink> subjectLinks) {
+        @NotNull @Size(max = 50) List<@Valid @NotNull SubjectLink> subjectLinks,
+        // A27-UX 관리자 추가 수정(DRAFT): 이 문서 검토 대상에서 뺀 분석 과목. null = 보내지 않음(기존 제외를 그대로 둔다)
+        @Size(max = 50) List<@Valid @NotNull SubjectExclusion> subjectExclusions) {
+
+    /** 이전 클라이언트(제외 필드 없음)와 같은 모양 */
+    public PlanReviewDraftRequest(String analysisId, Long baseVersion, List<Decision> decisions, List<SubjectLink> subjectLinks) {
+        this(analysisId, baseVersion, decisions, subjectLinks, null);
+    }
+
+    /**
+     * 과목 제외 = 삭제가 아니다. 원문·AI 원본 추출값·근거 위치·확정 이력은 그대로 두고, 이 문서·학년·학기 검토와 확정·학생 공개에서만 뺀다.
+     * reason: OTHER_GRADE(다른 학년) · DUPLICATE(중복 추출) · NOT_THIS_TERM(현재 학기와 무관) · OTHER(기타)
+     */
+    public record SubjectExclusion(
+            @NotNull @Min(0) @Max(49) Integer subjectIndex,
+            @NotNull @Pattern(regexp = "OTHER_GRADE|DUPLICATE|NOT_THIS_TERM|OTHER") String reason,
+            @Size(max = 200) String note) {
+    }
 
     public record Decision(
             @NotNull @Min(0) @Max(49) Integer subjectIndex,

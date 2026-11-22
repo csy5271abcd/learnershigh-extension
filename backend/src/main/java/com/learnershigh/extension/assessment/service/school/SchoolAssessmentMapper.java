@@ -21,6 +21,11 @@ public class SchoolAssessmentMapper {
         EvaluationItemRef ref = assessment.evaluationItemRef();
         return new SchoolAssessmentResponse(assessment.id(), assessment.title(), assessment.subjectId(),
                 assessment.status().name(), assessment.deadlineDate(), times.toOffset(assessment.createdAt()),
-                ref == null ? null : new EvaluationItemRefDto(ref.documentRevisionId(), ref.subjectId(), ref.itemKey()));
+                ref == null ? null : new EvaluationItemRefDto(ref.documentRevisionId(), ref.subjectId(), ref.itemKey()),
+                assessment.description(), assessment.assessmentType() == null ? null : assessment.assessmentType().name(),
+                assessment.evaluationDate(), assessment.weightPercent(), assessment.submissions(),
+                assessment.personalMemo(), times.toOffset(assessment.updatedAt()), assessment.assessmentTypeLabel(),
+                assessment.isOfficial() ? new SchoolAssessmentResponse.Official(assessment.officialPlanId(), assessment.officialStatus(),
+                        assessment.officialTiming(), assessment.officialWeightPercent(), assessment.officialMaxScore()) : null);
     }
 }

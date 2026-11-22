@@ -27,7 +27,7 @@ import tools.jackson.databind.JsonNode;
 
 /**
  * §22 학생 자료함(본인 비공개), §43 관리자 참고자료실(기본 비공개 → 공개 시 학생 조회).
- * 정적 심화 탐구 카탈로그와 다른 기능이다. 파일 첨부(fileRef)는 지원하지 않는다(링크 자료만).
+ * 정적 심화 탐구 카탈로그와 다른 기능이다. A27-UX: 파일 첨부는 ResourceFileService(§22-1 DRAFT)가 다룬다.
  */
 @Service
 @Transactional
@@ -102,9 +102,17 @@ public class ResourceService {
 
     public ReferenceScrapResponse adminUpdate(AdminActor admin, String scrapId, JsonNode body) {
         AssessmentResource resource = adminOwned(scrapId);
-        resource.apply(merge(resource.fields(), body, "authorOrOrg", true), times.now());
+        // §43-1: 파일이 있는 스크랩은 sourceUrl 없이도 고칠 수 있다(링크 스크랩은 그대로 필수)
+        resource.apply(merge(resource.fields(), body, "authorOrOrg", true, resource.file() == null), times.now());
         resources.flush();
         return adminView(resource);
+    }
+
+    /** §43-1 업로드 스크랩: sourceUrl 선택. 파일은 호출한 AdminReferenceFileService가 같은 Transaction에서 붙인다 */
+    AssessmentResource adminCreateForUpload(AdminActor admin, JsonNode body) {
+        Fields fields = merge(empty(), body, "authorOrOrg", true, false);
+        return resources.saveAndFlush(AssessmentResource.create(AssessmentResource.OWNER_ADMIN, admin.adminId(), fields,
+                times.now()));
     }
 
     public ReferenceScrapResponse setPublished(AdminActor admin, String scrapId, Boolean published) {
@@ -112,6 +120,10 @@ public class ResourceService {
             throw RecordJson.invalid("published", "required");
         }
         AssessmentResource resource = adminOwned(scrapId);
+        // §43-1: 학생은 관리자 파일을 내려받을 수 없으므로, 링크(sourceUrl)가 없는 업로드 스크랩은 학생에게 공개하지 않는다
+        if (published && resource.fields().sourceUrl() == null) {
+            throw RecordJson.invalid("sourceUrl", "required");
+        }
         resource.setPublished(published, times.now());
         resources.flush();
         return adminView(resource);
@@ -143,6 +155,10 @@ public class ResourceService {
     }
 
     private Fields merge(Fields base, JsonNode body, String authorField, boolean adminShape) {
+        return merge(base, body, authorField, adminShape, adminShape);
+    }
+
+    private Fields merge(Fields base, JsonNode body, String authorField, boolean adminShape, boolean urlRequired) {
         if (body == null || !body.isObject()) {
             throw RecordJson.invalid("body", "object");
         }
@@ -171,7 +187,7 @@ public class ResourceService {
         if (title == null) {
             throw RecordJson.invalid("title", "required");
         }
-        if (adminShape && sourceUrl == null) {
+        if (urlRequired && sourceUrl == null) {
             throw RecordJson.invalid("sourceUrl", "required");
         }
         if (sourceUrl != null && !httpUrl(sourceUrl)) {
@@ -234,8 +250,12 @@ public class ResourceService {
     private StudentResourceResponse studentView(AssessmentResource r) {
         Fields f = r.fields();
         return new StudentResourceResponse(r.id(), f.type(), f.title(), f.sourceName(), f.sourceUrl(), f.author(),
-                f.publishedDate(), f.memo(), json.strings(f.tagsJson()), json.strings(f.subjectIdsJson()), null,
-                times.toOffset(r.createdAt()), times.toOffset(r.updatedAt()));
+                f.publishedDate(), f.memo(), json.strings(f.tagsJson()), json.strings(f.subjectIdsJson()),
+                r.file() == null ? null : "resource_file_" + r.id(),
+                times.toOffset(r.createdAt()), times.toOffset(r.updatedAt()),
+                r.file() == null ? null : new com.learnershigh.extension.assessment.dto.record.ResourceDtos.ResourceFile(
+                        r.file().fileName(), r.file().contentType(), r.file().sizeBytes(),
+                        times.toOffset(r.file().uploadedAt()), ResourceFileService.previewable(r.file().contentType())));
     }
 
     private ReferenceScrapResponse adminView(AssessmentResource r) {
@@ -243,7 +263,10 @@ public class ResourceService {
         return new ReferenceScrapResponse(r.id(), f.title(), f.sourceUrl(), f.sourceName(), f.referenceSourceId(),
                 f.type(), f.memo(), json.strings(f.tagsJson()), json.strings(f.subjectIdsJson()), f.author(),
                 f.publishedDate(), List.of(), List.of(), r.isPublished(), times.toOffset(r.publishedAt()),
-                times.toOffset(r.createdAt()), times.toOffset(r.updatedAt()));
+                times.toOffset(r.createdAt()), times.toOffset(r.updatedAt()),
+                r.file() == null ? null : new com.learnershigh.extension.assessment.dto.record.ResourceDtos.ResourceFile(
+                        r.file().fileName(), r.file().contentType(), r.file().sizeBytes(),
+                        times.toOffset(r.file().uploadedAt()), AdminReferenceFileService.previewable(r.file().contentType())));
     }
 
     private SharedResourceResponse sharedView(AssessmentResource r) {

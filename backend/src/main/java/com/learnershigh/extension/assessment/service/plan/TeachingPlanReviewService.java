@@ -114,6 +114,8 @@ public class TeachingPlanReviewService {
         TeachingPlanReview review = TeachingPlanReview.confirm(revision.id(), run.get().id(), admin.adminId(),
                 reviewedAt, previous.map(p -> p.versionNo() + 1).orElse(1));
         Set<String> seen = new HashSet<>();
+        // A27-UX: 평가 정보 초안에서 이 문서 검토 대상에서 뺀 분석 과목
+        Set<Integer> excluded = drafts.excludedSubjects(run.get().id());
         Map<Integer, String> subjectOfIndex = new HashMap<>();
         for (int i = 0; i < request.rows().size(); i++) {
             TeachingPlanReviewRequest.Row row = request.rows().get(i);
@@ -126,6 +128,10 @@ public class TeachingPlanReviewService {
             if (ReviewFieldRules.gradeConflict(subjects, row.subjectIndex(), plan.grade())) {
                 // A15: 원문 근거상 다른 학년 과목의 운영계획은 이 학년 학생에게 공개하지 않는다
                 violations.add(new FieldViolation(at + ".subjectIndex", "grade_conflict"));
+            }
+            if (excluded.contains(row.subjectIndex())) {
+                // A27-UX: 평가 정보 검토에서 이 문서 대상에서 뺀 과목의 운영계획은 확정·공개하지 않는다
+                violations.add(new FieldViolation(at + ".subjectIndex", "subject_excluded"));
             }
             if (!seen.add(row.subjectIndex() + "|" + row.rowKey())) {
                 violations.add(new FieldViolation(at + ".rowKey", "duplicate"));
@@ -176,6 +182,9 @@ public class TeachingPlanReviewService {
             }
             if (ReviewFieldRules.gradeConflict(subjects, row.subjectIndex(), plan.grade())) {
                 violations.add(new FieldViolation(at + ".subjectIndex", "grade_conflict"));
+            }
+            if (excluded.contains(row.subjectIndex())) {
+                violations.add(new FieldViolation(at + ".subjectIndex", "subject_excluded"));
             }
             if (!seen.add(row.subjectIndex() + "|" + row.rowKey())) {
                 violations.add(new FieldViolation(at + ".rowKey", "duplicate"));

@@ -94,7 +94,9 @@ assessment:
       soffice-path: ${ASSESSMENT_PREVIEW_SOFFICE_PATH:soffice}
       timeout-seconds: ${ASSESSMENT_PREVIEW_CONVERTER_TIMEOUT_SECONDS:90}
   analyzer:
-    # 분석 방식: local(기본) = 서버 안에서 표를 읽어 분석(외부 전송 없음) · none = 미설정(503)
+    # 2026-11-19 PR #18 통합(A27-UX 부록 D): 분석은 서버 안(local)에서 한다 — 원문이 외부로 나가지 않고 토큰이 필요 없다.
+    # 예전 원격 분석기(Railway) 주소·토큰 설정은 지웠다(Railway 원격 서비스 자체는 이 저장소가 지우지 않는다).
+    # local(기본) = 서버 안 분석 · none = 미설정(503) · loopback-stub = E2E 전용(같은 컴퓨터의 합성 Stub만, stub.base-url·stub.token 필요)
     mode: ${ASSESSMENT_ANALYZER_MODE:local}
     # 스캔본 PDF OCR: auto(Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR) · tesseract · windows · none
     ocr: ${ASSESSMENT_ANALYZER_OCR:auto}
@@ -136,3 +138,17 @@ app:
 learnershigh:
   mock:
     anchor-date: 2026-09-30
+
+---
+# A27-UX 부록 H (2026-11-20 사용자 승인): 사용자 로컬 운영(8080 + lh_local_run) 전용 프로필.
+# 학교알리미 학년도·공시 차수 조회 실측(부록 G 9월 · 부록 H 4월, 2024~2026)을 근거로 연도 조회 신뢰를 켠다.
+# 기본(프로필 없음)·Unit·IT·e2e 는 코드 기본값 false(fail-closed) 그대로다. 켜도 학교 식별·학년도·차수·학기·형식·NOT_PLAN·중복 검증은 파일마다 적용된다.
+# 이 설정만으로 학교알리미를 조회하지 않는다(관리자 화면 진입·'다시 확인' 때만, 학교별 24시간 기록·순차·요청 간격 유지).
+spring:
+  config:
+    activate:
+      on-profile: local-run
+
+assessment:
+  schoolinfo:
+    year-query-verified: true

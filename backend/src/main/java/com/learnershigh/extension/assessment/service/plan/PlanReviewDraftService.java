@@ -8,10 +8,12 @@ import com.learnershigh.extension.assessment.entity.PlanAnalysisRun;
 import com.learnershigh.extension.assessment.entity.PlanAnalysisStatus;
 import com.learnershigh.extension.assessment.entity.PlanReview;
 import com.learnershigh.extension.assessment.entity.PlanReviewDraft;
+import com.learnershigh.extension.assessment.entity.PlanReviewDraftEvent;
 import com.learnershigh.extension.assessment.entity.PlanRevision;
 import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
 import com.learnershigh.extension.assessment.integration.auth.AdminActor;
 import com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository;
+import com.learnershigh.extension.assessment.repository.PlanReviewDraftEventRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository;
 import com.learnershigh.extension.assessment.repository.PlanReviewRepository;
 import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
@@ -33,6 +35,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -63,17 +66,19 @@ public class PlanReviewDraftService {
     private final PlanReviewDraftRepository drafts;
     private static final Pattern TEACHING_PLAN_ROW = Pattern.compile("teachingPlan\\[(0|[1-9]\\d{0,2})]");
 
+    private final PlanReviewDraftEventRepository events;
     private final TeachingPlanReviewRepository teachingPlanReviews;
     private final PlanReviewRepository reviews;
     private final AssessmentTimes times;
     private final JsonMapper mapper;
 
     public PlanReviewDraftService(PlanAccess access, PlanAnalysisRunRepository runs, PlanReviewDraftRepository drafts,
-            TeachingPlanReviewRepository teachingPlanReviews,
+            PlanReviewDraftEventRepository events, TeachingPlanReviewRepository teachingPlanReviews,
             PlanReviewRepository reviews, AssessmentTimes times, JsonMapper mapper) {
         this.access = access;
         this.runs = runs;
         this.drafts = drafts;
+        this.events = events;
         this.teachingPlanReviews = teachingPlanReviews;
         this.reviews = reviews;
         this.times = times;
@@ -84,15 +89,24 @@ public class PlanReviewDraftService {
     record Payload(List<PlanReviewDraftResponse.StoredDecision> decisions,
             List<PlanReviewDraftRequest.SubjectLink> subjectLinks,
             // A14: 운영계획 초안의 관리자 직접 추가 행(이전 초안 JSON에는 없음 → 빈 목록)
-            List<PlanReviewDraftResponse.ManualRow> manualRows) {
+            List<PlanReviewDraftResponse.ManualRow> manualRows,
+            // A27-UX 관리자 추가 수정: 이 문서 검토 대상에서 뺀 분석 과목(이전 초안 JSON에는 없음 → 빈 목록)
+            List<PlanReviewDraftRequest.SubjectExclusion> subjectExclusions) {
 
         Payload {
             manualRows = manualRows == null ? List.of() : List.copyOf(manualRows);
+            subjectExclusions = subjectExclusions == null ? List.of() : List.copyOf(subjectExclusions);
+        }
+
+        Payload(List<PlanReviewDraftResponse.StoredDecision> decisions,
+                List<PlanReviewDraftRequest.SubjectLink> subjectLinks,
+                List<PlanReviewDraftResponse.ManualRow> manualRows) {
+            this(decisions, subjectLinks, manualRows, List.of());
         }
 
         Payload(List<PlanReviewDraftResponse.StoredDecision> decisions,
                 List<PlanReviewDraftRequest.SubjectLink> subjectLinks) {
-            this(decisions, subjectLinks, List.of());
+            this(decisions, subjectLinks, List.of(), List.of());
         }
     }
 
@@ -162,6 +176,13 @@ public class PlanReviewDraftService {
             if (held.isPresent()) {
                 payload = new Payload(payload.decisions(), payload.subjectLinks(), read(held.get()).manualRows());
             }
+        } else if (request.subjectExclusions() == null) {
+            // 과목 제외 필드를 보내지 않은 저장(이전 클라이언트)은 기존 제외를 그대로 둔다 — 조용히 복원하지 않는다
+            Optional<PlanReviewDraft> held = drafts.findByAnalysisId(run.id(), scope);
+            if (held.isPresent()) {
+                Payload before = read(held.get());
+                payload = new Payload(payload.decisions(), payload.subjectLinks(), before.manualRows(), before.subjectExclusions());
+            }
         }
         String payloadJson = mapper.writeValueAsString(payload);
         Instant now = times.now();
@@ -177,7 +198,6 @@ public class PlanReviewDraftService {
             draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(), payloadJson,
                     payload.decisions().size(), admin.adminId(), now);
             changed = changedPaths(new Payload(List.of(), List.of()), payload);
-            history(draft, admin.adminId(), now, changed.size(), changed.stream().limit(CHANGED_PATHS_LIMIT).toList());
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
@@ -195,9 +215,10 @@ public class PlanReviewDraftService {
             }
             changed = changedPaths(read(draft), payload);
             draft.replace(payloadJson, payload.decisions().size(), admin.adminId(), now);
-            history(draft, admin.adminId(), now, changed.size(), changed.stream().limit(CHANGED_PATHS_LIMIT).toList());
             draft = drafts.saveAndFlush(draft);
         }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, changed.size(),
+                mapper.writeValueAsString(changed.stream().limit(CHANGED_PATHS_LIMIT).toList())));
         return view(plan, revision, Optional.of(run), scope);
     }
 
@@ -241,20 +262,20 @@ public class PlanReviewDraftService {
                         new FieldViolation("draft", "already_open"));
             }
             draft.reopenForReReview(admin.adminId(), now);
-            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             draft = drafts.saveAndFlush(draft);
         } else {
             Payload payload = confirmed.get().analysisId().equals(run.id())
                     ? prefillFromTeachingPlan(confirmed.get(), run) : new Payload(List.of(), List.of());
             draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_TEACHING_PLAN, revision.id(), run.id(), revision.sha256(),
                     run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
-            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
                 throw conflict(null);
             }
         }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
+                mapper.writeValueAsString(List.of("reopened"))));
         return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_TEACHING_PLAN);
     }
 
@@ -321,6 +342,12 @@ public class PlanReviewDraftService {
                 .map(e -> new PlanReviewDraftRequest.SubjectLink(e.getKey(), e.getValue())).toList(), manualRows);
     }
 
+    /** 부록 O §39-13: 이 분석 결과의 평가 정보 초안 version(없으면 empty). 한 번에 확정의 stale 검사용. */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Long> evaluationDraftVersion(String analysisId) {
+        return drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_EVALUATION).map(PlanReviewDraft::version);
+    }
+
     /** A12: 이 분석 결과의 평가 정보 초안이 열려 있는가(확정된 Revision의 재확정 허용 조건). */
     @Transactional(readOnly = true)
     public boolean evaluationDraftOpen(String analysisId) {
@@ -354,19 +381,19 @@ public class PlanReviewDraftService {
                         new FieldViolation("draft", "already_open"));
             }
             draft.reopenForReReview(admin.adminId(), now);
-            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             draft = drafts.saveAndFlush(draft);
         } else {
             Payload payload = prefillFromLatestReview(revision, run);
             draft = PlanReviewDraft.start(PlanReviewDraft.SCOPE_EVALUATION, revision.id(), run.id(), revision.sha256(),
                     run.analyzerVersion(), mapper.writeValueAsString(payload), payload.decisions().size(), admin.adminId(), now);
-            history(draft, admin.adminId(), now, 0, List.of("reopened"));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
                 throw conflict(null);
             }
         }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 0,
+                mapper.writeValueAsString(List.of("reopened"))));
         return view(plan, revision, Optional.of(run), PlanReviewDraft.SCOPE_EVALUATION);
     }
 
@@ -491,7 +518,6 @@ public class PlanReviewDraftService {
         if (existing.isEmpty()) {
             draft = PlanReviewDraft.start(scope, revision.id(), run.id(), revision.sha256(), run.analyzerVersion(),
                     payloadJson, payload.decisions().size(), admin.adminId(), now);
-            history(draft, admin.adminId(), now, 1, List.of(request.row().subjectIndex() + "|manual:" + key));
             try {
                 draft = drafts.saveAndFlush(draft);
             } catch (DataIntegrityViolationException raced) {
@@ -500,9 +526,10 @@ public class PlanReviewDraftService {
         } else {
             draft = existing.get();
             draft.replace(payloadJson, payload.decisions().size(), admin.adminId(), now);
-            history(draft, admin.adminId(), now, 1, List.of(request.row().subjectIndex() + "|manual:" + key));
             draft = drafts.saveAndFlush(draft);
         }
+        events.save(PlanReviewDraftEvent.record(draft.id(), draft.version(), admin.adminId(), now, 1,
+                mapper.writeValueAsString(List.of(request.row().subjectIndex() + "|manual:" + key))));
         return view(plan, revision, Optional.of(run), scope);
     }
 
@@ -583,10 +610,24 @@ public class PlanReviewDraftService {
                 violations.add(new FieldViolation("subjectLinks[" + i + "].subjectIndex", "duplicate"));
             }
         }
+        List<PlanReviewDraftRequest.SubjectExclusion> exclusions = request.subjectExclusions() == null ? List.of()
+                : request.subjectExclusions();
+        Set<Integer> excluded = new HashSet<>();
+        for (int i = 0; i < exclusions.size(); i++) {
+            PlanReviewDraftRequest.SubjectExclusion exclusion = exclusions.get(i);
+            if (teachingPlan) {
+                // 과목 제외는 평가 정보 초안에만 둔다(운영계획 확정도 그 제외를 따른다)
+                violations.add(new FieldViolation("subjectExclusions[" + i + "]", "not_allowed"));
+            } else if (exclusion.subjectIndex() >= subjectCount) {
+                violations.add(new FieldViolation("subjectExclusions[" + i + "].subjectIndex", "out_of_range"));
+            } else if (!excluded.add(exclusion.subjectIndex())) {
+                violations.add(new FieldViolation("subjectExclusions[" + i + "].subjectIndex", "duplicate"));
+            }
+        }
         if (!violations.isEmpty()) {
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, violations.toArray(FieldViolation[]::new));
         }
-        return new Payload(stored, List.copyOf(request.subjectLinks()));
+        return new Payload(stored, List.copyOf(request.subjectLinks()), List.of(), List.copyOf(exclusions));
     }
 
     /** 분석 결과 과목 노드에서 fieldPath 값을 읽는다(없으면 null). 예: performanceEvaluation.items[0].weightPercent */
@@ -629,22 +670,15 @@ public class PlanReviewDraftService {
             }
         }
         oldLinks.keySet().forEach(index -> changed.add(index + "|subjectId"));
+        Map<Integer, String> oldExclusions = new LinkedHashMap<>();
+        before.subjectExclusions().forEach(e -> oldExclusions.put(e.subjectIndex(), e.reason() + "|" + e.note()));
+        for (PlanReviewDraftRequest.SubjectExclusion exclusion : after.subjectExclusions()) {
+            if (!(exclusion.reason() + "|" + exclusion.note()).equals(oldExclusions.remove(exclusion.subjectIndex()))) {
+                changed.add(exclusion.subjectIndex() + "|excluded");
+            }
+        }
+        oldExclusions.keySet().forEach(index -> changed.add(index + "|excluded"));
         return new ArrayList<>(changed);
-    }
-
-    /** 초안 저장 이력 한 건 (초안 행의 history_json, 최근 {@link #HISTORY_LIMIT}건, 최신이 앞). */
-    record HistoryItem(long draftVersion, String savedBy, String savedAt, int changedCount, List<String> changedPaths) {
-    }
-
-    private List<HistoryItem> historyOf(PlanReviewDraft d) {
-        return d.historyJson() == null ? List.of() : Arrays.asList(mapper.readValue(d.historyJson(), HistoryItem[].class));
-    }
-
-    /** 다음 저장(flush) 뒤의 version 으로 이력을 남긴다 — 새 초안은 0, 바뀐 초안은 지금 + 1(JPA @Version). */
-    private void history(PlanReviewDraft d, String adminId, Instant now, int changedCount, List<String> paths) {
-        List<HistoryItem> list = new ArrayList<>(historyOf(d));
-        list.add(0, new HistoryItem(d.isNew() ? d.version() : d.version() + 1, adminId, now.toString(), changedCount, paths));
-        d.recordHistory(mapper.writeValueAsString(list.subList(0, Math.min(HISTORY_LIMIT, list.size()))));
     }
 
     private PlanReviewDraftResponse view(EvaluationPlan plan, PlanRevision revision, Optional<PlanAnalysisRun> latest,
@@ -653,9 +687,10 @@ public class PlanReviewDraftService {
         Optional<PlanReviewDraft> current = latest.flatMap(run -> all.stream().filter(d -> d.analysisId().equals(run.id())).findFirst());
         PlanReviewDraftResponse.Draft draft = current.map(this::draftView).orElse(null);
         List<PlanReviewDraftResponse.HistoryEntry> history = current
-                .map(d -> historyOf(d).stream()
+                .map(d -> events.findRecent(d.id(), PageRequest.of(0, HISTORY_LIMIT)).stream()
                         .map(e -> new PlanReviewDraftResponse.HistoryEntry(e.draftVersion(), e.savedBy(),
-                                times.toOffset(Instant.parse(e.savedAt())), e.changedCount(), e.changedPaths()))
+                                times.toOffset(e.savedAt()), e.changedCount(),
+                                Arrays.asList(mapper.readValue(e.changedPathsJson(), String[].class))))
                         .toList())
                 .orElse(List.of());
         List<PlanReviewDraftResponse.PreviousDraft> previous = all.stream()
@@ -671,7 +706,20 @@ public class PlanReviewDraftService {
         Payload payload = read(d);
         return new PlanReviewDraftResponse.Draft(d.id(), d.analysisId(), d.status(), d.closedReason(), d.version(),
                 payload.decisions(), payload.subjectLinks(), d.decisionCount(), d.analyzerVersion(), d.createdBy(),
-                times.toOffset(d.createdAt()), d.updatedBy(), times.toOffset(d.updatedAt()), payload.manualRows());
+                times.toOffset(d.createdAt()), d.updatedBy(), times.toOffset(d.updatedAt()), payload.manualRows(),
+                payload.subjectExclusions());
+    }
+
+    /**
+     * A27-UX: 그 분석 결과의 평가 정보 초안(열림·닫힘 모두)에서 제외한 분석 과목 번호. 초안이 없으면 빈 집합.
+     * 평가 정보 확정·운영계획 확정이 제외 과목을 학생에게 공개하지 않도록 쓴다.
+     */
+    @Transactional(readOnly = true)
+    public Set<Integer> excludedSubjects(String analysisId) {
+        return drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_EVALUATION)
+                .map(d -> read(d).subjectExclusions().stream().map(PlanReviewDraftRequest.SubjectExclusion::subjectIndex)
+                        .collect(java.util.stream.Collectors.toSet()))
+                .orElse(Set.of());
     }
 
     private BusinessException conflict(PlanReviewDraft current) {

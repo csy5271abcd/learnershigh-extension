@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -53,9 +56,20 @@ public class MockHeaderAssessmentActorProvider implements AssessmentActorProvide
 
     private final AssessmentStudentDirectory students;
     private final Map<String, AdminActor> admins;
+    /**
+     * 부록 O: 운영 이름의 Profile(prod·production·staging)에서는 개발 Header 를 받지 않는다(늘 401, fail-closed).
+     * 실제 인증 공급자는 1팀 담당 — 그 전까지 운영 Profile 은 개발 인증으로 열리지 않는다.
+     */
+    private final boolean headersAllowed;
 
     public MockHeaderAssessmentActorProvider(AssessmentStudentDirectory students, ObjectProvider<DemoRoster> roster) {
+        this(students, roster, null);
+    }
+
+    @Autowired
+    public MockHeaderAssessmentActorProvider(AssessmentStudentDirectory students, ObjectProvider<DemoRoster> roster, Environment environment) {
         this.students = students;
+        this.headersAllowed = environment == null || !environment.acceptsProfiles(Profiles.of("prod | production | staging"));
         Map<String, AdminActor> all = new HashMap<>(ADMINS);
         DemoRoster demo = roster.getIfAvailable();
         if (demo != null) {
@@ -71,7 +85,7 @@ public class MockHeaderAssessmentActorProvider implements AssessmentActorProvide
 
     @Override
     public Optional<StudentActor> currentStudent(HttpServletRequest request) {
-        String studentId = request.getHeader(STUDENT_HEADER);
+        String studentId = headersAllowed ? request.getHeader(STUDENT_HEADER) : null;
         if (studentId == null || studentId.isBlank()) {
             return Optional.empty();
         }
@@ -87,7 +101,7 @@ public class MockHeaderAssessmentActorProvider implements AssessmentActorProvide
 
     @Override
     public Optional<AdminActor> currentAdmin(HttpServletRequest request) {
-        String adminId = request.getHeader(ADMIN_HEADER);
+        String adminId = headersAllowed ? request.getHeader(ADMIN_HEADER) : null;
         return adminId == null ? Optional.empty() : Optional.ofNullable(admins.get(adminId));
     }
 }

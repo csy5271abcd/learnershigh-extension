@@ -29,9 +29,11 @@ public class SchoolAssessmentQueryService {
     private final AcademicContextProvider contexts;
     private final AdminStudentScope adminScope;
     private final SchoolAssessmentMapper mapper;
+    private final StudentSubjectService studentSubjects;
 
     public SchoolAssessmentQueryService(SchoolAssessmentRepository repository, AcademicContextProvider contexts,
-            AdminStudentScope adminScope, SchoolAssessmentMapper mapper) {
+            AdminStudentScope adminScope, SchoolAssessmentMapper mapper, StudentSubjectService studentSubjects) {
+        this.studentSubjects = studentSubjects;
         this.repository = repository;
         this.contexts = contexts;
         this.adminScope = adminScope;
@@ -40,8 +42,9 @@ public class SchoolAssessmentQueryService {
 
     public PageResponse<SchoolAssessmentResponse> list(StudentActor student, SchoolAssessmentListQuery query) {
         List<SchoolAssessment> term = repository.findTerm(student.studentId(), query.academicYear(), query.semester());
+        // A27-UX(§9-1-a): 학생이 더한 과목 이름으로도 검색된다
         Optional<AcademicContextRecord> context = contexts.find(student.studentId(), query.academicYear(),
-                query.semester());
+                query.semester()).map(c -> studentSubjects.merged(student.studentId(), c));
         String keyword = query.query() == null ? "" : query.query().strip().toLowerCase(Locale.KOREAN);
         List<SchoolAssessmentResponse> matched = term.stream()
                 .filter(a -> query.subjectId() == null || a.subjectId().equals(query.subjectId()))

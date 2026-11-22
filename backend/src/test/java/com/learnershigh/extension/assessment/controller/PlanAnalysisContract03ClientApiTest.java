@@ -114,7 +114,8 @@ class PlanAnalysisContract03ClientApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_plan_teaching_plan_row");
-        jdbc.update("delete from assessment_plan_review where scope = 'TEACHING_PLAN'");
+        jdbc.update("delete from assessment_plan_teaching_plan_review");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");

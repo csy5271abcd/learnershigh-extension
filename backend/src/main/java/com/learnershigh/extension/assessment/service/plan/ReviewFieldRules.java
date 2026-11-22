@@ -54,6 +54,24 @@ final class ReviewFieldRules {
         if (request.sourceCheck() != null) {
             out.accept(new FieldViolation("sourceCheck", "not_allowed"));
         }
+        rejectStructuredFieldsOnPdfExceptSource(request, out);
+    }
+
+    /**
+     * A28-05 서버 원본 검증(SERVER_STORED_ORIGINAL)은 관리자 로컬 파일 값을 받지 않는다(서버가 보관 바이트로 계산).
+     * 로컬 SHA·수동 대조 확인을 함께 보내면 거절한다 — 수동 검토로 기록되지 않게.
+     */
+    static void checkServerSource(PlanReviewRequest.SourceCheck check, Consumer<FieldViolation> out) {
+        if (check.localFileSha256() != null) {
+            out.accept(new FieldViolation("sourceCheck.localFileSha256", "not_allowed"));
+        }
+        if (check.manualComparisonConfirmed() != null) {
+            out.accept(new FieldViolation("sourceCheck.manualComparisonConfirmed", "not_allowed"));
+        }
+    }
+
+    /** PDF 확정 필드에 HWP·HWPX 근거 위치·부재 표시가 오면 거절한다(원본 확인 방식 검사는 따로) */
+    static void rejectStructuredFieldsOnPdfExceptSource(PlanReviewRequest request, Consumer<FieldViolation> out) {
         for (int s = 0; s < request.reviewedSubjects().size(); s++) {
             ReviewedSubject subject = request.reviewedSubjects().get(s);
             for (int f = 0; f < subject.confirmedFields().size(); f++) {

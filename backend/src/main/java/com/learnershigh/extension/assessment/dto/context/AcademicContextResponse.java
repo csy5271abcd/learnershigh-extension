@@ -15,7 +15,12 @@ public record AcademicContextResponse(School school, int academicYear, int grade
     public record School(String schoolId, String name) {
     }
 
-    public record Subject(String subjectId, String name) {
+    /** addedByStudent: A27-UX(2026-11-19 DRAFT §9-1-a) 학생이 수행평가 등록과 함께 더한 과목. 원래 수강 과목은 false */
+    public record Subject(String subjectId, String name, boolean addedByStudent) {
+
+        public Subject(String subjectId, String name) {
+            this(subjectId, name, false);
+        }
     }
 
     /** enrolled=true인 후보만 수행평가 등록 대상이다(§12 subjectId 검증은 수강 과목 기준 그대로). */

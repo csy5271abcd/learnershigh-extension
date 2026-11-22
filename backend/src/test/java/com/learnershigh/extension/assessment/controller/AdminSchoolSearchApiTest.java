@@ -37,6 +37,7 @@ class AdminSchoolSearchApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_school_assessment");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_plan_confirmed_value");
         jdbc.update("delete from assessment_plan_review");
