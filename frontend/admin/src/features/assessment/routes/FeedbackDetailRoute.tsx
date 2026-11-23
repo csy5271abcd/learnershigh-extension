@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
-import { deliverReply, getFeedbackRequest, listScraps, saveReplyDraft } from '../api/assessmentAdminApi.ts'
+import { deliverReply, downloadArtifactVersion, getFeedbackRequest, listScraps, previewArtifactVersion, saveReplyDraft } from '../api/assessmentAdminApi.ts'
+import { openBlob, saveBlob } from '../model/blobActions.ts'
 import type { AdminFeedbackDetail, FeedbackRecommendation, FeedbackReplyDraft, NoteBlock } from '../api/types.ts'
 import { DetailHead, ReadOnlyMark, RemoteView } from '../components/AdminParts.tsx'
 import { AlertIcon, CloseIcon, Modal, SendIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
@@ -127,7 +128,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
 
             <div className={styles.sectionHead}>
               <h3 className={styles.sectionTitle}>탐구 노트 (요청 당시)</h3>
-              {!delivered && <span className={styles.hint}>블록에 마우스를 올려 &lsquo;의견&rsquo;으로 위치별 의견을 달 수 있어요.</span>}
+              {!delivered && <span className={styles.hint}>블록별 &lsquo;의견&rsquo;으로 위치별 의견</span>}
             </div>
             {detail.snapshotRevision && <NoteReadView blocks={detail.snapshotRevision.blocks} onCommentBlock={delivered ? undefined : addBlockComment} commentedBlockIds={commentedBlockIds} />}
 
@@ -163,7 +164,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
                 {detail.student.displayName} · {dateTimeLabel(detail.requestedAt)} 요청 · 노트 v{detail.snapshotRevision?.revisionNumber ?? '?'} · 파일 {detail.snapshotVersions.length}개
               </strong>
               <p className={styles.muted} style={{ marginTop: 4 }}>
-                학생이 질문 없이 자료 전체를 보냈어요.
+                질문 없음 · 자료 전체 피드백 요청
               </p>
             </div>
             {sideTab === 'delivered' || delivered ? (
@@ -211,7 +212,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
 
                 <div className={styles.field}>
                   <span className={styles.label}>위치별 의견 {comments.length > 0 && `${comments.length}개`}</span>
-                  {comments.length === 0 && <p className={styles.hint}>노트 블록의 &lsquo;의견&rsquo;이나 파일의 &lsquo;파일 의견&rsquo;으로 추가해요.</p>}
+                  {comments.length === 0 && <p className={styles.hint}>노트 블록 &lsquo;의견&rsquo; · 파일 &lsquo;파일 의견&rsquo;으로 추가</p>}
                   {comments.map((comment, index) => (
                     <div key={index} className={styles.box} style={{ padding: 10 }}>
                       <div className={styles.studentLine} style={{ marginBottom: 6 }}>
@@ -290,7 +291,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
             </>
           }
         >
-          <p className={styles.notePara}>전달하면 학생이 바로 볼 수 있고, 전달한 내용은 고칠 수 없어요 (재답변 정책 미정, API-OD-A06). 학생 노트·파일은 바뀌지 않아요.</p>
+          <p className={styles.notePara}>전달 즉시 학생 공개 · 전달 뒤 수정 불가(재답변 정책 미정, API-OD-A06) · 학생 노트·파일 변경 없음</p>
           {error && (
             <p className={styles.formError} role="alert" style={{ marginTop: 10 }}>
               <AlertIcon size={15} /> {error}
@@ -313,13 +314,34 @@ function SnapshotFile({
 }) {
   const isPdf = version.file.contentType === 'application/pdf'
   const [page, setPage] = useState(1)
+  // A28-41: 요청 당시 버전 파일은 서버 Storage 에 있다(§26) — 읽기 전용으로 열고 내려받는다
+  const [fileError, setFileError] = useState<string | null>(null)
+  const fileAction = (action: () => Promise<void>) => {
+    setFileError(null)
+    action().catch((cause: unknown) => setFileError(cause instanceof Error ? cause.message : '파일을 열지 못했어요.'))
+  }
   return (
     <li className={styles.listRow}>
       <span>
         <span className={styles.badge}>v{version.versionNumber}</span> {version.artifactTitle} · {version.file.fileName}
         <span className={styles.cellSub}>
-          {fileSizeLabel(version.file.sizeBytes)} · {dateTimeLabel(version.uploadedAt)} · {version.previewSupported ? '미리보기 지원 형식 (Storage 연동 전)' : '미리보기 미지원 형식 — 파일 전체 의견만 가능'}
+          {fileSizeLabel(version.file.sizeBytes)} · {dateTimeLabel(version.uploadedAt)} · {version.previewSupported ? '앱 안 미리보기 가능' : '미리보기 미지원 형식 · 내려받아 확인'}
         </span>
+        <span className={styles.actions} style={{ marginTop: 4 }}>
+          {version.previewSupported && (
+            <button type="button" className={styles.linkButton} onClick={() => fileAction(async () => openBlob(await previewArtifactVersion(version.artifactId, version.versionId)))} data-testid="feedback-snapshot-file-open">
+              열기 ↗
+            </button>
+          )}
+          <button type="button" className={styles.linkButton} onClick={() => fileAction(async () => saveBlob(await downloadArtifactVersion(version.artifactId, version.versionId), version.file.fileName))} data-testid="feedback-snapshot-file-download">
+            내려받기
+          </button>
+        </span>
+        {fileError && (
+          <span className={styles.formError} role="alert">
+            {fileError}
+          </span>
+        )}
       </span>
       {!disabled && (
         <span className={styles.actions}>
@@ -346,7 +368,7 @@ function Recommendations({ value, onChange }: { value: FeedbackRecommendation[];
     <div className={styles.form} style={{ gap: 12 }}>
       <div className={styles.field}>
         <span className={styles.label}>내 스크랩에서 참고자료 추천</span>
-        <span className={styles.hint}>스크랩의 공개 가능한 제목·주소만 학생에게 보여요. 관리자 메모는 전달되지 않아요.</span>
+        <span className={styles.hint}>학생에게는 스크랩 제목·주소만 공개 · 관리자 메모 비공개</span>
         {/* §43-1: 학생에게 전달할 주소가 있는(링크) 스크랩만 추천한다. 파일만 있는 스크랩은 관리자 전용 */}
         {scraps.state.status === 'success' &&
           (scraps.state.data.items.filter((scrap) => scrap.sourceUrl).length === 0 ? (

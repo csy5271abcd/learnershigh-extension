@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
-import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
+import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, weekListGroups, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
 import styles from './monthlyPlanner.module.css'
 
 // 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용 렌더러).
@@ -89,13 +89,8 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
     )
   }
 
-  const byWeekList = [
-    ...placement.monthSummary.map((entry) => ({ group: `${month}월 전체`, entry })),
-    ...placement.weekBands.flatMap((band) => band.entries.map((entry) => ({ group: `${month}월 ${band.week}주`, entry }))),
-    ...placement.termWeekBands.flatMap((band) => band.entries.map((entry) => ({ group: `학기 ${band.week}주차`, entry }))),
-    ...(placement.year === null ? [] : placement.cells.flatMap((cell) => (cell ? cell.entries.filter((entry) => entry.dateFrom === cell.iso).map((entry) => ({ group: `${month}월 ${cell.day}일`, entry })) : []))),
-    ...placement.undated.map((entry) => ({ group: `${month}월 · 날짜·주차 미확인`, entry })),
-  ]
+  // A28-37: 달력에 임시 배치된 'n월 m주' 행도 원문 주차로 묶어 목록에 넣는다(이전에는 빠져 목록이 비었다). 항목 수 = placement.total
+  const byWeekList = weekListGroups(placement).flatMap((group) => group.entries.map((entry) => ({ group: group.label, entry })))
 
   return (
     <div className={styles.planner} data-testid="monthly-planner">
@@ -167,7 +162,9 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
             이번 달
           </button>
           <h4 data-testid="planner-title">{placement.year === null ? `${academicYear}학년도 ${month}월` : `${placement.year}년 ${month}월`}</h4>
-          <span className={styles.count}>{placement.total}개</span>
+          <span className={styles.count} data-testid="planner-total">
+            {placement.total}개
+          </span>
           <div className={styles.views} role="group" aria-label="보기 방식">
             <button type="button" aria-pressed={view === 'calendar'} onClick={() => setView('calendar')}>
               달력
@@ -266,14 +263,18 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
           <ul className={styles.list} data-testid="planner-list">
             {byWeekList.map(({ group, entry }, index) => (
               <li key={`${group}-${entry.id}`}>
-                {(index === 0 || byWeekList[index - 1].group !== group) && <p className={styles.listGroup}>{group}</p>}
-                <button type="button" className={styles.listItem} onClick={() => setSelected(entry)}>
+                {(index === 0 || byWeekList[index - 1].group !== group) && (
+                  <p className={styles.listGroup} data-testid="planner-list-group">
+                    {group}
+                  </p>
+                )}
+                <button type="button" className={styles.listItem} onClick={() => setSelected(entry)} data-testid="planner-list-item">
                   <span className={styles.dot} data-c={color(entry)} />
                   <span style={{ minWidth: 0 }}>
                     <strong>
                       {entry.subjectName} · {entry.unit ?? '단원 미확인'}
                     </strong>
-                    <span className={styles.sub}>{entry.content ?? entry.asWritten}</span>
+                    <span className={styles.sub}>{entry.content ?? whenLabel(entry)}</span>
                   </span>
                 </button>
               </li>

@@ -22,6 +22,7 @@ import { useSplitPane } from '../review/useSplitPane.ts'
 import { actorLabel } from '../model/actorLabel.ts'
 import { ResultSubjectPicker, type ResultSubjectEntry } from '../components/ResultSubjectPicker.tsx'
 import { confirmedSubjectLinks } from '../review/reviewModel.ts'
+import { canEditConfirmed } from '../model/schoolInfoSync.ts'
 
 // A27-UX 분석·검토·확정 결과 읽기 전용 조회 (/assessment/analysis/{planId}/revisions/{revisionId}/result).
 // 계정 B 보완(2026-11-18):
@@ -173,7 +174,8 @@ function ResultWorkspace({ data, revision, search, onChanged }: { data: ResultDa
             {reReviewing ? '확정 내용 수정 이어하기' : stage === 'ANALYZED' ? '검토하기' : '검토 이어하기'}
           </button>
         )}
-        {confirmed && !reReviewing && (revision.documentFormat ?? 'PDF') === 'PDF' && !isAdminMockDataSource && (
+        {/* A28-38: PDF 뿐 아니라 학교알리미 수집 원본(HWP·HWPX 포함, §39-14 서버 원본 검증으로 재승인 가능)도 수정 진입점을 보인다 */}
+        {confirmed && !reReviewing && canEditConfirmed(revision.documentFormat, analysis.revisionFile?.sourceUrl) && !isAdminMockDataSource && (
           <EditConfirmedButton planId={plan.planId} revisionId={revision.documentRevisionId} />
         )}
         {/* A28-29: 평가 정보만 확정되고 운영계획 후보가 남은 문서 → 검토 화면 마지막 단계 '월별 운영계획 최종 승인'으로 */}
@@ -344,7 +346,7 @@ function Comparison({ data, progress, onSource, subjectIndex }: { data: ResultDa
   return (
     <div className={result.compare} data-testid="plan-result-compare">
       <p className={styles.muted}>
-        AI 후보는 분석 결과 그대로, 관리자 검토값은 {draftActive ? '서버에 임시 저장된 값(학생 비공개)' : progress.draftStatus === 'CLOSED' ? '확정할 때 쓴 결정' : '없음'}, 최종 확정값은 학생에게 공개 중인 값이에요.
+        AI 후보 = 분석 결과 · 관리자 검토값 = {draftActive ? '서버 임시 저장값(학생 비공개)' : progress.draftStatus === 'CLOSED' ? '확정 때 쓴 결정' : '없음'} · 최종 확정값 = 학생 공개 중인 값
       </p>
       <div className={result.filterRow} role="group" aria-label="비교 필터">
         {filters.map(([id, label, count]) => (
@@ -567,6 +569,7 @@ function EditConfirmedButton({ planId, revisionId }: { planId: string; revisionI
         >
           <p>지금 확정값으로 수정 초안 생성 → 필요한 항목만 고친 뒤 &lsquo;최종 승인&rsquo; = 새 확정본</p>
           <p>이전 확정 기록 보존 · 다시 승인할 때까지 학생에게는 지금 확정본 유지</p>
+          <p>월별 운영계획은 검토 화면 4단계 &lsquo;운영계획 수정&rsquo;에서 따로 고쳐요</p>
           {error && (
             <p role="alert" className={review.statusText} data-tone="danger">
               {error}

@@ -856,6 +856,24 @@ public class SchoolInfoSyncService {
         }
     }
 
+    /**
+     * A28-42: 지금까지 작업 줄에 들어간 동기화·분석이 모두 끝날 때까지 기다린다(단일 스레드 FIFO 라 빈 작업 하나가 끝나면 앞선 작업도 끝났다).
+     * 시험이 공유 가상 학교알리미·DB 를 초기화하기 전에 이전 시험이 남긴 작업과 섞이지 않게 쓴다. 운영 동작은 바꾸지 않는다.
+     */
+    public boolean awaitIdle(Duration timeout) {
+        try {
+            worker.submit(() -> { }).get(timeout.toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS);
+            return true;
+        } catch (java.util.concurrent.TimeoutException e) {
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.RejectedExecutionException e) {
+            return true;
+        }
+    }
+
     @PreDestroy
     void stop() {
         worker.shutdownNow();

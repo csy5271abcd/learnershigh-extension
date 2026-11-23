@@ -187,6 +187,13 @@ export const previewArtifactVersion = useMock
 export const downloadArtifactVersion = useMock
   ? (_artifactId: string, _versionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
   : records.downloadArtifactVersionHttp
+/** §26-1 A28-41 (http만) 학생 노트 첨부 미리보기·원본 */
+export const previewNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.previewNoteAttachmentHttp
+export const downloadNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.downloadNoteAttachmentHttp
 /** http: 휴지통으로 이동(복원 가능). Mock: 기존 Mock 삭제 */
 export const deleteScrap = useMock ? mock.deleteScrapMock : records.deleteScrapHttp
 /** 관리자 참고자료 휴지통 (http만. Mock에는 휴지통이 없다) */

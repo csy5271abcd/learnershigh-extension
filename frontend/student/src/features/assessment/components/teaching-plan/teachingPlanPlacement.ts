@@ -215,6 +215,10 @@ export interface MonthPlacement {
   total: number
   /** A26 주차 기준 임시 배치: 계획 id → 이 달 달력에 표시한 날짜(YYYY-MM-DD, 복수 주차면 주마다 하나). 저장하지 않는 표시용 */
   tentativeDates: Record<string, string[]>
+  /** A28-37: 원문 날짜로 이 달 칸에 놓인 계획(기간이면 한 번만) */
+  dated: TeachingPlanEntry[]
+  /** A28-37: 'n월 m주'를 달력 줄에 임시 배치한 계획(주차 목록에서는 원문 주차로 다시 묶는다) */
+  tentative: TeachingPlanEntry[]
 }
 
 const order = (month: number) => academicMonths.indexOf(month)
@@ -337,7 +341,53 @@ export function placeEntries(entries: TeachingPlanEntry[], academicYear: number,
   const placedTentative = here.filter((entry) => tentativeDates[entry.id])
   const placed = new Set([...placedDated, ...placedTentative, ...weekBands.flatMap((band) => band.entries), ...termWeekBands.flatMap((band) => band.entries), ...monthSummary])
   const undated = here.filter((entry) => !placed.has(entry))
-  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length, tentativeDates }
+  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length, tentativeDates, dated: placedDated, tentative: placedTentative }
+}
+
+export interface WeekListGroup {
+  key: string
+  label: string
+  entries: TeachingPlanEntry[]
+}
+
+/**
+ * A28-37: '주차 목록' 보기. 달력 보기와 같은 배치 결과(같은 필터·같은 달)를 원문 시기 단위로 묶는다.
+ * - 'n월 m주'는 달력에 임시 배치됐어도 원문 주차로 묶는다('n월 m~k주'는 범위 그대로 한 번).
+ * - 월만 적힌 계획 → 'n월 전체', 원문 날짜 → 그 날짜(기간이면 원문 기간 문구), 학기 주차 → '학기 n주차', 나머지 → 미확인.
+ * - 한 계획은 한 묶음에만 들어간다: 묶음 항목 수의 합 = placement.total(달력 위 'N개'와 같은 정의).
+ * - 순서: 월 전체 → 달력 줄 순서(같은 줄이면 주차 먼저) → 학기 주차 → 미확인.
+ */
+export function weekListGroups(placement: MonthPlacement): WeekListGroup[] {
+  const month = placement.month
+  const groups = new Map<string, WeekListGroup & { order: number }>()
+  const seen = new Set<string>()
+  const add = (key: string, order: number, label: string, entry: TeachingPlanEntry) => {
+    if (seen.has(entry.id)) return
+    seen.add(entry.id)
+    const group = groups.get(key) ?? { key, label, order, entries: [] }
+    group.entries.push(entry)
+    groups.set(key, group)
+  }
+  const rowOf = (iso: string) => {
+    const index = placement.cells.findIndex((cell) => cell?.iso === iso)
+    return index < 0 ? 0 : Math.floor(index / 7) + 1
+  }
+  const monthStart = placement.year === null ? null : `${placement.year}-${pad(month)}-01`
+  for (const entry of placement.monthSummary) add('month', 0, `${month}월 전체`, entry)
+  const weekly = [...placement.tentative, ...placement.weekBands.flatMap((band) => band.entries)].sort((a, b) => (a.weekFrom ?? 0) - (b.weekFrom ?? 0))
+  for (const entry of weekly) {
+    const from = entry.weekFrom as number
+    const to = entry.weekTo != null && entry.weekTo > from ? entry.weekTo : from
+    add(`week-${from}-${to}`, from * 1000 + to, to === from ? `${month}월 ${from}주` : `${month}월 ${from}~${to}주`, entry)
+  }
+  for (const entry of [...placement.dated].sort((a, b) => ((a.dateFrom ?? '') < (b.dateFrom ?? '') ? -1 : 1))) {
+    const first = monthStart && entry.dateFrom && entry.dateFrom < monthStart ? monthStart : (entry.dateFrom as string)
+    const label = whenLabel(entry)
+    add(`date-${label}`, rowOf(first) * 1000 + 500 + Number(first.slice(8, 10)), label, entry)
+  }
+  for (const band of placement.termWeekBands) for (const entry of band.entries) add(`term-${band.week}`, 100_000 + band.week, `학기 ${band.week}주차`, entry)
+  for (const entry of placement.undated) add('undated', 200_000, `${month}월 · 날짜·주차 미확인`, entry)
+  return [...groups.values()].sort((a, b) => a.order - b.order).map(({ key, label, entries }) => ({ key, label, entries }))
 }
 
 /** 과목마다 고정 색 번호 (0~5). 상태 색이 아니라 과목 구분용 점에만 쓴다 */

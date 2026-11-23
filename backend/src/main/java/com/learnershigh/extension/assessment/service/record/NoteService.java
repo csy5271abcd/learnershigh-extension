@@ -36,19 +36,21 @@ public class NoteService {
     private final StudentRecordAccess access;
     private final RecordJson json;
     private final AssessmentTimes times;
+    private final NoteAttachmentService attachments;
 
     public NoteService(AssessmentNoteRepository notes, NoteRevisionRepository revisions, StudentRecordAccess access,
-            RecordJson json, AssessmentTimes times) {
+            RecordJson json, AssessmentTimes times, NoteAttachmentService attachments) {
         this.notes = notes;
         this.revisions = revisions;
         this.access = access;
         this.json = json;
         this.times = times;
+        this.attachments = attachments;
     }
 
     public SaveNoteResponse create(StudentActor student, CreateNoteRequest request) {
         access.ownedAssessment(student.studentId(), request.sourceType(), request.sourceId());
-        String blocks = validBlocks(request.blocks());
+        String blocks = validBlocks(student.studentId(), request.blocks());
         if (!notes.findByStudentIdAndSourceTypeAndSourceId(student.studentId(), request.sourceType(),
                 request.sourceId()).isEmpty()) {
             throw existingNote();
@@ -67,7 +69,7 @@ public class NoteService {
     public SaveNoteResponse update(StudentActor student, String noteId, UpdateNoteRequest request) {
         AssessmentNote note = notes.findByIdAndStudentId(noteId, student.studentId())
                 .orElseThrow(() -> new BusinessException(AssessmentErrorCode.NOTE_NOT_FOUND));
-        String blocks = validBlocks(request.blocks());
+        String blocks = validBlocks(student.studentId(), request.blocks());
         if (!note.isLatest(request.expectedRevisionId())) {
             throw new BusinessException(AssessmentErrorCode.RESOURCE_VERSION_CONFLICT);
         }
@@ -89,9 +91,13 @@ public class NoteService {
                 times.toOffset(savedAt), times.toOffset(note.updatedAt()));
     }
 
-    /** 블록은 객체이고 blockId·type·text(문자열)가 있어야 한다. blockId는 노트 안에서 유일하다. */
-    private String validBlocks(List<JsonNode> blocks) {
+    /**
+     * 블록은 객체이고 blockId·type·text(문자열)가 있어야 한다. blockId는 노트 안에서 유일하다.
+     * A28-41 §26-1: attrs.file.attachmentId 가 있으면 이 학생이 올린 첨부여야 한다(다른 학생 파일을 끼워 넣지 못함).
+     */
+    private String validBlocks(String studentId, List<JsonNode> blocks) {
         Set<String> ids = new HashSet<>();
+        java.util.Map<String, String> attachmentFields = new java.util.LinkedHashMap<>();
         for (int index = 0; index < blocks.size(); index++) {
             JsonNode block = blocks.get(index);
             String field = "blocks[" + index + "]";
@@ -115,6 +121,20 @@ public class NoteService {
             }
             if (!ids.add(blockId)) {
                 throw RecordJson.invalid(field + ".blockId", "duplicate");
+            }
+            JsonNode file = attrs == null || attrs.isNull() ? null : attrs.get("file");
+            JsonNode attachmentId = file == null || !file.isObject() ? null : file.get("attachmentId");
+            if (attachmentId != null && !attachmentId.isNull()) {
+                if (!attachmentId.isString() || attachmentId.asString().isBlank() || attachmentId.asString().length() > 64) {
+                    throw RecordJson.invalid(field + ".attrs.file.attachmentId", "unknown");
+                }
+                attachmentFields.putIfAbsent(attachmentId.asString(), field + ".attrs.file.attachmentId");
+            }
+        }
+        Set<String> unknown = attachments.unknownFor(studentId, attachmentFields.keySet());
+        for (java.util.Map.Entry<String, String> entry : attachmentFields.entrySet()) {
+            if (unknown.contains(entry.getKey())) {
+                throw RecordJson.invalid(entry.getValue(), "unknown");
             }
         }
         String serialized = json.write(blocks);

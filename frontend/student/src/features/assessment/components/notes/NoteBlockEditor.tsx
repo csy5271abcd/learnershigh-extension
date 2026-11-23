@@ -21,6 +21,8 @@ import {
 } from '../../model/noteEditorModel.ts'
 import { MoreIcon, PlusIcon } from '../AssessmentIcons.tsx'
 import { sessionPreview, setSessionPreview } from '../../model/notePreviewStore.ts'
+import { uploadNoteAttachment } from '../../api/assessmentDetailApi.ts'
+import { isMockDataSource } from '../../api/dataSource.ts'
 import { ChartPreview, FileMeta, MapCard, MathView, ResourceCard, VideoView, WebLinkCard } from './NoteBlockParts.tsx'
 import { ExamSourceCard } from '../university/ExamSourceCard.tsx'
 import { universityExamDocumentPath } from '../../routes/paths.ts'
@@ -924,14 +926,20 @@ function MapEditor({ block, onChange }: { block: EditorBlock; onChange: (block: 
   )
 }
 
+/** A28-41 §26-1 서버 허용 형식(확장자+서명 검사는 서버가 한다) */
+const fileAccept = '.pdf,.hwp,.hwpx,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/png,image/jpeg,image/gif,image/webp'
+
 function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block: EditorBlock) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState(() => sessionPreview(block.blockId))
   const [notice, setNotice] = useState<string>()
+  const [uploading, setUploading] = useState(false)
+  const [pendingPreview, setPendingPreview] = useState<string>()
+  const uploadingRef = useRef(false)
   const file = block.attrs?.file
   const isImage = block.type === 'IMAGE'
   const pdfOnly = !isImage && file?.mimeType === 'application/pdf' && !file.name
-  const accept = isImage ? imageAccept : pdfOnly ? 'application/pdf' : undefined
+  const accept = isImage ? imageAccept : pdfOnly ? 'application/pdf' : fileAccept
   const choose = (chosen: File | undefined) => {
     if (!chosen) return
     if (isImage && !imageAccept.split(',').includes(chosen.type)) {
@@ -942,15 +950,45 @@ function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block:
       setNotice('PDF 파일만 넣을 수 있어요.')
       return
     }
-    setNotice(chosen.size > previewMaxBytes ? '20MB보다 커서 미리보기는 만들지 않고 파일 정보만 기록했어요.' : undefined)
-    setPreview(chosen.size > previewMaxBytes ? undefined : setSessionPreview(block.blockId, chosen))
-    onChange({ ...block, attrs: { ...block.attrs, file: { name: chosen.name, size: chosen.size, mimeType: chosen.type || 'application/octet-stream' } } })
+    if (isMockDataSource) {
+      // 시연(Mock): 서버가 없어 이름·크기만 기록한다(화면에 그대로 알린다)
+      setNotice(chosen.size > previewMaxBytes ? '20MB보다 커서 미리보기는 만들지 않고 파일 정보만 기록했어요.' : undefined)
+      setPreview(chosen.size > previewMaxBytes ? undefined : setSessionPreview(block.blockId, chosen))
+      onChange({ ...block, attrs: { ...block.attrs, file: { name: chosen.name, size: chosen.size, mimeType: chosen.type || 'application/octet-stream' } } })
+      return
+    }
+    // A28-41 §26-1: 서버에 먼저 저장하고 저장 응답(attachmentId)이 와야 블록을 바꾼다. 실패하면 이전 파일을 그대로 둔다(가짜 성공 없음)
+    if (uploadingRef.current) return
+    uploadingRef.current = true
+    setNotice(undefined)
+    setUploading(true)
+    const localPreview = chosen.size > previewMaxBytes ? undefined : URL.createObjectURL(chosen)
+    setPendingPreview(localPreview)
+    uploadNoteAttachment(chosen).then(
+      (saved) => {
+        uploadingRef.current = false
+        setUploading(false)
+        setPendingPreview(undefined)
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setPreview(undefined)
+        onChange({ ...block, attrs: { ...block.attrs, file: { name: saved.fileName, size: saved.sizeBytes, mimeType: saved.contentType, attachmentId: saved.attachmentId, sha256: saved.sha256 } } })
+      },
+      (cause: unknown) => {
+        uploadingRef.current = false
+        setUploading(false)
+        setPendingPreview(undefined)
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setNotice(`파일을 저장하지 못했어요. ${cause instanceof Error ? cause.message : ''} 다시 골라 주세요.`.replace(/\s+/g, ' ').trim())
+      },
+    )
   }
   const label = isImage ? '이미지' : pdfOnly || file?.mimeType === 'application/pdf' ? 'PDF' : '파일'
   return (
     <div className={styles.mediaBlock}>
-      <input ref={inputRef} type="file" hidden accept={accept} onChange={(event) => { choose(event.target.files?.[0]); event.target.value = '' }} />
-      {file?.name ? (
+      <input ref={inputRef} type="file" hidden accept={accept} onChange={(event) => { choose(event.target.files?.[0]); event.target.value = '' }} data-testid="note-file-input" />
+      {uploading ? (
+        <FileMeta file={{ name: '업로드 중', size: 0, mimeType: isImage ? 'image/png' : 'application/octet-stream' }} previewUrl={pendingPreview} isImage={isImage} pending />
+      ) : file?.name ? (
         <>
           <FileMeta file={file} previewUrl={preview} isImage={isImage} />
           <button type="button" className={styles.tinyButton} data-focus-target="field" onClick={() => inputRef.current?.click()}>
@@ -959,10 +997,10 @@ function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block:
         </>
       ) : (
         <div className={styles.mediaEmpty}>
-          <button type="button" className={styles.mediaButton} data-focus-target="field" onClick={() => inputRef.current?.click()}>
+          <button type="button" className={styles.mediaButton} data-focus-target="field" onClick={() => inputRef.current?.click()} data-testid="note-file-choose">
             {isImage ? '🖼' : '📎'} {label} 고르기
           </button>
-          <span className={styles.menuHint}>이 화면에서만 미리보기 · 서버에 저장되지 않아요 (파일 저장소 미정)</span>
+          <span className={styles.menuHint}>{isMockDataSource ? '시연 화면 · 파일 저장 안 됨' : '고르면 서버에 저장'}</span>
         </div>
       )}
       {notice && (

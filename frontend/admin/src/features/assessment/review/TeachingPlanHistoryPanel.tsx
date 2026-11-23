@@ -51,9 +51,9 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
     <section className={styles.note} style={{ margin: '12px 0', display: 'block' }} aria-label="운영계획 재검토·확정 이력" data-testid="teaching-plan-history">
       {canStart && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>운영계획을 고쳐야 하면 재검토를 시작해요. 다시 확정하기 전까지 학생에게는 지금 확정본이 그대로 보여요(평가 정보와 별개).</span>
+          <span>운영계획 확정값 수정 · 다시 확정 전까지 학생에게는 지금 확정본 유지(평가 정보와 별개)</span>
           <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => setAsking(true)} data-testid="teaching-plan-rereview-start">
-            운영계획 재검토 시작
+            운영계획 수정
           </button>
         </div>
       )}

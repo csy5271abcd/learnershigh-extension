@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class ArtifactViews {
 
     /** 브라우저가 그대로 보여줄 수 있는 형식(HWP·DOCX·PPTX는 변환기 없음, §26 PREVIEW_UNAVAILABLE) */
-    private static final Set<String> PREVIEWABLE = Set.of("application/pdf", "image/png", "image/jpeg", "image/gif");
+    private static final Set<String> PREVIEWABLE = Set.of("application/pdf", "image/png", "image/jpeg", "image/gif", "image/webp");
 
     private final AssessmentTimes times;
 

@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { downloadNoteAttachment, previewNoteAttachment } from '../api/assessmentAdminApi.ts'
+import { openBlob, saveBlob } from '../model/blobActions.ts'
 import type { NoteBlock } from '../api/types.ts'
 import styles from '../styles/assessmentAdmin.module.css'
 // A27-UX(계정 B): 학생 노트 인라인 서식(attrs.marks)을 학생 화면과 같은 렌더러로 그린다. 서식이 없으면 글 그대로
@@ -122,15 +125,9 @@ function BlockBody({ block }: { block: NoteBlock }) {
     case 'IMAGE':
     case 'FILE':
     case 'PDF':
-      // 학생이 노트에 붙인 파일 본문은 Storage가 없어 Admin에서 열 수 없다 (API-OD-A03). 메타데이터만 보인다.
-      return (
-        <div className={styles.noteCard}>
-          <span>
-            <span className={styles.badge}>{block.type === 'IMAGE' ? '이미지' : block.type === 'PDF' ? 'PDF' : '파일'}</span> {attrs.file?.name ?? block.text ?? '첨부'}
-          </span>
-          <span className={styles.muted}>원본 열람은 Storage 연동 뒤 지원</span>
-        </div>
-      )
+      // A28-41 §26-1: attachmentId 가 있으면 서버 Storage 의 파일(요청 당시 Revision 이 가리키는 그 파일)을 읽기 전용으로 연다.
+      // 없으면 이전 방식(이름·크기만)이라 파일 자체가 없다 — 학생이 다시 첨부해야 한다.
+      return <AttachmentCard type={block.type} name={attrs.file?.name ?? block.text ?? '첨부'} file={attrs.file} />
     case 'EXAM_SOURCE':
       return (
         <div className={styles.noteCard}>
@@ -143,4 +140,44 @@ function BlockBody({ block }: { block: NoteBlock }) {
     default:
       return <p className={styles.notePara}>{text}</p>
   }
+}
+
+const previewableTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/gif', 'image/webp'])
+
+function AttachmentCard({ type, name, file }: { type: string; name: string; file: { name: string; size: number; mimeType: string; attachmentId?: string } | undefined }) {
+  const [error, setError] = useState<string | null>(null)
+  const [pending, setPending] = useState(false)
+  const attachmentId = file?.attachmentId
+  const run = (action: () => Promise<void>) => {
+    if (pending) return
+    setPending(true)
+    setError(null)
+    action().catch((cause: unknown) => setError(cause instanceof Error ? cause.message : '파일을 열지 못했어요.')).finally(() => setPending(false))
+  }
+  return (
+    <div className={styles.noteCard} data-testid="admin-note-file" data-stored={attachmentId ? 'true' : 'false'}>
+      <span>
+        <span className={styles.badge}>{type === 'IMAGE' ? '이미지' : type === 'PDF' || file?.mimeType === 'application/pdf' ? 'PDF' : '파일'}</span> {name}
+      </span>
+      {attachmentId ? (
+        <span className={styles.actions}>
+          {previewableTypes.has(file?.mimeType ?? '') && (
+            <button type="button" className={styles.linkButton} disabled={pending} onClick={() => run(async () => openBlob(await previewNoteAttachment(attachmentId)))} data-testid="admin-note-file-open">
+              열기 ↗
+            </button>
+          )}
+          <button type="button" className={styles.linkButton} disabled={pending} onClick={() => run(async () => saveBlob(await downloadNoteAttachment(attachmentId), file?.name ?? name))} data-testid="admin-note-file-download">
+            내려받기
+          </button>
+        </span>
+      ) : (
+        <span className={styles.muted}>이전 첨부 · 파일 미저장(학생이 다시 첨부해야 열람 가능)</span>
+      )}
+      {error && (
+        <span className={styles.formError} role="alert">
+          {error}
+        </span>
+      )}
+    </div>
+  )
 }

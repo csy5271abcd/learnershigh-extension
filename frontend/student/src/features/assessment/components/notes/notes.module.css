@@ -681,6 +681,16 @@
   text-decoration: none;
 }
 
+/* A28-41: 서버 첨부 '열기'·'내려받기'는 버튼(링크 모양) */
+button.fileOpen {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .chartBlock {
   display: grid;
   gap: 6px;

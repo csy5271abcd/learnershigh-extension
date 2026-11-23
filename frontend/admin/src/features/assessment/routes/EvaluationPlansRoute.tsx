@@ -16,6 +16,7 @@ import { PlanAnalysisPreviewPanel } from './PlanAnalysisPreviewPanel.tsx'
 import { paths } from './paths.ts'
 import { reviewProgressOf } from '../model/planReviewComparison.ts'
 import { hasAnalysisResult, planStage, stageLabel, type PlanStage } from '../model/planStatus.ts'
+import { planListAction, reviewAfterAnalysis } from '../model/planListAction.ts'
 
 // PDF·HWP·HWPX 원문 등록 (S-4·S-5, 2026-11-13): http에서는 세 형식 모두 서버가 원문 그대로 보관한다.
 // HWP·HWPX 분석 결과 수신·공식 확정은 계속 Backend 실험 기능 뒤에 있다(S-8 미결). Mock(시연)은 PDF만.
@@ -118,11 +119,18 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
 
   // http: 서버가 원문을 분석기로 보내 결과를 저장한다(A3). 분석 중인 개정본을 표시하고, 끝나면 서버에 저장된 목록을 다시 읽는다.
   const [analyzingRevisionId, setAnalyzingRevisionId] = useState<string | null>(null)
+  // A28-39: 목록의 '검토 시작'(분석 전)·'다시 분석'(실패)은 실제 분석을 요청하고, 분석이 저장되면(실패 아님) 바로 검토 화면으로 간다.
+  // 분석 실패·요청 오류면 목록에 남아 원인을 알린다. 자동 분석은 승인이 아니다(학생 공개는 검토 화면의 '최종 승인' 한 번).
   const analyze = async (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => {
+    if (analyzingRevisionId) return
     setAnalyzingRevisionId(revision.documentRevisionId)
     const outcome = await run(() => requestPlanAnalysis(plan.planId, revision.documentRevisionId))
     setAnalyzingRevisionId(null)
     if (!outcome) return
+    if (outcome.ok && !isAdminMockDataSource && reviewAfterAnalysis(outcome.value.analysisStatus)) {
+      navigate(paths.planReview(plan.planId, revision.documentRevisionId))
+      return
+    }
     plans.reload()
     if (outcome.ok) {
       const failed = outcome.value.analysisStatus === 'FAILED'
@@ -395,7 +403,13 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
   const status = analysisText[latest.analysisStatus]
   const confirmedCount = latest.confirmedFields.length
   const format = latest.documentFormat ?? 'PDF'
-  const canAnalyze = latest.analysisStatus === 'NOT_REQUESTED' || latest.analysisStatus === 'FAILED'
+  // A28-39·40: 문서당 주 CTA 하나(상태 기반). 'AI 결과 보기'·별도 '분석 시작'은 두지 않는다
+  const action = planListAction(stage, analyzing)
+  const onAction = () => {
+    if (action.kind === 'analyze-then-review' || action.kind === 'retry-analysis') onAnalyze(plan, latest)
+    else if (action.kind === 'review') navigate(paths.planReview(plan.planId, latest.documentRevisionId))
+    else if (action.kind === 'result') navigate(paths.planResult(plan.planId, latest.documentRevisionId))
+  }
   return (
     <tr data-testid="plan-row" data-selected={selected || undefined} data-stage={stage}>
       <td data-col="name">
@@ -428,22 +442,18 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
       </td>
       <td>
         <div className={review.rowButtons}>
-          {canAnalyze ? (
-            <button type="button" className={`${review.button} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
-              {analyzing ? '분석 중…' : '분석 시작'}
-            </button>
-          ) : stage !== 'CONFIRMED' ? (
-            // [09] A27-UX: '검토 시작'은 옆 'AI 결과 보기'와 같은 위계의 중립 outline 버튼
-            <button type="button" className={`${review.button} ${review.small}`} onClick={() => navigate(paths.planReview(plan.planId, latest.documentRevisionId))} data-testid="plan-open-review">
-              {stage === 'REVIEWING' ? '검토 이어하기' : '검토 시작'}
-            </button>
-          ) : null}
-          {hasAnalysisResult(latest) && (
-            <button type="button" className={`${review.button} ${review.small}`} onClick={() => navigate(paths.planResult(plan.planId, latest.documentRevisionId))} data-testid="plan-open-result">
-              {stage === 'CONFIRMED' ? '확정 결과 보기' : stage === 'ANALYZED' ? 'AI 결과 보기' : '검토 결과 보기'}
-            </button>
-          )}
-          {/* A28-30: '다시 분석'은 문서별 분석 결과 화면 머리에서만(목록 행에는 두지 않음). 결과가 없는 문서(분석 전·실패)만 여기서 '분석 시작' */}
+          <button
+            type="button"
+            className={`${review.button} ${review.small}`}
+            onClick={onAction}
+            disabled={action.kind === 'analyzing' || ((action.kind === 'analyze-then-review' || action.kind === 'retry-analysis') && pending)}
+            aria-busy={action.kind === 'analyzing'}
+            data-action={action.kind}
+            data-testid="plan-primary-action"
+          >
+            {action.label}
+          </button>
+          {/* A28-30: 확정 문서의 '다시 분석'·'확정 내용 수정'은 확정 결과 화면 머리에서만(목록 행에는 두지 않음) */}
           <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={downloadOriginal} disabled={!original?.available} title={original?.available ? `${format} 원문 내려받기` : '원문을 보관하지 않은 이전 등록분이에요'} data-testid="plan-original-download-button">
             원문
           </button>

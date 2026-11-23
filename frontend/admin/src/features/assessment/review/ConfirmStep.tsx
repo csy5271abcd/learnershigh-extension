@@ -4,6 +4,7 @@ import { getPlanSubjects } from '../api/assessmentAdminApi.ts'
 import { SubjectSearchSelect, type SubjectOption } from '../components/SubjectSearchSelect.tsx'
 import { paths } from '../routes/paths.ts'
 import { ReReviewPanel } from './ReReviewPanel.tsx'
+import { canEditConfirmed } from '../model/schoolInfoSync.ts'
 import { LocalOriginalPicker } from './LocalOriginalPicker.tsx'
 import type { EvaluationPlanAnalysisView } from '../api/types.ts'
 import { PlanReviewConfirmPanel } from '../components/PlanReviewConfirmPanel.tsx'
@@ -88,7 +89,8 @@ export function ConfirmStep({
         {approval?.plan.teachingOnlyRequest && (
           <FinalApprovalPanel view={view} plan={approval.plan} reopened={false} onGoSubjects={() => onGo('subjects')} onConfirmed={approval.onConfirmed} />
         )}
-        {format === 'PDF' && onReopen && <ReReviewPanel planId={view.planId} revisionId={view.documentRevisionId} onReopen={onReopen} reopened={reopened} />}
+        {/* A28-38: 학교알리미 수집 원본(HWP·HWPX)도 서버 원본 검증으로 다시 승인할 수 있어 수정 진입점을 보인다 */}
+        {canEditConfirmed(format, view.revisionFile?.sourceUrl) && onReopen && <ReReviewPanel planId={view.planId} revisionId={view.documentRevisionId} onReopen={onReopen} reopened={reopened} />}
       </>
     )
   }
@@ -102,7 +104,7 @@ export function ConfirmStep({
     return (
       <div data-testid="review-step-confirm">
         <h3 className={styles.title}>최종 검토 및 확정</h3>
-        <p className={styles.lead}>{format} 문서는 서비스 안 미리보기가 아직 없어, 한글 프로그램에서 원문 위치를 대조하는 기존 확정 절차를 사용해요.</p>
+        <p className={styles.lead}>{format} 문서 · 서비스 안 미리보기 없음 → 한글 프로그램으로 원문 위치 대조(기존 확정 절차)</p>
         <PlanReviewConfirmPanel key={`${view.analysisId ?? 'none'}-${view.reviewStatus}`} data={view} onConfirmed={onConfirmedStructured} />
       </div>
     )
@@ -148,7 +150,7 @@ export function ConfirmStep({
         {sub === 0 && (
           <>
             <p className={styles.quizQuestion}>갖고 있는 학교 원본이 등록된 문서와 같은 파일인가요?</p>
-            <p className={styles.muted}>파일은 서버로 보내지 않고 이 브라우저에서만 SHA-256을 계산해 비교해요.</p><LocalOriginalPicker hash={hash} onPickFile={onPickFile} />
+            <p className={styles.muted}>파일은 서버 전송 없이 이 브라우저에서 SHA-256 비교</p><LocalOriginalPicker hash={hash} onPickFile={onPickFile} />
           </>
         )}
 
@@ -423,8 +425,8 @@ function BulkConfirmPanel({ bulk, pending, reopened }: { bulk: BulkConfirm; pend
     <section className={styles.bulkPanel} aria-labelledby="bulk-confirm-title" data-testid="bulk-confirm">
       <h4 id="bulk-confirm-title">{reopened ? '수정 내용 최종 승인' : '최종 승인'}</h4>
       <p className={styles.muted}>
-        AI 추출값은 기본 승인으로 넣고, 관리자가 고친 값·&lsquo;원문에 없음&rsquo;·제외한 과목은 그대로 지켜요. 최종 승인하면 이 값만 학생에게 공개돼요
-        {reopened ? '(그 전까지는 이전 확정본이 그대로 보여요)' : ''}.
+        AI 추출값 기본 승인 · 관리자 수정값·&lsquo;원문에 없음&rsquo;·제외 과목 유지 · 최종 승인한 값만 학생 공개
+        {reopened ? '(그 전까지 이전 확정본 유지)' : ''}
       </p>
       <ul className={styles.bulkSummary} data-testid="bulk-confirm-summary">
         <li>

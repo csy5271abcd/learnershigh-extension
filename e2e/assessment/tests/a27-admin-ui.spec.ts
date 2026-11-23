@@ -105,15 +105,12 @@ test('[09][10][11][12][13][14][15][16] 분석 목록 → 검토 1·3·4·5단계
   const doc = await registerAndAnalyze(request, 2026, fileName, uniquePdf(tag))
   await page.setViewportSize({ width: 1600, height: 900 })
 
-  // [09] 검토 시작 = AI 결과 보기와 같은 중립 outline 버튼, 개발 문구 없음, 등록일 한 줄
+  // [09] A28-39·40: 분석된 미확정 문서의 주 CTA는 '검토 시작' 하나('AI 결과 보기'·'분석 시작' 없음), 개발 문구 없음, 등록일 한 줄
   await page.goto(`${ADMIN}/assessment/analysis?school=school_001&year=2026&plan=${doc.planId}`)
   const row = page.locator('tr').filter({ hasText: fileName })
-  await expect(row.getByTestId('plan-open-review')).toBeVisible({ timeout: 30_000 })
-  const style = (testId: string) => row.getByTestId(testId).evaluate((element) => {
-    const css = getComputedStyle(element)
-    return { background: css.backgroundColor, border: css.borderTopColor, height: css.height }
-  })
-  expect(await style('plan-open-review')).toEqual(await style('plan-open-result'))
+  await expect(row.getByTestId('plan-primary-action')).toHaveText('검토 시작', { timeout: 30_000 })
+  await expect(row.getByTestId('plan-primary-action')).toHaveCount(1)
+  await expect(row.getByRole('button', { name: /AI 결과 보기|분석 시작|확정 결과/ })).toHaveCount(0)
   await expect(page.locator('body')).not.toContainText(internalCode)
   const date = row.locator('td[data-col="date"]')
   // 등록일 글자가 '2026. 11. / 12.'로 꺾이지 않는다 (칸 높이는 다른 열 때문에 크다 — 글자 줄 수만 본다)

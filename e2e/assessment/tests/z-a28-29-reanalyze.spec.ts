@@ -50,19 +50,19 @@ test('[A28-29] 확정 문서 다시 분석: 확인 창 → 후보 수 → 학생
   const teachingBefore = await (await request.get(`${revisionPath}/teaching-plan-review`, { headers: H })).json()
   expect(teachingBefore.review).toBeNull()
 
-  // 1) 분석 목록(A28-30): 확정 문서 행에는 '확정 결과 보기'만 — 행별 '다시 분석'·'분석' 열 없음
+  // 1) 분석 목록(A28-30·A28-40): 확정 문서 행의 주 CTA는 '확정 결과' 하나 — 행별 '다시 분석'·'분석' 열 없음
   await page.setViewportSize({ width: 1600, height: 900 })
   await page.goto(`${ADMIN}/assessment/analysis?school=school_001&year=${y}&grade=1&semester=2`)
   const row = page.getByTestId('plan-row').filter({ hasText: fileName })
   await expect(row).toBeVisible({ timeout: 30_000 })
-  await expect(row.getByTestId('plan-open-result')).toHaveText('확정 결과 보기')
+  await expect(row.getByTestId('plan-primary-action')).toHaveText('확정 결과')
   await expect(page.getByTestId('plan-reanalyze-button')).toHaveCount(0)
   await expect(page.getByRole('columnheader', { name: '분석', exact: true })).toHaveCount(0)
   await expect(row.getByTestId('plan-row-stage')).toContainText('확정')
   await page.screenshot({ path: 'test-results/a28-29-analysis-row.png' })
 
   // 2) 결과 화면 머리 '다시 분석' → 확인 창 → 실행 → 결과(후보 수)
-  await row.getByTestId('plan-open-result').click()
+  await row.getByTestId('plan-primary-action').click()
   await page.getByTestId('plan-result-reanalyze').click()
   const dialog = page.getByTestId('reanalyze-dialog')
   await expect(dialog).toContainText('새 분석 결과를 생성합니다. 기존 확정 내용은 변경되지 않습니다.')

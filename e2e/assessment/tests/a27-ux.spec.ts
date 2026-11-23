@@ -40,11 +40,12 @@ test('관리자: 평가계획서 6칸 → 분석하기 → 분석 탭(문서 선
   await expect(page).toHaveURL(/\/assessment\/analysis\?.*plan=/)
   const row = page.getByTestId('plan-row').filter({ hasText: doc.fileName })
   await expect(row).toHaveAttribute('data-selected', 'true')
-  // 이미 분석된 문서는 '분석 시작'이 아니라 검토·결과 보기만 보인다(분석기 중복 호출 방지)
-  await expect(row.getByTestId('plan-analyze-button')).toHaveCount(0)
+  // 이미 분석된 문서는 다시 분석하지 않고 '검토 시작' 하나(A28-39·40 — 분석기 중복 호출 방지, 'AI 결과 보기' 없음)
+  await expect(row.getByTestId('plan-primary-action')).toHaveAttribute('data-action', 'review')
+  await expect(row.getByTestId('plan-primary-action')).toHaveText('검토 시작')
 
-  // AI 결과 · 미확정 조회
-  await row.getByTestId('plan-open-result').click()
+  // AI 결과 · 미확정 조회(결과 화면 주소는 그대로 — 목록에는 진입 버튼을 두지 않는다)
+  await page.goto(`${ADMIN}/assessment/analysis/${doc.planId}/revisions/${doc.revisionId}/result`)
   await expect(page.getByTestId('plan-result-stage')).toContainText('AI 결과')
   await expect(page.getByTestId('plan-result-review')).toBeVisible()
   // 계정 B: 왼쪽 원문 고정 2패널 + 검토 진행률(초안 없음 = 결정 0개)

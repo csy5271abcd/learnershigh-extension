@@ -42,6 +42,9 @@ class StudentOfficialPlanApiTest extends SchoolInfoFakeSupport {
     private static final String OPERATOR = "adm_plan_operator";
 
     @Autowired
+    com.learnershigh.extension.assessment.service.plan.SchoolInfoSyncService syncWorker;
+
+    @Autowired
     MockMvc mvc;
     @Autowired
     JdbcTemplate jdbc;
@@ -51,6 +54,8 @@ class StudentOfficialPlanApiTest extends SchoolInfoFakeSupport {
 
     @BeforeEach
     void reset() {
+        // A28-42: 이전 시험이 남긴 학교알리미 동기화·분석 작업이 끝난 뒤 공유 가상 서버·DB 를 초기화한다(간헐 실패 원인)
+        org.assertj.core.api.Assertions.assertThat(syncWorker.awaitIdle(java.time.Duration.ofSeconds(120))).as("sync worker idle").isTrue();
         FAKE.reset();
         FAKE.schoolName = "예시고등학교";
         clock.setDate(LocalDate.of(2026, 9, 30));
