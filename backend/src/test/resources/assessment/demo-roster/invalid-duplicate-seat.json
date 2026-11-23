@@ -1,0 +1,13 @@
+{
+  "rosterVersion": "test-invalid",
+  "branches": [{ "branchId": "br_demo_x", "name": "시험 지점" }],
+  "admins": [{ "adminId": "adm_demo_x01", "displayName": "시험 관리자", "branchIds": ["br_demo_x"] }],
+  "students": [
+    { "studentId": "stu_demo_901", "branchId": "br_demo_x", "displayName": "시험학생901", "academyClassName": "시험반",
+      "school": { "schoolId": "sch_demo_test", "name": "시험고등학교" }, "academicYear": 2026, "grade": 1,
+      "schoolClassNumber": 1, "schoolStudentNumber": 1, "subjectIds": { "1": ["subj_11"], "2": ["subj_01"] } },
+    { "studentId": "stu_demo_902", "branchId": "br_demo_x", "displayName": "시험학생902", "academyClassName": "시험반",
+      "school": { "schoolId": "sch_demo_test", "name": "시험고등학교" }, "academicYear": 2026, "grade": 1,
+      "schoolClassNumber": 1, "schoolStudentNumber": 1, "subjectIds": { "1": ["subj_12"], "2": ["subj_02"] } }
+  ]
+}

@@ -1,0 +1,266 @@
+package com.learnershigh.extension.assessment.service.plan;
+
+import com.learnershigh.extension.assessment.dto.plan.AdminEvaluationPlanResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
+import com.learnershigh.extension.assessment.dto.plan.PlanSubjectsResponse;
+import com.learnershigh.extension.assessment.dto.plan.StudentEvaluationPlanResponse;
+import com.learnershigh.extension.assessment.dto.record.ArtifactDtos.FileDownload;
+import com.learnershigh.extension.assessment.entity.EvaluationPlan;
+import com.learnershigh.extension.assessment.entity.PlanRevision;
+import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
+import com.learnershigh.extension.assessment.integration.auth.AdminActor;
+import com.learnershigh.extension.assessment.integration.auth.StudentActor;
+import com.learnershigh.extension.assessment.integration.context.AcademicContextProvider;
+import com.learnershigh.extension.assessment.integration.context.AcademicContextRecord;
+import com.learnershigh.extension.assessment.integration.storage.PlanDocumentStorage;
+import com.learnershigh.extension.assessment.repository.EvaluationPlanRepository;
+import com.learnershigh.extension.assessment.repository.PlanRevisionRepository;
+import com.learnershigh.extension.assessment.repository.TeachingPlanReviewRepository;
+import com.learnershigh.extension.assessment.service.AssessmentTimes;
+import com.learnershigh.extension.common.error.BusinessException;
+import com.learnershigh.extension.common.error.CommonErrorCode;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/** 평가계획서 조회: 관리자(§38·§39) / 학생(§10-1). */
+@Service
+@Transactional(readOnly = true)
+public class EvaluationPlanQueryService {
+
+    private final EvaluationPlanRepository plans;
+    private final PlanRevisionRepository revisions;
+    private final PlanAccess access;
+    private final PlanViews views;
+    private final AcademicContextProvider contexts;
+    private final AssessmentTimes times;
+    private final PlanDocumentStorage storage;
+    private final TeachingPlanReviewRepository teachingPlanReviews;
+    private final com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs;
+    private final com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts;
+    private final PlanPreviewRenditionService renditions;
+
+    public EvaluationPlanQueryService(EvaluationPlanRepository plans, PlanRevisionRepository revisions,
+            PlanAccess access, PlanViews views, AcademicContextProvider contexts, AssessmentTimes times,
+            PlanDocumentStorage storage, TeachingPlanReviewRepository teachingPlanReviews,
+            com.learnershigh.extension.assessment.repository.PlanAnalysisRunRepository runs,
+            com.learnershigh.extension.assessment.repository.PlanReviewDraftRepository drafts,
+            PlanPreviewRenditionService renditions) {
+        this.renditions = renditions;
+        this.teachingPlanReviews = teachingPlanReviews;
+        this.runs = runs;
+        this.drafts = drafts;
+        this.plans = plans;
+        this.revisions = revisions;
+        this.access = access;
+        this.views = views;
+        this.contexts = contexts;
+        this.times = times;
+        this.storage = storage;
+    }
+
+    public Map<String, List<AdminEvaluationPlanResponse>> adminList(AdminActor admin, String schoolId,
+            Integer academicYear, Integer grade, Integer semester) {
+        access.requireOperator(admin);
+        return Map.of("items", views.admin(plans.search(schoolId, academicYear, grade, semester)));
+    }
+
+    /** A12 §39-8 확정 이력 + 재검토 진행 여부(최신 분석 결과의 평가 정보 초안이 열려 있는가). */
+    public com.learnershigh.extension.assessment.dto.plan.PlanReviewHistoryResponse adminReviews(AdminActor admin,
+            String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        PlanRevision revision = access.revision(plan, revisionId);
+        List<com.learnershigh.extension.assessment.entity.PlanAnalysisRun> list = runs.findByRevisionIds(List.of(revision.id()));
+        boolean open = revision.isConfirmed() && !list.isEmpty()
+                && drafts.findByAnalysisId(list.getLast().id(), com.learnershigh.extension.assessment.entity.PlanReviewDraft.SCOPE_EVALUATION)
+                        .filter(com.learnershigh.extension.assessment.entity.PlanReviewDraft::isActive).isPresent();
+        return views.history(plan, revision, open);
+    }
+
+    public AdminEvaluationPlanResponse adminGet(AdminActor admin, String planId) {
+        return views.admin(List.of(access.plan(admin, planId))).getFirst();
+    }
+
+    /** §38-4: 문서 슬롯(학교·학년도·학년·학기)의 학업 과목. 확정 검증과 같은 원천이다. */
+    public PlanSubjectsResponse adminSubjects(AdminActor admin, String planId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        Optional<AcademicContextRecord> slot = contexts.findSlot(plan.schoolId(), plan.academicYear(), plan.grade(),
+                plan.semester());
+        List<PlanSubjectsResponse.Item> items = slot.map(context -> context.subjects().stream()
+                .map(subject -> new PlanSubjectsResponse.Item(subject.subjectId(), subject.name()))
+                .toList()).orElse(List.of());
+        return new PlanSubjectsResponse(plan.id(), plan.schoolId(), plan.academicYear(), plan.grade(), plan.semester(),
+                slot.isPresent(), slot.map(AcademicContextRecord::source).orElse(null), items);
+    }
+
+    public PlanAnalysisResponse adminAnalysis(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        return views.analysis(plan, access.revision(plan, revisionId));
+    }
+
+    /**
+     * §10-1 학생: 자기 학교·학년도·학년·학기 슬롯의 공통 문서만. 다른 학교·학년 요청은 403.
+     * 관리자가 확정(CONFIRMED)한 Revision만 공개한다: 업로드·분석만 된 문서는 보이지 않는다(2026-11-13 OD-A08 결정).
+     * 문서마다 가장 최근에 확정된 Revision을 보여 준다(확정 뒤 올라온 미확정 개정본은 보이지 않는다). AI 후보는 포함하지 않는다.
+     */
+    public Map<String, List<StudentEvaluationPlanResponse>> studentList(StudentActor student, String schoolId,
+            int academicYear, int grade, int semester) {
+        AcademicContextRecord context = contexts.find(student.studentId(), academicYear, semester)
+                .filter(c -> c.schoolId().equals(schoolId) && c.grade() == grade)
+                .orElseThrow(() -> new BusinessException(AssessmentErrorCode.FORBIDDEN));
+        List<EvaluationPlan> found = plans.search(context.schoolId(), academicYear, grade, semester);
+        return Map.of("items", toStudent(found));
+    }
+
+    public StudentEvaluationPlanResponse studentGet(StudentActor student, String planId) {
+        Optional<EvaluationPlan> plan = plans.findById(planId).filter(p -> contexts
+                .find(student.studentId(), p.academicYear(), p.semester())
+                .filter(c -> p.matchesSlot(c.schoolId(), c.academicYear(), c.grade(), c.semester()))
+                .isPresent());
+        List<StudentEvaluationPlanResponse> items = toStudent(plan.stream().toList());
+        if (items.isEmpty()) {
+            throw PlanAccess.planNotFound();
+        }
+        // 상세에만 그 공개 Revision의 확정값을 붙인다 (후보·근거 위치는 없다).
+        StudentEvaluationPlanResponse item = items.getFirst();
+        return item.withConfirmedFields(views.studentConfirmedFields(item.documentRevisionId()));
+    }
+
+    private List<StudentEvaluationPlanResponse> toStudent(List<EvaluationPlan> found) {
+        if (found.isEmpty()) {
+            return List.of();
+        }
+        Map<String, PlanRevision> latest = latestConfirmed(found);
+        return found.stream()
+                .filter(plan -> latest.containsKey(plan.id()))
+                .map(plan -> {
+                    PlanRevision revision = latest.get(plan.id());
+                    return new StudentEvaluationPlanResponse(plan.id(), revision.id(), plan.schoolId(),
+                            plan.academicYear(), plan.grade(), plan.semester(), revision.fileName(),
+                            revision.sourceUrl(), revision.reviewStatus().name(), times.toOffset(revision.uploadedAt()),
+                            PlanViews.file(revision), null);
+                })
+                .sorted(Comparator.comparing(StudentEvaluationPlanResponse::uploadedAt))
+                .toList();
+    }
+
+    /** 문서별 가장 최근에 확정된 Revision. 확정 Revision이 없는 문서는 빠진다. */
+    /**
+     * 문서별 학생 공개 Revision: 가장 최근에 평가 정보가 확정된 Revision.
+     * A8 (2026-11-15 DRAFT, 승인 대기): 평가 정보가 확정된 Revision이 하나도 없는 문서(예: 운영계획만 있는 문서)는
+     * 운영계획이 확정된 가장 최근 Revision을 공개한다. 평가 확정본이 있으면 그것이 우선이다(기존 공개값을 밀어내지 않음).
+     * 둘 다 없으면 공개하지 않는다.
+     */
+    private Map<String, PlanRevision> latestConfirmed(List<EvaluationPlan> found) {
+        List<PlanRevision> all = revisions.findByPlanIds(found.stream().map(EvaluationPlan::id).toList());
+        Map<String, PlanRevision> result = new java.util.HashMap<>(all.stream()
+                .filter(PlanRevision::isConfirmed)
+                .collect(Collectors.toMap(PlanRevision::planId, r -> r,
+                        (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b)));
+        List<PlanRevision> withoutEvaluation = all.stream().filter(r -> !result.containsKey(r.planId())).toList();
+        if (!withoutEvaluation.isEmpty()) {
+            java.util.Set<String> teachingConfirmed = new java.util.HashSet<>(teachingPlanReviews
+                    .findReviewedRevisionIds(withoutEvaluation.stream().map(PlanRevision::id).toList()));
+            withoutEvaluation.stream()
+                    .filter(r -> teachingConfirmed.contains(r.id()))
+                    .forEach(r -> result.merge(r.planId(), r, (a, b) -> a.revisionNumber() >= b.revisionNumber() ? a : b));
+        }
+        return result;
+    }
+
+    /**
+     * 미리보기 응답(A25). converted=true면 HWP·HWPX 원문을 미리보기용으로 변환한 PDF다(원본 아님, 줄바꿈·쪽 나눔이 원본과 다를 수 있음).
+     */
+    public record PreviewFile(FileDownload file, boolean converted) {
+    }
+
+    /** 관리자 미리보기: PDF는 원문 그대로, HWP·HWPX는 변환기가 있으면 변환 PDF(§38-10), 없으면 415. */
+    public PreviewFile adminPreview(AdminActor admin, String planId, String revisionId) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        return preview(access.revision(plan, revisionId));
+    }
+
+    /** 학생 미리보기: 공개된(확정) Revision만. 규칙은 관리자와 같다. */
+    public PreviewFile studentPreview(StudentActor student, String planId) {
+        return preview(studentPublic(student, planId).revision());
+    }
+
+    private PreviewFile preview(PlanRevision revision) {
+        if (revision.hasStoredFile() && renditions.converts(revision)) {
+            byte[] pdf = renditions.pdf(revision, verifiedBytes(revision));
+            String base = revision.fileName().replaceAll("\\.(?i)(hwpx?|pdf)$", "");
+            return new PreviewFile(new FileDownload(base + " (미리보기 변환).pdf", "application/pdf", pdf.length,
+                    new ByteArrayInputStream(pdf)), true);
+        }
+        return new PreviewFile(verifiedFile(revision, true), false);
+    }
+
+    /** 관리자: Revision 원문 (§38 확장, S-4). preview=true면 서비스 안 미리보기용(PDF만). */
+    public FileDownload adminFile(AdminActor admin, String planId, String revisionId, boolean preview) {
+        EvaluationPlan plan = access.plan(admin, planId);
+        return verifiedFile(access.revision(plan, revisionId), preview);
+    }
+
+    /**
+     * 학생: 자기 슬롯 문서의 "학생에게 공개된" Revision(가장 최근 확정본) 원문만 (§10-1 확장, S-4).
+     * 다른 학교·학년·학기 문서, 미확정 문서는 존재를 드러내지 않도록 404.
+     */
+    public FileDownload studentFile(StudentActor student, String planId, boolean preview) {
+        return verifiedFile(studentPublic(student, planId).revision(), preview);
+    }
+
+    /** 학생에게 공개된 문서와 그 Revision(자기 슬롯 + 가장 최근 확정본). 아니면 존재를 드러내지 않도록 404. */
+    public record PublicPlan(EvaluationPlan plan, PlanRevision revision) {
+    }
+
+    public PublicPlan studentPublic(StudentActor student, String planId) {
+        EvaluationPlan plan = plans.findById(planId).filter(p -> contexts
+                        .find(student.studentId(), p.academicYear(), p.semester())
+                        .filter(c -> p.matchesSlot(c.schoolId(), c.academicYear(), c.grade(), c.semester()))
+                        .isPresent())
+                .orElseThrow(PlanAccess::planNotFound);
+        PlanRevision revision = Optional.ofNullable(latestConfirmed(List.of(plan)).get(plan.id()))
+                .orElseThrow(PlanAccess::planNotFound);
+        return new PublicPlan(plan, revision);
+    }
+
+    /**
+     * 저장된 원문을 읽어 크기·SHA-256이 등록 당시와 같은지 확인한 뒤 내보낸다(다르면 409 FILE_INTEGRITY_FAILED).
+     * 원문이 없는 이전 등록분은 404, HWP·HWPX 미리보기는 변환 Rendition이 없어 415 PREVIEW_UNAVAILABLE.
+     */
+    private FileDownload verifiedFile(PlanRevision revision, boolean preview) {
+        if (!revision.hasStoredFile()) {
+            throw new BusinessException(CommonErrorCode.NOT_FOUND, "이 개정본은 원문 파일을 보관하지 않았습니다.");
+        }
+        if (preview && !PlanViews.previewAvailable(revision)) {
+            throw new BusinessException(AssessmentErrorCode.PREVIEW_UNAVAILABLE);
+        }
+        return new FileDownload(revision.fileName(), revision.contentType(), revision.sizeBytes(),
+                new ByteArrayInputStream(verifiedBytes(revision)));
+    }
+
+    /**
+     * 보관된 원문 바이트 (크기·SHA-256이 등록 당시와 같을 때만). 원문을 보관한 Revision에만 부른다.
+     * 다르거나 읽을 수 없으면 409 FILE_INTEGRITY_FAILED. 서버 분석 실행(A3)도 이 값만 분석기로 보낸다.
+     */
+    public byte[] verifiedBytes(PlanRevision revision) {
+        byte[] bytes;
+        try (InputStream in = storage.open(revision.fileRef())) {
+            bytes = in.readAllBytes();
+        } catch (IOException | UncheckedIOException failed) {
+            throw new BusinessException(AssessmentErrorCode.FILE_INTEGRITY_FAILED);
+        }
+        if (bytes.length != revision.sizeBytes() || !PdfInspector.sha256(bytes).equals(revision.sha256())) {
+            throw new BusinessException(AssessmentErrorCode.FILE_INTEGRITY_FAILED);
+        }
+        return bytes;
+    }
+}

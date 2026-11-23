@@ -1,0 +1,4207 @@
+{
+  "schemaVersion": 1,
+  "sourceRoot": "references/previous-exam-questions",
+  "generatedAt": "2026-10-28",
+  "note": "로컬 개발용 대학별 기출 PDF 카탈로그. 문항·섹션 쪽은 원문에서 제목·표 머리가 확인된 쪽만 기록한다. 원본 PDF는 읽기 전용이며 공개 배포 권한은 확인되지 않았다 (P-25 PROPOSED).",
+  "documents": [
+    {
+      "documentId": "snu-2028-sample",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2028,
+      "category": "SAMPLE_QUESTION",
+      "examType": "면접 예시 문항",
+      "title": "2028학년도 수시모집 일반전형 면접 예시 문항",
+      "subjectAreas": [
+        "인문학",
+        "사회과학",
+        "수학",
+        "물리학",
+        "화학",
+        "생명과학",
+        "지구과학",
+        "융합과학",
+        "융합사회"
+      ],
+      "relativePath": "snu/2028학년도 서울대학교 수시모집 일반전형 면접 예시 문항.pdf",
+      "fileName": "2028학년도 서울대학교 수시모집 일반전형 면접 예시 문항.pdf",
+      "sizeBytes": 729402,
+      "sha256": "58f27b79a6048282d0694cd6ca767a11b0f1f0842b61f92f1b71b1159747c225",
+      "pageCount": 53,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2028-sample-q1",
+          "label": "분석적 주제토론 [인문학]",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "논증",
+            "드러나지 않은 정보의 추론",
+            "사회·문화적 이념",
+            "사회적 쟁점",
+            "불평등",
+            "기회균등",
+            "사실문제",
+            "윤리문제",
+            "사회적 차별",
+            "통합적 관점",
+            "사회 불평등 현상",
+            "사회문제"
+          ],
+          "pageStart": 2,
+          "pageEnd": 3,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "BASIS",
+              "page": 4
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q2",
+          "label": "분석적 주제토론 [사회과학]",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "자유와 공동선",
+            "합리적 선택",
+            "소통과 담론의 윤리",
+            "참여와 심의를 통한 민주주의 구현",
+            "다양한 민주주의 모델"
+          ],
+          "pageStart": 6,
+          "pageEnd": 8,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 9
+            },
+            {
+              "kind": "BASIS",
+              "page": 9
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q3",
+          "label": "심층적 문제해결 [수학 A]",
+          "field": "수학 A",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 11,
+          "pageEnd": 12,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 13
+            },
+            {
+              "kind": "BASIS",
+              "page": 13
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q4",
+          "label": "심층적 문제해결 [물리학]",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 14,
+          "pageEnd": 17,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 18
+            },
+            {
+              "kind": "BASIS",
+              "page": 18
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q5",
+          "label": "심층적 문제해결 [화학]",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "산화·환원 반응과 산화수",
+            "산화수",
+            "몰 농도",
+            "화학 반응의 양적 관계",
+            "산화·환원 반응식",
+            "화학 전지",
+            "반쪽 반응식",
+            "산화제",
+            "전해질"
+          ],
+          "pageStart": 19,
+          "pageEnd": 21,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 22
+            },
+            {
+              "kind": "BASIS",
+              "page": 23
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q6",
+          "label": "심층적 문제해결 [생명과학]",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "생물 진화",
+            "성염색체 유전",
+            "인간 활동이 생태계에 미치는 영향",
+            "자연선택",
+            "생물다양성 보전"
+          ],
+          "pageStart": 24,
+          "pageEnd": 26,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 27
+            },
+            {
+              "kind": "BASIS",
+              "page": 28
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q7",
+          "label": "심층적 문제해결 [지구과학]",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 29,
+          "pageEnd": 32,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 33
+            },
+            {
+              "kind": "BASIS",
+              "page": 33
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q8",
+          "label": "융합적 과제수행 [융합과학1]",
+          "field": "융합과학1",
+          "topic": null,
+          "concepts": [
+            "가역 반응과 동적 평형",
+            "분자의 구조",
+            "연역적 탐구",
+            "탐구 과정과 절차",
+            "자연선택",
+            "과학기술과 윤리"
+          ],
+          "pageStart": 34,
+          "pageEnd": 36,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 37
+            },
+            {
+              "kind": "BASIS",
+              "page": 37
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q9",
+          "label": "융합적 과제수행 [융합과학2]",
+          "field": "융합과학2",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 39,
+          "pageEnd": 42,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 43
+            },
+            {
+              "kind": "BASIS",
+              "page": 43
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q10",
+          "label": "융합적 과제수행 [수학 B]",
+          "field": "수학 B",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 44,
+          "pageEnd": 45,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 46
+            },
+            {
+              "kind": "BASIS",
+              "page": 46
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q11",
+          "label": "융합적 과제수행 [융합사회]",
+          "field": "융합사회",
+          "topic": null,
+          "concepts": [
+            "합리적 선택",
+            "쟁점과 이해관계 파악",
+            "논증의 타당성 평가"
+          ],
+          "pageStart": 47,
+          "pageEnd": 48,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 49
+            },
+            {
+              "kind": "BASIS",
+              "page": 49
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2028-sample-q12",
+          "label": "융합적 과제수행 [수학 C]",
+          "field": "수학 C",
+          "topic": null,
+          "concepts": [
+            "합의 법칙",
+            "곱의 법칙",
+            "조합",
+            "같은 것이 있는 순열",
+            "중복조합",
+            "이항계수",
+            "수학적 확률",
+            "이산확 률변수",
+            "확률질량함수",
+            "확률분포",
+            "기댓값",
+            "P  ",
+            "E "
+          ],
+          "pageStart": 51,
+          "pageEnd": 52,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 53
+            },
+            {
+              "kind": "BASIS",
+              "page": 53
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2026-aptitude",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "적성·인성면접",
+      "title": "2026학년도 대학 신입학생 입학전형 적성·인성면접 문항",
+      "subjectAreas": [
+        "적성·인성"
+      ],
+      "relativePath": "snu/2026학년도 서울대학교 대학 신입학생 입학전형 적성·인성면접 문항.pdf",
+      "fileName": "2026학년도 서울대학교 대학 신입학생 입학전형 적성·인성면접 문항.pdf",
+      "sizeBytes": 617272,
+      "sha256": "adf227f3eb10a3cf6116d1282bbe2d80b1b76641a01a00b537de63e50cd7694c",
+      "pageCount": 17,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2026-aptitude-q1",
+          "label": "간호대학",
+          "field": "간호대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2026-aptitude-q2",
+          "label": "사범대학",
+          "field": "사범대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 3,
+          "pageEnd": 4,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2026-aptitude-q3",
+          "label": "수의과대학",
+          "field": "수의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 5,
+          "pageEnd": 7,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2026-aptitude-q4",
+          "label": "의과대학",
+          "field": "의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 8,
+          "pageEnd": 13,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2026-aptitude-q5",
+          "label": "치의학대학원 치의학과 학사 · 전문석사 통합과정",
+          "field": "치의학대학원 치의학과 학사 · 전문석사 통합과정",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 14,
+          "pageEnd": 17,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2026-oral",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접 및 구술고사",
+      "title": "2026학년도 수시모집 일반전형 면접 및 구술고사 문항",
+      "subjectAreas": [
+        "인문학",
+        "사회과학",
+        "수학",
+        "물리학",
+        "화학",
+        "생명과학",
+        "지구과학"
+      ],
+      "relativePath": "snu/2026학년도 서울대학교 신입학생 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "fileName": "2026학년도 서울대학교 신입학생 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "sizeBytes": 1704476,
+      "sha256": "2a6d4cec941107427b5df05d204d81353aaa53c709d6772eb870f2f154612e93",
+      "pageCount": 78,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2026-oral-q1",
+          "label": "제시문·문제",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "도덕적 이해",
+            "추론",
+            "직접 경험",
+            "간접 경험",
+            "문학의 가치와 기능",
+            "공감",
+            "상상"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "INTENT",
+              "page": 3
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q2",
+          "label": "제시문·문제",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "환경 적응성",
+            "확신",
+            "불확실성",
+            "행동 지연",
+            "판단 오류",
+            "주식"
+          ],
+          "pageStart": 5,
+          "pageEnd": 6,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 7
+            },
+            {
+              "kind": "INTENT",
+              "page": 7
+            },
+            {
+              "kind": "BASIS",
+              "page": 7
+            }
+          ],
+          "studyExamples": [
+            "불확실성이 높은 상황에서 정보 수집과 의사 결정의 균형을 어떻게 설계할 수 있는가?"
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q3",
+          "label": "수학 A",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "이차함수의 최댓값",
+            "이차부등식",
+            "도함수의 활용",
+            "이산확률변수의 평균과 분산"
+          ],
+          "pageStart": 9,
+          "pageEnd": 10,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 11
+            },
+            {
+              "kind": "INTENT",
+              "page": 11
+            },
+            {
+              "kind": "BASIS",
+              "page": 11
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q4",
+          "label": "수학 B",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "다항식의 사칙연산",
+            "다항식의 인수분해",
+            "대우를 이용한 증명법",
+            "중복조합"
+          ],
+          "pageStart": 13,
+          "pageEnd": 13,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 14
+            },
+            {
+              "kind": "INTENT",
+              "page": 14
+            },
+            {
+              "kind": "BASIS",
+              "page": 14
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q5",
+          "label": "수학 C",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "합의 법칙",
+            "같은 것이 있는 순열",
+            "수학적 확률",
+            "수열의 극한",
+            "정적분과 급수의 관계",
+            "부분적분법"
+          ],
+          "pageStart": 15,
+          "pageEnd": 16,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 17
+            },
+            {
+              "kind": "INTENT",
+              "page": 17
+            },
+            {
+              "kind": "BASIS",
+              "page": 17
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q6",
+          "label": "수학 D",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "합의 법칙",
+            "같은 것이 있는 순열",
+            "수학적 확률",
+            "수열의 극한",
+            "정적분과 급수의 관계",
+            "부분적분법"
+          ],
+          "pageStart": 19,
+          "pageEnd": 20,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 21
+            },
+            {
+              "kind": "INTENT",
+              "page": 21
+            },
+            {
+              "kind": "BASIS",
+              "page": 21
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q7",
+          "label": "수학 E",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "이차함수",
+            "이차함수의 최대",
+            "최소",
+            "직선의 방정식",
+            "평면좌표"
+          ],
+          "pageStart": 23,
+          "pageEnd": 23,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 24
+            },
+            {
+              "kind": "INTENT",
+              "page": 24
+            },
+            {
+              "kind": "BASIS",
+              "page": 24
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q8",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "전자기 유도",
+            "힘의 합성과 분해",
+            "전기 저항",
+            "고체의 에너지띠"
+          ],
+          "pageStart": 25,
+          "pageEnd": 30,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 31
+            },
+            {
+              "kind": "INTENT",
+              "page": 32
+            },
+            {
+              "kind": "BASIS",
+              "page": 32
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q9",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "등가 원리",
+            "등속 원운동",
+            "등가속도 직선 운동",
+            "볼록렌즈"
+          ],
+          "pageStart": 33,
+          "pageEnd": 38,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 39
+            },
+            {
+              "kind": "INTENT",
+              "page": 39
+            },
+            {
+              "kind": "BASIS",
+              "page": 40
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q10",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "화학 반응에서의 양적 관계",
+            "전기 분해",
+            "열화학 반응식",
+            "반응 엔탈피",
+            "반응 속도",
+            "화학 평형",
+            "끓는점"
+          ],
+          "pageStart": 41,
+          "pageEnd": 44,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 45
+            },
+            {
+              "kind": "INTENT",
+              "page": 45
+            },
+            {
+              "kind": "BASIS",
+              "page": 46
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q11",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "화학 반응식",
+            "화학 반응에서의 양적 관계",
+            "부분 압력",
+            "이상 기체 방정식",
+            "전기 분해",
+            "열화학 반응식",
+            "반응 엔탈피",
+            "반응 속도",
+            "반응 속도식",
+            "1차 반응"
+          ],
+          "pageStart": 47,
+          "pageEnd": 50,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 51
+            },
+            {
+              "kind": "INTENT",
+              "page": 51
+            },
+            {
+              "kind": "BASIS",
+              "page": 51
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q12",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "세포 골격",
+            "미세 소관",
+            "미세 섬유",
+            "원핵세포",
+            "진핵세포",
+            "원핵생물",
+            "진핵생물",
+            "체세포 분열",
+            "원핵생물에서 진핵생물로의 진화",
+            "골격근의 근육 세포",
+            "액틴 필라멘트",
+            "마이오신 필라멘트",
+            "활주설",
+            "귀납적 탐구 방법",
+            "연역적 탐구 방법",
+            "대조군"
+          ],
+          "pageStart": 53,
+          "pageEnd": 56,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 57
+            },
+            {
+              "kind": "INTENT",
+              "page": 58
+            },
+            {
+              "kind": "BASIS",
+              "page": 58
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q13",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "자연선택",
+            "진화와 생물다양성",
+            "적응과 진화",
+            "생물의 발생",
+            "첨단 생명과학"
+          ],
+          "pageStart": 60,
+          "pageEnd": 63,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 64
+            },
+            {
+              "kind": "INTENT",
+              "page": 64
+            },
+            {
+              "kind": "BASIS",
+              "page": 64
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q14",
+          "label": "문제 1",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "기권의 층상 구조",
+            "열대 저기압",
+            "흑체 복사",
+            "복사 평형",
+            "대기의 안정도",
+            "단열 과정",
+            "이슬점",
+            "구름",
+            "습윤 단열 감률",
+            "건조 단열 감률",
+            "경도풍",
+            "구심력",
+            "편서풍 파동",
+            "상승 운동",
+            "표층 염분 분포",
+            "대기 대순환"
+          ],
+          "pageStart": 66,
+          "pageEnd": 69,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 70
+            },
+            {
+              "kind": "INTENT",
+              "page": 70
+            },
+            {
+              "kind": "BASIS",
+              "page": 71
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2026-oral-q15",
+          "label": "문제 2",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "지구 온난화",
+            "기후 변화의 요인",
+            "반사도",
+            "해수의 용승과 침강",
+            "극",
+            "적도",
+            "빙하",
+            "심층 순환",
+            "열염 순환",
+            "지각 평형",
+            "표준 중력",
+            "중력 이상",
+            "상부 맨틀의 대류",
+            "중앙 해령",
+            "마그마",
+            "정역학 평형",
+            "지구 시스템",
+            "지권",
+            "유기적 퇴적암",
+            "자원",
+            "고생대",
+            "평안 누층군"
+          ],
+          "pageStart": 72,
+          "pageEnd": 75,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 76
+            },
+            {
+              "kind": "INTENT",
+              "page": 77
+            },
+            {
+              "kind": "BASIS",
+              "page": 77
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2025-aptitude",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "적성·인성면접",
+      "title": "2025학년도 대학 신입학생 입학전형 적성·인성면접 문항",
+      "subjectAreas": [
+        "적성·인성"
+      ],
+      "relativePath": "snu/2025학년도 서울대학교 대학 신입학생 입학전형 적성 · 인성면접 문항.pdf",
+      "fileName": "2025학년도 서울대학교 대학 신입학생 입학전형 적성 · 인성면접 문항.pdf",
+      "sizeBytes": 426280,
+      "sha256": "14be29fa5e17000a28d9c8fc389f3db22fb8e647dd64dbf4b99e0f6bd8d0171b",
+      "pageCount": 13,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2025-aptitude-q1",
+          "label": "사범대학",
+          "field": "사범대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2025-aptitude-q2",
+          "label": "수의과대학",
+          "field": "수의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 3,
+          "pageEnd": 4,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2025-aptitude-q3",
+          "label": "의과대학",
+          "field": "의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 5,
+          "pageEnd": 9,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2025-aptitude-q4",
+          "label": "치의학대학원 치의학과 학사 · 전문석사 통합과정",
+          "field": "치의학대학원 치의학과 학사 · 전문석사 통합과정",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 10,
+          "pageEnd": 13,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2025-oral",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접 및 구술고사",
+      "title": "2025학년도 수시모집 일반전형 면접 및 구술고사 문항",
+      "subjectAreas": [
+        "인문학",
+        "사회과학",
+        "수학",
+        "물리학",
+        "화학",
+        "생명과학",
+        "지구과학"
+      ],
+      "relativePath": "snu/2025학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "fileName": "2025학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "sizeBytes": 1715298,
+      "sha256": "faa24d3f64ccc2e8c3e167044e16fdcc06a92e08ad86907a28ee39fc05fc4491",
+      "pageCount": 69,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2025-oral-q1",
+          "label": "제시문·문제",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "번역",
+            "번역의 태도",
+            "세계화",
+            "역사관",
+            "역사 해석"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "INTENT",
+              "page": 3
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q2",
+          "label": "제시문·문제",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "사회·문화 현상",
+            "사회 불평등",
+            "사회적 소수자"
+          ],
+          "pageStart": 5,
+          "pageEnd": 6,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 7
+            },
+            {
+              "kind": "INTENT",
+              "page": 8
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q3",
+          "label": "문제 1",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "사인법칙",
+            "함수의 그래프",
+            "함수의 대칭성",
+            "함수의 최댓값과 최솟값"
+          ],
+          "pageStart": 10,
+          "pageEnd": 11,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 12
+            },
+            {
+              "kind": "INTENT",
+              "page": 12
+            },
+            {
+              "kind": "BASIS",
+              "page": 12
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q4",
+          "label": "문제 2",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "이차함수",
+            "무리함수",
+            "미분",
+            "그래프의 개형",
+            "최댓값",
+            "최솟값",
+            "이차부등식",
+            "속도",
+            "거리"
+          ],
+          "pageStart": 13,
+          "pageEnd": 14,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 15
+            },
+            {
+              "kind": "INTENT",
+              "page": 15
+            },
+            {
+              "kind": "BASIS",
+              "page": 15
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q5",
+          "label": "문제 3",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "수열",
+            "수열의 귀납적 정의",
+            "여러 가지 수열의 합"
+          ],
+          "pageStart": 16,
+          "pageEnd": 16,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 17
+            },
+            {
+              "kind": "INTENT",
+              "page": 17
+            },
+            {
+              "kind": "BASIS",
+              "page": 17
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q6",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "파동의 간섭과 회절",
+            "파동의 굴절",
+            "물체의 단진동",
+            "광전효과"
+          ],
+          "pageStart": 18,
+          "pageEnd": 22,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 23
+            },
+            {
+              "kind": "INTENT",
+              "page": 23
+            },
+            {
+              "kind": "BASIS",
+              "page": 24
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q7",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "뉴턴 중력 법칙",
+            "쿨롱 법칙",
+            "등속원운동",
+            "운동 에너지",
+            "퍼텐셜 에너지",
+            "보어의 원자모형"
+          ],
+          "pageStart": 25,
+          "pageEnd": 28,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 29
+            },
+            {
+              "kind": "INTENT",
+              "page": 29
+            },
+            {
+              "kind": "BASIS",
+              "page": 30
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q8",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "전자 배치 규칙",
+            "오비탈",
+            "주기율표",
+            "이온화 에너지의 주기성",
+            "전기 음성도",
+            "양자수",
+            "공유 결합",
+            "이온 결합",
+            "금속 결합",
+            "분자 구조",
+            "전자쌍 반발 이론",
+            "분자 간 상호 작용",
+            "증기압",
+            "끓는점",
+            "고체의 결정 구조",
+            "탄소 화합물",
+            "수소 결합"
+          ],
+          "pageStart": 31,
+          "pageEnd": 34,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 35
+            },
+            {
+              "kind": "INTENT",
+              "page": 35
+            },
+            {
+              "kind": "BASIS",
+              "page": 36
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q9",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "산화·환원",
+            "산화수",
+            "전기 분해",
+            "화학 반응에서의 양적 관계",
+            "산·염기 중화 반응",
+            "이상 기체 방정식",
+            "열화학 반응식",
+            "엔탈피",
+            "헤스 법칙",
+            "반응 속도",
+            "반응 속도식",
+            "반감기",
+            "반응 속도에 영향을 미치는 요인인 르샤틀리에 원리",
+            "화학 평형"
+          ],
+          "pageStart": 37,
+          "pageEnd": 40,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 41
+            },
+            {
+              "kind": "INTENT",
+              "page": 41
+            },
+            {
+              "kind": "BASIS",
+              "page": 42
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q10",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "생명체의 유기적 구성",
+            "식물세포의 특징",
+            "세포벽",
+            "삼투",
+            "효소",
+            "유전체 구성과 유전자 구조",
+            "유전자 발현과 조절",
+            "원핵세포와 진핵세포의 전사 조절",
+            "유전자 발현과 발생",
+            "세포분화",
+            "3역 6계",
+            "계통수",
+            "귀납적 탐구방법",
+            "대조 실험"
+          ],
+          "pageStart": 43,
+          "pageEnd": 46,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 47
+            },
+            {
+              "kind": "INTENT",
+              "page": 47
+            },
+            {
+              "kind": "BASIS",
+              "page": 48
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q11",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "자연 선택",
+            "진화와 생물다양성",
+            "생태계 구성요소와 환경",
+            "먹이 그물",
+            "생태계 평형",
+            "군집",
+            "포식과 피식",
+            "경쟁",
+            "유전 부호",
+            "코돈",
+            "동물과 식물의 분류 체계",
+            "생물 계통수",
+            "적응과 진화"
+          ],
+          "pageStart": 49,
+          "pageEnd": 51,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 52
+            },
+            {
+              "kind": "INTENT",
+              "page": 52
+            },
+            {
+              "kind": "BASIS",
+              "page": 53
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q12",
+          "label": "문제 1",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "케플러 제3법칙",
+            "열대 저기압",
+            "온대 저기압",
+            "가시광선 영상",
+            "적외선 영상",
+            "정역학 평형",
+            "에크만 수송",
+            "지형류",
+            "지상 일기도",
+            "상층 일기도",
+            "이슬점",
+            "단열 과정",
+            "구름",
+            "습윤 단열 감률",
+            "건조 단열 감률",
+            "편서풍 파동",
+            "상승 운동"
+          ],
+          "pageStart": 54,
+          "pageEnd": 57,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 58
+            },
+            {
+              "kind": "INTENT",
+              "page": 59
+            },
+            {
+              "kind": "BASIS",
+              "page": 59
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q13",
+          "label": "문제 2",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "태양계의 형성 과정",
+            "지구형 행성",
+            "목성형 행성",
+            "지구형 행성의 층상 구조",
+            "판 구조론",
+            "판을 이동시키는 원동력"
+          ],
+          "pageStart": 61,
+          "pageEnd": 61,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 62
+            },
+            {
+              "kind": "INTENT",
+              "page": 62
+            },
+            {
+              "kind": "BASIS",
+              "page": 62
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2025-oral-q14",
+          "label": "문제 3",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "퇴적 구조와 퇴적 환경",
+            "지층의 생성 순서",
+            "지층 누중의 법칙",
+            "관입의 법칙",
+            "지층의 대비",
+            "암석의 절대 연령"
+          ],
+          "pageStart": 64,
+          "pageEnd": 67,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 68
+            },
+            {
+              "kind": "INTENT",
+              "page": 68
+            },
+            {
+              "kind": "BASIS",
+              "page": 69
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2024-aptitude",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "적성·인성면접",
+      "title": "2024학년도 대학 신입학생 입학전형 적성·인성면접 문항",
+      "subjectAreas": [
+        "적성·인성"
+      ],
+      "relativePath": "snu/2024학년도 서울대학교 대학 신입학생 입학전형 적성・인성면접 문항.pdf",
+      "fileName": "2024학년도 서울대학교 대학 신입학생 입학전형 적성・인성면접 문항.pdf",
+      "sizeBytes": 624416,
+      "sha256": "f07e4d363c0d432afb51d2011a449398ba11d528709a4f4546c57c6e87587db1",
+      "pageCount": 17,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2024-aptitude-q1",
+          "label": "사범대학",
+          "field": "사범대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 3,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2024-aptitude-q2",
+          "label": "수의과대학",
+          "field": "수의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 4,
+          "pageEnd": 6,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2024-aptitude-q3",
+          "label": "의과대학",
+          "field": "의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 7,
+          "pageEnd": 14,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2024-aptitude-q4",
+          "label": "치의학대학원 치의학과 학사・전문석사 통합과정",
+          "field": "치의학대학원 치의학과 학사・전문석사 통합과정",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 15,
+          "pageEnd": 17,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2024-oral",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접 및 구술고사",
+      "title": "2024학년도 수시모집 일반전형 면접 및 구술고사 문항",
+      "subjectAreas": [
+        "인문학",
+        "사회과학",
+        "수학",
+        "물리학",
+        "화학",
+        "생명과학",
+        "지구과학"
+      ],
+      "relativePath": "snu/2024학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "fileName": "2024학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "sizeBytes": 1929101,
+      "sha256": "e2901e11fb9a2e91989bfccc788bffa2a6c4991f830eba7d317ce2595565c9a1",
+      "pageCount": 76,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2024-oral-q1",
+          "label": "오전",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "역사",
+            "역사관",
+            "사실성과 허구성",
+            "혼종성",
+            "악의 평범성",
+            "학문의 특성",
+            "객관적 사실",
+            "연구자의 해석"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "INTENT",
+              "page": 3
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q2",
+          "label": "오후",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "사람에 대한 믿음",
+            "사실에 대한 믿음",
+            "신뢰",
+            "믿음",
+            "배신감",
+            "사회적 제재",
+            "개인과 사회의 윤리"
+          ],
+          "pageStart": 5,
+          "pageEnd": 5,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 6
+            },
+            {
+              "kind": "INTENT",
+              "page": 6
+            },
+            {
+              "kind": "BASIS",
+              "page": 6
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q3",
+          "label": "오전",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "사회·문화 현상",
+            "과학적 탐구 방법",
+            "양적 연구"
+          ],
+          "pageStart": 8,
+          "pageEnd": 8,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 9
+            },
+            {
+              "kind": "INTENT",
+              "page": 9
+            },
+            {
+              "kind": "BASIS",
+              "page": 9
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q4",
+          "label": "오후",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "사회·문화 현상",
+            "사회 불평등 양상",
+            "통합적 관점",
+            "행복의 조건",
+            "실업 문제",
+            "복지 제도"
+          ],
+          "pageStart": 11,
+          "pageEnd": 11,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 12
+            },
+            {
+              "kind": "INTENT",
+              "page": 12
+            },
+            {
+              "kind": "BASIS",
+              "page": 12
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q5",
+          "label": "수학 A",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "접선의 방정식",
+            "두 점 사이의 거리",
+            "다항식의 연산",
+            "도함수",
+            "최댓값",
+            "최솟값",
+            "그래프의 개형",
+            "점근선",
+            "정적분",
+            "평행이동"
+          ],
+          "pageStart": 14,
+          "pageEnd": 15,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 16
+            },
+            {
+              "kind": "INTENT",
+              "page": 16
+            },
+            {
+              "kind": "BASIS",
+              "page": 16
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q6",
+          "label": "수학 B-1",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "일차방정식",
+            "속도",
+            "거리",
+            "일차부등식",
+            "경우의 수",
+            "위치",
+            "연립일차부등식"
+          ],
+          "pageStart": 18,
+          "pageEnd": 19,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 20
+            },
+            {
+              "kind": "INTENT",
+              "page": 20
+            },
+            {
+              "kind": "BASIS",
+              "page": 20
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q7",
+          "label": "수학 B-2",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "일차방정식",
+            "속도",
+            "거리",
+            "위치",
+            "연립일차부등식"
+          ],
+          "pageStart": 21,
+          "pageEnd": 22,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 23
+            },
+            {
+              "kind": "INTENT",
+              "page": 23
+            },
+            {
+              "kind": "BASIS",
+              "page": 23
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q8",
+          "label": "수학 C",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "직선의 방정식",
+            "정적분",
+            "거리",
+            "수열의 극한"
+          ],
+          "pageStart": 24,
+          "pageEnd": 25,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 26
+            },
+            {
+              "kind": "INTENT",
+              "page": 26
+            },
+            {
+              "kind": "BASIS",
+              "page": 26
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q9",
+          "label": "수학 D",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "지수함수와 로그함수",
+            "수열",
+            "확률",
+            "수열의 극한"
+          ],
+          "pageStart": 28,
+          "pageEnd": 29,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 30
+            },
+            {
+              "kind": "INTENT",
+              "page": 30
+            },
+            {
+              "kind": "BASIS",
+              "page": 31
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q10",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "등가속도 운동",
+            "포물선 운동",
+            "운동량 보존",
+            "힘의 합성과 분해",
+            "뉴턴 운동 법칙",
+            "물체의 평형",
+            "퍼텐셜 에너지"
+          ],
+          "pageStart": 32,
+          "pageEnd": 36,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 37
+            },
+            {
+              "kind": "INTENT",
+              "page": 37
+            },
+            {
+              "kind": "BASIS",
+              "page": 37
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q11",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "힘의 합성과 분해",
+            "알짜힘",
+            "충격량",
+            "전하와 전기장",
+            "빛의 입자성",
+            "역학적 에너지 보존",
+            "등가속도 운동",
+            "전류에 의한 자기장",
+            "자기력선"
+          ],
+          "pageStart": 39,
+          "pageEnd": 44,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 45
+            },
+            {
+              "kind": "INTENT",
+              "page": 45
+            },
+            {
+              "kind": "BASIS",
+              "page": 45
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q12",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "이온 결합",
+            "이온 반지름",
+            "이온화 에너지",
+            "엔탈피",
+            "헤스 법칙",
+            "공유 결합",
+            "결합 길이",
+            "결합 에너지",
+            "헤스 법칙",
+            "분자 간 상호 작용",
+            "끓는점",
+            "원소의 주기성",
+            "전자 배치",
+            "오비탈"
+          ],
+          "pageStart": 47,
+          "pageEnd": 49,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 50
+            },
+            {
+              "kind": "INTENT",
+              "page": 50
+            },
+            {
+              "kind": "BASIS",
+              "page": 51
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q13",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "산·염기의 중화 반응",
+            "삼투압",
+            "중화열",
+            "염의 가수분해",
+            "산의 세기"
+          ],
+          "pageStart": 52,
+          "pageEnd": 54,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 55
+            },
+            {
+              "kind": "INTENT",
+              "page": 55
+            },
+            {
+              "kind": "BASIS",
+              "page": 56
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q14",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "생명의 진화",
+            "생물의 다양성",
+            "생태적 적응",
+            "계통수",
+            "자연 선택",
+            "유전자풀의 변화",
+            "유전적 부동",
+            "생장곡선",
+            "생태적 지위",
+            "개체군 간의 상호 작용",
+            "분서"
+          ],
+          "pageStart": 57,
+          "pageEnd": 59,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 60
+            },
+            {
+              "kind": "INTENT",
+              "page": 60
+            },
+            {
+              "kind": "BASIS",
+              "page": 60
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q15",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "세포 호흡",
+            "해당 과정",
+            "알코올 발효",
+            "산화적 인산화",
+            "TCA회로",
+            "전자 전달계",
+            "젖산 발효"
+          ],
+          "pageStart": 62,
+          "pageEnd": 63,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 64
+            },
+            {
+              "kind": "INTENT",
+              "page": 64
+            },
+            {
+              "kind": "BASIS",
+              "page": 64
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q16",
+          "label": "문제 1",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "판구조론",
+            "대륙 이동설",
+            "해양저 확장설",
+            "맨틀 대류설",
+            "귀납적 탐구 방법",
+            "연역적 탐구 방법",
+            "변동대 화성암의 종류",
+            "맨틀 대류와 플룸 구조론",
+            "암석의 조직",
+            "반상 조직",
+            "암석의 형성 환경",
+            "화성 광상",
+            "열수 광상"
+          ],
+          "pageStart": 65,
+          "pageEnd": 65,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 66
+            },
+            {
+              "kind": "INTENT",
+              "page": 66
+            },
+            {
+              "kind": "BASIS",
+              "page": 67
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q17",
+          "label": "문제 2",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "퇴적 구조와 환경",
+            "지질 시대의 환경과 생물",
+            "화석",
+            "지질 시대 구분",
+            "한반도의 지사",
+            "퇴적암",
+            "셰일",
+            "석유",
+            "천연 가스",
+            "자원 탐사",
+            "지구의 자원",
+            "변성암",
+            "혼펠스",
+            "중력 이상",
+            "사암",
+            "암염"
+          ],
+          "pageStart": 68,
+          "pageEnd": 69,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 70
+            },
+            {
+              "kind": "INTENT",
+              "page": 70
+            },
+            {
+              "kind": "BASIS",
+              "page": 70
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q18",
+          "label": "문제 3",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "지구 시스템의 구성과 순환",
+            "지구 시스템",
+            "기후 변화의 요인",
+            "지구 온난화"
+          ],
+          "pageStart": 72,
+          "pageEnd": 72,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 73
+            },
+            {
+              "kind": "INTENT",
+              "page": 73
+            },
+            {
+              "kind": "BASIS",
+              "page": 73
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2024-oral-q19",
+          "label": "문제 4",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "정역학 평형",
+            "전향력",
+            "수압 경도력",
+            "지형류",
+            "지상풍"
+          ],
+          "pageStart": 74,
+          "pageEnd": 75,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 76
+            },
+            {
+              "kind": "INTENT",
+              "page": 76
+            },
+            {
+              "kind": "BASIS",
+              "page": 76
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2023-aptitude",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2023,
+      "category": "PAST_EXAM",
+      "examType": "적성·인성면접",
+      "title": "2023학년도 대학 신입학생 입학전형 적성·인성면접 문항",
+      "subjectAreas": [
+        "적성·인성"
+      ],
+      "relativePath": "snu/2023학년도 서울대학교 대학 신입학생 입학전형 적성・인성면접 문항.pdf",
+      "fileName": "2023학년도 서울대학교 대학 신입학생 입학전형 적성・인성면접 문항.pdf",
+      "sizeBytes": 198822,
+      "sha256": "36996a3a639d309b0e6d4dc52f2ccd49764cdbc279fb5def1ad6955509755cb1",
+      "pageCount": 9,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2023-aptitude-q1",
+          "label": "수의과대학",
+          "field": "수의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2023-aptitude-q2",
+          "label": "의과대학",
+          "field": "의과대학",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 3,
+          "pageEnd": 7,
+          "sections": []
+        },
+        {
+          "questionId": "snu-2023-aptitude-q3",
+          "label": "치의학대학원 치의학과 학사・전문석사 통합과정",
+          "field": "치의학대학원 치의학과 학사・전문석사 통합과정",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 8,
+          "pageEnd": 9,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "snu-2023-oral",
+      "university": "서울대학교",
+      "universityName": "서울대학교",
+      "academicYear": 2023,
+      "category": "PAST_EXAM",
+      "examType": "면접 및 구술고사",
+      "title": "2023학년도 수시모집 일반전형 면접 및 구술고사 문항",
+      "subjectAreas": [
+        "인문학",
+        "사회과학",
+        "수학",
+        "물리학",
+        "화학",
+        "생명과학",
+        "지구과학"
+      ],
+      "relativePath": "snu/2023학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "fileName": "2023학년도 서울대학교 수시모집 일반전형 면접 및 구술고사 문항.pdf",
+      "sizeBytes": 1335780,
+      "sha256": "460bd50d09006de2c47b78efc7b68dc6348db27c55f0b430646d11b23699b377",
+      "pageCount": 62,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "snu-2023-oral-q1",
+          "label": "오전",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "생태계",
+            "생태주의",
+            "환경파괴",
+            "환경정책",
+            "사회적 약자",
+            "접근성",
+            "가치의 충돌",
+            "동물의 권리",
+            "공생의 윤리",
+            "인간중심주의"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 2
+            },
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q2",
+          "label": "오후",
+          "field": "인문학",
+          "topic": null,
+          "concepts": [
+            "고전",
+            "저자",
+            "저자의 권위",
+            "독자",
+            "독자의 자율성",
+            "글쓰기의 주체",
+            "소비자로서의 독자",
+            "유통",
+            "출판"
+          ],
+          "pageStart": 4,
+          "pageEnd": 4,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 5
+            },
+            {
+              "kind": "INTENT",
+              "page": 5
+            },
+            {
+              "kind": "BASIS",
+              "page": 5
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q3",
+          "label": "오전",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "물가",
+            "소비자물가지수(CPI)",
+            "물가연동정책",
+            "소비지출구조",
+            "경제적 불평등"
+          ],
+          "pageStart": 7,
+          "pageEnd": 7,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 8
+            },
+            {
+              "kind": "INTENT",
+              "page": 8
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q4",
+          "label": "오후",
+          "field": "사회과학",
+          "topic": null,
+          "concepts": [
+            "인간에 의한 지구 온난화",
+            "기후변화",
+            "과학적 합의",
+            "정책 결정"
+          ],
+          "pageStart": 10,
+          "pageEnd": 10,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 11
+            },
+            {
+              "kind": "INTENT",
+              "page": 11
+            },
+            {
+              "kind": "BASIS",
+              "page": 11
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q5",
+          "label": "수학 1_A",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "합성함수",
+            "미분가능",
+            "정적분"
+          ],
+          "pageStart": 13,
+          "pageEnd": 13,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 14
+            },
+            {
+              "kind": "INTENT",
+              "page": 14
+            },
+            {
+              "kind": "BASIS",
+              "page": 14
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q6",
+          "label": "수학 1_B",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "합성함수",
+            "미분가능",
+            "정적분"
+          ],
+          "pageStart": 15,
+          "pageEnd": 15,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 16
+            },
+            {
+              "kind": "INTENT",
+              "page": 16
+            },
+            {
+              "kind": "BASIS",
+              "page": 16
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q7",
+          "label": "수학 2",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "경우의 수",
+            "확률",
+            "수열"
+          ],
+          "pageStart": 17,
+          "pageEnd": 17,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 18
+            },
+            {
+              "kind": "INTENT",
+              "page": 18
+            },
+            {
+              "kind": "BASIS",
+              "page": 18
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q8",
+          "label": "수학 3",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "이차함수",
+            "이차방정식",
+            "포물선",
+            "접선",
+            "평행이동",
+            "판별식",
+            "정적분",
+            "수열의 귀납적 정의"
+          ],
+          "pageStart": 19,
+          "pageEnd": 19,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 20
+            },
+            {
+              "kind": "INTENT",
+              "page": 20
+            },
+            {
+              "kind": "BASIS",
+              "page": 20
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q9",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "알짜힘",
+            "물체의 평형",
+            "탄성력",
+            "뉴턴 운동 법칙",
+            "전기력",
+            "역학적 에너지 보존",
+            "힘의 합성과 분해",
+            "운동량 보존"
+          ],
+          "pageStart": 22,
+          "pageEnd": 24,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 25
+            },
+            {
+              "kind": "INTENT",
+              "page": 25
+            },
+            {
+              "kind": "BASIS",
+              "page": 25
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q10",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "물질의 이중성",
+            "물질파",
+            "일-운동에너지 정리",
+            "등가속도 운동",
+            "등속 원운동",
+            "구심력",
+            "이중슬릿 실험",
+            "평행판 축전기",
+            "균일한 전기장",
+            "뉴턴 중력 법칙",
+            "케플러 법칙"
+          ],
+          "pageStart": 27,
+          "pageEnd": 28,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 29
+            },
+            {
+              "kind": "INTENT",
+              "page": 29
+            },
+            {
+              "kind": "BASIS",
+              "page": 30
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q11",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "엔탈피",
+            "표준 생성 엔탈피",
+            "열화학 반응식",
+            "헤스 법칙",
+            "결합에너지",
+            "상태 변화",
+            "화학 반응식",
+            "양적 관계",
+            "동적 평형",
+            "가역 반응",
+            "화학 평형",
+            "르샤틀리에",
+            "산 염기",
+            "반응 지수",
+            "평형 상수"
+          ],
+          "pageStart": 31,
+          "pageEnd": 32,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 33
+            },
+            {
+              "kind": "INTENT",
+              "page": 33
+            },
+            {
+              "kind": "BASIS",
+              "page": 33
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q12",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "상태 변화",
+            "엔탈피",
+            "열용량",
+            "전기음성도",
+            "수소 결합",
+            "반응열",
+            "결합의 극성",
+            "분자 간 상호작용"
+          ],
+          "pageStart": 35,
+          "pageEnd": 36,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 37
+            },
+            {
+              "kind": "INTENT",
+              "page": 37
+            },
+            {
+              "kind": "BASIS",
+              "page": 38
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q13",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "개체군",
+            "진화",
+            "자연선택",
+            "유전",
+            "대립유전자",
+            "우성",
+            "열성",
+            "단백질",
+            "효소",
+            "가설",
+            "액포",
+            "막단백질",
+            "능동수송",
+            "독립의 법칙",
+            "분리의 법칙",
+            "하디-바인베르크 평형"
+          ],
+          "pageStart": 39,
+          "pageEnd": 40,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 41
+            },
+            {
+              "kind": "INTENT",
+              "page": 41
+            },
+            {
+              "kind": "BASIS",
+              "page": 42
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q14",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "세균",
+            "염증반응",
+            "비만세포",
+            "히스타민",
+            "백혈구",
+            "특이적 면역",
+            "식균작용(식세포작용)",
+            "비특이적 면역",
+            "대식세포",
+            "T 림프구",
+            "B 림프구",
+            "항체",
+            "가슴샘",
+            "바이러스",
+            "세포독성 T림프구"
+          ],
+          "pageStart": 43,
+          "pageEnd": 45,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 46
+            },
+            {
+              "kind": "INTENT",
+              "page": 46
+            },
+            {
+              "kind": "BASIS",
+              "page": 46
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q15",
+          "label": "문제 1",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "지균풍",
+            "기압 경도력",
+            "전향력",
+            "제트류",
+            "정역학 평형",
+            "기후변화",
+            "지상 고·저기압",
+            "심층 순환",
+            "지구적 순환"
+          ],
+          "pageStart": 48,
+          "pageEnd": 48,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 49
+            },
+            {
+              "kind": "INTENT",
+              "page": 50
+            },
+            {
+              "kind": "BASIS",
+              "page": 50
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q16",
+          "label": "문제 2",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "수압 경도력",
+            "지형류",
+            "지형류 평형"
+          ],
+          "pageStart": 51,
+          "pageEnd": 51,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 52
+            },
+            {
+              "kind": "INTENT",
+              "page": 52
+            },
+            {
+              "kind": "BASIS",
+              "page": 52
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q17",
+          "label": "문제 3",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "H-R도",
+            "주계열성",
+            "수소 핵융합 반응",
+            "헬륨",
+            "지구와 지각을 구성하는 주요 원소",
+            "지구의 형성과정",
+            "지구 내부 에너지"
+          ],
+          "pageStart": 53,
+          "pageEnd": 54,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 55
+            },
+            {
+              "kind": "INTENT",
+              "page": 55
+            },
+            {
+              "kind": "BASIS",
+              "page": 55
+            }
+          ]
+        },
+        {
+          "questionId": "snu-2023-oral-q18",
+          "label": "문제 4",
+          "field": "지구과학",
+          "topic": null,
+          "concepts": [
+            "한반도 지체 구조",
+            "육괴",
+            "퇴적분지",
+            "습곡대",
+            "한반도 지질 계통",
+            "지질 시대",
+            "부정합",
+            "방사성 동위원소",
+            "화강암",
+            "현무암",
+            "한반도의 화성암 분포",
+            "접촉(열) 변성 작용",
+            "광역 변성 작용",
+            "입상변정질 조직",
+            "혼펠스 조직",
+            "엽리",
+            "한반도의 판 구조 환경",
+            "중생대 및 신생대 화성암",
+            "(고)태평양판의 섭입",
+            "동해의 형성"
+          ],
+          "pageStart": 57,
+          "pageEnd": 60,
+          "sections": [
+            {
+              "kind": "EXPLANATION",
+              "page": 61
+            },
+            {
+              "kind": "INTENT",
+              "page": 61
+            },
+            {
+              "kind": "BASIS",
+              "page": 62
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-physics",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2026학년도 수시 입학전형 면접 기출문제 — 물리학",
+      "subjectAreas": [
+        "물리학"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(물리학).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(물리학).pdf",
+      "sizeBytes": 259677,
+      "sha256": "4a7478708c10712a8e6c063506669a2f098c3a720b4cdbb2e480dfc38e64a0b1",
+      "pageCount": 13,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-physics-q1",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "중력",
+            "쿨롱 힘과 원운동",
+            "에너지 보존 법칙",
+            "탈출 속도"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 4
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 4
+            },
+            {
+              "kind": "REVIEW",
+              "page": 6
+            }
+          ],
+          "studyExamples": [
+            "전하를 가진 인공위성의 운동은 중력과 전기력의 상호작용에 따라 어떻게 달라지는가?"
+          ]
+        },
+        {
+          "questionId": "kaist-2026-physics-q2",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "힘의 합성과 분해",
+            "구심력",
+            "등속원운동",
+            "도플러효과"
+          ],
+          "pageStart": 7,
+          "pageEnd": 8,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 8
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 9
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 9
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 10
+            },
+            {
+              "kind": "REVIEW",
+              "page": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-life-science",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2026학년도 수시 입학전형 면접 기출문제 — 생명과학",
+      "subjectAreas": [
+        "생명과학"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(생명과학).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(생명과학).pdf",
+      "sizeBytes": 215030,
+      "sha256": "9201efec611f12b921dc1d27dc22cfe731a57be027801bc032176a017e550964",
+      "pageCount": 12,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-life-science-q1",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "젖산발효",
+            "세포호흡",
+            "산화적 인산화",
+            "근육수축의 원리",
+            "ATP"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ],
+          "studyExamples": [
+            "고강도 운동에서 근육 세포의 pH 변화와 ATP 생성은 어떤 관계를 갖는가?"
+          ]
+        },
+        {
+          "questionId": "kaist-2026-life-science-q2",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "유전자 발현과 조절",
+            "원핵세포의 전사조절",
+            "생명공학 기술"
+          ],
+          "pageStart": 6,
+          "pageEnd": 7,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 7
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 9
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 9
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 9
+            },
+            {
+              "kind": "REVIEW",
+              "page": 11
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-math",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2026학년도 수시 입학전형 면접 기출문제 — 수학",
+      "subjectAreas": [
+        "수학"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(수학).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(수학).pdf",
+      "sizeBytes": 290507,
+      "sha256": "8484c6cc869fde6a17c227a9eaad9e5f453b4512696d0f4366cf7f966f838de2",
+      "pageCount": 14,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-math-q1",
+          "label": "문제 1",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "원의 방정식",
+            "쌍곡선",
+            "평면벡터의 내적"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 2
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 6
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2026-math-q2",
+          "label": "문제 2",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "평면벡터",
+            "코사인법칙",
+            "확률"
+          ],
+          "pageStart": 8,
+          "pageEnd": 8,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 9
+            },
+            {
+              "kind": "BASIS",
+              "page": 9
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 10
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 10
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 11
+            },
+            {
+              "kind": "REVIEW",
+              "page": 14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-english",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2026학년도 수시 입학전형 면접 기출문제 — 영어",
+      "subjectAreas": [
+        "영어"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(영어).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(영어).pdf",
+      "sizeBytes": 118682,
+      "sha256": "ccffbf5fcb3aaab10fc1eca05ad826604e84186ceaddbb15c058fa37d1bffa10",
+      "pageCount": 6,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-english-q1",
+          "label": "영어 지문 문항",
+          "field": "영어",
+          "topic": "Portuguese Origin of Japanese Tempura",
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 4
+            },
+            {
+              "kind": "REVIEW",
+              "page": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-chemistry",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2026학년도 수시 입학전형 면접 기출문제 — 화학",
+      "subjectAreas": [
+        "화학"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(화학).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(화학).pdf",
+      "sizeBytes": 184885,
+      "sha256": "5415a3151b12fea5e6d09fc957a60f0820fdb95e098c044e3611d98c4574506e",
+      "pageCount": 8,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-chemistry-q1",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "산화 환원 반응",
+            "화학 반응에서의 양적관계",
+            "아보가드로 법칙",
+            "동소체"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ],
+          "studyExamples": [
+            "마그네슘의 산화·환원 반응과 탄소 동소체의 특성은 어떻게 연결되는가?"
+          ]
+        },
+        {
+          "questionId": "kaist-2026-chemistry-q2",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "반응 속도",
+            "반응 속도식",
+            "1차 반응",
+            "반감기"
+          ],
+          "pageStart": 5,
+          "pageEnd": 5,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 5
+            },
+            {
+              "kind": "BASIS",
+              "page": 6
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 6
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 7
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 7
+            },
+            {
+              "kind": "REVIEW",
+              "page": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2026-fitness",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2026,
+      "category": "PAST_EXAM",
+      "examType": "공통문제",
+      "title": "2026학년도 학사과정 적합성 공통문제",
+      "subjectAreas": [
+        "적합성 공통문제"
+      ],
+      "relativePath": "kaist/2026학년도_수시_입학전형_면접_기출문제(적합성).pdf",
+      "fileName": "2026학년도_수시_입학전형_면접_기출문제(적합성).pdf",
+      "sizeBytes": 59008,
+      "sha256": "d31bc5f47c7b87af4ece380ae590b80218bdb805160b507e0e022cbca4c8a808",
+      "pageCount": 1,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2026-fitness-q1",
+          "label": "공통문제",
+          "field": "적합성 공통문제",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-physics",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2025학년도 수시 입학전형 면접 기출문제 — 물리학",
+      "subjectAreas": [
+        "물리학"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 면접 기출문제(물리학).pdf",
+      "fileName": "2025학년도 수시 입학전형 면접 기출문제(물리학).pdf",
+      "sizeBytes": 254249,
+      "sha256": "ed5662a49cc6ee9aee33c2a514e05b530a8fcf98e32fc9d19244e120775d5fde",
+      "pageCount": 9,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-physics-q1",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "힘의 합성",
+            "등가속도 운동",
+            "평행판 축전기"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2025-physics-q2",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "이중 슬릿의 간섭 실험",
+            "간섭무늬",
+            "경로차",
+            "매질에 따른 빛의 속력"
+          ],
+          "pageStart": 5,
+          "pageEnd": 5,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 6
+            },
+            {
+              "kind": "BASIS",
+              "page": 6
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 6
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 7
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 7
+            },
+            {
+              "kind": "REVIEW",
+              "page": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-life-science",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2025학년도 수시 입학전형 면접 기출문제 — 생명과학",
+      "subjectAreas": [
+        "생명과학"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 면접 기출문제(생명과학).pdf",
+      "fileName": "2025학년도 수시 입학전형 면접 기출문제(생명과학).pdf",
+      "sizeBytes": 319518,
+      "sha256": "d7ed5f1be511aee1f316b3af40cb8b16479849fb217f523bfaf68b7a4fd7f111",
+      "pageCount": 11,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-life-science-q1",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "항상성",
+            "항이뇨 호르몬(ADH)",
+            "삼투압 조절"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2025-life-science-q2",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "광합성",
+            "광합성 색소",
+            "크로마토그래피",
+            "유전자 발현",
+            "세포호흡(TCA 회로)",
+            "생명 공학 기술(핵치환)"
+          ],
+          "pageStart": 6,
+          "pageEnd": 7,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 7
+            },
+            {
+              "kind": "BASIS",
+              "page": 7
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 8
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 9
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 9
+            },
+            {
+              "kind": "REVIEW",
+              "page": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-math",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2025학년도 수시 입학전형 면접 기출문제 — 수학",
+      "subjectAreas": [
+        "수학"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 면접 기출문제(수학).pdf",
+      "fileName": "2025학년도 수시 입학전형 면접 기출문제(수학).pdf",
+      "sizeBytes": 301044,
+      "sha256": "093fa9748168eecb331354ae40e7bafac151526ff7603e82f362f9b99851bd12",
+      "pageCount": 11,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-math-q1",
+          "label": "문제 1",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "수열",
+            "함수의 증가와 감소",
+            "귀납적으로 정의된 수열",
+            "수학적 귀납법"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 5
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2025-math-q2",
+          "label": "문제 2",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "집합",
+            "원의 접선과 할선"
+          ],
+          "pageStart": 7,
+          "pageEnd": 7,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 8
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 8
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 9
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 9
+            },
+            {
+              "kind": "REVIEW",
+              "page": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-english",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2025학년도 수시 입학전형 면접 기출문제 — 영어",
+      "subjectAreas": [
+        "영어"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 면접 기출문제(영어).pdf",
+      "fileName": "2025학년도 수시 입학전형 면접 기출문제(영어).pdf",
+      "sizeBytes": 216265,
+      "sha256": "c4dbe389c4b7e409d394276ee314c6373d3d0d4e7cdab5f7e50284a33e58a259",
+      "pageCount": 6,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-english-q1",
+          "label": "영어 지문 문항",
+          "field": "영어",
+          "topic": "Early Human Species",
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 4
+            },
+            {
+              "kind": "REVIEW",
+              "page": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-chemistry",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2025학년도 수시 입학전형 면접 기출문제 — 화학",
+      "subjectAreas": [
+        "화학"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 면접 기출문제(화학).pdf",
+      "fileName": "2025학년도 수시 입학전형 면접 기출문제(화학).pdf",
+      "sizeBytes": 304940,
+      "sha256": "3f7b0bfa79c32ca81ce1bac908f2298d46a3db5bd57d84fe57cbc193e770f82e",
+      "pageCount": 8,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-chemistry-q1",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "반응속도와 촉매",
+            "반감기"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2025-chemistry-q2",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "탄소 화합물",
+            "몰",
+            "보어의 원자모형",
+            "전기 음성도",
+            "결합 에너지"
+          ],
+          "pageStart": 5,
+          "pageEnd": 5,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 6
+            },
+            {
+              "kind": "BASIS",
+              "page": 6
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 7
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 7
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 7
+            },
+            {
+              "kind": "REVIEW",
+              "page": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2025-fitness",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2025,
+      "category": "PAST_EXAM",
+      "examType": "공통문제",
+      "title": "2025학년도 학사과정 적합성 공통문제",
+      "subjectAreas": [
+        "적합성 공통문제"
+      ],
+      "relativePath": "kaist/2025학년도 수시 입학전형 적합성 공통문제.pdf",
+      "fileName": "2025학년도 수시 입학전형 적합성 공통문제.pdf",
+      "sizeBytes": 64677,
+      "sha256": "04d448726b6aa4177b922acca7c04bc681a16c7b9033d700b9f7c0e8d17bc8de",
+      "pageCount": 2,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2025-fitness-q1",
+          "label": "공통문제",
+          "field": "적합성 공통문제",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": []
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-physics",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2024학년도 수시 입학전형 면접 기출문제 — 물리학",
+      "subjectAreas": [
+        "물리학"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 면접 기출문제(물리학).pdf",
+      "fileName": "2024학년도 수시 입학전형 면접 기출문제(물리학).pdf",
+      "sizeBytes": 223218,
+      "sha256": "d0aa09c41547dba0553c6c857080983fc1027008af07194040ed5038efbc0de6",
+      "pageCount": 9,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-physics-q1",
+          "label": "문제 1",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "뉴턴 운동 법칙",
+            "중력 법칙",
+            "단진자 운동"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 3
+            },
+            {
+              "kind": "REVIEW",
+              "page": 4
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2024-physics-q2",
+          "label": "문제 2",
+          "field": "물리학",
+          "topic": null,
+          "concepts": [
+            "볼록렌즈에 의한 상",
+            "렌즈 방정식",
+            "초점거리",
+            "배율"
+          ],
+          "pageStart": 5,
+          "pageEnd": 6,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 6
+            },
+            {
+              "kind": "BASIS",
+              "page": 7
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 7
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 8
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 8
+            },
+            {
+              "kind": "REVIEW",
+              "page": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-life-science",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2024학년도 수시 입학전형 면접 기출문제 — 생명과학",
+      "subjectAreas": [
+        "생명과학"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 면접 기출문제(생명과학).pdf",
+      "fileName": "2024학년도 수시 입학전형 면접 기출문제(생명과학).pdf",
+      "sizeBytes": 251280,
+      "sha256": "45456c195c533febd270a9311dfbc224aeac1c441a41fc82e95bd8df7c03d394",
+      "pageCount": 13,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-life-science-q1",
+          "label": "문제 1",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "유전자와 단백질",
+            "효소의 기질특이성",
+            "유전자의 발현"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 3
+            },
+            {
+              "kind": "BASIS",
+              "page": 4
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 5
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 5
+            },
+            {
+              "kind": "REVIEW",
+              "page": 6
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2024-life-science-q2",
+          "label": "문제 2",
+          "field": "생명과학",
+          "topic": null,
+          "concepts": [
+            "에너지 대사의 균형",
+            "호르몬 분비 이상에 따른 질환",
+            "항상성 유지",
+            "특이적 방어 작용",
+            "줄기세포"
+          ],
+          "pageStart": 8,
+          "pageEnd": 9,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 9
+            },
+            {
+              "kind": "BASIS",
+              "page": 10
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 11
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 11
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 11
+            },
+            {
+              "kind": "REVIEW",
+              "page": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-math",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2024학년도 수시 입학전형 면접 기출문제 — 수학",
+      "subjectAreas": [
+        "수학"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 면접 기출문제(수학).pdf",
+      "fileName": "2024학년도 수시 입학전형 면접 기출문제(수학).pdf",
+      "sizeBytes": 170248,
+      "sha256": "ec27fdea5c5864b2e8486c7bea452b8896a5ea7a4e79cfdac8814250456757a3",
+      "pageCount": 7,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-math-q1",
+          "label": "문제 1",
+          "field": "수학",
+          "topic": null,
+          "concepts": [
+            "극댓값",
+            "극솟값",
+            "매개변수"
+          ],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 2
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 3
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 3
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 4
+            },
+            {
+              "kind": "REVIEW",
+              "page": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-english",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2024학년도 수시 입학전형 면접 기출문제 — 영어",
+      "subjectAreas": [
+        "영어"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 면접 기출문제(영어).pdf",
+      "fileName": "2024학년도 수시 입학전형 면접 기출문제(영어).pdf",
+      "sizeBytes": 112356,
+      "sha256": "deba331c92b92e7db0a75a602f096002933f45750bb8dc9abe6e5304f7c6125b",
+      "pageCount": 8,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-english-q1",
+          "label": "영어 지문 문항",
+          "field": "영어",
+          "topic": "Maternal Love in the Animal World",
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 5
+            },
+            {
+              "kind": "REVIEW",
+              "page": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-chemistry",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "면접",
+      "title": "2024학년도 수시 입학전형 면접 기출문제 — 화학",
+      "subjectAreas": [
+        "화학"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 면접 기출문제(화학).pdf",
+      "fileName": "2024학년도 수시 입학전형 면접 기출문제(화학).pdf",
+      "sizeBytes": 298581,
+      "sha256": "3309473321cc4d5d0ee165e6d5081c0b5d3a2bc0ff1495694c6f4c813d71d4fb",
+      "pageCount": 12,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-chemistry-q1",
+          "label": "문제 1",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "몰 농도",
+            "이상기체 방정식",
+            "화학 평형",
+            "평형 이동"
+          ],
+          "pageStart": 1,
+          "pageEnd": 2,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 2
+            },
+            {
+              "kind": "BASIS",
+              "page": 3
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 4
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 4
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 5
+            },
+            {
+              "kind": "REVIEW",
+              "page": 6
+            }
+          ]
+        },
+        {
+          "questionId": "kaist-2024-chemistry-q2",
+          "label": "문제 2",
+          "field": "화학",
+          "topic": null,
+          "concepts": [
+            "산화․환원",
+            "엔탈피",
+            "결합 에너지",
+            "르샤틀리에 원리",
+            "헤스 법칙",
+            "수소 연료 전지"
+          ],
+          "pageStart": 7,
+          "pageEnd": 7,
+          "sections": [
+            {
+              "kind": "INTENT",
+              "page": 8
+            },
+            {
+              "kind": "BASIS",
+              "page": 8
+            },
+            {
+              "kind": "EXPLANATION",
+              "page": 9
+            },
+            {
+              "kind": "RUBRIC",
+              "page": 10
+            },
+            {
+              "kind": "SAMPLE_ANSWER",
+              "page": 11
+            },
+            {
+              "kind": "REVIEW",
+              "page": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "kaist-2024-nonacademic",
+      "university": "KAIST",
+      "universityName": "한국과학기술원",
+      "academicYear": 2024,
+      "category": "PAST_EXAM",
+      "examType": "공통문제",
+      "title": "2024학년도 학사과정 학업외역량 공통문제",
+      "subjectAreas": [
+        "학업외역량 공통문제"
+      ],
+      "relativePath": "kaist/2024학년도 수시 입학전형 학업외역량 공통문제.pdf",
+      "fileName": "2024학년도 수시 입학전형 학업외역량 공통문제.pdf",
+      "sizeBytes": 54093,
+      "sha256": "58aa3e3a1647d70138ebd2d31a7f39c078631a72155ccd6b04399b87dfafd5bf",
+      "pageCount": 1,
+      "indexStatus": "INDEXED",
+      "questions": [
+        {
+          "questionId": "kaist-2024-nonacademic-q1",
+          "label": "공통문제",
+          "field": "학업외역량 공통문제",
+          "topic": null,
+          "concepts": [],
+          "pageStart": 1,
+          "pageEnd": 1,
+          "sections": []
+        }
+      ]
+    }
+  ]
+}

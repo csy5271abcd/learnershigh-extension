@@ -1,6 +1,8 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
-import { fileURLToPath } from 'node:url'
+import { mockExamPassagesPlugin } from '../student/tools/mockExamPassagesPlugin.ts'
+import { universityExamPdfDevServer } from '../student/tools/universityExamPdfDevServer.ts'
 import { parentReportPreview } from './parentReportPreview.ts'
 import { visionDevProxy } from './visionDevAuth.ts'
 
@@ -36,7 +38,20 @@ export default defineConfig(({mode}) => {
       },
     },
     react(),
+    // 대학별 기출 PDF: Student와 같은 Plugin·같은 Manifest·같은 원본 폴더를 직접 읽는다 (Student 서버 없이도 열림, dev 전용)
+    universityExamPdfDevServer({ sourceRoot: process.env.ASSESSMENT_UNIVERSITY_EXAM_ROOT ?? env.ASSESSMENT_UNIVERSITY_EXAM_ROOT }),
+    // 심화 탐구 모의고사 원문 지문(텍스트, Git 밖) — Student와 같은 Plugin
+    mockExamPassagesPlugin({ file: process.env.ASSESSMENT_MOCK_EXAM_PASSAGES_FILE ?? env.ASSESSMENT_MOCK_EXAM_PASSAGES_FILE }),
   ],
+  // student-preview.html: 학생 Desktop 화면 미리보기 iframe 전용 페이지 (Assessment 관리 학생 화면 보기·수행평가 상세)
+  build: {
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        studentPreview: fileURLToPath(new URL('./student-preview.html', import.meta.url)),
+      },
+    },
+  },
   // 세 Surface를 동시에 실행할 수 있도록 Surface마다 고정 Port를 쓴다.
   server: {
     port: 5174,

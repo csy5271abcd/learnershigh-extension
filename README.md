@@ -430,12 +430,6 @@ learnershigh-extension
 │  │     ├─ student-management/
 │  │     └─ parent-progress/
 │  │
-│  ├─ mentor/
-│  │  └─ src/features/
-│  │     ├─ content/
-│  │     ├─ qna/
-│  │     └─ profile/
-│  │
 │  └─ shared/
 │     ├─ ui/
 │     ├─ theme/
@@ -590,7 +584,6 @@ Frontend는 Surface + Feature 기준으로 관리한다.
 ```text
 frontend/student/
 frontend/admin/
-frontend/mentor/
 frontend/shared/
 ```
 
@@ -615,13 +608,7 @@ parent-progress
 
 ### Mentor
 
-주요 영역:
-
-```text
-content
-qna
-profile
-```
+별도 Mentor Surface(`frontend/mentor/`)는 서비스에서 제거되어 2026-11-16 Workspace를 삭제했다(A20). 이력은 Git History와 ADR-0001·0008에만 남는다.
 
 ### Shared
 
@@ -992,11 +979,12 @@ cd frontend
 npm ci
 npm run dev:student   # http://localhost:5173
 npm run dev:admin     # http://localhost:5174
-npm run dev:mentor    # http://localhost:5175
 npm run typecheck
 npm run lint
 npm run build
 ```
+
+Assessment 평가계획서 분석기 설정(서버 안 분석 · OCR): [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md)
 
 ### Backend
 

@@ -1,0 +1,43 @@
+import { ApiError } from './apiError.ts'
+import { isMockDataSource } from './dataSource.ts'
+import { getAcademicContextHttp, getAcademicTermsHttp } from './http/academicContextHttp.ts'
+import { guardWrite } from './viewMode.ts'
+import { createStudentSubjectMock, getAcademicContextMock, updateAcademicContextMock } from './mock/academicContextMock.ts'
+import type { AcademicContext, AcademicTermQuery, CreateStudentSubjectRequest, SubjectRef, UpdateAcademicContextRequest } from './types.ts'
+
+// 화면이 호출하는 학업 정보 API (api-contract.md §9). Mock과 Stage 2 http는 같은 시그니처를 가진다.
+// Stage 2 (2026-11-09): GET만 http 연결(Backend 원천은 Mock). PUT(§9-2, Write Owner 미정)·과목 직접 추가(P-26)는 http에서 "연결 전".
+
+function httpNotConnected(): Promise<never> {
+  return Promise.reject(
+    new ApiError(503, { code: 'INTERNAL_ERROR', message: 'Assessment 서버 연결 전이에요. (Stage 2)', details: {} }),
+  )
+}
+
+/** §9-1 GET /api/student/assessment/academic-context */
+export function getAcademicContext(term?: AcademicTermQuery): Promise<AcademicContext> {
+  return isMockDataSource ? getAcademicContextMock(term) : getAcademicContextHttp(term)
+}
+
+/**
+ * §9-1-c GET /api/student/assessment/academic-terms (A28-29): 학적이 있는 학기 목록. Mock 에는 없다(거절 → 화면이 §9-1 로 학기마다 확인하는 기존 방식).
+ */
+export function getAcademicTerms(): Promise<{ currentTerm: AcademicTermQuery; terms: AcademicTermQuery[] }> {
+  return isMockDataSource
+    ? Promise.reject(new ApiError(404, { code: 'NOT_FOUND', message: 'Mock 에는 학기 목록이 없어요.', details: {} }))
+    : getAcademicTermsHttp()
+}
+
+/** §9-2 PUT /api/student/assessment/academic-context */
+export function updateAcademicContext(request: UpdateAcademicContextRequest): Promise<void> {
+  return guardWrite('updateAcademicContext', () => (isMockDataSource ? updateAcademicContextMock(request) : httpNotConnected()))
+}
+
+/**
+ * 학생이 과목명을 직접 입력해 이 학기에 추가 (P-26 PROPOSED — 계약에 Endpoint 없음).
+ * Mock에서만 동작하고 이 브라우저에 저장된다. Stage 2 서버 계약(생성 Endpoint·Write Owner)이 정해지기 전에는 http에서 "연결 전"이다.
+ * 다른 학기에서 쓰던 기존 과목을 고를 때는 계약 범위인 updateAcademicContext(subjectIds)를 쓴다.
+ */
+export function createStudentSubject(request: CreateStudentSubjectRequest): Promise<SubjectRef> {
+  return guardWrite('createStudentSubject', () => (isMockDataSource ? createStudentSubjectMock(request) : httpNotConnected()))
+}

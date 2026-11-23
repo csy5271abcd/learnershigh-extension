@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평가계획서 분석 실제 적용 보고</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--fg:#191f28;--muted:#6b7684;--line:#e5e8eb;--blue:#3182f6;--red:#d22030;--green:#0a7c4a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111316;--card:#1b1e22;--fg:#e9ecef;--muted:#9aa4b0;--line:#2c3138;--blue:#5aa0ff;--red:#ff6b78;--green:#4cc38a}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Pretendard","Malgun Gothic",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 10px}h3{font-size:15px;margin:20px 0 6px}
+.sub{color:var(--muted);font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+img{max-width:100%;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+.good{color:var(--green);font-weight:600}.bad{color:var(--red);font-weight:600}
+ul{margin:6px 0;padding-left:20px}
+figure{margin:12px 0}figcaption{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>평가계획서 분석 — 실제 백엔드·관리자 화면 적용</h1>
+<p class="sub">2026-11-18 · PR #17(수연님) 위에 쌓은 #18 · 실측: Playwright, 학교알리미 공개 원문</p>
+
+<div class="card">
+<b>핵심</b>
+<ul>
+<li>평가계획서 분석을 외부 분석기(Railway) 대신 <b>백엔드 안에서</b> 한다. 원문이 서버 밖으로 나가지 않고, 토큰·외부 서비스가 필요 없다.</li>
+<li>관리자가 <b>학교 이름</b>만 넣으면 학교알리미에서 평가계획서를 받아 학년별로 등록하고 바로 분석한다.</li>
+<li>과목·지필/수행 비율·수행 항목에 더해 <b>항목별 채점 기준(요소·배점·점수별 기준)</b>을 읽어 수연님 검토 화면에 그대로 띄운다. 화면 코드는 버튼 하나만 더했다.</li>
+<li>같은 공개 PDF로 비교하면 Railway 분석기는 비율 4과목·채점 기준 0건, 이 분석은 비율 98과목·채점 기준 69건이다. 정기시험 회차·월별 운영 계획(진도표)도 이제 읽는다(Railway 18회차·1,317행, 이 분석 54회차·1,329행).</li>
+</ul>
+</div>
+
+<h2>1. 실제 화면 (Playwright로 조작, 검토 칸만 2배 해상도로 자름)</h2>
+<h3>학교 이름으로 불러오기</h3>
+<figure><img src="perf-assess-screens/v2-1-import.png" alt="서연고 불러오기 결과"><figcaption>서연고: 파일 4개를 받아 3개 등록·분석(과목 12·24·40개), 성적관리규정은 건너뜀</figcaption></figure>
+<figure><img src="perf-assess-screens/real-3b-import-result-hwp.png" alt="HWP 학교 불러오기 결과"><figcaption>청담고(HWP·HWPX): 3개 등록·분석 — 3.8초</figcaption></figure>
+<h3>수행평가 항목과 채점기준표 (검토 3단계)</h3>
+<figure><img src="perf-assess-screens/v2-2-item.png" alt="수행 항목 상세"><figcaption>왼쪽: 과목별 수행 항목 목록. 오른쪽: 언어와 매체 › 대중매체 비평 — 반영비율 30%, 만점 30점, 9월 2주, 평가 활동, 원문 11쪽</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-3-rubric.png" alt="채점기준표"><figcaption>채점기준표: 큰 요소 › 세부 요소, 요소 배점, 점수별 기준, 원문 12쪽</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-4-rubric-joined.png" alt="줄이 나뉜 기준을 이은 결과"><figcaption>원문 칸 안에서 줄이 나뉜 기준을 한 수준으로 이음(전에는 '4점 .', '4점 하게 요약함'처럼 조각으로 나왔음)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-5-rubric-joined2.png" alt="자신의 주장 제시하기"><figcaption>같은 표의 '자신의 주장 제시하기' 5·4·3·2점</figcaption></figure>
+<p class="sub">채점기준표는 표 대신 요소별 묶음(점수 | 기준)으로 바꿨다. 검토 칸이 좁으면 표의 기준 칸이 두세 글자 폭으로 줄어 읽을 수 없었다.</p>
+<h3>정기시험 회차·월별 운영 계획 (작전고)</h3>
+<p>작전고: 파일 9개 중 8개 등록·분석, 16초. 과목 30개에서 정기시험 회차 47개, 월별 운영 계획 568행.</p>
+<figure><img src="perf-assess-screens/v2-6-teaching.png" alt="검토 4단계 월별 운영 계획"><figcaption>검토 4단계: 사회과 문서 후보 164행이 과목별·월별 달력에 놓인다(9월 57개)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-7-exams.png" alt="평가 구성 정기시험 회차"><figcaption>평가계획서 열람 › 평가 구성: 통합사회2 지필 60% = 1차 30%(10월 1주) + 2차 30%(12월 2주)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-8-plan-rows.png" alt="월별 운영계획 행"><figcaption>평가계획서 열람 › 월별 운영계획: 주차·단원·성취기준·교수학습 방법·원문 쪽</figcaption></figure>
+<h3>관리자 확정 → 학생 월간 달력</h3>
+<p>사회과 문서를 시연 학교(운정고) 3학년 2학기에 등록하고 한 과목(17행)을 확정했다. 3학년 학생 달력에는 확정한 17개가 '9월 1~2주' 같은 원문 주차대로 보이고, 1학년 학생에게는 보이지 않는다.</p>
+<figure><img src="perf-assess-screens/v2-9-teaching-confirmed.png" alt="관리자 운영계획 확정"><figcaption>관리자: 월별 운영 계획 행마다 주차·단원·원문 쪽, 확정</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-10-student-grade3.png" alt="3학년 학생 달력"><figcaption>3학년 학생: 확정 17개 계획이 월별 달력에 놓인다(9월 4개 · 10월 4개 · 11월 4개 · 12월 3개)</figcaption></figure>
+<figure><img src="perf-assess-screens/v2-11-student-grade1.png" alt="1학년 학생 달력"><figcaption>1학년 학생: 3학년 문서는 보이지 않는다</figcaption></figure>
+<p class="sub">시연 학교 과목 목록(개발용)에 통합사회2가 없어 '화법과 작문'에 연결했다. 실제 학교 과목 목록이 붙으면 같은 과목에 연결된다.</p>
+
+<h3>스캔본(OCR)</h3>
+<p>글자 정보가 없는 PDF 쪽은 그림으로 그려 표 선을 찾고 OCR 단어를 칸에 넣는다. 엔진은 Windows 내장 OCR(설치 불필요) 또는 Tesseract(Linux 서버, <code>apt install tesseract-ocr tesseract-ocr-kor</code>)를 자동으로 고른다(<code>assessment.analyzer.ocr</code>). 둘 다 없으면 스캔 쪽은 건너뛴다.</p>
+<table>
+<tr><th>스캔본</th><th class="n">과목</th><th class="n">검증 통과</th><th class="n">수행 항목</th><th class="n">시간</th></tr>
+<tr><td>명신여고 1학년 (백엔드 API로 실행)</td><td class="n">6</td><td class="n">5</td><td class="n">16</td><td class="n">58초</td></tr>
+<tr><td>인명여고 1학년</td><td class="n">6</td><td class="n">4</td><td class="n">11</td><td class="n">57초</td></tr>
+</table>
+<p class="sub">전에는 두 문서 모두 과목 0개(분석 실패)였다. OCR 글자라 과목명·항목명에 오타가 남을 수 있고(예: '는술형'), 세로 글자 칸은 읽지 못한다 — 관리자 검토에서 고친다.</p>
+
+
+
+<h2>2. 정확도·속도 (받아 둔 학교 113곳 전체)</h2>
+<p>Java로 옮긴 백엔드 분석과, 그동안 측정한 Python 추출기 결과를 같은 원문으로 비교했다.</p>
+<table>
+<tr><th>항목</th><th class="n">백엔드(Java)</th><th class="n">Python</th><th class="n">비율</th></tr>
+<tr><td>값 있는 과목</td><td class="n">5,045</td><td class="n">4,794</td><td class="n">105%</td></tr>
+<tr><td>검증 통과 과목 (항목 비율 합 = 수행 비율)</td><td class="n">4,087</td><td class="n">4,001</td><td class="n">102%</td></tr>
+<tr><td>수행 항목</td><td class="n">13,175</td><td class="n">12,148</td><td class="n">108%</td></tr>
+<tr><td>채점 기준이 붙은 항목</td><td class="n">7,487</td><td class="n">7,202</td><td class="n">104%</td></tr>
+<tr><td>채점 요소 만점 합 = 과제 만점</td><td class="n">7,167</td><td class="n">6,845</td><td class="n">105%</td></tr>
+<tr><td>정기시험 회차 (과목 수)</td><td class="n">2,704 (1,643)</td><td class="n">—</td><td class="n"></td></tr>
+<tr><td>월별 운영 계획 행 (과목 수)</td><td class="n">71,303 (3,864)</td><td class="n">—</td><td class="n"></td></tr>
+</table>
+<p>학교 하나(평가계획 파일 전부) 처리 시간: 중앙 2.7초, 상위 10% 12.5초, 최대 36.7초(회차·진도표 포함). 원문 표본 대조(Python 기준 측정): 비율·항목 값 100건 중 95~99건 일치, 채점 기준 합 일치 95%.</p>
+<p class="sub">파일 오류 2건: 하나는 이름이 .hwp 인 HWPX 파일을 측정 코드가 확장자로 읽어서였고(제품은 내용으로 형식을 정해 문제없음, 측정 코드 고침), 다른 하나는 113곳을 한 JVM(512MB)에서 이어 돌릴 때만 나는 메모리 부족이다 — 해당 파일을 단독으로 돌리면 정상(선부고 56과목, 광명북고 54과목). 창의·청명·성덕고 등 몇 곳은 Python보다 검증 통과 과목이 적다(과목명 이어받기 규칙 차이).</p>
+
+<h2>3. 수연님 분석기(Railway)와 같은 파일 비교</h2>
+<p>학교알리미 공개 PDF 14개(학교당 1개, 120쪽 이하)를 두 분석기에 같은 계약(0.3)으로 보냈다.</p>
+<table>
+<tr><th>항목 (14개 합계)</th><th class="n">Railway</th><th class="n">이 분석</th></tr>
+<tr><td>지필·수행 비율이 있는 과목</td><td class="n bad">4</td><td class="n good">98</td></tr>
+<tr><td>수행 항목 / 비율 있는 항목</td><td class="n">28 / 3</td><td class="n">189 / 179</td></tr>
+<tr><td>채점 기준이 붙은 항목</td><td class="n bad">0</td><td class="n good">69</td></tr>
+<tr><td>정기시험 회차(writtenEvaluation.exams)</td><td class="n">18</td><td class="n good">54</td></tr>
+<tr><td>월별 운영 계획 행(teachingPlan) / 과목</td><td class="n">1,317 / 113</td><td class="n">1,329 / 106</td></tr>
+<tr><td>처리 시간 중앙값</td><td class="n">3.5초</td><td class="n">1.5~3.8초</td></tr>
+</table>
+<p class="sub">회차·운영 계획 두 줄은 백엔드(Java) 판, 나머지 줄은 Python 판(같은 규칙). 회차는 회차 비율 합이 지필 비율과 맞을 때만 낸다. Python 판은 도형이 매우 많은 쪽에서 표 찾기가 느려 113쪽 문서 하나가 260초 걸렸다. 백엔드(Java) 판은 같은 문서를 포함한 113곳 측정에서 학교당 최대 37초였다.</p>
+
+<h2>4. 바꾼 것</h2>
+<table>
+<tr><th>곳</th><th>내용</th></tr>
+<tr><td>백엔드 분석</td><td><code>assessment.analyzer.mode</code> = <b>local</b>(기본) · http(예전 외부 분석기) · none. local은 PDF(PDFBox 선 읽기)·HWP/HWPX(기존 구조 리더) 표를 읽어 규칙으로 분석하고 기존 수신 계약(analysis-import 0.3) 모양으로 넘긴다. 이후 검증·저장·검토·확정은 그대로.</td></tr>
+<tr><td>학교 이름 불러오기</td><td><code>POST /api/admin/assessment/evaluation-plans/import-from-schoolinfo</code> — 학교알리미 받기 → 학년별 등록 → 분석. API 계약 §38-11에 적음.</td></tr>
+<tr><td>관리자 화면</td><td>평가계획서 목록에 "학교알리미에서 불러오기" 버튼·대화상자.</td></tr>
+<tr><td>시험</td><td>백엔드 단위 시험 전부 통과(기존 시험은 mode=none·http로 그대로 유지), 관리자 타입 검사·lint 통과.</td></tr>
+</table>
+
+<h2>5. 간소화·최적화 (반영)</h2>
+<ul>
+<li><b>검토 테이블 9개 → 7개</b>: 운영계획 확정을 평가 정보 확정 테이블로 합치고(scope = EVALUATION · TEACHING_PLAN), 초안 저장 이력 테이블은 초안 행의 history_json(최근 20건)으로 옮겼다. 마이그레이션 V202611180100이 기존 데이터를 옮긴다. API 응답 모양은 그대로다. 초안은 동시 편집 버전 검사(409)가 있어 따로 둔다.</li>
+<li><b>불러오기 비동기 + 진행바</b>: 받기·등록 뒤 바로 응답(202 + 작업 번호)하고, 분석은 서버 작업 1개가 차례로 돌린다(서버 사양 고려). 화면은 1.5초마다 진행 상황을 읽어 '분석 n/m' 진행바를 그린다. 같은 파일의 학년별 문서는 한 줄로 묶는다. 작전고 22개 문서: 7초에 응답, 29초에 22/22.</li>
+<li><b>그 밖</b>: 외부 분석기 연결 코드·토큰 제거와 수신 계약 0.3 일원화는 시험이 아직 그 경계에 묶여 있어 다음 단계로 둔다.</li>
+</ul>
+<figure><img src="perf-assess-screens/v3-1-import-running.png" alt="분석 진행 중"><figcaption>등록 직후: 분석 0/3, 파일별 '분석 대기'</figcaption></figure>
+<figure><img src="perf-assess-screens/v3-2-import-done.png" alt="분석 완료"><figcaption>완료: 3/3, 학년별 과목 12·24·40개</figcaption></figure>
+
+<h2>5-2. 병목·사용감 개선 (2026-11-19)</h2>
+<table>
+<tr><th>문제 (측정)</th><th>바꾼 것</th><th>결과</th></tr>
+<tr><td>'1,2,3학년' 파일을 학년마다 다시 분석 — 작전고 8개 파일을 22번</td><td>같은 원문(SHA·파일 이름·계약·버전)은 최근 결과 8개를 재사용</td><td>분석 8번 + 재사용 14번, 불러오기 29초 → 18초</td></tr>
+<tr><td>학년별 문서에 다른 학년 과목이 섞임</td><td>과목 머리 표의 '학년' 칸을 읽어 계약 <code>subjects[].grades</code>로 보냄 — 기존 규칙대로 다른 학년 문서에서는 확정되지 않고 '원문 N학년'으로 보임</td><td>작전고 사회과: 1학년 2 · 2학년 4 · 3학년 4과목</td></tr>
+<tr><td>검토 칸 184~635개를 하나씩 클릭</td><td>'이 항목 후보 그대로 확인' · '과목 남은 후보 그대로 확인' · 운영계획 '남은 n행 모두 확인'</td><td>통합사회2 18칸을 한 번에(칸마다 수정·되돌리기 유지)</td></tr>
+<tr><td>스캔본 문서당 약 55초, 쪽 그림을 모두 메모리에 보관(80쪽이면 약 300MB)</td><td>쪽마다 표 선만 남기고 그림은 바로 버림, 표 없는 쪽은 OCR 생략, 픽셀 한 줄씩 읽기</td><td>메모리 해결. 시간은 OCR 자체(쪽당 약 0.45초)라 그대로 — 비동기라 기다리지 않음. 150dpi는 10% 빠르지만 결과가 달라져 쓰지 않음</td></tr>
+</table>
+<figure><img src="perf-assess-screens/v4-1-bulk-confirm.png" alt="일괄 확인 버튼"><figcaption>검토 3단계: 항목·과목 일괄 확인 버튼, 과목 옆 '원문 1학년'</figcaption></figure>
+<figure><img src="perf-assess-screens/v4-2-teaching-bulk.png" alt="운영계획 일괄 확인"><figcaption>검토 4단계: 과목마다 '남은 17행 모두 확인'</figcaption></figure>
+
+<h2>6. 남은 일</h2>
+<ul>
+<li>여러 학년 공통 문서('1,2,3학년'·'1~3학년'·'전학년')는 이제 학년마다 등록한다. 한 학년 문서에 다른 학년 과목도 들어 있어 관리자가 과목 확인 단계에서 걸러야 한다.</li>
+<li>OCR 오타 보정은 실측 2개 학교에서 본 것만 넣었다. 스캔본이 늘면 보정 목록을 늘린다.</li>
+</ul>
+</main>
+</body>
+</html>

@@ -1,0 +1,67 @@
+/* 과목 추가 Modal (2026-10-28). 입력 칸·버튼은 수행평가 추가 Modal 스타일(AddSchoolAssessmentModal.module.css)을 함께 쓴다. */
+.intro {
+  margin: 0;
+  font-size: var(--as-text-body);
+  color: var(--as-color-text);
+}
+
+.term {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  margin: 0;
+  font-size: var(--as-text-meta);
+  color: var(--as-color-text);
+}
+
+.termLabel {
+  color: var(--as-color-text-tertiary);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--as-text-caption);
+  color: var(--as-color-text-tertiary);
+}
+
+.candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.candidate {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.candidate:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.candidate[aria-pressed='true'] {
+  border-color: var(--as-color-ink);
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+}
+
+.notice {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--as-text-caption);
+  line-height: 1.55;
+  color: var(--as-color-text-secondary);
+}
+
+.notice svg {
+  flex: none;
+  margin-top: 2px;
+}

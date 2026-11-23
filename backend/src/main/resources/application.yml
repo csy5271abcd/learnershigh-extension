@@ -33,6 +33,12 @@ spring:
         # Enum 자리에 숫자(0, 1 …)가 오면 순서로 바꿔 넣지 않고 400 VALIDATION_ERROR로 거부한다 (api-contract.md §5-1).
         fail-on-numbers-for-enums: true
 
+  servlet:
+    multipart:
+      # Assessment AI PDF 분석 업로드 (P-31 PROPOSED). 20MB 초과는 Service가 413 FILE_TOO_LARGE로 거절한다 (Container 한도는 그보다 넉넉히).
+      max-file-size: 100MB
+      max-request-size: 101MB
+
 server:
   compression:
     # 학습관 전원 지표 응답이 학생 1000명 기준 약 3MB다. JSON은 압축률이 높아(약 56KB) 응답 압축을 켠다.
@@ -43,6 +49,62 @@ server:
 app:
   # 기준일 계산 Timezone (shared-conventions.md §13)
   zone: Asia/Seoul
+
+assessment:
+  ai:
+    # AI Provider (P-31 PROPOSED, API-OD-A10 미결). 기본 none = 미연결(분석 API 503).
+    # 실제 분석: ASSESSMENT_AI_PROVIDER=anthropic + 환경 변수 ANTHROPIC_API_KEY. Key는 이 파일에 쓰지 않는다.
+    # 주의: Admin 인증 연동 전이므로 운영 환경에서 켜지 않는다.
+    provider: ${ASSESSMENT_AI_PROVIDER:none}
+    model: ${ASSESSMENT_AI_MODEL:claude-opus-5-5}
+  storage:
+    # 결과물 파일 개발용 로컬 격리 Storage (2026-11-11 사용자 승인). Git 저장소·웹 공개 경로 밖. 운영 Provider는 별도 결정.
+    root: ${ASSESSMENT_STORAGE_ROOT:${user.home}/.learnershigh-extension/dev-artifact-storage}
+    # 결과물 한 파일 최대 크기
+    max-file-bytes: ${ASSESSMENT_STORAGE_MAX_FILE_BYTES:52428800}
+  plan-review:
+    # HWP·HWPX 공식 확정(Phase B). 기본 false = 거절(verified_auth_required).
+    # 실제 관리자 인증·인가가 없으므로 격리 개발·합성 시험 환경에서만 true로 켠다. 이때 기록은 reviewer_auth=MOCK_HEADER(운영 검토 실적 아님).
+    structured-confirm-dev: ${ASSESSMENT_PLAN_REVIEW_STRUCTURED_CONFIRM_DEV:false}
+  demo-roster:
+    # 개발용 다지점 시연 명단 (2026-11-12 사용자 결정). 기본 OFF. learnershigh.integration.mode=mock 일 때만 의미가 있다.
+    # 켜면 시연 지점 3개(br_demo_a/b/c)·합성 학생 60명·지점 관리자 Mock 4개(adm_demo_a01/a02/b01/c01)가 Assessment에서만 보인다.
+    # Student Care·Shared MockExistingStudentClient에는 영향이 없다. 운영 환경에서 켜지 않는다.
+    enabled: ${ASSESSMENT_DEMO_ROSTER_ENABLED:false}
+  analysis-import:
+    # 외부 평가계획서 분석기 결과 수신 Endpoint (PROPOSED, api-contract.md 미반영). 기본 off → 404.
+    # 로컬 연동 시험에서만 ASSESSMENT_ANALYSIS_IMPORT_ENABLED=true로 켠다.
+    enabled: ${ASSESSMENT_ANALYSIS_IMPORT_ENABLED:false}
+    # analysis-import-0.3(계정 B Contract 0.3 · B16 확장 필드 maxScore·linkReview·grades) 결과 수신. 2026-11-16 A23: 기본 켬.
+    contract03-enabled: true
+  multiformat:
+    # HWP·HWPX 업로드·분석·원문 구조 위치(A10). 2026-11-16 A23: 기본 켬.
+    # 평가정보 '공식 확정'은 별개다 — plan-review.structured-confirm-dev(기본 false = verified_auth_required)를 그대로 따른다.
+    experimental: true
+  preview:
+    converter:
+      # HWP·HWPX 원문 미리보기용 PDF 변환(A25·A26). docker(기본) = 로컬 Docker로 변환기 이미지(LibreOffice+H2Orestart)를 네트워크 없이 실행.
+      # none = 변환 안 함(미리보기 415, 원본 다운로드만 — 시험·CI).
+      # soffice = 같은 프로그램이 설치된 서버에서 직접 실행. 문서를 외부 서비스로 보내지 않는다.
+      mode: ${ASSESSMENT_PREVIEW_CONVERTER:docker}
+      # A26: 기본 켬. 이미지가 없으면 Backend가 기동 직후 백그라운드로 만든다(처음 한 번, 몇 분). 운영은 false + 미리 만든 이미지 지정.
+      auto-provision: ${ASSESSMENT_PREVIEW_CONVERTER_AUTO_PROVISION:true}
+      # 비우면 resources/assessment/preview-converter/Dockerfile 내용 해시 Tag를 쓴다. 지정하면 그 이미지를 쓰고 Build하지 않는다
+      docker-image: ${ASSESSMENT_PREVIEW_CONVERTER_IMAGE:}
+      soffice-path: ${ASSESSMENT_PREVIEW_SOFFICE_PATH:soffice}
+      timeout-seconds: ${ASSESSMENT_PREVIEW_CONVERTER_TIMEOUT_SECONDS:90}
+  analyzer:
+    # 2026-11-19 PR #18 통합(A27-UX 부록 D): 분석은 서버 안(local)에서 한다 — 원문이 외부로 나가지 않고 토큰이 필요 없다.
+    # 예전 원격 분석기(Railway) 주소·토큰 설정은 지웠다(Railway 원격 서비스 자체는 이 저장소가 지우지 않는다).
+    # local(기본) = 서버 안 분석 · none = 미설정(503) · loopback-stub = E2E 전용(같은 컴퓨터의 합성 Stub만, stub.base-url·stub.token 필요)
+    mode: ${ASSESSMENT_ANALYZER_MODE:local}
+    # 스캔본 PDF OCR: auto(Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR) · tesseract · windows · none
+    ocr: ${ASSESSMENT_ANALYZER_OCR:auto}
+    # 분석 결과 기록용 프로필 이름. 0.2 와 0.3 은 서로 다른 값이어야 한다(PlanAnalysisService 가 같으면 시작 거부)
+    version: v21.1
+    contract03-version: v21.10-b16-dev
+    # 문서 하나 분석 제한 시간
+    timeout-millis: 150000
 
 learnershigh:
   integration:
@@ -76,3 +138,17 @@ app:
 learnershigh:
   mock:
     anchor-date: 2026-09-30
+
+---
+# A27-UX 부록 H (2026-11-20 사용자 승인): 사용자 로컬 운영(8080 + lh_local_run) 전용 프로필.
+# 학교알리미 학년도·공시 차수 조회 실측(부록 G 9월 · 부록 H 4월, 2024~2026)을 근거로 연도 조회 신뢰를 켠다.
+# 기본(프로필 없음)·Unit·IT·e2e 는 코드 기본값 false(fail-closed) 그대로다. 켜도 학교 식별·학년도·차수·학기·형식·NOT_PLAN·중복 검증은 파일마다 적용된다.
+# 이 설정만으로 학교알리미를 조회하지 않는다(관리자 화면 진입·'다시 확인' 때만, 학교별 24시간 기록·순차·요청 간격 유지).
+spring:
+  config:
+    activate:
+      on-profile: local-run
+
+assessment:
+  schoolinfo:
+    year-query-verified: true

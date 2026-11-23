@@ -1,0 +1,79 @@
+/* A27-UX 부록 O §38-16 학생 동명 학교 열람 선택 */
+.openButton {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface, #ffffff);
+  color: var(--as-color-primary, #3182f6);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.openButton:focus-visible {
+  outline: 2px solid var(--as-color-primary, #3182f6);
+  outline-offset: 2px;
+}
+
+.note {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--as-color-text-secondary, #4e5968);
+}
+
+.current {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--as-color-bg, #f2f4f6);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.option:has(input:checked) {
+  border-color: var(--as-color-primary, #3182f6);
+}
+
+.option[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.optionText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.disabledReason {
+  color: var(--as-color-text-tertiary, #8b95a1);
+  font-size: 12px;
+}

@@ -1,0 +1,48 @@
+{
+ "basis": "합성 Fixture(가상 값). 기존 0.3 payload와 선택 확장 payload. 계정 A 수신 미검증 — 서비스 응답에는 넣지 않음.",
+ "analyzer": "v21.9-b13-dev",
+ "extension": "contract03-ext-0.1",
+ "cases": [
+  {
+   "name": "a10-element-scores-link-review",
+   "description": "가로형 요소·배점(요소 배점 maxScore), 소제목 근거 연결(linkReview), 학년 근거 없음(grades 생략)",
+   "report": {
+    "version": "contract03-ext-0.1",
+    "rubricMaxScore": 4,
+    "rubricLinkReview": 2,
+    "subjectGrades": 0,
+    "subjectsWithoutGradeEvidence": 1
+   },
+   "base03Valid": true,
+   "warnings": []
+  },
+  {
+   "name": "subject-table-grades",
+   "description": "과목 열 표 1·2학년 — '가상국어'가 두 학년에 있음(학년 근거 Locator 있음 → grades). 0.3은 두 번째 '가상국어'를 SUBJECT_DUPLICATE로 보내지 않음",
+   "report": {
+    "version": "contract03-ext-0.1",
+    "rubricMaxScore": 0,
+    "rubricLinkReview": 0,
+    "subjectGrades": 3,
+    "subjectsWithoutGradeEvidence": 0
+   },
+   "base03Valid": true,
+   "warnings": [
+    "SUBJECT_DUPLICATE: S01.K03 '가상국어' 중복 — 보내지 않음"
+   ]
+  },
+  {
+   "name": "subject-table-no-grade-evidence",
+   "description": "과목 열 표, 학년 근거 문단 없음 → grades 생략",
+   "report": {
+    "version": "contract03-ext-0.1",
+    "rubricMaxScore": 0,
+    "rubricLinkReview": 0,
+    "subjectGrades": 0,
+    "subjectsWithoutGradeEvidence": 2
+   },
+   "base03Valid": true,
+   "warnings": []
+  }
+ ]
+}

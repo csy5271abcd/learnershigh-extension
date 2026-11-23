@@ -1,0 +1,759 @@
+/*
+ * 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용, 2026-11-14).
+ * 참고: references/design/daglo/additional (달력 앱: 왼쪽 월 탐색, 7열 Grid, 일정 블록, 상세 Popover) — 화이트·블랙·블루 중심으로 다시 그림.
+ * 과목 구분 색은 작은 점에만 쓴다(상태 색 아님). --as-* Token만 사용.
+ */
+
+.planner {
+  --pl-s0: #3b6ef5;
+  --pl-s1: #7a5af5;
+  --pl-s2: #1b998b;
+  --pl-s3: #e07a2f;
+  --pl-s4: #d6457a;
+  --pl-s5: #8a9099;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 0;
+  min-height: 560px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 14px;
+  background: var(--as-color-surface);
+  overflow: hidden;
+}
+
+.planner[data-detail='true'] {
+  grid-template-columns: 220px minmax(0, 1fr) 320px;
+}
+
+.side {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+  padding: 18px 14px;
+  border-right: 1px solid var(--as-color-line);
+  background: var(--as-color-subtle);
+}
+
+.sideLabel {
+  margin: 0 0 8px 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.month {
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.month:hover {
+  background: var(--as-color-fill);
+}
+
+.month[aria-pressed='true'] {
+  background: var(--as-color-ink);
+  color: var(--as-color-on-ink);
+  font-weight: 700;
+}
+
+.month small {
+  display: block;
+  margin-top: -2px;
+  color: inherit;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.subject {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subject:hover {
+  background: var(--as-color-fill);
+}
+
+.subject[aria-pressed='false'] {
+  color: var(--as-color-text-tertiary);
+}
+
+.subject[aria-pressed='false'] .dot {
+  background: var(--as-color-idle) !important;
+}
+
+.subject span:nth-child(2) {
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.count {
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot[data-c='0'] {
+  background: var(--pl-s0);
+}
+.dot[data-c='1'] {
+  background: var(--pl-s1);
+}
+.dot[data-c='2'] {
+  background: var(--pl-s2);
+}
+.dot[data-c='3'] {
+  background: var(--pl-s3);
+}
+.dot[data-c='4'] {
+  background: var(--pl-s4);
+}
+.dot[data-c='5'] {
+  background: var(--pl-s5);
+}
+
+.legend {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0 4px;
+  list-style: none;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.bar {
+  flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.bar h4 {
+  white-space: nowrap;
+  margin: 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.navButton {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  cursor: pointer;
+}
+
+.navButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+.views {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+  padding: 3px;
+  border-radius: 9px;
+  background: var(--as-color-fill);
+}
+
+.views button {
+  white-space: nowrap;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.views button[aria-pressed='true'] {
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.bands {
+  display: grid;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px 10px;
+  min-width: 0;
+}
+
+.bandLabel {
+  /* A27-UX: 고정 64px이면 '달을 정할 수 없는 계획 n개'가 세 줄로 꺾여 내용 폭 한 줄로 */
+  flex: 0 0 auto;
+  min-width: 64px;
+  white-space: nowrap;
+  padding-top: 5px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+/* [12][13] A27-UX: 관리자 검토 화면에서만 — 제목·점선 Chip을 왼쪽 구분선에서 띄우고 묶음 사이 여백 */
+.band[data-inset='true'] {
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px 6px;
+}
+
+.band[data-inset='true'] + .band[data-inset='true'] {
+  margin-top: 6px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+.bandItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 280px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.chip span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip[aria-pressed='true'],
+.event[aria-pressed='true'] {
+  border-color: var(--as-color-primary);
+  box-shadow: inset 0 0 0 1px var(--as-color-primary);
+}
+
+.chip[data-candidate='true'],
+.event[data-candidate='true'] {
+  border-style: dashed;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  flex: 1;
+}
+
+.weekday {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--as-color-line);
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  min-height: 96px;
+  padding: 6px 6px 8px;
+  border-right: 1px solid var(--as-color-line);
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+.day:nth-child(7n) {
+  border-right: 0;
+}
+
+.day[data-blank='true'] {
+  background: var(--as-color-subtle);
+}
+
+.dayNo {
+  padding: 0 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.event {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.event:hover {
+  background: var(--as-color-fill);
+}
+
+.event span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.more {
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.yearUnknown {
+  margin: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.list {
+  margin: 0;
+  padding: 4px 16px 16px;
+  list-style: none;
+}
+
+.listGroup {
+  margin: 14px 0 6px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--as-color-line);
+  background: none;
+  color: var(--as-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.listItem .dot {
+  margin-top: 6px;
+}
+
+.listItem strong {
+  display: block;
+  font-size: 14px;
+}
+
+.listItem span.sub {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.empty {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+}
+
+.empty strong {
+  font-size: 16px;
+}
+
+.detail {
+  position: relative;
+  padding: 18px 18px 24px;
+  border-left: 1px solid var(--as-color-line);
+  overflow-y: auto;
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--as-color-fill);
+}
+
+.detailSubject {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.detail h5 {
+  margin: 8px 32px 4px 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.when {
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+}
+
+.field {
+  margin-top: 16px;
+}
+
+.field dt {
+  margin-bottom: 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.field dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.field dd.missing {
+  color: var(--as-color-text-tertiary);
+}
+
+.statusLine {
+  margin-top: 6px;
+  color: var(--as-color-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.statusLine[data-tone='neutral'] {
+  color: var(--as-color-text-secondary);
+}
+
+.sourceButton {
+  width: 100%;
+  height: 40px;
+  margin-top: 20px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sourceButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+@media (max-width: 1180px) {
+  .planner,
+  .planner[data-detail='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    border-right: 0;
+    border-bottom: 1px solid var(--as-color-line);
+  }
+
+  .months {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .month {
+    flex: none;
+    min-width: 52px;
+  }
+
+  .subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .subject {
+    width: auto;
+    border: 1px solid var(--as-color-line);
+  }
+
+  .legend {
+    display: none;
+  }
+
+  /* 상세는 아래에서 올라오는 시트 */
+  .detail {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 950;
+    max-height: 70vh;
+    border-top: 1px solid var(--as-color-line);
+    border-left: 0;
+    border-radius: 16px 16px 0 0;
+    background: var(--as-color-surface);
+    box-shadow: var(--as-shadow-modal);
+  }
+}
+
+@media (max-width: 640px) {
+  .day {
+    min-height: 64px;
+    padding: 4px 2px;
+  }
+
+  .event {
+    padding: 0 3px;
+  }
+
+  .event span:last-child {
+    display: none;
+  }
+
+  .bar h4 {
+    font-size: 16px;
+  }
+}
+
+/* ---- A25 달력 다듬기 (네이버 캘린더·PlanB 사용성 참고, Daglo 무채색 + 블루) ----
+   데이터 규칙은 그대로: 날짜가 있는 행만 날짜 칸, 월·주차 행은 달력 위 '종일 줄'(이 달 · n주). 학교 주차를 날짜로 바꾸지 않는다. */
+.todayButton {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-pill);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.todayButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.todayButton:disabled {
+  color: var(--as-color-disabled-text);
+  cursor: default;
+}
+
+.bands {
+  background: var(--as-color-subtle);
+}
+
+.day[data-weekday='0'] .dayNo,
+.day[data-weekday='6'] .dayNo {
+  color: var(--as-color-text-tertiary);
+}
+
+.day[data-today] .dayNo {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font-weight: 700;
+}
+
+.gridNote {
+  margin: 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--as-color-line);
+  color: var(--as-color-text-secondary);
+  font-size: 12.5px;
+}
+
+/* ---- 상세 모달 (A28-36: 주차 기준 표시 일정도 일반 일정 칩과 같은 모양 — 점선 없음) ---- */
+
+.dayList {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.whenTable {
+  margin: 4px 0 8px;
+}
+
+.tentativeNote {
+  display: block;
+  margin-top: 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.closeButton {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 상세는 모달 안에서 보이므로 옆 패널 고정 위치를 쓰지 않는다 */
+.detail {
+  position: static;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+.closeButton,
+.primaryButton {
+  flex: none;
+  white-space: nowrap;
+}
+
+.primaryButton {
+  height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--as-radius-md);
+  background: var(--as-color-primary);
+  color: var(--as-color-on-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton:disabled {
+  background: var(--as-color-disabled-bg);
+  color: var(--as-color-disabled-text);
+  cursor: not-allowed;
+}
+
+/* A28-19: 관리자 화면에서 접은 표시 기준 */
+.legendDetails {
+  padding: 0 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.legendDetails > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.legendDetails > .legend {
+  margin-top: 6px;
+  padding: 0;
+}
