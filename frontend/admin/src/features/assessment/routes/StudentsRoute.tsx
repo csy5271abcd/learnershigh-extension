@@ -157,13 +157,13 @@ export function StudentsRoute({ studentId, search }: { studentId: string | null;
           <div data-testid="student-out-of-scope">
             <EmptyState
               title="이 학생의 기록을 볼 수 없어요"
-              description={`담당 지점 밖 학생이거나 없는 학생이에요 (${studentId}). 왼쪽 목록에서 담당 학생을 골라 주세요.`}
+              description={`담당 지점 밖 학생이거나 없는 학생이에요 (${studentId}).`}
             />
           </div>
         ) : selectedId ? (
           <StudentDetailPane key={selectedId} studentId={selectedId} search={search} />
         ) : (
-          students.state.status === 'success' && <EmptyState title="학생을 골라 주세요" description="왼쪽 목록에서 학생을 고르면 Assessment 기록을 볼 수 있어요." />
+          students.state.status === 'success' && <EmptyState title="학생을 골라 주세요" />
         )}
       </section>
     </div>

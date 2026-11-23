@@ -1,5 +1,11 @@
 package com.learnershigh.extension.assessment.controller;
 
+import com.learnershigh.extension.assessment.dto.context.AcademicTermsResponse;
+import com.learnershigh.extension.assessment.dto.school.CalendarPlacementResponse;
+import com.learnershigh.extension.assessment.dto.plan.StudentTeachingPlanResponse;
+import com.learnershigh.extension.assessment.service.plan.TeachingPlanQueryService;
+import com.learnershigh.extension.assessment.service.school.CalendarPlacementService;
+
 import com.learnershigh.extension.assessment.service.plan.OfficialPlanQueryService;
 import com.learnershigh.extension.assessment.dto.plan.StudentOfficialPlanResponse;
 import com.learnershigh.extension.assessment.dto.record.ArtifactDtos.ArtifactComparison;
@@ -68,11 +74,14 @@ public class AdminStudentViewController {
     private final ResourceService resources;
     private final ArchiveService archive;
     private final OfficialPlanQueryService officialPlans;
+    private final TeachingPlanQueryService teachingPlans;
+    private final CalendarPlacementService placements;
 
     public AdminStudentViewController(AdminStudentViewAccess access, AcademicContextQueryService contexts,
             SchoolAssessmentQueryService assessments, EvaluationPlanQueryService plans, NoteQueryService notes,
             ArtifactQueryService artifacts, FeedbackQueryService feedback, GrowthRecordService growth,
-            ResourceService resources, ArchiveService archive, OfficialPlanQueryService officialPlans) {
+            ResourceService resources, ArchiveService archive, OfficialPlanQueryService officialPlans,
+            TeachingPlanQueryService teachingPlans, CalendarPlacementService placements) {
         this.access = access;
         this.contexts = contexts;
         this.assessments = assessments;
@@ -84,6 +93,8 @@ public class AdminStudentViewController {
         this.resources = resources;
         this.archive = archive;
         this.officialPlans = officialPlans;
+        this.teachingPlans = teachingPlans;
+        this.placements = placements;
     }
 
     /**
@@ -154,6 +165,26 @@ public class AdminStudentViewController {
     public StudentEvaluationPlanResponse evaluationPlan(AdminActor admin, @PathVariable String studentId,
             @PathVariable String planId) {
         return plans.studentGet(access.readOnlyContext(admin, studentId), planId);
+    }
+
+    /** A28-36: 학생 §10-1-2 확정 운영계획(학생 홈 달력·월별 운영계획) — 학생 GET 과 같은 응답. 담당 지점 밖 404 */
+    @GetMapping("/evaluation-plans/{planId}/teaching-plan")
+    public StudentTeachingPlanResponse teachingPlan(AdminActor admin, @PathVariable String studentId,
+            @PathVariable @Size(max = 64) String planId) {
+        return teachingPlans.studentGet(access.readOnlyContext(admin, studentId), planId);
+    }
+
+    /** A28-36: 학생 §9-1-c 학적이 있는 학기 목록 — 학생 GET 과 같은 응답 */
+    @GetMapping("/academic-terms")
+    public AcademicTermsResponse academicTerms(AdminActor admin, @PathVariable String studentId) {
+        return contexts.terms(access.readOnlyContext(admin, studentId));
+    }
+
+    /** A28-36: 학생 §30-b 개인 달력 배치 조회만(학생 화면과 같은 날짜로 보이게). 변경·초기화 경로는 두지 않는다 */
+    @GetMapping("/calendar-placements")
+    public CalendarPlacementResponse calendarPlacements(AdminActor admin, @PathVariable String studentId,
+            @RequestParam @Min(2000) @Max(2100) int academicYear, @RequestParam @Min(1) @Max(2) int semester) {
+        return placements.list(access.readOnlyContext(admin, studentId), academicYear, semester);
     }
 
     @GetMapping("/notes")

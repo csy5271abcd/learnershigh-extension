@@ -10,7 +10,6 @@ export function TeachingPlanEmpty({ data, grade, semester, testId }: { data: Con
     return (
       <div className={review.empty} data-testid={testId} data-reason="no-documents">
         <strong>{`고${grade} ${semester}학기 평가계획서가 아직 없어요`}</strong>
-        <span className={review.muted}>평가계획서 탭에서 원본을 등록해 주세요.</span>
       </div>
     )
   }
@@ -47,7 +46,7 @@ export function PendingList({ data }: { data: ConfirmedTeachingPlan }) {
       {data.noCandidates.map((doc) => (
         <li key={doc.planId} data-testid="teaching-plan-no-candidates">
           <span>
-            {doc.fileName} · {doc.analyzed ? '운영계획 행 없음 — 분석 탭에서 다시 분석할 수 있어요' : '아직 분석하지 않았어요'}
+            {doc.fileName} · {doc.analyzed ? '운영계획 행 없음' : '아직 분석하지 않았어요'}
           </span>
           <button type="button" className={review.link} onClick={() => navigate(doc.analyzed ? paths.planReview(doc.planId, doc.revisionId) : paths.analysis())}>
             {doc.analyzed ? '문서 보기' : '분석 탭으로'}

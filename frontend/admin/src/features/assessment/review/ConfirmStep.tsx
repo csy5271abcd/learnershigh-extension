@@ -148,15 +148,13 @@ export function ConfirmStep({
         {sub === 0 && (
           <>
             <p className={styles.quizQuestion}>갖고 있는 학교 원본이 등록된 문서와 같은 파일인가요?</p>
-            <p className={styles.muted}>파일은 서버로 보내지 않고 이 브라우저에서만 SHA-256을 계산해 비교해요.</p>
-            <LocalOriginalPicker hash={hash} onPickFile={onPickFile} />
+            <p className={styles.muted}>파일은 서버로 보내지 않고 이 브라우저에서만 SHA-256을 계산해 비교해요.</p><LocalOriginalPicker hash={hash} onPickFile={onPickFile} />
           </>
         )}
 
         {sub === 1 && (
           <>
             <p className={styles.quizQuestion}>확정할 과목을 학업 과목과 연결해 주세요</p>
-            <p className={styles.muted}>과목명으로 찾아 골라요. 이름이 비슷해도 자동으로 연결하지 않아요.</p>
             {usedSubjects.length === 0 ? (
               <p className={styles.muted}>아직 확인한 과목이 없어요. 수행평가 검토에서 값을 먼저 확인해 주세요.</p>
             ) : subjectOptions === null ? (
@@ -264,7 +262,7 @@ export function ConfirmStep({
             {partial && (
               <label className={styles.quizCheck}>
                 <input type="checkbox" checked={partialAcknowledged} onChange={(event) => onPartialAck(event.target.checked)} data-testid="review-partial-ack" />
-                일부만 분석된 결과예요. 확인한 값만 확정하고, 분석되지 않은 과목·항목은 확정하지 않아요.
+                일부만 분석된 결과예요.
               </label>
             )}
           </>

@@ -1,15 +1,24 @@
 import { useRef, useState } from 'react'
-import { getTeachingPlanReview, requestPlanAnalysis } from '../api/assessmentAdminApi.ts'
+import { getTeachingPlanReview, reopenPlanReviewDraft, reopenTeachingPlanDraft, requestPlanAnalysis } from '../api/assessmentAdminApi.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision } from '../api/types.ts'
 import { FileIcon, Modal } from '../components/canonicalUi.ts'
 import { analysisFailureText } from '../model/analysisFailure.ts'
+import { toApiError } from '../api/canonicalSource.ts'
 import { navigate } from '../../../app/adminLocation.ts'
 import review from '../review/review.module.css'
 import { paths } from './paths.ts'
+import { reanalyzeNext } from './reanalyzeNext.ts'
 
 // A28-29: 분석 결과가 있는 문서(확정 문서 포함)를 '다시 분석'한다. 서버(§39 POST …/analysis)는 그 개정본의 보관 원본으로만 분석해
 // 새 분석 결과(후보)를 저장하고, 확정 기록·확정값·학생 공개는 바꾸지 않는다. 같은 결과면 새 결과 없이 기존 결과를 돌려준다.
 // 끝나면 운영계획 후보 수를 보여 주고 검토 화면으로 이어 준다(확정 문서는 '월별 운영계획 최종 승인'이 그 화면 마지막 단계).
+// A28-36: '검토하기' 하나로 검토 화면 최종 확정 단계에 간다. 확정 문서인데 새 분석 결과가 나왔으면 재검토를 먼저 연다
+//   (평가 정보·운영계획 초안을 새 분석으로 — 학생 공개는 '최종 승인' 전까지 그대로). 결과가 같고 승인할 운영계획도 없으면 '닫기'만.
+
+/** 재검토가 이미 열려 있으면(409 draft: already_open) 그대로 이어 검토한다 — 다른 오류는 알린다 */
+function alreadyOpenIsFine(cause: unknown): void {
+  if (toApiError(cause).fieldReasons().draft !== 'already_open') throw cause
+}
 
 type Phase =
   | { kind: 'ask' }
@@ -53,7 +62,23 @@ export function ReanalyzeDialog({
     })
   }
 
-  const openReview = () => navigate(paths.planReview(plan.planId, revision.documentRevisionId))
+  const [opening, setOpening] = useState<string | null>(null)
+  const next = phase.kind === 'done' ? reanalyzeNext({ confirmed, changed: phase.changed, teachingConfirmed: phase.teachingConfirmed, candidates: phase.candidates }) : null
+  const nothingToApprove = next?.kind === 'close'
+  const openReview = async () => {
+    if (!next || next.kind === 'close' || opening === '') return
+    setOpening('')
+    try {
+      if (next.kind === 'reopen') {
+        // 재검토 시작(이미 열려 있으면 그대로) — 확정값·학생 화면은 바뀌지 않는다
+        await reopenPlanReviewDraft(plan.planId, revision.documentRevisionId).catch(alreadyOpenIsFine)
+        if (next.teaching) await reopenTeachingPlanDraft(plan.planId, revision.documentRevisionId).catch(alreadyOpenIsFine)
+      }
+      navigate(paths.planReviewFinal(plan.planId, revision.documentRevisionId))
+    } catch (cause) {
+      setOpening((cause as Error).message || '재검토를 시작하지 못했어요.')
+    }
+  }
 
   return (
     <Modal
@@ -67,9 +92,11 @@ export function ReanalyzeDialog({
             <button ref={cancelRef} type="button" className={review.buttonGhost} onClick={onClose}>
               닫기
             </button>
-            <button type="button" className={review.buttonDark} onClick={openReview} data-testid="reanalyze-open-review">
-              {confirmed && !phase.teachingConfirmed && (phase.candidates ?? 0) > 0 ? '월별 운영계획 검토' : '검토 화면으로'}
-            </button>
+            {!nothingToApprove && (
+              <button type="button" className={review.buttonDark} onClick={() => void openReview()} disabled={opening === ''} aria-busy={opening === ''} data-testid="reanalyze-open-review">
+                검토하기
+              </button>
+            )}
           </>
         ) : (
           <>
@@ -95,18 +122,23 @@ export function ReanalyzeDialog({
         </div>
         {phase.kind === 'done' ? (
           <ul className={review.deleteNotes} data-testid="reanalyze-result">
-            <li>{phase.changed ? '새 분석 결과를 저장했어요.' : '이전 분석과 같은 결과예요.'}</li>
+            <li>{phase.changed ? '새 분석 결과' : '이전 분석과 같은 결과'}</li>
             <li data-testid="reanalyze-candidates">
               월별 운영계획 후보 {phase.candidates === null ? '확인 못 함' : `${phase.candidates}행`}
               {phase.teachingConfirmed ? ' · 확정된 운영계획 있음' : ''}
             </li>
-            {confirmed && <li>기존 확정 내용과 학생 화면은 그대로예요. 운영계획은 검토 화면의 '월별 운영계획 최종 승인' 뒤 학생에게 보여요.</li>}
+            <li>{nothingToApprove ? '승인할 변경 없음 · 확정 내용 그대로' : '최종 승인 전까지 학생 화면 그대로'}</li>
           </ul>
         ) : (
           <ul className={review.deleteNotes}>
             <li>새 분석 결과를 생성합니다. 기존 확정 내용은 변경되지 않습니다.</li>
-            <li>분석만으로는 학생 화면이 바뀌지 않아요. 최대 2분 걸릴 수 있어요.</li>
+            <li>최대 2분</li>
           </ul>
+        )}
+        {opening && (
+          <p className={review.deleteError} role="alert" data-testid="reanalyze-open-error">
+            {opening}
+          </p>
         )}
         {phase.kind === 'error' && (
           <p className={review.deleteError} role="alert" data-testid="reanalyze-error">

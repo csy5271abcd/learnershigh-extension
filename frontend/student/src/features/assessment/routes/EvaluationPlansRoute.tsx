@@ -35,7 +35,7 @@ export function EvaluationPlansRoute() {
       <h1 className={styles.title}>학교 평가 정보</h1>
       <p className={styles.subtitle}>
         {selectedContext ? `${selectedContext.school.name} · ${termLabel(selectedContext)} · ` : ''}
-        관리자가 평가계획서 원문과 대조해 확정한 정보만 보여요.
+        관리자 확정 정보만
       </p>
     </header>
   )
@@ -55,7 +55,7 @@ export function EvaluationPlansRoute() {
         {terms.status === 'loading' ? (
           <LoadingRows rows={3} label="학업 정보를 불러오는 중" />
         ) : (
-          <EmptyState title="학업 정보가 없어요" description="학교·학년·학기 정보가 있어야 평가 정보를 볼 수 있어요." />
+          <EmptyState title="학업 정보가 없어요" />
         )}
       </main>
     )
@@ -81,12 +81,12 @@ export function EvaluationPlansRoute() {
       {header}
       <p className={styles.notice}>
         <InfoIcon size={14} />
-        확정되지 않은 항목은 &lsquo;미확정&rsquo;으로 표시해요. 평가 일정·기준은 학교 공지가 우선이니 원문과 함께 확인해 주세요.
+        확정되지 않은 항목은 &lsquo;미확정&rsquo;으로 표시해요.
       </p>
       <OfficialSourcesSection academicYear={selectedContext.academicYear} semester={selectedContext.semester} />
       <h2 className={styles.sectionTitle}>확정된 평가 정보</h2>
       {plans.data.length === 0 ? (
-        <EmptyState title="아직 확정된 평가계획서가 없어요" description="관리자가 이 학기 평가계획서를 확인하면 여기에 보여요." />
+        <EmptyState title="아직 확정된 평가계획서가 없어요" />
       ) : (
         plans.data.map((plan) => <PlanSection key={plan.planId} plan={plan} />)
       )}
@@ -120,7 +120,7 @@ function PlanSection({ plan }: { plan: EvaluationPlan }) {
       </div>
       {subjects.length === 0 ? (
         <p className={styles.empty} data-testid="confirmed-plan-no-fields">
-          이 문서는 확정됐지만 과목별로 확정된 평가 정보가 아직 없어요. 원문에서 확인해 주세요.
+          이 문서는 확정됐지만 과목별로 확정된 평가 정보가 아직 없어요.
         </p>
       ) : (
         <>
@@ -179,7 +179,7 @@ function SubjectCard({ subject, plan }: { subject: ConfirmedSubject; plan: Evalu
       {subject.exams.length > 0 && <ItemTable title="지필평가" items={subject.exams} plan={plan} namePrefix="지필 항목" />}
       {subject.items.length > 0 && <ItemTable title="수행평가" items={subject.items} plan={plan} namePrefix="수행평가 항목" />}
       {subject.exams.length === 0 && subject.items.length === 0 && <p className={styles.emptySmall}>세부 평가 항목은 아직 확정되지 않았어요.</p>}
-      {subject.others.length > 0 && <p className={styles.emptySmall}>그 밖에 확정된 정보 {subject.others.length}건이 있어요. 원문에서 함께 확인해 주세요.</p>}
+      {subject.others.length > 0 && <p className={styles.emptySmall}>그 밖에 확정된 정보 {subject.others.length}건이 있어요.</p>}
     </article>
   )
 }
@@ -292,7 +292,7 @@ function OfficialSourcesSection({ academicYear, semester }: { academicYear: numb
       <h2 id="official-sources" className={styles.sectionTitle}>
         학교알리미 평가계획서 원본
       </h2>
-      <p className={styles.officialCaption}>학교가 학교알리미에 공개한 원문 파일이에요. 아래 평가 정보와 달리 선생님 확인 전에도 볼 수 있어요.</p>
+      <p className={styles.officialCaption}>학교가 학교알리미에 공개한 원문 파일이에요.</p>
       <OfficialEnsureNotice ensure={ensure} />
       {query.status === 'error' && query.error ? (
         <ErrorState title="원본 정보를 불러오지 못했어요" error={query.error} onRetry={query.retry} />

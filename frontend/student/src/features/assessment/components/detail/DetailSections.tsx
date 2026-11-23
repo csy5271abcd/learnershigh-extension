@@ -83,7 +83,6 @@ export function NoticeSection({ assessmentId, assessmentTitle }: { assessmentId:
         icon={<ImageIcon size={15} />}
         title="안내문·첨부"
         count={files.data ? files.data.items.length : undefined}
-        description="선생님이 준 안내문 사진·PDF를 올려 두면 저장돼요. 나만 볼 수 있어요."
         action={
           !readOnly && (
             <button type="button" className={styles.outlineButton} disabled={busy !== null} onClick={() => inputRef.current?.click()} data-testid="notice-add">
@@ -114,7 +113,7 @@ export function NoticeSection({ assessmentId, assessmentTitle }: { assessmentId:
         <LoadingRows rows={1} label="안내문을 불러오는 중" />
       ) : files.data.items.length === 0 ? (
         <p className={styles.empty} data-testid="notice-empty">
-          등록된 안내문이 없어요. PDF·JPG·PNG·GIF·WEBP 파일을 올릴 수 있어요.
+          등록된 안내문이 없어요.
         </p>
       ) : (
         <ul className={styles.noticeGrid} aria-label={`${assessmentTitle} 안내문 목록`}>
@@ -184,7 +183,7 @@ export function OfficialSourceSection({ context }: { context: AcademicContext | 
         id={headingId}
         icon={<BookIcon size={15} />}
         title="평가계획서 원본"
-        description="학교알리미에 학교가 공식 공개한 원문은 선생님 확인 전에도 볼 수 있어요. 내 학교·학년도·학년·학기로 자동으로 찾아요."
+        description="학교알리미에 학교가 공식 공개한 원문은 선생님 확인 전에도 볼 수 있어요."
       />
       <OfficialEnsureNotice ensure={ensure} />
       {!context ? (
@@ -271,7 +270,7 @@ export function OfficialCriteriaSection({ query, open, onToggle }: { query: Quer
         id={headingId}
         icon={<ClipboardIcon size={15} />}
         title="평가 기준"
-        description="선생님이 확정해 공개한 평가 기준만 보여요. 바꿀 수 없고, 학교 안내와 다르면 학교 안내를 따르세요."
+        description="선생님이 확정해 공개한 평가 기준만 보여요."
         action={
           <button type="button" className={styles.textButton} aria-expanded={open} onClick={onToggle}>
             {open ? '접기' : '펼치기'}

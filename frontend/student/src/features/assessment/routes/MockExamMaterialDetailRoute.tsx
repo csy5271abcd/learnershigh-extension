@@ -43,7 +43,7 @@ export function MockExamMaterialDetailRoute() {
       <>
         {back}
         {material.error.code === 'MOCK_EXAM_MATERIAL_NOT_FOUND' ? (
-          <EmptyState title="모의고사 자료를 찾을 수 없어요" description="목록에 없는 자료예요." action={<Link to={mockExamMaterialsPath}>모의고사 목록으로 가기</Link>} />
+          <EmptyState title="모의고사 자료를 찾을 수 없어요" action={<Link to={mockExamMaterialsPath}>모의고사 목록으로 가기</Link>} />
         ) : (
           <ErrorState title="탐구 소재를 불러오지 못했어요" error={material.error} onRetry={material.retry} />
         )}
@@ -97,7 +97,7 @@ export function MockExamMaterialDetailRoute() {
           </dl>
           <p className={styles.sourceLine}>
             <InfoIcon size={13} />
-            지문은 시험 자료에서 발췌한 원문이에요. 표·그림은 원본 시험 PDF에서 확인하세요. 아래 추천 내용은 LearnersHigh 학습용 제안이며 출제기관 공식 해설이 아니에요.
+            지문은 시험 자료에서 발췌한 원문이에요. 아래 추천 내용은 LearnersHigh 학습용 제안이며 출제기관 공식 해설이 아니에요.
           </p>
         </section>
       ) : (

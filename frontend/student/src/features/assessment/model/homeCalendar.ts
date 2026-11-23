@@ -126,7 +126,7 @@ export function monthCalendar(input: {
       kind: 'plan',
       subject: item.entry.subjectName,
       title: planTitle(item.entry),
-      meta: `원문: ${whenLabel(item.entry)} · 달력 개인 임시 배치 · 공식 날짜 미확정`,
+      meta: `원문: ${whenLabel(item.entry)} · 날짜 미정`,
       tentative: item.placement,
     })
   }

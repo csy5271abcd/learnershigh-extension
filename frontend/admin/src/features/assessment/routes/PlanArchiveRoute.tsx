@@ -3,7 +3,7 @@ import { navigate } from '../../../app/adminLocation.ts'
 import { downloadPlanRevision, getPlanArchiveDetail } from '../api/assessmentAdminApi.ts'
 import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, ArchiveItem, ArchiveLocator, ArchiveSubject, PlanArchiveDetail, TeachingPlanRowCandidate } from '../api/types.ts'
 import { RemoteView } from '../components/AdminParts.tsx'
-import { Modal, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
+import { Modal, entryFromRow, precisionLabel, semesterMonths, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
 import { PlanOriginalViewer } from '../components/PlanOriginalViewer.tsx'
 import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
 import { dateLabel } from '../model/adminFormat.ts'
@@ -138,7 +138,7 @@ export function DocumentDetail({
           data.subjects.length === 0 ? (
             <div className={styles.empty}>
               <strong>{data.analysisStatus === 'NOT_REQUESTED' ? '아직 분석하지 않은 문서예요' : '분석 결과에 과목이 없어요'}</strong>
-              <span>원문은 &lsquo;원문 보기&rsquo;로 확인할 수 있어요. 분석은 &lsquo;분석&rsquo; 탭에서 실행해요.</span>
+              <span>원문은 &lsquo;원문 보기&rsquo;로 확인할 수 있어요.</span>
             </div>
           ) : (
             <DetailBody data={data} subjectIndex={Math.min(subjectIndex, data.subjects.length - 1)} tab={tab} itemIndex={itemIndex} setParams={setParams} onSource={openSource} academicYear={plan.academicYear} semester={plan.semester} />
@@ -201,7 +201,7 @@ function DetailBody({
     <div className={styles.body}>
       {/* [06] A27-UX: 과목 칩 띠를 없앴다 — 분석 결과 조회 화면 위의 검색형 단일 과목 선택(ResultSubjectPicker)이 대신한다 */}
       <div className={styles.legend}>
-        <span>{data.reviewStatus === 'CONFIRMED' ? '관리자가 확정한 문서예요.' : '아직 확정 전이에요. 값은 분석 후보예요.'}</span>
+        <span>{data.reviewStatus === 'CONFIRMED' ? '관리자가 확정한 문서예요.' : '아직 확정 전이에요.'}</span>
         <span className={styles.legendItems} aria-label="값 표시">
           <em className={styles.badgeDone}>확정</em> 관리자 확정 <em className={styles.badge}>후보</em> 미확정 분석값
         </span>
@@ -417,7 +417,7 @@ function TeachingPanel({ subject, subjectIndex, data, onSource, academicYear, se
     )
   }
   const entries = rows.map(({ row, key }) => ({ entry: entryFromRow(row, { id: key, subjectName: subject.subjectName, status: confirmed ? 'CONFIRMED' : 'CANDIDATE', academicYear }), row }))
-  const order = semester === 1 ? [3, 4, 5, 6, 7, 8] : [9, 10, 11, 12, 1, 2]
+  const order = semesterMonths(semester)
   const groups = new Map<string, { entry: TeachingPlanEntry; row: TeachingPlanRowCandidate }[]>()
   for (const item of entries) {
     const month = item.entry.month
@@ -427,7 +427,7 @@ function TeachingPanel({ subject, subjectIndex, data, onSource, academicYear, se
   const sortedLabels = [...groups.keys()].sort((a, b) => rank(a, order) - rank(b, order))
   return (
     <div data-testid="archive-teaching">
-      <p className={styles.statusLine}>{confirmed ? '관리자가 확정한 운영계획이에요(제외한 행은 보이지 않아요).' : '아직 확정되지 않은 분석 후보예요. 확정은 검토 화면에서 해요.'}</p>
+      <p className={styles.statusLine}>{confirmed ? '관리자가 확정한 운영계획이에요(제외한 행은 보이지 않아요).' : '아직 확정되지 않은 분석 후보예요.'}</p>
       {sortedLabels.map((label) => (
         <section key={label} className={styles.monthGroup} aria-label={label}>
           <h4 className={styles.monthTitle}>{label}</h4>
@@ -536,7 +536,7 @@ function OverviewPanel({ subject, stateOf, onSource }: { subject: ArchiveSubject
           ))}
         </ul>
       )}
-      <p className={styles.footnote}>이 학년도 문서의 설명이에요. 다른 학년도와 비교하지 않아요.</p>
+      <p className={styles.footnote}>이 학년도 문서의 설명이에요.</p>
     </div>
   )
 }

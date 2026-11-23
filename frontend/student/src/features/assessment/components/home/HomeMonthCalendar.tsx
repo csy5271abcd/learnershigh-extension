@@ -51,12 +51,12 @@ export function HomeMonthCalendar({
   const position = months.indexOf(month)
   const readOnly = isAssessmentReadOnlyView()
   const [placements, setPlacements] = useState<Record<string, string>>({})
-  const [placementState, setPlacementState] = useState<'loading' | 'ready' | 'error' | 'hidden'>(readOnly ? 'hidden' : 'loading')
+  const [placementState, setPlacementState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [placementError, setPlacementError] = useState<string | null>(null)
   const [dragging, setDragging] = useState<TentativePlacement | null>(null)
   const saveSeq = useRef<Record<string, number>>({})
+  // A28-36: 관리자 읽기 전용 보기도 학생과 같은 날짜로 보이게 조회한다(옮기기·초기화는 학생 본인만)
   useEffect(() => {
-    if (readOnly) return
     let cancelled = false
     listCalendarPlacements(academicYear, semester).then(
       (result) => {
@@ -69,8 +69,8 @@ export function HomeMonthCalendar({
     return () => {
       cancelled = true
     }
-  }, [academicYear, semester, readOnly])
-  const canMove = placementState === 'ready'
+  }, [academicYear, semester])
+  const canMove = placementState === 'ready' && !readOnly
   /** 낙관적 이동 → 저장 → 실패하면 되돌림(그 사이 다시 옮겼으면 최신 것을 남긴다) */
   const move = (target: TentativePlacement, iso: string) => {
     if (!canMove || iso < target.rangeFrom || iso > target.rangeTo || iso === target.date) return
@@ -181,10 +181,6 @@ export function HomeMonthCalendar({
           <span className={styles.kindBadge} data-tone="plan">수업</span>
           학교 운영계획
         </li>
-        <li>
-          <span className={styles.tentativeSample} aria-hidden="true" />
-          점선 = 임시 배치(공식 날짜 아님 · 범위 안 이동)
-        </li>
       </ul>
       {placementState === 'error' && <p className={styles.inlineError}>내 배치를 불러오지 못해 기본 배치로 보여요.</p>}
       {placementError && (
@@ -237,7 +233,7 @@ export function HomeMonthCalendar({
                   className={styles.event}
                   data-kind={event.kind}
                   data-tentative={event.tentative ? 'true' : undefined}
-                  title={`${event.subject} · ${kindText[event.kind]} · ${event.title}${event.tentative ? ' · 임시 배치' : ''}`}
+                  title={`${event.subject} · ${kindText[event.kind]} · ${event.title}${event.tentative ? ' · 날짜 미정' : ''}`}
                   draggable={Boolean(event.tentative && canMove)}
                   onDragStart={(dragEvent) => {
                     if (!event.tentative) return

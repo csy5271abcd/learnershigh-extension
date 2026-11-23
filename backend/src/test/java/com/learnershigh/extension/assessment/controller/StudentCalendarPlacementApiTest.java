@@ -115,6 +115,46 @@ class StudentCalendarPlacementApiTest {
     }
 
     @Test
+    void A28_36_관리자_학생_화면_보기는_같은_배치와_학기_목록을_읽기만_하고_담당_밖_학생은_404() throws Exception {
+        mvc.perform(asStudent(put(PATH), "stu_006").contentType(MediaType.APPLICATION_JSON)
+                        .content(body(KEY, "2026-11-10", "2026-11-08", "2026-11-14")))
+                .andExpect(status().isOk());
+        String view = "/api/admin/assessment/students/stu_006/student-view";
+        String mine = mvc.perform(asStudent(get(PATH).param("academicYear", "2026").param("semester", "2"), "stu_006"))
+                .andReturn().getResponse().getContentAsString();
+        String preview = mvc.perform(asAdmin(get(view + "/calendar-placements").param("academicYear", "2026").param("semester", "2"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(preview).isEqualTo(mine);
+        String terms = mvc.perform(asStudent(get("/api/student/assessment/academic-terms"), "stu_006"))
+                .andReturn().getResponse().getContentAsString();
+        mvc.perform(asAdmin(get(view + "/academic-terms"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo(terms));
+        // 담당 지점 밖 관리자: 404 (학생 존재 여부도 드러내지 않음)
+        mvc.perform(asAdmin(get(view + "/calendar-placements").param("academicYear", "2026").param("semester", "2"), "adm_bundang"))
+                .andExpect(status().isNotFound());
+        mvc.perform(asAdmin(get(view + "/academic-terms"), "adm_bundang")).andExpect(status().isNotFound());
+        // 현재 학기도 같은 값(학생 화면과 같은 학기로 열림) · 담당 밖 404
+        String term = mvc.perform(asStudent(get("/api/student/assessment/current-term"), "stu_006")).andReturn().getResponse().getContentAsString();
+        mvc.perform(asAdmin(get(view + "/current-term"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo(term));
+        mvc.perform(asAdmin(get(view + "/current-term"), "adm_bundang")).andExpect(status().isNotFound());
+        // 미리보기 경로에는 쓰기가 없다 — 관리자가 보내도 저장값 그대로
+        mvc.perform(asAdmin(put(view + "/calendar-placements"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(body(KEY, "2026-11-12", "2026-11-08", "2026-11-14")))
+                .andExpect(status().is4xxClientError());
+        mvc.perform(asAdmin(delete(view + "/calendar-placements").param("academicYear", "2026").param("semester", "2"), "adm_gangnam"))
+                .andExpect(status().is4xxClientError());
+        // 관리자가 학생 경로를 직접 부르면 학생 인증이 없어 401(학생 API 우회 없음)
+        mvc.perform(asAdmin(put(PATH), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                        .content(body(KEY, "2026-11-12", "2026-11-08", "2026-11-14")))
+                .andExpect(status().isUnauthorized());
+        assertThat(jdbc.queryForObject("select display_date from assessment_student_calendar_placement", String.class)).isEqualTo("2026-11-10");
+    }
+
+    @Test
     void 인증_없으면_401_관리자_경로는_없다() throws Exception {
         mvc.perform(get(PATH).param("academicYear", "2026").param("semester", "2")).andExpect(status().isUnauthorized());
         mvc.perform(put(PATH).contentType(MediaType.APPLICATION_JSON).content(body(KEY, "2026-11-10", "2026-11-08", "2026-11-14")))

@@ -150,7 +150,7 @@ export function OfficialViewSelectedNotice({ ensure }: { ensure: StudentOfficial
   return (
     <div>
       <p className={styles.notice} role="status" data-testid="official-view-selected">
-        내가 고른 학교의 공식 평가계획서 원본이에요(선생님 확인 전). 선생님이 정리한 평가 정보는 확정된 것만 보여요.
+        내가 고른 학교의 공식 평가계획서 원본이에요(선생님 확인 전).
       </p>
       <OfficialSchoolPicker ensure={ensure} />
     </div>

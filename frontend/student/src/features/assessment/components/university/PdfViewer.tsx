@@ -32,8 +32,8 @@ const errorText: Record<'SOURCE_FOLDER' | 'MISSING' | 'CHANGED' | 'CORRUPT' | 'U
   // A27-UX: 실행 환경 설정 안내(ASSESSMENT_UNIVERSITY_EXAM_ROOT)는 devPanel에서만 '원인'으로 보인다
   SOURCE_FOLDER: { title: '원본 PDF를 지금 볼 수 없어요', body: '원본 자료를 확인할 수 없어요. 문항 정보와 다른 자료는 계속 볼 수 있어요.' },
   MISSING: { title: '원본 PDF 파일을 찾을 수 없어요', body: '목록에는 있지만 원본 파일을 확인할 수 없어요. 다른 자료는 계속 볼 수 있어요.' },
-  CHANGED: { title: '원본 파일이 목록과 달라요', body: '파일 내용이 바뀌어 문항 위치가 맞지 않을 수 있어 열지 않았어요. 자료 목록을 다시 확인해야 해요.' },
-  CORRUPT: { title: 'PDF를 열 수 없어요', body: '파일이 손상되었거나 PDF 형식이 아니에요. 다른 자료는 계속 볼 수 있어요.' },
+  CHANGED: { title: '원본 파일이 목록과 달라요', body: '파일 내용이 바뀌어 문항 위치가 맞지 않을 수 있어 열지 않았어요.' },
+  CORRUPT: { title: 'PDF를 열 수 없어요', body: '파일이 손상되었거나 PDF 형식이 아니에요.' },
   UNAVAILABLE: { title: 'PDF를 불러오지 못했어요', body: '잠시 뒤 다시 시도해 주세요.' },
 }
 

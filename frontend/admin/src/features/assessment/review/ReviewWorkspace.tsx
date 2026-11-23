@@ -49,7 +49,8 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const confirmed = view.reviewStatus === 'CONFIRMED'
   const draft = useServerDraft(view)
   const { decisions, subjectIds, sync } = draft
-  const [step, setStep] = useState<StepId>('overview')
+  // A28-36: ?step=confirm 으로 들어오면 최종 확정 단계부터(재분석 뒤 '검토하기' · 결과 화면 '월별 운영계획 승인')
+  const [step, setStep] = useState<StepId>(() => (new URLSearchParams(window.location.search).get('step') === 'confirm' ? 'confirm' : 'overview'))
   // PR #18 통합: 처음 여는 과목은 이 문서 학년 과목(합본 문서에서 다른 학년 과목은 A27 과목 제외·학년 충돌 안내로 다룬다)
   const [selection, setSelection] = useState<PerformanceSelection>(() => {
     const own = view.subjects.findIndex((_, index) => !gradeConflict(view.subjectGrades?.[index], view.slot?.grade))
@@ -338,7 +339,16 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               />
             )}
             {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onDecideKey={draft.setDecision} onJump={jump} readOnly={!editable || !isPdf} />}
-            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} subjectIds={subjectIds} excludedSubjects={excluded} onGoSubjects={() => go('subjects')} />}
+            {step === 'teaching' && (
+              <TeachingPlanStep
+                view={view}
+                onJump={jump}
+                subjectIds={subjectIds}
+                excludedSubjects={excluded}
+                onGoSubjects={() => go('subjects')}
+                onFinalStep={serverOriginal ? () => go('confirm') : undefined}
+              />
+            )}
             {step === 'confirm' && (
               <ConfirmStep
                 view={view}
@@ -529,7 +539,7 @@ export function DraftBanner({ state }: { state: ReturnType<typeof useServerDraft
     return (
       <div className={styles.banner} role="status" data-testid="review-draft-stale">
         <span>
-          분석 결과가 새로 바뀌었어요. {previous ? `이전 결과의 초안(${previous.decisionCount}개)은 보존되어 있지만 ` : ''}새 결과에는 적용하지 않아요. 새 결과를 다시 검토해 주세요.
+          분석 결과가 새로 바뀌었어요. {previous ? `이전 결과의 초안(${previous.decisionCount}개)은 보존되어 있지만 ` : ''}새 결과에는 적용하지 않아요.
         </span>
         {sync.kind === 'stale' && (
           <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => window.location.reload()}>

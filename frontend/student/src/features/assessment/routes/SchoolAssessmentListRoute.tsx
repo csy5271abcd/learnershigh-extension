@@ -570,7 +570,6 @@ function ListEmpty({ hasFilter, important, query, status, subject, onReset, onAd
     return (
       <EmptyState
         title={`'${query}'에 맞는 수행평가가 없어요`}
-        description="검색어를 바꾸거나 필터를 초기화해 보세요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={onReset}>
             검색·필터 초기화

@@ -101,7 +101,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
           </p>
         )}
         {!subject ? (
-          <p className={styles.muted}>분석기가 인식한 과목이 없어요. 원문을 직접 확인해 주세요.</p>
+          <p className={styles.muted}>분석기가 인식한 과목이 없어요.</p>
         ) : (
           <>
             <p className={styles.crumb} data-testid="performance-crumb">
@@ -133,7 +133,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
             </div>
             {filter === 'attention' && (
               <p className={styles.tiny} data-testid="review-filter-hint">
-                값이나 원문 위치가 없어 최종 승인에 넣을 수 없는 항목이에요. 원문에서 확인해 값을 고치거나 '원문에 없음'으로 표시해 주세요. 나머지 항목은 기본 승인 대상이에요.
+                값이나 원문 위치가 없어 최종 승인에 넣을 수 없는 항목이에요. 원문에서 확인해 값을 고치거나 '원문에 없음'으로 표시해 주세요.
               </p>
             )}
             {next && (
@@ -145,7 +145,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
             <ul className={styles.rows} style={{ marginTop: 16 }} data-testid="review-field-list">
               {current.length === 0 ? (
                 <li className={styles.row}>
-                  <span className={styles.muted}>확인할 값이 없어요. 원문을 직접 확인해 주세요.</span>
+                  <span className={styles.muted}>확인할 값이 없어요.</span>
                 </li>
               ) : shown.length === 0 ? (
                 <li className={styles.row}>
@@ -197,7 +197,7 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                               </span>
                             )}
                             {criterion.linkReview === 'REVIEW_REQUIRED' && (
-                              <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요. 원문에서 같은 평가의 채점표인지 확인해 주세요.">
+                              <div className={styles.statusText} data-tone="warning" data-testid="review-rubric-link-review" title="분석기가 소제목·배치 같은 간접 근거로 이 채점표를 이 평가에 연결했어요.">
                                 연결 확인 필요 · 간접 근거
                               </div>
                             )}

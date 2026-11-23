@@ -19,7 +19,7 @@ export function MockExamPassage({ passage, examTitle, questionLabel, testId = 'p
           <p>
             {mockExamPassageSource === 'NONE'
               ? devPanelEnabled()
-                ? '이 실행 환경에 원문 지문 파일이 연결되지 않았어요(배포 권한 확인 전이라 저장소에 없음). 실행 가이드의 ASSESSMENT_MOCK_EXAM_PASSAGES_FILE 설정을 확인해 주세요.'
+                ? '이 실행 환경에 원문 지문 파일이 연결되지 않았어요(배포 권한 확인 전이라 저장소에 없음).'
                 : '원문 지문을 지금 확인할 수 없어요.'
               : '이 자료에는 등록된 원문 지문이 없어요.'}{' '}
             기본 정보와 출처({examTitle} {questionLabel})는 확인할 수 있어요.

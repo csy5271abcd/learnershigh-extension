@@ -131,7 +131,7 @@ export function AssessmentHomeRoute() {
             className={styles.iconButton}
             aria-label="도움말"
             aria-disabled="true"
-            onClick={() => notify('info', '도움말은 아직 준비 중이에요. 왼쪽 메뉴의 수행평가 꿀팁을 참고해 주세요.')}
+            onClick={() => notify('info', '도움말은 아직 준비 중이에요.')}
           >
             <HelpIcon size={20} />
           </button>

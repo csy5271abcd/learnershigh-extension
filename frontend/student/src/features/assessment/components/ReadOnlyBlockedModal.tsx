@@ -7,7 +7,7 @@ export function ReadOnlyBlockedModal({ onClose }: { onClose: () => void }) {
   return (
     <Modal
       title="읽기 전용 보기예요"
-      description="관리자는 학생의 Assessment 기록을 열람만 할 수 있어요. 등록·수정·업로드는 학생 본인 화면에서만 할 수 있어요."
+      description="관리자는 학생의 Assessment 기록을 열람만 할 수 있어요."
       compact
       onRequestClose={onClose}
       footer={

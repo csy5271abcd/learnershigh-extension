@@ -63,6 +63,8 @@ export const paths = {
   /** page: 원문 근거 쪽 (검토 Workspace PDF Viewer를 그 쪽으로 연다) */
   planReview: (planId: string, revisionId: string, page?: number) =>
     `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}${page ? `?page=${page}` : ''}`,
+  /** A28-36: 검토 화면을 마지막 '최종 확정' 단계로 바로 연다(재분석 뒤 · 월별 운영계획 승인) */
+  planReviewFinal: (planId: string, revisionId: string) => `${assessmentAdminPath}/evaluation-plans/${enc(planId)}/revisions/${enc(revisionId)}?step=confirm`,
   tasks: `${assessmentAdminPath}/content/tasks`,
   taskNew: `${assessmentAdminPath}/content/tasks/new`,
   task: (catalogTaskId: string) => `${assessmentAdminPath}/content/tasks/${enc(catalogTaskId)}`,

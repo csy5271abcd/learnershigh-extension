@@ -70,6 +70,7 @@ export function TeachingPlanStep({
   subjectIds: evaluationSubjectIds,
   excludedSubjects,
   onGoSubjects,
+  onFinalStep,
 }: {
   view: EvaluationPlanAnalysisView
   onJump: OnJump
@@ -79,6 +80,8 @@ export function TeachingPlanStep({
   excludedSubjects?: ReadonlySet<number>
   /** 2단계 과목 확인으로 이동 (과목 연결을 바꿀 때) */
   onGoSubjects?: () => void
+  /** A28-36: 학교알리미 원본처럼 '최종 확정' 단계의 최종 승인이 운영계획까지 함께 확정하면, 이 단계에는 따로 승인 버튼을 두지 않고 그 단계로 안내 */
+  onFinalStep?: () => void
 }) {
   const slot = view.slot
   const allCandidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
@@ -399,7 +402,7 @@ export function TeachingPlanStep({
                   </ul>
                 )}
                 {rows.length === 0 ? (
-                  <p className={styles.muted}>{subject.rows === null ? '이 과목 결과에 운영계획이 담겨 있지 않아요.' : '운영계획 행이 없어요. 위 상태를 확인해 주세요.'}</p>
+                  <p className={styles.muted}>{subject.rows === null ? '이 과목 결과에 운영계획이 담겨 있지 않아요.' : '운영계획 행이 없어요.'}</p>
                 ) : (
                   <table className={styles.table}>
                     <thead>
@@ -528,7 +531,15 @@ export function TeachingPlanStep({
         </div>
       )}
 
-      {refs.length > 0 && !lockedReview && (
+      {refs.length > 0 && !lockedReview && onFinalStep && (
+        <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+          <button type="button" className={styles.buttonDark} onClick={onFinalStep} data-testid="teaching-plan-go-final">
+            최종 확정으로 (공개 {published}행)
+          </button>
+          <span className={styles.tiny}>평가 정보와 함께 최종 승인</span>
+        </div>
+      )}
+      {refs.length > 0 && !lockedReview && !onFinalStep && (
         <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <button type="button" className={styles.buttonDark} disabled={!canConfirm} onClick={() => void submit()} data-testid="teaching-plan-confirm" aria-busy={submitting}>
             {submitting ? '승인하는 중…' : reReview ? `월별 운영계획 다시 승인 (공개 ${published}행)` : `월별 운영계획 최종 승인 (공개 ${published}행)`}

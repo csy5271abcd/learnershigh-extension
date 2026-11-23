@@ -13,7 +13,7 @@ export function EvidenceLinks({
   onJump,
   max = 3,
   emptyText = '근거 없음',
-  emptyReason = '분석 결과에 이 값의 원문 위치가 없어요. 원문에서 직접 확인해 주세요.',
+  emptyReason = '분석 결과에 이 값의 원문 위치가 없어요.',
   pageLabel = (page, index) => (index === 0 ? `원문 ${page}쪽` : `${page}쪽`),
   buttonClassName = styles.page,
 }: {

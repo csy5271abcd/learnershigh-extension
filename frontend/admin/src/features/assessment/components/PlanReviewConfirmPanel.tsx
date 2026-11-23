@@ -114,8 +114,8 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
   const blockers: string[] = []
   if (!data.analysisId) blockers.push('받은 분석 결과가 없어요.')
   if (data.analysisStatus !== 'REVIEW_REQUIRED' && !isPartial) blockers.push(`검토할 수 있는 분석 상태가 아니에요 (${data.analysisStatus}).`)
-  if (isPartial && !partialAcknowledged) blockers.push('부분 분석 결과예요. 빠진 과목·항목은 확정하지 않는다는 확인 체크가 필요해요.')
-  if (data.reviewStatus === 'CONFIRMED') blockers.push('이미 확인 완료된 문서예요. 재검토(이전 확정 대체) 정책이 정해지지 않아 이 화면에서 추가 확정하지 않아요.')
+  if (isPartial && !partialAcknowledged) blockers.push('부분 분석 결과예요.')
+  if (data.reviewStatus === 'CONFIRMED') blockers.push('이미 확인 완료된 문서예요.')
   if (!checksum) blockers.push('서버에 원본 checksum이 없어 원본 대조를 할 수 없어요.')
   else if (hash.status !== 'match') blockers.push(`원본 ${documentFormat} 대조가 필요해요: 갖고 있는 학교 원본 파일을 골라 서버 checksum과 같은지 확인해 주세요.`)
   if (checked.length === 0) blockers.push('확인할 필드를 하나 이상 골라 주세요.')
@@ -250,7 +250,7 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
 
             {sub === 1 && (
               <div className={styles.field}>
-                <p className={styles.hint}>AI가 찾은 과목마다 이 문서 학년·학기의 학업 과목을 과목명으로 찾아 골라 주세요. 이름이 비슷해도 자동으로 고르지 않아요.</p>
+                <p className={styles.hint}>AI가 찾은 과목마다 이 문서 학년·학기의 학업 과목을 과목명으로 찾아 골라 주세요.</p>
                 {subjectOptions === 'error' || (subjectOptions !== null && !subjectOptions.available) ? (
                   <p className={styles.hint} role="alert" data-testid="review-subjects-unavailable">
                     이 학년·학기의 학업 과목 목록을 불러오지 못해 과목을 연결할 수 없어요. 새로고침해 다시 시도해 주세요.
@@ -279,7 +279,7 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
             {sub === 2 && (
               <div className={styles.field}>
                 <p className={styles.hint}>
-                  필드마다 원문과 대조한 뒤 &lsquo;확정 대상에 넣기&rsquo;를 눌러요. 값을 고칠 수 있고, 빈 값은 &lsquo;원문에 없음 확인&rsquo;이에요. 여러 필드를 한 번에 확정 대상으로 넣는 기능은 두지 않아요.
+                  필드마다 원문과 대조한 뒤 &lsquo;확정 대상에 넣기&rsquo;를 눌러요. 값을 고칠 수 있고, 빈 값은 &lsquo;원문에 없음 확인&rsquo;이에요.
                 </p>
                 <div className={review.quizStats}>
                   <span>
@@ -390,7 +390,7 @@ export function PlanReviewConfirmPanel({ data, onConfirmed }: { data: Evaluation
                 {isPartial && (
                   <label className={review.quizCheck}>
                     <input type="checkbox" checked={partialAcknowledged} data-testid="review-partial-ack" onChange={(event) => setPartialAcknowledged(event.target.checked)} />
-                    부분 분석 결과임을 확인했어요. 고른 값만 원문과 대조해 확정하고, 분석되지 않은 과목·항목은 확정하지 않아요.
+                    부분 분석 결과임을 확인했어요.
                   </label>
                 )}
                 {!isPdf && (

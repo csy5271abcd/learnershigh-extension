@@ -14,7 +14,7 @@ async function goMonth(calendar: Locator, month: number) {
     const heading = (await calendar.getByRole('heading').first().textContent()) ?? ''
     const current = Number(heading.match(/(\d+)월/)?.[1])
     if (current === month) return
-    const order = [9, 10, 11, 12, 1, 2]
+    const order = [8, 9, 10, 11, 12, 1]
     await calendar.getByRole('button', { name: order.indexOf(current) > order.indexOf(month) ? '이전 달' : '다음 달' }).click()
   }
   throw new Error(`${month}월로 가지 못함`)
@@ -45,10 +45,13 @@ test('[A28-32·33·34] 임시 배치: 범위 안 이동 → 저장 → 새로고
   const before = (await cellOf(page, key).getAttribute('data-date')) as string
   expect(before).toMatch(/^2026-11-/)
 
-  // 상세: 원문 시기 · 개인 임시 배치 · 공식 날짜 미확정, 유형 배지는 작은 pill(A28-32)
+  // 상세: 원문 시기 · 날짜 미정(A28-36: '임시 배치'·점선 없음), 유형 배지는 작은 pill(A28-32)
+  await expect(calendar).not.toContainText('임시')
+  await expect(calendar.locator(`[data-testid="home-calendar-tentative"]`).first()).toHaveCSS('outline-style', 'none')
   await cellOf(page, key).click()
   const item = page.getByTestId('home-calendar-day-detail').locator(`li[data-source-key="${key}"]`)
-  await expect(item).toContainText('원문: 11월 · 달력 개인 임시 배치 · 공식 날짜 미확정')
+  await expect(item).toContainText('원문: 11월 · 날짜 미정')
+  await expect(item).not.toContainText('임시')
   const badge = item.locator('[data-tone="plan"]').first()
   const box = await badge.boundingBox()
   expect(box?.width ?? 999, '유형 배지는 글자 폭 pill').toBeLessThan(60)

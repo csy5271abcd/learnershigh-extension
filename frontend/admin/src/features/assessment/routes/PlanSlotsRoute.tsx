@@ -151,7 +151,7 @@ export function PlanSlotsRoute({ search }: { search: URLSearchParams }) {
                     )}
                     {plans.state.status === 'success' && docs.length === 0 && (
                       <p className={slots.emptyHint} data-testid="plan-slot-empty">
-                        이 학기 원본이 없어요. &lsquo;+ 등록&rsquo;으로 학교 평가계획서 파일(PDF·HWP·HWPX)을 올려 주세요.
+                        이 학기 원본이 없어요.
                       </p>
                     )}
                     {docs.map((plan) => {

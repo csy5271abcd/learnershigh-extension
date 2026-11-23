@@ -114,7 +114,6 @@ export function ResourceLibraryRoute() {
         <div className={`${enrichmentStyles.content} ${styles.area}`}>
           <header className={enrichmentStyles.header}>
             <h1 className={enrichmentStyles.title}>자료함</h1>
-            <p className={enrichmentStyles.subtitle}>조사한 기사, 논문, 도서, 영상과 파일을 모아 두고 노트에 연결해요.</p>
           </header>
 
           <section className={styles.recoCard} aria-labelledby="reco-heading">
@@ -160,7 +159,7 @@ export function ResourceLibraryRoute() {
                 <p className={styles.recoHint} data-testid="reco-basis">
                   {'basis' in recommendations.data && recommendations.data.basis === 'general'
                     ? `'${subjectName ?? '이 과목'}'에 맞춘 추천 영역이 없어 어느 과목에나 쓰는 일반 자료원(도서관·논문·통계)을 보여줘요.`
-                    : `${'areaLabel' in recommendations.data && recommendations.data.areaLabel ? `${recommendations.data.areaLabel} 영역 · ` : ''}검토한 자료원 목록이에요(AI 추천 아님). 실제로 열람했는지는 표시하지 않아요.`}
+                    : `${'areaLabel' in recommendations.data && recommendations.data.areaLabel ? `${recommendations.data.areaLabel} 영역 · ` : ''}검토한 자료원 목록이에요(AI 추천 아님).`}
                 </p>
                 <div className={enrichmentStyles.chips} role="group" aria-label="추천 자료원 유형">
                   <button type="button" className={enrichmentStyles.chip} aria-pressed={!recoCategory} onClick={() => setRecoCategory(undefined)}>
@@ -210,7 +209,7 @@ export function ResourceLibraryRoute() {
                         </p>
                       )}
                       <p className={styles.recoHint}>
-                        탐색 후보 출처예요. 이 서비스에서 직접 찾아본 뒤, 찾은 자료를 내 자료로 추가해 주세요. 유료·로그인이 필요한 자료가 있을 수 있어요.
+                        탐색 후보 출처예요. 유료·로그인이 필요한 자료가 있을 수 있어요.
                       </p>
                       <button type="button" className={enrichmentStyles.textLink} data-testid="reco-add" onClick={() => setAddPrefill({ sourceName: source.sourceName })}>
                         이 자료원에서 찾은 자료 추가
@@ -246,7 +245,6 @@ export function ResourceLibraryRoute() {
                 {hasFilter ? (
                   <EmptyState
                     title="조건에 맞는 자료가 없어요"
-                    description="검색어나 자료 유형을 바꿔 보세요."
                     action={
                       <button
                         type="button"

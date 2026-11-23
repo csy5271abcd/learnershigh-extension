@@ -186,7 +186,6 @@ export function StaticLibraryDetail({ catalogTaskId }: { catalogTaskId: string }
                   </li>
                 ))}
               </ol>
-              <p className={styles.hint}>순서는 참고용이에요.</p>
             </Section>
           )}
           <Section title="출처">
@@ -690,7 +689,7 @@ export function RetiredContentAction({ backTo, backLabel }: { backTo: string; ba
     <div className={styles.body} data-testid="retired-content-action">
       <EmptyState
         title="심화 탐구 콘텐츠는 읽기 전용이에요"
-        description="콘텐츠 등록·수정·공개 전환·Task 만들기는 더 이상 제공하지 않아요. 콘텐츠는 Student 심화 탐구와 같은 정적 자료로 관리돼요."
+        description="콘텐츠 등록·수정·공개 전환·Task 만들기는 더 이상 제공하지 않아요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={() => navigate(backTo)}>
             {backLabel}
@@ -706,7 +705,6 @@ function NotFound({ title, backTo, backLabel }: { title: string; backTo: string;
     <div className={styles.body} data-testid="static-not-found">
       <EmptyState
         title={title}
-        description="목록에 없는 자료예요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={() => navigate(backTo)}>
             {backLabel}

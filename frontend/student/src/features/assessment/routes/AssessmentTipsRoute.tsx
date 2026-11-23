@@ -45,7 +45,6 @@ export function AssessmentTipsRoute() {
               resolveAction={resolveAction}
             />
           </div>
-          <p className={styles.intro}>"탐구 노트 열기"는 학교 수행평가 목록으로 이동해요. 과제를 고르면 그 과제의 노트가 열려요.</p>
           <div className={enrichmentStyles.notices}>
             <MockDataNotice />
           </div>

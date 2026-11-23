@@ -390,6 +390,26 @@ class TeachingPlanReviewApiTest {
     }
 
     @Test
+    void A28_36_관리자_학생_화면_보기의_운영계획은_학생_응답과_같고_담당_밖은_404() throws Exception {
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isOk());
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String preview = mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(preview).isEqualTo(student);
+        assertThat(preview).doesNotContain("decisionBasis").doesNotContain("candidate");
+        mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_bundang"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void 인증_없는_학생_요청은_401() throws Exception {
         mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
         mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());

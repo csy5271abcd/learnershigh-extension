@@ -3,7 +3,8 @@
 // - 원문에 없는 날짜를 만들지 않는다: 주차는 주차 줄, 월은 월 줄, 학기 누적 주차(TERM_WEEK)는 학사력(개학일)이 없으므로 날짜로 바꾸지 않는다.
 // - "n주"는 학교가 정한 주차다. A26(2026-11-17 사용자 결정): 화면에서는 그 달 달력(일요일 시작)의 n번째 줄 날짜에 "임시 배치"로 보여 준다
 //   (tentativeWeekDates — 표시용, 저장하지 않음, 원문 시기는 그대로). ISO 주·학사력으로 날짜를 확정하지 않는다.
-// - 연도: 원문에 명시된 연도(calendarYear)가 있으면 그 연도. 없으면 학년도 Y의 3~12월은 Y년(학년도 정의), 1~2월은 날짜 칸을 그리지 않는다.
+// - 연도: 원문에 명시된 연도(calendarYear)가 있으면 그 연도. 없으면 학년도 Y의 3~12월은 Y년, 1월은 Y+1년(A28-36 2학기 = 8월~다음 해 1월),
+//   2월은 어느 학기에도 속하지 않아 날짜 칸을 그리지 않는다.
 // - 달을 정할 수 없는 행(TERM_WEEK·WEEK_UNRESOLVED·UNKNOWN에 월 없음)도 버리지 않고 따로 모은다. 앞뒤 행의 월로 채우지 않는다.
 
 export type DatePrecision = 'EXACT_DATE' | 'DATE_RANGE' | 'WEEK_IN_MONTH' | 'TERM_WEEK' | 'MONTH' | 'MONTH_RANGE' | 'WEEK_UNRESOLVED' | 'UNKNOWN'
@@ -56,11 +57,16 @@ export const precisionLabel: Record<DatePrecision, string> = {
 /** 학년도 순서의 달 (3월 → 다음 해 2월) */
 export const academicMonths = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2]
 
-export const semesterMonths = (semester: number) => (semester === 1 ? [3, 4, 5, 6, 7, 8] : [9, 10, 11, 12, 1, 2])
+/**
+ * A28-36(2026-11-23 사용자 정의): 1학기 = 3~8월, 2학기 = 8~12월 + 다음 해 1월(2월 제외).
+ * 8월은 두 학기 모두에 보일 수 있다 — 데이터는 문서의 학기 슬롯으로 이미 나뉘어 있어 섞이지 않는다.
+ */
+export const semesterMonths = (semester: number) => (semester === 1 ? [3, 4, 5, 6, 7, 8] : [8, 9, 10, 11, 12, 1])
 
-/** 그 달의 실제 연도 (학년도 정의). 1~2월은 확인 전이라 null */
+/** 그 달의 실제 연도 (학년도 정의): 3~12월 = 학년도, 1월 = 학년도 + 1. 2월은 학기 밖이라 null(날짜를 만들지 않음) */
 export function calendarYear(academicYear: number, month: number): number | null {
-  return month >= 3 ? academicYear : null
+  if (month >= 3) return academicYear
+  return month === 1 ? academicYear + 1 : null
 }
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -295,7 +301,7 @@ export function tentativeWeekDates(entries: TeachingPlanEntry[], cells: (DayCell
 export function placeEntries(entries: TeachingPlanEntry[], academicYear: number, month: number): MonthPlacement {
   const here = entries.filter((entry) => monthsOf(entry).includes(month))
   const isDated = (entry: TeachingPlanEntry) => entry.precision === 'EXACT_DATE' || entry.precision === 'DATE_RANGE'
-  // 1~2월처럼 학년도로 연도를 정할 수 없는 달은, 원문에 연도가 명시된 날짜(calendarYear)가 있을 때만 그 연도로 달력을 그린다
+  // 2월처럼 학년도로 연도를 정하지 않는 달은, 원문에 연도가 명시된 날짜(calendarYear)가 있을 때만 그 연도로 달력을 그린다
   const explicitYear = here.find((entry) => isDated(entry) && entry.dateFrom)?.dateFrom?.slice(0, 4)
   const year = calendarYear(academicYear, month) ?? (explicitYear ? Number(explicitYear) : null)
   // 원문 연도가 명시된 날짜는 그 연도의 달력 칸에만 둔다

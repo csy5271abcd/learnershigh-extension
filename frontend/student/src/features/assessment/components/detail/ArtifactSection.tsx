@@ -67,7 +67,7 @@ export function ArtifactSection({
         <ErrorState title="결과물을 불러오지 못했어요" error={artifacts.error} onRetry={artifacts.retry} />
       )}
       {artifacts.data && artifacts.data.length === 0 && (
-        <p className={styles.emptyBox}>아직 등록한 결과 파일이 없어요. 학교에 낼 보고서·발표자료를 올려 두면 버전별로 보관돼요.</p>
+        <p className={styles.emptyBox}>아직 등록한 결과 파일이 없어요.</p>
       )}
       {artifacts.data && artifacts.data.length > 0 && (
         <ul className={styles.artifactList}>
@@ -134,7 +134,7 @@ function ArtifactCard({ artifact, versions, selectedVersionId, onSelectVersion, 
               </p>
             </>
           ) : (
-            <p className={styles.fileMeta}>올린 파일이 없어요. 새 버전으로 파일을 올려 주세요.</p>
+            <p className={styles.fileMeta}>올린 파일이 없어요.</p>
           )}
         </div>
         <div className={styles.artifactActions}>

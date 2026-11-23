@@ -98,7 +98,7 @@ export function ScreenshotRegionsModal({ materialId, materialLabel, onClose, onS
       <div className={styles.layout}>
         <p className={styles.notice}>
           <InfoIcon size={14} />
-          스크린샷과 영역 메모는 서버에 저장되지 않고 이 화면에서만 보여요. 새로고침하면 사라져요. 글자 인식(OCR)은 하지 않으니 필요한 내용은 직접 적어 주세요. 지문 원문을 다른 사람에게 공유하지 마세요.
+          스크린샷과 영역 메모는 서버에 저장되지 않고 이 화면에서만 보여요. 새로고침하면 사라져요.
         </p>
 
         <div className={styles.fileRow}>
@@ -135,7 +135,7 @@ export function ScreenshotRegionsModal({ materialId, materialLabel, onClose, onS
         ) : screenshot.kind === 'pdf' ? (
           <div className={styles.pdfArea}>
             <iframe src={screenshot.previewUrl} title={`${screenshot.file.name} 미리보기`} className={styles.pdfFrame} />
-            <p className={styles.hint}>PDF는 미리보기만 돼요. PDF 렌더러를 설치하지 않아 영역 표시는 이미지에서만 할 수 있어요. 필요한 페이지를 캡처해 이미지로 올려 주세요.</p>
+            <p className={styles.hint}>PDF는 미리보기만 돼요.</p>
           </div>
         ) : (
           <div className={styles.workArea}>
@@ -185,7 +185,7 @@ export function ScreenshotRegionsModal({ materialId, materialLabel, onClose, onS
                   />
                 )}
               </div>
-              <p className={styles.hint}>이미지 위를 끌어서 영역을 만들어요. 영역 번호를 누르면 메모를 적을 수 있어요.</p>
+              <p className={styles.hint}>이미지 위를 끌어서 영역을 만들어요.</p>
             </div>
 
             <div className={styles.side}>

@@ -121,7 +121,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
                   </button>
                 </>
               ) : (
-                '요청 당시 노트를 찾을 수 없어요. 파일만 확인할 수 있어요.'
+                '요청 당시 노트를 찾을 수 없어요.'
               )}
             </div>
 
@@ -163,7 +163,7 @@ function FeedbackWorkspace({ detail, onDelivered, onToast: setToast }: { detail:
                 {detail.student.displayName} · {dateTimeLabel(detail.requestedAt)} 요청 · 노트 v{detail.snapshotRevision?.revisionNumber ?? '?'} · 파일 {detail.snapshotVersions.length}개
               </strong>
               <p className={styles.muted} style={{ marginTop: 4 }}>
-                학생이 질문 없이 자료 전체를 보냈어요. 의견 한두 문장만 써도 충분해요.
+                학생이 질문 없이 자료 전체를 보냈어요.
               </p>
             </div>
             {sideTab === 'delivered' || delivered ? (
@@ -350,7 +350,7 @@ function Recommendations({ value, onChange }: { value: FeedbackRecommendation[];
         {/* §43-1: 학생에게 전달할 주소가 있는(링크) 스크랩만 추천한다. 파일만 있는 스크랩은 관리자 전용 */}
         {scraps.state.status === 'success' &&
           (scraps.state.data.items.filter((scrap) => scrap.sourceUrl).length === 0 ? (
-            <span className={styles.hint}>저장한 스크랩이 없어요. 관리자 참고자료실에서 저장할 수 있어요.</span>
+            <span className={styles.hint}>저장한 스크랩이 없어요.</span>
           ) : (
             <div className={styles.chips}>
               {scraps.state.data.items.flatMap((scrap) => (scrap.sourceUrl ? [{ ...scrap, sourceUrl: scrap.sourceUrl }] : [])).map((scrap) => {

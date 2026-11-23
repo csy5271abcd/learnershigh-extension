@@ -138,7 +138,7 @@ export function SchoolAssessmentDetailRoute() {
   // 피드백 Snapshot은 서버에 저장된 Revision만 가리켜야 한다. 편집기에 저장 안 된 변경이 있거나
   // 저장 직후 목록이 아직 최신 Revision을 받지 못했으면 요청을 막는다 (feedback §4, testing §9).
   const noteBlockedReason = editorState?.unsaved
-    ? '노트에 저장되지 않은 변경이 있어요. 저장된 뒤 요청할 수 있어요.'
+    ? '노트에 저장되지 않은 변경이 있어요.'
     : editorState?.baseRevisionId && editorState.baseRevisionId !== note?.revisionId
       ? '노트 저장 상태를 확인하는 중이에요.'
       : undefined
@@ -308,7 +308,7 @@ export function SchoolAssessmentDetailRoute() {
               if (!window.confirm(`'${artifact.title}' 결과물을 휴지통으로 옮길까요? 버전과 파일은 지워지지 않고, 보관함 휴지통에서 복구할 수 있어요.`)) return
               trashArtifact(artifact.artifactId).then(
                 () => {
-                  showToast('success', '휴지통으로 옮겼어요. 보관함 › 휴지통에서 복구할 수 있어요.')
+                  showToast('success', '휴지통으로 옮겼어요.')
                   refreshDetail()
                   notifyDataChanged()
                 },
@@ -342,7 +342,6 @@ export function SchoolAssessmentDetailRoute() {
             <PropertyRow icon={<StatusIcon size={15} />} label="진행 상태">
               <span className={styles.statusValue}>
                 <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={readOnly} />
-                <span className={styles.hint}>내가 관리하는 상태예요. 이전 단계로 되돌릴 수도 있어요.</span>
               </span>
             </PropertyRow>
             <PropertyRow icon={<BookIcon size={15} />} label="과목">
@@ -498,7 +497,7 @@ export function SchoolAssessmentDetailRoute() {
       )}
 
       {sheet === 'feedback' && (
-        <Modal title="선생님께 피드백 요청" description="노트와 결과물 버전을 골라 요청하고, 이전 요청과 답변을 확인해요." wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
+        <Modal title="선생님께 피드백 요청" wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
           <div data-testid="feedback-modal">{feedbackContent}</div>
         </Modal>
       )}

@@ -85,7 +85,7 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
         ) : !recommended.data ? (
           <LoadingRows rows={2} label="추천 자료원을 불러오는 중" />
         ) : sources.length === 0 ? (
-          <p className={styles.panelEmptyText}>이 과목에 연결된 추천 영역이 없어요. 전체 참고자료에서 영역을 골라 보거나, 찾은 자료를 주소로 직접 등록해 보세요.</p>
+          <p className={styles.panelEmptyText}>이 과목에 연결된 추천 영역이 없어요.</p>
         ) : (
           <>
             <div className={contextStyles.filterChips} role="group" aria-label="자료원 분류">
@@ -194,7 +194,7 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
           <LoadingRows rows={2} label="내 자료를 불러오는 중" />
         ) : mine.data.items.length === 0 ? (
           query || typeFilter ? (
-            <EmptyState title={query ? `'${query}'에 맞는 자료가 없어요` : '이 유형의 자료가 없어요'} description="다른 검색어·유형으로 찾거나 주소로 새로 등록해 보세요." />
+            <EmptyState title={query ? `'${query}'에 맞는 자료가 없어요` : '이 유형의 자료가 없어요'} />
           ) : (
             <EmptyState title="자료함이 비어 있어요" description="찾은 기사·영상·논문을 주소로 등록하면 노트에 출처 카드로 넣을 수 있어요." />
           )
@@ -224,7 +224,7 @@ export function ResourcesTab({ subjectId, subjectName, topic, canInsert, onInser
         )}
         <p className={styles.infoBox}>
           <InfoIcon size={14} />
-          노트에는 원문을 복사하지 않고 출처 카드만 들어가요. 등록한 주소가 실제로 열리는지는 확인하지 않아요.
+          노트에는 원문을 복사하지 않고 출처 카드만 들어가요.
         </p>
         <Link to={resourcesPath} className={styles.textAction}>
           자료함 열기

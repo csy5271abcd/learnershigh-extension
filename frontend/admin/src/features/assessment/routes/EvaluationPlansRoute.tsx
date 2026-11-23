@@ -429,7 +429,7 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
       <td>
         <div className={review.rowButtons}>
           {canAnalyze ? (
-            <button type="button" className={`${review.buttonDark} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
+            <button type="button" className={`${review.button} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
               {analyzing ? '분석 중…' : '분석 시작'}
             </button>
           ) : stage !== 'CONFIRMED' ? (
@@ -839,7 +839,7 @@ export function DeletePlanDialog({ plan, onClose, onDeleted }: { plan: AdminEval
           </div>
         </div>
         <ul className={review.deleteNotes}>
-          <li>목록과 검토 화면에서 사라져요. 분석·확정 기록과 원문 파일은 지우지 않고 보관해요.</li>
+          <li>목록과 검토 화면에서 사라져요.</li>
           {published ? <li>학생에게 공개 중인 평가 정보와 월별 운영계획도 학생 화면에서 함께 사라져요.</li> : <li>아직 학생에게 공개되지 않은 문서예요.</li>}
         </ul>
         {published && (

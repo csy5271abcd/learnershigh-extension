@@ -334,7 +334,7 @@ export function AssessmentLayout() {
                 tone: 'success',
                 text:
                   origin === 'CREATED'
-                    ? `'${subject.name}' 과목을 추가했어요. 시연용이라 이 브라우저에만 저장돼요.`
+                    ? `'${subject.name}' 과목을 추가했어요.`
                     : `다른 학기에서 쓰던 '${subject.name}' 과목을 이 학기에 추가했어요.`,
               }))
             }}

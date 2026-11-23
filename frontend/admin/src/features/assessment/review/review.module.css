@@ -2440,7 +2440,8 @@ details.more code {
 .pendingDocs {
   display: grid;
   gap: 6px;
-  margin: 8px 0 0;
+  /* A28-36 [09]: 목록 마지막 항목과 아래 달력(Planner) 사이 20px — 좁은 화면도 같은 간격 */
+  margin: 8px 0 var(--lh-space-5, 20px);
   padding: 0;
   list-style: none;
   font-size: 13px;

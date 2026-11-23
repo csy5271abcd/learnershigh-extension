@@ -1,7 +1,7 @@
 // A26 월별 운영계획 주차 임시 배치 시험 (node --test, Node 22 타입 제거로 .ts를 직접 읽는다). 합성 계획만 쓴다.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { entryFromRow, placeEntries } from './teachingPlanPlacement.ts'
+import { calendarYear, entryFromRow, monthsOf, placeEntries, semesterMonths } from './teachingPlanPlacement.ts'
 
 let seq = 0
 const entry = (subjectName, schedule, extra = {}) =>
@@ -91,4 +91,38 @@ test('원문 시기 값은 바뀌지 않는다(표시용 계산만)', () => {
   const before = JSON.stringify(original)
   placeEntries([original], 2026, 3)
   assert.equal(JSON.stringify(original), before)
+})
+
+test('A28-36 학기 월: 1학기 3~8월, 2학기 8~12월 + 다음 해 1월(2월 제외), 1월 연도 = 학년도 + 1', () => {
+  assert.deepEqual(semesterMonths(1), [3, 4, 5, 6, 7, 8])
+  assert.deepEqual(semesterMonths(2), [8, 9, 10, 11, 12, 1])
+  assert.ok(!semesterMonths(2).includes(2))
+  assert.equal(calendarYear(2026, 8), 2026)
+  assert.equal(calendarYear(2026, 12), 2026)
+  assert.equal(calendarYear(2026, 1), 2027)
+  assert.equal(calendarYear(2027, 1), 2028)
+  assert.equal(calendarYear(2026, 2), null)
+})
+
+test('A28-36 2026-12 → 2027-01 경계: 1월 1주는 2027년 1월 달력 첫 줄 안, 1월 날짜 원문은 2027년 칸', () => {
+  const jan = entry('국어', week(1, 1))
+  const placement = placeEntries([jan], 2026, 1)
+  assert.equal(placement.year, 2027)
+  const [day] = daysOf(placement, jan.id)
+  assert.match(day, /^2027-01-0[1-3]$/, '2027-01-01 은 금요일 → 첫 줄 1~2일(평일 금)')
+  const dated = entry('수학', { precision: 'EXACT_DATE', monthFrom: 1, dateFrom: { year: null, month: 1, day: 8 } })
+  assert.equal(dated.dateFrom, '2027-01-08')
+  const dec = placeEntries([entry('영어', week(12, 5))], 2026, 12)
+  assert.equal(dec.year, 2026)
+})
+
+test('A28-36 2학기 8월 운영계획은 2학기 달에 들고, 2월 행은 2학기 밖', () => {
+  const aug = entry('과학', week(8, 4))
+  const feb = entry('과학', { precision: 'MONTH', monthFrom: 2 })
+  const months = semesterMonths(2)
+  assert.ok(monthsOf(aug).some((m) => months.includes(m)), '8월은 2학기 안')
+  assert.ok(!monthsOf(feb).some((m) => months.includes(m)), '2월은 2학기 밖')
+  const placement = placeEntries([aug], 2026, 8)
+  assert.equal(placement.year, 2026)
+  assert.equal(daysOf(placement, aug.id).length, 1)
 })

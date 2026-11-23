@@ -2818,6 +2818,18 @@ DELETE /api/student/assessment/calendar-placements?academicYear=2026&semester=2 
 - 서버가 확정 시점의 열린 운영계획 초안 결정(`teachingPlan[n]`)과 대조해 정한다(요청 필드 아님). 확정 요청·검증(학교·학년도·학년·학기·과목 연결·분석 최신·중복 409 `alreadyConfirmed`)은 그대로다.
 - 관리자 화면은 결정하지 않은 후보 중 원문 근거(쪽·위치)가 있고 이 문서 학년 과목인 행을 기본 포함해 `rows` 로 보낸다(행마다 '확인' 필요 없음). 학생 응답(§10-1-2)에는 이 필드가 없다.
 
+**§30-c 관리자 '학생 화면 보기' 읽기 경로 추가 (A28-36, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET /api/admin/assessment/students/{studentId}/student-view/evaluation-plans/{planId}/teaching-plan   # 학생 §10-1-2 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/academic-terms                          # 학생 §9-1-c 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/calendar-placements?academicYear&semester  # 학생 §30-b GET 과 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/current-term                            # 학생 §9-2 current-term 과 같은 응답
+```
+
+- 학생 홈 달력·월별 운영계획을 관리자 읽기 전용 보기에서도 학생 화면과 같은 데이터로 보이게 한다. Actor ADMIN, 담당 지점 밖·없는 학생 404(기존 student-view 규칙). 학생 인증 Header 를 쓰지 않는다.
+- 쓰기 경로(배치 옮기기·초기화)는 두지 않는다. 학생 홈 메모는 계속 보이지 않는다(§30-a 규칙).
+
 **학생 화면 정책 (새 API 없음)**
 
 - 상세 '평가 기준'은 §10-1 `confirmedFields`(관리자 확정·학생 공개)만 쓴다. 학생 화면은 §11 분석을 읽거나 요청하지 않는다(AI 후보 비노출).

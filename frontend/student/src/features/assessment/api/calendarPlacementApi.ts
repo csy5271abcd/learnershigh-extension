@@ -1,7 +1,6 @@
-import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
 import { assessmentHttp } from './http/assessmentHttpClient.ts'
-import { guardWrite, isAssessmentReadOnlyView } from './viewMode.ts'
+import { guardWrite } from './viewMode.ts'
 import type { CalendarPlacement } from './types.ts'
 
 // A28-33 학생 달력 개인 임시 배치 (api-contract §30-b, 2026-11-23 DRAFT). 학생 본인 데이터만(관리자 Endpoint 없음).
@@ -12,11 +11,11 @@ const query = (academicYear: number, semester: number) => `?academicYear=${acade
 const mock = new Map<string, CalendarPlacement>()
 const mockKey = (academicYear: number, semester: number, sourceKey: string) => `${academicYear}|${semester}|${sourceKey}`
 
-/** §30-b GET. 관리자 학생 화면 보기에서는 학생 개인 배치를 읽지 않는다(기본 배치로 보임) */
+/**
+ * §30-b GET. A28-36: 관리자 '학생 화면 보기'(읽기 전용)도 같은 날짜로 보이게 조회만 한다 —
+ * HTTP 클라이언트가 관리자 전용 student-view 경로로 보내고 서버가 담당 범위를 검사한다. 옮기기·초기화는 guardWrite 가 막는다.
+ */
 export function listCalendarPlacements(academicYear: number, semester: number): Promise<{ items: CalendarPlacement[] }> {
-  if (isAssessmentReadOnlyView()) {
-    return Promise.reject(new ApiError(403, { code: 'READ_ONLY_VIEW', message: '관리자 보기에서는 학생 개인 배치를 보여 주지 않아요.', details: {} }))
-  }
   if (isMockDataSource) {
     const prefix = `${academicYear}|${semester}|`
     return Promise.resolve({ items: [...mock].filter(([key]) => key.startsWith(prefix)).map(([, value]) => ({ ...value })) })

@@ -125,7 +125,7 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
             </>
           }
         >
-          <p>지금 확정본을 바탕으로 운영계획 초안을 다시 열어요. 이전 확정본은 이력으로 남고, 다시 확정할 때까지 학생 월별 계획에는 지금 확정본이 보여요. 평가 정보 확정에는 영향이 없어요.</p>
+          <p>지금 확정본을 바탕으로 운영계획 초안을 다시 열어요. 평가 정보 확정에는 영향이 없어요.</p>
         </Modal>
       )}
     </section>

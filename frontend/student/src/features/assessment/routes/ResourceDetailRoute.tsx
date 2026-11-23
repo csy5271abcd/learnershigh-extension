@@ -127,7 +127,7 @@ export function ResourceDetailRoute() {
                 className={enrichmentStyles.outlineButton}
                 data-testid="trash-resource"
                 onClick={() => {
-                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요?`)) return
                   trashResource(resource.resourceId).then(
                     () => navigate(resourcesPath),
                     (error: Error) => notify('error', `옮기지 못했어요. ${error.message}`),
@@ -158,7 +158,7 @@ export function ResourceDetailRoute() {
                     <LinkIcon size={13} /> {resource.sourceUrl}
                   </a>
                   <br />
-                  <span className={styles.muted}>직접 입력한 링크예요. 열리는지·원문이 맞는지는 확인하지 않았어요.</span>
+                  <span className={styles.muted}>직접 입력한 링크예요.</span>
                 </>
               ) : (
                 <span className={styles.muted}>링크 없음</span>

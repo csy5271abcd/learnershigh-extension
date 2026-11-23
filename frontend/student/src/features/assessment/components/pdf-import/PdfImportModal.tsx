@@ -196,7 +196,6 @@ function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
   return (
     <Modal
       title="평가계획 PDF 가져오기"
-      description="PDF를 고르면 과목별 수행평가 후보를 확인할 수 있어요."
       wide
       onRequestClose={() => {
         if (!busy) onClose()
@@ -213,7 +212,7 @@ function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
       }
     >
       {!selectedContext ? (
-        <p className={styles.notice}>학교·학업 정보를 먼저 확인해 주세요. 학기를 알아야 맞는 평가계획서를 찾을 수 있어요.</p>
+        <p className={styles.notice}>학교·학업 정보를 먼저 확인해 주세요.</p>
       ) : (
         <div className={styles.modalGrid}>
           <div className={styles.modalMain}>
@@ -294,7 +293,7 @@ function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
             ) : !plans.data ? (
               <LoadingRows rows={2} label="공통 평가계획서를 불러오는 중" />
             ) : plans.data.items.length === 0 ? (
-              <p className={styles.notice}>이 학기에 등록된 공통 평가계획서가 없어요. 내 PDF를 선택하거나 직접 추가해 주세요.</p>
+              <p className={styles.notice}>이 학기에 등록된 공통 평가계획서가 없어요.</p>
             ) : (
               <ul className={styles.planList}>{plans.data.items.map(planRow)}</ul>
             )}
@@ -354,8 +353,8 @@ function PdfImportModalForm({ onClose, onManualAdd }: PdfImportModalProps) {
             </p>
             <ul className={styles.guideList}>
               <li>학교알리미 → 공시정보 → 교과별(학년별) 교수·학습 및 평가계획에서 PDF를 받을 수 있어요.</li>
-              <li>과목별 수행평가, 반영비율, 평가 기준을 찾아 후보로 보여줘요. 지필평가는 따로 구분하고 수행평가 목록에 넣지 않아요.</li>
-              <li>공시 자료는 작년 것일 수 있어요. 등록 전에 꼭 확인하고 고쳐 주세요.</li>
+              <li>과목별 수행평가, 반영비율, 평가 기준을 찾아 후보로 보여줘요.</li>
+              <li>공시 자료는 작년 것일 수 있어요.</li>
               <li>문서에 날짜가 없으면 날짜를 지어내지 않고 비워 둬요.</li>
               <li>지금은 시연 단계예요. 내 PDF는 서버에 저장되지 않고 내용도 분석되지 않아요.</li>
             </ul>

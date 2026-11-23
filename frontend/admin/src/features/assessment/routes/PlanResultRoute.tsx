@@ -178,7 +178,7 @@ function ResultWorkspace({ data, revision, search, onChanged }: { data: ResultDa
         )}
         {/* A28-29: 평가 정보만 확정되고 운영계획 후보가 남은 문서 → 검토 화면 마지막 단계 '월별 운영계획 최종 승인'으로 */}
         {confirmed && !reReviewing && teachingPending > 0 && (
-          <button type="button" className={result.primary} onClick={() => navigate(paths.planReview(plan.planId, revision.documentRevisionId))} data-testid="plan-result-teaching-approve">
+          <button type="button" className={review.button} onClick={() => navigate(paths.planReviewFinal(plan.planId, revision.documentRevisionId))} data-testid="plan-result-teaching-approve">
             월별 운영계획 승인 · 후보 {teachingPending}행
           </button>
         )}

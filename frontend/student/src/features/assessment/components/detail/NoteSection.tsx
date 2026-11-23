@@ -37,7 +37,7 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
         <InfoIcon size={14} />
         {note
           ? `노트 편집기는 준비 중이에요. 마지막으로 저장된 v${note.revisionNumber}(${formatDateTime(note.savedAt)} 저장)을 보여 드려요.`
-          : '노트 편집기는 준비 중이에요. 편집기가 연결되면 여기에서 바로 쓸 수 있어요.'}
+          : '노트 편집기는 준비 중이에요.'}
       </p>
 
       {notes.status === 'loading' && <LoadingRows rows={3} label="탐구 노트를 불러오는 중" />}
@@ -45,7 +45,7 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
         <ErrorState title="탐구 노트를 불러오지 못했어요" error={notes.error} onRetry={notes.retry} />
       )}
       {notes.data && !note && (
-        <p className={styles.emptyBox}>아직 작성한 탐구 노트가 없어요. 조사한 내용·생각·시행착오를 기록하는 공간이에요.</p>
+        <p className={styles.emptyBox}>아직 작성한 탐구 노트가 없어요.</p>
       )}
       {note && (
         <article className={styles.noteBody} aria-label={note.title}>

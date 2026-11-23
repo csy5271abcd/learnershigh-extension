@@ -560,7 +560,7 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
         {slash && (
           <div id={`${menuId}-slash`} role="listbox" aria-label="블록 메뉴" className={styles.slashMenu}>
             {slashOptions.length === 0 ? (
-              <p className={styles.slashEmpty}>맞는 블록이 없어요. Esc로 닫아요.</p>
+              <p className={styles.slashEmpty}>맞는 블록이 없어요.</p>
             ) : (
               slashOptions.map((command, index) => (
                 <div

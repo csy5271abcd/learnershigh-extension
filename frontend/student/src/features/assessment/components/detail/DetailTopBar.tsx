@@ -188,7 +188,7 @@ function RevisionList({ noteId, currentRevisionId, hasUnsavedChanges, onOpen, on
   return (
     <>
       <p className={styles.popoverHint}>
-        저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요. 눌러서 읽어 볼 수 있어요.
+        저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요.
         {hasUnsavedChanges ? ' 지금 편집 중인 내용은 아직 저장되지 않았어요.' : ''}
       </p>
       <ol className={styles.revisionList}>

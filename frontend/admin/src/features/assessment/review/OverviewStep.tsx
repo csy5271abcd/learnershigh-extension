@@ -24,11 +24,11 @@ export function OverviewStep({
   const status = analysisStatusText[view.analysisStatus]
   const issues = issuesOf(view.warnings ?? [])
   const failed = view.analysisStatus === 'FAILED'
+  const teachingRows = (view.teachingPlanCandidates ?? []).reduce((sum, subject) => sum + (subject.rows?.length ?? 0), 0)
 
   return (
     <div data-testid="review-step-overview">
       <h3 className={styles.title}>분석 결과 확인</h3>
-      <p className={styles.lead}>분석기가 읽은 내용을 확인하고 과목 → 수행평가 순서로 원문과 대조해요. 언제든 앞 단계로 돌아갈 수 있어요.</p>
 
       <dl className={styles.facts} aria-label="분석 결과">
         <div>
@@ -54,7 +54,11 @@ export function OverviewStep({
         </div>
         <div>
           <dt>월별 운영 계획</dt>
-          <dd style={{ fontSize: 16, paddingTop: 8 }}>분석 대기</dd>
+          {/* A28-36: 고정 '분석 대기' 대신 이 분석 결과의 운영계획 후보 행 수 */}
+          <dd data-testid="summary-teaching-rows">
+            {teachingRows}
+            <small>행</small>
+          </dd>
         </div>
       </dl>
 
@@ -132,7 +136,7 @@ export function OverviewStep({
         <>
           <p className={styles.sectionLabel}>공유 검토 초안 · 학생 공개 아님</p>
           <p className={styles.muted} data-testid="review-draft-summary">
-            {draft.draft.status === 'CLOSED' ? '확정되어 닫힌 초안이에요.' : `관리자들이 함께 쓰는 초안이에요. 확인·수정 ${draft.draft.decisionCount}개 · 버전 ${draft.draft.version}.`}{devPanelEnabled() ? ` 처음 ${actorLabel(draft.draft.createdBy)}, 마지막 ${actorLabel(draft.draft.updatedBy)}.` : ''}
+            {draft.draft.status === 'CLOSED' ? '확정되어 닫힌 초안' : `공유 초안 · 확인·수정 ${draft.draft.decisionCount}개 · 버전 ${draft.draft.version}.`}{devPanelEnabled() ? ` 처음 ${actorLabel(draft.draft.createdBy)}, 마지막 ${actorLabel(draft.draft.updatedBy)}.` : ''}
           </p>
           {draft.history.length > 0 && (
             <ul className={styles.rows} style={{ marginTop: 10 }} data-testid="review-draft-history">

@@ -674,11 +674,7 @@
   font-size: 12.5px;
 }
 
-/* ---- A26 주차 임시 배치 · 상세 모달 ---- */
-.event[data-tentative] {
-  border-style: dashed;
-  background: var(--as-color-surface);
-}
+/* ---- 상세 모달 (A28-36: 주차 기준 표시 일정도 일반 일정 칩과 같은 모양 — 점선 없음) ---- */
 
 .dayList {
   display: grid;
