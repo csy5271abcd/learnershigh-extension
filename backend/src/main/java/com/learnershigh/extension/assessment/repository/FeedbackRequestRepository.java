@@ -15,4 +15,6 @@ public interface FeedbackRequestRepository extends JpaRepository<FeedbackRequest
     Optional<FeedbackRequest> findByStudentIdAndSnapshotKey(String studentId, String snapshotKey);
 
     List<FeedbackRequest> findByStudentIdInOrderByRequestedAtDesc(Collection<String> studentIds);
+
+    boolean existsByStudentIdAndSourceTypeAndSourceId(String studentId, String sourceType, String sourceId);
 }

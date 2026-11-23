@@ -636,6 +636,20 @@ PDF로부터 선택 등록 시 `evaluationItemRef`에 확인된 `documentRevisio
 
 ---
 
+## 12-1. Student — 수행평가 영구 삭제 (A28-49, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration 없음 · 팀 승인 별도)
+
+```http
+POST /api/student/assessment/school-assessments/{assessmentId}/permanent-delete     { "confirmTitle": "<수행평가 제목 그대로>" }  → 204
+```
+
+- `DELETE /school-assessments/{id}`(휴지통 이동·복원 가능, §30)와 **다른** 되돌릴 수 없는 삭제다. 학생 본인 항목만(활성·휴지통 모두), 남의 ID 는 `404 ASSESSMENT_NOT_FOUND`.
+- 강한 확인: `confirmTitle` 이 제목과 정확히 같아야 한다(아니면 `400 confirmTitle mismatch`).
+- 기록 보존을 위해 **삭제하지 않는 경우**(`409 INVALID_STATE_TRANSITION`, `details.fields[0].field`):
+  - `official` — 학교 확정에서 자동 등록된 항목(공식 확정값과 연결, 동기화가 다시 만들 수 있음) → 휴지통만.
+  - `feedbackRequests` — 선생님께 보낸 피드백 요청이 있음(요청 당시 Snapshot·답변 = 관리자 기록 보존) → 휴지통만.
+  - `growthRecords` — 이 수행평가를 관련 활동으로 연결한 성장 기록이 있음 → 먼저 연결을 바꾸거나 휴지통만.
+- 삭제 범위(한 Transaction): 이 수행평가의 노트·노트 Revision, 결과물·결과물 버전, 안내문·첨부 행, 즐겨찾기, 수행평가 행. 커밋 뒤 결과물 버전·안내문 첨부의 Storage 바이트를 지운다(실패해도 행 삭제는 되돌리지 않고 로그만). 노트 첨부(§26-1)는 다른 노트 Revision 이 가리킬 수 있어 행·바이트를 남긴다. 상태 변경 감사 이력(`assessment_school_assessment_status_event`)은 지우지 않는다.
+
 # 13. Student — 수행평가 상태 변경 (ST-03)
 
 ```http
