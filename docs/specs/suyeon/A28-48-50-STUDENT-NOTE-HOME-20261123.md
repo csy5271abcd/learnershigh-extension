@@ -42,9 +42,9 @@
 | Frontend `verify-frontend.ps1` · typecheck · lint | PASS |
 | Node | 45 파일 **194/194**(신규 노트 내보내기 2) |
 | Backend 단위(ArchUnit 포함) | **477** · 실패 0 · skip 3 |
-| Backend 통합 신규 `SchoolAssessmentDeletionApiTest` | 로컬 **NOT RUN**(남은 메모리 2.0~2.5GB < 보호 기준 3GB). GitHub CI: 첫 push(`3683655`) 에서 시험 데이터가 공식 연결 CHECK(`ck_assessment_sa_official_link`)를 어겨 1건 실패 → 시험 데이터만 고침(`6d60708`, 제품 코드 변화 없음) → CI 두 실행 모두 이 클래스 통과 |
-| Assessment E2E 전체 | **NOT RUN** — 남은 메모리가 보호 기준(3.5GB) 미달. 사용자 DB OOM 사고 재발 방지를 위해 기준을 낮추지 않음 |
-| REPLAY | **NOT RUN**(같은 이유) |
+| Backend 통합 신규 `SchoolAssessmentDeletionApiTest` | 로컬 **3/3**(2026-11-24, 보호 실행기). CI: 첫 push(`3683655`) 에서 시험 데이터가 공식 연결 CHECK 를 어겨 1건 실패 → 시험 데이터만 고침(`6d60708`) → CI 통과 |
+| Assessment E2E 전체(28파일, 일회용 DB 3묶음, 2026-11-24) | **33 + 34 + 17 = 84/84** — 실행 내내 사용자 DB 정상(남은 메모리 4GB 안팎) |
+| REPLAY(실측 원본) | **8/8** |
 | 실환경 화면(읽기 전용, 800·1366·1600·1920) | 노트 미리보기 이미지·PDF 열림, 메뉴 6개(준비 중 0), 내보내기 .md 실제 다운로드(내용 확인), 평가 정보 수정 창, 삭제 확인 창(제목 입력 전 버튼 비활성 — 실제 삭제는 누르지 않음), 심화 탐구 이동, 표시 날짜 dropdown 모양 일치. 가로 넘침 0 · API 4xx/5xx 0 · 차단한 쓰기는 학생 화면 자동 POST `official/ensure` 1종. 캡처: 로컬 실행 폴더 `a28-43/screens/48-*`·`49-*`·`50-*` |
 
 ## 5. Migration
@@ -55,5 +55,9 @@
 
 - PR #19(`feature/a28-30-35-uat-fixes` → integration) 커밋: `1f0159f` 영구 삭제 · `4dcbf31` 학생 화면 3건 · `3683655` 보고서 · `6d60708` 삭제 시험 데이터 수정. 일반 push, Draft 유지. PR #17·main 변경 없음.
 - GitHub CI(`6d60708`): pull_request 실행 Harness·Frontend·Backend(단위+통합 전체)·E2E(Student Care)·CI Result **모두 success**. push 실행은 Backend 통합에서 간헐 실패 시험 `SchoolInfoSelectionClassificationApiTest` 1건 실패(같은 단언, 원인 미확정 — CI 가 시험 보고서를 산출물로 올리지 않아 진단 메시지를 볼 수 없음).
-- **PR #19 병합: 하지 않음(보류).** 병합 조건(로컬 Assessment E2E 전체 + REPLAY 통과)을 아직 실행하지 못함 — 메모리 부족.
-- 남은 순서: 메모리 3.5GB 이상 확보 → 보호 실행기로 삭제 IT → E2E 전체(3묶음) → REPLAY → 통과 시 PR #19 Ready 전환·병합 → 이 절과 A28 종합 보고서 요약 갱신.
+- 2026-11-24: 메모리 확보 뒤 보호 실행기로 삭제 IT 3/3 → E2E 전체 84/84 → REPLAY 8/8. 시험한 원본 트리 = PR #19 head `4e29dbc`(차이는 PR 쪽 보존 연구 자료 79개뿐) 확인.
+- **PR #19 병합: 완료.** Draft → Ready 뒤 `integration/assessment-studentcare-20261116` 에 merge commit `277047f` 로 병합(커밋 이력 보존, head SHA 고정). 병합 트리 = PR head, 이전 integration 커밋(`79b5ac5`) 보존.
+- 병합 시점 CI(`4e29dbc`): pull_request 실행 전체 success, push 실행은 간헐 실패 `SchoolInfoSelectionClassificationApiTest` 1건(이번 변경 전부터 있던 문제, 원인 미확정) — 사용자 지시의 병합 조건(E2E 전체 + REPLAY 통과)은 충족해 병합했다.
+- `main`(`c03a1a4`) 변경 없음. PR #17(integration → main)은 Draft 유지·미병합(head 가 integration 을 따라 `277047f` 로 갱신된 것뿐).
+- 병합 뒤 문서 정리: `assessment-screen-map.md` S21·MM-32 행에 A28-47(출처 배지·AI 요약 제거) 반영, 이 보고서와 A28 종합 보고서 요약 갱신. 삭제한 문서 없음(역사 보고서·연구 자료는 보존).
+- 사용자 DB: 컨테이너 재시작·OOM 없음, 마지막 점검까지 행 수 변화 없음. Migration 없음.
