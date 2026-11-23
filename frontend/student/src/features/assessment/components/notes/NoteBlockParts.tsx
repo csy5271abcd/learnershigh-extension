@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { downloadNoteAttachment, previewNoteAttachment } from '../../api/assessmentDetailApi.ts'
 import { isMockDataSource } from '../../api/dataSource.ts'
+import { NoteFilePreviewModal } from './NoteFilePreviewModal.tsx'
 import type { NoteBlockAttrs } from '../../api/types.ts'
 import { chartData, formatFileSize, isHttpUrl, mathSyntaxError, urlHost, youtubeEmbedUrl } from '../../model/noteEditorModel.ts'
 import { resourceTypeLabel } from '../../model/resourceLibraryView.ts'
@@ -138,6 +139,7 @@ export function FileMeta({ file, previewUrl, isImage, pending = false }: { file:
   const previewable = previewableTypes.has(file.mimeType)
   const [serverUrl, setServerUrl] = useState<string>()
   const [error, setError] = useState<string>()
+  const [previewing, setPreviewing] = useState(false)
   useEffect(() => {
     if (!file.attachmentId || !isImage || !previewable || isMockDataSource) return
     let cancelled = false
@@ -178,14 +180,28 @@ export function FileMeta({ file, previewUrl, isImage, pending = false }: { file:
   }
   return (
     <div className={styles.fileBlock} data-testid="note-file" data-stored={stored ? 'true' : 'false'}>
-      {isImage && shown && <img className={styles.imagePreview} src={shown} alt={`${file.name} 미리보기`} />}
+      {isImage && shown && (
+        // A28-48: 이미지를 누르면 같은 화면 미리보기 창(저장된 첨부만)
+        <img
+          className={styles.imagePreview}
+          src={shown}
+          alt={`${file.name} 미리보기`}
+          onClick={stored ? () => setPreviewing(true) : undefined}
+          style={stored ? { cursor: 'zoom-in' } : undefined}
+        />
+      )}
       <div className={styles.fileMeta}>
         <span className={styles.linkType}>{isImage ? '이미지' : file.mimeType === 'application/pdf' ? 'PDF' : '파일'}</span>
         <span className={styles.fileName}>{file.name}</span>
         <span className={styles.linkUrl}>{formatFileSize(file.size)}</span>
+        {stored && (
+          <button type="button" className={styles.fileOpen} onClick={() => setPreviewing(true)} data-testid="note-file-preview">
+            미리보기
+          </button>
+        )}
         {stored && previewable && (
           <button type="button" className={styles.fileOpen} onClick={open} data-testid="note-file-open">
-            열기 ↗
+            새 탭 ↗
           </button>
         )}
         {stored && (
@@ -209,6 +225,9 @@ export function FileMeta({ file, previewUrl, isImage, pending = false }: { file:
         <p className={styles.mathError} role="alert">
           {error}
         </p>
+      )}
+      {previewing && file.attachmentId && (
+        <NoteFilePreviewModal attachmentId={file.attachmentId} fileName={file.name} mimeType={file.mimeType} onClose={() => setPreviewing(false)} />
       )}
     </div>
   )

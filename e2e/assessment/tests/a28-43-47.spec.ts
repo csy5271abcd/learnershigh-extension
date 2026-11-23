@@ -122,7 +122,8 @@ test('[A28-46] 학생 수행평가: 상단 메뉴 휴지통 이동 → 목록에
   await page.setViewportSize({ width: 1366, height: 900 })
   await page.goto(`${STUDENT}/assessment/school-assessments/${sa}`)
   await page.getByRole('button', { name: '더보기' }).click()
-  await expect(page.getByRole('menuitem', { name: /삭제/ })).toHaveCount(0)
+  // A28-49 부터 메뉴에 '삭제'(영구 삭제, 확인 창)도 있다 — 이 시험은 휴지통 흐름만
+  await expect(page.getByRole('menuitem', { name: '휴지통으로 이동', exact: true })).toHaveCount(1)
   page.once('dialog', (dialog) => void dialog.accept())
   await page.getByRole('menuitem', { name: '휴지통으로 이동' }).click()
   await expect(page).toHaveURL(/\/assessment\/archive\?tab=trash/, { timeout: 15_000 })

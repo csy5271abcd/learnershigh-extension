@@ -136,6 +136,9 @@ export const compareArtifactVersionsHttp = (artifactId: string, fromVersionId: s
   assessmentHttp<ArtifactComparison>(`${base}/artifacts/${enc(artifactId)}/compare`, { query: { fromVersionId, toVersionId } })
 export const trashSchoolAssessmentHttp = (assessmentId: string) =>
   assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}`, { method: 'DELETE' })
+/** §12-1 A28-49 영구 삭제(제목 확인, 되돌릴 수 없음) */
+export const permanentDeleteSchoolAssessmentHttp = (assessmentId: string, confirmTitle: string) =>
+  assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}/permanent-delete`, { method: 'POST', json: { confirmTitle } })
 export const trashArtifactHttp = (artifactId: string) => assessmentHttp<void>(`${base}/artifacts/${enc(artifactId)}`, { method: 'DELETE' })
 export const trashResourceHttp = (resourceId: string) => assessmentHttp<void>(`${base}/resources/${enc(resourceId)}`, { method: 'DELETE' })
 export const trashGrowthRecordHttp = (recordId: string) => assessmentHttp<void>(`${base}/growth-records/${enc(recordId)}`, { method: 'DELETE' })

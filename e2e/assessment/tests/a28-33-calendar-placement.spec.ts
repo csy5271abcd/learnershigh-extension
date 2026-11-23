@@ -60,6 +60,9 @@ test('[A28-32·33·34] 임시 배치: 범위 안 이동 → 저장 → 새로고
 
   // 키보드·터치 대안: 범위 안 날짜 선택 → 낙관적 반영 + 서버 저장
   const select = item.getByTestId('home-calendar-placement-select')
+  // A28-50: 관리자 화면 dropdown(review.select)과 같은 모양 — 높이 40 · 둥근 10 · 연한 테두리
+  const look = await select.evaluate((el) => { const c = getComputedStyle(el); return { radius: c.borderTopLeftRadius, height: c.height, border: c.borderTopColor, size: c.fontSize } })
+  expect(look).toEqual({ radius: '10px', height: '40px', border: 'rgb(234, 235, 239)', size: '14px' })
   const options = await select.locator('option').evaluateAll((list) => list.map((option) => (option as HTMLOptionElement).value))
   expect(options.every((iso) => iso.startsWith('2026-11-'))).toBe(true)
   const target = options.find((iso) => iso !== before) as string

@@ -146,3 +146,8 @@ export function trashArtifact(artifactId: string): Promise<void> {
 export function trashSchoolAssessment(assessmentId: string): Promise<void> {
   return guardWrite('trashSchoolAssessment', () => (isMockDataSource ? mockOnly('휴지통') : http.trashSchoolAssessmentHttp(assessmentId)))
 }
+
+/** §12-1 A28-49 수행평가 영구 삭제(본인 직접 등록 항목 · 피드백 요청·성장 기록·학교 확정 항목은 서버가 409) */
+export function permanentDeleteSchoolAssessment(assessmentId: string, confirmTitle: string): Promise<void> {
+  return guardWrite('permanentDeleteSchoolAssessment', () => (isMockDataSource ? mockOnly('삭제') : http.permanentDeleteSchoolAssessmentHttp(assessmentId, confirmTitle)))
+}

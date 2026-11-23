@@ -36,6 +36,8 @@ import { contextOf, loadOfficialCriteria } from '../model/officialCriteria.ts'
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
 import { EditSchoolAssessmentModal } from '../components/EditSchoolAssessmentModal.tsx'
 import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
+import { DeleteSchoolAssessmentModal } from '../components/detail/DeleteSchoolAssessmentModal.tsx'
+import { exportFileName, noteToMarkdown } from '../model/noteExport.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { ResourcesTab } from '../components/detail/ResourcesTab.tsx'
@@ -61,12 +63,16 @@ import { useApiQuery } from '../model/useApiQuery.ts'
 import { archivePath, enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
+/** A28-49 노트 내보내기 시각(렌더 밖에서만 부른다) */
+const exportClock = () => new Date()
+
 type ModalState =
   | { kind: 'upload'; target?: { artifact: Artifact; latest: ArtifactVersion | undefined } }
   | { kind: 'topic' }
   | { kind: 'tips' }
   | { kind: 'sent'; request: FeedbackRequest }
   | { kind: 'edit' }
+  | { kind: 'delete' }
 
 async function loadArtifacts(assessmentId: string): Promise<ArtifactWithVersions[]> {
   const { items } = await listArtifacts('SCHOOL_ASSESSMENT', assessmentId)
@@ -202,6 +208,36 @@ export function SchoolAssessmentDetailRoute() {
       }
     : undefined
 
+  // A28-49 노트 내보내기: 서버에 저장된 최신 노트를 Markdown 파일로(편집 중 저장 안 된 내용은 넣지 않는다고 알린다)
+  const exportNote = () => {
+    if (!item) return
+    const exportedAt = exportClock()
+    const markdown = noteToMarkdown({
+      assessmentTitle: item.title,
+      subjectName: subjectName(item.subjectId),
+      meta: [
+        ['진행 상태', statusLabels[item.status] ?? item.status],
+        ['평가 유형', typeDisplay(item)],
+        ['평가일', dateDisplay(item.evaluationDate)],
+        ['제출 마감', dateDisplay(item.deadlineDate)],
+        ['반영 비율', item.weightPercent != null ? `${item.weightPercent}%` : null],
+        ['제출물', item.submissions],
+      ],
+      noteTitle: note?.title ?? null,
+      revisionNumber: note?.revisionNumber ?? null,
+      savedAt: note?.savedAt ?? null,
+      blocks: note?.blocks ?? [],
+      exportedAt,
+    })
+    const href = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }))
+    const anchor = document.createElement('a')
+    anchor.href = href
+    anchor.download = exportFileName(item.title, exportedAt)
+    anchor.click()
+    window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
+    showToast('success', editorState?.unsaved ? '저장된 노트로 내보냈어요(아직 저장 안 된 편집은 빠졌어요).' : '노트를 Markdown 파일로 내보냈어요.')
+  }
+
   const topBar = (
     <DetailTopBar
       title={item?.title}
@@ -212,7 +248,13 @@ export function SchoolAssessmentDetailRoute() {
       onRequestFeedback={readOnly ? undefined : openFeedback}
       onFindResources={() => setSheet('resources')}
       onUnavailable={(message) => showToast('info', message)}
-      menuItems={schoolAssessmentMenuItems(assessmentId, moveToTrash, readOnly ? '관리자 읽기 전용 보기에서는 옮길 수 없어요.' : isMockDataSource ? '시연 데이터에서는 휴지통을 쓸 수 없어요.' : undefined)}
+      menuItems={schoolAssessmentMenuItems(assessmentId, {
+        onEdit: item && !readOnly ? () => setModal({ kind: 'edit' }) : undefined,
+        onExport: item ? exportNote : undefined,
+        onTrash: moveToTrash,
+        onDelete: item && !readOnly && !isMockDataSource ? () => setModal({ kind: 'delete' }) : undefined,
+        unavailable: readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요.' : isMockDataSource ? '시연 데이터에서는 사용할 수 없어요.' : '정보를 불러오는 중이에요.',
+      })}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
       currentRevisionId={editorState?.baseRevisionId}
       hasUnsavedChanges={editorState?.unsaved}
@@ -537,6 +579,18 @@ export function SchoolAssessmentDetailRoute() {
             showToast('success', '평가 정보를 저장했어요.')
             // 저장 응답을 그대로 쓰지 않고 상세·목록을 서버에서 다시 읽는다.
             notifyDataChanged()
+          }}
+        />
+      )}
+      {modal?.kind === 'delete' && item && (
+        <DeleteSchoolAssessmentModal
+          assessmentId={item.assessmentId}
+          title={item.title}
+          onClose={() => setModal(undefined)}
+          onDeleted={() => {
+            setModal(undefined)
+            notifyDataChanged()
+            navigate(schoolAssessmentsPath)
           }}
         />
       )}
