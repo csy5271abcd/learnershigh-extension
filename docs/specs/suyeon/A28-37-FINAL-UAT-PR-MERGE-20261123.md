@@ -86,14 +86,20 @@
 | 항목 | 결과 |
 |---|---|
 | `scripts/verify-frontend.ps1` | PASS |
-| Frontend typecheck · lint(oxlint --deny-warnings) | PASS |
-| Node 시험 | 42 파일 189/189 → 신규 포함 최종 수치는 아래 갱신 |
-| Backend 단위(ArchUnit 포함) | 477 실행 · 실패 0 · skip 3(기존) |
-| Backend 통합(Testcontainers, 신규 `NoteAttachmentApiTest` 4) | (실행 중 — 갱신) |
-| Assessment E2E(대상 묶음, 신규 3 포함) | 26/26 |
-| Assessment E2E 전체 | (갱신) |
-| REPLAY | (갱신) |
-| 하네스 | (갱신) |
+| Frontend typecheck · lint(oxlint --deny-warnings) | PASS(문구 수정 뒤 재실행) |
+| Node 시험 | 43 파일 **191/191**(신규: 주차 목록 3 · 목록 CTA 3 · 확정 수정 진입 2) |
+| Backend 단위(ArchUnit 포함, 로컬) | 477 실행 · 실패 0 · skip 3(기존) |
+| Backend 통합(로컬) | 1묶음(A·E·F·L·M·N·O, 27클래스, 신규 `NoteAttachmentApiTest` 4 포함) **86/86**. 처음 전체 한 번 실행은 메모리 부족(§4-1)으로 무효. 2~5묶음은 시스템 메모리 부족으로 Claude Code 가 중단 → **로컬 NOT RUN** |
+| Backend 단위 + 통합 전체(GitHub CI, head `4024d2c`) | push·pull_request 두 실행 모두 **success**(통합 전체 포함 — 이전에 실패한 `SchoolInfoSelectionClassificationApiTest`·`SchoolAssessmentApiTest` 포함) |
+| GitHub CI Harness · Frontend · E2E(Student Care 22) · CI Result | 두 실행 모두 success |
+| Assessment E2E(로컬 일회용 DB, 대상 묶음: 신규 `a28-37-42` 3 + 수정한 기존 4파일) | **26/26** |
+| Assessment E2E 전체 | **NOT RUN**(사용자 DB OOM 사고 뒤 메모리 확보 전까지 실행하지 않음) |
+| REPLAY 8 | **NOT RUN**(같은 이유) |
+| 하네스 `verify.ps1 -SkipFrontend -SkipBackend` | 로컬 NOT RUN · CI Harness success |
+| 실환경 화면(읽기 전용, 800/1366/1600/1920, 이미지 01·02·03·04·06·07 주소) | 가로 넘침 0 · API 4xx/5xx 0 · 콘솔 오류 0(학생 화면 1건은 점검 스크립트가 차단한 자동 POST `official/ensure` 의 중단) · 차단한 쓰기 1종(그 POST). 캡처: 로컬 실행 폴더 `a28-37/screens/` |
+
+- `a12-flows` 간헐 실패: 이번 회차에 실행하지 않았다(전체 E2E NOT RUN) — 해결 선언하지 않는다.
+- `SchoolInfoSelectionClassificationApiTest`: 근본 원인 수정 뒤 CI 2회 통과. 로컬 반복 실행은 메모리 때문에 못 했다 — CI 2회만으로 '해결 완료'라고 단정하지 않고 관찰 대상으로 둔다.
 
 ## 7. 서버 상태 · 사용자 확인 순서
 
@@ -108,8 +114,21 @@
 
 ## 8. Git · GitHub
 
-(작업 후 갱신)
+- 시작 상태(GitHub API 재조회): PR #17 `integration/assessment-studentcare-20261116 → main` Draft · mergeable(clean) · 1,666 파일 · 167 커밋. PR #18 `feat/perf-assess-plan-extraction → integration` closed·merged(통합 이력 보존, 별도 main 병합 안 함). PR #19 `feature/a28-30-35-uat-fixes → integration` Draft · head `644c746` · mergeable_state `unstable`(같은 SHA 의 push CI 에서 Backend 통합 `SchoolInfoSelectionClassificationApiTest` 1건 실패, pull_request CI 는 통과 → §5). 브랜치 보호 규칙·필수 리뷰 없음.
+- 원본 작업 트리(`integration` 브랜치, HEAD `9755581`, 미커밋 약 470항목)는 **커밋·reset·stash 하지 않았다.** 임시 인덱스로 트리 스냅샷을 만들어 PR #19 head 와 비교하고, PR #19 worktree 에 추가·수정 파일만 복사했다(삭제 79건 = PR #18 연구 자료, 적용하지 않음). 복사 뒤 134개 파일 바이트 일치 확인, 비밀값·개인 경로 검사.
+- PR #19 에 커밋 3개를 추가해 push(fast-forward, force 없음):
+  - `0b721e9` A28-36(이전 회차 미커밋 97파일, 그 시점 내용 그대로)
+  - `6529535` A28-37~42 코드·시험(46파일)
+  - `4024d2c` 계약 §26-1·이 보고서
+  - 이 절을 고친 문서 커밋 1개를 더 올린다(아래 PR 링크에서 최신 head 확인).
+- GitHub CI(`4024d2c`): push·pull_request 모두 Harness · Frontend · Backend(단위+통합 전체) · E2E(Student Care) · CI Result **success**.
+- **PR #19 → integration 병합: 보류(BLOCKED).** 지시서 §10-2 '테스트와 E2E/REPLAY 가 최신 head 에서 통과' 중 Assessment E2E 전체·REPLAY 가 로컬 메모리 문제로 NOT RUN 이다(CI 는 Assessment E2E·REPLAY 를 돌리지 않는다). PR 은 Draft 로 두고 설명만 갱신했다. 메모리를 확보한 뒤(다른 앱 종료) Assessment E2E 두 묶음 + REPLAY 를 돌려 통과하면 병합할 수 있는 상태다. 계약 §9-1-c·§30-b·§30-c·§39-6·§26-1 은 DRAFT(Assessment = Suyeon 담당, 공용 문서 팀 확인 별도) — 팀 승인을 받았다고 표시하지 않는다.
+- PR URL: https://github.com/csy5271abcd/learnershigh-extension/pull/19 (head `feature/a28-30-35-uat-fixes` → base `integration/assessment-studentcare-20261116`) · PR #17 https://github.com/csy5271abcd/learnershigh-extension/pull/17 (integration → main, Draft) · main HEAD `c03a1a4`(변경 없음).
 
 ## 9. main 병합 · 문서 정리
 
-(작업 후 갱신)
+- **main 병합: BLOCKED.** PR #17 설명의 main 병합 전 체크리스트 중 사람 결정 항목이 열려 있다 — ① 완규님 Student Care 검토(인수 시험 교체·상담 탭 첫 글자 유실 결함 — 타 담당 코드라 수정하지 않음), ② 시연 DB `lh_demo_manual_20261111` Migration 방식 승인, ③ 과거 Git 이력에 공개된 Railway 분석기 토큰의 교체·폐기 확인(이 환경에서 확인할 방법이 없음), ④ 'Draft → Ready · main 병합은 사람이 결정'. 지시서 §10-2 에 따라 병합하지 않았다.
+- **main 병합 후 문서 정리: NOT RUN**(병합 전이므로 계획만). 정리 후보(현행/중복/폐기/역사 보존 구분 뒤 진행):
+  - 현행 갱신: `docs/specs/suyeon/progress.md`(11-12 이후 갱신 없음 → A28 결과 반영), `assessment-screen-map.md`·`assessment-frontend-mock.md` 의 '노트 파일은 저장 안 됨' 서술, `OWNERSHIP.md` 3-6 Assessment 의 DRAFT 계약 목록(§9-1-c·§30-b·§30-c·§39-6·§26-1).
+  - 역사 보존(수정 안 함): A10~A28 보고서·PR 연구 자료 79개·ADR·타 팀 문서. 필요하면 `archive/` 이동 또는 deprecated 표시만, 이동 전 `rg` 로 참조 검사.
+  - 이번 PR 안에서 이미 고친 현행 계약 서술: §26(WEBP), §26-1 신설, §48·API-OD-A03(노트 첨부 실제 저장), §53(`NOTE_ATTACHMENT_NOT_FOUND`).
