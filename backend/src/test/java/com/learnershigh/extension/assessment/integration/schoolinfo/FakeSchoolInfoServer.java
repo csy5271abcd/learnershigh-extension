@@ -65,6 +65,8 @@ public final class FakeSchoolInfoServer implements AutoCloseable {
     public volatile boolean ignoreChasu;
     /** 부록 I: 이 FILE_SEQ 첨부는 404 오류 페이지로 응답(만료·삭제된 첨부) */
     public final java.util.Set<Integer> missingSeqs = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    /** A28-45: 이 학교 ID 의 상세 화면은 500 (상세 조회 실패 재현) */
+    public final java.util.Set<String> detailFailIds = java.util.concurrent.ConcurrentHashMap.newKeySet();
     /** 실측 구조의 주소 표기(<span class="mt">주소 :</span>값</span>)로 낼지 */
     public volatile boolean realAddressMarkup;
     /** 받은 요청 기록: "경로 JG_YEAR=…" */
@@ -95,6 +97,7 @@ public final class FakeSchoolInfoServer implements AutoCloseable {
         chasu.clear();
         ignoreChasu = false;
         missingSeqs.clear();
+        detailFailIds.clear();
         realAddressMarkup = false;
         log.clear();
     }
@@ -140,6 +143,10 @@ public final class FakeSchoolInfoServer implements AutoCloseable {
             }
             case "/ei/ss/Pneiss_b01_s0.do" -> {
                 String shl = q.getOrDefault("SHL_IDF_CD", "");
+                if (detailFailIds.contains(shl)) {
+                    send(ex, 500, "error", null);
+                    return;
+                }
                 String[] school = schools.get(shl);
                 StringBuilder html = new StringBuilder("<script>var info = { HG_NM : \"").append(school != null ? school[0] : schoolName)
                         .append("\", JG_YEAR : \"").append(defaultYear).append("\" };</script><select>");

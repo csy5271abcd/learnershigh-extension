@@ -30,6 +30,9 @@ class SchoolInfoImportApiTest extends SchoolInfoFakeSupport {
     private static final String BODY = "{\"schoolId\":\"school_import\",\"schoolName\":\" 가상고 \",\"academicYear\":2099,\"semester\":2,\"defaultGrade\":1}";
 
     @Autowired
+    com.learnershigh.extension.assessment.service.plan.SchoolInfoSyncService syncWorker;
+
+    @Autowired
     MockMvc mvc;
 
     @Autowired
@@ -37,6 +40,8 @@ class SchoolInfoImportApiTest extends SchoolInfoFakeSupport {
 
     @BeforeEach
     void reset() {
+        // A28-42: 이전 시험이 남긴 학교알리미 동기화·분석 작업이 끝난 뒤 공유 가상 서버·DB 를 초기화한다(간헐 실패 원인)
+        org.assertj.core.api.Assertions.assertThat(syncWorker.awaitIdle(java.time.Duration.ofSeconds(120))).as("sync worker idle").isTrue();
         FAKE.reset();
         FAKE.schoolName = "가상고등학교";
     }

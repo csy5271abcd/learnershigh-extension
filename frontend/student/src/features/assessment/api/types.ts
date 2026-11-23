@@ -332,8 +332,11 @@ export interface NoteBlockAttrs {
   body?: string
   /** LINK·VIDEO·MAP 주소 (형식만 확인, 열리는지 확인 안 함) */
   url?: string
-  /** IMAGE·FILE 메타데이터. 파일 본문은 저장하지 않는다 (저장소 미정, API-OD-A03) */
-  file?: { name: string; size: number; mimeType: string }
+  /**
+   * IMAGE·FILE 메타데이터. A28-41(§26-1): attachmentId 가 있으면 바이트가 서버 Storage 에 저장된 첨부다.
+   * attachmentId 가 없는 이전 블록은 이름·크기만 남아 있고 파일은 없다(다시 첨부 필요).
+   */
+  file?: { name: string; size: number; mimeType: string; attachmentId?: string; sha256?: string }
   /** MAP 장소 이름 */
   place?: string
   /**
@@ -1057,4 +1060,24 @@ export interface NoticeFile {
   contentType: string
   sizeBytes: number
   uploadedAt: string
+}
+
+/** A28-33 학생 달력 개인 임시 배치 (2026-11-23 DRAFT §30-b). 본인 화면 표시용 — 공식 날짜 아님 */
+export interface CalendarPlacement {
+  sourceKey: string
+  displayDate: string
+  rangeFrom: string
+  rangeTo: string
+  updatedAt: string
+}
+
+/** §26-1 A28-41 탐구 노트 첨부 업로드 응답 */
+export interface NoteAttachment {
+  attachmentId: string
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  sha256: string
+  uploadedAt: string
+  previewSupported: boolean
 }

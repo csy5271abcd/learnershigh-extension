@@ -83,7 +83,7 @@ export function UniversityExamAiRoute() {
         </div>
         <div className={styles.panel}>
           <ProviderBanner provider={provider} onRetry={retry} />
-          <p className={styles.banner}>기존 서울대 9개·KAIST 18개 자료(문항 123개)는 이 분석으로 바뀌지 않아요. 새 결과는 후보(Candidate)로만 다뤄요.</p>
+          <p className={styles.banner}>기존 서울대 9개·KAIST 18개 자료(문항 123개)는 이 분석으로 바뀌지 않아요.</p>
           <div className={styles.form}>
             <input
               type="file"
@@ -102,7 +102,6 @@ export function UniversityExamAiRoute() {
               <button type="button" className={styles.buttonPrimary} disabled={!file || state.kind === 'running'} aria-busy={state.kind === 'running'} onClick={start}>
                 {state.kind === 'running' ? '분석 중…' : analysis ? '다시 분석' : 'AI 문항 분석'}
               </button>
-              <span className={styles.muted}>그림·도표 중심 문항은 텍스트만으로 분석이 부족할 수 있어요.</span>
             </div>
           </div>
           <RunStatus state={state} onRetry={file ? start : undefined} />
@@ -212,7 +211,7 @@ export function UniversityExamAiRoute() {
               <button type="button" className={styles.button} disabled={readOnly || saving} onClick={confirmReview}>
                 {readOnly ? '확정됨 (후보 기록)' : saving ? '저장 중…' : `확정${Object.keys(edits).length ? ` (수정 ${Object.keys(edits).length}건)` : ''}`}
               </button>
-              <p className={styles.muted}>확정해도 기존 Manifest·학생 화면에는 반영되지 않아요. 반영은 저작권·출처 확인 후 별도 작업이에요.</p>
+              <span className={styles.muted}>그림·도표 중심 문항은 텍스트만으로 분석이 부족할 수 있어요.</span><p className={styles.muted}>확정해도 기존 Manifest·학생 화면에는 반영되지 않아요. 반영은 저작권·출처 확인 후 별도 작업이에요.</p>
             </Section>
           )}
         </div>

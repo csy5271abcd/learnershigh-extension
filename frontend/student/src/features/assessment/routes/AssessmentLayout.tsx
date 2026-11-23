@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from 'react-router'
-import { getAcademicContext } from '../api/academicContextApi.ts'
+import { getAcademicContext, getAcademicTerms } from '../api/academicContextApi.ts'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
 import { listResources } from '../api/resourcesApi.ts'
 import { listSchoolAssessments } from '../api/schoolAssessmentApi.ts'
@@ -24,7 +24,7 @@ import { AddSubjectModal } from '../components/AddSubjectModal.tsx'
 import { SidebarSubjects } from '../components/SidebarSubjects.tsx'
 import { TermSelector } from '../components/TermSelector.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
-import { isSameTerm, termCandidates, termKey, termLabel } from '../model/academicTerm.ts'
+import { isNoAcademicRecord, isSameTerm, parseTermParam, termCandidates, termKey, termLabel } from '../model/academicTerm.ts'
 import {
   AssessmentWorkspaceContext,
   type AcademicTerms,
@@ -62,15 +62,23 @@ import {
 const termItemsPageSize = 100
 
 async function loadTerms(): Promise<AcademicTerms> {
-  const current = await getAcademicContext()
+  const [current, listed] = await Promise.all([
+    getAcademicContext(),
+    // A28-29 §9-1-c: 학적이 있는 학기 목록(서버가 확인). 없으면(Mock·이전 서버) null → 3개 학년도 후보를 §9-1 로 하나씩 확인
+    getAcademicTerms().then(
+      (response) => response.terms,
+      () => null,
+    ),
+  ])
   const currentTerm = { academicYear: current.academicYear, semester: current.semester }
-  const others = termCandidates(currentTerm).filter((term) => !isSameTerm(term, currentTerm))
+  const others = (listed ?? termCandidates(currentTerm)).filter((term) => !isSameTerm(term, currentTerm))
   const results = await Promise.allSettled(others.map((term) => getAcademicContext(term)))
   const contexts: AcademicContext[] = [current]
   const failedTerms: AcademicTermQuery[] = []
   results.forEach((result, index) => {
     if (result.status === 'fulfilled') contexts.push(result.value)
-    else failedTerms.push(others[index])
+    // 서버 목록에 있던 학기는 어떤 실패든 '불러오지 못한 학기'. 후보로 확인한 학기는 학적 없음(§9-1 400·Mock 404)이면 조용히 뺀다
+    else if (listed || !isNoAcademicRecord(result.reason)) failedTerms.push(others[index])
   })
   return { currentTerm, contexts, failedTerms }
 }
@@ -79,7 +87,7 @@ async function loadTerms(): Promise<AcademicTerms> {
 // 기존 Student 상단 Navigation은 StudentAppShell이 그대로 그린다.
 export function AssessmentLayout() {
   const location = useLocation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [dataVersion, setDataVersion] = useState(0)
   const [chosenTerm, setChosenTerm] = useState<AcademicTermQuery>()
   const [navOpen, setNavOpen] = useState(false)
@@ -89,7 +97,23 @@ export function AssessmentLayout() {
   const mobileButtonRef = useRef<HTMLButtonElement>(null)
 
   const terms = useApiQuery(`terms:${dataVersion}`, loadTerms)
-  const selectedTerm = chosenTerm ?? terms.data?.currentTerm
+  // A28-34: 고른 학기를 주소(?term=2026-2)에 남겨 새로고침·직접 링크에서도 유지한다. 서버 학기 목록(학적 있는 학기)에 있을 때만 쓰고,
+  //   없으면 현재 학기로 보이며 알린다. 다른 메뉴로 옮겨 주소에 값이 없으면 이 탭에서 마지막으로 고른 학기(chosenTerm)를 쓴다.
+  const urlTerm = parseTermParam(searchParams.get('term'))
+  const urlTermKnown = Boolean(urlTerm && terms.data?.contexts.some((context) => isSameTerm(context, urlTerm)))
+  const urlTermRejected = Boolean(searchParams.get('term')) && terms.status === 'success' && !urlTermKnown
+  const selectedTerm = (urlTermKnown && urlTerm ? urlTerm : chosenTerm) ?? terms.data?.currentTerm
+  const chooseTerm = (term: AcademicTermQuery) => {
+    setChosenTerm(term)
+    setSearchParams(
+      (current) => {
+        const next = new URLSearchParams(current)
+        next.set('term', termKey(term))
+        return next
+      },
+      { replace: true },
+    )
+  }
   const selectedContext = terms.data?.contexts.find((context) => selectedTerm && isSameTerm(context, selectedTerm))
 
   const termAssessments = useApiQuery<TermAssessments>(
@@ -196,7 +220,12 @@ export function AssessmentLayout() {
           aria-label="Assessment"
         >
           <div className={styles.termArea}>
-            <TermSelector terms={terms} selectedTerm={selectedTerm} onSelect={setChosenTerm} onNavigate={closeNav} />
+            <TermSelector terms={terms} selectedTerm={selectedTerm} onSelect={chooseTerm} onNavigate={closeNav} />
+            {urlTermRejected && (
+              <p className={styles.termNote} role="note" data-testid="term-param-rejected">
+                주소의 학기({searchParams.get('term')})는 학적 기록이 없어 현재 학기로 보여요.
+              </p>
+            )}
           </div>
 
           <nav className={styles.nav} id="assessment-sidebar-menu" aria-label="Assessment 메뉴">
@@ -305,7 +334,7 @@ export function AssessmentLayout() {
                 tone: 'success',
                 text:
                   origin === 'CREATED'
-                    ? `'${subject.name}' 과목을 추가했어요. 시연용이라 이 브라우저에만 저장돼요.`
+                    ? `'${subject.name}' 과목을 추가했어요.`
                     : `다른 학기에서 쓰던 '${subject.name}' 과목을 이 학기에 추가했어요.`,
               }))
             }}

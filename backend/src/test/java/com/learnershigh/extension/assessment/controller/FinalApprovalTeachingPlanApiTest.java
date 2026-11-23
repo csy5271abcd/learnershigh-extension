@@ -124,6 +124,44 @@ class FinalApprovalTeachingPlanApiTest {
     }
 
     @Test
+    void A28_36_평가_정보만_확정된_문서는_운영계획만_승인하고_확정값을_다시_쓰지_않으며_경계는_거절한다() throws Exception {
+        // 1) 평가 정보만 최종 승인(운영계획 없이) — 보라고처럼 확정값이 먼저 있는 상태
+        mvc.perform(asAdmin(put(revision() + "/review"), OPERATOR).contentType(MediaType.APPLICATION_JSON)
+                        .content(approval(",\"bulk\":true", null)))
+                .andExpect(status().isOk());
+        String valuesBefore = jdbc.queryForObject(
+                "select group_concat(concat_ws('|',id,field_path,coalesce(value_json,'null')) order by id) from assessment_plan_confirmed_value", String.class);
+        String reviewBefore = jdbc.queryForObject("select group_concat(concat_ws('|',id,analysis_id) order by id) from assessment_plan_review", String.class);
+        String teaching = revision() + "/teaching-plan-review";
+        // 2) 0행 승인 거절(가짜 확정 없음)
+        mvc.perform(asAdmin(put(teaching), OPERATOR).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"analysisId\":\"" + analysisId + "\",\"rows\":[]}"))
+                .andExpect(status().isBadRequest());
+        // 3) 다른(낡은) 분석 결과로 승인 거절
+        mvc.perform(asAdmin(put(teaching), OPERATOR).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"analysisId\":\"analysis_stale\",\"rows\":[" + row("T01", "CONFIRMED") + "]}"))
+                .andExpect(status().is4xxClientError());
+        assertThat(count("assessment_plan_teaching_plan_review")).isZero();
+        // 4) 운영계획만 승인(일부 제외) → 성공, 평가 확정값·확정 기록은 그대로
+        mvc.perform(asAdmin(put(teaching), OPERATOR).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"analysisId\":\"" + analysisId + "\",\"rows\":[" + row("T01", "CONFIRMED") + "," + row("T02", "CONFIRMED") + ","
+                                + row("T08", "EXCLUDED") + "]}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.review.rows.length()").value(3));
+        assertThat(jdbc.queryForObject(
+                "select group_concat(concat_ws('|',id,field_path,coalesce(value_json,'null')) order by id) from assessment_plan_confirmed_value", String.class))
+                .as("평가 확정값을 다시 쓰지 않음").isEqualTo(valuesBefore);
+        assertThat(jdbc.queryForObject("select group_concat(concat_ws('|',id,analysis_id) order by id) from assessment_plan_review", String.class))
+                .isEqualTo(reviewBefore);
+        // 5) 같은 결과 재승인·중복 클릭 → 409, 확정 기록 1건 그대로
+        mvc.perform(asAdmin(put(teaching), OPERATOR).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"analysisId\":\"" + analysisId + "\",\"rows\":[" + row("T01", "CONFIRMED") + "]}"))
+                .andExpect(status().isConflict());
+        assertThat(count("assessment_plan_teaching_plan_review")).isEqualTo(1);
+        assertThat(count("assessment_plan_review")).isEqualTo(1);
+    }
+
+    @Test
     void 운영계획이_거절되면_평가_정보도_확정되지_않는다() throws Exception {
         String response = mvc.perform(asAdmin(put(revision() + "/review"), OPERATOR).contentType(MediaType.APPLICATION_JSON)
                         .content(approval(",\"bulk\":true", row("T01", "CONFIRMED") + "," + row("T99", "CONFIRMED"))))

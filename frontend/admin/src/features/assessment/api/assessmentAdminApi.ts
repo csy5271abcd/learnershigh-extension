@@ -68,7 +68,7 @@ const noSchoolInfo = () => Promise.reject(new Error('Mock 모드에서는 학교
 /** §38-13·§38-14 (부록 F). Mock 모드에는 학교알리미 연결이 없다. */
 export const selectSchoolInfoSchool = useMock ? (_r: { schoolId: string; jobId: string; candidateId: string; expectedVersion: number }): Promise<import('./types.ts').SchoolInfoSyncResult> => noSchoolInfo() : http.selectSchoolInfoSchoolHttp
 // 부록 O §38-15: 학교알리미 공식 학교 검색·선택(Mock 모드에는 없다 — 실제 학교 검색은 서버만)
-export const searchSchoolDirectory = useMock ? (_query: string): Promise<http.SchoolDirectorySearch> => noSchoolInfo() : http.searchSchoolDirectoryHttp
+export const searchSchoolDirectory = useMock ? (_query: string, _refresh?: boolean): Promise<http.SchoolDirectorySearch> => noSchoolInfo() : http.searchSchoolDirectoryHttp
 export const selectSchoolDirectory = useMock ? (_candidateId: string): Promise<http.SchoolDirectorySelection> => noSchoolInfo() : http.selectSchoolDirectoryHttp
 export const listSchoolInfoSources = useMock ? (_schoolId: string): Promise<import('./types.ts').SchoolInfoSourcesResult> => noSchoolInfo() : http.listSchoolInfoSourcesHttp
 export const downloadSchoolInfoSource = useMock ? (_schoolId: string, _id: string): Promise<Blob> => noSchoolInfo() : http.downloadSchoolInfoSourceHttp
@@ -187,6 +187,13 @@ export const previewArtifactVersion = useMock
 export const downloadArtifactVersion = useMock
   ? (_artifactId: string, _versionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
   : records.downloadArtifactVersionHttp
+/** §26-1 A28-41 (http만) 학생 노트 첨부 미리보기·원본 */
+export const previewNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.previewNoteAttachmentHttp
+export const downloadNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.downloadNoteAttachmentHttp
 /** http: 휴지통으로 이동(복원 가능). Mock: 기존 Mock 삭제 */
 export const deleteScrap = useMock ? mock.deleteScrapMock : records.deleteScrapHttp
 /** 관리자 참고자료 휴지통 (http만. Mock에는 휴지통이 없다) */

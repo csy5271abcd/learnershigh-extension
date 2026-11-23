@@ -165,7 +165,7 @@ function ClassifyCard({ schoolId, item, onSaved }: { schoolId: string; item: Sch
       () => {
         setPending(false)
         setNote('')
-        setMessage({ tone: 'ok', text: '분류를 저장하고 칸에 등록했어요. 분석은 서버가 차례로 진행해요.' })
+        setMessage({ tone: 'ok', text: '분류를 저장하고 칸에 등록했어요.' })
         onSaved()
       },
       (cause: unknown) => {

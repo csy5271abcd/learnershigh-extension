@@ -213,6 +213,9 @@ export const previewArtifactVersionHttp = (artifactId: string, versionId: string
   adminFile(`${base}/artifacts/${enc(artifactId)}/versions/${enc(versionId)}/preview`)
 export const downloadArtifactVersionHttp = (artifactId: string, versionId: string) =>
   adminFile(`${base}/artifacts/${enc(artifactId)}/versions/${enc(versionId)}/file`)
+/** §26-1 A28-41 학생 노트 첨부(담당 학생만, 서버가 범위 검사) */
+export const previewNoteAttachmentHttp = (attachmentId: string) => adminFile(`${base}/note-attachments/${enc(attachmentId)}/preview`)
+export const downloadNoteAttachmentHttp = (attachmentId: string) => adminFile(`${base}/note-attachments/${enc(attachmentId)}/file`)
 
 const compareLabels: Record<string, string> = {
   fileName: '파일 이름',

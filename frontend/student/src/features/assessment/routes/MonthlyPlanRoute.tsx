@@ -42,7 +42,7 @@ export function MonthlyPlanRoute() {
       <h1 className={styles.title}>월별 운영계획</h1>
       <p className={styles.subtitle}>
         {selectedContext ? `${selectedContext.school.name} · ${termLabel(selectedContext)} · ` : ''}
-        학교 교수·학습 운영계획 중 관리자가 원문과 대조해 확정한 내용만 보여요.
+        확정된 운영계획만
       </p>
     </header>
   )
@@ -59,7 +59,7 @@ export function MonthlyPlanRoute() {
     return (
       <main className={styles.page}>
         {header}
-        {terms.status === 'loading' ? <LoadingRows rows={3} label="학업 정보를 불러오는 중" /> : <EmptyState title="학업 정보가 없어요" description="학교·학년·학기 정보가 있어야 운영계획을 볼 수 있어요." />}
+        {terms.status === 'loading' ? <LoadingRows rows={3} label="학업 정보를 불러오는 중" /> : <EmptyState title="학업 정보가 없어요" />}
       </main>
     )
   }
@@ -86,10 +86,10 @@ export function MonthlyPlanRoute() {
       {header}
       <p className={styles.notice}>
         <InfoIcon size={14} />
-        원문에 적힌 만큼만 보여요: 날짜가 없으면 주차·월로, 시기가 없으면 &lsquo;달을 정할 수 없는 계획&rsquo;으로 따로 모아요. 수업 운영 계획이며 수행평가 일정과는 달라요.
+        날짜가 없으면 원문의 주차·월 그대로(임의 날짜 없음) · 수행평가 일정과 별개
       </p>
       {loaded.data.length === 0 ? (
-        <EmptyState title="아직 확정된 평가계획서가 없어요" description="관리자가 이 학기 평가계획서를 확인하면 운영계획도 여기에 보여요." />
+        <EmptyState title="아직 확정된 평가계획서가 없어요" />
       ) : withRows.length === 0 ? (
         <div data-testid="monthly-plan-not-confirmed">
           <EmptyState title="운영계획이 아직 확정되지 않았어요" description="평가계획서는 공개됐지만 월별 운영계획은 관리자가 확인하는 중이에요. 원문에서 먼저 확인할 수 있어요." />

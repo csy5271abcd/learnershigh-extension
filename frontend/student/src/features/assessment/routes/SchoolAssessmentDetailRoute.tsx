@@ -36,6 +36,8 @@ import { contextOf, loadOfficialCriteria } from '../model/officialCriteria.ts'
 import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
 import { EditSchoolAssessmentModal } from '../components/EditSchoolAssessmentModal.tsx'
 import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
+import { DeleteSchoolAssessmentModal } from '../components/detail/DeleteSchoolAssessmentModal.tsx'
+import { exportFileName, noteToMarkdown } from '../model/noteExport.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { ResourcesTab } from '../components/detail/ResourcesTab.tsx'
@@ -61,12 +63,16 @@ import { useApiQuery } from '../model/useApiQuery.ts'
 import { archivePath, enrichmentPath, mockExamMaterialsPath, resourcesPath, schoolAssessmentsPath } from './paths.ts'
 import styles from './SchoolAssessmentDetailRoute.module.css'
 
+/** A28-49 노트 내보내기 시각(렌더 밖에서만 부른다) */
+const exportClock = () => new Date()
+
 type ModalState =
   | { kind: 'upload'; target?: { artifact: Artifact; latest: ArtifactVersion | undefined } }
   | { kind: 'topic' }
   | { kind: 'tips' }
   | { kind: 'sent'; request: FeedbackRequest }
   | { kind: 'edit' }
+  | { kind: 'delete' }
 
 async function loadArtifacts(assessmentId: string): Promise<ArtifactWithVersions[]> {
   const { items } = await listArtifacts('SCHOOL_ASSESSMENT', assessmentId)
@@ -138,7 +144,7 @@ export function SchoolAssessmentDetailRoute() {
   // 피드백 Snapshot은 서버에 저장된 Revision만 가리켜야 한다. 편집기에 저장 안 된 변경이 있거나
   // 저장 직후 목록이 아직 최신 Revision을 받지 못했으면 요청을 막는다 (feedback §4, testing §9).
   const noteBlockedReason = editorState?.unsaved
-    ? '노트에 저장되지 않은 변경이 있어요. 저장된 뒤 요청할 수 있어요.'
+    ? '노트에 저장되지 않은 변경이 있어요.'
     : editorState?.baseRevisionId && editorState.baseRevisionId !== note?.revisionId
       ? '노트 저장 상태를 확인하는 중이에요.'
       : undefined
@@ -188,6 +194,49 @@ export function SchoolAssessmentDetailRoute() {
   const readOnly = isAssessmentReadOnlyView()
 
   const openFeedback = () => setSheet('feedback')
+  // A28-46: 휴지통 이동(소프트 삭제). 본문 버튼과 상단 더보기 메뉴가 같은 동작을 쓴다
+  const moveToTrash = item && !readOnly && !isMockDataSource
+    ? () => {
+        if (!window.confirm(`'${item.title}' 수행평가를 휴지통으로 옮길까요? 노트·결과물·피드백 기록은 그대로 보관되고, 보관함 휴지통에서 복구할 수 있어요.`)) return
+        trashSchoolAssessment(item.assessmentId).then(
+          () => {
+            notifyDataChanged()
+            navigate(archivePath + '?tab=trash')
+          },
+          (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
+        )
+      }
+    : undefined
+
+  // A28-49 노트 내보내기: 서버에 저장된 최신 노트를 Markdown 파일로(편집 중 저장 안 된 내용은 넣지 않는다고 알린다)
+  const exportNote = () => {
+    if (!item) return
+    const exportedAt = exportClock()
+    const markdown = noteToMarkdown({
+      assessmentTitle: item.title,
+      subjectName: subjectName(item.subjectId),
+      meta: [
+        ['진행 상태', statusLabels[item.status] ?? item.status],
+        ['평가 유형', typeDisplay(item)],
+        ['평가일', dateDisplay(item.evaluationDate)],
+        ['제출 마감', dateDisplay(item.deadlineDate)],
+        ['반영 비율', item.weightPercent != null ? `${item.weightPercent}%` : null],
+        ['제출물', item.submissions],
+      ],
+      noteTitle: note?.title ?? null,
+      revisionNumber: note?.revisionNumber ?? null,
+      savedAt: note?.savedAt ?? null,
+      blocks: note?.blocks ?? [],
+      exportedAt,
+    })
+    const href = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }))
+    const anchor = document.createElement('a')
+    anchor.href = href
+    anchor.download = exportFileName(item.title, exportedAt)
+    anchor.click()
+    window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
+    showToast('success', editorState?.unsaved ? '저장된 노트로 내보냈어요(아직 저장 안 된 편집은 빠졌어요).' : '노트를 Markdown 파일로 내보냈어요.')
+  }
 
   const topBar = (
     <DetailTopBar
@@ -199,7 +248,13 @@ export function SchoolAssessmentDetailRoute() {
       onRequestFeedback={readOnly ? undefined : openFeedback}
       onFindResources={() => setSheet('resources')}
       onUnavailable={(message) => showToast('info', message)}
-      menuItems={schoolAssessmentMenuItems(assessmentId)}
+      menuItems={schoolAssessmentMenuItems(assessmentId, {
+        onEdit: item && !readOnly ? () => setModal({ kind: 'edit' }) : undefined,
+        onExport: item ? exportNote : undefined,
+        onTrash: moveToTrash,
+        onDelete: item && !readOnly && !isMockDataSource ? () => setModal({ kind: 'delete' }) : undefined,
+        unavailable: readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요.' : isMockDataSource ? '시연 데이터에서는 사용할 수 없어요.' : '정보를 불러오는 중이에요.',
+      })}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
       currentRevisionId={editorState?.baseRevisionId}
       hasUnsavedChanges={editorState?.unsaved}
@@ -308,7 +363,7 @@ export function SchoolAssessmentDetailRoute() {
               if (!window.confirm(`'${artifact.title}' 결과물을 휴지통으로 옮길까요? 버전과 파일은 지워지지 않고, 보관함 휴지통에서 복구할 수 있어요.`)) return
               trashArtifact(artifact.artifactId).then(
                 () => {
-                  showToast('success', '휴지통으로 옮겼어요. 보관함 › 휴지통에서 복구할 수 있어요.')
+                  showToast('success', '휴지통으로 옮겼어요.')
                   refreshDetail()
                   notifyDataChanged()
                 },
@@ -342,7 +397,6 @@ export function SchoolAssessmentDetailRoute() {
             <PropertyRow icon={<StatusIcon size={15} />} label="진행 상태">
               <span className={styles.statusValue}>
                 <StatusSelect status={item.status} assessmentTitle={item.title} pending={pending} onChange={onStatusChange} disabled={readOnly} />
-                <span className={styles.hint}>내가 관리하는 상태예요. 이전 단계로 되돌릴 수도 있어요.</span>
               </span>
             </PropertyRow>
             <PropertyRow icon={<BookIcon size={15} />} label="과목">
@@ -456,16 +510,7 @@ export function SchoolAssessmentDetailRoute() {
               className={styles.editInfoButton}
               data-testid="trash-assessment"
               title="노트·결과물·피드백 기록은 지우지 않고 함께 휴지통에 들어가요"
-              onClick={() => {
-                if (!window.confirm(`'${item.title}' 수행평가를 휴지통으로 옮길까요? 노트·결과물·피드백 기록은 그대로 보관되고, 보관함 휴지통에서 복구할 수 있어요.`)) return
-                trashSchoolAssessment(item.assessmentId).then(
-                  () => {
-                    notifyDataChanged()
-                    navigate(archivePath + '?tab=trash')
-                  },
-                  (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
-                )
-              }}
+              onClick={() => moveToTrash?.()}
             >
               휴지통으로 이동
             </button>
@@ -498,7 +543,7 @@ export function SchoolAssessmentDetailRoute() {
       )}
 
       {sheet === 'feedback' && (
-        <Modal title="선생님께 피드백 요청" description="노트와 결과물 버전을 골라 요청하고, 이전 요청과 답변을 확인해요." wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
+        <Modal title="선생님께 피드백 요청" wide onRequestClose={() => setSheet(null)} footer={<button type="button" className={styles.sheetClose} onClick={() => setSheet(null)}>닫기</button>}>
           <div data-testid="feedback-modal">{feedbackContent}</div>
         </Modal>
       )}
@@ -534,6 +579,18 @@ export function SchoolAssessmentDetailRoute() {
             showToast('success', '평가 정보를 저장했어요.')
             // 저장 응답을 그대로 쓰지 않고 상세·목록을 서버에서 다시 읽는다.
             notifyDataChanged()
+          }}
+        />
+      )}
+      {modal?.kind === 'delete' && item && (
+        <DeleteSchoolAssessmentModal
+          assessmentId={item.assessmentId}
+          title={item.title}
+          onClose={() => setModal(undefined)}
+          onDeleted={() => {
+            setModal(undefined)
+            notifyDataChanged()
+            navigate(schoolAssessmentsPath)
           }}
         />
       )}

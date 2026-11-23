@@ -1,4 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { downloadNoteAttachment, previewNoteAttachment } from '../../api/assessmentDetailApi.ts'
+import { isMockDataSource } from '../../api/dataSource.ts'
+import { NoteFilePreviewModal } from './NoteFilePreviewModal.tsx'
 import type { NoteBlockAttrs } from '../../api/types.ts'
 import { chartData, formatFileSize, isHttpUrl, mathSyntaxError, urlHost, youtubeEmbedUrl } from '../../model/noteEditorModel.ts'
 import { resourceTypeLabel } from '../../model/resourceLibraryView.ts'
@@ -113,25 +117,118 @@ export function MapCard({ place, url }: { place: string; url?: string }) {
   )
 }
 
-export function FileMeta({ file, previewUrl, isImage }: { file: NonNullable<NoteBlockAttrs['file']>; previewUrl: string | undefined; isImage: boolean }) {
+/** A28-41 §26-1: 앱 안에서 바로 그릴 수 있는 형식(서버 미리보기 허용 목록과 같다) */
+const previewableTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/gif', 'image/webp'])
+
+function saveBlob(blob: Blob, fileName: string) {
+  const href = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = href
+  anchor.download = fileName
+  anchor.click()
+  window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
+}
+
+/**
+ * 노트 이미지·파일 블록 표시. A28-41: attachmentId 가 있으면 서버에 저장된 파일 — 이미지는 서버 미리보기로 그리고,
+ * 열기(이미지·PDF)·내려받기를 준다. attachmentId 가 없으면 이전 방식(이름·크기만)이라 파일이 없다는 사실을 그대로 알린다.
+ * previewUrl 은 업로드 중 이 화면에서만 쓰는 임시 미리보기다.
+ */
+export function FileMeta({ file, previewUrl, isImage, pending = false }: { file: NonNullable<NoteBlockAttrs['file']>; previewUrl: string | undefined; isImage: boolean; pending?: boolean }) {
+  const stored = Boolean(file.attachmentId)
+  const previewable = previewableTypes.has(file.mimeType)
+  const [serverUrl, setServerUrl] = useState<string>()
+  const [error, setError] = useState<string>()
+  const [previewing, setPreviewing] = useState(false)
+  useEffect(() => {
+    if (!file.attachmentId || !isImage || !previewable || isMockDataSource) return
+    let cancelled = false
+    let url: string | undefined
+    previewNoteAttachment(file.attachmentId).then(
+      (blob) => {
+        if (cancelled) return
+        url = URL.createObjectURL(blob)
+        setServerUrl(url)
+      },
+      (cause: unknown) => !cancelled && setError(cause instanceof Error ? cause.message : '이미지를 불러오지 못했어요.'),
+    )
+    return () => {
+      cancelled = true
+      if (url) URL.revokeObjectURL(url)
+    }
+  }, [file.attachmentId, isImage, previewable])
+  const shown = serverUrl ?? previewUrl
+  const open = () => {
+    if (!file.attachmentId) return
+    setError(undefined)
+    previewNoteAttachment(file.attachmentId).then(
+      (blob) => {
+        const href = URL.createObjectURL(blob)
+        window.open(href, '_blank', 'noopener,noreferrer')
+        window.setTimeout(() => URL.revokeObjectURL(href), 60_000)
+      },
+      (cause: unknown) => setError(cause instanceof Error ? cause.message : '파일을 열지 못했어요.'),
+    )
+  }
+  const download = () => {
+    if (!file.attachmentId) return
+    setError(undefined)
+    downloadNoteAttachment(file.attachmentId).then(
+      (blob) => saveBlob(blob, file.name),
+      (cause: unknown) => setError(cause instanceof Error ? cause.message : '파일을 내려받지 못했어요.'),
+    )
+  }
   return (
-    <div className={styles.fileBlock}>
-      {isImage && previewUrl && <img className={styles.imagePreview} src={previewUrl} alt={`${file.name} 미리보기`} />}
+    <div className={styles.fileBlock} data-testid="note-file" data-stored={stored ? 'true' : 'false'}>
+      {isImage && shown && (
+        // A28-48: 이미지를 누르면 같은 화면 미리보기 창(저장된 첨부만)
+        <img
+          className={styles.imagePreview}
+          src={shown}
+          alt={`${file.name} 미리보기`}
+          onClick={stored ? () => setPreviewing(true) : undefined}
+          style={stored ? { cursor: 'zoom-in' } : undefined}
+        />
+      )}
       <div className={styles.fileMeta}>
         <span className={styles.linkType}>{isImage ? '이미지' : file.mimeType === 'application/pdf' ? 'PDF' : '파일'}</span>
         <span className={styles.fileName}>{file.name}</span>
         <span className={styles.linkUrl}>{formatFileSize(file.size)}</span>
-        {previewUrl && !isImage && (
-          <a className={styles.fileOpen} href={previewUrl} target="_blank" rel="noreferrer noopener">
-            새 탭에서 미리보기 ↗
-          </a>
+        {stored && (
+          <button type="button" className={styles.fileOpen} onClick={() => setPreviewing(true)} data-testid="note-file-preview">
+            미리보기
+          </button>
+        )}
+        {stored && previewable && (
+          <button type="button" className={styles.fileOpen} onClick={open} data-testid="note-file-open">
+            새 탭 ↗
+          </button>
+        )}
+        {stored && (
+          <button type="button" className={styles.fileOpen} onClick={download} data-testid="note-file-download">
+            내려받기
+          </button>
         )}
       </div>
-      <p className={styles.mediaCaption}>
-        {previewUrl
-          ? '미리보기는 이 화면에서만 보여요. 파일 자체는 서버에 저장되지 않고, 노트에는 파일 이름·크기만 남아요.'
-          : '파일 이름·크기만 기록돼 있어요. 파일 자체는 저장되지 않았어요 (파일 저장소 미정).'}
+      <p className={styles.mediaCaption} data-testid="note-file-status">
+        {pending
+          ? '서버에 저장하는 중…'
+          : stored
+            ? previewable
+              ? '서버에 저장됨'
+              : '서버에 저장됨 · 앱 안 미리보기 미지원 형식(내려받아 확인)'
+            : isMockDataSource
+              ? '시연 화면 · 파일 이름·크기만 기록(파일 저장 안 됨)'
+              : '이전 첨부 · 파일이 저장되지 않아 열 수 없어요. 다시 첨부해 주세요.'}
       </p>
+      {error && (
+        <p className={styles.mathError} role="alert">
+          {error}
+        </p>
+      )}
+      {previewing && file.attachmentId && (
+        <NoteFilePreviewModal attachmentId={file.attachmentId} fileName={file.name} mimeType={file.mimeType} onClose={() => setPreviewing(false)} />
+      )}
     </div>
   )
 }

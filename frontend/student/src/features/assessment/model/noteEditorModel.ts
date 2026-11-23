@@ -87,9 +87,9 @@ export const blockCommands: BlockCommand[] = [
   { id: 'chart', label: '차트', description: '표 값으로 막대 그래프 미리보기', icon: '📊', group: '데이터', keywords: ['차트', '그래프', 'chart', 'graph'], type: 'CHART' },
   { id: 'resource', label: '참고자료', description: '자료함 자료를 출처 카드로 연결', icon: '📚', group: '자료', keywords: ['참고자료', '자료', '자료함', '출처', 'resource'], type: 'RESOURCE_LINK' },
   { id: 'link', label: '링크', description: '웹 주소 카드', icon: '🔗', group: '자료', keywords: ['링크', '주소', 'url', 'link', '북마크'], type: 'LINK' },
-  { id: 'image', label: '이미지', description: '이 화면에서만 미리보기 (서버 저장 안 됨)', icon: '🖼', group: '미디어', keywords: ['이미지', '사진', '그림', 'image', 'img'], type: 'IMAGE' },
-  { id: 'file', label: '파일', description: '파일 정보만 기록 (서버 저장 안 됨)', icon: '📎', group: '미디어', keywords: ['파일', '첨부', 'file'], type: 'FILE' },
-  { id: 'pdf', label: 'PDF', description: 'PDF 정보 기록·이 화면에서 미리보기', icon: '📄', group: '미디어', keywords: ['pdf', '문서'], type: 'FILE', attrs: { file: { name: '', size: 0, mimeType: 'application/pdf' } } },
+  { id: 'image', label: '이미지', description: '고르면 서버에 저장 · 바로 미리보기', icon: '🖼', group: '미디어', keywords: ['이미지', '사진', '그림', 'image', 'img'], type: 'IMAGE' },
+  { id: 'file', label: '파일', description: '고르면 서버에 저장 · 내려받기', icon: '📎', group: '미디어', keywords: ['파일', '첨부', 'file'], type: 'FILE' },
+  { id: 'pdf', label: 'PDF', description: '고르면 서버에 저장 · 바로 미리보기', icon: '📄', group: '미디어', keywords: ['pdf', '문서'], type: 'FILE', attrs: { file: { name: '', size: 0, mimeType: 'application/pdf' } } },
   // 대학 기출 PDF는 기존 PDF 블록 뒤에 둔다 ("/pdf" Enter가 기존 PDF 블록을 고르게, 2026-10-28 회귀 수정)
   {
     id: 'examSource',

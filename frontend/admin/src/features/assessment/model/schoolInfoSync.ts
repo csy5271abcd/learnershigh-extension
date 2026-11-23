@@ -90,6 +90,15 @@ export function isSchoolInfoSource(sourceUrl: string | null | undefined): boolea
   return sourceUrl.startsWith('https://www.schoolinfo.go.kr') || sourceUrl.includes('/ei/ss/Pneiss_b01_s0.do?SHL_IDF_CD=')
 }
 
+/**
+ * A28-38: 확정 결과에서 '확정 내용 수정'(재검토 → 다시 최종 승인)을 열 수 있는 문서.
+ * PDF 는 기존 단계별 확정, 학교알리미 수집 원본(PDF·HWP·HWPX)은 §39-14 서버 원본 검증으로 다시 승인한다.
+ * 관리자가 직접 올린 HWP·HWPX 는 운영 확정 경로가 없어(verified_auth_required) 수정 진입점을 두지 않는다.
+ */
+export function canEditConfirmed(documentFormat: string | null | undefined, sourceUrl: string | null | undefined): boolean {
+  return (documentFormat ?? 'PDF') === 'PDF' || isSchoolInfoSource(sourceUrl)
+}
+
 /** 같은 원본 조회 범위인가 — 학년도 필터를 바꿔도 다시 보내지 않기 위함. */
 export function sameRange(a: number[], b: number[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index])

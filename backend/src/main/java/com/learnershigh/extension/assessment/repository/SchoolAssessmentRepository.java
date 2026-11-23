@@ -31,4 +31,7 @@ public interface SchoolAssessmentRepository extends JpaRepository<SchoolAssessme
     List<SchoolAssessment> findByStudentIdAndDeletedAtIsNotNullOrderByDeletedAtDesc(String studentId);
 
     Optional<SchoolAssessment> findByIdAndStudentIdAndDeletedAtIsNotNull(String id, String studentId);
+
+    /** A28-49 영구 삭제: 휴지통 여부와 상관없이 본인 항목 */
+    Optional<SchoolAssessment> findByIdAndStudentId(String id, String studentId);
 }

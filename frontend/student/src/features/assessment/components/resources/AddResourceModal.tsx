@@ -158,7 +158,7 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
   return (
     <Modal
       title="자료 추가"
-      description="조사한 자료의 출처를 내 자료함에 남겨요. 나만 볼 수 있어요."
+      description="조사한 자료의 출처를 내 자료함에 남겨요."
       compact
       onRequestClose={requestClose}
       initialFocusRef={titleRef}
@@ -356,7 +356,7 @@ function AddResourceModalForm({ prefill, onClose, onCreated }: AddResourceModalP
             fieldError('sourceUrl', ids.url)
           ) : (
             <p id={`${ids.url}-hint`} className={formStyles.hint}>
-              주소 형식만 확인해요. 링크가 실제로 열리는지는 확인하지 않아요.
+              주소 형식만 확인해요.
             </p>
           )}
         </div>

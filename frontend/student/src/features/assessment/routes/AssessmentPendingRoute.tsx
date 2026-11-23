@@ -11,7 +11,6 @@ export function AssessmentPendingRoute({ title }: { title: string }) {
       <h1 className={styles.title}>{title}</h1>
       <EmptyState
         title="이 메뉴는 아직 준비 중이에요"
-        description="학교 수행평가 화면부터 순서대로 연결하고 있어요."
         action={
           <Link className={styles.link} to={schoolAssessmentsPath}>
             학교 수행평가로 가기

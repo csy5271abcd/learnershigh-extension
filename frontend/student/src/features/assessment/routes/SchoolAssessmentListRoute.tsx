@@ -557,7 +557,7 @@ function ListEmpty({ hasFilter, important, query, status, subject, onReset, onAd
     return (
       <EmptyState
         title="중요 표시한 수행평가가 없어요"
-        description="목록 왼쪽 별표를 누르면 중요 수행평가로 모아 볼 수 있어요."
+        description="목록 왼쪽 별표 = 중요 표시"
         action={
           <button type="button" className={styles.secondaryButton} onClick={onReset}>
             전체 보기
@@ -570,7 +570,6 @@ function ListEmpty({ hasFilter, important, query, status, subject, onReset, onAd
     return (
       <EmptyState
         title={`'${query}'에 맞는 수행평가가 없어요`}
-        description="검색어를 바꾸거나 필터를 초기화해 보세요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={onReset}>
             검색·필터 초기화
@@ -594,7 +593,7 @@ function ListEmpty({ hasFilter, important, query, status, subject, onReset, onAd
   return (
     <EmptyState
       title={subject ? `${subject.name}에 등록한 수행평가가 없어요` : '아직 등록한 수행평가가 없어요'}
-      description="학교에서 안내받은 수행평가를 추가해 일정과 준비 과정을 관리해 보세요."
+      description="학교 안내 수행평가를 추가해 일정·준비 관리"
       action={
         <button type="button" className={styles.primaryButton} onClick={onAdd}>
           <PlusIcon size={17} />

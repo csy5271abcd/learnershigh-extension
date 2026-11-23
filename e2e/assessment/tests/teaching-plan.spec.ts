@@ -59,13 +59,16 @@ test('평가 정보를 먼저 확정한 뒤에도 운영계획 초안이 서버�
   await expect(event).toHaveCount(1)
   await expect(event).toHaveAttribute('data-date', /^2026-10-/)
   await expect(event).toHaveAttribute('data-tentative', 'true')
-  await expect(section.getByTestId('planner-grid-note')).toContainText('임시로')
+  // A28-36 [10]: 점선·'임시' 안내 없이 일반 일정 칩 — 상세에만 짧게 '날짜 미정'
+  await expect(section.getByTestId('planner-grid-note')).toHaveCount(0)
+  await expect(event).toHaveCSS('border-top-style', 'solid')
   // 일정 상세 모달: 원문 시기 + 달력 표시 날짜(임시 배치 안내), ESC로 닫힌다
   await event.click()
   const detail = student.getByTestId('planner-detail')
   await expect(detail).toBeVisible()
   await expect(detail.getByTestId('planner-detail-when')).toContainText('10월')
-  await expect(detail.getByTestId('planner-detail-tentative')).toContainText('임시 배치')
+  await expect(detail.getByTestId('planner-detail-tentative')).toContainText('날짜 미정')
+  await expect(detail).not.toContainText('임시')
   await student.keyboard.press('Escape')
   await expect(detail).toHaveCount(0)
   await expect(section).not.toContainText('2차 지필평가')

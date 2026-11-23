@@ -40,6 +40,9 @@ class SchoolDirectoryOfficialViewApiTest extends SchoolInfoFakeSupport {
     private static final String C = "0b9c5a4e-cccc-4222-8333-0000000000c3";
 
     @Autowired
+    com.learnershigh.extension.assessment.service.plan.SchoolInfoSyncService syncWorker;
+
+    @Autowired
     MockMvc mvc;
     @Autowired
     JdbcTemplate jdbc;
@@ -50,6 +53,8 @@ class SchoolDirectoryOfficialViewApiTest extends SchoolInfoFakeSupport {
 
     @BeforeEach
     void reset() {
+        // A28-42: 이전 시험이 남긴 학교알리미 동기화·분석 작업이 끝난 뒤 공유 가상 서버·DB 를 초기화한다(간헐 실패 원인)
+        org.assertj.core.api.Assertions.assertThat(syncWorker.awaitIdle(java.time.Duration.ofSeconds(120))).as("sync worker idle").isTrue();
         FAKE.reset();
         FAKE.schoolName = "예시고등학교";
         clock.setDate(LocalDate.of(2026, 9, 30));
@@ -120,6 +125,47 @@ class SchoolDirectoryOfficialViewApiTest extends SchoolInfoFakeSupport {
     }
 
     // ------------------------------------------------------------ §38-15 학교 검색·선택
+
+    @Test
+    void A28_45_일부_상세_실패에도_식별된_학교만_고를_수_있고_실패한_학교는_다시_검색하면_다시_확인한다() throws Exception {
+        String D = "0b9c5a4e-dddd-4222-8333-0000000000d4";
+        String d5 = "0b9c5a4e-eeee-4222-8333-0000000000e5";
+        FAKE.searchIds = List.of(A, B, C, D, d5);
+        FAKE.schools.put(A, new String[] {"부분예시고등학교", "가상특별시 은평구 갈현로 1"});
+        FAKE.schools.put(B, new String[] {"대전부분예시고등학교", "가상광역시 중구 목동로 2"});
+        FAKE.schools.put(C, new String[] {"세종부분예시고등학교", "가상자치시 다솜로 3"});
+        FAKE.schools.put(D, new String[] {"부분예시고등학교", "가상도 원주시 북원로 4"});
+        FAKE.schools.put(d5, new String[] {"청주부분예시고등학교", "가상북도 청주시 대성로 5"});
+        FAKE.detailFailIds.add(d5);
+        String r = search("부분예시" + tag, 200);
+        assertThat(JsonPath.<Boolean>read(r, "$.complete")).isFalse();
+        assertThat(JsonPath.<String>read(r, "$.incompleteReason")).isEqualTo("DETAIL_FAILED");
+        assertThat(JsonPath.<Integer>read(r, "$.unverifiedCount")).isEqualTo(1);
+        assertThat(JsonPath.<List<Boolean>>read(r, "$.items[*].selectable")).containsExactly(true, true, true, true);
+        assertThat(JsonPath.<List<String>>read(r, "$.items[*].schoolinfoSchoolId")).containsExactly(A, B, C, D).doesNotContain(d5);
+        // 자동 선택·매핑 없음
+        assertThat(jdbc.queryForObject("select count(*) from assessment_schoolinfo_school_mapping", Integer.class)).isZero();
+
+        // 실패가 있던 검색은 캐시하지 않는다 → 같은 검색어를 다시 보내면 상세를 다시 확인(복구되면 5곳)
+        long describes = FAKE.count("/ei/ss/Pneiss_b01_s0.do");
+        FAKE.detailFailIds.clear();
+        String again = search("부분예시" + tag, 200);
+        assertThat(FAKE.count("/ei/ss/Pneiss_b01_s0.do")).isGreaterThan(describes);
+        assertThat(JsonPath.<Integer>read(again, "$.unverifiedCount")).isZero();
+        assertThat(JsonPath.<List<String>>read(again, "$.items[*].schoolinfoSchoolId")).containsExactly(A, B, C, D, d5);
+
+        // 동명(부분예시고 A·D)도 주소가 달라 각각 고를 수 있고, 고른 후보의 학교만 매핑된다(다른 학교로 바뀌지 않음)
+        String chosenD = JsonPath.<List<String>>read(again, "$.items[?(@.schoolinfoSchoolId == '" + D + "')].candidateId").getFirst();
+        String picked = selectDirectory(chosenD, 202);
+        assertThat(JsonPath.<String>read(picked, "$.schoolinfoSchoolId")).isEqualTo(D);
+        assertThat(jdbc.queryForObject("select schoolinfo_school_id from assessment_schoolinfo_school_mapping", String.class)).isEqualTo(D);
+        selectDirectory("dir_forged_" + tag, 409);
+
+        // 학교알리미 검색 자체가 실패하면 고를 수 있는 척하지 않는다(502)
+        FAKE.searchStatus = 500;
+        mvc.perform(asAdmin(get(SCHOOLS + "/directory"), OPERATOR).param("query", "실패부분" + tag).param("refresh", "true"))
+                .andExpect(status().is(502));
+    }
 
     @Test
     void 평가계획서_0건_학교도_검색해_고르면_그_학교만_3개_학년도를_확인하고_학적은_만들지_않는다() throws Exception {
@@ -199,7 +245,8 @@ class SchoolDirectoryOfficialViewApiTest extends SchoolInfoFakeSupport {
             selectDirectory(id, 409);
         }
 
-        // 검색 목록을 다 읽지 못함(부록 H 더보기 잘림) → complete=false, 모두 고를 수 없음
+        // 검색 목록을 다 읽지 못함(부록 H 더보기 잘림) → complete=false 경고는 유지.
+        // A28-45: 그래도 읽은 후보가 개별 식별(ID·상세·주소)되면 고를 수 있다. 자동 선택·매핑은 없다(선택 POST 전 매핑 0)
         FAKE.reset();
         FAKE.realSearchMarkup = true;
         FAKE.highListLimit = 1;
@@ -209,7 +256,9 @@ class SchoolDirectoryOfficialViewApiTest extends SchoolInfoFakeSupport {
         String cut = search("잘림예시" + tag, 200);
         assertThat(JsonPath.<Boolean>read(cut, "$.complete")).isFalse();
         assertThat(JsonPath.<String>read(cut, "$.incompleteReason")).isEqualTo("SEARCH_TRUNCATED");
-        assertThat(JsonPath.<List<Boolean>>read(cut, "$.items[*].selectable")).doesNotContain(true);
+        assertThat(JsonPath.<List<Boolean>>read(cut, "$.items[*].selectable")).containsExactly(true);
+        assertThat(JsonPath.<List<String>>read(cut, "$.items[*].schoolinfoSchoolId")).containsExactly(A);
+        assertThat(JsonPath.<Integer>read(cut, "$.unverifiedCount")).isZero();
         assertThat(jdbc.queryForObject("select count(*) from assessment_schoolinfo_school_mapping", Integer.class)).isZero();
 
         // 학교알리미 연결 실패 → 502(빈 목록으로 숨기지 않음)

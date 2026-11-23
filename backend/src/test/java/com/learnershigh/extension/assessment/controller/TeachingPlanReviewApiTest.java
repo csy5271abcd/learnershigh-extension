@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.List;
 import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
 import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
@@ -354,6 +355,58 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.confirmedFields.length()").value(0))
                 .andReturn().getResponse().getContentAsString();
         assertThat(detail).doesNotContain("analysisStatus").doesNotContain("candidate");
+    }
+
+    @Test
+    void A28_31_최종_승인_한_번에_초안_결정이_없는_행은_AI_기본값_채택으로_초안에서_정한_행은_관리자_결정으로_기록한다() throws Exception {
+        // 관리자가 초안에서 T08 만 제외(직접 결정). T01·T02 는 아무 결정 없이 최종 승인에 포함
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-draft"), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(null, EXCLUDE_T08)))
+                .andExpect(status().isOk());
+        String body = mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T02\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T08\",\"subjectId\":\"subj_02\",\"decision\":\"EXCLUDED\"}")))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T01')].decisionBasis")).containsExactly("AI_DEFAULT");
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T02')].decisionBasis")).containsExactly("AI_DEFAULT");
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T08')].decisionBasis")).containsExactly("ADMIN");
+        assertThat(jdbc.queryForList("select decision_basis from assessment_plan_teaching_plan_row order by sort_order", String.class))
+                .containsExactly("AI_DEFAULT", "AI_DEFAULT", "ADMIN");
+        // 같은 요청을 한 번 더(중복 클릭) → 409, 확정 기록 1건 그대로
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isEqualTo(1);
+        // 학생에게는 공개 2행(제외 행 없음) · 근거 표시는 관리자 응답에만
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(student).doesNotContain("decisionBasis").doesNotContain("AI_DEFAULT");
+    }
+
+    @Test
+    void A28_36_관리자_학생_화면_보기의_운영계획은_학생_응답과_같고_담당_밖은_404() throws Exception {
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isOk());
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String preview = mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(preview).isEqualTo(student);
+        assertThat(preview).doesNotContain("decisionBasis").doesNotContain("candidate");
+        mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_bundang"))
+                .andExpect(status().isNotFound());
     }
 
     @Test

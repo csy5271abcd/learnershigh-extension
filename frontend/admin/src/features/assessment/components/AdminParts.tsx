@@ -97,7 +97,6 @@ export function ListEmpty({ filtered, title, onReset }: { filtered: boolean; tit
   return filtered ? (
     <EmptyState
       title="조건에 맞는 항목이 없어요"
-      description="검색어나 필터를 바꿔 보세요."
       action={
         onReset && (
           <button type="button" className={styles.secondaryButton} onClick={onReset}>

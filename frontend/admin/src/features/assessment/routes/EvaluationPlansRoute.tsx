@@ -16,6 +16,7 @@ import { PlanAnalysisPreviewPanel } from './PlanAnalysisPreviewPanel.tsx'
 import { paths } from './paths.ts'
 import { reviewProgressOf } from '../model/planReviewComparison.ts'
 import { hasAnalysisResult, planStage, stageLabel, type PlanStage } from '../model/planStatus.ts'
+import { planListAction, reviewAfterAnalysis } from '../model/planListAction.ts'
 
 // PDF·HWP·HWPX 원문 등록 (S-4·S-5, 2026-11-13): http에서는 세 형식 모두 서버가 원문 그대로 보관한다.
 // HWP·HWPX 분석 결과 수신·공식 확정은 계속 Backend 실험 기능 뒤에 있다(S-8 미결). Mock(시연)은 PDF만.
@@ -118,11 +119,18 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
 
   // http: 서버가 원문을 분석기로 보내 결과를 저장한다(A3). 분석 중인 개정본을 표시하고, 끝나면 서버에 저장된 목록을 다시 읽는다.
   const [analyzingRevisionId, setAnalyzingRevisionId] = useState<string | null>(null)
+  // A28-39: 목록의 '검토 시작'(분석 전)·'다시 분석'(실패)은 실제 분석을 요청하고, 분석이 저장되면(실패 아님) 바로 검토 화면으로 간다.
+  // 분석 실패·요청 오류면 목록에 남아 원인을 알린다. 자동 분석은 승인이 아니다(학생 공개는 검토 화면의 '최종 승인' 한 번).
   const analyze = async (plan: AdminEvaluationPlan, revision: AdminEvaluationPlanRevision) => {
+    if (analyzingRevisionId) return
     setAnalyzingRevisionId(revision.documentRevisionId)
     const outcome = await run(() => requestPlanAnalysis(plan.planId, revision.documentRevisionId))
     setAnalyzingRevisionId(null)
     if (!outcome) return
+    if (outcome.ok && !isAdminMockDataSource && reviewAfterAnalysis(outcome.value.analysisStatus)) {
+      navigate(paths.planReview(plan.planId, revision.documentRevisionId))
+      return
+    }
     plans.reload()
     if (outcome.ok) {
       const failed = outcome.value.analysisStatus === 'FAILED'
@@ -294,8 +302,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
                 <thead>
                   <tr>
                     <th scope="col">문서</th>
-                    <th scope="col">분석</th>
-                    <th scope="col">검토 · 학생 공개</th>
+                    <th scope="col">상태 · 학생 공개</th>
                     <th scope="col">등록일</th>
                     <th scope="col">
                       <span className="lh-visually-hidden">동작</span>
@@ -396,7 +403,13 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
   const status = analysisText[latest.analysisStatus]
   const confirmedCount = latest.confirmedFields.length
   const format = latest.documentFormat ?? 'PDF'
-  const canAnalyze = latest.analysisStatus === 'NOT_REQUESTED' || latest.analysisStatus === 'FAILED'
+  // A28-39·40: 문서당 주 CTA 하나(상태 기반). 'AI 결과 보기'·별도 '분석 시작'은 두지 않는다
+  const action = planListAction(stage, analyzing)
+  const onAction = () => {
+    if (action.kind === 'analyze-then-review' || action.kind === 'retry-analysis') onAnalyze(plan, latest)
+    else if (action.kind === 'review') navigate(paths.planReview(plan.planId, latest.documentRevisionId))
+    else if (action.kind === 'result') navigate(paths.planResult(plan.planId, latest.documentRevisionId))
+  }
   return (
     <tr data-testid="plan-row" data-selected={selected || undefined} data-stage={stage}>
       <td data-col="name">
@@ -414,14 +427,14 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
           </span>
         )}
       </td>
+      {/* A28-30: '분석' 열을 없애고 분석 상태를 이 칸에 합친다(분석 전·중·실패·일부 확인 필요 · 검토 단계 · 학생 공개) */}
       <td>
-        <span className={review.statusText} data-tone={status.tone}>
-          {analyzing ? '분석 중… (최대 2분)' : status.text}
-        </span>
-      </td>
-      <td>
-        <span className={review.statusText} data-tone="neutral" data-testid="plan-row-stage">
-          {stage === 'CONFIRMED' ? `확정 · 확정값 ${confirmedCount}개 학생 공개` : `${stageLabel[stage]} · 학생 비공개`}
+        <span className={review.statusText} data-tone={latest.analysisStatus === 'FAILED' ? 'danger' : 'neutral'} data-testid="plan-row-stage">
+          {analyzing
+            ? '분석 중… (최대 2분)'
+            : stage === 'CONFIRMED'
+              ? `확정 · 확정값 ${confirmedCount}개 학생 공개`
+              : `${stageLabel[stage]}${latest.analysisStatus === 'PARTIAL' ? ` · ${status.text}` : ''} · 학생 비공개`}
         </span>
       </td>
       <td data-col="date" className={review.tiny}>
@@ -429,21 +442,18 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
       </td>
       <td>
         <div className={review.rowButtons}>
-          {canAnalyze ? (
-            <button type="button" className={`${review.buttonDark} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
-              {analyzing ? '분석 중…' : latest.analysisStatus === 'FAILED' ? '다시 분석' : '분석 시작'}
-            </button>
-          ) : stage !== 'CONFIRMED' ? (
-            // [09] A27-UX: '검토 시작'은 옆 'AI 결과 보기'와 같은 위계의 중립 outline 버튼
-            <button type="button" className={`${review.button} ${review.small}`} onClick={() => navigate(paths.planReview(plan.planId, latest.documentRevisionId))} data-testid="plan-open-review">
-              {stage === 'REVIEWING' ? '검토 이어하기' : '검토 시작'}
-            </button>
-          ) : null}
-          {hasAnalysisResult(latest) && (
-            <button type="button" className={`${review.button} ${review.small}`} onClick={() => navigate(paths.planResult(plan.planId, latest.documentRevisionId))} data-testid="plan-open-result">
-              {stage === 'CONFIRMED' ? '확정 결과 보기' : stage === 'ANALYZED' ? 'AI 결과 보기' : '검토 결과 보기'}
-            </button>
-          )}
+          <button
+            type="button"
+            className={`${review.button} ${review.small}`}
+            onClick={onAction}
+            disabled={action.kind === 'analyzing' || ((action.kind === 'analyze-then-review' || action.kind === 'retry-analysis') && pending)}
+            aria-busy={action.kind === 'analyzing'}
+            data-action={action.kind}
+            data-testid="plan-primary-action"
+          >
+            {action.label}
+          </button>
+          {/* A28-30: 확정 문서의 '다시 분석'·'확정 내용 수정'은 확정 결과 화면 머리에서만(목록 행에는 두지 않음) */}
           <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={downloadOriginal} disabled={!original?.available} title={original?.available ? `${format} 원문 내려받기` : '원문을 보관하지 않은 이전 등록분이에요'} data-testid="plan-original-download-button">
             원문
           </button>
@@ -689,7 +699,7 @@ export function UploadPlanModal({
               </label>
             </>
           ) : (
-            <p className={review.muted}>같은 문서에 새 개정본을 올려요. 이전 버전과 검토 기록은 그대로 남아요.</p>
+            <p className={review.muted}>같은 문서의 새 개정본 · 이전 버전·검토 기록 보존</p>
           )}
           <label className={review.formRow}>
             <span>출처 (선택)</span>
@@ -702,13 +712,13 @@ export function UploadPlanModal({
                 <li>시연용 화면이에요. 파일은 서버에 저장되지 않아요.</li>
               ) : (
                 <>
-                  <li>원문은 서버에 형식 그대로 보관하고, 서버가 분석기로 분석해요.</li>
-                  <li>분석은 최대 2분 걸릴 수 있어요. 끝나면 검토 화면으로 이동해요.</li>
+                  <li>원문 형식 그대로 서버 보관 · 서버 분석</li>
+                  <li>분석 최대 2분 · 끝나면 검토 화면으로 이동</li>
                 </>
               )}
-              <li>같은 학년·학기에 여러 문서를 올릴 수 있고, 기존 파일은 덮어쓰지 않아요.</li>
-              <li>분석 결과는 후보예요. 관리자가 원문과 대조해 확정한 값만 학생에게 공개돼요.</li>
-              {analyzerUpload && <li>등록한 원문을 분석해 검토 후보로 저장해요.</li>}
+              <li>같은 학년·학기 여러 문서 가능 · 기존 파일 덮어쓰기 없음</li>
+              <li>분석 결과 = 후보 · 관리자 확정값만 학생 공개</li>
+              {analyzerUpload && <li>등록 후 자동 분석 → 검토 후보 저장</li>}
             </ul>
           </div>
         </div>
@@ -839,7 +849,7 @@ export function DeletePlanDialog({ plan, onClose, onDeleted }: { plan: AdminEval
           </div>
         </div>
         <ul className={review.deleteNotes}>
-          <li>목록과 검토 화면에서 사라져요. 분석·확정 기록과 원문 파일은 지우지 않고 보관해요.</li>
+          <li>목록과 검토 화면에서 사라져요.</li>
           {published ? <li>학생에게 공개 중인 평가 정보와 월별 운영계획도 학생 화면에서 함께 사라져요.</li> : <li>아직 학생에게 공개되지 않은 문서예요.</li>}
         </ul>
         {published && (

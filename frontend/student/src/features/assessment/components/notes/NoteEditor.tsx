@@ -570,7 +570,7 @@ function NoteDraftEditor({ sourceType, sourceId, initialNote, onSaved, onStateCh
           }
         >
           <p className={styles.emptyText}>
-            {draft.status === 'saving' ? '지금 저장하는 중이에요. 잠시 뒤 다시 시도해 주세요.' : '노트에 저장되지 않은 내용이 있어요. 머무르면 자동 저장되거나 다시 저장할 수 있어요.'}
+            {draft.status === 'saving' ? '지금 저장하는 중이에요. 잠시 뒤 다시 시도해 주세요.' : '노트에 저장되지 않은 내용이 있어요.'}
           </p>
         </Modal>
       )}
@@ -614,7 +614,6 @@ function LinkModal({ current, onClose, onSubmit }: { current: string | null; onC
   return (
     <Modal
       title={current ? '링크 바꾸기' : '링크 넣기'}
-      description="선택한 글자에 연결할 주소를 넣어요."
       compact
       onRequestClose={onClose}
       initialFocusRef={inputRef}

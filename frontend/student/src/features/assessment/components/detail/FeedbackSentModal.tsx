@@ -67,7 +67,7 @@ export function FeedbackSentModal({ assessmentTitle, request, noteRevisionNumber
           <dd className={styles.sentStatus}>{request.status === 'PENDING' ? '답변 대기' : '답변 완료'}</dd>
         </div>
       </dl>
-      {isMockDataSource && <p className={styles.modalNote}>시연용 화면이에요. 실제로 전송되지 않아요.</p>}
+      {isMockDataSource && <p className={styles.modalNote}>시연용 화면이에요.</p>}
     </Modal>
   )
 }

@@ -553,7 +553,7 @@ function ScrapModal({ scrap, initial, upload = false, onClose, onSaved }: { scra
           <FieldError id="scrap-url-error" message={errors.sourceUrl} />
           {fromSource && (
             <p className={styles.hint}>
-              {input.sourceName ?? '이 자료원'}에서 찾은 개별 자료(논문·기사·통계표)의 주소로 바꿔 주세요. 같은 자료원에 여러 자료를 따로 저장할 수 있어요.
+              {input.sourceName ?? '이 자료원'}에서 찾은 개별 자료(논문·기사·통계표)의 주소로 바꿔 주세요.
             </p>
           )}
         </div>
@@ -605,8 +605,7 @@ function ScrapModal({ scrap, initial, upload = false, onClose, onSaved }: { scra
         <fieldset className={modalStyles.group}>
         <legend className={modalStyles.groupTitle}>관리자 메모</legend>
         <TextField id="scrap-memo" label="관리자 메모 (학생 비공개)" multiline value={input.memo ?? ''} onChange={(value) => setInput((previous) => ({ ...previous, memo: value || null }))} />
-        <p className={styles.hint}>실제로 확인한 자료만 저장해 주세요. 존재하지 않는 논문·기사 주소를 만들지 않아요.</p>
-        </fieldset>
+        <p className={styles.hint}>실제로 확인한 자료만 저장해 주세요. 존재하지 않는 논문·기사 주소를 만들지 않아요.</p></fieldset>
       </div>
     </Modal>
   )

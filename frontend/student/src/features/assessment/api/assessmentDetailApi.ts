@@ -113,7 +113,22 @@ export function downloadArtifactVersion(artifactId: string, versionId: string): 
 
 const mockOnly = (what: string) => Promise.reject(new ApiError(503, { code: 'ASSESSMENT_API_NOT_CONNECTED', message: `${what}는 시연(Mock) 데이터에서는 제공하지 않아요. 실제 서버 연결에서 사용할 수 있어요.`, details: {} }))
 
-/** §26 앱 안 미리보기 (PDF·PNG·JPEG·GIF만, 서버가 소유권·SHA 확인). 미지원 형식은 415 PREVIEW_UNAVAILABLE */
+/** §26-1 A28-41 POST /api/student/assessment/note-attachments — 노트 이미지·파일 블록의 실제 파일 저장(본인). Mock 은 파일을 저장하지 않는다 */
+export function uploadNoteAttachment(file: File): Promise<import('./types.ts').NoteAttachment> {
+  return guardWrite('uploadNoteAttachment', () => (isMockDataSource ? mockOnly('파일 저장') : http.uploadNoteAttachmentHttp(file)))
+}
+
+/** §26-1 노트 첨부 원본 (서버가 본인·담당 관리자 범위 검사) */
+export function downloadNoteAttachment(attachmentId: string): Promise<Blob> {
+  return isMockDataSource ? mockOnly('첨부 파일 열기') : http.downloadNoteAttachmentHttp(attachmentId)
+}
+
+/** §26-1 노트 첨부 앱 안 미리보기 (PDF·PNG·JPEG·GIF·WEBP). 그 밖 형식은 415 PREVIEW_UNAVAILABLE */
+export function previewNoteAttachment(attachmentId: string): Promise<Blob> {
+  return isMockDataSource ? mockOnly('미리보기') : http.previewNoteAttachmentHttp(attachmentId)
+}
+
+/** §26 앱 안 미리보기 (PDF·PNG·JPEG·GIF·WEBP만, 서버가 소유권·SHA 확인). 미지원 형식은 415 PREVIEW_UNAVAILABLE */
 export function previewArtifactVersion(artifactId: string, versionId: string): Promise<Blob> {
   return isMockDataSource ? mockOnly('미리보기') : http.previewArtifactVersionHttp(artifactId, versionId)
 }
@@ -130,4 +145,9 @@ export function trashArtifact(artifactId: string): Promise<void> {
 
 export function trashSchoolAssessment(assessmentId: string): Promise<void> {
   return guardWrite('trashSchoolAssessment', () => (isMockDataSource ? mockOnly('휴지통') : http.trashSchoolAssessmentHttp(assessmentId)))
+}
+
+/** §12-1 A28-49 수행평가 영구 삭제(본인 직접 등록 항목 · 피드백 요청·성장 기록·학교 확정 항목은 서버가 409) */
+export function permanentDeleteSchoolAssessment(assessmentId: string, confirmTitle: string): Promise<void> {
+  return guardWrite('permanentDeleteSchoolAssessment', () => (isMockDataSource ? mockOnly('삭제') : http.permanentDeleteSchoolAssessmentHttp(assessmentId, confirmTitle)))
 }

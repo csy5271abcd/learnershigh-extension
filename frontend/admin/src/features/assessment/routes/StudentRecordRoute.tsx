@@ -173,7 +173,7 @@ export function StudentRecordRoute({ studentId, kind, sourceId }: { studentId: s
                     <RemoteView state={requests.state} label="피드백 요청" onRetry={requests.reload}>
                       {(list) => {
                         const items = list.items.filter((item) => (sideTab === 'requests' ? item.status === 'PENDING' : item.status === 'DELIVERED'))
-                        if (items.length === 0) return <p className={styles.muted}>{sideTab === 'requests' ? '답변을 기다리는 요청이 없어요. 요청이 없어도 기록은 볼 수 있어요.' : '이전 피드백이 없어요.'}</p>
+                        if (items.length === 0) return <p className={styles.muted}>{sideTab === 'requests' ? '답변을 기다리는 요청이 없어요.' : '이전 피드백이 없어요.'}</p>
                         return (
                           <ul className={styles.listPlain}>
                             {items.map((item) => (

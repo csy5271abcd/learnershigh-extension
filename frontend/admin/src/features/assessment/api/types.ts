@@ -710,7 +710,7 @@ export interface TeachingPlanReviewView {
     reviewedBy: string
     reviewedAt: string
     /** A14: origin MANUAL = 관리자 직접 추가 행(candidate 없음, row.manualPdfPageNumber = 관리자 확인 쪽) */
-    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate & { manualPdfPageNumber?: number | null }; candidate: TeachingPlanRowCandidate | null; origin?: 'ANALYSIS' | 'MANUAL' }[]
+    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate & { manualPdfPageNumber?: number | null }; candidate: TeachingPlanRowCandidate | null; origin?: 'ANALYSIS' | 'MANUAL'; /** A28-31: ADMIN 관리자 결정·추가 · AI_DEFAULT 최종 승인의 기본값 채택 · null 근거 기록 전 */ decisionBasis?: 'ADMIN' | 'AI_DEFAULT' | null }[]
     /** A13: 이 확정 버전(1부터). review는 최신 버전 */
     versionNo?: number
   } | null

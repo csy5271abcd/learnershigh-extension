@@ -34,3 +34,8 @@ export async function getAcademicContextHttp(term?: AcademicTermQuery): Promise<
     query: { academicYear: query.academicYear, semester: query.semester },
   })
 }
+
+/** §9-1-c (A28-29) 학적이 있는 학기 목록 — 현재 학년도와 앞 두 학년도, 최신 먼저 */
+export function getAcademicTermsHttp(): Promise<{ currentTerm: AcademicTermQuery; terms: AcademicTermQuery[] }> {
+  return assessmentHttp('/api/student/assessment/academic-terms')
+}

@@ -210,7 +210,7 @@ export function SubjectStep({
         >
           <div className={styles.excludeDialog} data-testid="review-subject-exclude-dialog">
             <p className={styles.lead} style={{ margin: 0 }}>
-              <strong>삭제가 아니에요.</strong> 원문·AI 분석 결과·근거 위치는 그대로 두고, 이 문서({view.slot ? `고${view.slot.grade} ${view.slot.semester}학기` : '이 학년·학기'})의 수행평가·채점기준·월별 운영계획 검토와 확정·학생 공개에서만 빼요. 언제든 되돌릴 수 있어요.
+              <strong>삭제가 아니에요.</strong> 원문·AI 분석 결과·근거 위치는 그대로 두고, 이 문서({view.slot ? `고${view.slot.grade} ${view.slot.semester}학기` : '이 학년·학기'})의 수행평가·채점기준·월별 운영계획 검토와 확정·학생 공개에서만 빼요.
             </p>
             {targetDecided > 0 && (
               <p className={styles.tiny} role="note" style={{ margin: 0 }} data-testid="review-subject-exclude-impact">
@@ -219,7 +219,7 @@ export function SubjectStep({
             )}
             {targetPublished > 0 && (
               <p className={styles.tiny} role="alert" style={{ margin: 0 }} data-testid="review-subject-exclude-published">
-                이 과목의 확정값 {targetPublished}개가 지금 학생에게 공개 중이에요. 제외해도 공개 중인 값은 바로 바뀌지 않아요. 재검토 확정을 하면 이 과목 값은 새 확정본에서 빠져요.
+                이 과목의 확정값 {targetPublished}개가 지금 학생에게 공개 중이에요. 제외해도 공개 중인 값은 바로 바뀌지 않아요.
               </p>
             )}
             <fieldset className={styles.excludeReasons}>

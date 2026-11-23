@@ -87,7 +87,7 @@ export function UniversityExamDocumentRoute() {
     const notFound = documentQuery.error.code === 'UNIVERSITY_RESOURCE_NOT_FOUND'
     return frame(
       notFound ? (
-        <EmptyState title="자료를 찾을 수 없어요" description="목록에서 빠졌거나 없는 자료예요." action={<Link to={listPath}>대학별 자료로 가기</Link>} />
+        <EmptyState title="자료를 찾을 수 없어요" action={<Link to={listPath}>대학별 자료로 가기</Link>} />
       ) : (
         <ErrorState title="자료 정보를 불러오지 못했어요" error={documentQuery.error} onRetry={documentQuery.retry} />
       ),
@@ -189,7 +189,7 @@ export function UniversityExamDocumentRoute() {
           <p className={styles.noticeBox}>
             <InfoIcon size={13} />
             <span>
-              문항 목차는 원문에서 문항 제목·표 머리가 확인된 쪽만 연결했어요. 쪽 번호는 PDF 쪽 기준이라 문서에 인쇄된 쪽 번호와 다를 수 있어요. 원문은 개발 환경
+              문항 목차는 원문에서 문항 제목·표 머리가 확인된 쪽만 연결했어요. 원문은 개발 환경
               시연용이며, 공개 배포 전 대학의 이용 허락 확인이 필요해요.
             </span>
           </p>

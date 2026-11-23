@@ -6,7 +6,7 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { getResource, trashResource, updateResource } from '../api/resourcesApi.ts'
 import type { StudentResource, UpdateResourceRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
-import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, ChevronDownIcon, ChevronLeftIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import styles from '../components/resources/resources.module.css'
@@ -18,7 +18,6 @@ import { formatDateTime } from '../model/assessmentDetailView.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import {
   formatPublishedDate,
-  hasSourceInfo,
   isValidUrlFormat,
   parseTags,
   publishedDatePattern,
@@ -77,7 +76,6 @@ export function ResourceDetailRoute() {
   }
   if (!resource) return frame(<LoadingRows rows={4} label="자료를 불러오는 중" />)
 
-  const filled = hasSourceInfo(resource)
 
   return frame(
     <article aria-labelledby="resource-title">
@@ -87,10 +85,6 @@ export function ResourceDetailRoute() {
       <div className={styles.detailBadges}>
         <span className={enrichmentStyles.badge} data-tone="neutral">
           {resourceTypeLabel(resource.type)}
-        </span>
-        <span className={styles.sourceBadge} data-state={filled ? 'filled' : 'missing'}>
-          {filled ? <CheckIcon size={12} /> : <InfoIcon size={12} />}
-          {filled ? '출처 정보 입력됨' : '출처 확인 필요'}
         </span>
       </div>
 
@@ -127,7 +121,7 @@ export function ResourceDetailRoute() {
                 className={enrichmentStyles.outlineButton}
                 data-testid="trash-resource"
                 onClick={() => {
-                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요?`)) return
                   trashResource(resource.resourceId).then(
                     () => navigate(resourcesPath),
                     (error: Error) => notify('error', `옮기지 못했어요. ${error.message}`),
@@ -158,7 +152,7 @@ export function ResourceDetailRoute() {
                     <LinkIcon size={13} /> {resource.sourceUrl}
                   </a>
                   <br />
-                  <span className={styles.muted}>직접 입력한 링크예요. 열리는지·원문이 맞는지는 확인하지 않았어요.</span>
+                  <span className={styles.muted}>직접 입력한 링크예요.</span>
                 </>
               ) : (
                 <span className={styles.muted}>링크 없음</span>

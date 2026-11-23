@@ -6,18 +6,22 @@ import styles from './SchoolDirectorySearch.module.css'
 
 // A27-UX 부록 O §38-15: 평가계획서가 0건인 학교도 학교알리미 공식 검색으로 찾아 고른다.
 // - 고르면 서버가 그 학교 하나만 최근 3개 학년도(18구간)를 자동 확인한다. 학적·학생은 만들지 않는다.
-// - 같은 이름 학교는 지역·주소로 구별해 보여 주고, 주소가 없거나 같거나 검색이 잘렸으면 고를 수 없다(자동 선택 없음).
+// - 같은 이름 학교는 지역·주소로 구별해 보여 주고, 주소가 없거나 같으면 고를 수 없다(자동 선택 없음).
+// - A28-45: 검색 목록이 불완전해도(잘림·일부 상세 실패) 서버가 개별 식별한 학교(ID·상세·주소)는 고를 수 있다. 불완전 경고는 그대로 보이고,
+//   확인하지 못한 학교가 있으면 '다시 확인'(캐시 없이 다시 검색)을 준다.
 // - A28-02: 검색 → 학교 1곳 선택 → 대상 확인 → 3개년 수집. '이 학교 선택'은 확인 단계만 열고, 수집(선택 POST)은 확인을 누를 때만 보낸다.
 
 const REASON: Record<string, string> = {
   ADDRESS_MISSING: '주소가 없어 구별할 수 없어요',
   ADDRESS_DUPLICATE: '같은 이름·같은 주소 학교가 있어 구별할 수 없어요',
+  ID_MISSING: '학교알리미 학교 번호가 없어 구별할 수 없어요',
+  ID_CONFLICT: '학교알리미 학교 번호가 겹쳐 구별할 수 없어요',
   SEARCH_INCOMPLETE: '검색 결과를 모두 확인하지 못했어요',
 }
 const INCOMPLETE: Record<string, string> = {
-  SEARCH_TRUNCATED: '학교알리미 검색 목록을 모두 읽지 못했어요. 학교 이름을 더 정확히 입력해 주세요.',
-  TOO_MANY_RESULTS: '검색 결과가 너무 많아요. 학교 이름을 더 정확히 입력해 주세요.',
-  DETAIL_FAILED: '일부 학교의 상세 정보를 읽지 못했어요. 잠시 뒤 다시 검색해 주세요.',
+  SEARCH_TRUNCATED: '학교알리미 검색 목록 일부만 읽었어요',
+  TOO_MANY_RESULTS: '검색 결과가 많아 앞 15곳만 확인했어요',
+  DETAIL_FAILED: '일부 학교의 상세 정보를 읽지 못했어요',
 }
 
 export function SchoolDirectorySearch({ onSelected }: { onSelected: (schoolId: string) => void }) {
@@ -29,8 +33,8 @@ export function SchoolDirectorySearch({ onSelected }: { onSelected: (schoolId: s
   // A28-02 대상 확인: 고른 후보(아직 서버에 보내지 않음)
   const [pendingItem, setPendingItem] = useState<SchoolDirectoryItem | null>(null)
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
+  const submit = (event: FormEvent | null, refresh = false) => {
+    event?.preventDefault()
     const text = query.trim()
     if (text.length < 2) {
       setState({ kind: 'error', message: '학교 이름을 2자 이상 입력해 주세요.' })
@@ -39,7 +43,7 @@ export function SchoolDirectorySearch({ onSelected }: { onSelected: (schoolId: s
     setState({ kind: 'loading' })
     setSelectError(null)
     setPendingItem(null)
-    searchSchoolDirectory(text).then(
+    searchSchoolDirectory(text, refresh).then(
       (result) => setState({ kind: 'done', result }),
       (cause: Error) => setState({ kind: 'error', message: cause.message }),
     )
@@ -106,11 +110,19 @@ export function SchoolDirectorySearch({ onSelected }: { onSelected: (schoolId: s
       )}
       {state.kind === 'done' && (
         <>
-          {!state.result.complete && (
-            <p className={styles.warning} role="status" data-testid="school-directory-incomplete">
-              {INCOMPLETE[state.result.incompleteReason ?? ''] ?? '검색 결과를 모두 확인하지 못했어요.'} 이 검색에서는 학교를 고를 수 없어요.
-            </p>
-          )}
+          {!state.result.complete && (() => {
+            const selectableCount = state.result.items.filter((item) => item.selectable).length
+            const unverified = state.result.unverifiedCount ?? 0
+            return (
+              <p className={styles.warning} role="status" data-testid="school-directory-incomplete">
+                {INCOMPLETE[state.result.incompleteReason ?? ''] ?? '검색 결과를 모두 확인하지 못했어요'} · 확인된 {selectableCount}곳 선택 가능
+                {unverified > 0 ? ` · 확인하지 못한 ${unverified}곳` : ''} · 찾는 학교가 없으면 정확한 이름으로 다시 검색{' '}
+                <button type="button" className={review.buttonGhost} onClick={() => submit(null, true)} data-testid="school-directory-retry">
+                  다시 확인
+                </button>
+              </p>
+            )
+          })()}
           {state.result.items.length === 0 ? (
             <p className={review.muted} data-testid="school-directory-empty">
               &lsquo;{state.result.query}&rsquo;(으)로 찾은 학교가 없어요.

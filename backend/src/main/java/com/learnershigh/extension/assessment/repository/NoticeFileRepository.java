@@ -14,4 +14,7 @@ public interface NoticeFileRepository extends JpaRepository<NoticeFile, String> 
             String studentId);
 
     long countByAssessmentIdAndStudentIdAndDeletedAtIsNull(String assessmentId, String studentId);
+
+    /** A28-49 영구 삭제: 삭제 표시 포함 그 수행평가의 안내문 첨부 */
+    List<NoticeFile> findByAssessmentIdAndStudentId(String assessmentId, String studentId);
 }

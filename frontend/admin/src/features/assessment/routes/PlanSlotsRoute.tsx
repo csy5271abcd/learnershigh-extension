@@ -103,7 +103,7 @@ export function PlanSlotsRoute({ search }: { search: URLSearchParams }) {
       />
       {context.external && schoolId && <ExternalSchoolBanner name={context.schoolName} selected={sync.result?.schoolId === schoolId ? (sync.result?.schoolSelection?.selected ?? null) : null} />}
       {!isAdminMockDataSource && schoolId && <SchoolInfoSyncSummary sync={sync} schoolId={schoolId} onChanged={plans.reload} />}
-      <p className={review.sourceNote}>원본 문서만 관리해요. 분석·확정은 &lsquo;분석&rsquo; 탭에서 해요.</p>
+      <p className={review.sourceNote}>분석·확정은 &lsquo;분석&rsquo; 탭</p>
 
       {!schoolId ? (
         <div className={review.empty}>
@@ -151,7 +151,7 @@ export function PlanSlotsRoute({ search }: { search: URLSearchParams }) {
                     )}
                     {plans.state.status === 'success' && docs.length === 0 && (
                       <p className={slots.emptyHint} data-testid="plan-slot-empty">
-                        이 학기 원본이 없어요. &lsquo;+ 등록&rsquo;으로 학교 평가계획서 파일(PDF·HWP·HWPX)을 올려 주세요.
+                        이 학기 원본이 없어요.
                       </p>
                     )}
                     {docs.map((plan) => {

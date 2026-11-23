@@ -135,7 +135,6 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
         <div className={styles.body}>
           <EmptyState
             title="Assessment 관리에 없는 주소예요"
-            description="주소를 다시 확인해 주세요."
             action={
               <button type="button" className={styles.secondaryButton} onClick={() => navigate(paths.overview)}>
                 전체 현황으로 가기

@@ -138,7 +138,7 @@ export function ArchiveRoute() {
               type="button"
               className={enrichmentStyles.outlineButton}
               aria-disabled="true"
-              onClick={() => unavailable('사용자 폴더는 아직 지원하지 않아요. 과목별로 모아 볼 수 있어요.')}
+              onClick={() => unavailable('사용자 폴더는 아직 지원하지 않아요.')}
             >
               <PlusIcon size={15} />
               새 폴더
@@ -215,7 +215,6 @@ export function ArchiveRoute() {
                 {hasFilter ? (
                   <EmptyState
                     title="조건에 맞는 기록이 없어요"
-                    description="검색어나 과목을 바꿔 보세요."
                     action={
                       <button
                         type="button"

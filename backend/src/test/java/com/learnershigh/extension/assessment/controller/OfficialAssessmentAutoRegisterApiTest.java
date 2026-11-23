@@ -217,5 +217,20 @@ class OfficialAssessmentAutoRegisterApiTest {
         assertThat(jdbc.queryForObject("select title from assessment_school_assessment where id = ?", String.class, own))
                 .as("비슷한 이름의 직접 등록 항목은 병합·변경하지 않는다").isEqualTo("탐구 보고서 준비");
         mvc.perform(get(LIST).param("academicYear", "2026").param("semester", "2")).andExpect(status().isUnauthorized());
+
+        // A28-46: 공식 항목 휴지통 → 다른 학생은 복원 불가 → 본인 복원 → 같은 행이 돌아오고 재동기화해도 중복 0, 공식 확정값 행은 그대로
+        long confirmedValues = jdbc.queryForObject("select count(*) from assessment_plan_confirmed_value", Long.class);
+        String restoreBody = "{\"sourceType\":\"SCHOOL_ASSESSMENT\",\"sourceId\":\"" + officialId + "\"}";
+        mvc.perform(asStudent(post("/api/student/assessment/archive/restore"), "stu_002").contentType(MediaType.APPLICATION_JSON).content(restoreBody))
+                .andExpect(status().is4xxClientError());
+        mvc.perform(asStudent(post("/api/student/assessment/archive/restore"), "stu_001").contentType(MediaType.APPLICATION_JSON).content(restoreBody))
+                .andExpect(status().isOk());
+        for (int i = 0; i < 2; i++) {
+            mvc.perform(asStudent(get(LIST), "stu_001").param("academicYear", "2026").param("semester", "2")).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.items.length()").value(3));
+        }
+        assertThat(official("stu_001")).hasSize(2);
+        assertThat(jdbc.queryForObject("select count(*) from assessment_school_assessment where id = ? and deleted_at is null", Integer.class, officialId)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_confirmed_value", Long.class)).isEqualTo(confirmedValues);
     }
 }

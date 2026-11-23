@@ -114,6 +114,8 @@ public class TeachingPlanReviewService {
         TeachingPlanReview review = TeachingPlanReview.confirm(revision.id(), run.get().id(), admin.adminId(),
                 reviewedAt, previous.map(p -> p.versionNo() + 1).orElse(1));
         Set<String> seen = new HashSet<>();
+        // A28-31: 관리자가 초안에서 직접 결정한 행 — 나머지 확정 행은 '분석 후보 기본값 채택(AI_DEFAULT)'으로 기록(허위 '개별 검토' 기록 방지)
+        Set<String> decidedRows = drafts.teachingPlanDecidedRows(run.get().id());
         // A27-UX: 평가 정보 초안에서 이 문서 검토 대상에서 뺀 분석 과목
         Set<Integer> excluded = drafts.excludedSubjects(run.get().id());
         Map<Integer, String> subjectOfIndex = new HashMap<>();
@@ -164,6 +166,8 @@ public class TeachingPlanReviewService {
                     hasSchedule && number(schedule, "monthFrom") != null ? number(schedule, "monthFrom") : number(finalRow, "month"),
                     hasSchedule && number(schedule, "monthTo") != null ? number(schedule, "monthTo") : number(finalRow, "monthTo"),
                     mapper.writeValueAsString(finalRow), mapper.writeValueAsString(candidate));
+            review.basisOfLastRow(decidedRows.contains(row.subjectIndex() + "|teachingPlan[" + candidateIndex(subjects, row.subjectIndex(), row.rowKey()) + "]")
+                    ? TeachingPlanReviewRow.BASIS_ADMIN : TeachingPlanReviewRow.BASIS_AI_DEFAULT);
         }
         // A14 §39-11 관리자 직접 추가 행: 열려 있는 운영계획 초안에 있는 키만(서버 발급). 내용은 초안에서 가져온다.
         Map<String, PlanReviewDraftResponse.ManualRow> manual = request.manualRowsOrEmpty().isEmpty() ? Map.of()
@@ -209,6 +213,7 @@ public class TeachingPlanReviewService {
             review.addRow(row.subjectId(), row.subjectIndex(), row.rowKey(), TeachingPlanReviewRow.ORIGIN_MANUAL,
                     row.decision(), schedule.precision(), schedule.monthFrom(), schedule.monthTo(),
                     mapper.writeValueAsString(finalRow), null);
+            review.basisOfLastRow(TeachingPlanReviewRow.BASIS_ADMIN);   // 관리자가 직접 추가한 행
         }
         if (request.rows().isEmpty() && request.manualRowsOrEmpty().isEmpty()) {
             violations.add(new FieldViolation("rows", "required"));
@@ -258,6 +263,23 @@ public class TeachingPlanReviewService {
         } else {
             target.put(field, value.strip());
         }
+    }
+
+    /** 분석 결과 과목의 teachingPlan 배열에서 rowKey 의 위치(없으면 -1) — 초안 결정 경로 teachingPlan[n] 과 맞추는 데 쓴다 */
+    static int candidateIndex(JsonNode subjects, int subjectIndex, String rowKey) {
+        if (subjects == null || !subjects.isArray() || subjectIndex >= subjects.size()) {
+            return -1;
+        }
+        JsonNode rows = subjects.get(subjectIndex).get("teachingPlan");
+        if (rows == null || !rows.isArray()) {
+            return -1;
+        }
+        for (int i = 0; i < rows.size(); i++) {
+            if (rows.get(i).isObject() && rowKey.equals(text(rows.get(i), "rowKey"))) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     static JsonNode candidateRow(JsonNode subjects, int subjectIndex, String rowKey) {

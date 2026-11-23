@@ -70,6 +70,12 @@ public class StudentSchoolAssessmentController {
         return contextService.get(student, academicYear, semester);
     }
 
+    /** A28-29 §9-1-c 학적이 있는 학기 목록(현재 학년도와 앞 두 학년도) */
+    @GetMapping("/academic-terms")
+    public com.learnershigh.extension.assessment.dto.context.AcademicTermsResponse academicTerms(StudentActor student) {
+        return contextService.terms(student);
+    }
+
     @GetMapping("/school-assessments")
     public PageResponse<SchoolAssessmentResponse> list(StudentActor student,
             @RequestParam @Min(2000) @Max(2100) int academicYear,

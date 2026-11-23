@@ -426,6 +426,28 @@ Actor: `STUDENT`. 소유 학생은 인증 정보에서 결정한다. 다른 학�
 - 과목 ID는 학년·학기 슬롯 단위다(같은 이름이라도 학기 슬롯이 다르면 다른 ID일 수 있다).
 - Admin 학생 상세의 `academicContexts[]`(§9-1 Shape)도 같은 필드를 가진다.
 
+### 9-1-c. 학적이 있는 학기 목록 (A28-29, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)
+
+```http
+GET /api/student/assessment/academic-terms
+```
+
+Actor: `STUDENT`(인증된 본인만). 학기 선택 목록용. 현재 학년도(§9-2 `current-term`, KST)와 앞 두 학년도 × 1·2학기 중 §9-1 학업 정보(원천 학적)가 **있는** 학기만, 최신 학기 먼저.
+
+```json
+{
+  "currentTerm": { "academicYear": 2026, "semester": 2 },
+  "terms": [
+    { "academicYear": 2026, "semester": 2 },
+    { "academicYear": 2026, "semester": 1 }
+  ]
+}
+```
+
+- 서버는 §9-1 과 같은 원천(`AcademicContextProvider`)으로 학기마다 확인할 뿐 학적을 만들거나 추측하지 않는다. 원천에 없는 학기는 목록에 없다(오류 아님). 학교·학년은 §9-1 로 학기마다 조회한다(전학·학년 변화가 그대로 보인다).
+- 원천 조회 자체가 실패하면 §5 오류(5xx) — 빈 목록으로 바꾸지 않는다. 화면은 이 목록이 없을 때(이전 서버) 현재 학년도 1·2학기를 §9-1 로 직접 조회하던 기존 방식으로 동작한다.
+- 학기 선택은 조회 필터다(§9-1·assessment-student.md §4). 다른 학기의 개인 기록을 옮기거나 새로 만들지 않는다.
+
 ## 9-2. 학업 정보 변경
 
 ```http
@@ -613,6 +635,20 @@ PDF로부터 선택 등록 시 `evaluationItemRef`에 확인된 `documentRevisio
 - **시점**: ① 확정 Transaction 안 — 승인한 관리자 담당 지점 학생 중 슬롯 학적 학생(실패하면 확정도 0건). ② `GET /api/student/assessment/school-assessments` 조회 직전 — 그 학생·학기 보완 동기화(별도 Transaction, 멱등, 이미 있으면 쓰기 0, 실패해도 목록은 그대로 응답). **이 GET 은 첫 조회 때 학생 수행평가 행을 만들 수 있다**(학적·확정본에서 정해지는 값만). 관리자 '학생 화면 보기'(읽기 전용)는 동기화하지 않는다. ③ 기존 확정본 1회성 보정: `assessment.school-assessment.official-backfill=dry-run|apply`(기본 꺼짐, 같은 규칙, 재실행 0건).
 
 ---
+
+## 12-1. Student — 수행평가 영구 삭제 (A28-49, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration 없음 · 팀 승인 별도)
+
+```http
+POST /api/student/assessment/school-assessments/{assessmentId}/permanent-delete     { "confirmTitle": "<수행평가 제목 그대로>" }  → 204
+```
+
+- `DELETE /school-assessments/{id}`(휴지통 이동·복원 가능, §30)와 **다른** 되돌릴 수 없는 삭제다. 학생 본인 항목만(활성·휴지통 모두), 남의 ID 는 `404 ASSESSMENT_NOT_FOUND`.
+- 강한 확인: `confirmTitle` 이 제목과 정확히 같아야 한다(아니면 `400 confirmTitle mismatch`).
+- 기록 보존을 위해 **삭제하지 않는 경우**(`409 INVALID_STATE_TRANSITION`, `details.fields[0].field`):
+  - `official` — 학교 확정에서 자동 등록된 항목(공식 확정값과 연결, 동기화가 다시 만들 수 있음) → 휴지통만.
+  - `feedbackRequests` — 선생님께 보낸 피드백 요청이 있음(요청 당시 Snapshot·답변 = 관리자 기록 보존) → 휴지통만.
+  - `growthRecords` — 이 수행평가를 관련 활동으로 연결한 성장 기록이 있음 → 먼저 연결을 바꾸거나 휴지통만.
+- 삭제 범위(한 Transaction): 이 수행평가의 노트·노트 Revision, 결과물·결과물 버전, 안내문·첨부 행, 즐겨찾기, 수행평가 행. 커밋 뒤 결과물 버전·안내문 첨부의 Storage 바이트를 지운다(실패해도 행 삭제는 되돌리지 않고 로그만). 노트 첨부(§26-1)는 다른 노트 Revision 이 가리킬 수 있어 행·바이트를 남긴다. 상태 변경 감사 이력(`assessment_school_assessment_status_event`)은 지우지 않는다.
 
 # 13. Student — 수행평가 상태 변경 (ST-03)
 
@@ -960,6 +996,36 @@ GET /api/admin/assessment/artifacts/{artifactId}/versions/{versionId}/preview
 ```
 
 `file` 반환은 Backend Stream 또는 짧은 수명의 접근 제한 URL을 사용할 수 있으며 실제 방식은 Storage Provider 확인 후 결정한다. 어떤 경우든 서버가 소유권/관리자 담당 학생 권한을 검사한다. 원본·변환 Preview는 **별개 자원**, 변환 실패는 `PREVIEW_UNAVAILABLE`이지 `ARTIFACT_NOT_FOUND`가 아니다. DOCX/HWP/PPT 미리보기 미지원 시 파일명·MIME·원본 다운로드 가능 여부를 알린다.
+
+- A28-41(2026-11-23): 미리보기(`preview`) 허용 형식에 `image/webp`를 더한다(PDF·PNG·JPEG·GIF·WEBP). SVG·HTML 등 실행 가능한 형식은 여전히 업로드·미리보기 대상이 아니다.
+
+## 26-1. Student / Admin — 탐구 노트 첨부 파일 실제 저장 (A28-41, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration `V202611231000` · 팀 승인 별도)
+
+이전에는 노트의 이미지·파일 블록(`IMAGE`·`FILE`)에 이름·크기만 남고 바이트는 브라우저 메모리에만 있었다. 이제 바이트를 결과물과 같은 Storage(§25 `ArtifactStorage`, UUID 저장 키)에 저장하고 블록은 서버가 발급한 첨부 ID 를 가리킨다.
+
+```http
+POST /api/student/assessment/note-attachments                 # multipart: file (필수) → 201
+GET  /api/student/assessment/note-attachments/{attachmentId}/file      # 원본 (attachment)
+GET  /api/student/assessment/note-attachments/{attachmentId}/preview   # PDF·이미지만 inline, 아니면 415 PREVIEW_UNAVAILABLE
+GET  /api/admin/assessment/note-attachments/{attachmentId}/file
+GET  /api/admin/assessment/note-attachments/{attachmentId}/preview
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/file      # 학생 화면 보기(읽기 전용)
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/preview
+```
+
+응답(201):
+
+```json
+{ "attachmentId": "noteatt_…", "fileName": "실험 사진.png", "contentType": "image/png", "sizeBytes": 203364,
+  "sha256": "5b37…", "uploadedAt": "2026-11-23T14:28:48+09:00", "previewSupported": true }
+```
+
+- 허용 형식·검사: §25 결과물과 같다(PDF·HWP·HWPX·DOC·DOCX·PPT·PPTX·XLS·XLSX·PNG·JPG·JPEG·GIF·WEBP). 확장자와 파일 앞부분 서명이 **둘 다** 맞아야 하고 Content-Type 은 서버가 정한다. 0바이트 `400 file empty`, 최대 `assessment.storage.max-file-bytes`(기본 50MB) 초과 `413 FILE_TOO_LARGE`, 형식 불일치 `415 UNSUPPORTED_FILE_TYPE`. 파일 이름은 표시·다운로드 이름으로만 쓰고 저장 경로에 쓰지 않는다.
+- 저장: 파일 → DB 순서, DB Transaction 이 실패하면 방금 쓴 파일을 지운다(파일만 남지 않음). 행은 **불변**(덮어쓰기·삭제 Endpoint 없음). 학생이 블록의 파일을 바꾸면 새 첨부가 생기고 이전 첨부와 그 바이트는 그대로 남아, 이미 보낸 피드백 Snapshot(그 때의 노트 Revision)이 가리키는 파일이 유지된다.
+- 블록 연결: 업로드 응답을 `IMAGE`·`FILE` 블록 `attrs.file` 에 `{ name, size, mimeType, attachmentId, sha256 }` 로 넣고 노트를 저장한다(§20). 노트 저장 시 `attrs.file.attachmentId` 가 있으면 **그 학생이 올린 첨부**여야 한다(아니면 `400 blocks[i].attrs.file.attachmentId unknown`). `attachmentId` 가 없는 이전 블록은 바이트가 없어 열 수 없다 — 화면은 '파일이 저장되지 않은 이전 첨부 · 다시 첨부 필요'로 알리고 메타데이터는 그대로 둔다(파일을 만들지 않는다).
+- 권한: 학생은 본인 첨부만(남의 ID 는 `404 NOTE_ATTACHMENT_NOT_FOUND`). 관리자는 담당 학생 첨부만(범위 밖 `404`, 인증 없음 `401`). 학생 화면 보기 경로는 그 학생의 첨부만 읽는다. 쓰기 경로는 학생 본인만이고 관리자는 업로드·수정할 수 없다.
+- 응답 Header: §26 과 같다(`Content-Disposition` UTF-8 파일 이름, `X-Content-Type-Options: nosniff`, `Cache-Control: private, no-store`). 미리보기는 저장 바이트의 크기·SHA-256 이 등록 값과 같을 때만(`409 FILE_INTEGRITY_FAILED`). 저장 키·서버 경로는 응답에 넣지 않는다.
+- 업로드만 하고 노트를 저장하지 않은 첨부(고아 행)는 바이트와 행이 함께 남는다(깨진 행 없음). 정리 정책은 Open Decision.
 
 ---
 
@@ -1591,14 +1657,16 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 ### 38-15. 학교알리미 공식 학교 검색·선택 — 평가계획서 0건 학교 포함 (A27-UX 부록 O, 2026-11-21 · 사용자 승인 '학교 Master 검색 연결' · 구현됨)
 
 ```
-GET  /api/admin/assessment/schools/directory?query=<2~40자>
+GET  /api/admin/assessment/schools/directory?query=<2~40자>[&refresh=true]
 POST /api/admin/assessment/schools/directory/selection   { "candidateId": "dir_…" }
 ```
 
 - Assessment 전용 **읽기 전용** 학교 검색이다. 공식 학교알리미 검색·상세(기존 `SchoolInfoClient`)만 쓴다. 전역 학교 Master·학생 등록·학적을 만들지 않는다.
-- 검색 응답: `{ query, complete, incompleteReason, items[{ candidateId, officialName, sido, sigungu, address, schoolinfoSchoolId, schoolId, selectable, unselectableReason }] }`
-  - `complete=false`: 검색 결과를 모두 읽지 못했다(`SEARCH_TRUNCATED` 더보기 잘림 · `TOO_MANY_RESULTS` 15곳 초과 · `DETAIL_FAILED`). 그 검색의 후보는 모두 `selectable=false`(`SEARCH_INCOMPLETE`)다.
-  - `unselectableReason`: `ADDRESS_MISSING` · `ADDRESS_DUPLICATE`(같은 정식 이름·같은 주소) · `SEARCH_INCOMPLETE`.
+- 검색 응답: `{ query, complete, incompleteReason, unverifiedCount, items[{ candidateId, officialName, sido, sigungu, address, schoolinfoSchoolId, schoolId, selectable, unselectableReason }] }`
+  - `complete=false`: 검색 결과를 모두 읽지 못했다(`SEARCH_TRUNCATED` 더보기 잘림 · `TOO_MANY_RESULTS` 15곳 초과 · `DETAIL_FAILED`). **A28-45(2026-11-23 사용자 지시 · DRAFT): 목록 완전성과 학교 식별을 분리한다** — 목록이 불완전해도 후보 하나하나가 식별되면(학교알리미 ID 있음·이 검색 안에서 ID 중복 없음·상세 조회 성공·주소 있음·같은 정식 이름+주소 중복 없음) 그 후보는 `selectable=true`다. 화면은 불완전 경고를 그대로 보이고 자동 선택하지 않는다. (A27-UX 부록 O 의 '불완전하면 모두 고를 수 없음' 규칙을 대체)
+  - `unverifiedCount`: 상세 조회에 실패해 후보로 내지 못한 학교 수(A28-45). 0 보다 크면 그 검색은 캐시하지 않아 다시 검색하면 다시 확인한다.
+  - `unselectableReason`: `ADDRESS_MISSING` · `ADDRESS_DUPLICATE`(같은 정식 이름·같은 주소) · `ID_MISSING` · `ID_CONFLICT`(같은 검색 결과 안 학교알리미 ID 중복). `SEARCH_INCOMPLETE` 는 더 이상 내지 않는다.
+  - `refresh=true`: 캐시를 쓰지 않고 학교알리미에 다시 묻는다(검색 상한은 같다).
   - `schoolId`: 이 학교알리미 학교를 이미 쓰는(ACTIVE 매핑) 학교 키. 없으면 null.
   - `candidateId`는 서버가 이 검색에서 발급한 값이며 10분 동안 유효하다. 같은 검색어는 10분 캐시, 관리자당 1분 20회 외부 검색 상한이 있다.
 - 선택: 서버가 발급한 `candidateId`만 받는다. 학교 키는 서버가 정한다.
@@ -2163,7 +2231,7 @@ Idempotency-Key: <선택, 같은 Key·같은 원본 → 같은 결과 / 같은 K
 
 # 48. File Contract
 
-현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 링크/이미지, 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
+현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 이미지·파일 블록(§26-1 노트 첨부, A28-41부터 실제 저장 — 이전 블록은 메타데이터만), 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
 
 ```json
 {
@@ -2226,6 +2294,7 @@ Note 저장에는 `expectedRevisionId`, 콘텐츠 편집에는 `updatedAt`/Versi
 | 404 | `ENRICHMENT_TASK_NOT_FOUND` | 개인 탐구 없음 |
 | 404 | `NOTE_NOT_FOUND` / `NOTE_REVISION_NOT_FOUND` | 노트/Revision 없음 |
 | 404 | `ARTIFACT_NOT_FOUND` / `ARTIFACT_VERSION_NOT_FOUND` | 결과물/버전 없음 |
+| 404 | `NOTE_ATTACHMENT_NOT_FOUND` | 노트 첨부 없음 또는 권한 밖 (§26-1, A28-41 DRAFT) |
 | 404 | `FEEDBACK_REQUEST_NOT_FOUND` | 요청 없음 또는 권한 밖 |
 | 409 | `RESOURCE_VERSION_CONFLICT` | 동시 수정 충돌 |
 | 409 | `INVALID_STATE_TRANSITION` | 허용되지 않은 상태 전이 |
@@ -2357,7 +2426,7 @@ Method/Path, 필수 Request Field, JSON Field Type/의미, Enum, Response Nestin
 |---|---|---|
 | API-OD-A01 | Existing LearnersHigh 인증·학교/학적 Write Owner/Assessment 원본 매핑 | §9, §12, §34 |
 | API-OD-A02 | PDF 분석 엔진, 한 PDF 다과목 스키마, 개정·부분 실패·출처 좌표 | §10~11, §38~39 |
-| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
+| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). A28-41(2026-11-23): 탐구 노트 이미지·파일 블록도 결과물과 같은 격리 Storage에 실제 저장(§26-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
 | API-OD-A04 | Rich-text 블록 Schema·Autosave 주기·Revision 단위·충돌 전략 | §19~21 |
 | API-OD-A05 | 평가계획서 개인 정정의 공개·승인 의미/학생 학교 정보 수정 범위 | §9, §11 |
 | API-OD-A06 | 피드백 Snapshot 물리 보존 방식/보존기간·취소/재요청 정책 | §31~32, §44~45 |
@@ -2773,6 +2842,40 @@ PUT /api/student/assessment/home-memo  { body, expectedVersion } → 같은 Shap
 ```
 
 - 학생 한 명당 하나. `body` ≤2000(빈 문자열·null = 지움). `expectedVersion`이 현재와 다르면 409 `RESOURCE_VERSION_CONFLICT`(처음은 0). 관리자·다른 학생에게 보이지 않는다(관리자 Endpoint 없음). 탐구 노트(§20)와 별개다.
+
+**§30-b 학생 달력 개인 임시 배치 (A28-33, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET    /api/student/assessment/calendar-placements?academicYear=2026&semester=2
+       → { academicYear, semester, items: [{ sourceKey, displayDate: "YYYY-MM-DD", rangeFrom, rangeTo, updatedAt }] }
+PUT    /api/student/assessment/calendar-placements
+       { academicYear, semester, sourceKey, displayDate, rangeFrom, rangeTo } → 위 items 한 개 Shape
+DELETE /api/student/assessment/calendar-placements?academicYear=2026&semester=2   → 204 (그 학기 배치 초기화)
+```
+
+- 학생 홈 달력에서 원문 날짜가 없는 운영계획(`n월 m주` → 그 주 날짜 범위, 한 달만 적힌 `n월` → 그 달 날짜 범위)을 **학생 본인 화면에만** 옮겨 둔 표시 날짜다. 공식 날짜가 아니다: 운영계획·평가계획서·학교 수행평가·D-day·관리자 화면·다른 학생에게 영향을 주지 않는다(관리자 Endpoint 없음).
+- `sourceKey` = 화면의 운영계획 행 키 `{planId}|{subjectId}|{rowKey}`(1~200자, 공백·제어문자 불가). 원문 날짜가 있는 행·여러 달·시기 불명 행은 화면이 배치 대상으로 보내지 않는다.
+- 서버 검증(400 `VALIDATION_ERROR` + `fields`): `semester` 1·2 · `rangeFrom ≤ displayDate ≤ rangeTo` (`displayDate: out_of_range`) · 범위는 한 달 안(`rangeTo: other_month`) · 그 달이 학년도 범위(3~12월 = 학년도, 1~2월 = 다음 해, `rangeFrom: other_year`) · `sourceKey` 형식(`sourceKey: invalid`).
+- 같은 학생·학년도·학기·`sourceKey` 는 한 행(PUT 은 덮어쓰기, 멱등). 학생 인증 없으면 401. 다른 학생의 배치는 조회·변경 경로 자체가 없다(본인 ID는 인증에서만).
+- 화면은 저장값이 지금 행의 범위 밖이면(운영계획 재확정으로 시기가 바뀜) 쓰지 않고 기본 배치로 돌아간다(저장값은 남는다).
+
+**§39-6 보충: 결정 근거 `decisionBasis` (A28-31, 2026-11-23 · DRAFT — 추가형)**
+
+- `RowView`(§39-6 `review.rows[]`, §39-10 이력 `rows[]`)에 `decisionBasis: "ADMIN" | "AI_DEFAULT" | null` 추가. `ADMIN` = 관리자가 운영계획 초안에서 그 행을 직접 확인·수정·제외했거나 직접 추가한 행, `AI_DEFAULT` = 관리자가 따로 정하지 않아 '월별 운영계획 최종 승인' 한 번이 분석 후보를 기본값으로 채택한 행, `null` = 이 필드 이전 확정(V202611222242 전).
+- 서버가 확정 시점의 열린 운영계획 초안 결정(`teachingPlan[n]`)과 대조해 정한다(요청 필드 아님). 확정 요청·검증(학교·학년도·학년·학기·과목 연결·분석 최신·중복 409 `alreadyConfirmed`)은 그대로다.
+- 관리자 화면은 결정하지 않은 후보 중 원문 근거(쪽·위치)가 있고 이 문서 학년 과목인 행을 기본 포함해 `rows` 로 보낸다(행마다 '확인' 필요 없음). 학생 응답(§10-1-2)에는 이 필드가 없다.
+
+**§30-c 관리자 '학생 화면 보기' 읽기 경로 추가 (A28-36, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET /api/admin/assessment/students/{studentId}/student-view/evaluation-plans/{planId}/teaching-plan   # 학생 §10-1-2 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/academic-terms                          # 학생 §9-1-c 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/calendar-placements?academicYear&semester  # 학생 §30-b GET 과 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/current-term                            # 학생 §9-2 current-term 과 같은 응답
+```
+
+- 학생 홈 달력·월별 운영계획을 관리자 읽기 전용 보기에서도 학생 화면과 같은 데이터로 보이게 한다. Actor ADMIN, 담당 지점 밖·없는 학생 404(기존 student-view 규칙). 학생 인증 Header 를 쓰지 않는다.
+- 쓰기 경로(배치 옮기기·초기화)는 두지 않는다. 학생 홈 메모는 계속 보이지 않는다(§30-a 규칙).
 
 **학생 화면 정책 (새 API 없음)**
 

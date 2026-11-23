@@ -21,6 +21,11 @@ public class TeachingPlanReviewRow {
     public static final String ORIGIN_ANALYSIS = "ANALYSIS";
     public static final String ORIGIN_MANUAL = "MANUAL";
 
+    /** A28-31 결정 근거: 관리자가 초안에서 직접 정했거나 추가한 행 */
+    public static final String BASIS_ADMIN = "ADMIN";
+    /** A28-31 결정 근거: 관리자가 따로 정하지 않아 최종 승인이 분석 후보를 기본값으로 채택한 행 */
+    public static final String BASIS_AI_DEFAULT = "AI_DEFAULT";
+
     @Id
     @Column(name = "id", length = 64)
     private String id;
@@ -42,6 +47,10 @@ public class TeachingPlanReviewRow {
 
     @Column(name = "decision", nullable = false, length = 20, updatable = false)
     private String decision;
+
+    /** A28-31: ADMIN · AI_DEFAULT (V202611222242 이전 행은 null) */
+    @Column(name = "decision_basis", length = 20, updatable = false)
+    private String decisionBasis;
 
     @Column(name = "precision_code", length = 20, updatable = false)
     private String precision;
@@ -102,6 +111,15 @@ public class TeachingPlanReviewRow {
 
     public boolean manual() {
         return ORIGIN_MANUAL.equals(origin);
+    }
+
+    /** A28-31: ADMIN · AI_DEFAULT · null(근거 기록 전 확정) */
+    public String decisionBasis() {
+        return decisionBasis;
+    }
+
+    void basis(String basis) {
+        this.decisionBasis = basis;
     }
 
     public String decision() {

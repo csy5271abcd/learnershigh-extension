@@ -57,7 +57,7 @@ export function MonthlyPlanTabRoute({ search }: { search: URLSearchParams }) {
           </>
         }
       />
-      <p className={review.sourceNote}>확정된 운영계획만 보여요. 주차만 적힌 계획은 &lsquo;잠정&rsquo;(실제 날짜 아님)으로 표시돼요.</p>
+      <p className={review.sourceNote}>확정된 운영계획만 · 주차만 있는 계획은 날짜 미정</p>
       {isAdminMockDataSource ? (
         <div className={review.empty}>
           <strong>시연 데이터에는 확정된 운영계획이 없어요</strong>

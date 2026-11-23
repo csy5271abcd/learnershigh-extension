@@ -34,7 +34,7 @@ export function OfficialPlansCard({ academicYear, semester }: { academicYear: nu
           확정된 평가 정보 보기
         </Link>
       </div>
-      <p className={styles.caption}>학교알리미에 학교가 공식 공개한 원본은 선생님 확인 전에도 볼 수 있어요. 선생님이 정리한 평가 정보는 확정된 것만 보여요.</p>
+      <p className={styles.caption}>학교알리미 공식 원본 · 평가 정보는 선생님 확정분만</p>
       <div className={styles.slotFilters} role="group" aria-label="조회 학년·학기">
         <label>
           <span>학년</span>

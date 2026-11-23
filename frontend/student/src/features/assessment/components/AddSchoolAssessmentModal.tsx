@@ -26,7 +26,7 @@ type FieldErrors = Partial<Record<'title' | 'subjectId' | 'newSubjectName' | 'de
 
 const reasonMessages: Record<string, Record<string, string>> = {
   title: { required: '수행평가 이름을 입력해 주세요.' },
-  subjectId: { required: '과목을 선택해 주세요.', unknown: '선택한 학기에 없는 과목이에요. 다시 선택해 주세요.' },
+  subjectId: { required: '과목을 선택해 주세요.', unknown: '선택한 학기에 없는 과목이에요.' },
   newSubjectName: { invalid: '과목 이름을 확인해 주세요. (50자 이하)', not_allowed: '과목을 다시 선택해 주세요.' },
   deadlineDate: { format: '날짜 형식을 확인해 주세요.' },
   evaluationDate: { format: '날짜 형식을 확인해 주세요.' },
@@ -213,7 +213,7 @@ function AddSchoolAssessmentModalForm({
           )}
           {!titleError && duplicate && (
             <p id={`${ids.title}-duplicate`} className={styles.fieldWarning}>
-              이 학기에 같은 이름의 수행평가가 이미 있어요. 저장하면 별도 항목으로 추가돼요.
+              이 학기에 같은 이름의 수행평가가 이미 있어요.
             </p>
           )}
         </div>
@@ -236,7 +236,7 @@ function AddSchoolAssessmentModalForm({
           />
           {/* 새 과목을 고르면 SubjectPicker가 '내 과목 목록에도 추가' 안내를 보이므로 일반 안내는 숨긴다 */}
           <p id={`${ids.subject}-hint`} className={styles.hint} hidden={subject?.kind === 'new'}>
-            내 수강 과목에서 고르거나, {context.grade}학년 과목을 검색해 고를 수 있어요. 처음 고른 과목은 내 과목 목록에도 추가돼요.
+            내 수강 과목에서 고르거나, {context.grade}학년 과목을 검색해 고를 수 있어요.
           </p>
           {(errors.subjectId ?? errors.newSubjectName) && (
             <p id={`${ids.subject}-error`} className={styles.fieldError}>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { devPanelEnabled } from '../../../../../student/src/features/assessment/dev/devContext.ts'
 import { navigate } from '../../../app/adminLocation.ts'
 import { confirmTeachingPlan, createTeachingPlanManualRow, getPlanSubjects, getTeachingPlanReview, updateTeachingPlanManualRow } from '../api/assessmentAdminApi.ts'
@@ -10,6 +10,7 @@ import { EvidenceLinks } from './EvidenceLinks.tsx'
 import type { OnJump } from './evidence.ts'
 import { CalendarIcon, MonthlyPlanner, entryFromRow, precisionLabel, whenLabel, type TeachingPlanEntry } from '../components/canonicalUi.ts'
 import { confirmedSubjectLinks, type Decision } from './reviewModel.ts'
+import { teachingApproval } from './teachingApproval.ts'
 import { DraftBanner, SyncText } from './ReviewWorkspace.tsx'
 import { useServerDraft } from './useServerDraft.ts'
 import { TeachingPlanHistoryPanel } from './TeachingPlanHistoryPanel.tsx'
@@ -69,6 +70,7 @@ export function TeachingPlanStep({
   subjectIds: evaluationSubjectIds,
   excludedSubjects,
   onGoSubjects,
+  onFinalStep,
 }: {
   view: EvaluationPlanAnalysisView
   onJump: OnJump
@@ -78,6 +80,8 @@ export function TeachingPlanStep({
   excludedSubjects?: ReadonlySet<number>
   /** 2단계 과목 확인으로 이동 (과목 연결을 바꿀 때) */
   onGoSubjects?: () => void
+  /** A28-36: 학교알리미 원본처럼 '최종 확정' 단계의 최종 승인이 운영계획까지 함께 확정하면, 이 단계에는 따로 승인 버튼을 두지 않고 그 단계로 안내 */
+  onFinalStep?: () => void
 }) {
   const slot = view.slot
   const allCandidates = useMemo(() => view.teachingPlanCandidates ?? [], [view.teachingPlanCandidates])
@@ -91,6 +95,8 @@ export function TeachingPlanStep({
   const [server, setServer] = useState<{ state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; data: TeachingPlanReviewView }>({ state: 'loading' })
   const [editing, setEditing] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // A28-31: 같은 틱의 두 번 클릭도 요청 1번(서버도 중복 확정은 409)
+  const submittingRef = useRef(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   /** A14 관리자 추가 행 입력 양식 (과목별 새 행 또는 기존 추가 행 수정) */
   const [manualForm, setManualForm] = useState<{ subjectIndex: number; row?: TeachingPlanManualRow } | null>(null)
@@ -142,6 +148,13 @@ export function TeachingPlanStep({
   for (const subject of allCandidates) {
     const link = upstreamLink(subject.subjectIndex) || (draft.subjectIds[subject.subjectIndex] ?? '').trim()
     if (link) subjectIds[subject.subjectIndex] = link
+  }
+  // A28-31: 연결이 하나도 없으면 학교 과목 중 이름이 정확히 하나 같은 과목(최종 승인과 같은 규칙)
+  const norm = (value: string) => value.replace(/\s+/g, '').toLowerCase()
+  for (const subject of allCandidates) {
+    if (subjectIds[subject.subjectIndex] || !subjectOptions) continue
+    const same = subjectOptions.items.filter((item) => norm(item.name) === norm(subject.subjectName))
+    if (same.length === 1) subjectIds[subject.subjectIndex] = same[0].subjectId
   }
   const staleLink = (index: number) => {
     const held = (draft.subjectIds[index] ?? '').trim()
@@ -223,25 +236,24 @@ export function TeachingPlanStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refs, lockedReview, decisions, slot, manualRows])
 
-  const decidedRefs = refs.filter((ref) => decisionOf(keyOf(ref)))
-  const missingSubject = [...new Set([...decidedRefs.map((ref) => ref.subjectIndex), ...manualRows.map((row) => row.subjectIndex)])].filter((index) => !(subjectIds[index] ?? '').trim())
+  // A28-31: 관리자가 따로 정하지 않은 후보도 기본 포함(원문 근거 있고 이 학년 과목인 행) — 행마다 '확인'하지 않아도 한 번에 승인
+  const approval = teachingApproval({ refs, decisions, subjectIds, subjectGrades: view.subjectGrades ?? null, documentGrade: view.slot?.grade })
+  const missingManual = manualRows.filter((row) => !(subjectIds[row.subjectIndex] ?? '').trim()).map((row) => candidates.find((subject) => subject.subjectIndex === row.subjectIndex)?.subjectName ?? String(row.subjectIndex))
+  const missingSubject = [...new Set([...approval.missingSubjects, ...missingManual])]
   const manualPublished = manualRows.filter((row) => row.status !== 'EXCLUDED').length
-  const published = decidedRefs.filter((ref) => decisionOf(keyOf(ref))?.kind !== 'absent').length + manualPublished
-  const decidedCount = decidedRefs.length + manualRows.length
+  const published = approval.published + manualPublished
+  const decidedCount = approval.rows.length + manualRows.length
   const canConfirm = !lockedReview && decidedCount > 0 && missingSubject.length === 0 && !submitting && !manualBusy && !manualForm && Boolean(view.analysisId)
 
   const submit = async () => {
-    if (!canConfirm || !view.analysisId) return
+    if (!canConfirm || !view.analysisId || submittingRef.current) return
+    submittingRef.current = true
     setSubmitting(true)
     setSubmitError(null)
     try {
       const data = await confirmTeachingPlan(view.planId, view.documentRevisionId, {
         analysisId: view.analysisId,
-        rows: decidedRefs.map((ref) => {
-          const decision = decisionOf(keyOf(ref)) as Decision
-          const kind = decision.kind === 'absent' ? 'EXCLUDED' : decision.kind === 'edited' ? 'EDITED' : 'CONFIRMED'
-          return { subjectIndex: ref.subjectIndex, rowKey: ref.row.rowKey, subjectId: subjectIds[ref.subjectIndex].trim(), decision: kind, ...(kind === 'EDITED' ? { edits: editsOf(decision) } : {}) }
-        }),
+        rows: approval.rows,
         // A14: 관리자 추가 행은 키·과목·결정만 보낸다(내용은 서버가 초안에서 가져온다)
         manualRows: manualRows.map((row) => ({ rowKey: row.rowKey, subjectIndex: row.subjectIndex, subjectId: subjectIds[row.subjectIndex].trim(), decision: row.status === 'EXCLUDED' ? 'EXCLUDED' : 'CONFIRMED' })),
       })
@@ -253,6 +265,7 @@ export function TeachingPlanStep({
       const conflictGrade = Object.values(apiError.fieldReasons()).includes('grade_conflict')
       setSubmitError(conflictGrade ? '원문상 이 문서 학년이 아닌 과목의 행이 있어요. 그 과목 행은 제외하거나 확정하지 마세요.' : apiError.message)
     } finally {
+      submittingRef.current = false
       setSubmitting(false)
     }
   }
@@ -263,8 +276,8 @@ export function TeachingPlanStep({
       <strong>{contract03 ? '이 분석 결과에는 운영계획 행이 없어요' : '아직 운영계획 분석 결과가 없어요'}</strong>
       <span className={styles.muted}>
         {contract03
-          ? '분석기가 운영계획을 찾지 못했거나 원문에 없을 수 있어요. 아래 과목별 상태와 원문을 확인해 주세요.'
-          : '지금 분석 결과 형식(0.2)에는 운영계획이 담기지 않아요. ‘원문에 운영계획이 없음’이 아니니 원문의 해당 쪽을 직접 확인해 주세요.'}
+          ? '운영계획 미검출 또는 원문에 없음 · 과목별 상태와 원문 확인'
+          : '분석 결과 형식 0.2 — 운영계획 미포함(원문에 없다는 뜻 아님) · 원문 직접 확인'}
       </span>
       {import.meta.env.DEV && devPanelEnabled() && (
         <button type="button" className={styles.link} onClick={() => navigate('/assessment/dev/monthly-planner')} data-testid="open-planner-preview">
@@ -278,7 +291,7 @@ export function TeachingPlanStep({
     <div data-testid="review-step-teaching">
       <h3 className={styles.title}>월별 교수·학습 운영 계획</h3>
       <p className={styles.lead}>
-        단원·학습 내용·성취기준을 원문과 대조해 행마다 확인·수정·제외를 정한 뒤 따로 확정해요. 원문에 적힌 날짜·주차·월 단위를 그대로 지키고, 적혀 있지 않은 날짜는 만들지 않아요. 평가 정보 확정과는 별개예요.
+        원문 근거 있는 후보 기본 포함 · 필요한 행만 수정·제외 · 원문 시기(날짜·주차·월) 그대로 · 평가 정보 확정과 별개
       </p>
 
       {refs.length > 0 && (
@@ -286,10 +299,13 @@ export function TeachingPlanStep({
           {lockedReview ? (
             <span>
               확정됨 · {actorLabel(lockedReview.reviewedBy)} · {new Date(lockedReview.reviewedAt).toLocaleString('ko-KR')} · 학생 공개 {lockedReview.rows.filter((row) => row.decision !== 'EXCLUDED').length}행 · 제외 {lockedReview.rows.filter((row) => row.decision === 'EXCLUDED').length}행
+              {lockedReview.rows.some((row) => row.decisionBasis === 'AI_DEFAULT') && ` · AI 기본값 채택 ${lockedReview.rows.filter((row) => row.decisionBasis === 'AI_DEFAULT').length}행 · 관리자 결정 ${lockedReview.rows.filter((row) => row.decisionBasis === 'ADMIN').length}행`}
             </span>
           ) : (
-            <span>
-              후보 {refs.length}행 · 결정 {decidedRefs.length}행 · 관리자 추가 {manualRows.length}행 · 공개 {published} · 제외 {decidedCount - published} · 결정하지 않은 후보 행은 공개되지 않아요
+            <span data-testid="teaching-plan-approval-counts">
+              후보 {refs.length}행 · 자동 포함 {approval.counts.auto} · 확인 {approval.counts.confirmed} · 수정 {approval.counts.edited} · 제외 {approval.counts.excluded}
+              {manualRows.length > 0 ? ` · 관리자 추가 ${manualRows.length}` : ''}
+              {approval.counts.noEvidence + approval.counts.otherGrade > 0 ? ` · 확인 필요 ${approval.counts.noEvidence + approval.counts.otherGrade}(원문 근거 없음·다른 학년, 승인 제외)` : ''}
             </span>
           )}
           {!lockedReview && (
@@ -301,7 +317,7 @@ export function TeachingPlanStep({
       )}
       {reReview && (
         <p className={styles.banner} data-testid="teaching-plan-rereview-badge" style={{ marginBottom: 12 }}>
-          운영계획 재검토 중 · 다시 확정하기 전까지 학생에게는 {confirmedReview?.versionNo ?? 1}차 확정본이 그대로 보여요.
+          운영계획 재검토 중 · 학생에게는 {confirmedReview?.versionNo ?? 1}차 확정본 유지
         </p>
       )}
       {refs.length > 0 && !lockedReview && <DraftBanner state={draft} />}
@@ -322,12 +338,12 @@ export function TeachingPlanStep({
         <div style={{ marginTop: 20, display: 'grid', gap: 18 }} data-testid="teaching-plan-rows">
           {excludedCount > 0 && (
             <p className={styles.tiny} role="note" style={{ margin: 0 }} data-testid="teaching-plan-excluded-note">
-              과목 확인에서 이 문서 검토 대상에서 뺀 과목 {excludedCount}개는 운영계획에서도 빠져요(달력·상세·확정 모두). 복원하면 다시 보여요.
+              과목 확인에서 뺀 과목 {excludedCount}개 — 운영계획에서도 제외(복원 시 다시 표시)
             </p>
           )}
           <div className={styles.detailPicker}>
             <label htmlFor="teaching-plan-detail-subject">
-              과목별 상세 <span className={styles.tiny}>달력에는 모든 과목이 보이고, 아래에는 고른 과목의 계획만 보여요</span>
+              과목별 상세 <span className={styles.tiny}>달력 = 전체 과목 · 아래 = 고른 과목</span>
             </label>
             <select
               id="teaching-plan-detail-subject"
@@ -386,7 +402,7 @@ export function TeachingPlanStep({
                   </ul>
                 )}
                 {rows.length === 0 ? (
-                  <p className={styles.muted}>{subject.rows === null ? '이 과목 결과에 운영계획이 담겨 있지 않아요.' : '운영계획 행이 없어요. 위 상태를 확인해 주세요.'}</p>
+                  <p className={styles.muted}>{subject.rows === null ? '이 과목 결과에 운영계획이 담겨 있지 않아요.' : '운영계획 행이 없어요.'}</p>
                 ) : (
                   <table className={styles.table}>
                     <thead>
@@ -515,21 +531,29 @@ export function TeachingPlanStep({
         </div>
       )}
 
-      {refs.length > 0 && !lockedReview && (
+      {refs.length > 0 && !lockedReview && onFinalStep && (
+        <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+          <button type="button" className={styles.buttonDark} onClick={onFinalStep} data-testid="teaching-plan-go-final">
+            최종 확정으로 (공개 {published}행)
+          </button>
+          <span className={styles.tiny}>평가 정보와 함께 최종 승인</span>
+        </div>
+      )}
+      {refs.length > 0 && !lockedReview && !onFinalStep && (
         <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <button type="button" className={styles.buttonDark} disabled={!canConfirm} onClick={() => void submit()} data-testid="teaching-plan-confirm" aria-busy={submitting}>
-            {submitting ? '확정하는 중…' : reReview ? `운영계획 다시 확정 (공개 ${published}행)` : `운영계획 확정 (공개 ${published}행)`}
+            {submitting ? '승인하는 중…' : reReview ? `월별 운영계획 다시 승인 (공개 ${published}행)` : `월별 운영계획 최종 승인 (공개 ${published}행)`}
           </button>
           <span className={styles.tiny}>
             {missingSubject.length > 0
-              ? `과목이 연결되지 않은 행이 있어요(${missingSubject.map((index) => candidates[index]?.subjectName ?? index).join(', ')}).`
+              ? `과목 연결 필요: ${missingSubject.join(', ')} — 2단계 과목 확인에서 연결`
               : manualForm
                 ? '작성 중인 추가 행을 저장하거나 취소한 뒤 확정해요.'
               : decidedCount === 0
-                ? '확정할 행을 하나 이상 정해 주세요.'
+                ? '승인할 수 있는 행이 없어요(원문 근거가 있는 이 학년 과목 행 없음).'
                 : reReview
-                  ? '다시 확정하면 새 확정 버전이 학생 월별 계획에 공개되고, 이전 확정본은 이력으로 남아요.'
-                  : '확정하면 학생 화면 월별 계획에 공개돼요(문서가 학생에게 공개된 경우). 고치려면 확정 뒤 재검토를 시작해요.'}
+                  ? '새 확정 버전 학생 공개 · 이전 확정본은 이력 보존'
+                  : '승인 후 학생 월별 계획에 공개 · 행별 확인 없이 승인 가능(수정·제외한 행은 그대로 반영)'}
           </span>
           {submitError && (
             <span className={styles.muted} role="alert">

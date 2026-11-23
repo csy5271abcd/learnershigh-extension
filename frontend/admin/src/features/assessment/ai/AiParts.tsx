@@ -46,7 +46,7 @@ export function RunStatus<T>({ state, onRetry }: { state: AiRunState<T>; onRetry
     <div className={styles.runStatus} data-state={state.kind} role="status" aria-live="polite" data-testid="ai-run-state">
       <span className={styles.stateDot} aria-hidden="true" />
       <strong>{stateLabel[state.kind]}</strong>
-      {state.kind === 'running' && <span className={styles.muted}>서버에서 텍스트 추출과 AI 분석을 한 번에 처리해요. 수십 초 이상 걸릴 수 있어요.</span>}
+      {state.kind === 'running' && <span className={styles.muted}>서버에서 텍스트 추출과 AI 분석을 한 번에 처리해요.</span>}
       {state.kind === 'failed' && (
         <>
           <span className={styles.muted}>

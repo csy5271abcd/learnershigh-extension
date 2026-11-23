@@ -98,7 +98,6 @@ export function PersonalDetailsFields({
             {errors?.deadlineDate && <p className={styles.fieldError}>{errors.deadlineDate}</p>}
           </div>
         </div>
-        <p className={styles.hint}>평가일은 시험·발표 날, 제출 마감은 제출 기한이에요. 둘 다 선택이고 같은 날이어도 돼요. 모르면 비워 두세요.</p>
       </section>
 
       <section className={styles.section} aria-labelledby={`${id}-info`}>
@@ -112,7 +111,7 @@ export function PersonalDetailsFields({
             </label>
             <input id={`${id}-weight`} inputMode="numeric" className={styles.input} value={value.weightPercent} placeholder="예: 20" disabled={disabled} aria-invalid={weightProblem ? true : undefined} aria-describedby={`${id}-weight-hint`} onChange={(event) => onChange({ weightPercent: event.target.value })} data-testid="field-weight" />
             <p id={`${id}-weight-hint`} className={weightProblem ? styles.fieldError : styles.hint}>
-              {weightProblem ?? '0~100. 모르면 비워 두세요.'}
+              {weightProblem ?? '0~100.'}
             </p>
           </div>
         </div>
@@ -170,7 +169,6 @@ export function PersonalDetailsFields({
             </div>
           )}
         </div>
-        <p className={styles.hint}>제출물 이름만 적어 두는 칸이에요. 실제 파일은 상세 화면의 &lsquo;수행평가 결과물&rsquo;에 올려요.</p>
       </section>
 
       <section className={styles.section} aria-labelledby={`${id}-manage`}>

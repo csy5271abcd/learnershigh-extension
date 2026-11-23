@@ -1,7 +1,7 @@
 import { approvalSummary, defaultIncluded } from './reviewFilter.ts'
 import { finalApprovalPlan, type SlotSubject } from './finalApproval.ts'
 import { isSchoolInfoSource } from '../model/schoolInfoSync.ts'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSplitPane } from './useSplitPane.ts'
 import { navigate } from '../../../app/adminLocation.ts'
 import { confirmPlanReview, getPlanAnalysis, getPlanSubjects, getTeachingPlanReview, listSchools, searchSchools } from '../api/assessmentAdminApi.ts'
@@ -15,7 +15,7 @@ import { paths } from '../routes/paths.ts'
 import { ConfirmStep, type HashState } from './ConfirmStep.tsx'
 import { OverviewStep } from './OverviewStep.tsx'
 import { PerformanceStep, type PerformanceSelection } from './PerformanceStep.tsx'
-import { analysisStatusText, blockersOf, confirmRequestOf, gradeConflict, excludedSet, fieldKey, steps, withoutExcluded, type Decision, type StepId } from './reviewModel.ts'
+import { analysisStatusText, blockersOf, confirmRequestOf, confirmedSubjectLinks, gradeConflict, excludedSet, fieldKey, steps, withoutExcluded, type Decision, type StepId } from './reviewModel.ts'
 import { SourcePane } from './SourcePane.tsx'
 import type { OnJump } from './evidence.ts'
 import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
@@ -49,7 +49,8 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
   const confirmed = view.reviewStatus === 'CONFIRMED'
   const draft = useServerDraft(view)
   const { decisions, subjectIds, sync } = draft
-  const [step, setStep] = useState<StepId>('overview')
+  // A28-36: ?step=confirm 으로 들어오면 최종 확정 단계부터(재분석 뒤 '검토하기' · 결과 화면 '월별 운영계획 승인')
+  const [step, setStep] = useState<StepId>(() => (new URLSearchParams(window.location.search).get('step') === 'confirm' ? 'confirm' : 'overview'))
   // PR #18 통합: 처음 여는 과목은 이 문서 학년 과목(합본 문서에서 다른 학년 과목은 A27 과목 제외·학년 충돌 안내로 다룬다)
   const [selection, setSelection] = useState<PerformanceSelection>(() => {
     const own = view.subjects.findIndex((_, index) => !gradeConflict(view.subjectGrades?.[index], view.slot?.grade))
@@ -135,11 +136,19 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
     // 운영계획 단계에서 바꾼 결정을 최종 승인 요약에 반영한다
     if (step === 'confirm' && serverOriginal && hasTeachingRows) void reloadTeachingDraft()
   }, [step, serverOriginal, hasTeachingRows, reloadTeachingDraft])
+  const lockedLinks = useMemo(
+    () => ({ ...confirmedSubjectLinks(view), ...Object.fromEntries(Object.entries(subjectIds).filter(([, id]) => (id ?? '').trim() !== '')) }),
+    [view, subjectIds],
+  )
   const approvalPlan = serverOriginal
     ? finalApprovalPlan({
         view,
         decisions: activeDecisions,
-        adminLinks: subjectIds,
+        // A28-29: 평가 정보 확정 때 관리자가 연결한 과목(확정값의 과목)을 기본으로 — 초안 연결이 있으면 그것이 우선. 확정 문서의 '월별 운영계획 최종 승인'이
+        // 이름이 다른 과목(초안 없음)에서 연결을 잃어 막히지 않게 한다. 확정값이 없는 문서는 그대로다
+        // A28-29: 평가 정보가 확정됐고 재검토가 열리지 않은 문서(= '월별 운영계획 최종 승인'만 남은 경우)에만, 확정 때 관리자가 연결한 과목을
+        // 기본 연결로 쓴다(초안 연결이 있으면 그것이 우선). 이름이 다른 과목·초안 없음에서 운영계획 승인이 막히지 않게. 그 밖의 문서는 그대로 subjectIds
+        adminLinks: view.reviewStatus === 'CONFIRMED' && !draft.reopened ? lockedLinks : subjectIds,
         excluded,
         slotSubjects,
         reReview: draft.reopened,
@@ -330,7 +339,16 @@ function ReviewWorkspace({ view, onReplaced }: { view: EvaluationPlanAnalysisVie
               />
             )}
             {step === 'performance' && <PerformanceStep view={view} selection={selection} onSelect={setSelection} decisions={decisions} onDecide={decide} onDecideKey={draft.setDecision} onJump={jump} readOnly={!editable || !isPdf} />}
-            {step === 'teaching' && <TeachingPlanStep view={view} onJump={jump} subjectIds={subjectIds} excludedSubjects={excluded} onGoSubjects={() => go('subjects')} />}
+            {step === 'teaching' && (
+              <TeachingPlanStep
+                view={view}
+                onJump={jump}
+                subjectIds={subjectIds}
+                excludedSubjects={excluded}
+                onGoSubjects={() => go('subjects')}
+                onFinalStep={serverOriginal ? () => go('confirm') : undefined}
+              />
+            )}
             {step === 'confirm' && (
               <ConfirmStep
                 view={view}
@@ -521,7 +539,7 @@ export function DraftBanner({ state }: { state: ReturnType<typeof useServerDraft
     return (
       <div className={styles.banner} role="status" data-testid="review-draft-stale">
         <span>
-          분석 결과가 새로 바뀌었어요. {previous ? `이전 결과의 초안(${previous.decisionCount}개)은 보존되어 있지만 ` : ''}새 결과에는 적용하지 않아요. 새 결과를 다시 검토해 주세요.
+          분석 결과가 새로 바뀌었어요. {previous ? `이전 결과의 초안(${previous.decisionCount}개)은 보존되어 있지만 ` : ''}새 결과에는 적용하지 않아요.
         </span>
         {sync.kind === 'stale' && (
           <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => window.location.reload()}>

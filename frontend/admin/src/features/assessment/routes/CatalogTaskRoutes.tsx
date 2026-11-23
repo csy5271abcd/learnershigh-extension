@@ -276,7 +276,6 @@ function CatalogTaskForm({ task }: { task: AdminCatalogTask | null }) {
                   ))}
                 </div>
                 <FieldError id="task-subject-error" message={errors.subjectId} />
-                <p className={styles.hint}>학교 개설 과목만 고를 수 있어요. 학생이 직접 추가한 과목은 그 학생 전용이라 공통 콘텐츠 과목으로 쓰지 않아요.</p>
               </div>
               <div className={styles.formGrid}>
                 <ChipField label="탐구 유형" options={inquiryTypes} value={input.inquiryType} onChange={(value) => set('inquiryType', value)} />
@@ -329,7 +328,6 @@ function CatalogTaskForm({ task }: { task: AdminCatalogTask | null }) {
               </div>
               <div className={styles.field}>
                 <span className={styles.label}>대학별 기출 문항 연결</span>
-                <p className={styles.hint}>대학별 자료 원문 화면의 문항 목차에서 &lsquo;심화 Task에 연결&rsquo;로 추가해요.</p>
                 <LinkedChips ids={input.relatedExamQuestionIds} label={questionTitle} onRemove={(id) => toggleId('relatedExamQuestionIds', id)} />
               </div>
             </div>

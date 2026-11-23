@@ -117,13 +117,13 @@ export function PlanOriginalViewer({
         </p>
       ) : !file.available ? (
         <p className={styles.muted} data-testid="plan-original-missing">
-          <InfoIcon size={14} /> 이 개정본은 원문 파일을 보관하지 않던 시기(2026-11-13 이전)에 등록되었어요. 원문을 다시 등록하면 여기서 볼 수 있어요.
+          <InfoIcon size={14} /> 이 개정본은 원문 파일을 보관하지 않던 시기(2026-11-13 이전)에 등록되었어요.
         </p>
       ) : !file.previewAvailable && (file.documentFormat === 'HWP' || file.documentFormat === 'HWPX') ? (
         <ConvertedOriginalViewer planId={planId} revisionId={revisionId} file={file} focus={focus} onDownload={download} />
       ) : !file.previewAvailable ? (
         <p className={styles.mockNotice} data-testid="plan-original-no-preview">
-          <InfoIcon size={14} /> {file.documentFormat} 원문은 서버에 그대로 보관되어 있어요. 이 화면에서는 미리보기를 제공하지 않아요.
+          <InfoIcon size={14} /> {file.documentFormat} 원문은 서버에 그대로 보관되어 있어요.
           원본을 내려받아 확인해 주세요.
         </p>
       ) : preview?.kind === 'ready' ? (

@@ -60,6 +60,14 @@ export function uploadArtifactVersionHttp(artifactId: string, request: UploadArt
   if (request.expectedLatestVersionId) form.append('expectedLatestVersionId', request.expectedLatestVersionId)
   return assessmentHttp<ArtifactVersion>(`${base}/artifacts/${enc(artifactId)}/versions`, { method: 'POST', form })
 }
+/** §26-1 A28-41 노트 첨부: 업로드(본인) · 원본 · 미리보기(PDF·이미지). 관리자 학생 화면 보기에서는 클라이언트가 student-view 경로로 바꾼다 */
+export function uploadNoteAttachmentHttp(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return assessmentHttp<import('../types.ts').NoteAttachment>(`${base}/note-attachments`, { method: 'POST', form })
+}
+export const downloadNoteAttachmentHttp = (attachmentId: string) => downloadFile(`${base}/note-attachments/${enc(attachmentId)}/file`)
+export const previewNoteAttachmentHttp = (attachmentId: string) => downloadFile(`${base}/note-attachments/${enc(attachmentId)}/preview`)
 /** §26 원본 파일 (본인 소유만, 서버가 권한 검사) */
 export const downloadArtifactVersionHttp = (artifactId: string, versionId: string) =>
   downloadFile(`${base}/artifacts/${enc(artifactId)}/versions/${enc(versionId)}/file`)
@@ -128,6 +136,9 @@ export const compareArtifactVersionsHttp = (artifactId: string, fromVersionId: s
   assessmentHttp<ArtifactComparison>(`${base}/artifacts/${enc(artifactId)}/compare`, { query: { fromVersionId, toVersionId } })
 export const trashSchoolAssessmentHttp = (assessmentId: string) =>
   assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}`, { method: 'DELETE' })
+/** §12-1 A28-49 영구 삭제(제목 확인, 되돌릴 수 없음) */
+export const permanentDeleteSchoolAssessmentHttp = (assessmentId: string, confirmTitle: string) =>
+  assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}/permanent-delete`, { method: 'POST', json: { confirmTitle } })
 export const trashArtifactHttp = (artifactId: string) => assessmentHttp<void>(`${base}/artifacts/${enc(artifactId)}`, { method: 'DELETE' })
 export const trashResourceHttp = (resourceId: string) => assessmentHttp<void>(`${base}/resources/${enc(resourceId)}`, { method: 'DELETE' })
 export const trashGrowthRecordHttp = (recordId: string) => assessmentHttp<void>(`${base}/growth-records/${enc(recordId)}`, { method: 'DELETE' })

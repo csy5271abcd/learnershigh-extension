@@ -1,5 +1,5 @@
 import type { AcademicContext, EvaluationPlan, SchoolAssessment } from '../api/types.ts'
-import { placeEntries, whenLabel, type TeachingPlanEntry } from '../components/teaching-plan/teachingPlanPlacement.ts'
+import { calendarWeekRows, isMonthWeek, placeEntries, whenLabel, type TeachingPlanEntry } from '../components/teaching-plan/teachingPlanPlacement.ts'
 import { schoolAssessmentDetailPath } from '../routes/paths.ts'
 import { groupConfirmedFields } from './confirmedPlanView.ts'
 
@@ -9,8 +9,24 @@ import { groupConfirmedFields } from './confirmedPlanView.ts'
 //   (원본·관리자/학생 월별 운영계획 화면의 주차 정보는 그대로 — '운영계획 크게 보기'). '잠정' 유형은 없앴다.
 // '이달 일정 · 날짜 미정': 월만 적힌 운영계획·학기 주차 계획 · 공식 시기만 있는 학교 확정 수행평가 · 확정 지필평가(시기 문장의 달).
 // '시기 미정': 달을 정할 수 없는 계획·평가. 날짜·D-day 를 만들지 않는다. 유형은 데이터 종류로만 정한다(제목 키워드 추정 없음).
+// A28-33(2026-11-23 사용자 지시, A28-26 홈 규칙을 바꿈): 'n월 m주' 운영계획은 그 달 달력 m번째 줄 안, 한 달만 적힌 'n월' 운영계획은
+//   그 달 안 평일에 고르게 '개인 임시 배치'한다(난수 없음 — 다시 계산해도 같은 날짜). 학생이 범위 안에서 옮긴 날짜(§30-b)가 있으면 그 날짜.
+//   여러 달(MONTH_RANGE)·주차 줄이 없는 달·시기 불명 행은 배치하지 않는다. 공식 날짜가 아니다: D-day·다가오는 일정·관리자 화면에 쓰지 않는다.
 
 export type CalendarKind = 'deadline' | 'evaluation' | 'written' | 'plan'
+
+/** A28-33 개인 임시 배치 정보(운영계획 날짜 없는 행만). 범위 밖으로는 옮길 수 없다 */
+export interface TentativePlacement {
+  sourceKey: string
+  rangeFrom: string
+  rangeTo: string
+  /** 지금 표시 날짜 */
+  date: string
+  /** 계산한 기본 날짜(초기화하면 돌아갈 날짜) */
+  defaultDate: string
+  /** 학생이 옮겨 저장한 날짜인가 */
+  moved: boolean
+}
 
 export interface CalendarEvent {
   key: string
@@ -20,6 +36,7 @@ export interface CalendarEvent {
   /** 시기·출처 설명 */
   meta: string
   to?: string
+  tentative?: TentativePlacement
 }
 
 export interface MonthCalendar {
@@ -73,6 +90,8 @@ export function monthCalendar(input: {
   subjectName: (subjectId: string) => string
   /** 과목 이름(없으면 전체) */
   subject?: string | null
+  /** A28-33 학생이 옮겨 둔 날짜(§30-b): sourceKey(= 운영계획 entry.id) → YYYY-MM-DD. 범위 밖 값은 쓰지 않는다 */
+  placements?: Record<string, string>
 }): MonthCalendar {
   const { academicYear, month, assessments, confirmedPlans, context, subjectName, subject } = input
   const wanted = (name: string) => !subject || name === subject
@@ -89,8 +108,8 @@ export function monthCalendar(input: {
   const noTiming: CalendarEvent[] = []
   const counts = { mine: 0, plans: 0, written: 0, undated: 0 }
 
-  // 1) 운영계획 — 원문 날짜가 있는 행만 날짜 칸(수업). 주차 임시 배치는 하지 않는다. 월만 적힌 행은 이달 날짜 미정.
-  //    주차·학기 주차·연도 미정·시기 미정 행은 홈에서 보이지 않는다(월별 운영계획 화면에 그대로)
+  // 1) 운영계획 — 원문 날짜 행은 그 날짜 칸(수업, 공식). A28-33: 'n월 m주'·'n월' 행은 개인 임시 배치(아래). 여러 달 행은 이달 날짜 미정.
+  //    학기 주차·연도 미정·시기 미정 행은 홈에서 보이지 않는다(월별 운영계획 화면에 그대로)
   const datedPlans = new Set<string>()
   for (const cell of placement.cells) {
     if (!cell) continue
@@ -100,10 +119,23 @@ export function monthCalendar(input: {
       add(cell.iso, { key: `p-${entry.id}-${cell.iso}`, kind: 'plan', subject: entry.subjectName, title: planTitle(entry), meta: `학교 운영계획 · 원문 날짜 ${whenLabel(entry)}` })
     }
   }
-  for (const entry of placement.monthSummary) {
+  const tentative = tentativePlacements(planEntries, placement.cells, month, input.placements ?? {})
+  for (const item of tentative) {
+    add(item.placement.date, {
+      key: `pt-${item.entry.id}`,
+      kind: 'plan',
+      subject: item.entry.subjectName,
+      title: planTitle(item.entry),
+      meta: `원문: ${whenLabel(item.entry)} · 날짜 미정`,
+      tentative: item.placement,
+    })
+  }
+  const placedIds = new Set(tentative.map((item) => item.entry.id))
+  const monthPlans = placement.monthSummary.filter((entry) => !placedIds.has(entry.id))
+  for (const entry of monthPlans) {
     monthUndated.push({ key: `pm-${entry.id}`, kind: 'plan', subject: entry.subjectName, title: planTitle(entry), meta: `학교 운영계획 · 원문 시기 ${whenLabel(entry)} · 날짜 미정` })
   }
-  counts.plans = datedPlans.size + placement.monthSummary.length
+  counts.plans = datedPlans.size + tentative.length + monthPlans.length
 
   // 2) 수행평가(학생 학교 수행평가 — A28-20 학교 확정 자동 등록 포함). 날짜는 학생이 넣은 값만. 학교 확정에서 빠진 항목은 제외
   const prefix = `${year}-${pad(month)}-`
@@ -156,6 +188,54 @@ export function monthCalendar(input: {
   const sortedUndated = sortEvents(monthUndated)
   counts.undated = sortedUndated.length
   return { year, month, cells, byDate, monthUndated: sortedUndated, noTiming: sortEvents(noTiming), counts }
+}
+
+type Cells = ReturnType<typeof placeEntries>['cells']
+
+const weekdayOf = (iso: string) => new Date(`${iso}T00:00:00`).getDay()
+const byName = (a: TeachingPlanEntry, b: TeachingPlanEntry) => a.subjectName.localeCompare(b.subjectName, 'ko') || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+
+/**
+ * A28-33 개인 임시 배치(순수 함수, 결정적).
+ * - 'n월 m주'(isMonthWeek, 'm~k주' 포함): 범위 = 달력 m~k번째 줄의 이 달 날짜. 기본 날짜 = 줄 안 평일을 (과목명, id) 순으로 차례대로(A26 규칙과 같음).
+ * - 한 달만 적힌 'n월'(MONTH): 범위 = 그 달 전체. 기본 날짜 = 그 달 평일에 (과목명, id) 순으로 고르게 펼친다.
+ * - 학생이 옮긴 날짜는 범위 안일 때만 쓴다. 달력 칸이 없는 달(연도 미정)·줄이 없는 주는 배치하지 않는다.
+ */
+export function tentativePlacements(entries: TeachingPlanEntry[], cells: Cells, month: number, saved: Record<string, string>): { entry: TeachingPlanEntry; placement: TentativePlacement }[] {
+  const days = cells.filter((cell): cell is NonNullable<Cells[number]> => cell !== null)
+  if (days.length === 0) return []
+  const rows = calendarWeekRows(cells)
+  const result: { entry: TeachingPlanEntry; placement: TentativePlacement }[] = []
+  const make = (entry: TeachingPlanEntry, range: string[], defaultDate: string) => {
+    const wanted = saved[entry.id]
+    const moved = Boolean(wanted && range.includes(wanted) && wanted !== defaultDate)
+    result.push({ entry, placement: { sourceKey: entry.id, rangeFrom: range[0], rangeTo: range[range.length - 1], date: moved ? wanted : defaultDate, defaultDate, moved } })
+  }
+  const weekdaysIn = (list: { iso: string }[]) => {
+    const weekdays = list.filter((cell) => weekdayOf(cell.iso) >= 1 && weekdayOf(cell.iso) <= 5).map((cell) => cell.iso)
+    return weekdays.length ? weekdays : list.map((cell) => cell.iso)
+  }
+  // 'n월 m주'
+  const weekEntries = entries.filter((entry) => entry.month === month && isMonthWeek(entry)).sort(byName)
+  const perRow = new Map<number, number>()
+  for (const entry of weekEntries) {
+    const from = entry.weekFrom as number
+    const to = entry.weekTo != null && entry.weekTo >= from ? entry.weekTo : from
+    if (from < 1 || from > rows.length) continue
+    const range = rows.slice(from - 1, Math.min(to, rows.length)).flat().map((cell) => cell.iso)
+    const slots = weekdaysIn(rows[from - 1])
+    const index = perRow.get(from) ?? 0
+    perRow.set(from, index + 1)
+    make(entry, range, slots[index % slots.length])
+  }
+  // 한 달만 적힌 'n월'
+  const monthEntries = entries.filter((entry) => entry.precision === 'MONTH' && entry.month === month).sort(byName)
+  const slots = weekdaysIn(days)
+  monthEntries.forEach((entry, index) => {
+    const slot = slots[Math.min(slots.length - 1, Math.floor(((index + 0.5) * slots.length) / monthEntries.length))]
+    make(entry, days.map((cell) => cell.iso), slot)
+  })
+  return result
 }
 
 function planTitle(entry: TeachingPlanEntry): string {

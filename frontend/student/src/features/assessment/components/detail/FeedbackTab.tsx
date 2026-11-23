@@ -57,7 +57,7 @@ export function FeedbackTab({ assessmentId, note, noteBlockedReason, selections,
   // 관리자 읽기 전용 보기(P-28)는 요청 버튼을 같은 자리에 비활성으로 두고 사유를 보여준다
   const readOnly = isAssessmentReadOnlyView()
   const disabledReason = readOnly
-    ? '관리자 읽기 전용 보기예요. 피드백 요청은 학생 본인만 할 수 있어요.'
+    ? '관리자 읽기 전용 보기예요.'
     : !note
     ? '저장된 탐구 노트가 있어야 요청할 수 있어요.'
     : noteBlockedReason

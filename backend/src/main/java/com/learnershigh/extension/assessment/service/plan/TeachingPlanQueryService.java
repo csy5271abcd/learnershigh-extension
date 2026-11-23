@@ -54,7 +54,7 @@ public class TeachingPlanQueryService {
                 .map(row -> new TeachingPlanReviewResponse.RowView(row.analysisSubjectIndex(), row.rowKey(),
                         row.subjectId(), row.decision(), mapper.readValue(row.rowJson(), Object.class),
                         row.candidateJson() == null ? null : mapper.readValue(row.candidateJson(), Object.class),
-                        row.origin()))
+                        row.origin(), row.decisionBasis()))
                 .toList();
     }
 

@@ -302,13 +302,13 @@ export function MockExamDetailRoute({ materialId }: { materialId: string }) {
                         </>
                       ) : (
                         <p className={styles.mockNotice} data-testid="passage-empty">
-                          <InfoIcon size={14} /> 아직 원문을 입력하지 않았어요. 수정 화면의 &lsquo;모의고사 지문 원문&rsquo;에 붙여 넣을 수 있어요.
+                          <InfoIcon size={14} /> 아직 원문을 입력하지 않았어요.
                         </p>
                       )}
                     </Section>
                     <Section title="관련 참고자료">
                       {sources.length === 0 ? (
-                        <p className={styles.muted}>연결한 참고자료원이 없어요. 수정 화면에서 연결할 수 있어요.</p>
+                        <p className={styles.muted}>연결한 참고자료원이 없어요.</p>
                       ) : (
                         sources.map((source) => (
                           <div key={source.sourceId} className={styles.noteCard} style={{ marginBottom: 6 }}>

@@ -71,7 +71,7 @@ export function SchoolInfoSchoolSelectModal({
       <div className={review.dialogBody} data-testid="schoolinfo-select-dialog">
         <div className={slots.modalStack}>
         <p className={review.muted}>
-          학교알리미에 이름이 같은 학교가 {selection.candidates.length}곳 있어요. 지역과 주소를 보고 이 학교를 골라 주세요. 고른 학교의 최근 3개 학년도 평가계획서만 받아요.
+          학교알리미에 이름이 같은 학교가 {selection.candidates.length}곳 있어요.
           {selection.reason === 'MAPPING_CHANGED' ? ' 이전에 고른 학교의 이름·주소가 학교알리미에서 바뀌어 다시 골라야 해요.' : ''}
         </p>
         <label className={slots.selectField}>
@@ -110,7 +110,7 @@ export function SchoolInfoSchoolSelectModal({
         </ul>
         {!anySelectable && (
           <p className={slots.syncError} role="status" data-testid="schoolinfo-select-none">
-            후보를 구별할 주소가 없어 고를 수 없어요. 평가계획서를 직접 등록해 주세요.
+            후보를 구별할 주소가 없어 고를 수 없어요.
           </p>
         )}
         {picked && (
