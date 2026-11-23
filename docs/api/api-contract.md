@@ -426,6 +426,28 @@ Actor: `STUDENT`. 소유 학생은 인증 정보에서 결정한다. 다른 학�
 - 과목 ID는 학년·학기 슬롯 단위다(같은 이름이라도 학기 슬롯이 다르면 다른 ID일 수 있다).
 - Admin 학생 상세의 `academicContexts[]`(§9-1 Shape)도 같은 필드를 가진다.
 
+### 9-1-c. 학적이 있는 학기 목록 (A28-29, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)
+
+```http
+GET /api/student/assessment/academic-terms
+```
+
+Actor: `STUDENT`(인증된 본인만). 학기 선택 목록용. 현재 학년도(§9-2 `current-term`, KST)와 앞 두 학년도 × 1·2학기 중 §9-1 학업 정보(원천 학적)가 **있는** 학기만, 최신 학기 먼저.
+
+```json
+{
+  "currentTerm": { "academicYear": 2026, "semester": 2 },
+  "terms": [
+    { "academicYear": 2026, "semester": 2 },
+    { "academicYear": 2026, "semester": 1 }
+  ]
+}
+```
+
+- 서버는 §9-1 과 같은 원천(`AcademicContextProvider`)으로 학기마다 확인할 뿐 학적을 만들거나 추측하지 않는다. 원천에 없는 학기는 목록에 없다(오류 아님). 학교·학년은 §9-1 로 학기마다 조회한다(전학·학년 변화가 그대로 보인다).
+- 원천 조회 자체가 실패하면 §5 오류(5xx) — 빈 목록으로 바꾸지 않는다. 화면은 이 목록이 없을 때(이전 서버) 현재 학년도 1·2학기를 §9-1 로 직접 조회하던 기존 방식으로 동작한다.
+- 학기 선택은 조회 필터다(§9-1·assessment-student.md §4). 다른 학기의 개인 기록을 옮기거나 새로 만들지 않는다.
+
 ## 9-2. 학업 정보 변경
 
 ```http
@@ -2773,6 +2795,28 @@ PUT /api/student/assessment/home-memo  { body, expectedVersion } → 같은 Shap
 ```
 
 - 학생 한 명당 하나. `body` ≤2000(빈 문자열·null = 지움). `expectedVersion`이 현재와 다르면 409 `RESOURCE_VERSION_CONFLICT`(처음은 0). 관리자·다른 학생에게 보이지 않는다(관리자 Endpoint 없음). 탐구 노트(§20)와 별개다.
+
+**§30-b 학생 달력 개인 임시 배치 (A28-33, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET    /api/student/assessment/calendar-placements?academicYear=2026&semester=2
+       → { academicYear, semester, items: [{ sourceKey, displayDate: "YYYY-MM-DD", rangeFrom, rangeTo, updatedAt }] }
+PUT    /api/student/assessment/calendar-placements
+       { academicYear, semester, sourceKey, displayDate, rangeFrom, rangeTo } → 위 items 한 개 Shape
+DELETE /api/student/assessment/calendar-placements?academicYear=2026&semester=2   → 204 (그 학기 배치 초기화)
+```
+
+- 학생 홈 달력에서 원문 날짜가 없는 운영계획(`n월 m주` → 그 주 날짜 범위, 한 달만 적힌 `n월` → 그 달 날짜 범위)을 **학생 본인 화면에만** 옮겨 둔 표시 날짜다. 공식 날짜가 아니다: 운영계획·평가계획서·학교 수행평가·D-day·관리자 화면·다른 학생에게 영향을 주지 않는다(관리자 Endpoint 없음).
+- `sourceKey` = 화면의 운영계획 행 키 `{planId}|{subjectId}|{rowKey}`(1~200자, 공백·제어문자 불가). 원문 날짜가 있는 행·여러 달·시기 불명 행은 화면이 배치 대상으로 보내지 않는다.
+- 서버 검증(400 `VALIDATION_ERROR` + `fields`): `semester` 1·2 · `rangeFrom ≤ displayDate ≤ rangeTo` (`displayDate: out_of_range`) · 범위는 한 달 안(`rangeTo: other_month`) · 그 달이 학년도 범위(3~12월 = 학년도, 1~2월 = 다음 해, `rangeFrom: other_year`) · `sourceKey` 형식(`sourceKey: invalid`).
+- 같은 학생·학년도·학기·`sourceKey` 는 한 행(PUT 은 덮어쓰기, 멱등). 학생 인증 없으면 401. 다른 학생의 배치는 조회·변경 경로 자체가 없다(본인 ID는 인증에서만).
+- 화면은 저장값이 지금 행의 범위 밖이면(운영계획 재확정으로 시기가 바뀜) 쓰지 않고 기본 배치로 돌아간다(저장값은 남는다).
+
+**§39-6 보충: 결정 근거 `decisionBasis` (A28-31, 2026-11-23 · DRAFT — 추가형)**
+
+- `RowView`(§39-6 `review.rows[]`, §39-10 이력 `rows[]`)에 `decisionBasis: "ADMIN" | "AI_DEFAULT" | null` 추가. `ADMIN` = 관리자가 운영계획 초안에서 그 행을 직접 확인·수정·제외했거나 직접 추가한 행, `AI_DEFAULT` = 관리자가 따로 정하지 않아 '월별 운영계획 최종 승인' 한 번이 분석 후보를 기본값으로 채택한 행, `null` = 이 필드 이전 확정(V202611222242 전).
+- 서버가 확정 시점의 열린 운영계획 초안 결정(`teachingPlan[n]`)과 대조해 정한다(요청 필드 아님). 확정 요청·검증(학교·학년도·학년·학기·과목 연결·분석 최신·중복 409 `alreadyConfirmed`)은 그대로다.
+- 관리자 화면은 결정하지 않은 후보 중 원문 근거(쪽·위치)가 있고 이 문서 학년 과목인 행을 기본 포함해 `rows` 로 보낸다(행마다 '확인' 필요 없음). 학생 응답(§10-1-2)에는 이 필드가 없다.
 
 **학생 화면 정책 (새 API 없음)**
 
