@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
 import { deliverReply, downloadArtifactVersion, getFeedbackRequest, listScraps, previewArtifactVersion, saveReplyDraft } from '../api/assessmentAdminApi.ts'
 import { openBlob, saveBlob } from '../model/blobActions.ts'
+import { AttachmentPreviewModal } from '../components/AttachmentPreviewModal.tsx'
 import type { AdminFeedbackDetail, FeedbackRecommendation, FeedbackReplyDraft, NoteBlock } from '../api/types.ts'
 import { DetailHead, ReadOnlyMark, RemoteView } from '../components/AdminParts.tsx'
 import { AlertIcon, CloseIcon, Modal, SendIcon, Toast, type ToastMessage } from '../components/canonicalUi.ts'
@@ -316,6 +317,7 @@ function SnapshotFile({
   const [page, setPage] = useState(1)
   // A28-41: 요청 당시 버전 파일은 서버 Storage 에 있다(§26) — 읽기 전용으로 열고 내려받는다
   const [fileError, setFileError] = useState<string | null>(null)
+  const [previewing, setPreviewing] = useState(false)
   const fileAction = (action: () => Promise<void>) => {
     setFileError(null)
     action().catch((cause: unknown) => setFileError(cause instanceof Error ? cause.message : '파일을 열지 못했어요.'))
@@ -328,9 +330,13 @@ function SnapshotFile({
           {fileSizeLabel(version.file.sizeBytes)} · {dateTimeLabel(version.uploadedAt)} · {version.previewSupported ? '앱 안 미리보기 가능' : '미리보기 미지원 형식 · 내려받아 확인'}
         </span>
         <span className={styles.actions} style={{ marginTop: 4 }}>
+          {/* A28-44: 같은 화면에서 바로 미리보기(이미지·PDF). 그 밖 형식은 창에서 '미리보기 미지원 · 내려받기' */}
+          <button type="button" className={styles.linkButton} onClick={() => setPreviewing(true)} data-testid="feedback-snapshot-file-preview">
+            미리보기
+          </button>
           {version.previewSupported && (
             <button type="button" className={styles.linkButton} onClick={() => fileAction(async () => openBlob(await previewArtifactVersion(version.artifactId, version.versionId)))} data-testid="feedback-snapshot-file-open">
-              열기 ↗
+              새 탭 ↗
             </button>
           )}
           <button type="button" className={styles.linkButton} onClick={() => fileAction(async () => saveBlob(await downloadArtifactVersion(version.artifactId, version.versionId), version.file.fileName))} data-testid="feedback-snapshot-file-download">
@@ -341,6 +347,15 @@ function SnapshotFile({
           <span className={styles.formError} role="alert">
             {fileError}
           </span>
+        )}
+        {previewing && (
+          <AttachmentPreviewModal
+            fileName={version.file.fileName}
+            contentType={version.file.contentType}
+            load={() => previewArtifactVersion(version.artifactId, version.versionId)}
+            download={() => downloadArtifactVersion(version.artifactId, version.versionId)}
+            onClose={() => setPreviewing(false)}
+          />
         )}
       </span>
       {!disabled && (

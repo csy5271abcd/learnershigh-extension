@@ -187,6 +187,7 @@
 
 .cardHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -379,4 +380,26 @@ button.activityRow:hover .activityTitle {
   .side {
     grid-template-columns: 1fr;
   }
+}
+
+/* A28-43: 최근 활동 점 색 범례(작은 글자, 줄바꿈 허용) */
+.activityLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.activityLegend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.activityLegend .activityDot {
+  margin-top: 0;
 }

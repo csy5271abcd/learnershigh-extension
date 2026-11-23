@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { downloadNoteAttachment, previewNoteAttachment } from '../api/assessmentAdminApi.ts'
 import { openBlob, saveBlob } from '../model/blobActions.ts'
+import { AttachmentPreviewModal } from './AttachmentPreviewModal.tsx'
 import type { NoteBlock } from '../api/types.ts'
 import styles from '../styles/assessmentAdmin.module.css'
 // A27-UX(계정 B): 학생 노트 인라인 서식(attrs.marks)을 학생 화면과 같은 렌더러로 그린다. 서식이 없으면 글 그대로
@@ -147,6 +148,7 @@ const previewableTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 
 function AttachmentCard({ type, name, file }: { type: string; name: string; file: { name: string; size: number; mimeType: string; attachmentId?: string } | undefined }) {
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
+  const [previewing, setPreviewing] = useState(false)
   const attachmentId = file?.attachmentId
   const run = (action: () => Promise<void>) => {
     if (pending) return
@@ -161,9 +163,12 @@ function AttachmentCard({ type, name, file }: { type: string; name: string; file
       </span>
       {attachmentId ? (
         <span className={styles.actions}>
+          <button type="button" className={styles.linkButton} onClick={() => setPreviewing(true)} data-testid="admin-note-file-preview">
+            미리보기
+          </button>
           {previewableTypes.has(file?.mimeType ?? '') && (
             <button type="button" className={styles.linkButton} disabled={pending} onClick={() => run(async () => openBlob(await previewNoteAttachment(attachmentId)))} data-testid="admin-note-file-open">
-              열기 ↗
+              새 탭 ↗
             </button>
           )}
           <button type="button" className={styles.linkButton} disabled={pending} onClick={() => run(async () => saveBlob(await downloadNoteAttachment(attachmentId), file?.name ?? name))} data-testid="admin-note-file-download">
@@ -172,6 +177,15 @@ function AttachmentCard({ type, name, file }: { type: string; name: string; file
         </span>
       ) : (
         <span className={styles.muted}>이전 첨부 · 파일 미저장(학생이 다시 첨부해야 열람 가능)</span>
+      )}
+      {previewing && attachmentId && (
+        <AttachmentPreviewModal
+          fileName={file?.name ?? name}
+          contentType={file?.mimeType ?? ''}
+          load={() => previewNoteAttachment(attachmentId)}
+          download={() => downloadNoteAttachment(attachmentId)}
+          onClose={() => setPreviewing(false)}
+        />
       )}
       {error && (
         <span className={styles.formError} role="alert">

@@ -232,6 +232,15 @@ export function OverviewRoute({ search }: { search: URLSearchParams }) {
           <section className={dash.card} aria-label="최근 Assessment 활동" data-testid="overview-recent">
             <div className={dash.cardHead}>
               <h2>최근 Assessment 활동</h2>
+              {/* A28-43: 점 색은 활동 종류 묶음(확정 = 평가정보·운영계획 공통). 색만으로 전달하지 않도록 범례 글자를 함께 둔다(행의 활동명도 그대로) */}
+              <ul className={dash.activityLegend} aria-label="점 색 의미" data-testid="overview-activity-legend">
+                {activityLegend.map(([tone, label]) => (
+                  <li key={tone}>
+                    <span className={dash.activityDot} data-tone={tone} aria-hidden="true" />
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
             {recent === null ? (
               <p className={dash.muted}>{overview.state.status === 'error' ? '활동을 불러오지 못했어요.' : '활동을 불러오는 중이에요.'}</p>
@@ -296,6 +305,14 @@ export function OverviewRoute({ search }: { search: URLSearchParams }) {
 }
 
 /** 활동 종류별 점 색 (정보용 포인트: 평가계획서 파랑, 분석 보라, 확정 초록, 피드백 주황) */
+/** A28-43 범례: activityTone 과 같은 묶음. 확정(청록)은 평가정보 확정·운영계획 확정 공통이다 */
+const activityLegend: [string, string][] = [
+  ['blue', '등록'],
+  ['violet', '분석'],
+  ['teal', '확정(평가정보·운영계획)'],
+  ['orange', '피드백'],
+]
+
 function activityTone(type: string): string {
   if (type.startsWith('FEEDBACK')) return 'orange'
   if (type === 'PLAN_ANALYZED') return 'violet'
