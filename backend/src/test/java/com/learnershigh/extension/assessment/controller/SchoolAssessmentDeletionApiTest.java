@@ -173,7 +173,9 @@ class SchoolAssessmentDeletionApiTest {
                 .andExpect(jsonPath("$.details.fields[0].field").value("growthRecords"));
 
         String official = assessment("학교 확정 항목");
-        jdbc.update("update assessment_school_assessment set official_key = ? where id = ?", "official|test|" + official, official);
+        // 공식 연결 CHECK(ck_assessment_sa_official_link): key·plan·review·status 를 함께 채운다(시험용 흉내)
+        jdbc.update("update assessment_school_assessment set official_key = ?, official_plan_id = ?, official_review_id = ?, official_status = 'ACTIVE' where id = ?",
+                "official|test|" + official, "plan_test", "review_test", official);
         mvc.perform(asStudent(post(S + "/school-assessments/" + official + "/permanent-delete"), "stu_001").contentType(MediaType.APPLICATION_JSON)
                 .content(deleteBody("학교 확정 항목"))).andExpect(status().isConflict())
                 .andExpect(jsonPath("$.details.fields[0].field").value("official"));
