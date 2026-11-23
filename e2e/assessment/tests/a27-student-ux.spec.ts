@@ -81,7 +81,7 @@ test('[01~04] 홈: KPI · 바로가기(PDF 없음) · 3개년 공식 원본 · �
   await expect(page.getByTestId('home-calendar-day-detail')).toContainText(`E2E 홈 일정 ${tag}`)
   await expect(page.getByTestId('home-calendar-day-detail')).toContainText('평가일')
   await page.keyboard.press('Escape')
-  // A28-26: 홈 달력에는 '잠정'(주차 임시 배치)이 없다 — '10월 2주' 계획(T03)은 홈 날짜 칸·날짜 미정에 두지 않는다(월별 운영계획 화면에는 그대로)
+  // A28-33(A28-26 규칙 변경, 2026-11-23 사용자 지시): '10월 2주' 계획(T03)은 홈 달력 10월 2번째 줄에 개인 임시 배치(점선) — '잠정' 유형 글자는 없다
   await page.goto(`${STUDENT}/assessment`)
   const cal = page.getByTestId('home-calendar')
   await expect(cal).toBeVisible({ timeout: 15_000 })
@@ -92,7 +92,10 @@ test('[01~04] 홈: KPI · 바로가기(PDF 없음) · 3개년 공식 원본 · �
   }
   await expect(cal.getByRole('heading')).toContainText('10월')
   await expect(cal.locator('[data-kind="tentative"], [data-tone="tentative"]')).toHaveCount(0)
-  await expect(cal).not.toContainText('3. 역학 시스템')
+  const weekCell = cal.locator(`[data-tentative-keys~="${doc.planId}|subj_02|T03"]`)
+  await expect(weekCell).toHaveCount(1)
+  const weekDate = Number((await weekCell.getAttribute('data-date'))?.slice(8, 10))
+  expect(weekDate >= 4 && weekDate <= 10, '2026-10 달력 2번째 줄(10/4~10/10)').toBe(true)
   await expect(cal).not.toContainText('잠정')
 
   // 다가오는 수행평가: 정확한 날짜만 D-day

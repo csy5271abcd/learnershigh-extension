@@ -440,3 +440,11 @@
     transition: none;
   }
 }
+
+/* A28-34 주소의 학기가 학적 목록에 없을 때 알림 */
+.termNote {
+  margin: 6px 0 0;
+  color: #6b7684;
+  font-size: 12px;
+  line-height: 1.4;
+}

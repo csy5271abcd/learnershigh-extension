@@ -294,8 +294,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
                 <thead>
                   <tr>
                     <th scope="col">문서</th>
-                    <th scope="col">분석</th>
-                    <th scope="col">검토 · 학생 공개</th>
+                    <th scope="col">상태 · 학생 공개</th>
                     <th scope="col">등록일</th>
                     <th scope="col">
                       <span className="lh-visually-hidden">동작</span>
@@ -414,14 +413,14 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
           </span>
         )}
       </td>
+      {/* A28-30: '분석' 열을 없애고 분석 상태를 이 칸에 합친다(분석 전·중·실패·일부 확인 필요 · 검토 단계 · 학생 공개) */}
       <td>
-        <span className={review.statusText} data-tone={status.tone}>
-          {analyzing ? '분석 중… (최대 2분)' : status.text}
-        </span>
-      </td>
-      <td>
-        <span className={review.statusText} data-tone="neutral" data-testid="plan-row-stage">
-          {stage === 'CONFIRMED' ? `확정 · 확정값 ${confirmedCount}개 학생 공개` : `${stageLabel[stage]} · 학생 비공개`}
+        <span className={review.statusText} data-tone={latest.analysisStatus === 'FAILED' ? 'danger' : 'neutral'} data-testid="plan-row-stage">
+          {analyzing
+            ? '분석 중… (최대 2분)'
+            : stage === 'CONFIRMED'
+              ? `확정 · 확정값 ${confirmedCount}개 학생 공개`
+              : `${stageLabel[stage]}${latest.analysisStatus === 'PARTIAL' ? ` · ${status.text}` : ''} · 학생 비공개`}
         </span>
       </td>
       <td data-col="date" className={review.tiny}>
@@ -431,7 +430,7 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
         <div className={review.rowButtons}>
           {canAnalyze ? (
             <button type="button" className={`${review.buttonDark} ${review.small}`} onClick={() => onAnalyze(plan, latest)} disabled={pending} aria-busy={analyzing} data-testid="plan-analyze-button">
-              {analyzing ? '분석 중…' : latest.analysisStatus === 'FAILED' ? '다시 분석' : '분석 시작'}
+              {analyzing ? '분석 중…' : '분석 시작'}
             </button>
           ) : stage !== 'CONFIRMED' ? (
             // [09] A27-UX: '검토 시작'은 옆 'AI 결과 보기'와 같은 위계의 중립 outline 버튼
@@ -444,6 +443,7 @@ function PlanRow({ plan, pending, analyzingRevisionId, onAnalyze, stage, selecte
               {stage === 'CONFIRMED' ? '확정 결과 보기' : stage === 'ANALYZED' ? 'AI 결과 보기' : '검토 결과 보기'}
             </button>
           )}
+          {/* A28-30: '다시 분석'은 문서별 분석 결과 화면 머리에서만(목록 행에는 두지 않음). 결과가 없는 문서(분석 전·실패)만 여기서 '분석 시작' */}
           <button type="button" className={`${review.buttonGhost} ${review.small}`} onClick={downloadOriginal} disabled={!original?.available} title={original?.available ? `${format} 원문 내려받기` : '원문을 보관하지 않은 이전 등록분이에요'} data-testid="plan-original-download-button">
             원문
           </button>
@@ -689,7 +689,7 @@ export function UploadPlanModal({
               </label>
             </>
           ) : (
-            <p className={review.muted}>같은 문서에 새 개정본을 올려요. 이전 버전과 검토 기록은 그대로 남아요.</p>
+            <p className={review.muted}>같은 문서의 새 개정본 · 이전 버전·검토 기록 보존</p>
           )}
           <label className={review.formRow}>
             <span>출처 (선택)</span>
@@ -702,13 +702,13 @@ export function UploadPlanModal({
                 <li>시연용 화면이에요. 파일은 서버에 저장되지 않아요.</li>
               ) : (
                 <>
-                  <li>원문은 서버에 형식 그대로 보관하고, 서버가 분석기로 분석해요.</li>
-                  <li>분석은 최대 2분 걸릴 수 있어요. 끝나면 검토 화면으로 이동해요.</li>
+                  <li>원문 형식 그대로 서버 보관 · 서버 분석</li>
+                  <li>분석 최대 2분 · 끝나면 검토 화면으로 이동</li>
                 </>
               )}
-              <li>같은 학년·학기에 여러 문서를 올릴 수 있고, 기존 파일은 덮어쓰지 않아요.</li>
-              <li>분석 결과는 후보예요. 관리자가 원문과 대조해 확정한 값만 학생에게 공개돼요.</li>
-              {analyzerUpload && <li>등록한 원문을 분석해 검토 후보로 저장해요.</li>}
+              <li>같은 학년·학기 여러 문서 가능 · 기존 파일 덮어쓰기 없음</li>
+              <li>분석 결과 = 후보 · 관리자 확정값만 학생 공개</li>
+              {analyzerUpload && <li>등록 후 자동 분석 → 검토 후보 저장</li>}
             </ul>
           </div>
         </div>

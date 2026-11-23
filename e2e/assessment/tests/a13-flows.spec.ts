@@ -30,11 +30,16 @@ test('A: 운영계획 확정 → 재검토 → 수정 → 다시 확정 → 이�
   await rows.nth(0).getByRole('button', { name: '확인' }).click()
   await rows.nth(7).getByRole('button', { name: '제외' }).click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('서버에 임시 저장됨', { timeout: 15_000 })
+  // A28-31: 결정하지 않은 후보(원문 근거 있음)도 기본 포함 — 9행 중 제외 1 → 공개 8
+  await expect(page.getByTestId('teaching-plan-approval-counts')).toContainText('자동 포함 7 · 확인 1 · 수정 0 · 제외 1')
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('공개 8행')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('확정됨', { timeout: 15_000 })
   await expect(page.getByTestId('teaching-plan-history-item')).toHaveCount(1)
+  // 이력: 관리자 일괄 승인(기본값 채택 7 · 관리자 결정 2) — 행마다 검토한 것처럼 기록하지 않는다
+  await expect(page.getByTestId('teaching-plan-history-item').first()).toContainText('AI 기본값 채택 7행 · 관리자 결정 2행')
   const v1 = await studentPlan()
-  expect(v1.rows.length).toBe(1)
+  expect(v1.rows.length).toBe(8)
 
   // 재검토 시작(확인 창) → 학생은 여전히 1차
   await page.getByTestId('teaching-plan-rereview-start').click()
@@ -43,8 +48,8 @@ test('A: 운영계획 확정 → 재검토 → 수정 → 다시 확정 → 이�
   await rows.nth(1).getByRole('button', { name: '확인' }).click()
   await rows.nth(7).getByRole('button', { name: '확인' }).click() // 1차에서 제외한 행을 다시 공개
   await expect(page.getByTestId('teaching-plan-status')).toContainText('서버에 임시 저장됨', { timeout: 15_000 })
-  expect((await studentPlan()).rows.length).toBe(1)
-  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 확정')
+  expect((await studentPlan()).rows.length).toBe(8)
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 승인')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('확정됨', { timeout: 15_000 })
   await expect(page.getByTestId('teaching-plan-history-item')).toHaveCount(2)
@@ -57,7 +62,7 @@ test('A: 운영계획 확정 → 재검토 → 수정 → 다시 확정 → 이�
 
   const v2 = await studentPlan()
   expect(v2.status).toBe('CONFIRMED')
-  expect(v2.rows.length).toBe(3)
+  expect(v2.rows.length).toBe(9)
   expect(JSON.stringify(v2)).not.toContain('versionNo')
   // 평가 정보 확정 이력은 영향 없음(아직 확정 안 함)
   const evaluation = await (await request.get(`${PLANS}/${doc.planId}/revisions/${doc.revisionId}/reviews`, { headers: { 'X-Assessment-Admin-Id': ADMIN_ID } })).json()

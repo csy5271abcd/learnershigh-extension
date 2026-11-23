@@ -964,3 +964,48 @@ details.undatedStrip > .undatedTitle {
 .undatedItem[data-kind='written'] {
   font-weight: 700;
 }
+
+/* A28-32: 일정 상세(모달)의 유형 표시 — 격자 칸 전체로 늘어나던 막대를 글자 길이만큼의 작은 pill 로(색·글자 정책 그대로, 상태 표시라 버튼 아님) */
+.dayItem > .kindBadge {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  line-height: 18px;
+}
+
+/* A28-33 개인 임시 배치: 점선 테두리(색 정책 그대로 — 수업 무채색), 끌 수 있음 · 끄는 동안 놓을 수 있는 칸 표시 */
+.event[data-tentative='true'] {
+  outline: 1px dashed #8b95a1;
+  outline-offset: -1px;
+  cursor: grab;
+}
+.day[data-drop='true'] {
+  box-shadow: inset 0 0 0 2px #3182f6;
+}
+.tentativeSample {
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  border: 1px dashed #8b95a1;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+.calendarHeadActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.placementControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+.placementControls select {
+  min-height: 32px;
+  font: inherit;
+}

@@ -1058,3 +1058,12 @@ export interface NoticeFile {
   sizeBytes: number
   uploadedAt: string
 }
+
+/** A28-33 학생 달력 개인 임시 배치 (2026-11-23 DRAFT §30-b). 본인 화면 표시용 — 공식 날짜 아님 */
+export interface CalendarPlacement {
+  sourceKey: string
+  displayDate: string
+  rangeFrom: string
+  rangeTo: string
+  updatedAt: string
+}

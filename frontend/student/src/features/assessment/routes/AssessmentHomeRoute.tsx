@@ -83,8 +83,9 @@ export function AssessmentHomeRoute() {
   const nameOf = (subjectId: string) => subjectNameIn(contexts, subjectId) ?? '과목'
   const planEntries: TeachingPlanEntry[] = (teaching.data ?? [])
     .filter((plan) => plan.status === 'CONFIRMED')
-    .flatMap((plan, index) =>
-      plan.rows.map((row) => entryFromRow(row, { id: `${index}|${row.subjectId}|${row.rowKey}`, subjectName: nameOf(row.subjectId), status: 'CONFIRMED', academicYear: plan.academicYear })),
+    // A28-33: id = 개인 임시 배치 저장 키(§30-b sourceKey) — 목록 순서가 아니라 문서 ID로 고정
+    .flatMap((plan) =>
+      plan.rows.map((row) => entryFromRow(row, { id: `${plan.planId}|${row.subjectId}|${row.rowKey}`, subjectName: nameOf(row.subjectId), status: 'CONFIRMED', academicYear: plan.academicYear })),
     )
   const upcoming = upcomingAssessments(items, confirmedPlans.data ?? [], selectedContext, today)
   // 날짜 미정 학교 공개 수행평가는 3개까지만 보인다 — 최근 등록된 평가계획서의 항목부터(같은 문서 안 순서는 원문 그대로)
@@ -141,7 +142,7 @@ export function AssessmentHomeRoute() {
       {noAcademicInfo && (
         <EmptyState
           title="학교·학업 정보가 없어요"
-          description="학교와 학기를 확인하면 수행평가를 정리할 수 있어요."
+          description="학교·학기 확인 후 수행평가 정리"
           action={<Link to={academicInfoPath}>학교·학업 정보로 가기</Link>}
         />
       )}
@@ -185,7 +186,7 @@ export function AssessmentHomeRoute() {
           ) : !recent.data ? (
             <LoadingRows rows={2} label="최근 기록을 불러오는 중" />
           ) : recent.data.items.length === 0 ? (
-            <p className={dash.muted}>아직 기록이 없어요. 수행평가나 심화 탐구를 시작하면 여기에 보여요.</p>
+            <p className={dash.muted}>아직 기록 없음 · 수행평가·심화 탐구를 시작하면 표시</p>
           ) : (
             <ul className={dash.recentList}>
               {recent.data.items.slice(0, RECENT_LIMIT).map((item) => {
@@ -252,7 +253,7 @@ export function AssessmentHomeRoute() {
             ) : !termAssessments.data ? (
               <LoadingRows rows={3} label="다가오는 일정을 불러오는 중" />
             ) : upcoming.dated.length === 0 ? (
-              <p className={dash.muted}>{items.length === 0 ? '이 학기에 등록한 수행평가가 없어요.' : '평가일이나 제출 마감이 정해진, 아직 끝나지 않은 수행평가가 없어요.'}</p>
+              <p className={dash.muted}>{items.length === 0 ? '이 학기에 등록한 수행평가가 없어요.' : '날짜가 정해진 다가오는 수행평가 없음'}</p>
             ) : (
               <ul className={dash.upcomingList} data-testid="home-upcoming-dated">
                 {upcoming.dated.slice(0, 5).map(({ assessment, days, dateKind }) => (

@@ -75,6 +75,9 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
                 <span className={styles.rowLabel}>{item.versionNo}차 확정</span>
                 <span className={styles.rowValue}>
                   {dateTime(item.reviewedAt)} · 공개 {item.publishedRowCount}행 · 제외 {item.excludedRowCount}행
+                  {/* A28-31: 최종 승인 한 번으로 기본값을 채택한 행과 관리자가 직접 정한 행을 구분(개별 검토로 기록하지 않음) */}
+                  {item.rows.some((row) => row.decisionBasis === 'AI_DEFAULT') &&
+                    ` · 관리자 일괄 승인(AI 기본값 채택 ${item.rows.filter((row) => row.decisionBasis === 'AI_DEFAULT').length}행 · 관리자 결정 ${item.rows.filter((row) => row.decisionBasis === 'ADMIN').length}행)`}
                 </span>
                 <span className={styles.rowMeta}>
                   {item.current ? '학생 공개 중' : '이전 버전(보존)'} · {actorLabel(item.reviewedBy)}

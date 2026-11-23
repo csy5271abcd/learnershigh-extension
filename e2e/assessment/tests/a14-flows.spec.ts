@@ -59,11 +59,12 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   await expect(page.getByTestId('teaching-plan-manual-row')).toHaveCount(1, { timeout: 15_000 })
   await expect(page.getByTestId('teaching-plan-row').nth(0)).toHaveAttribute('data-decision', 'confirmed')
   await expect(page.getByTestId('teaching-plan-row').nth(1)).toHaveAttribute('data-decision', 'confirmed')
-  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('공개 3행')
+  // A28-31: 후보 9행 기본 포함 + 관리자 추가 1행
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('공개 10행')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('확정됨', { timeout: 15_000 })
   const v1 = await studentRows(request, doc.planId)
-  expect(v1.length).toBe(3)
+  expect(v1.length).toBe(10)
   const m1 = v1.find((row) => row.unit === unit1)
   expect(m1?.rowKey).toMatch(/^manual_/)
   expect(m1).toMatchObject({ month: 10, weekFrom: 3, pdfPageNumber: 1 })
@@ -82,7 +83,7 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   await page.getByTestId('manual-save').click()
   await expect(page.getByTestId('teaching-plan-manual-row')).toHaveCount(2, { timeout: 15_000 })
   expect((await studentRows(request, doc.planId)).map((row) => row.unit)).toContain(unit1) // 재검토 중 학생은 1차 그대로
-  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 확정')
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 승인')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-history-item')).toHaveCount(2, { timeout: 15_000 })
   const v2 = await studentRows(request, doc.planId)

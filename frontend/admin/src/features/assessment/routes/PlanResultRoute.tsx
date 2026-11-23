@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { navigate, replaceSearch } from '../../../app/adminLocation.ts'
-import { getEvaluationPlan, getPlanAnalysis, getPlanReviewDraft, getPlanReviewHistory, getTeachingPlanHistory, isAdminMockDataSource, reopenPlanReviewDraft } from '../api/assessmentAdminApi.ts'
+import { getEvaluationPlan, getPlanAnalysis, getPlanReviewDraft, getPlanReviewHistory, getTeachingPlanHistory, getTeachingPlanReview, isAdminMockDataSource, reopenPlanReviewDraft } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
 import { confirmedChanges, originCounts, type ConfirmedChange } from '../model/confirmedChanges.ts'
-import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, EvaluationPlanAnalysisView, PlanReviewDraftView, PlanReviewHistory } from '../api/types.ts'
+import type { AdminEvaluationPlan, AdminEvaluationPlanRevision, EvaluationPlanAnalysisView, PlanReviewDraftView, PlanReviewHistory, TeachingPlanReviewView } from '../api/types.ts'
 import { RemoteView } from '../components/AdminParts.tsx'
 import { ChevronLeftIcon, Modal } from '../components/canonicalUi.ts'
 import type { StructureFocus } from '../components/PlanStructureViewer.tsx'
@@ -17,6 +17,7 @@ import styles from './archive.module.css'
 import result from './planResult.module.css'
 import { DocumentDetail, type OpenSource, type Tab } from './PlanArchiveRoute.tsx'
 import { paths } from './paths.ts'
+import { ReanalyzeDialog } from './ReanalyzeDialog.tsx'
 import { useSplitPane } from '../review/useSplitPane.ts'
 import { actorLabel } from '../model/actorLabel.ts'
 import { ResultSubjectPicker, type ResultSubjectEntry } from '../components/ResultSubjectPicker.tsx'
@@ -36,6 +37,8 @@ interface ResultData {
   /** 초안 조회 실패는 '초안 없음'과 구분한다 */
   draft: { ok: true; value: PlanReviewDraftView | null } | { ok: false; message: string }
   history: { ok: true; value: PlanReviewHistory } | { ok: false; message: string }
+  /** A28-29 운영계획 확정 상태·후보 수(조회 실패는 null — 승인 버튼만 숨긴다) */
+  teaching: TeachingPlanReviewView | null
 }
 
 const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true as const, value }), (cause: unknown) => ({ ok: false as const, message: cause instanceof Error ? cause.message : '불러오지 못했어요.' }))
@@ -43,13 +46,14 @@ const settle = <T,>(promise: Promise<T>) => promise.then((value) => ({ ok: true 
 export function PlanResultRoute({ planId, revisionId, search }: { planId: string; revisionId: string; search: URLSearchParams }) {
   const data = useRemote(
     async (): Promise<ResultData> => {
-      const [plan, analysis, draft, history] = await Promise.all([
+      const [plan, analysis, draft, history, teaching] = await Promise.all([
         getEvaluationPlan(planId),
         getPlanAnalysis(planId, revisionId),
         isAdminMockDataSource ? Promise.resolve({ ok: true as const, value: null }) : settle(getPlanReviewDraft(planId, revisionId)),
         settle(getPlanReviewHistory(planId, revisionId)),
+        isAdminMockDataSource ? Promise.resolve(null) : getTeachingPlanReview(planId, revisionId).catch(() => null),
       ])
-      return { plan, analysis, draft, history }
+      return { plan, analysis, draft, history, teaching }
     },
     [planId, revisionId],
   )
@@ -69,15 +73,19 @@ export function PlanResultRoute({ planId, revisionId, search }: { planId: string
               </div>
             )
           }
-          return <ResultWorkspace data={loaded} revision={revision} search={search} />
+          return <ResultWorkspace data={loaded} revision={revision} search={search} onChanged={data.reload} />
         }}
       </RemoteView>
     </div>
   )
 }
 
-function ResultWorkspace({ data, revision, search }: { data: ResultData; revision: AdminEvaluationPlanRevision; search: URLSearchParams }) {
+function ResultWorkspace({ data, revision, search, onChanged }: { data: ResultData; revision: AdminEvaluationPlanRevision; search: URLSearchParams; onChanged: () => void }) {
   const { plan, analysis } = data
+  const [reanalyzeOpen, setReanalyzeOpen] = useState(false)
+  // A28-30: 다시 읽기(onChanged)는 화면 전체를 불러오는 중으로 바꿔 확인 창까지 내린다 — 분석이 끝나도 결과(후보 수)를 먼저 보이고, 창을 닫을 때 다시 읽는다
+  const reanalyzed = useRef(false)
+  const teachingPending = data.teaching && !data.teaching.review ? data.teaching.candidateRowCount : 0
   const setParams = (patch: Record<string, string | number | null>) => {
     const next = new URLSearchParams(search)
     for (const [key, value] of Object.entries(patch)) {
@@ -168,7 +176,34 @@ function ResultWorkspace({ data, revision, search }: { data: ResultData; revisio
         {confirmed && !reReviewing && (revision.documentFormat ?? 'PDF') === 'PDF' && !isAdminMockDataSource && (
           <EditConfirmedButton planId={plan.planId} revisionId={revision.documentRevisionId} />
         )}
+        {/* A28-29: 평가 정보만 확정되고 운영계획 후보가 남은 문서 → 검토 화면 마지막 단계 '월별 운영계획 최종 승인'으로 */}
+        {confirmed && !reReviewing && teachingPending > 0 && (
+          <button type="button" className={result.primary} onClick={() => navigate(paths.planReview(plan.planId, revision.documentRevisionId))} data-testid="plan-result-teaching-approve">
+            월별 운영계획 승인 · 후보 {teachingPending}행
+          </button>
+        )}
+        {!isAdminMockDataSource && (
+          <button type="button" className={review.button} onClick={() => setReanalyzeOpen(true)} data-testid="plan-result-reanalyze">
+            다시 분석
+          </button>
+        )}
       </header>
+      {reanalyzeOpen && (
+        <ReanalyzeDialog
+          plan={plan}
+          revision={revision}
+          onClose={() => {
+            setReanalyzeOpen(false)
+            if (reanalyzed.current) {
+              reanalyzed.current = false
+              onChanged()
+            }
+          }}
+          onFinished={() => {
+            reanalyzed.current = true
+          }}
+        />
+      )}
 
       <div className={review.paneSwitch} role="group" aria-label="보기 전환">
         <button type="button" aria-pressed={pane === 'source'} onClick={() => setPane('source')}>
@@ -217,11 +252,11 @@ function StatusSummary({ stage, progress, confirmed, reReviewing, draftError, an
   const percent = progress.total ? Math.round((progress.decided / progress.total) * 100) : 0
   const confirmedCount = analysis.confirmedFields.length
   let note: string
-  if (reReviewing) note = '재검토 중이에요. 학생에게는 이전 확정본이 계속 보여요.'
-  else if (confirmed) note = '확정 결과는 학생 화면에 공개돼요. 이 화면에서는 수정하지 않아요.'
-  else if (stage === 'REVIEW_DONE') note = '모든 검토 대상을 결정했어요. 아직 확정 전이라 학생에게 보이지 않아요.'
-  else if (stage === 'REVIEWING') note = '검토 중이에요. 관리자 검토값은 임시 저장이고 학생에게 보이지 않아요.'
-  else note = 'AI 분석 결과예요. 확정 전이라 학생에게 보이지 않아요.'
+  if (reReviewing) note = '재검토 중 · 학생에게는 이전 확정본 유지'
+  else if (confirmed) note = '확정 · 학생 공개 중 · 이 화면은 조회 전용'
+  else if (stage === 'REVIEW_DONE') note = '검토 완료 · 확정 전(학생 비공개)'
+  else if (stage === 'REVIEWING') note = '검토 중 · 검토값 임시 저장(학생 비공개)'
+  else note = 'AI 분석 결과 · 확정 전(학생 비공개)'
   const showProgress = progress.draftStatus === 'ACTIVE' || (!confirmed && progress.total > 0)
   return (
     <div className={result.summary} data-testid="plan-result-summary">
@@ -530,8 +565,8 @@ function EditConfirmedButton({ planId, revisionId }: { planId: string; revisionI
             </>
           }
         >
-          <p>지금 확정값으로 수정 초안을 만들어요. 필요한 항목만 고친 뒤 &lsquo;최종 승인&rsquo;을 누르면 새 확정본이 생겨요.</p>
-          <p>이전 확정 기록은 지워지지 않고, 다시 최종 승인할 때까지 학생에게는 지금 확정본이 그대로 보여요.</p>
+          <p>지금 확정값으로 수정 초안 생성 → 필요한 항목만 고친 뒤 &lsquo;최종 승인&rsquo; = 새 확정본</p>
+          <p>이전 확정 기록 보존 · 다시 승인할 때까지 학생에게는 지금 확정본 유지</p>
           {error && (
             <p role="alert" className={review.statusText} data-tone="danger">
               {error}
