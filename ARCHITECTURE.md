@@ -47,9 +47,11 @@
 
 ## 2. Code Map
 
-> 첫 Feature로 학생 케어(`backend/.../studentcare/`, `frontend/admin/src/features/student-care/`, `e2e/`)가 구현되어 있다. `database/migrations/`는 Flyway Migration 위치다(ADR-0006). `frontend/shared/`, `database/seed/`는 실제로 필요해질 때 만든다. 아래는 목표 구조다.
+> 첫 Feature로 학생 케어(`backend/.../studentcare/`, `frontend/admin/src/features/student-care/`, `e2e/`)가 구현되어 있다. `database/migrations/`는 Flyway Migration 위치다(ADR-0006). `frontend/shared/`, `database/seed/`는 **예정(현재 미생성)** — 실제로 필요해질 때 만든다. 아래는 목표 구조다.
 >
-> Frontend는 `frontend/package.json`의 npm workspaces(`student`, `admin`, `mentor`)와 `frontend/package-lock.json` 하나로 관리한다. Backend base package는 `com.learnershigh.extension`이다.
+> **현행(2026-11-24, `main` 기준)**: 구현된 Feature 는 학생 케어(Wangyu)와 Assessment(Suyeon — `frontend/student/src/features/assessment/`, `frontend/admin/src/features/assessment/`, `backend/.../assessment/`) 둘이다. 아래 표의 `mentor-hub`·`school-admissions`·`feedback`·`student-management`·`parent-progress`·`mentor-management`·mentor Surface 는 퇴역한 초기 예시다(담당 기준: `docs/OWNERSHIP.md` 0절).
+>
+> Frontend는 `frontend/package.json`의 npm workspaces(`student`, `admin` — `mentor` 는 2026-11-16 삭제)와 `frontend/package-lock.json` 하나로 관리한다. Backend base package는 `com.learnershigh.extension`이다.
 
 ### `frontend/<surface>/src/features/<feature>/`
 

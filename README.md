@@ -584,12 +584,14 @@ Frontend는 Surface + Feature 기준으로 관리한다.
 ```text
 frontend/student/
 frontend/admin/
-frontend/shared/
+frontend/shared/   # 예정(현재 미생성)
 ```
+
+> **현행(2026-11-24, `main` 기준)**: 실제 Feature 는 `frontend/student/src/features/assessment`(Suyeon)·`frontend/admin/src/features/assessment`(Suyeon)·`frontend/admin/src/features/student-care`(Wangyu) 뿐이다. 담당 기준은 `docs/OWNERSHIP.md` 0절. 아래 Student·Admin 목록은 초기 설계 예시로 **퇴역**했다(2026-11-16 A20~A22).
 
 ### Student
 
-주요 Suyeon Feature:
+주요 Suyeon Feature(초기 설계 — 퇴역):
 
 ```text
 mentor-hub
@@ -598,7 +600,7 @@ school-admissions
 
 ### Admin
 
-주요 Suyeon Feature:
+주요 Suyeon Feature(초기 설계 — 퇴역):
 
 ```text
 feedback
@@ -608,7 +610,7 @@ parent-progress
 
 ### Mentor
 
-별도 Mentor Surface(`frontend/mentor/`)는 서비스에서 제거되어 2026-11-16 Workspace를 삭제했다(A20). 이력은 Git History와 ADR-0001·0008에만 남는다.
+별도 Mentor Surface(`frontend/mentor/`)는 서비스에서 제거되어 2026-11-16 Workspace를 삭제했다(A20). 이력은 Git History와 ADR-0001 에 남는다(README 가 예전에 적던 ADR-0008 은 `main` 에 없고 과거 백업 커밋에만 있다).
 
 ### Shared
 
@@ -626,7 +628,7 @@ API가 충분히 안정적
 
 Backend는 Domain 중심으로 구성한다.
 
-예:
+예(초기 설계 — 현재 실제 Domain 은 `assessment/`·`studentcare/`·`common/`):
 
 ```text
 mentor/
@@ -984,7 +986,7 @@ npm run lint
 npm run build
 ```
 
-Assessment 평가계획서 분석기 설정(서버 안 분석 · OCR): [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md)
+Assessment 평가계획서 분석기 설정(서버 안 분석 · OCR): [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md) — 분석기는 Backend 안의 `local` 모드(기본값)다. 예전 Railway 외부 HTTP 분석기는 퇴역해 현행 실행·배포 절차에 없다.
 
 ### Backend
 
@@ -1036,6 +1038,8 @@ npm test
 CI는 `.github/workflows/ci.yml`의 `e2e` Job에서 같은 순서로 실행한다.
 
 아직 정하지 않은 것: Seed, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
+
+> **운영·배포·실제 로그인 연동은 1팀 담당**이며 이 저장소 문서 정리 범위 밖이다(2026-11-24 사용자 결정). 현재 인증은 개발용 Mock Header(`learnershigh.integration.mode: mock` — 기존 LearnersHigh 연동·인증 Open Decision API-OD-07·API-OD-A01 미결)뿐이라 운영 투입 전 1팀과 통합이 필요하다. Railway 는 현행 운영·배포 대상이 아니다. 자세한 인계 항목: `docs/specs/suyeon/POST-MERGE-DOCUMENT-CLEANUP-20261124.md` §8.
 README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
 
 ---

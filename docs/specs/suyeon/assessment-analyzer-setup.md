@@ -22,7 +22,8 @@
 
 ## 보안 메모
 
-예전 `application.yml` 에 들어 있던 Railway 분석기 토큰은 Git 이력에 남아 있다. Railway 서비스를 계속 쓴다면 그쪽 토큰(`CURRICULUM_ANALYSIS_TOKEN`)을 새 값으로 바꿔 무효화한다.
+- **현재 코드**: Railway 를 쓰지 않는다(`http` 모드 없음, 토큰 설정 없음). 2026-11-24 사용자 결정으로 Railway 는 현행 운영·배포 대상이 아니다.
+- **과거 토큰(미해결 경고)**: 예전 `application.yml` 에 들어 있던 Railway 분석기 토큰 형태의 값이 과거 Git 커밋에 남아 있다(값은 문서에 다시 적지 않는다). 그 토큰(`CURRICULUM_ANALYSIS_TOKEN`)이 Railway 쪽에서 무효화됐는지는 **확인이 필요**하다 — 외부 서비스 조작이라 1팀·Railway 관리자와 조율한다. Git 이력 재작성 여부는 팀 결정 사항이다.
 
 ## A27-UX 통합 메모 (2026-11-19, 최종 보고서 부록 D)
 

@@ -6,6 +6,57 @@
 
 ---
 
+## 0. 문서 안내 (현행 색인 — 2026-11-24, `main` 기준)
+
+> 이 절이 이 폴더의 **입구**다. 아래 1~12절은 원래 README 내용(담당 범위·읽는 순서·원칙)을 그대로 둔다.
+> 운영·배포·실제 로그인 연동은 **1팀 담당**이라 이 폴더 범위 밖이다. Railway 는 현행 운영·배포 대상이 아니다.
+
+### 0-1. 현재 유효한 문서
+
+- [`api-contract.md`](../../api/api-contract.md) — Frontend↔Backend API 계약(§1 병합 후 상태: DRAFT 절은 구현됐지만 팀 승인 전)
+- [`OWNERSHIP.md`](../../OWNERSHIP.md) — 담당 기준(0절 현행 담당 — Assessment·분석기 = Suyeon, 학생 케어 = Wangyu, 운영·배포·실제 로그인 = 1팀)
+- [`SOURCE_OF_TRUTH.md`](../../SOURCE_OF_TRUTH.md) — 어떤 문서를 최종 기준으로 쓰는지
+- [`domain.md`](domain.md) — Assessment Entity·상태
+- [`features`](features/) — Feature Spec — `assessment-student`·`assessment-admin`·`assessment-feedback`·`assessment-inquiry`·`assessment-enrichment-content`
+- [`assessment-screen-map.md`](assessment-screen-map.md) — 화면 맵(Mockup ↔ 계약 ↔ 구현)
+- [`assessment-design-principles.md`](assessment-design-principles.md) — 화면 설계 원칙
+- [`assessment-analyzer-setup.md`](assessment-analyzer-setup.md) — 평가계획서 분석기 설정 — Backend 안 `local` 분석기·OCR·학교알리미 설정(Railway 퇴역)
+- [`assessment-studentcare-local-run-guide.md`](assessment-studentcare-local-run-guide.md) — 학생 케어 + Assessment 로컬 직접 실행 가이드(2026-11-24 `main` 기준 갱신)
+- [`assessment-frontend-quality.md`](assessment-frontend-quality.md) — Frontend 품질 기준
+- [`assessment-frontend-mock.md`](assessment-frontend-mock.md) — Frontend Mock 모드 규칙(Mock 데이터 소스로 띄울 때)
+
+### 0-2. A28 구현·검증 보고서
+
+- [`ACCOUNT-A-A28-ASSESSMENT-UAT-FINAL-20261122.md`](ACCOUNT-A-A28-ASSESSMENT-UAT-FINAL-20261122.md) — A28 구현·검증 **종합 보고서**(회차별 요약 + 병합 후 상태)
+- [`A28-25-ANALYZER-HANDOFF-BORA-TEACHING-PLAN-20261122.md`](A28-25-ANALYZER-HANDOFF-BORA-TEACHING-PLAN-20261122.md) — 분석기 원인 진단(월 제목이 표 밖인 운영계획) — A28-27 에서 해결
+- [`A28-27-PR18-COMPARISON.md`](A28-27-PR18-COMPARISON.md) — PR #18(완규님 분석기·학교알리미) ↔ 통합 코드 비교
+- [`A28-37-FINAL-UAT-PR-MERGE-20261123.md`](A28-37-FINAL-UAT-PR-MERGE-20261123.md) — A28-37~42 회차
+- [`A28-43-47-UAT-FIXES-20261123.md`](A28-43-47-UAT-FIXES-20261123.md) — A28-43~47 회차
+- [`A28-48-50-STUDENT-NOTE-HOME-20261123.md`](A28-48-50-STUDENT-NOTE-HOME-20261123.md) — A28-48~50 회차
+- [`A28-51-53-PDF-EXPORT-TRASH-PERMANENT-DELETE-20261124.md`](A28-51-53-PDF-EXPORT-TRASH-PERMANENT-DELETE-20261124.md) — A28-51~53 회차(노트 PDF·영구 삭제) + 병합 후 상태
+- [`POST-MERGE-DOCUMENT-CLEANUP-20261124.md`](POST-MERGE-DOCUMENT-CLEANUP-20261124.md) — `main` 병합 후 문서 정리 기록(이 색인 포함)
+
+- `main` 병합 검증 보고서 `POST-MERGE-MAIN-VERIFICATION-20261124.md` 는 **로컬 검증 증거(저장소 미포함)** 다. 요약은 위 문서 정리 기록 §2 에 있다.
+
+### 0-3. 팀원 기여·인계 기록 (보존)
+
+- [`A28-27-PR18-COMPARISON.md`](A28-27-PR18-COMPARISON.md) — PR #18 기여 비교(위와 같음)
+- [`HANDOFF-WANGYU-PLAN-COLLECTION-INTAKE-20261115.md`](HANDOFF-WANGYU-PLAN-COLLECTION-INTAKE-20261115.md) — 완규님 평가계획서 수집 인계
+- [`ACCOUNT-B-HANDOFF-ANALYSIS-IMPORT-03-20261114.md`](ACCOUNT-B-HANDOFF-ANALYSIS-IMPORT-03-20261114.md) — 계정 B 분석 결과 계약 0.3 인계
+- [`ACCOUNT-B-HANDOFF-CONTRACT-03-A6-20261115.md`](ACCOUNT-B-HANDOFF-CONTRACT-03-A6-20261115.md) — 계정 B 계약 0.3(A6) 인계
+- 저장소 다른 위치: `scripts/perf-assess-extract/**`(PR #18 연구 도구), `docs/design/perf-assess-*`(PR #18 보고서)
+
+### 0-4. 과거 회차·설계 당시 기록 (논리적 아카이브 — 파일은 옮기지 않음, 삭제 금지)
+
+시험 증거·Migration 근거·결정 기록이라 그대로 보존한다. 당시 사실(예: Railway 분석기, 미병합 PR)을 담고 있으므로 **현행 사용법으로 읽지 않는다**.
+
+- 회차 보고서: [`A27-UX-ACTUAL-UI-DATAFLOW-RECOVERY-REPORT-20261121.md`](A27-UX-ACTUAL-UI-DATAFLOW-RECOVERY-REPORT-20261121.md) · [`A27-UX-ASSESSMENT-REDESIGN-FINAL-20261118.md`](A27-UX-ASSESSMENT-REDESIGN-FINAL-20261118.md) · [`A27-UX-LOCAL-RUN-EXECUTION-REPORT-20261121.md`](A27-UX-LOCAL-RUN-EXECUTION-REPORT-20261121.md) · [`ACCOUNT-A-A10-PREVIEW-SUBJECT-INTEGRATION-20261116.md`](ACCOUNT-A-A10-PREVIEW-SUBJECT-INTEGRATION-20261116.md) · [`ACCOUNT-A-A11-FEATURE-COMPLETION-20261116.md`](ACCOUNT-A-A11-FEATURE-COMPLETION-20261116.md) · [`ACCOUNT-A-A13-TEACHING-PLAN-RECONFIRM-AND-E2E-20261116.md`](ACCOUNT-A-A13-TEACHING-PLAN-RECONFIRM-AND-E2E-20261116.md) · [`ACCOUNT-A-A14-TEACHING-PLAN-MANUAL-ROWS-20261116.md`](ACCOUNT-A-A14-TEACHING-PLAN-MANUAL-ROWS-20261116.md) · [`ACCOUNT-A-A17-B16-EXT-REAL-INTEGRATION-20261116.md`](ACCOUNT-A-A17-B16-EXT-REAL-INTEGRATION-20261116.md) · [`ACCOUNT-A-A18-ALL-GRADES-MOCK-ASSESSMENT-20261116.md`](ACCOUNT-A-A18-ALL-GRADES-MOCK-ASSESSMENT-20261116.md) · [`ACCOUNT-A-A20-STUDENTCARE-ASSESSMENT-INTEGRATION-20261116.md`](ACCOUNT-A-A20-STUDENTCARE-ASSESSMENT-INTEGRATION-20261116.md) · [`ACCOUNT-A-A21-LEGACY-FULL-AUDIT-20261116.md`](ACCOUNT-A-A21-LEGACY-FULL-AUDIT-20261116.md) · [`ACCOUNT-A-A22-LEGACY-CLEANUP-INTEGRATION-20261116.md`](ACCOUNT-A-A22-LEGACY-CLEANUP-INTEGRATION-20261116.md) · [`ACCOUNT-A-A25-ASSESSMENT-UX-AND-PREVIEW-20261117.md`](ACCOUNT-A-A25-ASSESSMENT-UX-AND-PREVIEW-20261117.md) · [`ACCOUNT-A-A26-PREVIEW-MOCKEXAM-CALENDAR-20261117.md`](ACCOUNT-A-A26-PREVIEW-MOCKEXAM-CALENDAR-20261117.md) · [`ACCOUNT-A-A27-UX-ASSESSMENT-REDESIGN-20261117.md`](ACCOUNT-A-A27-UX-ASSESSMENT-REDESIGN-20261117.md)
+- Railway 외부 분석기 시기 기록(퇴역 경위·토큰 경고 근거): [`ACCOUNT-A-A19-RAILWAY-HTTPS-INTEGRATION-20261116.md`](ACCOUNT-A-A19-RAILWAY-HTTPS-INTEGRATION-20261116.md) · [`ACCOUNT-A-A23-RAILWAY-YAML-CONFIG-20261116.md`](ACCOUNT-A-A23-RAILWAY-YAML-CONFIG-20261116.md) · [`ACCOUNT-A-A24-RAILWAY-TOKEN-YAML-ONLY-20261117.md`](ACCOUNT-A-A24-RAILWAY-TOKEN-YAML-ONLY-20261117.md)
+- 날짜별 검증 폴더: [`assessment-15schools-60students-seed-202611/`](assessment-15schools-60students-seed-202611) · [`assessment-db-integration-202611/`](assessment-db-integration-202611) · [`assessment-demo-final-check-202611/`](assessment-demo-final-check-202611) · [`assessment-demo-final-integration-20261112/`](assessment-demo-final-integration-20261112) · [`assessment-final-integration-202611/`](assessment-final-integration-202611) · [`assessment-full-integration-202611/`](assessment-full-integration-202611) · [`assessment-multiformat-202611/`](assessment-multiformat-202611) · [`assessment-multiformat-adapter-e2e-202611/`](assessment-multiformat-adapter-e2e-202611) · [`assessment-multiformat-review-gate-202611/`](assessment-multiformat-review-gate-202611) · [`assessment-multiformat-review-next/`](assessment-multiformat-review-next) · [`assessment-phase-b-and-ux-completion-202611/`](assessment-phase-b-and-ux-completion-202611) · [`assessment-seed-and-ui-verification-202611/`](assessment-seed-and-ui-verification-202611) · [`assessment-technical-research-20261112/`](assessment-technical-research-20261112) · [`assessment-ui-analysis-connection-202611/`](assessment-ui-analysis-connection-202611) · [`backend-run-2026-11/`](backend-run-2026-11) · [`frontend-backend-integration-202611/`](frontend-backend-integration-202611)
+- 설계·계획 당시 문서(현행 여부는 정리 기록 §6 분류 참고): [`progress.md`](progress.md) · [`legacy-cleanup-plan.md`](legacy-cleanup-plan.md) · [`harness-change-proposals.md`](harness-change-proposals.md) · [`assessment-ai-integration-handoff.md`](assessment-ai-integration-handoff.md) · [`assessment-pdf-analysis-plan.md`](assessment-pdf-analysis-plan.md) · [`assessment-multiformat-integration-draft.md`](assessment-multiformat-integration-draft.md)
+
+---
+
 ## 1. 담당 범위
 
 Suyeon의 현재 신규 개발 범위는 기존 LearnersHigh에 추가되는 **Assessment 학생·관리자 기능**이다.
