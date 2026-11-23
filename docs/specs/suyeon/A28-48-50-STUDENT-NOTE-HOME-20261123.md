@@ -42,9 +42,9 @@
 | Frontend `verify-frontend.ps1` · typecheck · lint | PASS |
 | Node | 45 파일 **194/194**(신규 노트 내보내기 2) |
 | Backend 단위(ArchUnit 포함) | **477** · 실패 0 · skip 3 |
-| Backend 통합 신규 `SchoolAssessmentDeletionApiTest` | (아래 갱신) |
-| Assessment E2E 전체 | (아래 갱신) |
-| REPLAY | (아래 갱신) |
+| Backend 통합 신규 `SchoolAssessmentDeletionApiTest` | 로컬 **NOT RUN**(남은 메모리 2.0~2.5GB < 보호 기준 3GB). GitHub CI: 첫 push(`3683655`) 에서 시험 데이터가 공식 연결 CHECK(`ck_assessment_sa_official_link`)를 어겨 1건 실패 → 시험 데이터만 고침(`6d60708`, 제품 코드 변화 없음) → CI 두 실행 모두 이 클래스 통과 |
+| Assessment E2E 전체 | **NOT RUN** — 남은 메모리가 보호 기준(3.5GB) 미달. 사용자 DB OOM 사고 재발 방지를 위해 기준을 낮추지 않음 |
+| REPLAY | **NOT RUN**(같은 이유) |
 | 실환경 화면(읽기 전용, 800·1366·1600·1920) | 노트 미리보기 이미지·PDF 열림, 메뉴 6개(준비 중 0), 내보내기 .md 실제 다운로드(내용 확인), 평가 정보 수정 창, 삭제 확인 창(제목 입력 전 버튼 비활성 — 실제 삭제는 누르지 않음), 심화 탐구 이동, 표시 날짜 dropdown 모양 일치. 가로 넘침 0 · API 4xx/5xx 0 · 차단한 쓰기는 학생 화면 자동 POST `official/ensure` 1종. 캡처: 로컬 실행 폴더 `a28-43/screens/48-*`·`49-*`·`50-*` |
 
 ## 5. Migration
@@ -53,4 +53,7 @@
 
 ## 6. GitHub
 
-(반영 뒤 갱신)
+- PR #19(`feature/a28-30-35-uat-fixes` → integration) 커밋: `1f0159f` 영구 삭제 · `4dcbf31` 학생 화면 3건 · `3683655` 보고서 · `6d60708` 삭제 시험 데이터 수정. 일반 push, Draft 유지. PR #17·main 변경 없음.
+- GitHub CI(`6d60708`): pull_request 실행 Harness·Frontend·Backend(단위+통합 전체)·E2E(Student Care)·CI Result **모두 success**. push 실행은 Backend 통합에서 간헐 실패 시험 `SchoolInfoSelectionClassificationApiTest` 1건 실패(같은 단언, 원인 미확정 — CI 가 시험 보고서를 산출물로 올리지 않아 진단 메시지를 볼 수 없음).
+- **PR #19 병합: 하지 않음(보류).** 병합 조건(로컬 Assessment E2E 전체 + REPLAY 통과)을 아직 실행하지 못함 — 메모리 부족.
+- 남은 순서: 메모리 3.5GB 이상 확보 → 보호 실행기로 삭제 IT → E2E 전체(3묶음) → REPLAY → 통과 시 PR #19 Ready 전환·병합 → 이 절과 A28 종합 보고서 요약 갱신.
