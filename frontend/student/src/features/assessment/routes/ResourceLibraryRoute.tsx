@@ -148,7 +148,7 @@ export function ResourceLibraryRoute() {
               </span>
             </div>
             {!subjectId ? (
-              <p className={styles.recoHint}>과목을 고르면 뉴스·영상·논문·통계 자료원을 추천해요. 수행평가 화면의 자료 탭에서는 과목이 자동으로 선택돼요.</p>
+              <p className={styles.recoHint}>과목별 뉴스·영상·논문·통계 자료원</p>
             ) : recommendations.status === 'error' && recommendations.error ? (
               <ErrorState title="추천 자료원을 불러오지 못했어요" error={recommendations.error} onRetry={recommendations.retry} />
             ) : !recommendations.data ? (

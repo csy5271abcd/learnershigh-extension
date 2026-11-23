@@ -395,7 +395,7 @@ function ItemDetail({ item, path, stateOf, onSource }: { item: ArchiveItem; path
         <p className={styles.muted}>채점기준표를 찾지 못했어요. 원문에서 확인해 주세요.</p>
       )}
       <p className={styles.footnote}>
-        채점기준·내용·제출물은 분석 결과이며 관리자 확정 대상이 아니에요(후보). 원문 근거: <SourceLinks sources={item.sources} onSource={onSource} label={item.label} />
+        분석 후보(확정 대상 아님) · 원문 <SourceLinks sources={item.sources} onSource={onSource} label={item.label} />
       </p>
     </article>
   )

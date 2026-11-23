@@ -1,6 +1,6 @@
 import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
-import { getAcademicContextHttp } from './http/academicContextHttp.ts'
+import { getAcademicContextHttp, getAcademicTermsHttp } from './http/academicContextHttp.ts'
 import { guardWrite } from './viewMode.ts'
 import { createStudentSubjectMock, getAcademicContextMock, updateAcademicContextMock } from './mock/academicContextMock.ts'
 import type { AcademicContext, AcademicTermQuery, CreateStudentSubjectRequest, SubjectRef, UpdateAcademicContextRequest } from './types.ts'
@@ -17,6 +17,15 @@ function httpNotConnected(): Promise<never> {
 /** §9-1 GET /api/student/assessment/academic-context */
 export function getAcademicContext(term?: AcademicTermQuery): Promise<AcademicContext> {
   return isMockDataSource ? getAcademicContextMock(term) : getAcademicContextHttp(term)
+}
+
+/**
+ * §9-1-c GET /api/student/assessment/academic-terms (A28-29): 학적이 있는 학기 목록. Mock 에는 없다(거절 → 화면이 §9-1 로 학기마다 확인하는 기존 방식).
+ */
+export function getAcademicTerms(): Promise<{ currentTerm: AcademicTermQuery; terms: AcademicTermQuery[] }> {
+  return isMockDataSource
+    ? Promise.reject(new ApiError(404, { code: 'NOT_FOUND', message: 'Mock 에는 학기 목록이 없어요.', details: {} }))
+    : getAcademicTermsHttp()
 }
 
 /** §9-2 PUT /api/student/assessment/academic-context */

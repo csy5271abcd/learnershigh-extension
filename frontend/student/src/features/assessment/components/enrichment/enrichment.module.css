@@ -153,11 +153,16 @@
 }
 
 /* 탭 (밑줄형). 아래 1px 선은 본문 폭 전체 */
+/* A28-29: overflow-x:auto 만 주면 overflow-y 도 auto 로 계산되고, 탭의 margin-bottom:-1px(밑줄 겹치기) 1px 넘침 때문에
+   Windows 에서 탭 오른쪽에 세로 스크롤 화살표(▲▼)가 생겼다. 세로는 넘치지 않게 막고, 바닥 선은 inset 그림자로 그려 밑줄이 잘리지 않게 한다.
+   좁은 화면에서는 탭 줄만 가로로 밀어 볼 수 있다(얇은 가로 스크롤). */
 .tabs {
   display: flex;
   margin-top: 19px;
   overflow-x: auto;
-  border-bottom: 1px solid var(--as-color-line);
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  box-shadow: inset 0 -1px 0 var(--as-color-line);
 }
 
 .tab {
@@ -167,7 +172,6 @@
   height: 43px;
   padding: 0 18px;
   border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   color: var(--as-color-text-secondary);
   font-size: var(--as-text-row);
   text-decoration: none;

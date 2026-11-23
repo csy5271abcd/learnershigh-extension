@@ -103,7 +103,7 @@ export function PlanSlotsRoute({ search }: { search: URLSearchParams }) {
       />
       {context.external && schoolId && <ExternalSchoolBanner name={context.schoolName} selected={sync.result?.schoolId === schoolId ? (sync.result?.schoolSelection?.selected ?? null) : null} />}
       {!isAdminMockDataSource && schoolId && <SchoolInfoSyncSummary sync={sync} schoolId={schoolId} onChanged={plans.reload} />}
-      <p className={review.sourceNote}>원본 문서만 관리해요. 분석·확정은 &lsquo;분석&rsquo; 탭에서 해요.</p>
+      <p className={review.sourceNote}>분석·확정은 &lsquo;분석&rsquo; 탭</p>
 
       {!schoolId ? (
         <div className={review.empty}>

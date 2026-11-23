@@ -1037,8 +1037,13 @@ details.more code {
 
 .rowButtons {
   display: flex;
+  flex-wrap: wrap; /* A28-29: '다시 분석'까지 4개 — 좁은 폭에서 가로로 넘치지 않고 줄바꿈 */
   justify-content: flex-end;
   gap: 6px;
+}
+
+.rowButtons > button {
+  white-space: nowrap;
 }
 
 /* ── 업로드 Dialog ─────────────────────────────── */
@@ -2452,4 +2457,38 @@ details.more code {
   border: 1px solid var(--lh-color-line, #e5e8eb);
   border-radius: 8px;
   overflow-wrap: anywhere;
+}
+
+/* A28-29: 분석 문서 표 — '다시 분석'까지 행 버튼이 4개라 1100px 이하에서는 가로 스크롤 대신 행을 쌓는다(640px 이하와 같은 쌓기 +
+   버튼 줄을 행 아래 전체 폭으로, 왼쪽 정렬·줄바꿈). 상태 글('검토 필요'·'확정 · 확정값 N개 학생 공개')이 스스로 설명해 머리 줄은 숨긴다. */
+@media (max-width: 1100px) {
+  .docTable thead {
+    display: none;
+  }
+
+  .docTable tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 12px;
+    border-top: 1px solid var(--as-color-line);
+    padding: 12px 0;
+  }
+
+  .docTable td {
+    padding: 4px 0;
+    border-top: 0;
+  }
+
+  .docTable td[data-col='name'],
+  .docTable td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .docTable td[data-col='date'] {
+    display: none;
+  }
+
+  .docTable td:last-child .rowButtons {
+    justify-content: flex-start;
+  }
 }

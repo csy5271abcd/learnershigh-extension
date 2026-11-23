@@ -47,7 +47,7 @@ export function PendingList({ data }: { data: ConfirmedTeachingPlan }) {
       {data.noCandidates.map((doc) => (
         <li key={doc.planId} data-testid="teaching-plan-no-candidates">
           <span>
-            {doc.fileName} · {doc.analyzed ? '분석 결과에 월별 운영계획 행이 없어 확정할 수 없어요(원문 표 형식을 읽지 못한 경우일 수 있어요)' : '아직 분석하지 않았어요'}
+            {doc.fileName} · {doc.analyzed ? '운영계획 행 없음 — 분석 탭에서 다시 분석할 수 있어요' : '아직 분석하지 않았어요'}
           </span>
           <button type="button" className={review.link} onClick={() => navigate(doc.analyzed ? paths.planReview(doc.planId, doc.revisionId) : paths.analysis())}>
             {doc.analyzed ? '문서 보기' : '분석 탭으로'}
