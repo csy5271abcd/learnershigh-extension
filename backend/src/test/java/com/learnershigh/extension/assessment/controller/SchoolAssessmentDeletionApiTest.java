@@ -142,6 +142,80 @@ class SchoolAssessmentDeletionApiTest {
                 .content(deleteBody("영구 삭제 시험"))).andExpect(status().isNotFound());
     }
 
+    @Autowired
+    com.learnershigh.extension.assessment.service.record.ExportFontLocator fonts;
+
+    static byte[] realPng() throws Exception {
+        java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(120, 80, java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(img, "png", out);
+        return out.toByteArray();
+    }
+
+    String attachment(String student, String name, byte[] bytes, String type) throws Exception {
+        String body = mvc.perform(asStudent(multipart(S + "/note-attachments").file(new MockMultipartFile("file", name, type, bytes)), student))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        String id = JsonPath.read(body, "$.attachmentId");
+        attachmentsCreated.add(id);
+        return id;
+    }
+
+    final List<String> attachmentsCreated = new ArrayList<>();
+
+    @AfterEach
+    void cleanAttachments() {
+        attachmentsCreated.forEach(id -> jdbc.update("delete from assessment_note_attachment where id = ?", id));
+        attachmentsCreated.clear();
+    }
+
+    static final String EXPORT_BODY = "{\"subjectName\":\"한국사2\",\"meta\":[[\"진행 상태\",\"진행 중\"],[\"평가일\",null]]}";
+
+    /** A28-51 §20-1: 저장된 최신 노트 → 텍스트 PDF(본인 이미지 본문 배치·PDF 첨부는 목록), 본인만·휴지통 항목 404·비인증 401 */
+    @Test
+    void 노트를_PDF로_내보내면_저장된_최신_노트가_한글_텍스트_PDF로_나온다() throws Exception {
+        String sa = assessment("나의 20세기: 역사 탐구");
+        String png = attachment("stu_001", "지도.png", realPng(), "image/png");
+        String pdfFile = attachment("stu_001", "자료.pdf", PDF, "application/pdf");
+        String note = mvc.perform(asStudent(post(S + "/notes"), "stu_001").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"sourceType":"SCHOOL_ASSESSMENT","sourceId":"%s","title":"탐구 과정",
+                                 "blocks":[{"blockId":"b1","type":"HEADING","text":"첫 저장"}]}""".formatted(sa)))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+        mvc.perform(asStudent(put(S + "/notes/" + JsonPath.read(note, "$.noteId")), "stu_001").contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"expectedRevisionId":"%s","title":"탐구 과정",
+                         "blocks":[{"blockId":"b1","type":"HEADING","text":"조사 배경 (Background)"},
+                                   {"blockId":"b2","type":"PARAGRAPH","text":"냉전 1945~1991 & <특수> · 『인용』"},
+                                   {"blockId":"b3","type":"IMAGE","text":"","attrs":{"file":{"name":"지도.png","size":10,"mimeType":"image/png","attachmentId":"%s"}}},
+                                   {"blockId":"b4","type":"FILE","text":"","attrs":{"file":{"name":"자료.pdf","size":%d,"mimeType":"application/pdf","attachmentId":"%s"}}}]}"""
+                        .formatted(JsonPath.read(note, "$.revisionId"), png, PDF.length, pdfFile)))
+                .andExpect(status().isOk());
+
+        mvc.perform(asStudent(post(S + "/school-assessments/" + sa + "/note-export"), "stu_002").contentType(MediaType.APPLICATION_JSON)
+                .content(EXPORT_BODY)).andExpect(status().isNotFound());
+        mvc.perform(post(S + "/school-assessments/" + sa + "/note-export").contentType(MediaType.APPLICATION_JSON)
+                .content(EXPORT_BODY)).andExpect(status().isUnauthorized());
+        org.junit.jupiter.api.Assumptions.assumeTrue(fonts.find().isPresent(), "서버 한글 글꼴 없음 → 503 EXPORT_FONT_UNAVAILABLE");
+
+        var response = mvc.perform(asStudent(post(S + "/school-assessments/" + sa + "/note-export"), "stu_001")
+                        .contentType(MediaType.APPLICATION_JSON).content(EXPORT_BODY))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        assertThat(response.getContentType()).isEqualTo("application/pdf");
+        assertThat(response.getHeader("Content-Disposition")).contains("filename*=UTF-8''")
+                .contains(java.net.URLEncoder.encode("나의 20세기 역사 탐구_탐구노트_", StandardCharsets.UTF_8).replace("+", "%20"));
+        byte[] bytes = response.getContentAsByteArray();
+        try (org.apache.pdfbox.pdmodel.PDDocument doc = org.apache.pdfbox.Loader.loadPDF(bytes)) {
+            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(doc);
+            assertThat(text).contains("나의 20세기: 역사 탐구", "과목: 한국사2", "진행 상태: 진행 중", "평가일: 미정", "v2",
+                    "조사 배경 (Background)", "냉전 1945~1991 & <특수> · 『인용』", "[PDF 첨부] 자료.pdf", "지도.png · 이미지").doesNotContain("첫 저장");
+            assertThat(doc.getPage(0).getResources().getXObjectNames()).isNotEmpty();
+        }
+
+        mvc.perform(asStudent(delete(S + "/school-assessments/" + sa), "stu_001")).andExpect(status().isNoContent());
+        mvc.perform(asStudent(post(S + "/school-assessments/" + sa + "/note-export"), "stu_001").contentType(MediaType.APPLICATION_JSON)
+                .content(EXPORT_BODY)).andExpect(status().isNotFound());
+    }
+
     @Test
     void 휴지통에_있는_항목도_영구_삭제할_수_있다() throws Exception {
         String sa = assessment("휴지통 영구 삭제");

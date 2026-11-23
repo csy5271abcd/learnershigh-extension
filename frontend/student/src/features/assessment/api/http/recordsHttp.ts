@@ -26,7 +26,7 @@ import type {
   UpdateResourceRequest,
   UploadArtifactVersionRequest,
 } from '../types.ts'
-import { assessmentHttp, downloadFile } from './assessmentHttpClient.ts'
+import { assessmentHttp, downloadFile, postForFile } from './assessmentHttpClient.ts'
 
 // Student 학생 기록 HTTP Adapter (2026-11-11, api-contract.md §20·21·22·24·25·26·29·30·31·32).
 // Mock Adapter와 같은 함수 시그니처·같은 계약 Shape을 쓴다. 실패는 ApiError로 던지고 빈 값으로 바꾸지 않는다.
@@ -137,6 +137,8 @@ export const compareArtifactVersionsHttp = (artifactId: string, fromVersionId: s
 export const trashSchoolAssessmentHttp = (assessmentId: string) =>
   assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}`, { method: 'DELETE' })
 /** §12-1 A28-49 영구 삭제(제목 확인, 되돌릴 수 없음) */
+export const exportNotePdfHttp = (assessmentId: string, request: import('../../model/noteExport.ts').NoteExportRequest) =>
+  postForFile(`${base}/school-assessments/${enc(assessmentId)}/note-export`, request)
 export const permanentDeleteSchoolAssessmentHttp = (assessmentId: string, confirmTitle: string) =>
   assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}/permanent-delete`, { method: 'POST', json: { confirmTitle } })
 export const trashArtifactHttp = (artifactId: string) => assessmentHttp<void>(`${base}/artifacts/${enc(artifactId)}`, { method: 'DELETE' })

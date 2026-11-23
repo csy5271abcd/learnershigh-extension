@@ -3,8 +3,10 @@ import { Link, useSearchParams } from 'react-router'
 import { toApiError } from '../api/apiError.ts'
 import { listArchive, restoreArchiveItem, setArchiveFavorite } from '../api/growthArchiveApi.ts'
 import { isMockDataSource } from '../api/dataSource.ts'
+import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { DeleteSchoolAssessmentModal } from '../components/detail/DeleteSchoolAssessmentModal.tsx'
 import type { ArchiveItem, ArchiveTab } from '../api/types.ts'
-import { BookIcon, BulbIcon, ClipboardIcon, DownloadIcon, FolderIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
+import { BookIcon, BulbIcon, CircleXIcon, ClipboardIcon, DownloadIcon, FolderIcon, PlusIcon, SearchIcon, StarIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import styles from '../components/growth/growthArchive.module.css'
 import { FavoriteButton } from '../components/FavoriteButton.tsx'
@@ -50,6 +52,10 @@ export function ArchiveRoute() {
   }
   const [pendingFavorite, setPendingFavorite] = useState<string>()
   const [restoring, setRestoring] = useState<string>()
+  // A28-53 휴지통 행 영구 삭제(§12-1 학교 수행평가만). 성공한 행은 다시 읽기 전에도 바로 목록에서 뺀다
+  const [deleting, setDeleting] = useState<ArchiveItem>()
+  const [removed, setRemoved] = useState<ReadonlySet<string>>(() => new Set())
+  const readOnly = isAssessmentReadOnlyView()
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const notify = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
@@ -78,7 +84,7 @@ export function ArchiveRoute() {
 
   const archive = useApiQuery(`ar-list|${tab}|${query}|${dataVersion}`, () => listArchive({ tab, query: query || undefined, page: 0, size: pageSize }))
   const contexts = terms.data?.contexts ?? []
-  const all = archive.data?.items ?? []
+  const all = (archive.data?.items ?? []).filter((item) => !removed.has(`${item.sourceType}:${item.sourceId}`))
   // 과목 폴더는 §30 Query에 없어, 받은 목록 안에서만 거른다 (MM-41).
   const folders = countArchiveSubjects(all)
   const items = subjectId ? all.filter((item) => item.subjectId === subjectId) : all
@@ -256,16 +262,33 @@ export function ArchiveRoute() {
                       </span>
                       <span className={styles.rowEnd}>
                         {tab === 'trash' ? (
-                          <button
-                            type="button"
-                            className={styles.smallButton}
-                            data-testid="trash-restore"
-                            aria-disabled={isMockDataSource || restoring === key ? 'true' : undefined}
-                            aria-busy={restoring === key}
-                            onClick={() => void restore(item)}
-                          >
-                            {restoring === key ? '복구 중…' : '복구'}
-                          </button>
+                          readOnly ? null : (
+                            <span className={styles.trashActions}>
+                              <button
+                                type="button"
+                                className={styles.smallButton}
+                                data-testid="trash-restore"
+                                aria-disabled={isMockDataSource || restoring === key ? 'true' : undefined}
+                                aria-busy={restoring === key}
+                                onClick={() => void restore(item)}
+                              >
+                                {restoring === key ? '복구 중…' : '복구'}
+                              </button>
+                              {item.sourceType === 'SCHOOL_ASSESSMENT' && (
+                                <button
+                                  type="button"
+                                  className={`${styles.smallButton} ${styles.dangerSmallButton}`}
+                                  data-testid="trash-permanent-delete"
+                                  aria-label={`'${item.title}' 영구 삭제(되돌릴 수 없음)`}
+                                  aria-disabled={isMockDataSource || restoring === key ? 'true' : undefined}
+                                  onClick={() => (isMockDataSource ? notify('info', '시연(Mock) 데이터에서는 영구 삭제를 제공하지 않아요.') : restoring === key ? undefined : setDeleting(item))}
+                                >
+                                  <CircleXIcon size={14} />
+                                  영구 삭제
+                                </button>
+                              )}
+                            </span>
+                          )
                         ) : (
                           <>
                             {item.noteBlockCount !== null && <span>노트 {item.noteBlockCount}블록</span>}
@@ -301,6 +324,21 @@ export function ArchiveRoute() {
           </div>
         </div>
       </div>
+      {deleting && (
+        <DeleteSchoolAssessmentModal
+          assessmentId={deleting.sourceId}
+          title={deleting.title}
+          onClose={() => setDeleting(undefined)}
+          onDeleted={() => {
+            const key = `${deleting.sourceType}:${deleting.sourceId}`
+            setRemoved((previous) => new Set(previous).add(key))
+            setDeleting(undefined)
+            notify('success', `'${deleting.title}'을(를) 영구 삭제했어요.`)
+            archive.retry()
+            notifyDataChanged()
+          }}
+        />
+      )}
       <Toast message={toast} onDismiss={dismissToast} />
     </main>
   )

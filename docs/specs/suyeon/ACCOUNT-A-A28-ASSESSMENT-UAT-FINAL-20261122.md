@@ -1467,3 +1467,17 @@ E2E 실패 2건과 조치:
 | A28-50 홈 표시 날짜 dropdown(관리자 모양과 동일) | PASS |
 | 시험 | Node 194 · Unit 477 · 삭제 IT 3/3 · E2E 전체 84/84 · REPLAY 8/8 |
 | GitHub | PR #19 → integration 병합 `277047f`. main·PR #17 미병합 |
+
+---
+
+# A28-51~53 — 노트 PDF 내보내기 · 휴지통/영구 삭제 구별 · 휴지통 행 영구 삭제 (2026-11-24)
+
+상세: `docs/specs/suyeon/A28-51-53-PDF-EXPORT-TRASH-PERMANENT-DELETE-20261124.md`.
+
+| 항목 | 결과 |
+|---|---|
+| A28-51 ⋯ 노트 내보내기 → 서버 저장 노트의 텍스트 PDF(§20-1, 한글·이미지·첨부 목록·쪽 번호·저장 전 안내) | PASS(자동) — 실환경 PDF 받기는 8080 재시작 뒤 |
+| A28-52 '휴지통으로 이동'(휴지통 아이콘) vs '영구 삭제'(X 원 아이콘) | PASS |
+| A28-53 휴지통 행 '복구' 옆 같은 모양 '영구 삭제'(§12-1 확인 창 재사용, 409 사유) | PASS |
+| 시험 | Node 201 · Unit 480 · IT 4/4 · E2E 전체 89/89 · REPLAY 8/8 · 사용자 DB/Storage 전후 동일 · Migration 없음 |
+| GitHub | 새 브랜치 `feature/a28-51-53-pdf-trash-uat` → integration 새 PR(자동 병합 안 함). main·PR #17 미변경 |

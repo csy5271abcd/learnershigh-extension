@@ -101,6 +101,32 @@ export async function downloadFile(path: string): Promise<Blob> {
   return response.blob()
 }
 
+/**
+ * 학생 본인 경로에 JSON 을 POST 하고 파일(Blob)을 받는다(§20-1 노트 PDF). 관리자 읽기 전용 보기에서는 보내지 않는다.
+ * 서버 Error Body 는 ApiError 로, 연결 실패는 NETWORK_ERROR 로 던진다.
+ */
+export async function postForFile(path: string, json: unknown): Promise<{ blob: Blob; contentDisposition: string | null }> {
+  if (adminReadOnlyStudentId !== null) {
+    throw new ApiError(403, { code: 'FORBIDDEN', message: '관리자 읽기 전용 보기에서는 사용할 수 없어요.', details: {} })
+  }
+  let response: Response
+  try {
+    response = await fetch(path, {
+      method: 'POST',
+      headers: { Accept: 'application/pdf, application/json', 'Content-Type': 'application/json', ...devAuthHeaders() },
+      body: JSON.stringify(json),
+    })
+  } catch {
+    throw new ApiError(0, { code: 'NETWORK_ERROR', message: '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.' })
+  }
+  if (!response.ok) {
+    const parsed = await readJson(response)
+    if (isErrorBody(parsed)) throw new ApiError(response.status, parsed)
+    throw new ApiError(response.status, { code: 'INTERNAL_ERROR', message: `파일을 만들지 못했어요. (HTTP ${response.status})`, details: {} })
+  }
+  return { blob: await response.blob(), contentDisposition: response.headers.get('content-disposition') }
+}
+
 export async function assessmentHttp<T>(path: string, options: HttpRequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json', ...devAuthHeaders() }
   let body: BodyInit | undefined

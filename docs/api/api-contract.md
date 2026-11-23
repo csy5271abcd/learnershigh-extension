@@ -649,6 +649,7 @@ POST /api/student/assessment/school-assessments/{assessmentId}/permanent-delete 
   - `feedbackRequests` — 선생님께 보낸 피드백 요청이 있음(요청 당시 Snapshot·답변 = 관리자 기록 보존) → 휴지통만.
   - `growthRecords` — 이 수행평가를 관련 활동으로 연결한 성장 기록이 있음 → 먼저 연결을 바꾸거나 휴지통만.
 - 삭제 범위(한 Transaction): 이 수행평가의 노트·노트 Revision, 결과물·결과물 버전, 안내문·첨부 행, 즐겨찾기, 수행평가 행. 커밋 뒤 결과물 버전·안내문 첨부의 Storage 바이트를 지운다(실패해도 행 삭제는 되돌리지 않고 로그만). 노트 첨부(§26-1)는 다른 노트 Revision 이 가리킬 수 있어 행·바이트를 남긴다. 상태 변경 감사 이력(`assessment_school_assessment_status_event`)은 지우지 않는다.
+- 화면(A28-52·53, 2026-11-24): 상세 ⋯ 메뉴 '영구 삭제'(X 원 아이콘 — '휴지통으로 이동'의 휴지통 아이콘과 구별)와 보관함 휴지통 탭의 학교 수행평가 행 '복구' 옆 '영구 삭제' 버튼이 같은 확인 창(제목 입력)과 이 API 를 쓴다. 성공하면 그 행만 목록에서 빠진다. 관리자 학생 화면 보기에서는 두 버튼(복구·영구 삭제)을 보이지 않는다. 계약 변경 없음.
 
 # 13. Student — 수행평가 상태 변경 (ST-03)
 
@@ -870,6 +871,21 @@ POST /api/student/assessment/notes
 업데이트는 `expectedRevisionId`와 **전체 본문 `blocks`**를 사용해 변경 충돌을 검출하는 계약을 기본으로 한다. `blockId`는 노트 내 앵커 안정성을 위한 문자열 ID. Rich-text 중첩 포맷, Editor 버전 관리 및 부분 PATCH 여부는 에디터 선정 후 확정한다. `409 RESOURCE_VERSION_CONFLICT`면 입력 내용 보존·비교/재시도.
 
 ---
+
+## 20-1. Student — 탐구 노트 PDF 내보내기 (A28-51, 2026-11-24 사용자 지시 · DRAFT — 구현됨 · Migration 없음 · 팀 승인 별도)
+
+```http
+POST /api/student/assessment/school-assessments/{assessmentId}/note-export
+{ "subjectName": "한국사2", "meta": [["진행 상태", "시작 전"], ["평가 유형", "보고서"], ["평가일", null]] }
+→ 200 application/pdf (Content-Disposition: attachment; filename*=UTF-8''<제목>_탐구노트_<yyyy-MM-dd>.pdf)
+```
+
+- 학생 본인 수행평가(휴지통 아님)만. 남의 ID 404 `ASSESSMENT_NOT_FOUND`, 비인증 401. 쓰기가 없는 읽기 동작이며 관리자 경로는 두지 않는다.
+- 내용: 제목 · 과목(`subjectName`, 화면 표시용 문자열) · `meta`(화면 표시용 라벨·값 최대 12개, 값이 비면 '미정') · 노트 기준(**서버에 저장된 최신 Revision** 번호·저장 시각, 노트가 없으면 '저장된 노트 없음') · 내보낸 날짜 · 본문 블록(원문 글 그대로 — 요약·누락 없음) · 첨부 목록(이름·유형·크기·저장 여부).
+- 이미지 블록: `attrs.file.attachmentId` 가 **이 학생이 올린 노트 첨부(§26-1)** 이고 PNG·JPEG·GIF 이면 저장 바이트(SHA 재확인)를 본문에 넣는다. 그 밖(WEBP·PDF·HWP·Office·남의 첨부·바이트 없는 이전 첨부·용량 상한 초과)은 본문에 '[이미지/파일 첨부] 이름 (사유)'로 남기고 첨부 목록에 적는다. 외부 URL 은 읽지 않는다.
+- 상한: 본문 이미지 30개 · 이미지 1개 15MB · 4,000만 화소 · 합계 60MB 를 넘으면 그 이미지는 넣지 않고 사유를 적는다.
+- 글꼴: 서버 OS 에 설치된 한글 글꼴(`assessment.export.pdf-font-path` 설정, 없으면 Windows 맑은 고딕 · Linux Nanum/Noto CJK 순서로 찾음)을 부분 임베드해 **텍스트 선택·검색이 되는 PDF**. 글꼴이 없으면 `503 EXPORT_FONT_UNAVAILABLE`(빈 PDF 를 만들지 않음). 저장소에 글꼴 파일을 두지 않는다. 글꼴에 없는 글자(일부 이모지 등)는 '?' 로 바꾼다.
+- 편집 중 저장 안 된 내용은 포함되지 않는다 — 화면이 먼저 저장을 안내하고, PDF 머리에 기준 Revision 을 적는다.
 
 # 21. Student — 탐구 노트 Revision (ST-08·14)
 
@@ -2295,6 +2311,7 @@ Note 저장에는 `expectedRevisionId`, 콘텐츠 편집에는 `updatedAt`/Versi
 | 404 | `NOTE_NOT_FOUND` / `NOTE_REVISION_NOT_FOUND` | 노트/Revision 없음 |
 | 404 | `ARTIFACT_NOT_FOUND` / `ARTIFACT_VERSION_NOT_FOUND` | 결과물/버전 없음 |
 | 404 | `NOTE_ATTACHMENT_NOT_FOUND` | 노트 첨부 없음 또는 권한 밖 (§26-1, A28-41 DRAFT) |
+| 503 | `EXPORT_FONT_UNAVAILABLE` | PDF 내보내기용 한글 글꼴을 서버에서 찾지 못함 (§20-1, A28-51 DRAFT) |
 | 404 | `FEEDBACK_REQUEST_NOT_FOUND` | 요청 없음 또는 권한 밖 |
 | 409 | `RESOURCE_VERSION_CONFLICT` | 동시 수정 충돌 |
 | 409 | `INVALID_STATE_TRANSITION` | 허용되지 않은 상태 전이 |
