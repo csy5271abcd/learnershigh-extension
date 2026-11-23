@@ -83,8 +83,11 @@
 
 ## 8. GitHub
 
-- 브랜치 `feature/a28-51-53-pdf-trash-uat`(시작 `5517806`) — 커밋·PR·CI 결과는 아래 줄에 기록.
-- PR #17·main·PR #19 브랜치에는 push 하지 않음. 새 PR 은 자동 병합하지 않음.
+- 브랜치 `feature/a28-51-53-pdf-trash-uat`(시작 `5517806`) · 커밋 `07c386a`(코드·시험·계약·보고서 24파일, 일반 push) + 이 보고서 갱신 커밋.
+- **PR #20** `https://github.com/csy5271abcd/learnershigh-extension/pull/20` → `integration/assessment-studentcare-20261116`, **Draft**(§20-1·§12-1 DRAFT 계약 · 8080 재시작 뒤 사용자 직접 확인 필요). 자동 병합하지 않음.
+- GitHub CI(`07c386a`): Harness·Frontend·E2E(Student Care)·Backend(1회) **success**. 다른 Backend 실행 1회는 통합 시험 305건 중 **`SchoolInfoSelectionClassificationApiTest` 1건 실패**(A28-37 부터 반복된 간헐 실패, 이번 변경과 무관한 학교알리미 분류 시험 — 같은 커밋의 다른 실행은 통과). 재실행 성공으로 '해결'이라 하지 않음 — 원인 미확정 그대로.
+- CI 의 Linux 실행기에는 한글 글꼴이 없을 수 있어 PDF 렌더 단언(`NotePdfRendererTest`·통합 시험의 200 부분)은 CI 에서 건너뛰었을 수 있다(통합 skip 2). PDF 품질은 로컬(Windows 맑은 고딕) 단위·통합·E2E 로 확인했다. CI 에 글꼴 설치는 공유 workflow 변경이라 하지 않음.
+- `main`(`c03a1a4`)·PR #17(Draft·미병합)·PR #19 브랜치 변경 없음(fetch 로 확인).
 
 ## 9. 남은 제한 · 직접 확인 순서
 
