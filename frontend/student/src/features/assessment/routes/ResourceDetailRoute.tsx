@@ -6,7 +6,7 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { getResource, trashResource, updateResource } from '../api/resourcesApi.ts'
 import type { StudentResource, UpdateResourceRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
-import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, ChevronDownIcon, ChevronLeftIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import styles from '../components/resources/resources.module.css'
@@ -18,7 +18,6 @@ import { formatDateTime } from '../model/assessmentDetailView.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import {
   formatPublishedDate,
-  hasSourceInfo,
   isValidUrlFormat,
   parseTags,
   publishedDatePattern,
@@ -77,7 +76,6 @@ export function ResourceDetailRoute() {
   }
   if (!resource) return frame(<LoadingRows rows={4} label="자료를 불러오는 중" />)
 
-  const filled = hasSourceInfo(resource)
 
   return frame(
     <article aria-labelledby="resource-title">
@@ -87,10 +85,6 @@ export function ResourceDetailRoute() {
       <div className={styles.detailBadges}>
         <span className={enrichmentStyles.badge} data-tone="neutral">
           {resourceTypeLabel(resource.type)}
-        </span>
-        <span className={styles.sourceBadge} data-state={filled ? 'filled' : 'missing'}>
-          {filled ? <CheckIcon size={12} /> : <InfoIcon size={12} />}
-          {filled ? '출처 정보 입력됨' : '출처 확인 필요'}
         </span>
       </div>
 

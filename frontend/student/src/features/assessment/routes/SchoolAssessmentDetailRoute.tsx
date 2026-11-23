@@ -188,6 +188,19 @@ export function SchoolAssessmentDetailRoute() {
   const readOnly = isAssessmentReadOnlyView()
 
   const openFeedback = () => setSheet('feedback')
+  // A28-46: 휴지통 이동(소프트 삭제). 본문 버튼과 상단 더보기 메뉴가 같은 동작을 쓴다
+  const moveToTrash = item && !readOnly && !isMockDataSource
+    ? () => {
+        if (!window.confirm(`'${item.title}' 수행평가를 휴지통으로 옮길까요? 노트·결과물·피드백 기록은 그대로 보관되고, 보관함 휴지통에서 복구할 수 있어요.`)) return
+        trashSchoolAssessment(item.assessmentId).then(
+          () => {
+            notifyDataChanged()
+            navigate(archivePath + '?tab=trash')
+          },
+          (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
+        )
+      }
+    : undefined
 
   const topBar = (
     <DetailTopBar
@@ -199,7 +212,7 @@ export function SchoolAssessmentDetailRoute() {
       onRequestFeedback={readOnly ? undefined : openFeedback}
       onFindResources={() => setSheet('resources')}
       onUnavailable={(message) => showToast('info', message)}
-      menuItems={schoolAssessmentMenuItems(assessmentId)}
+      menuItems={schoolAssessmentMenuItems(assessmentId, moveToTrash, readOnly ? '관리자 읽기 전용 보기에서는 옮길 수 없어요.' : isMockDataSource ? '시연 데이터에서는 휴지통을 쓸 수 없어요.' : undefined)}
       saveStatus={<NoteSaveStatusLabel state={editorState} />}
       currentRevisionId={editorState?.baseRevisionId}
       hasUnsavedChanges={editorState?.unsaved}
@@ -455,16 +468,7 @@ export function SchoolAssessmentDetailRoute() {
               className={styles.editInfoButton}
               data-testid="trash-assessment"
               title="노트·결과물·피드백 기록은 지우지 않고 함께 휴지통에 들어가요"
-              onClick={() => {
-                if (!window.confirm(`'${item.title}' 수행평가를 휴지통으로 옮길까요? 노트·결과물·피드백 기록은 그대로 보관되고, 보관함 휴지통에서 복구할 수 있어요.`)) return
-                trashSchoolAssessment(item.assessmentId).then(
-                  () => {
-                    notifyDataChanged()
-                    navigate(archivePath + '?tab=trash')
-                  },
-                  (error: Error) => showToast('error', `옮기지 못했어요. ${error.message}`),
-                )
-              }}
+              onClick={() => moveToTrash?.()}
             >
               휴지통으로 이동
             </button>
