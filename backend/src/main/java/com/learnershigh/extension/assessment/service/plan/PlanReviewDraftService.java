@@ -533,6 +533,20 @@ public class PlanReviewDraftService {
         return view(plan, revision, Optional.of(run), scope);
     }
 
+    /**
+     * A28-31: 열려 있는 운영계획 초안에서 관리자가 직접 결정(확인·수정·제외)한 분석 행 — "과목번호|teachingPlan[n]".
+     * 확정 때 이 집합에 없는 행은 '최종 승인이 분석 후보를 기본값으로 채택(AI_DEFAULT)'한 것으로 기록한다.
+     */
+    @Transactional(readOnly = true)
+    public Set<String> teachingPlanDecidedRows(String analysisId) {
+        Set<String> decided = new java.util.HashSet<>();
+        drafts.findByAnalysisId(analysisId, PlanReviewDraft.SCOPE_TEACHING_PLAN).filter(PlanReviewDraft::isActive)
+                .ifPresent(draft -> read(draft).decisions().stream()
+                        .filter(decision -> TEACHING_PLAN_ROW.matcher(decision.fieldPath()).matches())
+                        .forEach(decision -> decided.add(decision.subjectIndex() + "|" + decision.fieldPath())));
+        return decided;
+    }
+
     /** A14: 확정 요청이 가리키는 관리자 추가 행(열려 있는 운영계획 초안에 있는 것만). 키 → 행 */
     @Transactional(readOnly = true)
     public Map<String, PlanReviewDraftResponse.ManualRow> openManualRows(String analysisId) {

@@ -95,6 +95,14 @@ public class TeachingPlanReview implements Persistable<String> {
         rowCount = rows.size();
     }
 
+    /** A28-31: 방금 더한 행의 결정 근거(ADMIN · AI_DEFAULT). 서버가 확정 시점의 운영계획 초안과 대조해 정한다. */
+    public void basisOfLastRow(String basis) {
+        if (!TeachingPlanReviewRow.BASIS_ADMIN.equals(basis) && !TeachingPlanReviewRow.BASIS_AI_DEFAULT.equals(basis)) {
+            throw new IllegalArgumentException("unknown decision basis: " + basis);
+        }
+        rows.get(rows.size() - 1).basis(basis);
+    }
+
     @Override
     public String getId() {
         return id;

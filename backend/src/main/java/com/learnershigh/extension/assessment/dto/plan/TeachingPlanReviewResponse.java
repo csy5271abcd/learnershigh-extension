@@ -27,8 +27,11 @@ public record TeachingPlanReviewResponse(String planId, String revisionId, Strin
             boolean current, int publishedRowCount, int excludedRowCount, List<RowView> rows) {
     }
 
-    /** A14: origin = ANALYSIS(분석 후보 행, candidate = 원래 후보) · MANUAL(관리자 직접 추가 행, candidate = null). */
+    /**
+     * A14: origin = ANALYSIS(분석 후보 행, candidate = 원래 후보) · MANUAL(관리자 직접 추가 행, candidate = null).
+     * A28-31: decisionBasis = ADMIN(관리자 결정·추가) · AI_DEFAULT(최종 승인이 후보를 기본값으로 채택) · null(근거 기록 전 확정).
+     */
     public record RowView(int subjectIndex, String rowKey, String subjectId, String decision, Object row,
-            Object candidate, String origin) {
+            Object candidate, String origin, String decisionBasis) {
     }
 }
