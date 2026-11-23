@@ -10,6 +10,7 @@ import {
   listNoteRevisions,
   listNotes,
   trashArtifact,
+  exportNotePdf,
   trashSchoolAssessment,
 } from '../api/assessmentDetailApi.ts'
 import { assessmentToday } from '../api/runtimeInfo.ts'
@@ -37,7 +38,7 @@ import { DetailTopBar } from '../components/detail/DetailTopBar.tsx'
 import { EditSchoolAssessmentModal } from '../components/EditSchoolAssessmentModal.tsx'
 import { schoolAssessmentMenuItems } from '../components/detail/detailMenuItems.ts'
 import { DeleteSchoolAssessmentModal } from '../components/detail/DeleteSchoolAssessmentModal.tsx'
-import { exportFileName, noteToMarkdown } from '../model/noteExport.ts'
+import { noteExportRequest, pdfFileName } from '../model/noteExport.ts'
 import { FeedbackSentModal } from '../components/detail/FeedbackSentModal.tsx'
 import { FeedbackTab, type FeedbackHistory, type SelectedArtifactVersion } from '../components/detail/FeedbackTab.tsx'
 import { ResourcesTab } from '../components/detail/ResourcesTab.tsx'
@@ -208,34 +209,40 @@ export function SchoolAssessmentDetailRoute() {
       }
     : undefined
 
-  // A28-49 노트 내보내기: 서버에 저장된 최신 노트를 Markdown 파일로(편집 중 저장 안 된 내용은 넣지 않는다고 알린다)
+  // A28-51 노트 내보내기(PDF): 서버(§20-1)가 저장된 최신 노트로 텍스트 PDF 를 만든다.
+  // 저장 안 된 편집이 있으면 먼저 저장을 안내하고(그대로 진행하면 저장된 버전 기준), 만드는 동안 다시 누르지 못하게 한다.
+  const [exporting, setExporting] = useState(false)
   const exportNote = () => {
-    if (!item) return
+    if (!item || exporting) return
+    if (editorState?.unsaved && !window.confirm(
+      `아직 저장하지 않은 편집이 있어요. PDF는 서버에 저장된 노트${note?.revisionNumber ? `(v${note.revisionNumber})` : ''} 기준으로 만들어져 지금 편집은 빠져요.
+
+먼저 저장하려면 '취소'를 누르고 저장한 뒤 다시 내보내 주세요. 저장된 버전으로 내보낼까요?`,
+    )) return
+    setExporting(true)
     const exportedAt = exportClock()
-    const markdown = noteToMarkdown({
-      assessmentTitle: item.title,
-      subjectName: subjectName(item.subjectId),
-      meta: [
-        ['진행 상태', statusLabels[item.status] ?? item.status],
-        ['평가 유형', typeDisplay(item)],
-        ['평가일', dateDisplay(item.evaluationDate)],
-        ['제출 마감', dateDisplay(item.deadlineDate)],
-        ['반영 비율', item.weightPercent != null ? `${item.weightPercent}%` : null],
-        ['제출물', item.submissions],
-      ],
-      noteTitle: note?.title ?? null,
-      revisionNumber: note?.revisionNumber ?? null,
-      savedAt: note?.savedAt ?? null,
-      blocks: note?.blocks ?? [],
-      exportedAt,
-    })
-    const href = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown;charset=utf-8' }))
-    const anchor = document.createElement('a')
-    anchor.href = href
-    anchor.download = exportFileName(item.title, exportedAt)
-    anchor.click()
-    window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
-    showToast('success', editorState?.unsaved ? '저장된 노트로 내보냈어요(아직 저장 안 된 편집은 빠졌어요).' : '노트를 Markdown 파일로 내보냈어요.')
+    showToast('info', 'PDF를 만드는 중이에요…')
+    exportNotePdf(item.assessmentId, noteExportRequest(subjectName(item.subjectId), [
+      ['진행 상태', statusLabels[item.status] ?? item.status],
+      ['평가 유형', typeDisplay(item)],
+      ['평가일', dateDisplay(item.evaluationDate)],
+      ['제출 마감', dateDisplay(item.deadlineDate)],
+      ['반영 비율', item.weightPercent != null ? `${item.weightPercent}%` : null],
+      ['제출물', item.submissions],
+    ])).then(
+      ({ blob, contentDisposition }) => {
+        const href = URL.createObjectURL(blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' }))
+        const anchor = document.createElement('a')
+        anchor.href = href
+        anchor.download = pdfFileName(contentDisposition, item.title, exportedAt)
+        document.body.append(anchor)
+        anchor.click()
+        anchor.remove()
+        window.setTimeout(() => URL.revokeObjectURL(href), 10_000)
+        showToast('success', editorState?.unsaved ? '저장된 노트로 PDF를 내보냈어요(아직 저장 안 된 편집은 빠졌어요).' : '노트를 PDF 파일로 내보냈어요.')
+      },
+      (error: Error) => showToast('error', `PDF를 만들지 못했어요. ${error.message}`),
+    ).finally(() => setExporting(false))
   }
 
   const topBar = (
@@ -250,7 +257,8 @@ export function SchoolAssessmentDetailRoute() {
       onUnavailable={(message) => showToast('info', message)}
       menuItems={schoolAssessmentMenuItems(assessmentId, {
         onEdit: item && !readOnly ? () => setModal({ kind: 'edit' }) : undefined,
-        onExport: item ? exportNote : undefined,
+        onExport: item && !readOnly && !isMockDataSource ? exportNote : undefined,
+        exporting,
         onTrash: moveToTrash,
         onDelete: item && !readOnly && !isMockDataSource ? () => setModal({ kind: 'delete' }) : undefined,
         unavailable: readOnly ? '관리자 읽기 전용 보기에서는 사용할 수 없어요.' : isMockDataSource ? '시연 데이터에서는 사용할 수 없어요.' : '정보를 불러오는 중이에요.',

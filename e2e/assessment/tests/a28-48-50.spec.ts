@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { API, STUDENT, STUDENT_ID, runTag, uniquePdf } from '../support.ts'
 
-// A28-48~50 (2026-11-23 사용자 화면 1~3). 일회용 DB·Storage·합성 파일만 쓴다.
+// A28-48~50 (2026-11-23 사용자 화면 1~3). A28-51·52 뒤: 내보내기는 PDF, 메뉴 이름은 '영구 삭제'. 일회용 DB·Storage·합성 파일만 쓴다.
 // 48 학생 탐구 노트 첨부 바로 미리보기(이미지·PDF·미지원 형식) · 49 ⋯ 메뉴: 평가 정보 수정·심화 탐구·노트 내보내기·휴지통·삭제
 // (50 표시 날짜 dropdown 모양은 a28-33-calendar-placement 에서 같은 흐름으로 확인)
 const student = { 'X-Assessment-Student-Id': STUDENT_ID }
@@ -87,23 +87,20 @@ test('[A28-49] ⋯ 메뉴: 평가 정보 수정 · 심화 탐구 · 노트 내�
 
   await openMenu(page)
   await expect(page.getByRole('menu').getByText('준비 중')).toHaveCount(0)
-  await expect(page.getByRole('menuitem')).toHaveText(['평가 정보 수정', '심화 탐구로 이어가기', '성장 기록에 남기기', '노트 내보내기', '휴지통으로 이동', '삭제'])
+  await expect(page.getByRole('menuitem')).toHaveText(['평가 정보 수정', '심화 탐구로 이어가기', '성장 기록에 남기기', '노트 내보내기', '휴지통으로 이동', '영구 삭제'])
 
   // 평가 정보 수정 → 수정 창
   await page.getByRole('menuitem', { name: '평가 정보 수정' }).click()
   await expect(page.getByRole('dialog', { name: '수행평가 정보 수정' })).toBeVisible()
   await page.keyboard.press('Escape')
 
-  // 노트 내보내기 → Markdown 파일(제목·본문)
+  // 노트 내보내기 → A28-51 부터 PDF 파일(내용 검사는 a28-51-53)
   await openMenu(page)
   const download = page.waitForEvent('download')
   await page.getByRole('menuitem', { name: '노트 내보내기' }).click()
   const file = await download
-  expect(file.suggestedFilename()).toMatch(/\.md$/)
-  const text = await readFile((await file.path()) as string, 'utf8')
-  expect(text).toContain(`# ${title}`)
-  expect(text).toContain(`본문 기록 ${tag}`)
-  expect(text).toContain('## 첨부 파일')
+  expect(file.suggestedFilename()).toMatch(/\.pdf$/)
+  expect((await readFile((await file.path()) as string)).subarray(0, 5).toString('latin1')).toBe('%PDF-')
 
   // 심화 탐구로 이어가기 → 심화 탐구 첫 화면
   await openMenu(page)
@@ -114,7 +111,7 @@ test('[A28-49] ⋯ 메뉴: 평가 정보 수정 · 심화 탐구 · 노트 내�
 
   // 삭제 → 제목을 적어야 버튼이 켜짐 → 영구 삭제 → 목록으로, 서버에서도 없음
   await openMenu(page)
-  await page.getByRole('menuitem', { name: '삭제', exact: true }).click()
+  await page.getByRole('menuitem', { name: '영구 삭제', exact: true }).click()
   const confirm = page.getByTestId('delete-assessment-confirm')
   await expect(confirm).toBeDisabled()
   await page.getByTestId('delete-assessment-title').fill('다른 제목')
@@ -141,7 +138,7 @@ test('[A28-49] 피드백을 보낸 수행평가는 삭제 대신 이유를 보�
   await page.goto(`${STUDENT}/assessment/school-assessments/${sa}`)
   await expect(page.getByRole('heading', { name: title })).toBeVisible({ timeout: 20_000 })
   await openMenu(page)
-  await page.getByRole('menuitem', { name: '삭제', exact: true }).click()
+  await page.getByRole('menuitem', { name: '영구 삭제', exact: true }).click()
   await page.getByTestId('delete-assessment-title').fill(title)
   await page.getByTestId('delete-assessment-confirm').click()
   await expect(page.getByTestId('delete-assessment-error')).toContainText('피드백 요청 기록')

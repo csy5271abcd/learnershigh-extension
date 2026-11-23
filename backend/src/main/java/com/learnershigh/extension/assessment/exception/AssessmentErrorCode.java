@@ -23,6 +23,8 @@ public enum AssessmentErrorCode implements ErrorCode {
     ARTIFACT_VERSION_NOT_FOUND(HttpStatus.NOT_FOUND, "결과물 버전을 찾을 수 없습니다."),
     /** §26-1 A28-41 노트 첨부 없음 또는 권한 밖 */
     NOTE_ATTACHMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "첨부 파일을 찾을 수 없습니다."),
+    /** §20-1 A28-51 PDF 내보내기용 한글 글꼴을 서버에서 찾지 못함 */
+    EXPORT_FONT_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "PDF를 만들 글꼴을 서버에서 찾지 못했어요. 관리자에게 알려 주세요."),
     PREVIEW_UNAVAILABLE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "이 형식은 앱 안 미리보기를 지원하지 않아요. 원본을 내려받아 확인해 주세요."),
     FILE_INTEGRITY_FAILED(HttpStatus.CONFLICT, "저장된 파일이 등록 당시와 달라 열 수 없어요."),
     /** A10 §38-6: HWP·HWPX 원문 구조를 읽지 못함. details.fields[file].reason = parse_failed·limit_exceeded·timeout·protected */

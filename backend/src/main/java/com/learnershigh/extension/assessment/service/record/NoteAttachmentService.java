@@ -109,6 +109,35 @@ public class NoteAttachmentService {
         return missing;
     }
 
+    /**
+     * §20-1 PDF 내보내기용 본인 첨부 바이트(SHA 재확인). 남의 첨부·없는 첨부·바이트 불일치는 null 이 아니라 사유로 알린다.
+     * maxBytes 를 넘으면 읽지 않는다.
+     */
+    @Transactional(readOnly = true)
+    public NotePdfRenderer.ImageResult imageForExport(String studentId, String attachmentId, long maxBytes) {
+        NoteAttachment attachment = attachments.findByIdAndStudentId(attachmentId, studentId).orElse(null);
+        if (attachment == null) {
+            return NotePdfRenderer.ImageResult.skipped("이 학생의 첨부가 아님 — 넣지 않음");
+        }
+        String type = attachment.contentType();
+        if (!"image/png".equals(type) && !"image/jpeg".equals(type) && !"image/gif".equals(type)) {
+            return NotePdfRenderer.ImageResult.skipped("PDF 본문에 넣을 수 없는 형식 — 첨부 목록 참고");
+        }
+        if (attachment.sizeBytes() > maxBytes) {
+            return NotePdfRenderer.ImageResult.skipped("용량 상한 초과 — 첨부 목록 참고");
+        }
+        byte[] bytes;
+        try (InputStream in = storage.open(attachment.storageKey())) {
+            bytes = in.readAllBytes();
+        } catch (IOException | RuntimeException failed) {
+            return NotePdfRenderer.ImageResult.skipped("저장된 파일을 읽지 못함");
+        }
+        if (bytes.length != attachment.sizeBytes() || !ArtifactService.sha256(bytes).equals(attachment.sha256())) {
+            return NotePdfRenderer.ImageResult.skipped("저장된 파일이 등록 당시와 다름");
+        }
+        return new NotePdfRenderer.ImageResult(bytes, type, null);
+    }
+
     private NoteAttachment owned(StudentActor student, String attachmentId) {
         return attachments.findByIdAndStudentId(attachmentId, student.studentId())
                 .orElseThrow(() -> new BusinessException(AssessmentErrorCode.NOTE_ATTACHMENT_NOT_FOUND));

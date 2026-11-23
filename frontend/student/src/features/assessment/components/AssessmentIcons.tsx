@@ -368,6 +368,16 @@ export function TrashIcon(props: IconProps) {
   )
 }
 
+/** A28-52 영구 삭제(복원 불가) — 휴지통(복원 가능) 아이콘과 구별한다 */
+export function CircleXIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M9 9l6 6M15 9l-6 6" />
+    </Svg>
+  )
+}
+
 export function NoteIcon(props: IconProps) {
   return (
     <Svg {...props}>

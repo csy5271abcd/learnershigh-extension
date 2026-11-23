@@ -395,6 +395,34 @@
   cursor: pointer;
 }
 
+/* A28-53 휴지통 행: 복구 · 영구 삭제를 같은 크기로 나란히. 좁은 폭에서는 줄바꿈되어도 잘리지 않는다 */
+.trashActions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.trashActions .smallButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.dangerSmallButton {
+  color: var(--as-color-danger);
+}
+
+.dangerSmallButton:hover {
+  background: var(--as-color-danger-soft);
+}
+
+.smallButton:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
 .smallButton[aria-disabled='true'] {
   color: var(--as-color-disabled-text);
   cursor: not-allowed;
