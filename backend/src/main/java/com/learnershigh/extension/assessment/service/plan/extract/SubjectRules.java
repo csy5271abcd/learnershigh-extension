@@ -16,9 +16,14 @@ public final class SubjectRules {
     static final Pattern BAD_SUBJ = Pattern.compile("교과별|전과목|전\\s*과목|과목별|학년|평가|계획|공시|2026|교수|학습");
     static final List<Pattern> HEAD_PATTERNS = List.of(
             Pattern.compile("학기\\s*(?:\\d\\s*학년\\s*)?\\[?\\s*([^\\[\\]\\n]{2,30}?)\\s*\\]?\\s*(?:과|교과)?\\s*\\n?\\s*교수\\s*[·ㆍ‧･・\\s]*학습"),
-            Pattern.compile("\\(\\s*([^()\\n]{2,25}?)\\s*\\)\\s*(?:과|교과)?\\s*(?:교수|평가|수업)"),
+            // '(통합사회)과 교수·학습', '(경제) 교수학습' — '(성교육)평가', '(교과연계 독서활동)총괄평가' 같은 수업 칸 꼬리표는 아니다
+            Pattern.compile("\\(\\s*([^()\\n]{2,25}?)\\s*\\)\\s*(?:(?:과|교과)\\s*(?:교수|평가|수업)|교수|평가\\s*(?:세부|운영)?\\s*계획)"),
             Pattern.compile("학기\\s*(?:\\d\\s*학년\\s*)?\\[\\s*([^\\[\\]\\n]{2,25}?)\\s*\\]"),
-            Pattern.compile("학기\\s*(?:\\d\\s*학년\\s*)?([가-힣A-Za-zⅠⅡⅢ0-9·ㆍ ]{2,20}?)\\s*(?:교과\\s*)?평가\\s*(?:운영\\s*)?계획"));
+            Pattern.compile("학기\\s*(?:\\d\\s*학년\\s*)?([가-힣A-Za-zⅠⅡⅢ0-9·ㆍ ]{2,20}?)\\s*(?:교과\\s*)?평가\\s*(?:운영\\s*)?계획"),
+            // 쪽 머리에 과목명만 한 줄 두고 '1. 평가의 목적'으로 시작하는 서식
+            Pattern.compile("(?:^|-\\s*\\d+\\s*-|\\n)\\s*([가-힣A-Za-zⅠⅡⅢ·ㆍ ]{2,20}?[ⅠⅡⅢ12]?)\\s*\\n?\\s*1\\s*\\.\\s*평가의\\s*목적"),
+            // 표지 '세부 과목명 : 공통수학2  평가 대상 : …'
+            Pattern.compile("세부\\s*과\\s*목\\s*명?\\s*[:：]\\s*([^:：\\n]{2,25}?)\\s*(?:\\n|평가\\s*대상|담당|지도|$)"));
     static final List<String> SUBJECTS = List.of(
             "공통국어", "화법과 언어", "화법과 작문", "독서와 작문", "언어와 매체", "주제 탐구 독서", "문학과 영상", "매체 의사소통", "문학", "독서", "작문", "화법", "국어",
             "공통수학", "기본수학", "대수", "미적분", "확률과 통계", "기하", "경제 수학", "인공지능 수학", "수학과제 탐구", "실용 수학", "수학",
@@ -53,11 +58,33 @@ public final class SubjectRules {
             return null;
         }
         s = s.replaceAll("[\\u00A0\\u2007\\u202F\\u3000]", " ").strip();   // 줄바꿈 없는 공백·전각 공백
+        s = s.replaceAll("^[_\\-–~·:]+\\s*|\\s*[_\\-–~:]+$", "");   // 파일명 '(1학년_통합사회2)'의 구분 기호
+        s = s.replaceAll("^[<〈《「『]\\s*(.+?)\\s*[>〉》」』]$", "$1");
+        StringBuilder half = new StringBuilder();   // 전각 숫자 ('공통국어２')
+        s.chars().forEach(ch -> half.append(ch >= '０' && ch <= '９' ? (char) (ch - '０' + '0') : (char) ch));
+        s = half.toString().replaceAll("^\\d{1,2}\\s+(?=[가-힣])", "");   // 단원 번호 ('1 도시의 미래 탐구')
+        if (s.contains("_")) {
+            String last = s.substring(s.lastIndexOf('_') + 1).strip();   // '국어과_공통국어2', '제2외국어과_일본문화'
+            String head = s.substring(0, s.lastIndexOf('_')).strip();
+            if (last.length() >= 2 && (SUBJ_RE.matcher(norm(last)).matches() || head.endsWith("과"))) {
+                s = last;
+            }
+        }
+        Matcher inner = Pattern.compile("^\\S+과\\s*\\(\\s*(.+?)\\s*\\)$").matcher(s);   // '일본어과(일본어 회화)'
+        if (inner.matches()) {
+            s = inner.group(1);
+        }
+        s = s.replaceAll("(?<=[가-힣])\\s+(?=([0-9]|Ⅰ|Ⅱ|Ⅲ)$)", "");   // '공통수학 2', '영어 Ⅱ'
         Matcher m = Pattern.compile("\\(\\s*(.+?)\\s*\\)\\s*(?:과목|교과)?").matcher(s);
         if (m.matches()) {
             s = m.group(1);
         }
+        s = s.replaceAll("\\s*교과\\s*지도$", "").strip();   // '공통국어2 과목 교과지도'
         s = s.replaceAll("\\s*(과목|교과)$", "").strip();
+        Matcher pub = Pattern.compile("^(.+?)\\s*[(（]\\s*[^()（）]{2,12}\\s*[)）]$").matcher(s);   // '지구시스템과학 (비상교육)'
+        if (pub.matches() && SUBJ_RE.matcher(norm(pub.group(1))).matches()) {
+            s = pub.group(1).strip();
+        }
         s = s.replaceAll("^\\[\\s*(.+?)\\s*]$", "$1");
         if (s.chars().filter(c -> c == ')').count() > s.chars().filter(c -> c == '(').count()) {
             s = s.replaceAll("\\s*\\)$", "");
@@ -66,8 +93,24 @@ public final class SubjectRules {
             s = s.replace(" ", "");
         }
         s = s.replaceAll("(?<=[가-힣])\\s*III$", "Ⅲ").replaceAll("(?<=[가-힣])\\s*II$", "Ⅱ").replaceAll("(?<=[가-힣])\\s*I$", "Ⅰ");
+        Matcher unit = Pattern.compile("^(.+?)\\s*([3-9])$").matcher(s);
+        if (unit.matches() && SUBJ_RE.matcher(unit.group(1)).matches()) {
+            s = unit.group(1);
+        }
         if (s.endsWith("과") && s.length() > 2 && SUBJ_RE.matcher(s.substring(0, s.length() - 1)).matches()) {
             s = s.substring(0, s.length() - 1);
+        }
+        {   // 띄어쓰기를 사전 표기로: '과학 탐구 실험2' → '과학탐구실험2', '확률과통계' → '확률과 통계'
+            Matcher cm = SUBJ_RE.matcher(norm(s));
+            if (cm.matches()) {
+                String base = norm(cm.group(1));
+                for (String k : SUBJECTS) {
+                    if (norm(k).equals(base)) {
+                        s = k + (cm.group(2) == null ? "" : cm.group(2));
+                        break;
+                    }
+                }
+            }
         }
         return s.isEmpty() ? null : s;
     }
@@ -86,6 +129,21 @@ public final class SubjectRules {
         if (Pattern.compile("범교과|창의적체험|자율활동|동아리|봉사활동|진로활동|학교자율|교육과정|운영계획|안전교육").matcher(n).find()) {
             return true;   // 교과가 아닌 교육활동 이름
         }
+        // 평가 방법 낱말 ('논술'은 실제 과목명이라 넣지 않는다)
+        if (n.matches("관찰|대상|자기|동료|교사|면접|구술|발표|토론|토의|실험|실습|실기|보고서|포트폴리오|프로젝트|산출물|서술|서술형|논술형|기타|비고")) {
+            return true;
+        }
+        if (n.matches("\\(?\\d+(시간|시수|주|분|회|명|쪽|점|순위|h|반|%)\\)?.*")) {
+            return true;   // 수업 시간·횟수·배점 ('2시간', '5점', '1순위')
+        }
+        if (n.matches("\\[?\\d{1,2}[가-힣ⅠⅡⅢⅣ]{1,8}\\d?\\d{2}-\\d{2}.*")) {
+            return true;   // 성취기준 코드 ('12지시03-06')
+        }
+        if (n.matches("연번|번호|기간|시기|수정|최종|공시|질의응답|월/?주|교과서|예(능|술)과?|이수단위|단위|직업반|선택반|수강반|소인수선택|공통|분할점수|초에")
+                || n.contains("수업") || n.contains("◯") || n.contains("(인)") || n.contains("&") || n.contains(",") || n.contains("/")
+                || n.contains("활동지") || n.contains("패들렛") || n.endsWith("하기") || n.contains("까지") || n.contains("작성")) {
+            return true;   // 표 머리·파일명 꼬리·담당 교사 칸·활동 이름
+        }
         if (n.matches("제2외국어|교양|전문교과|공통과목|선택과목|일반선택|진로선택|융합선택|기초교과|탐구교과|체육예술|생활교양|전문일반")) {
             return true;
         }
@@ -95,7 +153,7 @@ public final class SubjectRules {
         return school != null && !school.isEmpty() && (school.startsWith(n) || n.startsWith(school.replaceAll("등학교$|학교$", "")));
     }
 
-    static final Set<String> SUBJ_LABELS = Set.of("과목", "과목명", "교과목", "교과목명", "교과(목)", "교과(목)명", "과목명항목");
+    static final Set<String> SUBJ_LABELS = Set.of("과목", "과목명", "교과목", "교과목명", "교과(목)", "교과(목)명", "과목명항목", "세부과목", "세부과목명");
 
     /** 머리 표 '과목 | 공통국어2' 또는 '과목 (아래) 공통국어2'. */
     private static final Pattern GRADE_VALUE = Pattern.compile("^([1-3])(?:\\s*[,·ㆍ~∼-]\\s*([1-3]))*\\s*(?:학년)?$");
@@ -139,11 +197,15 @@ public final class SubjectRules {
                 if (!SUBJ_LABELS.contains(r.get(ci).replaceAll("\\s", ""))) {
                     continue;
                 }
-                String right = ci + 1 < r.size() ? r.get(ci + 1) : "";
+                int rc = ci + 1;
+                while (rc < r.size() && norm(r.get(rc)).equals(norm(r.get(ci)))) {
+                    rc++;
+                }
+                String right = rc < r.size() ? r.get(rc) : "";
                 String below = ri + 1 < g.size() && ci < g.get(ri + 1).size() ? g.get(ri + 1).get(ci) : "";
                 for (String v : List.of(right, below)) {
                     if (!norm(v).isEmpty() && !norm(v).equals(norm(r.get(ci))) && RatioRules.labelOf(v) == null
-                            && !Pattern.compile("평가|구분|학기|학년|학급|학점|시수|시간|교사|담당").matcher(v).find()) {
+                            && !Pattern.compile("평가|구분|학기|학년|학급|학점|시수|시간|단위|교사|담당").matcher(v).find()) {
                         return clean(v, 30);
                     }
                 }
@@ -181,7 +243,13 @@ public final class SubjectRules {
         Matcher m = SUBJ_RE.matcher(tail);
         String last = null;
         while (m.find()) {
-            last = m.group(0);
+            // 낱말 안의 과목 이름은 아니다: '서·논술형'의 논술, '정보의 검색'의 정보, '순환경제'의 경제
+            boolean before = m.start() > 0 && String.valueOf(tail.charAt(m.start() - 1)).matches("[가-힣·ㆍ‧･・]");
+            boolean after = m.end() < tail.length() && String.valueOf(tail.charAt(m.end())).matches("[가-힣]");
+            // 교과 묶음 이름(국어·사회·과학)과 '논술 비율'의 논술은 본문에 흔해 과목명 근거가 못 된다
+            if (!before && !after && !group(m.group(0)) && !norm(m.group(0)).startsWith("논술")) {
+                last = m.group(0);
+            }
         }
         return last == null ? null : clean(last, 30);
     }
@@ -210,12 +278,17 @@ public final class SubjectRules {
         if (m.find() && !BAD_SUBJ.matcher(m.group(1)).find()) {
             return clean(m.group(1), 30);
         }
-        m = Pattern.compile("\\(\\s*(?:\\d\\s*학년\\s*)?(?:\\d\\s*학기\\s*)?([^()]{2,20}?)\\s*\\)").matcher(base);
+        m = Pattern.compile("\\(\\s*(?:\\d\\s*학년\\s*)?[_\\s]*(?:\\d\\s*학기\\s*)?[_\\s]*([^()]{2,20}?)\\s*\\)").matcher(base);
         while (m.find()) {
             String v = m.group(1);
             if (!BAD_SUBJ.matcher(v).find() && !Pattern.compile("^\\d|\\d{2,}|수정|최종|공시|게시|안$|합철|교과$").matcher(v).find()) {
                 return clean(v, 30);
             }
+        }
+        // 파일 이름 자체가 과목명 ('1 공통국어2.hwp', '3학년2학기공연실습' 제외 — 사전에 있는 과목만)
+        String bare = base.replaceAll("^[\\d_.\\s-]+", "").strip();
+        if (SUBJ_RE.matcher(norm(bare)).matches()) {
+            return clean(bare, 30);
         }
         return null;
     }

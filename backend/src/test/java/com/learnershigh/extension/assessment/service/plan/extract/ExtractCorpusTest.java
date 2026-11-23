@@ -46,7 +46,7 @@ class ExtractCorpusTest {
                         // 제품과 같이 내용으로 형식을 정한다(.hwp 이름의 HWPX 가 있다)
                         PlanDocumentFormat format = com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer.formatOf(bytes);
                         List<SourceTable> tables = PlanTableReader.read(bytes, format, 120_000);
-                        for (PlanExtractor.Subject s : PlanExtractor.extract(tables, f.getFileName().toString(), name)) {
+                        for (PlanExtractor.Subject s : ("simple".equals(System.getenv("EXTRACTOR")) ? com.learnershigh.extension.assessment.service.plan.simple.SimplePlanExtractor.extract(tables, f.getFileName().toString(), name) : PlanExtractor.extract(tables, f.getFileName().toString(), name))) {
                             if (s.name.startsWith("과목명 미확인")) {
                                 continue;
                             }
