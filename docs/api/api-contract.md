@@ -983,6 +983,36 @@ GET /api/admin/assessment/artifacts/{artifactId}/versions/{versionId}/preview
 
 `file` 반환은 Backend Stream 또는 짧은 수명의 접근 제한 URL을 사용할 수 있으며 실제 방식은 Storage Provider 확인 후 결정한다. 어떤 경우든 서버가 소유권/관리자 담당 학생 권한을 검사한다. 원본·변환 Preview는 **별개 자원**, 변환 실패는 `PREVIEW_UNAVAILABLE`이지 `ARTIFACT_NOT_FOUND`가 아니다. DOCX/HWP/PPT 미리보기 미지원 시 파일명·MIME·원본 다운로드 가능 여부를 알린다.
 
+- A28-41(2026-11-23): 미리보기(`preview`) 허용 형식에 `image/webp`를 더한다(PDF·PNG·JPEG·GIF·WEBP). SVG·HTML 등 실행 가능한 형식은 여전히 업로드·미리보기 대상이 아니다.
+
+## 26-1. Student / Admin — 탐구 노트 첨부 파일 실제 저장 (A28-41, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration `V202611231000` · 팀 승인 별도)
+
+이전에는 노트의 이미지·파일 블록(`IMAGE`·`FILE`)에 이름·크기만 남고 바이트는 브라우저 메모리에만 있었다. 이제 바이트를 결과물과 같은 Storage(§25 `ArtifactStorage`, UUID 저장 키)에 저장하고 블록은 서버가 발급한 첨부 ID 를 가리킨다.
+
+```http
+POST /api/student/assessment/note-attachments                 # multipart: file (필수) → 201
+GET  /api/student/assessment/note-attachments/{attachmentId}/file      # 원본 (attachment)
+GET  /api/student/assessment/note-attachments/{attachmentId}/preview   # PDF·이미지만 inline, 아니면 415 PREVIEW_UNAVAILABLE
+GET  /api/admin/assessment/note-attachments/{attachmentId}/file
+GET  /api/admin/assessment/note-attachments/{attachmentId}/preview
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/file      # 학생 화면 보기(읽기 전용)
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/preview
+```
+
+응답(201):
+
+```json
+{ "attachmentId": "noteatt_…", "fileName": "실험 사진.png", "contentType": "image/png", "sizeBytes": 203364,
+  "sha256": "5b37…", "uploadedAt": "2026-11-23T14:28:48+09:00", "previewSupported": true }
+```
+
+- 허용 형식·검사: §25 결과물과 같다(PDF·HWP·HWPX·DOC·DOCX·PPT·PPTX·XLS·XLSX·PNG·JPG·JPEG·GIF·WEBP). 확장자와 파일 앞부분 서명이 **둘 다** 맞아야 하고 Content-Type 은 서버가 정한다. 0바이트 `400 file empty`, 최대 `assessment.storage.max-file-bytes`(기본 50MB) 초과 `413 FILE_TOO_LARGE`, 형식 불일치 `415 UNSUPPORTED_FILE_TYPE`. 파일 이름은 표시·다운로드 이름으로만 쓰고 저장 경로에 쓰지 않는다.
+- 저장: 파일 → DB 순서, DB Transaction 이 실패하면 방금 쓴 파일을 지운다(파일만 남지 않음). 행은 **불변**(덮어쓰기·삭제 Endpoint 없음). 학생이 블록의 파일을 바꾸면 새 첨부가 생기고 이전 첨부와 그 바이트는 그대로 남아, 이미 보낸 피드백 Snapshot(그 때의 노트 Revision)이 가리키는 파일이 유지된다.
+- 블록 연결: 업로드 응답을 `IMAGE`·`FILE` 블록 `attrs.file` 에 `{ name, size, mimeType, attachmentId, sha256 }` 로 넣고 노트를 저장한다(§20). 노트 저장 시 `attrs.file.attachmentId` 가 있으면 **그 학생이 올린 첨부**여야 한다(아니면 `400 blocks[i].attrs.file.attachmentId unknown`). `attachmentId` 가 없는 이전 블록은 바이트가 없어 열 수 없다 — 화면은 '파일이 저장되지 않은 이전 첨부 · 다시 첨부 필요'로 알리고 메타데이터는 그대로 둔다(파일을 만들지 않는다).
+- 권한: 학생은 본인 첨부만(남의 ID 는 `404 NOTE_ATTACHMENT_NOT_FOUND`). 관리자는 담당 학생 첨부만(범위 밖 `404`, 인증 없음 `401`). 학생 화면 보기 경로는 그 학생의 첨부만 읽는다. 쓰기 경로는 학생 본인만이고 관리자는 업로드·수정할 수 없다.
+- 응답 Header: §26 과 같다(`Content-Disposition` UTF-8 파일 이름, `X-Content-Type-Options: nosniff`, `Cache-Control: private, no-store`). 미리보기는 저장 바이트의 크기·SHA-256 이 등록 값과 같을 때만(`409 FILE_INTEGRITY_FAILED`). 저장 키·서버 경로는 응답에 넣지 않는다.
+- 업로드만 하고 노트를 저장하지 않은 첨부(고아 행)는 바이트와 행이 함께 남는다(깨진 행 없음). 정리 정책은 Open Decision.
+
 ---
 
 # 27. Student — 대학 공식 공개 자료 (ST-17)
@@ -2185,7 +2215,7 @@ Idempotency-Key: <선택, 같은 Key·같은 원본 → 같은 결과 / 같은 K
 
 # 48. File Contract
 
-현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 링크/이미지, 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
+현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 이미지·파일 블록(§26-1 노트 첨부, A28-41부터 실제 저장 — 이전 블록은 메타데이터만), 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
 
 ```json
 {
@@ -2248,6 +2278,7 @@ Note 저장에는 `expectedRevisionId`, 콘텐츠 편집에는 `updatedAt`/Versi
 | 404 | `ENRICHMENT_TASK_NOT_FOUND` | 개인 탐구 없음 |
 | 404 | `NOTE_NOT_FOUND` / `NOTE_REVISION_NOT_FOUND` | 노트/Revision 없음 |
 | 404 | `ARTIFACT_NOT_FOUND` / `ARTIFACT_VERSION_NOT_FOUND` | 결과물/버전 없음 |
+| 404 | `NOTE_ATTACHMENT_NOT_FOUND` | 노트 첨부 없음 또는 권한 밖 (§26-1, A28-41 DRAFT) |
 | 404 | `FEEDBACK_REQUEST_NOT_FOUND` | 요청 없음 또는 권한 밖 |
 | 409 | `RESOURCE_VERSION_CONFLICT` | 동시 수정 충돌 |
 | 409 | `INVALID_STATE_TRANSITION` | 허용되지 않은 상태 전이 |
@@ -2379,7 +2410,7 @@ Method/Path, 필수 Request Field, JSON Field Type/의미, Enum, Response Nestin
 |---|---|---|
 | API-OD-A01 | Existing LearnersHigh 인증·학교/학적 Write Owner/Assessment 원본 매핑 | §9, §12, §34 |
 | API-OD-A02 | PDF 분석 엔진, 한 PDF 다과목 스키마, 개정·부분 실패·출처 좌표 | §10~11, §38~39 |
-| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
+| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). A28-41(2026-11-23): 탐구 노트 이미지·파일 블록도 결과물과 같은 격리 Storage에 실제 저장(§26-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
 | API-OD-A04 | Rich-text 블록 Schema·Autosave 주기·Revision 단위·충돌 전략 | §19~21 |
 | API-OD-A05 | 평가계획서 개인 정정의 공개·승인 의미/학생 학교 정보 수정 범위 | §9, §11 |
 | API-OD-A06 | 피드백 Snapshot 물리 보존 방식/보존기간·취소/재요청 정책 | §31~32, §44~45 |
