@@ -667,12 +667,15 @@ export interface SchoolDirectoryItem {
   /** 이미 이 학교알리미 학교를 쓰는 학교 키(없으면 null) */
   schoolId: string | null
   selectable: boolean
-  unselectableReason: 'ADDRESS_MISSING' | 'ADDRESS_DUPLICATE' | 'SEARCH_INCOMPLETE' | null
+  /** A28-45: SEARCH_INCOMPLETE 는 더 이상 오지 않는다(이전 서버 호환용으로만 남김) */
+  unselectableReason: 'ADDRESS_MISSING' | 'ADDRESS_DUPLICATE' | 'ID_MISSING' | 'ID_CONFLICT' | 'SEARCH_INCOMPLETE' | null
 }
 export interface SchoolDirectorySearch {
   query: string
   complete: boolean
   incompleteReason: string | null
+  /** A28-45: 상세 조회에 실패해 후보로 내지 못한 학교 수(이전 서버는 없음) */
+  unverifiedCount?: number
   items: SchoolDirectoryItem[]
 }
 export interface SchoolDirectorySelection {
@@ -684,7 +687,7 @@ export interface SchoolDirectorySelection {
   schoolinfoSchoolId: string
   sync: import('../types.ts').SchoolInfoSyncResult
 }
-export const searchSchoolDirectoryHttp = (query: string) =>
-  adminHttp<SchoolDirectorySearch>('/api/admin/assessment/schools/directory', { query: { query } })
+export const searchSchoolDirectoryHttp = (query: string, refresh = false) =>
+  adminHttp<SchoolDirectorySearch>('/api/admin/assessment/schools/directory', { query: refresh ? { query, refresh: true } : { query } })
 export const selectSchoolDirectoryHttp = (candidateId: string) =>
   adminHttp<SchoolDirectorySelection>('/api/admin/assessment/schools/directory/selection', { method: 'POST', json: { candidateId } })

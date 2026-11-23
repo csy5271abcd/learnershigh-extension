@@ -25,8 +25,10 @@ import org.springframework.stereotype.Service;
  * §38-15 (A27-UX 부록 O, 사용자 승인 '학교 Master 검색 연결'): Assessment 전용 읽기 전용 학교 검색.
  * 공식 학교알리미 검색·상세(기존 {@link SchoolInfoClient})만 쓴다. 전역 학교 Master·학생 등록을 만들지 않는다.
  * <ul>
- *   <li>검색 결과를 다 읽지 못하면(SEARCH_TRUNCATED·상세 실패·후보 상한 초과) complete=false, 그 검색의 후보는 고를 수 없다.</li>
- *   <li>주소가 없거나 같은 이름 학교끼리 주소가 같으면 고를 수 없다(구별 근거 없음).</li>
+ *   <li>검색 결과를 다 읽지 못하면(SEARCH_TRUNCATED·상세 실패·후보 상한 초과) complete=false — 경고만 하고 자동 선택하지 않는다.</li>
+ *   <li>A28-45: 목록 완전성과 학교 식별을 분리한다. 후보마다 학교알리미 ID(이 검색 안에서 유일)·상세 조회 성공·주소·(이름+주소) 유일이면
+ *       고를 수 있다. 상세 조회에 실패한 학교는 후보로 내지 않고 수만 알린다(unverifiedCount, 그 검색은 캐시하지 않음).</li>
+ *   <li>주소가 없거나 같은 이름 학교끼리 주소가 같거나 ID 가 겹치면 고를 수 없다(구별 근거 없음).</li>
  *   <li>같은 검색어 10분 캐시, 관리자당 1분 20회 외부 검색 상한.</li>
  * </ul>
  */
@@ -46,7 +48,7 @@ public class SchoolDirectoryService {
     private record Entry(SchoolInfoClient.SchoolDetail detail, boolean selectable, String reason, Instant expiresAt) {
     }
 
-    private record CachedSearch(List<String> candidateIds, boolean complete, String incompleteReason, Instant expiresAt) {
+    private record CachedSearch(List<String> candidateIds, boolean complete, String incompleteReason, int unverified, Instant expiresAt) {
     }
 
     private final Map<String, Entry> candidates = new ConcurrentHashMap<>();
@@ -63,6 +65,11 @@ public class SchoolDirectoryService {
     }
 
     public SchoolDirectorySearchResponse search(AdminActor admin, String rawQuery) {
+        return search(admin, rawQuery, false);
+    }
+
+    /** refresh = 캐시를 쓰지 않고 다시 묻는다(실패한 학교 다시 확인). 검색 상한은 같다. */
+    public SchoolDirectorySearchResponse search(AdminActor admin, String rawQuery, boolean refresh) {
         access.requireOperator(admin);
         String query = rawQuery == null ? "" : rawQuery.strip();
         if (query.length() < 2 || query.length() > 40) {
@@ -71,7 +78,8 @@ public class SchoolDirectoryService {
         Instant now = clock.instant();
         String key = SchoolInfoSyncService.norm(query);
         CachedSearch cached = searches.get(key);
-        if (cached != null && cached.expiresAt().isAfter(now) && cached.candidateIds().stream().allMatch(candidates::containsKey)) {
+        if (!refresh && cached != null && cached.unverified() == 0 && cached.expiresAt().isAfter(now)
+                && cached.candidateIds().stream().allMatch(candidates::containsKey)) {
             return view(query, cached);
         }
         takeRate(admin.adminId(), now);
@@ -88,14 +96,22 @@ public class SchoolDirectoryService {
             ids = ids.subList(0, MAX_DESCRIBE);
         }
         List<SchoolInfoClient.SchoolDetail> details = new ArrayList<>();
+        int unverified = 0;
         for (String id : ids) {
             SchoolInfoClient.SchoolDetail d = client.describe(id);
             if (d.error() != null || d.schoolName() == null) {
                 complete = false;
                 reason = reason == null ? "DETAIL_FAILED" : reason;
+                unverified++;
                 continue;
             }
             details.add(d);
+        }
+        Map<String, Integer> idCount = new HashMap<>();
+        for (SchoolInfoClient.SchoolDetail d : details) {
+            if (d.schoolinfoId() != null && !d.schoolinfoId().isBlank()) {
+                idCount.merge(d.schoolinfoId(), 1, Integer::sum);
+            }
         }
         // 같은 정식 이름끼리 주소가 같으면 구별 근거가 없다
         Map<String, Integer> sameNameAddress = new HashMap<>();
@@ -107,14 +123,16 @@ public class SchoolDirectoryService {
         List<String> issued = new ArrayList<>();
         Instant expires = now.plus(CACHE_TTL);
         for (SchoolInfoClient.SchoolDetail d : details) {
-            String why = d.address() == null || d.address().isBlank() ? "ADDRESS_MISSING"
-                    : sameNameAddress.get(addressKey(d)) > 1 ? "ADDRESS_DUPLICATE"
-                    : !complete ? "SEARCH_INCOMPLETE" : null;
+            // A28-45: 목록이 불완전해도(complete=false) 이 후보가 개별 식별되면 고를 수 있다
+            String why = d.schoolinfoId() == null || d.schoolinfoId().isBlank() ? "ID_MISSING"
+                    : idCount.get(d.schoolinfoId()) > 1 ? "ID_CONFLICT"
+                    : d.address() == null || d.address().isBlank() ? "ADDRESS_MISSING"
+                    : sameNameAddress.get(addressKey(d)) > 1 ? "ADDRESS_DUPLICATE" : null;
             String id = "dir_" + UUID.randomUUID();
             candidates.put(id, new Entry(d, why == null, why, expires));
             issued.add(id);
         }
-        CachedSearch result = new CachedSearch(List.copyOf(issued), complete, reason, expires);
+        CachedSearch result = new CachedSearch(List.copyOf(issued), complete, reason, unverified, expires);
         searches.put(key, result);
         candidates.entrySet().removeIf(e -> e.getValue().expiresAt().isBefore(now));
         return view(query, result);
@@ -154,7 +172,7 @@ public class SchoolDirectoryService {
             items.add(new SchoolDirectorySearchResponse.Item(id, d.schoolName(), d.sido(), d.sigungu(), d.address(), d.schoolinfoId(),
                     existing, e.selectable(), e.reason()));
         }
-        return new SchoolDirectorySearchResponse(query, search.complete(), search.incompleteReason(), items);
+        return new SchoolDirectorySearchResponse(query, search.complete(), search.incompleteReason(), search.unverified(), items);
     }
 
     private void takeRate(String adminId, Instant now) {

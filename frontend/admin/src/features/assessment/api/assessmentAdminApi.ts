@@ -68,7 +68,7 @@ const noSchoolInfo = () => Promise.reject(new Error('Mock 모드에서는 학교
 /** §38-13·§38-14 (부록 F). Mock 모드에는 학교알리미 연결이 없다. */
 export const selectSchoolInfoSchool = useMock ? (_r: { schoolId: string; jobId: string; candidateId: string; expectedVersion: number }): Promise<import('./types.ts').SchoolInfoSyncResult> => noSchoolInfo() : http.selectSchoolInfoSchoolHttp
 // 부록 O §38-15: 학교알리미 공식 학교 검색·선택(Mock 모드에는 없다 — 실제 학교 검색은 서버만)
-export const searchSchoolDirectory = useMock ? (_query: string): Promise<http.SchoolDirectorySearch> => noSchoolInfo() : http.searchSchoolDirectoryHttp
+export const searchSchoolDirectory = useMock ? (_query: string, _refresh?: boolean): Promise<http.SchoolDirectorySearch> => noSchoolInfo() : http.searchSchoolDirectoryHttp
 export const selectSchoolDirectory = useMock ? (_candidateId: string): Promise<http.SchoolDirectorySelection> => noSchoolInfo() : http.selectSchoolDirectoryHttp
 export const listSchoolInfoSources = useMock ? (_schoolId: string): Promise<import('./types.ts').SchoolInfoSourcesResult> => noSchoolInfo() : http.listSchoolInfoSourcesHttp
 export const downloadSchoolInfoSource = useMock ? (_schoolId: string, _id: string): Promise<Blob> => noSchoolInfo() : http.downloadSchoolInfoSourceHttp

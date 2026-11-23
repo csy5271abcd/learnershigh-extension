@@ -45,8 +45,9 @@ public class AdminAssessmentSchoolController {
 
     /** §38-15 학교알리미 공식 학교 검색(읽기 전용, 외부 검색은 서버가 상한·캐시). */
     @GetMapping("/directory")
-    public SchoolDirectorySearchResponse directorySearch(AdminActor admin, @RequestParam @Size(max = 100) String query) {
-        return directory.search(admin, query);
+    public SchoolDirectorySearchResponse directorySearch(AdminActor admin, @RequestParam @Size(max = 100) String query,
+            @RequestParam(defaultValue = "false") boolean refresh) {
+        return directory.search(admin, query, refresh);
     }
 
     /** §38-15 검색 후보 선택 → 그 학교의 3개 학년도 자동 확인 시작(진행 중이면 202). */

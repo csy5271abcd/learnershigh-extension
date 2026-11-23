@@ -1643,14 +1643,16 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 ### 38-15. 학교알리미 공식 학교 검색·선택 — 평가계획서 0건 학교 포함 (A27-UX 부록 O, 2026-11-21 · 사용자 승인 '학교 Master 검색 연결' · 구현됨)
 
 ```
-GET  /api/admin/assessment/schools/directory?query=<2~40자>
+GET  /api/admin/assessment/schools/directory?query=<2~40자>[&refresh=true]
 POST /api/admin/assessment/schools/directory/selection   { "candidateId": "dir_…" }
 ```
 
 - Assessment 전용 **읽기 전용** 학교 검색이다. 공식 학교알리미 검색·상세(기존 `SchoolInfoClient`)만 쓴다. 전역 학교 Master·학생 등록·학적을 만들지 않는다.
-- 검색 응답: `{ query, complete, incompleteReason, items[{ candidateId, officialName, sido, sigungu, address, schoolinfoSchoolId, schoolId, selectable, unselectableReason }] }`
-  - `complete=false`: 검색 결과를 모두 읽지 못했다(`SEARCH_TRUNCATED` 더보기 잘림 · `TOO_MANY_RESULTS` 15곳 초과 · `DETAIL_FAILED`). 그 검색의 후보는 모두 `selectable=false`(`SEARCH_INCOMPLETE`)다.
-  - `unselectableReason`: `ADDRESS_MISSING` · `ADDRESS_DUPLICATE`(같은 정식 이름·같은 주소) · `SEARCH_INCOMPLETE`.
+- 검색 응답: `{ query, complete, incompleteReason, unverifiedCount, items[{ candidateId, officialName, sido, sigungu, address, schoolinfoSchoolId, schoolId, selectable, unselectableReason }] }`
+  - `complete=false`: 검색 결과를 모두 읽지 못했다(`SEARCH_TRUNCATED` 더보기 잘림 · `TOO_MANY_RESULTS` 15곳 초과 · `DETAIL_FAILED`). **A28-45(2026-11-23 사용자 지시 · DRAFT): 목록 완전성과 학교 식별을 분리한다** — 목록이 불완전해도 후보 하나하나가 식별되면(학교알리미 ID 있음·이 검색 안에서 ID 중복 없음·상세 조회 성공·주소 있음·같은 정식 이름+주소 중복 없음) 그 후보는 `selectable=true`다. 화면은 불완전 경고를 그대로 보이고 자동 선택하지 않는다. (A27-UX 부록 O 의 '불완전하면 모두 고를 수 없음' 규칙을 대체)
+  - `unverifiedCount`: 상세 조회에 실패해 후보로 내지 못한 학교 수(A28-45). 0 보다 크면 그 검색은 캐시하지 않아 다시 검색하면 다시 확인한다.
+  - `unselectableReason`: `ADDRESS_MISSING` · `ADDRESS_DUPLICATE`(같은 정식 이름·같은 주소) · `ID_MISSING` · `ID_CONFLICT`(같은 검색 결과 안 학교알리미 ID 중복). `SEARCH_INCOMPLETE` 는 더 이상 내지 않는다.
+  - `refresh=true`: 캐시를 쓰지 않고 학교알리미에 다시 묻는다(검색 상한은 같다).
   - `schoolId`: 이 학교알리미 학교를 이미 쓰는(ACTIVE 매핑) 학교 키. 없으면 null.
   - `candidateId`는 서버가 이 검색에서 발급한 값이며 10분 동안 유효하다. 같은 검색어는 10분 캐시, 관리자당 1분 20회 외부 검색 상한이 있다.
 - 선택: 서버가 발급한 `candidateId`만 받는다. 학교 키는 서버가 정한다.
