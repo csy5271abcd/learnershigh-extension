@@ -58,6 +58,7 @@ class PlanReviewDraftApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_school_assessment");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_plan_confirmed_value");
         jdbc.update("delete from assessment_plan_review");
@@ -176,7 +177,7 @@ class PlanReviewDraftApiTest {
         List<Integer> statuses = calls.stream().map(CompletableFuture::join).sorted().toList();
         assertThat(statuses).containsExactly(200, 409);
         assertThat(jdbc.queryForObject("select version from assessment_plan_review_draft", Long.class)).isEqualTo(1L);
-        assertThat(jdbc.queryForObject("select json_length(history_json) from assessment_plan_review_draft", Integer.class)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review_draft_event", Integer.class)).isEqualTo(2);
     }
 
     @Test
@@ -218,6 +219,41 @@ class PlanReviewDraftApiTest {
                 .andExpect(jsonPath("$.details.latestAnalysisId").value(second));
         assertThat(jdbc.queryForObject("select payload_json from assessment_plan_review_draft where analysis_id = ?", String.class, analysisId))
                 .contains("\"55\"");
+    }
+
+    @Test
+    void 부록O_한_번에_확정은_읽은_초안_version이_그대로일_때만_되고_바뀌었으면_409로_확정_0건이다() throws Exception {
+        mvc.perform(asAdmin(put(draftPath()), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                .content(body(analysisId, null, "61", "subj_02"))).andExpect(status().isOk());
+        // 다른 관리자가 그사이 초안을 바꿈(version 0 → 1)
+        mvc.perform(asAdmin(put(draftPath()), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
+                .content(body(analysisId, 0L, "62", "subj_02"))).andExpect(status().isOk());
+        String review = PLANS + "/" + planId + "/revisions/" + revisionId + "/review";
+        String student = "/api/student/assessment/evaluation-plans/" + planId;
+        String bulk = """
+                {"analysisId":"%s","decision":"CONFIRM","expectedDraftVersion":%d,"bulk":true,"reviewedSubjects":[{"subjectId":"subj_02",
+                  "analysisSubjectIndex":0,"confirmedFields":[
+                  {"fieldPath":"performanceEvaluation.weightPercent","value":61,"pdfPageNumber":1},
+                  {"fieldPath":"performanceEvaluation.items[0].label","value":"탐구 보고서","pdfPageNumber":2}]}]}""";
+        mvc.perform(asAdmin(put(review), "adm_gangnam").contentType(MediaType.APPLICATION_JSON).content(bulk.formatted(analysisId, 0)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("BULK_CONFIRM_STALE"));
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).as("확정 0건").isZero();
+        mvc.perform(asStudent(get(student), "stu_001")).andExpect(status().isNotFound());
+
+        // 근거 쪽이 없는 값은 서버가 거절한다(한 번에 확정도 개별 확정과 같은 검사) — 확정 0건
+        String noPage = """
+                {"analysisId":"%s","decision":"CONFIRM","expectedDraftVersion":1,"bulk":true,"reviewedSubjects":[{"subjectId":"subj_02",
+                  "analysisSubjectIndex":0,"confirmedFields":[{"fieldPath":"performanceEvaluation.weightPercent","value":61,"pdfPageNumber":null}]}]}""";
+        mvc.perform(asAdmin(put(review), "adm_gangnam").contentType(MediaType.APPLICATION_JSON).content(noPage.formatted(analysisId)))
+                .andExpect(status().is4xxClientError());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
+
+        // 최신 version 이면 한 번에 확정된다 → 학생에게는 확정값만
+        mvc.perform(asAdmin(put(review), "adm_gangnam").contentType(MediaType.APPLICATION_JSON).content(bulk.formatted(analysisId, 1)))
+                .andExpect(status().isOk());
+        mvc.perform(asStudent(get(student), "stu_001")).andExpect(status().isOk()).andExpect(jsonPath("$.confirmedFields.length()").value(2));
+        mvc.perform(asAdmin(get(draftPath()), "adm_plan_operator")).andExpect(jsonPath("$.draft.status").value("CLOSED"));
     }
 
     @Test

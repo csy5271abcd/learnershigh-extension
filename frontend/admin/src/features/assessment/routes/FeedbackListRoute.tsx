@@ -69,7 +69,7 @@ export function FeedbackListRoute({ search }: { search: URLSearchParams }) {
               </div>
               <p className={styles.infoLine}>
                 <InfoIcon size={14} />
-                학생은 질문을 따로 쓰지 않고 버튼 하나로 수행평가 자료를 보내요. 요청 당시의 노트와 고른 파일 버전이 함께 저장돼요.
+                요청 당시의 노트와 파일 버전이 함께 저장돼요.
               </p>
               {items.length === 0 ? (
                 <ListEmpty

@@ -1,267 +1,214 @@
 import { useCallback, useState, type ComponentType, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { listFeedbackRequests } from '../api/assessmentDetailApi.ts'
+import { getEvaluationPlan, getEvaluationPlanTeachingPlan, listEvaluationPlans } from '../api/evaluationPlansApi.ts'
 import { listArchive } from '../api/growthArchiveApi.ts'
 import { assessmentToday, mockRuntimeInfo } from '../api/runtimeInfo.ts'
 import { AddSchoolAssessmentModal } from '../components/AddSchoolAssessmentModal.tsx'
-import { PdfImportModal } from '../components/pdf-import/PdfImportModal.tsx'
-import {
-  AlertIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-  BellIcon,
-  BulbIcon,
-  CalendarIcon,
-  ChevronDownIcon,
-  ClipboardIcon,
-  ClockIcon,
-  HelpIcon,
-  SparkleIcon,
-} from '../components/AssessmentIcons.tsx'
+import { AlertIcon, BellIcon, BulbIcon, ChatIcon, CheckIcon, ClipboardIcon, ClockIcon, HelpIcon } from '../components/AssessmentIcons.tsx'
+import { HomeMemoCard } from '../components/home/HomeMemoCard.tsx'
+import { HomeMonthCalendar } from '../components/home/HomeMonthCalendar.tsx'
+import { OfficialPlansCard } from '../components/home/OfficialPlansCard.tsx'
 import { usePopover } from '../components/detail/usePopover.ts'
 import styles from '../components/home/home.module.css'
-import {
-  AddAssessmentArt,
-  AiHelperArt,
-  CriteriaArt,
-  EnrichmentArt,
-  FeedbackArt,
-  GrowthArt,
-  PdfImportArt,
-} from '../components/home/QuickActionIcons.tsx'
-import { MockDataNotice } from '../components/MockDataNotice.tsx'
+import dash from '../components/home/homeDashboard.module.css'
+import { AddAssessmentArt, CriteriaArt, EnrichmentArt, FeedbackArt, GrowthArt } from '../components/home/QuickActionIcons.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
+import { entryFromRow, type TeachingPlanEntry } from '../components/teaching-plan/teachingPlanPlacement.ts'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
+import { termLabel } from '../model/academicTerm.ts'
 import { deadlineAlerts, defaultTargetAssessment, homeTitle } from '../model/assessmentHomeView.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import { relatedSourceLabels, subjectNameIn } from '../model/growthArchiveView.ts'
-import {
-  countByStatus,
-  formatDateWithWeekday,
-  formatDday,
-  formatShortDate,
-  statusLabels,
-  upcomingDeadlines,
-  urgentDays,
-} from '../model/schoolAssessmentView.ts'
-import { useApiQuery, type QueryResult } from '../model/useApiQuery.ts'
+import { countByStatus, formatDateWithWeekday, formatDday, formatShortDate, statusLabels, urgentDays } from '../model/schoolAssessmentView.ts'
+import { upcomingAssessments } from '../model/upcomingAssessments.ts'
+import { useApiQuery } from '../model/useApiQuery.ts'
 import {
   academicInfoPath,
   archiveSourcePath,
   enrichmentPath,
+  evaluationPlansPath,
   feedbackPath,
   growthPath,
   schoolAssessmentDetailPath,
+  schoolAssessmentsPath,
 } from './paths.ts'
-
-/** 개발 분석 미리보기 Flag일 때만 이름이 바뀐다 (기본 시연은 그대로 "PDF 가져오기") */
-const pdfActionLabel = (import.meta.env.DEV && import.meta.env.VITE_ASSESSMENT_DEV_ANALYSIS_PREVIEW === 'true') ? '평가계획서 가져오기' : 'PDF 가져오기'
 
 type QuickAction = {
   label: string
   icon: ComponentType<{ size?: number }>
 } & ({ to: string } | { onClick: () => void } | { reason: string })
 
-// Assessment 홈 (screen-map S24, student §3, Mockup ST_Assessment-Home_01~03: 기본·스크롤·알림 Popover 상태).
-// 홈 전용 요약 API가 없어 기존 계약만 다시 조회한다: 선택 학기 수행평가(§12, Layout 공용 조회),
-// 피드백 대기(§31 status=PENDING totalElements), 최근 업데이트한 기록(§30 tab=recent). 숫자를 따로 저장하지 않는다 (MM-42).
-// AI 입력창은 AI 연결 전(Stage 3)이라 입력·전송을 막고 사유를 보여준다. 알림은 마감 임박 과제를 계산해 보여줄 뿐 발송·읽음 처리 없음 (MM-43).
+// A27-UX 학생 홈 Dashboard (2026-11-19, 이미지 01~04). Toss Payments 정산 달력의 정보 위계·리듬만 참고했다(로고·결제 데이터·문구 복제 없음).
+// 위계: 헤더(학업 Context·제목) → 요약 KPI → 빠른 실행·공식 원본 3개년 → 넓은 월간 달력 + 보조 카드(다가오는 수행평가·피드백 요청) → 최근 기록·메모.
+// 숫자는 모두 서버 데이터에서 그때그때 계산한다(저장 Counter 없음). 학생 평가계획서 PDF 가져오기·AI 분석 진입점은 없앴다.
+/** A28-13: 최근 업데이트 기록은 최신 2개만 받아 보인다(데이터 단계에서 제한 — 바로가기 카드와 높이를 맞춘다) */
+const RECENT_LIMIT = 2
+
 export function AssessmentHomeRoute() {
   const { terms, selectedTerm, selectedContext, termAssessments, dataVersion, notifyDataChanged } = useAssessmentWorkspace()
   const today = assessmentToday()
   const items = termAssessments.data?.items ?? []
-  const [targetId, setTargetId] = useState<string>()
-  const target = items.find((item) => item.assessmentId === targetId) ?? defaultTargetAssessment(items, today)
+  const target = defaultTargetAssessment(items, today)
   const [addOpen, setAddOpen] = useState(false)
-  const [pdfOpen, setPdfOpen] = useState(false)
   const [toast, setToast] = useState<ToastMessage | null>(null)
   const dismissToast = useCallback(() => setToast(null), [])
   const notify = (tone: ToastMessage['tone'], text: string) => setToast((previous) => ({ id: (previous?.id ?? 0) + 1, tone, text }))
 
-  const pendingFeedback = useApiQuery(`home-feedback-pending|${dataVersion}`, () =>
-    listFeedbackRequests({ status: 'PENDING', page: 0, size: 1 }).then((response) => response.page.totalElements),
+  const feedbackCounts = useApiQuery(`home-feedback|${dataVersion}`, () =>
+    Promise.all([
+      listFeedbackRequests({ status: 'PENDING', page: 0, size: 1 }),
+      listFeedbackRequests({ status: 'DELIVERED', page: 0, size: 1 }),
+    ]).then(([pending, delivered]) => ({
+      pending: pending.page.totalElements,
+      delivered: delivered.page.totalElements,
+      latestPending: pending.items[0] ?? null,
+      latestDelivered: delivered.items[0] ?? null,
+    })),
   )
-  const recent = useApiQuery(`home-recent|${dataVersion}`, () => listArchive({ tab: 'recent', page: 0, size: 3 }))
+  const recent = useApiQuery(`home-recent|${dataVersion}`, () => listArchive({ tab: 'recent', page: 0, size: RECENT_LIMIT }))
 
   const counts = countByStatus(items)
-  const upcoming = upcomingDeadlines(items, today)
-  const alerts = deadlineAlerts(items, today)
+  const slot = selectedContext
+    ? { schoolId: selectedContext.school.schoolId, academicYear: selectedContext.academicYear, grade: selectedContext.grade, semester: selectedContext.semester }
+    : null
+  const slotKey = slot ? `${slot.schoolId}|${slot.academicYear}|${slot.grade}|${slot.semester}` : 'none'
+  const confirmedPlans = useApiQuery(`confirmed-evaluation-plans:${slotKey}`, () =>
+    slot ? listEvaluationPlans(slot).then((list) => Promise.all(list.items.map((plan) => getEvaluationPlan(plan.planId)))) : Promise.resolve([]),
+  )
+  const teaching = useApiQuery(`home-calendar|${slotKey}`, () =>
+    slot ? listEvaluationPlans(slot).then((list) => Promise.all(list.items.map((plan) => getEvaluationPlanTeachingPlan(plan.planId)))) : Promise.resolve([]),
+  )
   const contexts = terms.data?.contexts ?? []
+  const nameOf = (subjectId: string) => subjectNameIn(contexts, subjectId) ?? '과목'
+  const planEntries: TeachingPlanEntry[] = (teaching.data ?? [])
+    .filter((plan) => plan.status === 'CONFIRMED')
+    // A28-33: id = 개인 임시 배치 저장 키(§30-b sourceKey) — 목록 순서가 아니라 문서 ID로 고정
+    .flatMap((plan) =>
+      plan.rows.map((row) => entryFromRow(row, { id: `${plan.planId}|${row.subjectId}|${row.rowKey}`, subjectName: nameOf(row.subjectId), status: 'CONFIRMED', academicYear: plan.academicYear })),
+    )
+  const upcoming = upcomingAssessments(items, confirmedPlans.data ?? [], selectedContext, today)
+  // 날짜 미정 학교 공개 수행평가는 3개까지만 보인다 — 최근 등록된 평가계획서의 항목부터(같은 문서 안 순서는 원문 그대로)
+  const planUploaded = new Map((confirmedPlans.data ?? []).map((plan) => [plan.planId, plan.uploadedAt]))
+  // A28-20: 지난 시기는 뒤로, 같은 묶음 안에서는 최근 문서 먼저
+  const officialRecentFirst = [...upcoming.officialUndated].sort(
+    (a, b) => Number(Boolean(a.past)) - Number(Boolean(b.past)) || (planUploaded.get(b.planId) ?? '').localeCompare(planUploaded.get(a.planId) ?? ''),
+  )
+  const urgent = upcoming.dated.filter((entry) => entry.days <= urgentDays)
+  const alerts = deadlineAlerts(items, today)
   const noAcademicInfo = terms.status !== 'loading' && !selectedContext && !(terms.status === 'error')
+  const loadingItems = !termAssessments.data && termAssessments.status === 'loading'
 
   const quickActions: QuickAction[] = [
-    selectedContext
-      ? { label: pdfActionLabel, icon: PdfImportArt, onClick: () => setPdfOpen(true) }
-      : { label: pdfActionLabel, icon: PdfImportArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
     selectedContext
       ? { label: '수행평가 추가', icon: AddAssessmentArt, onClick: () => setAddOpen(true) }
       : { label: '수행평가 추가', icon: AddAssessmentArt, reason: '학교·학업 정보를 먼저 확인해 주세요.' },
     target
       ? { label: '평가 기준 보기', icon: CriteriaArt, to: schoolAssessmentDetailPath(target.assessmentId) }
       : { label: '평가 기준 보기', icon: CriteriaArt, reason: '평가 기준을 볼 수행평가가 아직 없어요.' },
-    target
-      ? { label: 'AI 도우미', icon: AiHelperArt, to: `${schoolAssessmentDetailPath(target.assessmentId)}?panel=ai` }
-      : { label: 'AI 도우미', icon: AiHelperArt, reason: 'AI 도우미를 열 수행평가가 아직 없어요.' },
     { label: '심화 탐구', icon: EnrichmentArt, to: enrichmentPath },
     { label: '선생님 피드백', icon: FeedbackArt, to: feedbackPath },
     { label: '성장 기록', icon: GrowthArt, to: growthPath },
   ]
 
+  const kpi = (value: number | undefined) => (termAssessments.status === 'error' ? '–' : value === undefined ? '…' : `${value}개`)
+
   return (
-    <main className={styles.page}>
-      <div className={styles.topActions}>
-        <NotificationButton alerts={alerts} today={today} loading={!termAssessments.data && termAssessments.status === 'loading'} />
-        <button
-          type="button"
-          className={styles.iconButton}
-          aria-label="도움말"
-          aria-disabled="true"
-          onClick={() => notify('info', '도움말은 아직 준비 중이에요. 왼쪽 메뉴의 수행평가 꿀팁을 참고해 주세요.')}
-        >
-          <HelpIcon size={20} />
-        </button>
-      </div>
-
-      <div className={styles.column}>
-        <header className={styles.hero}>
-          <h1 className={styles.title}>{homeTitle(selectedTerm, terms.data?.currentTerm)}</h1>
-          <p className={styles.summary} aria-live="polite">
-            {termAssessments.status === 'error'
-              ? '수행평가 현황을 불러오지 못했어요.'
-              : termAssessments.data
-                ? `진행 중 ${counts.IN_PROGRESS}개 · 시작 전 ${counts.BEFORE_START}개`
-                : noAcademicInfo
-                  ? '학교·학업 정보를 먼저 확인해 주세요.'
-                  : '불러오는 중…'}
-          </p>
-        </header>
-
-        {terms.status === 'error' && terms.error && (
-          <div className={styles.section}>
-            <ErrorState title="학업 정보를 불러오지 못했어요" error={terms.error} onRetry={terms.retry} />
-          </div>
-        )}
-        {noAcademicInfo && (
-          <div className={styles.section}>
-            <EmptyState
-              title="학교·학업 정보가 없어요"
-              description="학교와 학기를 확인하면 수행평가를 정리할 수 있어요."
-              action={<Link to={academicInfoPath}>학교·학업 정보로 가기</Link>}
-            />
-          </div>
-        )}
-
-        <section className={styles.aiBox} aria-label="AI 도우미 (준비 중)">
-          <label className="lh-visually-hidden" htmlFor="home-ai-input">
-            AI 도우미에게 질문 (준비 중)
-          </label>
-          <textarea id="home-ai-input" className={styles.aiInput} rows={1} placeholder="어떤 수행평가를 도와드릴까요?" disabled />
-          <div className={styles.aiRow}>
-            {items.length > 0 && target && (
-              <span className={styles.targetSelect}>
-                <ClipboardIcon size={15} className={styles.targetIcon} />
-                <label className="lh-visually-hidden" htmlFor="home-ai-target">
-                  대상 수행평가
-                </label>
-                <select id="home-ai-target" value={target.assessmentId} onChange={(event) => setTargetId(event.target.value)}>
-                  {items.map((item) => (
-                    <option key={item.assessmentId} value={item.assessmentId}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDownIcon size={14} className={styles.targetChevron} />
-              </span>
-            )}
-            <button
-              type="button"
-              className={styles.sendButton}
-              aria-label="보내기 (준비 중)"
-              aria-disabled="true"
-              onClick={() => notify('info', 'AI 도우미 대화는 AI 기능이 연결되는 단계(Stage 3)에서 제공돼요. 아래 "AI 도우미"로 과제의 AI 탭을 열 수 있어요.')}
-            >
-              <ArrowUpIcon size={16} />
-            </button>
-          </div>
-        </section>
-        <p className={styles.aiHint}>
-          <SparkleIcon size={14} />
-          선택한 수행평가의 평가 기준과 내 노트를 바탕으로 답할 예정이에요. 과제를 대신 써 주지는 않아요. (준비 중)
-        </p>
-      </div>
-
-      {/* 빠른 실행만 본문 열(640px)보다 넓게 두어 데스크톱에서 7개를 한 줄로 놓는다 (Daglo 홈 배치) */}
-      <ul className={styles.quickGrid} aria-label="바로가기">
-        {quickActions.map((action) => (
-          <li key={action.label}>
-            <QuickActionButton action={action} onUnavailable={(reason) => notify('info', reason)} />
-          </li>
-        ))}
-      </ul>
-
-      <div className={styles.column}>
-        <WaitingFeedback query={pendingFeedback} />
-
-        <section className={styles.section} aria-labelledby="home-upcoming">
-          <h2 id="home-upcoming" className={styles.sectionLabel}>
-            <CalendarIcon size={15} />
-            다가오는 일정
-          </h2>
-          {termAssessments.status === 'error' && termAssessments.error ? (
-            <ErrorState title="수행평가를 불러오지 못했어요" error={termAssessments.error} onRetry={termAssessments.retry} />
-          ) : !termAssessments.data ? (
-            noAcademicInfo ? null : <LoadingRows rows={3} label="다가오는 일정을 불러오는 중" />
-          ) : upcoming.length === 0 ? (
-            <p className={styles.muted}>
-              {items.length === 0 ? '이 학기에 등록한 수행평가가 없어요.' : '마감일이 정해진, 아직 끝나지 않은 수행평가가 없어요.'}
+    <main className={dash.page}>
+      <header className={dash.header}>
+        <div className={dash.headerText}>
+          {selectedContext && (
+            <p className={dash.context} data-testid="home-context">
+              {selectedContext.school.name} · {termLabel(selectedContext)}
             </p>
-          ) : (
-            <ul className={styles.deadlineList}>
-              {upcoming.map(({ assessment, days }) => (
-                <li key={assessment.assessmentId}>
-                  <Link to={schoolAssessmentDetailPath(assessment.assessmentId)} className={styles.deadlineRow}>
-                    <span className={styles.dday} data-urgent={days <= urgentDays}>
-                      {formatDday(days)}
-                    </span>
-                    <span className={styles.deadlineTitle}>{assessment.title}</span>
-                    <span className={styles.deadlineMeta}>
-                      {[subjectNameIn(contexts, assessment.subjectId), '마감', formatShortDate(assessment.deadlineDate as string)].filter(Boolean).join(' · ')}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
           )}
-        </section>
+          <h1 className={dash.title}>{homeTitle(selectedTerm, terms.data?.currentTerm)}</h1>
+        </div>
+        <div className={styles.topActions} style={{ position: 'static' }}>
+          <NotificationButton alerts={alerts} today={today} loading={loadingItems} />
+          <button
+            type="button"
+            className={styles.iconButton}
+            aria-label="도움말"
+            aria-disabled="true"
+            onClick={() => notify('info', '도움말은 아직 준비 중이에요.')}
+          >
+            <HelpIcon size={20} />
+          </button>
+        </div>
+      </header>
 
-        <section className={styles.section} aria-labelledby="home-recent" aria-busy={recent.isRefreshing}>
-          <h2 id="home-recent" className={styles.sectionLabel}>
-            <ClockIcon size={15} />
-            최근 업데이트한 기록
+      {terms.status === 'error' && terms.error && <ErrorState title="학업 정보를 불러오지 못했어요" error={terms.error} onRetry={terms.retry} />}
+      {noAcademicInfo && (
+        <EmptyState
+          title="학교·학업 정보가 없어요"
+          description="학교·학기 확인 후 수행평가 정리"
+          action={<Link to={academicInfoPath}>학교·학업 정보로 가기</Link>}
+        />
+      )}
+
+      {/* 요약 KPI: 한 카드 안 4칸 (Toss 정산 요약처럼) — 실제 서버 데이터로 계산 */}
+      <dl className={dash.kpis} aria-label="이번 학기 수행평가 요약" data-testid="home-kpis">
+        <Kpi tone="blue" icon={<ClockIcon size={16} />} label="진행 중" value={kpi(termAssessments.data ? counts.IN_PROGRESS : undefined)} testId="kpi-in-progress" />
+        <Kpi tone="orange" icon={<AlertIcon size={16} />} label={`임박 (${urgentDays}일 이내)`} value={kpi(termAssessments.data ? urgent.length : undefined)} testId="kpi-urgent" />
+        <Kpi
+          tone="purple"
+          icon={<ChatIcon size={16} />}
+          label="피드백 답변 대기"
+          value={feedbackCounts.status === 'error' ? '미확인' : feedbackCounts.data ? `${feedbackCounts.data.pending}건` : '…'}
+          testId="kpi-feedback"
+        />
+        <Kpi tone="green" icon={<CheckIcon size={16} />} label="완료" value={kpi(termAssessments.data ? counts.COMPLETED : undefined)} testId="kpi-completed" />
+      </dl>
+
+      {/* A28-14/15 (2026-11-22 사용자 지정 순서): KPI → [바로가기 | 최근 업데이트(최신 2개, 같은 높이)] → 평가계획서 원본 3개년(전체 폭)
+          → [Calendar(약 7) | 다가오는 수행평가(위) · 수행평가 메모(아래)(약 3)]. 피드백 요청 현황 카드는 홈에서 뺐다(선생님 피드백 메뉴·KPI 는 그대로). 좁으면 세로로 쌓는다 */}
+      <div className={dash.rowQuickRecent} data-testid="home-row-quick-recent">
+        <section className={dash.card} aria-labelledby="home-quick">
+          <h2 id="home-quick" className={dash.cardTitle}>
+            바로가기
+          </h2>
+          {/* 기존 아이콘 그림·모양은 그대로 두고 배치만 바꿨다. 학생 PDF 가져오기는 없앴다 */}
+          <ul className={dash.quickGrid} aria-label="바로가기">
+            {quickActions.map((action) => (
+              <li key={action.label}>
+                <QuickActionButton action={action} onUnavailable={(reason) => notify('info', reason)} />
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className={dash.card} aria-labelledby="home-recent" aria-busy={recent.isRefreshing} data-testid="home-recent">
+          <h2 id="home-recent" className={dash.cardTitle}>
+            최근 업데이트 기록
           </h2>
           {recent.status === 'error' && recent.error ? (
             <ErrorState title="최근 기록을 불러오지 못했어요" error={recent.error} onRetry={recent.retry} />
           ) : !recent.data ? (
-            <LoadingRows rows={1} label="최근 기록을 불러오는 중" />
+            <LoadingRows rows={2} label="최근 기록을 불러오는 중" />
           ) : recent.data.items.length === 0 ? (
-            <p className={styles.muted}>아직 기록이 없어요. 수행평가나 심화 탐구를 시작하면 여기에 보여요.</p>
+            <p className={dash.muted}>아직 기록 없음 · 수행평가·심화 탐구를 시작하면 표시</p>
           ) : (
-            <ul className={styles.recentGrid}>
-              {recent.data.items.map((item) => {
+            <ul className={dash.recentList}>
+              {recent.data.items.slice(0, RECENT_LIMIT).map((item) => {
                 const Icon = item.sourceType === 'SCHOOL_ASSESSMENT' ? ClipboardIcon : BulbIcon
-                const path = archiveSourcePath(item.sourceType, item.sourceId)
                 const status = item.status && item.status in statusLabels ? statusLabels[item.status as keyof typeof statusLabels] : null
                 return (
                   <li key={`${item.sourceType}:${item.sourceId}`}>
-                    <Link to={path} className={styles.recentCard}>
-                      <span className={styles.recentType}>
+                    <Link to={archiveSourcePath(item.sourceType, item.sourceId)} className={dash.recentRow} data-testid="home-recent-row">
+                      <span className={dash.recentIcon}>
                         <Icon size={14} />
-                        {relatedSourceLabels[item.sourceType]}
                       </span>
-                      <span className={styles.recentTitle} title={item.title}>
-                        {item.title}
+                      <span className={dash.upcomingText}>
+                        <span className={dash.upcomingTitle} title={item.title}>
+                          {item.title}
+                        </span>
+                        <span className={dash.upcomingMeta}>
+                          {[relatedSourceLabels[item.sourceType], subjectNameIn(contexts, item.subjectId), status].filter(Boolean).join(' · ')}
+                        </span>
                       </span>
-                      <span className={styles.recentMeta}>{[subjectNameIn(contexts, item.subjectId), status].filter(Boolean).join(' · ')}</span>
+                      <time className={dash.recentTime} dateTime={item.lastActivityAt}>
+                        {formatActivity(item.lastActivityAt)}
+                      </time>
                     </Link>
                   </li>
                 )
@@ -269,13 +216,114 @@ export function AssessmentHomeRoute() {
             </ul>
           )}
         </section>
+      </div>
 
-        <div className={styles.notices}>
-          <MockDataNotice />
+      {selectedContext && <OfficialPlansCard academicYear={selectedContext.academicYear} semester={selectedContext.semester} />}
+
+      <div className={dash.rowCalendarSide} data-testid="home-row-calendar">
+        {selectedContext && (
+          <div className={dash.calendarMain} data-testid="home-calendar-main">
+            {/* A28-23: 월간 달력(일~토 날짜 칸) 복원 — 과목별 운영계획·수행·마감·지필을 날짜 칸에 배지로, 날짜 미정은 달력 아래 */}
+            <HomeMonthCalendar
+              key={`${selectedContext.academicYear}-${selectedContext.semester}`}
+              academicYear={selectedContext.academicYear}
+              semester={selectedContext.semester}
+              today={today}
+              assessments={items}
+              confirmedPlans={confirmedPlans.data ?? []}
+              context={selectedContext}
+              subjectName={nameOf}
+              planEntries={planEntries}
+              planStatus={teaching.status === 'error' ? 'error' : teaching.data ? 'success' : 'loading'}
+            />
+          </div>
+        )}
+        <div className={dash.calendarSide} data-testid="home-calendar-side">
+          <section className={dash.card} aria-labelledby="home-upcoming" data-testid="home-upcoming">
+            <div className={dash.cardHead}>
+              <h2 id="home-upcoming" className={dash.cardTitle}>
+                다가오는 수행평가
+              </h2>
+              <Link to={schoolAssessmentsPath} className={dash.textLink}>
+                전체 보기
+              </Link>
+            </div>
+            {termAssessments.status === 'error' && termAssessments.error ? (
+              <ErrorState title="수행평가를 불러오지 못했어요" error={termAssessments.error} onRetry={termAssessments.retry} />
+            ) : !termAssessments.data ? (
+              <LoadingRows rows={3} label="다가오는 일정을 불러오는 중" />
+            ) : upcoming.dated.length === 0 ? (
+              <p className={dash.muted}>{items.length === 0 ? '이 학기에 등록한 수행평가가 없어요.' : '날짜가 정해진 다가오는 수행평가 없음'}</p>
+            ) : (
+              <ul className={dash.upcomingList} data-testid="home-upcoming-dated">
+                {upcoming.dated.slice(0, 5).map(({ assessment, days, dateKind }) => (
+                  <li key={assessment.assessmentId}>
+                    <Link to={schoolAssessmentDetailPath(assessment.assessmentId)} className={dash.upcomingRow} data-testid="home-upcoming-row">
+                      <span className={dash.dday} data-urgent={days <= urgentDays || undefined}>
+                        {formatDday(days)}
+                      </span>
+                      <span className={dash.upcomingText}>
+                        <span className={dash.upcomingTitle}>{assessment.title}</span>
+                        <span className={dash.upcomingMeta}>
+                          {[
+                            nameOf(assessment.subjectId),
+                            assessment.evaluationDate ? `평가 ${formatShortDate(assessment.evaluationDate)}` : null,
+                            assessment.deadlineDate ? `마감 ${formatShortDate(assessment.deadlineDate)}` : null,
+                            dateKind === 'evaluation' ? '평가일 기준' : null,
+                            statusLabels[assessment.status],
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {confirmedPlans.status === 'error' ? (
+              <p className={dash.muted} role="alert" data-testid="home-upcoming-official-error">
+                학교 공개 수행평가를 불러오지 못했어요.{' '}
+                <button type="button" className={dash.inlineButton} onClick={confirmedPlans.retry}>
+                  다시 시도
+                </button>
+              </p>
+            ) : upcoming.officialUndated.length > 0 ? (
+              <div data-testid="home-upcoming-official">
+                <p className={dash.muted}>학교 공개 수행평가 · 날짜 미정 (D-day 없음)</p>
+                <ul className={dash.upcomingList}>
+                  {officialRecentFirst.slice(0, 3).map((entry) => (
+                    <li key={entry.key}>
+                      <Link
+                        to={entry.assessmentId ? schoolAssessmentDetailPath(entry.assessmentId) : evaluationPlansPath}
+                        className={dash.upcomingRow}
+                        data-testid="home-upcoming-official-row"
+                        data-registered={entry.assessmentId ? 'true' : undefined}
+                        data-past={entry.past ? 'true' : undefined}
+                      >
+                        <span className={dash.dday}>{entry.past ? '지남' : '미정'}</span>
+                        <span className={dash.upcomingText}>
+                          <span className={dash.upcomingTitle}>{entry.label}</span>
+                          <span className={dash.upcomingMeta}>
+                            {[entry.subjectName ?? subjectNameIn(contexts, entry.subjectId), entry.timing ? `학교 안내 시기 ${entry.timing}` : '시기 미확정', entry.past ? '지난 시기' : null, entry.assessmentId ? '내 수행평가에 등록됨' : '선생님 확정'].filter(Boolean).join(' · ')}
+                          </span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {upcoming.officialUndated.length > 3 && (
+                  <Link to={evaluationPlansPath} className={dash.textLink}>
+                    학교 공개 수행평가 {upcoming.officialUndated.length}개 모두 보기
+                  </Link>
+                )}
+              </div>
+            ) : null}
+          </section>
+          <HomeMemoCard />
         </div>
       </div>
 
-      {pdfOpen && <PdfImportModal onClose={() => setPdfOpen(false)} onManualAdd={() => setAddOpen(true)} />}
       {addOpen && selectedContext && (
         <AddSchoolAssessmentModal
           context={selectedContext}
@@ -290,6 +338,29 @@ export function AssessmentHomeRoute() {
       )}
       <Toast message={toast} onDismiss={dismissToast} />
     </main>
+  )
+}
+
+/** 실제 변경 시각 (한국 시간 기준 'M월 D일 HH:mm') */
+function formatActivity(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(date)
+  const part = (type: string) => parts.find((entry) => entry.type === type)?.value ?? ''
+  return `${part('month')}월 ${part('day')}일 ${part('hour')}:${part('minute')}`
+}
+
+function Kpi({ tone, icon, label, value, testId }: { tone: 'blue' | 'orange' | 'purple' | 'green'; icon: ReactNode; label: string; value: string; testId: string }) {
+  return (
+    <div className={dash.kpi} data-testid={testId}>
+      <dt className={dash.kpiLabel}>
+        <span className={dash.kpiIcon} data-tone={tone} aria-hidden="true">
+          {icon}
+        </span>
+        {label}
+      </dt>
+      <dd className={dash.kpiValue}>{value}</dd>
+    </div>
   )
 }
 
@@ -320,36 +391,6 @@ function QuickActionButton({ action, onUnavailable }: { action: QuickAction; onU
     <button type="button" className={styles.quickAction} aria-disabled="true" onClick={() => onUnavailable(action.reason)}>
       {content}
     </button>
-  )
-}
-
-function WaitingFeedback({ query }: { query: QueryResult<number> }) {
-  if (query.status === 'error' && query.error) {
-    return (
-      <div className={styles.section}>
-        <ErrorState title="피드백 요청 상태를 불러오지 못했어요" error={query.error} onRetry={query.retry} />
-      </div>
-    )
-  }
-  if (!query.data) return null
-  return (
-    <section className={styles.waitingCard} aria-labelledby="home-waiting">
-      <span className={styles.waitingIcon} aria-hidden="true">
-        <ClockIcon size={22} />
-      </span>
-      <span className={styles.waitingText}>
-        <span id="home-waiting" className={styles.waitingTitle}>
-          선생님 답변을 기다리고 있어요
-        </span>
-        <span className={styles.waitingDescription}>
-          대기 중인 요청 {query.data}건. 답변이 오면 선생님 피드백에서 확인할 수 있어요. 그동안 노트를 자유롭게 이어서 써도 돼요.
-        </span>
-      </span>
-      <Link to={`${feedbackPath}?status=PENDING`} className={styles.inkButton}>
-        요청 보기
-        <ArrowRightIcon size={15} />
-      </Link>
-    </section>
   )
 }
 
@@ -392,7 +433,7 @@ function NotificationButton({ alerts, today, loading }: { alerts: ReturnType<typ
             </ul>
           )}
           <p className={styles.popoverHint}>
-            {mockRuntimeInfo() ? '시연 기준일' : '오늘'} {today}부터 {urgentDays}일 안에 마감인 과제예요. 푸시 알림·읽음 표시는 아직 없어요.
+            {mockRuntimeInfo() ? '시연 기준일' : '오늘'} {today}부터 {urgentDays}일 안에 마감인 과제예요.
           </p>
         </div>
       )}

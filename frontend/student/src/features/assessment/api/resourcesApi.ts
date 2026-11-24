@@ -54,6 +54,23 @@ export function listSharedResources(): Promise<{ items: http.SharedResource[] }>
   return isMockDataSource ? Promise.resolve({ items: [] }) : http.listSharedResourcesHttp()
 }
 
+const noMockFile = () =>
+  Promise.reject(new ApiError(503, { code: 'ASSESSMENT_API_NOT_CONNECTED', message: '시연(Mock) 데이터에서는 파일을 올리거나 열 수 없어요.', details: {} }))
+
+/** A27-UX §22-1 DRAFT 자료 파일 첨부(교체). 형식·크기는 서버가 다시 검사한다 */
+export function attachResourceFile(resourceId: string, file: File): Promise<StudentResource> {
+  return guardWrite('attachResourceFile', () => (isMockDataSource ? noMockFile() : http.attachResourceFileHttp(resourceId, file)))
+}
+export function detachResourceFile(resourceId: string): Promise<StudentResource> {
+  return guardWrite('detachResourceFile', () => (isMockDataSource ? noMockFile() : http.detachResourceFileHttp(resourceId)))
+}
+export function downloadResourceFile(resourceId: string): Promise<Blob> {
+  return isMockDataSource ? noMockFile() : http.downloadResourceFileHttp(resourceId)
+}
+export function previewResourceFile(resourceId: string): Promise<Blob> {
+  return isMockDataSource ? noMockFile() : http.previewResourceFileHttp(resourceId)
+}
+
 /** 자료 휴지통 이동 (소프트 삭제) */
 export function trashResource(resourceId: string): Promise<void> {
   return guardWrite('trashResource', () =>

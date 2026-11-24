@@ -4,6 +4,13 @@
 > 세부 기능 동작은 Feature Spec, Entity/State는 각 담당자의 `domain.md`, API 형식은 `docs/api/api-contract.md`를 최종 기준으로 한다.  
 > 이 문서는 구현 세부사항보다 **시스템을 어떤 단위로 나누고, 각 단위가 어떻게 연결되는지**를 설명하는 상위 Architecture 문서다.
 
+> **현행 구조(2026-11-24, `main` `5b9db4b` 기준 — 아래 본문보다 우선)**
+> - Surface: `frontend/student`(학생) · `frontend/admin`(관리자) 두 개. Mentor Surface(`frontend/mentor/`)는 2026-11-16 퇴역·삭제(A20).
+> - Feature: Assessment(`features/assessment`, Suyeon — 학생·관리자) · 학생 케어(`frontend/admin/src/features/student-care`, Wangyu). 본문의 Mentor Hub·School & Admissions·Admin Student Management·Parent Progress·Feedback Dashboard·Today Board 는 초기 설계로 **퇴역(legacy/retired)** 했다.
+> - Backend Domain: `assessment/` · `studentcare/` · `common/`. 평가계획서 분석은 Backend 안의 `local` 분석기(외부 Railway HTTP 분석기는 퇴역).
+> - `frontend/shared/` 는 **예정(현재 미생성)**.
+> - 운영·배포·실제 로그인(Actor Provider) 연동은 **1팀 담당**(이 문서 범위 밖, 운영 투입 전 통합 필요). 담당 기준: `docs/OWNERSHIP.md` 0절.
+
 ---
 
 # 1. Architecture Goal
@@ -195,7 +202,7 @@ frontend/admin/src/features/
 
 ---
 
-## 3-3. Mentor Surface
+## 3-3. Mentor Surface (퇴역 — 2026-11-16 삭제, 초기 설계 기록)
 
 Mentor가 자신의 경험 콘텐츠를 관리하고
 학생의 익명 질문에 답변하는 Surface.
@@ -219,13 +226,13 @@ Mentor
 - 관련 Content 연결
 - Profile 관리
 
-Frontend 위치:
+Frontend 위치(**퇴역 — 2026-11-16 삭제, 현재 없음**):
 
 ```text
 frontend/mentor/
 ```
 
-예:
+예(초기 설계 기록):
 
 ```text
 frontend/mentor/src/features/

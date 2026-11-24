@@ -6,10 +6,11 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { getResource, trashResource, updateResource } from '../api/resourcesApi.ts'
 import type { StudentResource, UpdateResourceRequest } from '../api/types.ts'
 import formStyles from '../components/AddSchoolAssessmentModal.module.css'
-import { AlertIcon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, InfoIcon, LinkIcon, NoteIcon, PencilIcon, SparkleIcon } from '../components/AssessmentIcons.tsx'
+import { AlertIcon, ChevronDownIcon, ChevronLeftIcon, LinkIcon, NoteIcon, PencilIcon } from '../components/AssessmentIcons.tsx'
 import enrichmentStyles from '../components/enrichment/enrichment.module.css'
 import { MockDataNotice } from '../components/MockDataNotice.tsx'
 import styles from '../components/resources/resources.module.css'
+import { ResourceFileRow } from '../components/resources/ResourceFileRow.tsx'
 import { ResourceTypeIcon } from '../components/resources/ResourceTypeIcon.tsx'
 import { EmptyState, ErrorState, LoadingRows } from '../components/StateViews.tsx'
 import { Toast, type ToastMessage } from '../components/Toast.tsx'
@@ -17,7 +18,6 @@ import { formatDateTime } from '../model/assessmentDetailView.ts'
 import { useAssessmentWorkspace } from '../model/assessmentWorkspace.ts'
 import {
   formatPublishedDate,
-  hasSourceInfo,
   isValidUrlFormat,
   parseTags,
   publishedDatePattern,
@@ -76,7 +76,6 @@ export function ResourceDetailRoute() {
   }
   if (!resource) return frame(<LoadingRows rows={4} label="자료를 불러오는 중" />)
 
-  const filled = hasSourceInfo(resource)
 
   return frame(
     <article aria-labelledby="resource-title">
@@ -86,10 +85,6 @@ export function ResourceDetailRoute() {
       <div className={styles.detailBadges}>
         <span className={enrichmentStyles.badge} data-tone="neutral">
           {resourceTypeLabel(resource.type)}
-        </span>
-        <span className={styles.sourceBadge} data-state={filled ? 'filled' : 'missing'}>
-          {filled ? <CheckIcon size={12} /> : <InfoIcon size={12} />}
-          {filled ? '출처 정보 입력됨' : '출처 확인 필요'}
         </span>
       </div>
 
@@ -120,22 +115,13 @@ export function ResourceDetailRoute() {
               <NoteIcon size={14} />
               노트에 추가
             </button>
-            <button
-              type="button"
-              className={enrichmentStyles.outlineButton}
-              aria-disabled="true"
-              onClick={() => notify('info', 'AI 요약은 AI 기능이 연결되는 단계(Stage 3)에서 제공돼요.')}
-            >
-              <SparkleIcon size={14} />
-              AI 요약
-            </button>
             {!isAssessmentReadOnlyView() && !isMockDataSource && (
               <button
                 type="button"
                 className={enrichmentStyles.outlineButton}
                 data-testid="trash-resource"
                 onClick={() => {
-                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                  if (!window.confirm(`'${resource.title}' 자료를 휴지통으로 옮길까요?`)) return
                   trashResource(resource.resourceId).then(
                     () => navigate(resourcesPath),
                     (error: Error) => notify('error', `옮기지 못했어요. ${error.message}`),
@@ -166,17 +152,15 @@ export function ResourceDetailRoute() {
                     <LinkIcon size={13} /> {resource.sourceUrl}
                   </a>
                   <br />
-                  <span className={styles.muted}>직접 입력한 링크예요. 열리는지·원문이 맞는지는 확인하지 않았어요.</span>
+                  <span className={styles.muted}>직접 입력한 링크예요.</span>
                 </>
               ) : (
                 <span className={styles.muted}>링크 없음</span>
               )}
             </PropRow>
-            {resource.fileRef && (
-              <PropRow label="첨부 파일">
-                <span className={styles.muted}>파일 저장소가 연결되기 전이라 열 수 없어요. (시연 데이터)</span>
-              </PropRow>
-            )}
+            <PropRow label="첨부 파일">
+              <ResourceFileRow resource={resource} readOnly={isAssessmentReadOnlyView()} onChanged={() => setVersion((value) => value + 1)} notify={notify} />
+            </PropRow>
             <PropRow label="메모">{resource.memo ?? <span className={styles.muted}>메모 없음</span>}</PropRow>
             <PropRow label="태그">
               {resource.tags.length > 0 ? (

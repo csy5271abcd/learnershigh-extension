@@ -83,10 +83,11 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: var(--as-text-meta);
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
@@ -112,10 +113,11 @@
 .planOriginalLink {
   display: inline-block;
   margin: 4px 0 0 40px;
-  color: var(--as-color-primary);
+  color: var(--as-color-text-secondary);
   font-size: 12px;
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .planOriginalLink:hover {
@@ -219,7 +221,7 @@
 }
 
 .guideTitle svg {
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
 }
 
 .guideList {
@@ -339,7 +341,7 @@
 .candidateBanner svg {
   flex: none;
   margin-top: 2px;
-  color: var(--as-color-primary);
+  color: var(--as-color-text-secondary);
 }
 
 .subjectTab {
@@ -515,7 +517,8 @@
   gap: 4px;
   margin: 0;
   padding: 10px 12px;
-  border-left: 3px solid var(--as-color-line);
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
   background: var(--as-color-subtle);
   font-size: var(--as-text-meta);
 }

@@ -27,6 +27,14 @@ function toResponse(record: SchoolAssessmentRecord): SchoolAssessment {
     deadlineDate: record.deadlineDate,
     createdAt: record.createdAt,
     evaluationItemRef: record.evaluationItemRef,
+    // A27-UX 학생 개인 관리 정보 (§12 DRAFT) — Backend 응답과 같은 필드
+    description: record.description ?? null,
+    assessmentType: record.assessmentType ?? null,
+    assessmentTypeLabel: record.assessmentTypeLabel ?? null,
+    evaluationDate: record.evaluationDate ?? null,
+    weightPercent: record.weightPercent ?? null,
+    submissions: record.submissions ?? null,
+    personalMemo: record.personalMemo ?? null,
   }
 }
 
@@ -103,8 +111,19 @@ export function createSchoolAssessmentMock(request: CreateSchoolAssessmentReques
     const context = mockStore.academicContexts.find(
       (item) => item.academicYear === request.academicYear && item.semester === request.semester,
     )
+    // A27-UX(§12-a): 이름으로 보낸 과목은 같은 이름이 있으면 재사용, 없으면 학생 과목으로 더한다(Mock: 이 탭 메모리)
+    const newName = request.newSubjectName?.trim().replace(/\s+/g, ' ')
+    let subjectId = request.subjectId
     if (!context) fields.push({ field: 'semester', reason: 'unknown' })
-    else if (!context.subjects.some((subject) => subject.subjectId === request.subjectId)) {
+    else if (newName) {
+      const key = newName.replace(/\s+/g, '').toLowerCase()
+      const same = context.subjects.find((subject) => subject.name.replace(/\s+/g, '').toLowerCase() === key)
+      if (same) subjectId = same.subjectId
+      else {
+        subjectId = nextMockId('psubj')
+        context.subjects.push({ subjectId, name: newName, addedByStudent: true })
+      }
+    } else if (!context.subjects.some((subject) => subject.subjectId === request.subjectId)) {
       fields.push({ field: 'subjectId', reason: request.subjectId ? 'unknown' : 'required' })
     }
     if (request.deadlineDate !== null && !datePattern.test(request.deadlineDate)) {
@@ -118,7 +137,7 @@ export function createSchoolAssessmentMock(request: CreateSchoolAssessmentReques
     const record: SchoolAssessmentRecord = {
       assessmentId: nextMockId('assessment'),
       title,
-      subjectId: request.subjectId,
+      subjectId: subjectId ?? '',
       status: request.status,
       deadlineDate: request.deadlineDate,
       createdAt: mockNow(),
@@ -126,6 +145,12 @@ export function createSchoolAssessmentMock(request: CreateSchoolAssessmentReques
       academicYear: request.academicYear,
       semester: request.semester,
       description: request.description?.trim() || null,
+      assessmentType: request.assessmentType ?? null,
+      assessmentTypeLabel: request.assessmentType === 'OTHER' ? request.assessmentTypeLabel?.trim() || null : null,
+      evaluationDate: request.evaluationDate ?? null,
+      weightPercent: request.weightPercent ?? null,
+      submissions: request.submissions?.trim() || null,
+      personalMemo: request.personalMemo?.trim() || null,
     }
     mockStore.schoolAssessments.push(record)
     return toResponse(record)
@@ -146,6 +171,14 @@ export function updateSchoolAssessmentMock(assessmentId: string, request: Update
     record.title = title
     if (request.description !== undefined) record.description = request.description?.trim() || null
     if (request.deadlineDate !== undefined) record.deadlineDate = request.deadlineDate
+    // A27-UX 개인 관리 정보 (보낸 필드만)
+    if (request.assessmentType !== undefined) record.assessmentType = request.assessmentType
+    if (request.evaluationDate !== undefined) record.evaluationDate = request.evaluationDate
+    if (request.weightPercent !== undefined) record.weightPercent = request.weightPercent
+    if (request.submissions !== undefined) record.submissions = request.submissions?.trim() || null
+    if (request.personalMemo !== undefined) record.personalMemo = request.personalMemo?.trim() || null
+    if (request.assessmentTypeLabel !== undefined) record.assessmentTypeLabel = request.assessmentTypeLabel?.trim() || null
+    if (record.assessmentType !== 'OTHER') record.assessmentTypeLabel = null
     return toResponse(record)
   })
 }

@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 import { ADMIN, API, PLANS, STUDENT, registerAndAnalyze, runTag, uniquePdf } from '../support.ts'
+import { linkSubjectThenTeaching } from '../reviewUi.ts'
 
 // A14 운영계획 관리자 직접 추가 행 — 실제 화면 조작 E2E. 일회용 DB의 실제 Backend·Storage(분석기만 Stub 합성 0.3 결과: 과목 1개·후보 9행).
 // A: 최초 확정 전 새 행 추가 · B: 재검토 중 추가 행 수정 + 새 행 · C: 추가 행 제외 → 복원 · D: 잘못된 입력·권한·충돌.
@@ -35,7 +36,8 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   const unit1 = `세포 분열 ${tag}`
   await openTeachingStep(page, doc.planId, doc.revisionId)
   const rows = page.getByTestId('teaching-plan-row')
-  await page.getByTestId('teaching-plan-subject-0').selectOption('subj_02')
+  // A27-UX [02]: 과목 연결은 2단계 과목 확인에서 한다
+  await linkSubjectThenTeaching(page, 0, 'subj_02')
   await rows.nth(0).getByRole('button', { name: '확인' }).click()
   await rows.nth(1).getByRole('button', { name: '확인' }).click()
   await savedDraft(page)
@@ -57,11 +59,12 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   await expect(page.getByTestId('teaching-plan-manual-row')).toHaveCount(1, { timeout: 15_000 })
   await expect(page.getByTestId('teaching-plan-row').nth(0)).toHaveAttribute('data-decision', 'confirmed')
   await expect(page.getByTestId('teaching-plan-row').nth(1)).toHaveAttribute('data-decision', 'confirmed')
-  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('공개 3행')
+  // A28-31: 후보 9행 기본 포함 + 관리자 추가 1행
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('공개 10행')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-status')).toContainText('확정됨', { timeout: 15_000 })
   const v1 = await studentRows(request, doc.planId)
-  expect(v1.length).toBe(3)
+  expect(v1.length).toBe(10)
   const m1 = v1.find((row) => row.unit === unit1)
   expect(m1?.rowKey).toMatch(/^manual_/)
   expect(m1).toMatchObject({ month: 10, weekFrom: 3, pdfPageNumber: 1 })
@@ -80,7 +83,7 @@ test('A·B·C: 새 행 추가 → 새로고침 유지 → 확정 → 재검토 �
   await page.getByTestId('manual-save').click()
   await expect(page.getByTestId('teaching-plan-manual-row')).toHaveCount(2, { timeout: 15_000 })
   expect((await studentRows(request, doc.planId)).map((row) => row.unit)).toContain(unit1) // 재검토 중 학생은 1차 그대로
-  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 확정')
+  await expect(page.getByTestId('teaching-plan-confirm')).toContainText('다시 승인')
   await page.getByTestId('teaching-plan-confirm').click()
   await expect(page.getByTestId('teaching-plan-history-item')).toHaveCount(2, { timeout: 15_000 })
   const v2 = await studentRows(request, doc.planId)

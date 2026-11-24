@@ -4,6 +4,7 @@ import { toApiError } from '../api/canonicalSource.ts'
 import type { TeachingPlanHistory } from '../api/types.ts'
 import { Modal } from '../components/canonicalUi.ts'
 import styles from './review.module.css'
+import { actorLabel } from '../model/actorLabel.ts'
 
 // A13 운영계획 재검토 시작·확정 이력 (§39-10). 평가 정보 확정·재검토와 따로다.
 // 확정 버전은 불변이고 재확정하면 새 버전이 쌓인다. 학생에게는 최신 버전만, 이전 버전은 관리자만 읽기 전용으로 본다.
@@ -50,9 +51,9 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
     <section className={styles.note} style={{ margin: '12px 0', display: 'block' }} aria-label="운영계획 재검토·확정 이력" data-testid="teaching-plan-history">
       {canStart && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
-          <span>운영계획을 고쳐야 하면 재검토를 시작해요. 다시 확정하기 전까지 학생에게는 지금 확정본이 그대로 보여요(평가 정보와 별개).</span>
+          <span>운영계획 확정값 수정 · 다시 확정 전까지 학생에게는 지금 확정본 유지(평가 정보와 별개)</span>
           <button type="button" className={`${styles.button} ${styles.small}`} onClick={() => setAsking(true)} data-testid="teaching-plan-rereview-start">
-            운영계획 재검토 시작
+            운영계획 수정
           </button>
         </div>
       )}
@@ -74,9 +75,12 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
                 <span className={styles.rowLabel}>{item.versionNo}차 확정</span>
                 <span className={styles.rowValue}>
                   {dateTime(item.reviewedAt)} · 공개 {item.publishedRowCount}행 · 제외 {item.excludedRowCount}행
+                  {/* A28-31: 최종 승인 한 번으로 기본값을 채택한 행과 관리자가 직접 정한 행을 구분(개별 검토로 기록하지 않음) */}
+                  {item.rows.some((row) => row.decisionBasis === 'AI_DEFAULT') &&
+                    ` · 관리자 일괄 승인(AI 기본값 채택 ${item.rows.filter((row) => row.decisionBasis === 'AI_DEFAULT').length}행 · 관리자 결정 ${item.rows.filter((row) => row.decisionBasis === 'ADMIN').length}행)`}
                 </span>
                 <span className={styles.rowMeta}>
-                  {item.current ? '학생 공개 중' : '이전 버전(보존)'} · {item.reviewedBy}
+                  {item.current ? '학생 공개 중' : '이전 버전(보존)'} · {actorLabel(item.reviewedBy)}
                 </span>
                 <button type="button" className={`${styles.buttonGhost} ${styles.small}`} aria-expanded={openVersion === item.versionNo} onClick={() => setOpenVersion(openVersion === item.versionNo ? null : item.versionNo)} data-testid="teaching-plan-history-toggle">
                   {openVersion === item.versionNo ? '닫기' : '행 보기'}
@@ -121,7 +125,7 @@ export function TeachingPlanHistoryPanel({ planId, revisionId, canStart, onStart
             </>
           }
         >
-          <p>지금 확정본을 바탕으로 운영계획 초안을 다시 열어요. 이전 확정본은 이력으로 남고, 다시 확정할 때까지 학생 월별 계획에는 지금 확정본이 보여요. 평가 정보 확정에는 영향이 없어요.</p>
+          <p>지금 확정본을 바탕으로 운영계획 초안을 다시 열어요. 평가 정보 확정에는 영향이 없어요.</p>
         </Modal>
       )}
     </section>

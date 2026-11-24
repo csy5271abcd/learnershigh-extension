@@ -12,7 +12,7 @@ const docker = (...args) => execFileSync('docker', args, { stdio: ['ignore', 'pi
 
 let status = 1
 try {
-  docker('run', '-d', '--rm', '--name', name, '-p', `127.0.0.1:${port}:3306`, '--tmpfs', '/var/lib/mysql',
+  docker('run', '-d', '--rm', '--name', name, '--label', 'lh.owner=assessment-e2e', '-p', `127.0.0.1:${port}:3306`, '--tmpfs', '/var/lib/mysql',
     '-e', `MYSQL_ROOT_PASSWORD=${password}`, '-e', `MYSQL_DATABASE=${database}`, '-e', 'MYSQL_USER=lhe2e',
     '-e', `MYSQL_PASSWORD=${password}`, 'mysql:8.4')
   let ready = false
@@ -22,7 +22,8 @@ try {
   }
   if (!ready) throw new Error('일회용 MySQL이 준비되지 않았어요.')
   spawnSync(process.execPath, ['-e', 'setTimeout(()=>{},4000)']) // 첫 기동 직후 재시작 대기
-  const result = spawnSync('npx', ['playwright', 'test', '-c', 'playwright.assessment.config.ts', ...process.argv.slice(2)], {
+  // 부록 J: ASSESSMENT_PW_CONFIG 로 실측 재현 설정(playwright.assessment-live.config.ts)을 고를 수 있다. 기본은 그대로
+  const result = spawnSync('npx', ['playwright', 'test', '-c', process.env.ASSESSMENT_PW_CONFIG ?? 'playwright.assessment.config.ts', ...process.argv.slice(2)], {
     stdio: 'inherit',
     shell: process.platform === 'win32',
     env: {
@@ -30,6 +31,7 @@ try {
       E2E_ASSESSMENT_DB_URL: `jdbc:mysql://127.0.0.1:${port}/${database}`,
       E2E_ASSESSMENT_DB_USER: 'lhe2e',
       E2E_ASSESSMENT_DB_PASSWORD: password,
+      E2E_ASSESSMENT_DB_CONTAINER: name,
     },
   })
   status = result.status ?? 1

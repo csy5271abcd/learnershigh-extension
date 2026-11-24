@@ -1,0 +1,248 @@
+/* A27-UX 학생 수행평가 상세 5개 Section 공통 위계 (이미지 10·11) — 같은 제목 크기·굵기·여백·구분선, 카드 중첩 없음 */
+.section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--as-color-line);
+}
+
+/* 부록 N7 (2026-11-21): 결과물↔탐구 노트 경계는 선 하나. 바깥 Section 선만 남기고 안쪽 노트 Section(.noteSection)의 선·여백을 없앤다 */
+.noteWrap > section {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.headText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: var(--as-color-text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.count {
+  color: var(--as-color-text-tertiary);
+  font-weight: 400;
+}
+
+.description {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 1.5;
+}
+
+.outlineButton {
+  flex: none;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 9px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: var(--as-text-body);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.outlineButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+}
+
+.outlineButton:focus-visible,
+.textButton:focus-visible,
+.textLink:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
+}
+
+.outlineButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.textButton {
+  flex: none;
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--as-color-text-secondary);
+  font: inherit;
+  font-size: var(--as-text-meta);
+  cursor: pointer;
+}
+
+.textButton:hover {
+  color: var(--as-color-text);
+  text-decoration: underline;
+}
+
+.textLink {
+  color: var(--as-color-primary);
+  font-size: var(--as-text-meta);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.empty {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+  line-height: 1.55;
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  color: var(--as-color-danger);
+  font-size: var(--as-text-meta);
+}
+
+/* 안내문 카드 */
+.noticeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.noticeCard {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.noticeThumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 110px;
+  overflow: hidden;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text-tertiary);
+}
+
+.noticeImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kind {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--as-color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.noticeName {
+  overflow: hidden;
+  color: var(--as-color-text);
+  font-size: var(--as-text-meta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noticeMeta {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+.remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: rgb(255 255 255 / 0.92);
+  color: var(--as-color-text-secondary);
+  cursor: pointer;
+}
+
+/* 평가계획서 원본 */
+.sourceList {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sourceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--as-color-subtle);
+}
+
+.sourceName {
+  flex: 1;
+  overflow: hidden;
+  font-size: var(--as-text-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sourceFormat {
+  color: var(--as-color-text-tertiary);
+  font-size: var(--as-text-caption);
+}
+
+/* 평가 기준 */
+.criteria {
+  display: grid;
+  gap: 10px;
+}
+
+.criteriaMeta,
+.matched {
+  margin: 0;
+  color: var(--as-color-text-secondary);
+  font-size: var(--as-text-meta);
+}
+
+.matched {
+  color: var(--as-color-text);
+  font-weight: 600;
+}

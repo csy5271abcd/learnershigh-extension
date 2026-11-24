@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlanPreviewRenditionService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PlanPreviewRenditionService.class);
+
     private final PlanPreviewConverter converter;
     private final Path cacheRoot;
     private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
@@ -54,15 +56,24 @@ public class PlanPreviewRenditionService {
                     return Files.readAllBytes(pdf);
                 }
                 if (Files.isRegularFile(failed)) {
-                    throw failure(Files.readString(failed, StandardCharsets.UTF_8).strip());
+                    // 첫 줄 = 원인 코드, 둘째 줄 = 진단(A27). 예전 기록(한 줄)도 그대로 읽힌다
+                    throw failure(Files.readString(failed, StandardCharsets.UTF_8).strip().lines().findFirst().orElse("conversion_failed"));
                 }
                 PlanPreviewConverter.Result result = converter.convert(verifiedSource,
                         revision.format() == PlanDocumentFormat.HWP ? "hwp" : "hwpx");
                 Files.createDirectories(cacheRoot);
                 if (!result.ok()) {
+                    // A27: 실패 원인을 서버 로그에 남긴다(Revision ID·원인 코드·진단 요약만, 문서 내용·파일명 없음)
+                    if (TRANSIENT.contains(result.failure())) {
+                        log.info("plan preview not ready revision={} converter={} reason={}", revision.id(), converter.id(), result.failure());
+                    } else {
+                        log.warn("plan preview conversion failed revision={} converter={} reason={} detail={}", revision.id(),
+                                converter.id(), result.failure(), result.detail() == null ? "-" : result.detail());
+                    }
                     // 일시적인 원인(바쁨·실행 불가·중단)은 기록하지 않아 다음 요청에서 다시 시도한다
                     if (!TRANSIENT.contains(result.failure())) {
-                        Files.writeString(failed, result.failure(), StandardCharsets.UTF_8);
+                        Files.writeString(failed, result.failure() + (result.detail() == null ? "" : "\n" + result.detail()),
+                                StandardCharsets.UTF_8);
                     }
                     throw failure(result.failure());
                 }

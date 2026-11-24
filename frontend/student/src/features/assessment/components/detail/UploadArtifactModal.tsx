@@ -75,7 +75,7 @@ function UploadArtifactModalForm({ sourceId, target, onClose, onUploaded }: Uplo
       const apiError = toApiError(caught)
       setError(
         apiError.code === 'RESOURCE_VERSION_CONFLICT'
-          ? '그사이 다른 버전이 먼저 올라왔어요. 창을 닫고 버전 목록을 확인한 뒤 다시 올려 주세요.'
+          ? '그사이 다른 버전이 먼저 올라왔어요.'
           : `${apiError.message} 선택한 파일과 입력한 내용은 그대로 있어요. (${apiError.code})`,
       )
       submittingRef.current = false

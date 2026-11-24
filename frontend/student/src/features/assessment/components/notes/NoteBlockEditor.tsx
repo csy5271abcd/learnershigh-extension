@@ -1,4 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type ReactNode, type RefObject } from 'react'
+import { adjustMarks, marksOf, withMarks, type MarkType } from '../../model/noteInlineMarks.ts'
+import { InlineText } from './InlineText.tsx'
+import { applyMarkdownShortcut } from '../../model/noteMarkdownShortcuts.ts'
 import type { NoteBlockAttrs } from '../../api/types.ts'
 import {
   blockCommands,
@@ -18,6 +21,8 @@ import {
 } from '../../model/noteEditorModel.ts'
 import { MoreIcon, PlusIcon } from '../AssessmentIcons.tsx'
 import { sessionPreview, setSessionPreview } from '../../model/notePreviewStore.ts'
+import { uploadNoteAttachment } from '../../api/assessmentDetailApi.ts'
+import { isMockDataSource } from '../../api/dataSource.ts'
 import { ChartPreview, FileMeta, MapCard, MathView, ResourceCard, VideoView, WebLinkCard } from './NoteBlockParts.tsx'
 import { ExamSourceCard } from '../university/ExamSourceCard.tsx'
 import { universityExamDocumentPath } from '../../routes/paths.ts'
@@ -44,6 +49,8 @@ interface NoteBlockEditorProps {
   onFocusHandled: () => void
   onFocused: () => void
   onChange: (block: EditorBlock) => void
+  /** A27-UX(계정 B): Ctrl/⌘+B·I·U·K 인라인 서식 (편집기가 선택 범위에 적용) */
+  onFormat?: (type: MarkType) => void
   /** Enter: 커서 앞뒤로 나눈다 */
   onSplit: (before: string, after: string) => void
   /** 글이 있는 블록 맨 앞에서 Enter: 위에 빈 블록 */
@@ -131,6 +138,16 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
   const onTextKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     // 한글 등 조합 중 입력은 브라우저에 맡긴다 (조합 확정 Enter가 블록을 나누지 않게).
     if (event.nativeEvent.isComposing || event.keyCode === 229) return
+    // A27-UX(계정 B) 인라인 서식 단축키 (조합 중에는 위에서 이미 빠진다)
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && isText && props.onFormat) {
+      const key = event.key.toLowerCase()
+      const format: MarkType | null = key === 'b' ? 'bold' : key === 'i' ? 'italic' : key === 'u' ? 'underline' : key === 'k' ? 'link' : null
+      if (format) {
+        event.preventDefault()
+        props.onFormat(format)
+        return
+      }
+    }
     const element = event.currentTarget
     const { selectionStart, selectionEnd, value } = element
     const collapsed = selectionStart === selectionEnd
@@ -239,14 +256,35 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
     }
   }
 
-  const onTextChange = (value: string) => {
+  // A27-UX Markdown 단축 입력으로 유형이 바뀌면 입력칸이 새로 그려지므로, 그린 뒤 같은 블록 맨 앞(표시 뒤 글 앞)에 포커스를 되돌린다.
+  const refocusRef = useRef(false)
+  useLayoutEffect(() => {
+    if (!refocusRef.current) return
+    refocusRef.current = false
+    const target = rootRef.current?.querySelector<HTMLElement>('[data-focus-target]')
+    target?.focus()
+    if (target instanceof HTMLTextAreaElement) target.setSelectionRange(0, 0)
+  })
+
+  const onTextChange = (value: string, composing = false) => {
+    // A27-UX: 빈 본문 맨 앞 "# ", "- ", "1. ", "[] ", "> ", "---" → 블록 유형 바꾸기 (한글 조합 중에는 하지 않는다)
+    if (!slash && !composing) {
+      const converted = applyMarkdownShortcut(block, block.text, value)
+      if (converted) {
+        refocusRef.current = true
+        onChange(converted)
+        return
+      }
+    }
     // 빈 블록에서 "/"를 입력하면 블록 메뉴를 연다. "/" 뒤 글자로 메뉴를 거른다.
     if (!slash && isText && block.text === '' && value === '/') setSlash({ query: '', active: 0 })
     else if (slash) {
       if (!value.startsWith('/') || value.includes('\n') || value.length > 24) setSlash(null)
       else setSlash({ query: value.slice(1), active: 0 })
     }
-    onChange({ ...block, text: value })
+    // A27-UX(계정 B): 인라인 서식 범위를 바뀐 글에 맞춘다 (서식이 없는 블록은 그대로)
+    const marks = marksOf(block)
+    onChange(marks.length > 0 ? withMarks({ ...block, text: value }, adjustMarks(block.text, value, marks)) : { ...block, text: value })
   }
 
   // 제목·본문 등 아닌 블록의 입력칸(주소·장소 등)에서 ↑↓로 블록 사이를 오간다.
@@ -276,7 +314,25 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
   }
 
   const placeholder = block.attrs?.placeholder ?? defaultPlaceholder(block.type, focused || isOnly)
-  const textArea = (extra?: { className?: string; label?: string; placeholder?: string }) => (
+  // A27-UX(계정 B): 서식이 있는 글 블록은 편집하지 않을 때 서식을 그려 보여 준다. 입력칸은 그 위에 투명하게 남아 눌러서 바로 편집한다
+  const inlineMarks = isText ? marksOf(block) : []
+  const showRich = inlineMarks.length > 0 && !focused
+  // 글 블록은 서식 여부·포커스와 관계없이 같은 감싸개 안에 입력칸을 둔다. 구조가 바뀌면 React가 입력칸을 새로 만들어
+  // 포커스·선택 범위를 잃는다(누르자마자 편집이 끊기거나 서식 단추가 선택 범위를 못 찾음)
+  const textArea = (extra?: { className?: string; label?: string; placeholder?: string }) =>
+    isText ? (
+      <div className={styles.richWrap} data-rich={showRich ? 'true' : undefined} data-testid={showRich ? 'note-rich-block' : undefined}>
+        {showRich && (
+          <div className={`${styles.textArea} ${styles.richText}${extra?.className ? ` ${extra.className}` : ''}`} aria-hidden="true">
+            <InlineText text={block.text} marks={inlineMarks} linkable={false} />
+          </div>
+        )}
+        {plainTextArea(extra)}
+      </div>
+    ) : (
+      plainTextArea(extra)
+    )
+  const plainTextArea = (extra?: { className?: string; label?: string; placeholder?: string }) => (
     <AutoTextarea
       textRef={textRef}
       value={block.text}
@@ -296,6 +352,7 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
       ref={rootRef}
       className={styles.block}
       data-type={block.type}
+      data-note-block-id={block.blockId}
       data-level={block.type === 'HEADING' ? headingLevel(block) : undefined}
       onFocus={() => {
         setFocused(true)
@@ -505,7 +562,7 @@ export function NoteBlockEditor(props: NoteBlockEditorProps) {
         {slash && (
           <div id={`${menuId}-slash`} role="listbox" aria-label="블록 메뉴" className={styles.slashMenu}>
             {slashOptions.length === 0 ? (
-              <p className={styles.slashEmpty}>맞는 블록이 없어요. Esc로 닫아요.</p>
+              <p className={styles.slashEmpty}>맞는 블록이 없어요.</p>
             ) : (
               slashOptions.map((command, index) => (
                 <div
@@ -596,7 +653,7 @@ interface AutoTextareaProps {
   label: string
   className?: string
   slash?: { listId: string; activeId: string | undefined }
-  onChange: (value: string) => void
+  onChange: (value: string, composing?: boolean) => void
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void
 }
 
@@ -623,7 +680,7 @@ function AutoTextarea({ textRef, value, placeholder, label, className, slash, on
       aria-activedescendant={slash?.activeId}
       aria-autocomplete={slash ? 'list' : undefined}
       spellCheck={false}
-      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value)}
+      onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onChange(event.target.value, (event.nativeEvent as InputEvent).isComposing === true)}
       onKeyDown={onKeyDown}
     />
   )
@@ -869,14 +926,20 @@ function MapEditor({ block, onChange }: { block: EditorBlock; onChange: (block: 
   )
 }
 
+/** A28-41 §26-1 서버 허용 형식(확장자+서명 검사는 서버가 한다) */
+const fileAccept = '.pdf,.hwp,.hwpx,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/png,image/jpeg,image/gif,image/webp'
+
 function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block: EditorBlock) => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState(() => sessionPreview(block.blockId))
   const [notice, setNotice] = useState<string>()
+  const [uploading, setUploading] = useState(false)
+  const [pendingPreview, setPendingPreview] = useState<string>()
+  const uploadingRef = useRef(false)
   const file = block.attrs?.file
   const isImage = block.type === 'IMAGE'
   const pdfOnly = !isImage && file?.mimeType === 'application/pdf' && !file.name
-  const accept = isImage ? imageAccept : pdfOnly ? 'application/pdf' : undefined
+  const accept = isImage ? imageAccept : pdfOnly ? 'application/pdf' : fileAccept
   const choose = (chosen: File | undefined) => {
     if (!chosen) return
     if (isImage && !imageAccept.split(',').includes(chosen.type)) {
@@ -887,15 +950,45 @@ function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block:
       setNotice('PDF 파일만 넣을 수 있어요.')
       return
     }
-    setNotice(chosen.size > previewMaxBytes ? '20MB보다 커서 미리보기는 만들지 않고 파일 정보만 기록했어요.' : undefined)
-    setPreview(chosen.size > previewMaxBytes ? undefined : setSessionPreview(block.blockId, chosen))
-    onChange({ ...block, attrs: { ...block.attrs, file: { name: chosen.name, size: chosen.size, mimeType: chosen.type || 'application/octet-stream' } } })
+    if (isMockDataSource) {
+      // 시연(Mock): 서버가 없어 이름·크기만 기록한다(화면에 그대로 알린다)
+      setNotice(chosen.size > previewMaxBytes ? '20MB보다 커서 미리보기는 만들지 않고 파일 정보만 기록했어요.' : undefined)
+      setPreview(chosen.size > previewMaxBytes ? undefined : setSessionPreview(block.blockId, chosen))
+      onChange({ ...block, attrs: { ...block.attrs, file: { name: chosen.name, size: chosen.size, mimeType: chosen.type || 'application/octet-stream' } } })
+      return
+    }
+    // A28-41 §26-1: 서버에 먼저 저장하고 저장 응답(attachmentId)이 와야 블록을 바꾼다. 실패하면 이전 파일을 그대로 둔다(가짜 성공 없음)
+    if (uploadingRef.current) return
+    uploadingRef.current = true
+    setNotice(undefined)
+    setUploading(true)
+    const localPreview = chosen.size > previewMaxBytes ? undefined : URL.createObjectURL(chosen)
+    setPendingPreview(localPreview)
+    uploadNoteAttachment(chosen).then(
+      (saved) => {
+        uploadingRef.current = false
+        setUploading(false)
+        setPendingPreview(undefined)
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setPreview(undefined)
+        onChange({ ...block, attrs: { ...block.attrs, file: { name: saved.fileName, size: saved.sizeBytes, mimeType: saved.contentType, attachmentId: saved.attachmentId, sha256: saved.sha256 } } })
+      },
+      (cause: unknown) => {
+        uploadingRef.current = false
+        setUploading(false)
+        setPendingPreview(undefined)
+        if (localPreview) URL.revokeObjectURL(localPreview)
+        setNotice(`파일을 저장하지 못했어요. ${cause instanceof Error ? cause.message : ''} 다시 골라 주세요.`.replace(/\s+/g, ' ').trim())
+      },
+    )
   }
   const label = isImage ? '이미지' : pdfOnly || file?.mimeType === 'application/pdf' ? 'PDF' : '파일'
   return (
     <div className={styles.mediaBlock}>
-      <input ref={inputRef} type="file" hidden accept={accept} onChange={(event) => { choose(event.target.files?.[0]); event.target.value = '' }} />
-      {file?.name ? (
+      <input ref={inputRef} type="file" hidden accept={accept} onChange={(event) => { choose(event.target.files?.[0]); event.target.value = '' }} data-testid="note-file-input" />
+      {uploading ? (
+        <FileMeta file={{ name: '업로드 중', size: 0, mimeType: isImage ? 'image/png' : 'application/octet-stream' }} previewUrl={pendingPreview} isImage={isImage} pending />
+      ) : file?.name ? (
         <>
           <FileMeta file={file} previewUrl={preview} isImage={isImage} />
           <button type="button" className={styles.tinyButton} data-focus-target="field" onClick={() => inputRef.current?.click()}>
@@ -904,10 +997,10 @@ function FileEditor({ block, onChange }: { block: EditorBlock; onChange: (block:
         </>
       ) : (
         <div className={styles.mediaEmpty}>
-          <button type="button" className={styles.mediaButton} data-focus-target="field" onClick={() => inputRef.current?.click()}>
+          <button type="button" className={styles.mediaButton} data-focus-target="field" onClick={() => inputRef.current?.click()} data-testid="note-file-choose">
             {isImage ? '🖼' : '📎'} {label} 고르기
           </button>
-          <span className={styles.menuHint}>이 화면에서만 미리보기 · 서버에 저장되지 않아요 (파일 저장소 미정)</span>
+          <span className={styles.menuHint}>{isMockDataSource ? '시연 화면 · 파일 저장 안 됨' : '고르면 서버에 저장'}</span>
         </div>
       )}
       {notice && (

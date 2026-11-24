@@ -1,3 +1,4 @@
+/* A27-UX: 파란색은 첫 화면의 주요 동작(.heroButton)에만 남기고, 나머지 강조는 차콜·회색으로 바꿨다 (이미지 19·20) */
 /*
  * 참고자료 (2026-10-28). Daglo 콘텐츠 안내 화면(daglo-quiz-01·02)의 구조를 참고:
  * 흰 배경 · 넓은 중앙 영역 · 큰 제목 · 연한 파란 그래픽 영역 + 흰 설명 영역으로 나뉜 둥근 카드 3열 · 파란 강조 버튼.
@@ -29,7 +30,7 @@
   overflow: hidden;
   padding: 36px 40px 0;
   border-radius: 28px;
-  background: var(--as-color-primary-soft);
+  background: var(--as-color-fill, #f2f4f6);
 }
 
 .mockWindow {
@@ -65,9 +66,9 @@
 }
 
 .mockChips span[data-active='true'] {
-  border-color: var(--as-color-primary);
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  border-color: var(--as-color-ink, #191f28);
+  background: var(--as-color-fill, #f2f4f6);
+  color: var(--as-color-ink, #191f28);
 }
 
 .mockRow {
@@ -86,8 +87,8 @@
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill, #f2f4f6);
+  color: var(--as-color-ink, #191f28);
 }
 
 .mockRowText {
@@ -141,7 +142,7 @@
 }
 
 .heroButton:focus-visible {
-  outline: 3px solid var(--as-color-primary-soft);
+  outline: 3px solid var(--as-color-fill, #f2f4f6);
   outline-offset: 2px;
 }
 
@@ -209,7 +210,7 @@
   place-items: center;
   height: 168px;
   padding: 20px;
-  background: var(--as-color-primary-soft);
+  background: var(--as-color-fill, #f2f4f6);
 }
 
 .stepBody {
@@ -258,7 +259,7 @@
 }
 
 .stepAreaGrid span:first-child {
-  background: var(--as-color-primary);
+  background: var(--as-color-ink, #191f28);
   color: var(--as-color-on-primary);
 }
 
@@ -293,7 +294,7 @@
   background: var(--as-color-surface);
   font-size: 11px;
   font-weight: 600;
-  color: var(--as-color-primary);
+  color: var(--as-color-ink, #191f28);
 }
 
 .stepNote {
@@ -322,7 +323,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px;
-  border: 1px solid var(--as-color-primary);
+  border: 1px solid var(--as-color-ink, #191f28);
   border-radius: 10px;
   font-size: 11px;
 }
@@ -353,7 +354,7 @@
   border-radius: 18px;
   background: var(--as-color-surface);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--as-color-ink) 6%, transparent);
-  color: var(--as-color-primary);
+  color: var(--as-color-ink, #191f28);
 }
 
 .recommendTitle {
@@ -375,7 +376,7 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-ink, #191f28);
   font: inherit;
   font-size: 14px;
   font-weight: 700;
@@ -425,9 +426,10 @@
 }
 
 .areaChip[aria-pressed='true'] {
+  /* A27-UX 학생(이미지 12): 큰 검정 칩 대신 블루 작은 강조 */
   border-color: var(--as-color-primary);
-  background: var(--as-color-primary);
-  color: var(--as-color-on-primary);
+  background: var(--as-color-primary-soft);
+  color: var(--as-color-primary);
 }
 
 .toolbarRow {
@@ -453,6 +455,7 @@
 
 .searchField:focus-within {
   border-color: var(--as-color-primary);
+  box-shadow: 0 0 0 3px var(--as-color-primary-soft);
 }
 
 .searchField input {
@@ -479,9 +482,14 @@
 }
 
 .categoryChip[aria-pressed='true'] {
-  border-color: var(--as-color-ink);
-  background: var(--as-color-ink);
-  color: var(--as-color-on-ink);
+  border-color: var(--as-color-text);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+  font-weight: 700;
+}
+
+.categoryChip:hover {
+  background: var(--as-color-fill);
 }
 
 .areaNote {
@@ -529,7 +537,7 @@
 
 .sourceCard:hover,
 .sourceCard:focus-within {
-  border-color: var(--as-color-primary);
+  border-color: var(--as-color-ink, #191f28);
   box-shadow: var(--as-shadow-popover);
 }
 
@@ -540,7 +548,39 @@
   gap: 8px;
   height: 72px;
   padding: 0 18px;
-  background: var(--as-color-primary-soft);
+  background: var(--as-color-subtle);
+  border-bottom: 1px solid var(--as-color-line);
+}
+
+/* 작은 컬러 아이콘(유형 구분 보조) — 유형 이름 글자가 함께 있다 */
+.sourceVisual[data-category='공식 기관'] .sourceIcon {
+  background: #e8f1ff;
+  color: #2f6fe4;
+}
+
+.sourceVisual[data-category='논문·학술'] .sourceIcon {
+  background: #f0edff;
+  color: #6a5ae0;
+}
+
+.sourceVisual[data-category='뉴스·시사'] .sourceIcon {
+  background: #fff1e6;
+  color: #e3701f;
+}
+
+.sourceVisual[data-category='통계·데이터'] .sourceIcon {
+  background: #e7f7ef;
+  color: #10915a;
+}
+
+.sourceVisual[data-category='영상·다큐'] .sourceIcon {
+  background: #ffecee;
+  color: #d9374b;
+}
+
+.sourceVisual[data-category='교육 도구·포털'] .sourceIcon {
+  background: #e6f7f8;
+  color: #11849a;
 }
 
 .sourceIcon {
@@ -550,15 +590,14 @@
   height: 44px;
   border-radius: 14px;
   background: var(--as-color-surface);
-  color: var(--as-color-primary);
-  box-shadow: 0 2px 6px color-mix(in srgb, var(--as-color-ink) 5%, transparent);
+  color: var(--as-color-text);
 }
 
 .sourceCategory {
   padding: 3px 10px;
   border-radius: 999px;
   background: var(--as-color-surface);
-  color: var(--as-color-primary);
+  color: var(--as-color-ink, #191f28);
   font-size: 12px;
   font-weight: 700;
 }
@@ -653,20 +692,23 @@
 }
 
 .openButton {
+  /* A27-UX 학생(이미지 12): '공식 사이트 열기'와 '찾은 자료 등록'을 같은 중립 outline 버튼으로 (글자·↗로 목적 구분) */
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   min-height: 36px;
-  padding: 0 14px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
   border-radius: 10px;
-  background: var(--as-color-primary);
-  color: var(--as-color-on-primary);
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
 }
 
 .openButton:hover {
-  filter: brightness(0.95);
+  background: var(--as-color-fill);
 }
 
 .openButton:focus-visible,

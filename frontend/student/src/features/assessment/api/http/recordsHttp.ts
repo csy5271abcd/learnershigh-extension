@@ -26,7 +26,7 @@ import type {
   UpdateResourceRequest,
   UploadArtifactVersionRequest,
 } from '../types.ts'
-import { assessmentHttp, downloadFile } from './assessmentHttpClient.ts'
+import { assessmentHttp, downloadFile, postForFile } from './assessmentHttpClient.ts'
 
 // Student 학생 기록 HTTP Adapter (2026-11-11, api-contract.md §20·21·22·24·25·26·29·30·31·32).
 // Mock Adapter와 같은 함수 시그니처·같은 계약 Shape을 쓴다. 실패는 ApiError로 던지고 빈 값으로 바꾸지 않는다.
@@ -60,6 +60,14 @@ export function uploadArtifactVersionHttp(artifactId: string, request: UploadArt
   if (request.expectedLatestVersionId) form.append('expectedLatestVersionId', request.expectedLatestVersionId)
   return assessmentHttp<ArtifactVersion>(`${base}/artifacts/${enc(artifactId)}/versions`, { method: 'POST', form })
 }
+/** §26-1 A28-41 노트 첨부: 업로드(본인) · 원본 · 미리보기(PDF·이미지). 관리자 학생 화면 보기에서는 클라이언트가 student-view 경로로 바꾼다 */
+export function uploadNoteAttachmentHttp(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return assessmentHttp<import('../types.ts').NoteAttachment>(`${base}/note-attachments`, { method: 'POST', form })
+}
+export const downloadNoteAttachmentHttp = (attachmentId: string) => downloadFile(`${base}/note-attachments/${enc(attachmentId)}/file`)
+export const previewNoteAttachmentHttp = (attachmentId: string) => downloadFile(`${base}/note-attachments/${enc(attachmentId)}/preview`)
 /** §26 원본 파일 (본인 소유만, 서버가 권한 검사) */
 export const downloadArtifactVersionHttp = (artifactId: string, versionId: string) =>
   downloadFile(`${base}/artifacts/${enc(artifactId)}/versions/${enc(versionId)}/file`)
@@ -110,6 +118,15 @@ export interface SharedResource {
   subjectIds: string[]
   publishedAt: string
 }
+/** A27-UX §22-1 DRAFT 자료 파일 첨부·삭제·내려받기·미리보기 */
+export const attachResourceFileHttp = (resourceId: string, file: File) => {
+  const form = new FormData()
+  form.append('file', file)
+  return assessmentHttp<StudentResource>(`${base}/resources/${enc(resourceId)}/file`, { method: 'POST', form })
+}
+export const detachResourceFileHttp = (resourceId: string) => assessmentHttp<StudentResource>(`${base}/resources/${enc(resourceId)}/file`, { method: 'DELETE' })
+export const downloadResourceFileHttp = (resourceId: string) => downloadFile(`${base}/resources/${enc(resourceId)}/file`)
+export const previewResourceFileHttp = (resourceId: string) => downloadFile(`${base}/resources/${enc(resourceId)}/file/preview`)
 export const listSharedResourcesHttp = () => assessmentHttp<{ items: SharedResource[] }>(`${base}/shared-resources`)
 
 // ---- §26 미리보기 · §25-1 비교 · 휴지통(2026-11-11) ----
@@ -119,6 +136,11 @@ export const compareArtifactVersionsHttp = (artifactId: string, fromVersionId: s
   assessmentHttp<ArtifactComparison>(`${base}/artifacts/${enc(artifactId)}/compare`, { query: { fromVersionId, toVersionId } })
 export const trashSchoolAssessmentHttp = (assessmentId: string) =>
   assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}`, { method: 'DELETE' })
+/** §12-1 A28-49 영구 삭제(제목 확인, 되돌릴 수 없음) */
+export const exportNotePdfHttp = (assessmentId: string, request: import('../../model/noteExport.ts').NoteExportRequest) =>
+  postForFile(`${base}/school-assessments/${enc(assessmentId)}/note-export`, request)
+export const permanentDeleteSchoolAssessmentHttp = (assessmentId: string, confirmTitle: string) =>
+  assessmentHttp<void>(`${base}/school-assessments/${enc(assessmentId)}/permanent-delete`, { method: 'POST', json: { confirmTitle } })
 export const trashArtifactHttp = (artifactId: string) => assessmentHttp<void>(`${base}/artifacts/${enc(artifactId)}`, { method: 'DELETE' })
 export const trashResourceHttp = (resourceId: string) => assessmentHttp<void>(`${base}/resources/${enc(resourceId)}`, { method: 'DELETE' })
 export const trashGrowthRecordHttp = (recordId: string) => assessmentHttp<void>(`${base}/growth-records/${enc(recordId)}`, { method: 'DELETE' })

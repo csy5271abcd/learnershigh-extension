@@ -1,6 +1,8 @@
 # Student Care + Assessment 로컬 직접 실행 가이드 (Windows PowerShell)
 
-> 작성: 2026-11-16 (A22) · 갱신: 2026-11-16 (A23 — Railway 분석기 연결을 `application.yml`에 고정, 환경 변수 단계 제거) · 2026-11-17 (A24 — 토큰은 YAML 값만 사용, `ASSESSMENT_ANALYZER_TOKEN` 무시). 대상 코드: `integration/assessment-studentcare-20261116` (Draft PR #17).
+> 작성: 2026-11-16 (A22) · 갱신: 2026-11-16 (A23) · 2026-11-17 (A24) · **2026-11-24 (병합 후 문서 정리 — 분석기는 Backend 안 `local` 모드, Railway 외부 분석기 안내를 현행 절차에서 뺌, 대상 코드 `main`)**.
+> 대상 코드: `main`(2026-11-24 기준 `5b9db4b`, PR #17 로 integration 병합 완료). 예전 대상은 `integration/assessment-studentcare-20261116`(당시 Draft PR #17)였다.
+> **Railway 는 현행 운영·배포 대상이 아니다**(2026-11-24 사용자 결정). 예전 Railway 단계는 맨 끝 '퇴역 기록'에만 남긴다. 운영·배포·실제 로그인 연동은 1팀 담당으로 이 가이드 범위 밖이다.
 > 목적: 개발자가 Spring Boot · 관리자 React · 학생 React를 직접 띄워 학생 케어와 Assessment 사용자 흐름을 확인한다.
 > 모든 값(포트·경로·Profile·환경 변수 이름)은 코드에서 확인한 실제 값이다. 아래 '검증 상태' 표에 A22에서 실제로 실행한 것과 아닌 것을 구분했다.
 
@@ -91,12 +93,11 @@ $env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED = 'false'        # 사용자 테스트�
 $env:ASSESSMENT_DEMO_ROSTER_ENABLED = 'true'
 $env:ASSESSMENT_STORAGE_ROOT        = "$env:USERPROFILE\.learnershigh-extension\local-run-storage"
 
-# Railway 평가계획서 분석기: 설정할 것이 없다 (A23).
-#   backend/src/main/resources/application.yml 의 assessment.analyzer.*(주소·B16 프로필·150초·토큰)와
-#   assessment.analysis-import.contract03-enabled / assessment.multiformat.experimental 이 그대로 적용된다.
-# 토큰은 application.yml 값만 쓴다(A24). ASSESSMENT_ANALYZER_TOKEN 환경 변수(이 창·Windows User)가 남아 있어도 무시되므로 지울 필요 없다.
-# 주소·프로필·Timeout 등 다른 ASSESSMENT_ANALYZER_* 는 환경 변수가 있으면 YAML보다 우선한다 — 남은 덮어쓰기 이름만 확인:
-Get-ChildItem Env:ASSESSMENT_ANALYZER_*, Env:ASSESSMENT_ANALYSIS_*, Env:ASSESSMENT_MULTIFORMAT_* -ErrorAction SilentlyContinue | Where-Object Name -ne 'ASSESSMENT_ANALYZER_TOKEN' | Select-Object Name
+# 평가계획서 분석기: 설정할 것이 없다. 기본값 assessment.analyzer.mode=local(Backend 안에서 표를 읽어 분석, 원문 외부 전송 없음·토큰 없음).
+#   스캔본 OCR 은 assessment.analyzer.ocr=auto(Tesseract → Windows 내장 OCR). 자세한 값: docs/specs/suyeon/assessment-analyzer-setup.md
+#   일부러 끄려면 $env:ASSESSMENT_ANALYZER_MODE='none'(분석 요청이 503). loopback-stub 은 E2E 전용이라 직접 실행에 쓰지 않는다.
+# 예전 Railway 용 ASSESSMENT_ANALYZER_BASE_URL·ASSESSMENT_ANALYZER_TOKEN 은 현재 코드가 읽지 않는다(남아 있어도 영향 없음). 남은 덮어쓰기 이름만 확인:
+Get-ChildItem Env:ASSESSMENT_ANALYZER_*, Env:ASSESSMENT_ANALYSIS_*, Env:ASSESSMENT_MULTIFORMAT_* -ErrorAction SilentlyContinue | Select-Object Name
 
 # HWP·HWPX 원문 PDF 미리보기 변환기: 설정할 것이 없다(A26 — 기본 켬, 이미지는 Backend가 자동 준비, §4-1).
 # 예전에 넣은 ASSESSMENT_PREVIEW_CONVERTER 가 이 창에 남아 있으면 지운다(값이 none이면 변환이 꺼진다):
@@ -136,7 +137,7 @@ docker image ls lh-plan-preview-converter           # 준비 후 해시 Tag 이�
 | `care-demo` Profile + `LEARNERSHIGH_MOCK_DATABASE_EXAMPLES=true` | 학생 케어가 §6의 합성 원천(210명)을 읽는다. 빠지면 13명 Java Fixture |
 | `e2e` Profile + `APP_FIXED_DATE` | 화면 기준일을 2026-11-12로 고정한다(합성 원천은 11-11까지). 빠지면 실제 오늘 기준이라 최근 7일에 기록 없음이 많아진다 |
 | `ASSESSMENT_DEMO_ROSTER_ENABLED=true` | 학년별 시연 슬롯·합성 학생. 빠지면 `school_001` 1학년만 |
-| Railway 분석기 | `application.yml`에 고정(A23). **토큰은 YAML 값만 쓰고 환경 변수는 무시한다(A24)**. 주소·프로필·Timeout은 환경 변수가 있으면 그 값이 우선한다 — 실제 학교 문서로 시험할 때는 반드시 `ASSESSMENT_ANALYZER_BASE_URL`을 로컬 분석기로 덮어쓴다(원격 전송 금지) |
+| 평가계획서 분석기 | 기본 `local`(Backend 안 분석, 원문 외부 전송 없음). `ASSESSMENT_ANALYZER_MODE=none` 이면 분석 503. 별도 분석 서버·토큰 없음 |
 
 ## 5. Spring Boot 실행·확인 (4·5단계)
 
@@ -144,8 +145,9 @@ docker image ls lh-plan-preview-converter           # 준비 후 해시 Tag 이�
 .\gradlew.bat bootRun --console=plain
 ```
 
-- 성공 로그(처음 실행): `Successfully applied 18 migrations to schema `lh_local_run`` → `Started LearnersHighExtensionApplication`.
-- 두 번째부터: `Successfully validated 18 migrations` · `Schema ... is up to date. No migration necessary.`
+- 성공 로그(처음 실행): `Successfully applied N migrations to schema `lh_local_run`` → `Started LearnersHighExtensionApplication`. N 은 `database/migrations` 의 SQL 수(2026-11-24 `main` 기준 **31**, 마지막 `V202611231000`). A22 작성 당시에는 18이었다.
+- 두 번째부터: `Successfully validated N migrations` · `Schema ... is up to date. No migration necessary.`
+- 로그 `plan analyzer: local (ocr=…)` 이 보이면 분석기가 Backend 안에서 준비된 것이다.
 - `Tomcat started on port 8080`. 8080이 이미 쓰이면 `$env:SERVER_PORT='8081'` 후 다시 실행하고, §7·§8의 `VITE_API_TARGET`도 같은 포트로 바꾼다.
 
 다른 창에서 확인:
@@ -220,9 +222,9 @@ npx vite --config ../../e2e/assessment/vite.student.config.ts --port 5173 --stri
 
 ## 9. 사용자 흐름 (8~14단계)
 
-### 9-1. 합성 시험 문서 만들기 (Railway로 보내도 되는 문서만)
+### 9-1. 합성 시험 문서 만들기
 
-**Railway로는 아래 생성기가 만든 합성 문서만 보낸다. 실제 학교 문서·기존 코퍼스(F0xxxx)는 보내지 않는다.**
+화면 흐름을 개인정보 없이 확인할 때 쓰는 합성 문서 생성기다. 분석은 Backend 안(`local`)에서 하므로 문서가 외부로 나가지 않는다. 생성기는 예전 이름 그대로 `e2e/assessment-railway/fixtures/` 에 있다(폴더 이름만 옛것 — 경로 변경은 시험·스크립트 영향 확인 뒤 별도 변경으로 한다).
 
 ```powershell
 $OUT = "$env:USERPROFILE\.learnershigh-extension\synthetic-a19"; New-Item -ItemType Directory -Force $OUT | Out-Null
@@ -239,7 +241,7 @@ Get-ChildItem $OUT -Include *.pdf,*.hwp,*.hwpx -Recurse | Select-Object Name, Le
 ### 9-2. 관리자: 평가계획서 업로드·분석·확정
 
 1. 관리자 `http://localhost:5174/assessment/evaluation-plans?school=sch_demo_unjeong&year=2026&grade=1&semester=1`
-2. **평가계획서 등록** → `synthetic-a19-g1.pdf` → **등록하고 분석**. 진행 막대가 보이고 1~2초 뒤 검토 화면이 열린다(Railway 왕복 약 1~1.4초 — A19 실측).
+2. **평가계획서 등록** → `synthetic-a19-g1.pdf` → **등록하고 분석**. 진행 막대가 보이고 분석이 끝나면 검토 화면이 열린다(Backend 안 분석 — 걸리는 시간은 문서 쪽수·스캔 여부에 따라 다르다).
 3. **과목 확인**: 과목 카드 1개, '원문 1학년'. 학년 슬롯 과목 하나를 고른다.
 4. **수행평가 검토**: '평가 비율' → 수행평가 반영비율 60% **확인**. 화면 아래 '서버에 임시 저장됨'.
 5. **최종 확정**: 같은 PDF를 '원본 대조'로 고르고 대조 확인 체크 → (부분 분석 안내가 있으면 체크) → **최종 확정** → '확정됨'.
@@ -286,7 +288,7 @@ docker stop lh-local-run-mysql          # 데이터는 lh-local-run-mysql-data �
 
 # 처음부터 다시(이 가이드가 만든 것만 지운다 — learnershigh-mysql·mysql-data는 건드리지 않음)
 docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
-# 예전에 넣은 분석기 토큰 User 환경 변수(ASSESSMENT_ANALYZER_TOKEN)는 무시되므로 그대로 두어도 된다(A24).
+# 예전에 넣은 분석기 토큰 User 환경 변수(ASSESSMENT_ANALYZER_TOKEN)는 현재 코드가 읽지 않는다. 정리하려면 Windows 사용자 환경 변수에서 지운다(값을 화면에 출력하지 않는다).
 ```
 
 ## 11. 체크리스트
@@ -300,7 +302,7 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 - [ ] PDF 업로드
 - [ ] HWP 업로드
 - [ ] HWPX 업로드
-- [ ] Railway 분석 요청 정상 (별도 설정 없이)
+- [ ] 평가계획서 분석 정상 (Backend 안 `local` 분석기, 별도 설정 없이)
 - [ ] 분석 결과 검토
 - [ ] 학년별 확정 (PDF 평가 비율 · HWPX 운영계획)
 - [ ] 학생 평가정보 조회
@@ -330,11 +332,14 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 | 학생 케어 최근 7일이 '기록 없음' | `e2e` Profile과 `APP_FIXED_DATE=2026-11-12`가 빠졌다 |
 | Assessment 화면 401 | `VITE_ASSESSMENT_DEV_ADMIN_ID`(관리자) / `VITE_ASSESSMENT_DEV_STUDENT_ID`(학생)가 비었다 |
 | 학생 화면 404/연결 실패 | 학생은 `e2e/assessment/vite.student.config.ts`로 띄워야 `/api`가 Backend로 간다 |
-| 분석 503 `PLAN_ANALYZER_NOT_CONFIGURED` | 실행 중 주소가 비었다 — `ASSESSMENT_ANALYZER_BASE_URL`에 빈 값을 넣지 않았는지 확인 |
-| 분석 503 `analyzer_auth_failed` | `application.yml`의 토큰과 Railway 토큰이 다르다(환경 변수 때문에는 생기지 않음 — A24). Railway 토큰이 교체됐는지 확인 |
-| 분석 503 `BUSY` | Railway 동시 처리 1 — 잠시 뒤 다시 |
+| 분석 503 `PLAN_ANALYZER_NOT_CONFIGURED` | `ASSESSMENT_ANALYZER_MODE` 가 `none` 이다 — 지우거나 `local` 로 둔다 |
+| 분석 거절 `PLAN_ANALYSIS_UNSUPPORTED` | 서버 안 분석기가 읽을 수 없는 형식이다(`LocalPlanAnalyzer` 의 `UNSUPPORTED_FORMAT` — PDF·HWP·HWPX 만) — 파일 형식 확인 |
+| Backend 가 `assessment.analyzer.mode 는 local 또는 none 이어야 합니다` 로 시작 거부 | 예전 값(`http` 등)이 환경 변수에 남았다 — `ASSESSMENT_ANALYZER_MODE` 를 지운다 |
+| 스캔본 PDF 에서 표를 못 읽음 | OCR 엔진이 없다 — Windows 는 내장 OCR, Linux 는 `tesseract`(`kor`) 설치(`assessment-analyzer-setup.md`) |
 
-## 13. 검증 상태 (A22)
+## 13. 검증 상태 (A22 — 당시 기록, 역사 보존)
+
+> 아래 표는 2026-11-16 A22·A23 당시 실행 기록이다(당시 Migration 18건, 분석은 Railway). 현재 `main` 의 시험 증거는 `docs/specs/suyeon/POST-MERGE-DOCUMENT-CLEANUP-20261124.md` §2 를 본다.
 
 | 단계 | 상태 |
 |---|---|
@@ -344,3 +349,10 @@ docker rm -f lh-local-run-mysql; docker volume rm lh-local-run-mysql-data
 | §8 학생 Vite + §9-2·9-3 Railway 흐름(합성 PDF·HWPX 업로드·분석·학년별 확정·학생 조회·학년 충돌·HWP/HWPX 보호) | **A23에서 실행 확인** — Railway 관련 환경 변수를 모두 지운 Backend로 Railway 화면 E2E **4/4**, API 실측 7건(합성 문서만 전송) |
 | §9-4 학생 케어 흐름 | **실행 확인** — 학생 케어 X′ 인수 시험(학습관·거르기·상세·상담 저장·관리 기준·학습관별·사진 관찰 오류 안내·학부모 리포트) |
 | PowerShell 문법 그대로의 실행(§2~§10) | **미검증** — 같은 값으로 bash에서 실행했다. PowerShell 줄 바꿈(`` ` ``)·따옴표에서 문제가 나면 알려 주세요 |
+
+## 14. 퇴역 기록 — Railway 외부 분석기 (역사, 현행 절차 아님)
+
+- 2026-11-16 A19·A23·A24 당시 평가계획서 분석은 Railway 의 외부 HTTP 분석기(`/analyze-preview`)로 했고, 이 가이드도 그 연결(주소·토큰을 `application.yml` 에 고정, `analyzer_auth_failed`·`BUSY` 문제 해결, 'Railway 분석 요청 정상' 체크 항목)을 설명했다. 근거 기록: `ACCOUNT-A-A19-RAILWAY-HTTPS-INTEGRATION-20261116.md` · `ACCOUNT-A-A23-RAILWAY-YAML-CONFIG-20261116.md` · `ACCOUNT-A-A24-RAILWAY-TOKEN-YAML-ONLY-20261117.md`(모두 보존).
+- 2026-11-19 PR #18(완규님) 통합으로 분석은 Backend 안 `local` 분석기로 바뀌었고 `http` 모드는 사라졌다(`PlanAnalyzerConfig`). 2026-11-24 사용자 결정으로 Railway 는 현행 운영·배포 대상에서 제외됐다.
+- **이 저장소가 한 것**: 코드·현행 문서에서 Railway 사용을 걷어 냄. **하지 않은 것**: Railway 원격 프로젝트·서비스 삭제, 토큰 폐기 — 외부 서비스 조작은 1팀·해당 서비스 관리자와 조율할 운영 항목이다.
+- **보안 경고(유지)**: 예전 `application.yml` 에 들어 있던 Railway 토큰 형태의 값이 과거 Git 커밋에 남아 있다(값은 어디에도 다시 적지 않는다). 현재 코드는 Railway 를 쓰지 않지만, **과거 토큰이 무효화됐는지는 확인이 필요하다**(1팀/Railway 관리자). Git 이력 재작성은 팀 결정 사항이다.

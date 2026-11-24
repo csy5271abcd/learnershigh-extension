@@ -1,4 +1,4 @@
-import type { EvaluationPlanAnalysisView, PlanAnalysisStatus, PlanReviewConfirmRequest, ReviewFieldCandidate } from '../api/types.ts'
+import type { EvaluationPlanAnalysisView, PlanAnalysisStatus, PlanReviewConfirmRequest, ReviewFieldCandidate, SubjectExclusionReason } from '../api/types.ts'
 
 // 평가계획서 검토 Workspace의 순수 로직 (화면 없음).
 // - 관리자에게 보이는 말: 내부 상태 코드·JSON 경로·분석기 오류 코드를 쉬운 문장으로 바꾼다. 원래 값은 '상세 진단'에서만 보여 주고 서버 데이터는 그대로 둔다.
@@ -236,4 +236,36 @@ export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes}B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`
+}
+
+/**
+ * A27-UX: 확정된 평가 정보에서 분석 과목 → 학업 과목 연결 (api-contract A10 규칙과 같다).
+ * ① 확정값의 analysisSubjectIndex ② (번호 없는 기록) 분석 과목 1개 + 확정 과목 1개일 때만 그 둘. 그 밖에는 추정하지 않는다.
+ */
+export function confirmedSubjectLinks(view: EvaluationPlanAnalysisView): Record<number, string> {
+  const links: Record<number, string> = {}
+  for (const field of view.confirmedFields) {
+    if (typeof field.analysisSubjectIndex === 'number' && field.subjectId && !links[field.analysisSubjectIndex]) links[field.analysisSubjectIndex] = field.subjectId
+  }
+  const unindexed = [...new Set(view.confirmedFields.filter((field) => typeof field.analysisSubjectIndex !== 'number').flatMap((field) => (field.subjectId ? [field.subjectId] : [])))]
+  if (Object.keys(links).length === 0 && view.subjects.length === 1 && unindexed.length === 1) links[0] = unindexed[0]
+  return links
+}
+
+/** A27-UX 과목 제외: 제외한 분석 과목 번호 집합 */
+export function excludedSet(exclusions: Record<number, unknown>): Set<number> {
+  return new Set(Object.keys(exclusions).map(Number))
+}
+
+/** 제외한 과목의 결정을 뺀 '유효 결정'. 초안에는 결정이 그대로 남는다(복원하면 돌아온다) */
+export function withoutExcluded(decisions: Record<string, Decision>, excluded: ReadonlySet<number>): Record<string, Decision> {
+  if (excluded.size === 0) return decisions
+  return Object.fromEntries(Object.entries(decisions).filter(([key]) => !excluded.has(Number(key.slice(0, key.indexOf('|'))))))
+}
+
+export const exclusionReasonLabel: Record<SubjectExclusionReason, string> = {
+  OTHER_GRADE: '다른 학년 과목',
+  DUPLICATE: '중복 추출',
+  NOT_THIS_TERM: '현재 학기와 무관',
+  OTHER: '기타',
 }

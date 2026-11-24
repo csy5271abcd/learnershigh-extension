@@ -56,10 +56,6 @@ export function FeedbackListRoute() {
   const header = (
     <header className={styles.header}>
       <h1 className={styles.title}>선생님 피드백</h1>
-      <p className={styles.subtitle}>
-        작성한 수행평가 자료를 선생님께 보내고 받은 피드백을 모아 볼 수 있어요. 피드백 요청은 각 수행평가 화면에서 버튼
-        하나로 보낼 수 있어요.
-      </p>
     </header>
   )
 
@@ -98,7 +94,6 @@ export function FeedbackListRoute() {
         ) : data.counts.ALL === 0 ? (
           <EmptyState
             title="아직 보낸 피드백 요청이 없어요"
-            description="수행평가 화면의 ‘선생님께 피드백 요청’ 버튼으로 탐구 노트와 결과 파일을 보낼 수 있어요."
             action={
               <Link to={schoolAssessmentsPath} className={styles.emptyLink}>
                 학교 수행평가로 가기
@@ -130,7 +125,7 @@ export function FeedbackListRoute() {
         <MockDataNotice />
         {isMockDataSource && (
           <p className={styles.mockHint}>
-            답변 완료 요청은 미리 준비한 시연 데이터예요. 관리자 화면에서 보낸 답변이 이 화면에 자동으로 반영되지는 않아요.
+            답변 완료 요청은 미리 준비한 시연 데이터예요.
           </p>
         )}
       </div>

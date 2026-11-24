@@ -124,7 +124,7 @@ export function TipsModal({ initialTipId, resolveAction, onClose }: TipsModalPro
   const [selectedTipId, setSelectedTipId] = useState(initialTipId ?? tips[0].tipId)
   const [viewed, setViewed] = useState<ReadonlySet<string>>(() => new Set([initialTipId ?? tips[0].tipId]))
   return (
-    <Modal title="수행평가 꿀팁" description="순서 없이 필요한 팁만 골라 보세요." wide onRequestClose={onClose} footer={null}>
+    <Modal title="수행평가 꿀팁" wide onRequestClose={onClose} footer={null}>
       <p className={styles.intro}>순서 없이 필요한 팁만 골라 보세요. 학교의 공식 채점 기준이나 세특 내용을 보장하는 안내가 아니에요.</p>
       <TipsBrowser
         selectedTipId={selectedTipId}

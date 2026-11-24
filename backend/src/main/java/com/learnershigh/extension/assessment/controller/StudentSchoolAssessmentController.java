@@ -10,6 +10,8 @@ import com.learnershigh.extension.assessment.dto.school.SchoolAssessmentResponse
 import com.learnershigh.extension.assessment.dto.school.UpdateSchoolAssessmentRequest;
 import com.learnershigh.extension.assessment.integration.auth.StudentActor;
 import com.learnershigh.extension.assessment.service.school.AcademicContextQueryService;
+import com.learnershigh.extension.assessment.service.school.StudentMeQueryService;
+import com.learnershigh.extension.assessment.service.school.OfficialAssessmentSyncService;
 import com.learnershigh.extension.assessment.service.school.SchoolAssessmentQueryService;
 import com.learnershigh.extension.assessment.service.school.SchoolAssessmentService;
 import jakarta.validation.Valid;
@@ -41,12 +43,24 @@ public class StudentSchoolAssessmentController {
     private final SchoolAssessmentQueryService queryService;
     private final SchoolAssessmentService service;
     private final AcademicContextQueryService contextService;
+    private final StudentMeQueryService meService;
+    private final OfficialAssessmentSyncService officialSync;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StudentSchoolAssessmentController.class);
 
     public StudentSchoolAssessmentController(SchoolAssessmentQueryService queryService,
-            SchoolAssessmentService service, AcademicContextQueryService contextService) {
+            SchoolAssessmentService service, AcademicContextQueryService contextService, StudentMeQueryService meService,
+            OfficialAssessmentSyncService officialSync) {
+        this.officialSync = officialSync;
         this.queryService = queryService;
         this.service = service;
         this.contextService = contextService;
+        this.meService = meService;
+    }
+
+    /** A28-12 학생 본인 표시 이름(api-contract.md §9-0) */
+    @GetMapping("/me")
+    public com.learnershigh.extension.assessment.dto.context.StudentMeResponse me(StudentActor student) {
+        return meService.get(student);
     }
 
     @GetMapping("/academic-context")
@@ -54,6 +68,12 @@ public class StudentSchoolAssessmentController {
             @RequestParam @Min(2000) @Max(2100) int academicYear,
             @RequestParam @Min(1) @Max(2) int semester) {
         return contextService.get(student, academicYear, semester);
+    }
+
+    /** A28-29 §9-1-c 학적이 있는 학기 목록(현재 학년도와 앞 두 학년도) */
+    @GetMapping("/academic-terms")
+    public com.learnershigh.extension.assessment.dto.context.AcademicTermsResponse academicTerms(StudentActor student) {
+        return contextService.terms(student);
     }
 
     @GetMapping("/school-assessments")
@@ -67,6 +87,13 @@ public class StudentSchoolAssessmentController {
             @Pattern(regexp = "deadlineDate,asc|createdAt,desc|title,asc") String sort,
             @RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        // A28-20 §12-c: 목록 조회 전 학교 확정 수행평가 보완 등록(멱등 — 이미 있으면 0건). 실패해도 목록은 그대로 보인다
+        try {
+            officialSync.syncStudentOnRead(student.studentId(), academicYear, semester);
+        } catch (RuntimeException e) {
+            log.warn("official assessment sync on read failed student={} term={}-{} cause={}", student.studentId(), academicYear,
+                    semester, e.getClass().getSimpleName());
+        }
         return queryService.list(student,
                 new SchoolAssessmentListQuery(academicYear, semester, subjectId, status, query, sort, page, size));
     }

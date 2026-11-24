@@ -3,7 +3,6 @@ package com.learnershigh.extension.assessment.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.learnershigh.extension.common.error.BusinessException;
 import java.time.Instant;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
@@ -41,14 +40,28 @@ class SchoolAssessmentTest {
     }
 
     @Test
-    void 역전이는_INVALID_STATE_TRANSITION() {
+    void 되돌리기는_허용하고_이전_상태를_돌려준다_A27() {
         SchoolAssessment assessment = sample();
-        assessment.changeStatus(SchoolAssessmentStatus.IN_PROGRESS, T1);
-        assertThatThrownBy(() -> assessment.changeStatus(SchoolAssessmentStatus.BEFORE_START, T1))
-                .isInstanceOf(BusinessException.class)
-                .satisfies(e -> assertThat(((BusinessException) e).errorCode().code())
-                        .isEqualTo("INVALID_STATE_TRANSITION"));
-        assertThat(assessment.status()).isEqualTo(SchoolAssessmentStatus.IN_PROGRESS);
+        assertThat(assessment.changeStatus(SchoolAssessmentStatus.COMPLETED, T1)).isEqualTo(SchoolAssessmentStatus.BEFORE_START);
+        assertThat(assessment.changeStatus(SchoolAssessmentStatus.IN_PROGRESS, T1)).isEqualTo(SchoolAssessmentStatus.COMPLETED);
+        assertThat(assessment.changeStatus(SchoolAssessmentStatus.BEFORE_START, T1)).isEqualTo(SchoolAssessmentStatus.IN_PROGRESS);
+        assertThat(assessment.status()).isEqualTo(SchoolAssessmentStatus.BEFORE_START);
+        // 같은 상태 재요청은 변경 없음(이력도 남기지 않는다)
+        assertThat(assessment.changeStatus(SchoolAssessmentStatus.BEFORE_START, T1)).isNull();
+    }
+
+    @Test
+    void 개인_관리_정보는_빈값과_0을_구분하고_범위를_검사한다_A27() {
+        SchoolAssessment assessment = sample();
+        assessment.editPersonalDetails(SchoolAssessmentType.REPORT, LocalDate.of(2026, 11, 25), 0, " 보고서 1부 ", " ", T1);
+        assertThat(assessment.assessmentType()).isEqualTo(SchoolAssessmentType.REPORT);
+        assertThat(assessment.weightPercent()).isZero();
+        assertThat(assessment.submissions()).isEqualTo("보고서 1부");
+        assertThat(assessment.personalMemo()).isNull();
+        assessment.editPersonalDetails(null, null, null, null, null, T1);
+        assertThat(assessment.weightPercent()).isNull();
+        assertThatThrownBy(() -> assessment.editPersonalDetails(null, null, 101, null, null, T1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> assessment.editPersonalDetails(null, null, -1, null, null, T1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

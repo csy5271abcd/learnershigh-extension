@@ -206,7 +206,7 @@ export function GrowthRecordDetailRoute() {
                   className={enrichmentStyles.outlineButton}
                   data-testid="trash-growth"
                   onClick={() => {
-                    if (!window.confirm(`'${record.title}' 성장 기록을 휴지통으로 옮길까요? 보관함 휴지통에서 복구할 수 있어요.`)) return
+                    if (!window.confirm(`'${record.title}' 성장 기록을 휴지통으로 옮길까요?`)) return
                     trashGrowthRecord(record.recordId).then(
                       () => {
                         notifyDataChanged()
@@ -256,7 +256,7 @@ function PrivacyNote() {
   return (
     <p className={styles.privacyBox}>
       <LockIcon size={15} />
-      <span>나만 보는 개인 기록이에요. 학교생활기록부(세특) 문장이 아니고, 자동으로 만들어지지 않아요.</span>
+      <span>나만 보는 개인 기록이에요.</span>
     </p>
   )
 }
@@ -288,7 +288,7 @@ function LinkedArtifacts({ record }: { record: GrowthRecord }) {
               <li className={styles.emptyField}>찾을 수 없는 결과물 {record.artifactIds.length - linked.length}개</li>
             )}
           </ul>
-          <p className={styles.fieldHint}>결과물 단위로 연결돼요. 어느 파일 버전인지는 아직 고정하지 않아요.</p>
+          <p className={styles.fieldHint}>결과물 단위로 연결돼요.</p>
         </>
       )}
     </section>
@@ -591,7 +591,7 @@ function GrowthRecordForm({ initial, submitLabel, onCancel, onSubmit }: GrowthRe
               ))}
             </ul>
           )}
-          <p className={styles.fieldHint}>결과물 단위로 연결돼요. 어느 파일 버전인지는 아직 고정하지 않아요.</p>
+          <p className={styles.fieldHint}>결과물 단위로 연결돼요.</p>
         </fieldset>
       )}
 

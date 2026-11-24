@@ -32,7 +32,7 @@ interface ReferenceSourceCardProps {
 export function ReferenceSourceCard({ source, areas, usage, usages, onAddFound }: ReferenceSourceCardProps) {
   const headingId = `reference-${source.sourceId}`
   return (
-    <article className={styles.sourceCard} aria-labelledby={headingId}>
+    <article className={styles.sourceCard} aria-labelledby={headingId} data-testid="reference-source-card">
       <div className={styles.sourceVisual} data-category={source.category}>
         <span className={styles.sourceIcon} aria-hidden="true">
           <ReferenceCategoryIcon category={source.category} size={24} />
@@ -69,10 +69,10 @@ export function ReferenceSourceCard({ source, areas, usage, usages, onAddFound }
           </details>
         )}
         <div className={styles.sourceActions}>
-          <a className={styles.openButton} href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${source.name} 공식 사이트 열기 (새 탭)`}>
+          <a className={styles.openButton} href={source.url} target="_blank" rel="noopener noreferrer" aria-label={`${source.name} 공식 사이트 열기 (새 탭)`} data-testid="reference-open-site">
             공식 사이트 열기 ↗
           </a>
-          <button type="button" className={styles.addButton} aria-label={`${source.name}에서 찾은 자료를 자료함에 등록`} onClick={onAddFound}>
+          <button type="button" className={styles.addButton} aria-label={`${source.name}에서 찾은 자료를 자료함에 등록`} onClick={onAddFound} data-testid="reference-add-found">
             찾은 자료 등록
           </button>
         </div>

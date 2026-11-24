@@ -18,9 +18,12 @@ export type AdminMockScenario =
   | 'scrapSaveError'
   | 'studentCustomSubject'
 
-/** VITE_ASSESSMENT_DATA_SOURCE = 'mock' | 'http'. 지정이 없으면 개발 서버는 mock, Production Build는 http (assessment-frontend-mock.md §3) */
+/**
+ * VITE_ASSESSMENT_DATA_SOURCE = 'mock' | 'http' (assessment-frontend-mock.md §3).
+ * 부록 N2 (2026-11-21): 지정이 없으면 개발 서버도 http. Mock 은 개발 서버에서 'mock'을 명시했을 때만, Production Build 는 항상 http.
+ */
 const configuredSource = import.meta.env.VITE_ASSESSMENT_DATA_SOURCE as string | undefined
-export const isAdminMockDataSource = configuredSource === 'mock' || (configuredSource !== 'http' && import.meta.env.DEV)
+export const isAdminMockDataSource = configuredSource === 'mock' && import.meta.env.DEV
 
 const onceUsed = new Set<string>()
 

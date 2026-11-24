@@ -115,7 +115,7 @@ export function UniversityResourcesRoute() {
           </div>
         ) : all.length === 0 ? (
           <div className={enrichmentStyles.stateArea}>
-            <EmptyState title="아직 등록된 대학 자료가 없어요" description="확인된 대학 기출·예시 자료가 등록되면 여기에 보여요." />
+            <EmptyState title="아직 등록된 대학 자료가 없어요" />
           </div>
         ) : (
           <>
@@ -218,13 +218,12 @@ export function UniversityResourcesRoute() {
 
             {inUniversity.length === 0 ? (
               <div className={enrichmentStyles.stateArea}>
-                <EmptyState title="이 대학의 자료가 아직 없어요" description="다른 대학을 선택하거나 전체 자료를 둘러보세요." />
+                <EmptyState title="이 대학의 자료가 아직 없어요" />
               </div>
             ) : visible.length === 0 ? (
               <div className={enrichmentStyles.stateArea}>
                 <EmptyState
                   title="조건에 맞는 자료가 없어요"
-                  description="검색어나 학년도·과목·유형을 바꿔 보세요."
                   action={
                     <button type="button" className={styles.quietButton} onClick={resetAll}>
                       검색·필터 초기화

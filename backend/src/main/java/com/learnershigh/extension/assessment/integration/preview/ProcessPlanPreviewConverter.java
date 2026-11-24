@@ -64,7 +64,11 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
         if (mode == Mode.DOCKER) {
             command.addAll(List.of(executable, "run", "--rm", "--network", "none", "--memory", "1g", "--cpus", "2",
                     "--pids-limit", "256", "-v", work.resolve("in").toAbsolutePath() + ":/work/in:ro",
-                    "-v", work.resolve("out").toAbsolutePath() + ":/work/out", images.image(), "in/source." + extension));
+                    "-v", work.resolve("out").toAbsolutePath() + ":/work/out",
+                    // A27: H2Orestart 가져오기 로그(예외 원인)를 꺼내 보려고 캐시 폴더를 작업 폴더에 연결한다.
+                    // 하위 폴더만 연결하면 상위 .cache가 root 소유로 생겨 로그를 쓰지 못한다 → .cache 전체를 연결
+                    "-v", work.resolve("log").toAbsolutePath() + ":/home/converter/.cache",
+                    images.image(), "in/source." + extension));
         } else {
             command.addAll(List.of(executable, "-env:UserInstallation=" + work.resolve("profile").toUri(), "--headless",
                     "--norestore", "--nolockcheck", "--convert-to", "pdf", "--outdir", work.resolve("out").toString(),
@@ -99,11 +103,16 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
             work = Files.createTempDirectory("lh-plan-preview-");
             Files.createDirectories(work.resolve("in"));
             Files.createDirectories(work.resolve("out"));
+            Files.createDirectories(work.resolve("log"));
             Files.write(work.resolve("in").resolve("source." + extension), source);
-            Process process = new ProcessBuilder(command(work, extension))
+            ProcessBuilder builder = new ProcessBuilder(command(work, extension))
                     .redirectErrorStream(true)
-                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-                    .start();
+                    .redirectOutput(work.resolve("console.txt").toFile());
+            if (mode == Mode.SOFFICE) {
+                // soffice 방식: H2Orestart 로그가 작업 폴더 아래(HOME/.cache/H2Orestart)에 쌓이게 한다
+                builder.environment().put("HOME", work.resolve("home").toString());
+            }
+            Process process = builder.start();
             if (!process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
                 process.destroyForcibly();
                 return Result.failure("timeout");
@@ -114,7 +123,8 @@ public class ProcessPlanPreviewConverter implements PlanPreviewConverter {
                 return Result.failure("converter_unavailable");
             }
             if (process.exitValue() != 0 || !Files.isRegularFile(pdf)) {
-                return Result.failure("conversion_failed");
+                // LibreOffice는 가져오기 실패에도 종료 코드 0을 낸다("source file could not be loaded") → 출력·필터 로그로 원인을 남긴다
+                return Result.failure("conversion_failed", ConversionDiagnostics.summarize(process.exitValue(), work));
             }
             long size = Files.size(pdf);
             if (size == 0 || size > MAX_OUTPUT_BYTES) {

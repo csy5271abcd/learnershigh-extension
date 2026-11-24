@@ -35,7 +35,7 @@ function readinessItems(input: ReadinessInput): { key: string; text: string; sta
     { key: 'manual', text: `관리자가 한글 프로그램에서 그 위치의 원문을 직접 대조`, state: input.attested ? 'met' : 'unmet', note: '화면이 자동 검증하지 않음 — 아래 확인 체크로 기록' },
     { key: 'attest', text: '관리자의 명시적 확인 행동', state: input.attested ? 'met' : 'unmet' },
     { key: 'store', text: '확정값의 근거 위치 저장', state: 'server', note: '필드별 구조 위치·과목 번호·원본 SHA를 함께 저장(D-1)' },
-    { key: 'verified', text: '실제 관리자 인증(운영 확정 조건)', state: 'blocked', note: '미연결 — 운영에서는 서버가 확정을 거절, 개발 합성 시험에서만 허용' },
+    { key: 'verified', text: '실제 관리자 인증(운영 확정 조건)', state: 'blocked', note: '미연결 — 인증이 연결되기 전에는 서버가 확정을 거절해요' },
     { key: 'analysis', text: '검토에 쓴 analysisId 보존', state: input.analysisId ? 'met' : 'unmet' },
     { key: 'auth', text: '검토 권한(평가계획서 운영 권한)', state: 'server', note: '확정 요청 때 서버가 확인' },
   ]

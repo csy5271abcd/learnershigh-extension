@@ -1,3 +1,4 @@
+import { isAdminMockDataSource } from '../api/mock/adminMockRuntime.ts'
 import { useEffect, useState } from 'react'
 import { downloadPlanRevision, previewPlanRevision } from '../api/assessmentAdminApi.ts'
 import type { PlanFileMeta } from '../api/types.ts'
@@ -111,17 +112,18 @@ export function PlanOriginalViewer({
       )}
       {!file ? (
         <p className={styles.muted} data-testid="plan-original-unknown">
-          <InfoIcon size={14} /> 원문 정보를 받지 못했어요. (시연 데이터에는 실제 원문 파일이 없어요)
+          {/* 부록 P: 운영(HTTP)에서는 '시연 데이터' 문구를 보이지 않는다 */}
+          <InfoIcon size={14} /> 원문 정보를 받지 못했어요.{isAdminMockDataSource ? ' (시연 데이터에는 실제 원문 파일이 없어요)' : ' 목록을 새로고침해 주세요.'}
         </p>
       ) : !file.available ? (
         <p className={styles.muted} data-testid="plan-original-missing">
-          <InfoIcon size={14} /> 이 개정본은 원문 파일을 보관하지 않던 시기(2026-11-13 이전)에 등록되었어요. 원문을 다시 등록하면 여기서 볼 수 있어요.
+          <InfoIcon size={14} /> 이 개정본은 원문 파일을 보관하지 않던 시기(2026-11-13 이전)에 등록되었어요.
         </p>
       ) : !file.previewAvailable && (file.documentFormat === 'HWP' || file.documentFormat === 'HWPX') ? (
         <ConvertedOriginalViewer planId={planId} revisionId={revisionId} file={file} focus={focus} onDownload={download} />
       ) : !file.previewAvailable ? (
         <p className={styles.mockNotice} data-testid="plan-original-no-preview">
-          <InfoIcon size={14} /> {file.documentFormat} 원문은 서버에 그대로 보관되어 있어요. 이 화면에서는 미리보기를 제공하지 않아요.
+          <InfoIcon size={14} /> {file.documentFormat} 원문은 서버에 그대로 보관되어 있어요.
           원본을 내려받아 확인해 주세요.
         </p>
       ) : preview?.kind === 'ready' ? (

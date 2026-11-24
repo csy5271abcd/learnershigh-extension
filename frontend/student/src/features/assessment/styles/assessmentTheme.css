@@ -26,6 +26,7 @@
   --as-color-surface: #ffffff;
   --as-color-subtle: #f8f9fb; /* 검색창, 상세 상단 바 */
   --as-color-fill: #f3f4f7; /* 회색 Badge, Hover */
+  --as-color-canvas: var(--as-color-fill); /* A27-UX 부록 E S2: 학생 홈 바탕(카드는 흰색 그대로). 새 색이 아니라 기존 fill 값 */
   --as-color-active: #eaebef; /* 선택된 Sidebar 메뉴 */
   --as-color-selected: #f4f7fe; /* 선택된 목록 행 (Mockup AE-LIST 실측) */
   --as-color-star: #ffc700; /* 즐겨찾기·중요 별 (Mockup SA-LIST-01 실측, 다크 모드 공통) */
@@ -84,6 +85,7 @@
     --as-color-surface: #1f2024;
     --as-color-subtle: #1f2024;
     --as-color-fill: #2a2c31;
+    --as-color-canvas: var(--as-color-bg); /* Dark: 카드(surface)보다 어두운 바탕 */
     --as-color-active: #2f3136;
     --as-color-selected: #1d2433;
     --as-color-line: #2f3136;

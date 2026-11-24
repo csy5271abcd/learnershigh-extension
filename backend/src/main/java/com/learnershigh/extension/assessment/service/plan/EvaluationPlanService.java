@@ -68,6 +68,7 @@ public class EvaluationPlanService {
     private final AcademicContextProvider contexts;
     private final PlanDocumentStorage storage;
     private final PlanReviewDraftService drafts;
+    private final OfficialOriginalVerifier officialOriginals;
     /** HWP·HWPX 공식 확정 허용(통제된 개발·합성 시험 전용). 기본 false — 실제 관리자 인증 연동 전 운영에서 켜지 않는다. */
     private final boolean structuredConfirmEnabled;
 
@@ -75,6 +76,7 @@ public class EvaluationPlanService {
             PlanAnalysisRunRepository runs, PlanReviewRepository reviews, PlanAccess access, PlanViews views,
             DocumentFormatInspector formatInspector, AnalysisImportValidator importValidator, AssessmentTimes times,
             JsonMapper mapper, AcademicContextProvider contexts, PlanDocumentStorage storage, PlanReviewDraftService drafts,
+            OfficialOriginalVerifier officialOriginals,
             @Value("${assessment.plan-review.structured-confirm-dev:false}") boolean structuredConfirmEnabled) {
         this.plans = plans;
         this.revisions = revisions;
@@ -89,6 +91,7 @@ public class EvaluationPlanService {
         this.contexts = contexts;
         this.storage = storage;
         this.drafts = drafts;
+        this.officialOriginals = officialOriginals;
         this.structuredConfirmEnabled = structuredConfirmEnabled;
     }
 
@@ -235,7 +238,23 @@ public class EvaluationPlanService {
         EvaluationPlan plan = access.plan(admin, planId);
         PlanRevision revision = access.revision(plan, revisionId);
         boolean structured = revision.format() != PlanDocumentFormat.PDF;
-        if (structured && !structuredConfirmEnabled) {
+        // A28-05: 학교알리미 공식 수집 원본은 서버가 보관 원본을 직접 검증한다(관리자 로컬 파일 재선택 없음). PDF·HWP·HWPX 공통.
+        boolean serverOriginal = request.sourceCheck() != null
+                && PlanReview.SOURCE_CHECK_SERVER_ORIGINAL.equals(request.sourceCheck().method());
+        OfficialOriginalVerifier.Result official = null;
+        if (serverOriginal) {
+            official = officialOriginals.verify(plan, revision);
+            if (official.integrityBroken()) {
+                throw new BusinessException(AssessmentErrorCode.FILE_INTEGRITY_FAILED);
+            }
+            if (!official.ok()) {
+                throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR,
+                        new FieldViolation("sourceCheck.method", official.failure()));
+            }
+        }
+        // 서버가 공식 원본을 검증한 경우에는 '수동 대조 전 HWP·HWPX 확정 금지' 개발 보호를 넘는다. 관리자 인증 자체는 그대로다
+        // (개발 Header 는 local-run 등 비운영 Profile 에서만 받고, 운영 Profile 은 401 — MockHeaderAssessmentActorProvider).
+        if (structured && !structuredConfirmEnabled && !serverOriginal) {
             // 운영 보호: 실제 관리자 인증·인가가 연결되지 않은 상태에서 HWP·HWPX 공식 확정은 거절한다.
             // 실험 Flag(multiformat.experimental)만 켰다고 Mock 관리자에게 확정 권한이 생기지 않는다.
             throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR,
@@ -246,6 +265,11 @@ public class EvaluationPlanService {
             // 새 확정 기록이 하나 더 쌓이고 이전 기록은 바뀌지 않는다(학생은 최신 확정 기록을 본다).
             throw BusinessException.withFields(AssessmentErrorCode.INVALID_STATE_TRANSITION,
                     new FieldViolation("revision", "re_review_not_started"));
+        }
+        // 부록 O §39-13: 한 번에 확정은 화면이 읽은 공유 초안(다른 관리자의 수정·제외 포함) 그대로일 때만 — 그사이 바뀌었으면 확정 0건
+        if (request.expectedDraftVersion() != null
+                && !drafts.evaluationDraftVersion(request.analysisId()).map(v -> v.equals(request.expectedDraftVersion())).orElse(false)) {
+            throw new BusinessException(AssessmentErrorCode.BULK_CONFIRM_STALE);
         }
         List<FieldViolation> violations = new ArrayList<>();
         Optional<PlanAnalysisRun> run = runs.findById(request.analysisId())
@@ -267,7 +291,13 @@ public class EvaluationPlanService {
             reviewedAt = previous.getLast().reviewedAt().plusNanos(1_000);
         }
         PlanReview review = PlanReview.confirm(revision.id(), request.analysisId(), admin.adminId(), reviewedAt);
-        if (structured) {
+        if (serverOriginal) {
+            ReviewFieldRules.checkServerSource(request.sourceCheck(), violations::add);
+            if (!structured) {
+                ReviewFieldRules.rejectStructuredFieldsOnPdfExceptSource(request, violations::add);
+            }
+            review.recordSourceCheck(PlanReview.SOURCE_CHECK_SERVER_ORIGINAL, official.sha256(), false);
+        } else if (structured) {
             ReviewFieldRules.checkSource(request.sourceCheck(), revision.sha256(), violations::add);
             if (request.sourceCheck() != null) {
                 review.recordSourceCheck(request.sourceCheck().method(), request.sourceCheck().localFileSha256(),
@@ -301,6 +331,11 @@ public class EvaluationPlanService {
                     subject.analysisSubjectIndex(), plan.grade())) {
                 // A15: 원문 근거상 다른 학년 과목 → 이 학년 학생에게 공개하지 않는다
                 violations.add(new FieldViolation(subjectPath + ".analysisSubjectIndex", "grade_conflict"));
+            }
+            if (run.isPresent() && subject.analysisSubjectIndex() != null
+                    && drafts.excludedSubjects(run.get().id()).contains(subject.analysisSubjectIndex())) {
+                // A27-UX: 관리자가 이 문서 검토 대상에서 뺀 과목은 확정·학생 공개하지 않는다(복원 후에만)
+                violations.add(new FieldViolation(subjectPath + ".analysisSubjectIndex", "subject_excluded"));
             }
             for (int f = 0; f < subject.confirmedFields().size(); f++) {
                 PlanReviewRequest.ConfirmedField field = subject.confirmedFields().get(f);
@@ -352,7 +387,61 @@ public class EvaluationPlanService {
         // A5: 확정과 같은 Transaction에서 그 분석 결과의 공유 초안을 닫는다(초안 ≠ 확정값, 이후 초안 저장 불가)
         drafts.closeOnConfirm(request.analysisId(), admin.adminId(), review.reviewedAt());
         revisions.flush();
+        // A28-20: 확정된 수행평가를 그 슬롯 학생(승인 관리자 담당 지점)의 학교 수행평가로 자동 등록·갱신(같은 Transaction — 실패하면 확정도 0건)
+        if (officialAssessments != null) {
+            officialAssessments.syncAfterConfirm(admin, plan);
+        }
+        if (request.teachingPlan() != null) {
+            confirmTeachingPlanTogether(admin, planId, revisionId, request, serverOriginal);
+        }
         return views.analysis(plan, revision);
+    }
+
+    /** A28-08: 운영계획 확정을 같은 Transaction 에서 이어서 한다. 거절 사유는 teachingPlan. 접두어로 알려 주고 전체를 되돌린다. */
+    private void confirmTeachingPlanTogether(AdminActor admin, String planId, String revisionId, PlanReviewRequest request,
+            boolean serverOriginal) {
+        if (!serverOriginal || !Boolean.TRUE.equals(request.bulk())) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR, new FieldViolation("teachingPlan", "not_allowed"));
+        }
+        if (!request.analysisId().equals(request.teachingPlan().analysisId())) {
+            throw BusinessException.withFields(CommonErrorCode.VALIDATION_ERROR,
+                    new FieldViolation("teachingPlan.analysisId", "conflict"));
+        }
+        if (teachingPlans == null) {
+            throw new IllegalStateException("teaching plan review service unavailable");
+        }
+        try {
+            teachingPlans.confirm(admin, planId, revisionId, request.teachingPlan());
+        } catch (BusinessException rejected) {
+            throw prefixed(rejected, "teachingPlan.");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static BusinessException prefixed(BusinessException e, String prefix) {
+        Object fields = e.details() == null ? null : e.details().get("fields");
+        if (!(fields instanceof List<?> list)) {
+            return e;
+        }
+        FieldViolation[] out = list.stream().filter(FieldViolation.class::isInstance).map(FieldViolation.class::cast)
+                .map(v -> new FieldViolation(prefix + v.field(), v.reason())).toArray(FieldViolation[]::new);
+        return BusinessException.withFields(e.errorCode(), out);
+    }
+
+    /** A28-20 학교 확정 수행평가 자동 등록(선택 주입 — 단위 시험 생성자 호환) */
+    private com.learnershigh.extension.assessment.service.school.OfficialAssessmentSyncService officialAssessments;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setOfficialAssessments(@org.springframework.context.annotation.Lazy com.learnershigh.extension.assessment.service.school.OfficialAssessmentSyncService officialAssessments) {
+        this.officialAssessments = officialAssessments;
+    }
+
+    /** A28-08 통합 최종 승인에서만 쓰는 운영계획 확정(선택 주입 — 순환 생성 없이, 단위 시험 생성자 호환) */
+    private TeachingPlanReviewService teachingPlans;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    void setTeachingPlans(@org.springframework.context.annotation.Lazy TeachingPlanReviewService teachingPlans) {
+        this.teachingPlans = teachingPlans;
     }
 
     private List<AnalysisImportRequest.Subject> analysisSubjects(PlanAnalysisRun run) {

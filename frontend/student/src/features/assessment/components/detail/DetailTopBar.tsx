@@ -17,9 +17,11 @@ export type MoreMenuItem = {
   danger?: boolean
 } & (
   /** 실행할 수 없는 항목: 누르면 사유를 안내한다 */
-  | { reason: string; to?: never }
+  | { reason: string; to?: never; onSelect?: never }
   /** 다른 화면으로 이동하는 항목 */
-  | { to: string; reason?: never }
+  | { to: string; reason?: never; onSelect?: never }
+  /** A28-46: 바로 실행하는 항목(예: 휴지통으로 이동) */
+  | { onSelect: () => void; reason?: never; to?: never }
 )
 
 interface DetailTopBarProps {
@@ -30,6 +32,8 @@ interface DetailTopBarProps {
   onBack: () => void
   /** 없으면 피드백 요청 버튼을 숨긴다 (심화 탐구 상세 Mockup AE-DETAIL에는 없음) */
   onRequestFeedback?: () => void
+  /** A27-UX 피드백 요청 옆 '자료 찾기' (없으면 숨김) */
+  onFindResources?: () => void
   onUnavailable: (message: string) => void
   /** Breadcrumb 첫 단계 (기본: 학교 수행평가) */
   root?: { label: string; path: string; subjectPath: (subjectId: string) => string; backLabel: string }
@@ -53,6 +57,7 @@ export function DetailTopBar({
   noteId,
   onBack,
   onRequestFeedback,
+  onFindResources,
   onUnavailable,
   root = { label: '학교 수행평가', path: schoolAssessmentsPath, subjectPath: subjectAssessmentsPath, backLabel: '학교 수행평가로 돌아가기' },
   menuItems = [],
@@ -91,9 +96,14 @@ export function DetailTopBar({
           initialOpen={initialHistoryOpen}
         />
         {onRequestFeedback && (
-          <button type="button" className={styles.outlineButton} onClick={onRequestFeedback}>
+          <button type="button" className={styles.outlineButton} onClick={onRequestFeedback} data-testid="open-feedback">
             <ChatIcon size={15} />
             선생님께 피드백 요청
+          </button>
+        )}
+        {onFindResources && (
+          <button type="button" className={styles.outlineButton} onClick={onFindResources} data-testid="open-find-resources">
+            자료 찾기
           </button>
         )}
         <MoreMenu items={menuItems} onUnavailable={onUnavailable} />
@@ -180,7 +190,7 @@ function RevisionList({ noteId, currentRevisionId, hasUnsavedChanges, onOpen, on
   return (
     <>
       <p className={styles.popoverHint}>
-        저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요. 눌러서 읽어 볼 수 있어요.
+        저장된 노트 버전이에요. 이전 버전은 바뀌지 않고 그대로 남아요.
         {hasUnsavedChanges ? ' 지금 편집 중인 내용은 아직 저장되지 않았어요.' : ''}
       </p>
       <ol className={styles.revisionList}>
@@ -226,12 +236,28 @@ function MoreMenu({ items, onUnavailable }: { items: MoreMenuItem[]; onUnavailab
       </button>
       {open && (
         <div id={menuId} role="menu" aria-label="더보기" className={`${styles.popover} ${styles.moreMenu}`}>
-          {items.map(({ label, icon: Icon, reason, to, danger }) =>
+          {items.map(({ label, icon: Icon, reason, to, danger, onSelect }) =>
             to ? (
               <Link key={label} to={to} role="menuitem" className={styles.menuItem} onClick={() => close(false)}>
                 <Icon size={16} />
                 {label}
               </Link>
+            ) : onSelect ? (
+              <button
+                key={label}
+                type="button"
+                role="menuitem"
+                className={styles.menuItem}
+                data-danger={danger}
+                onClick={() => {
+                  close(false)
+                  onSelect()
+                }}
+                data-testid={`detail-menu-${label}`}
+              >
+                <Icon size={16} />
+                {label}
+              </button>
             ) : (
             <button
               key={label}

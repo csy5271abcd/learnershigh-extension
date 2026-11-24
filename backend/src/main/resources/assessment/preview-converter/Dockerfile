@@ -2,6 +2,7 @@
 # 이미지 Tag = lh-plan-preview-converter:<이 파일 SHA-256 앞 12자> — 내용이 바뀌면 새 이미지를 만든다. Build Context가 필요 없다(docker build -).
 # LibreOffice(headless, MPL-2.0) + H2Orestart 0.8.0(HWP 5.x·HWPX 가져오기 확장, GPL-3.0, 별도 프로세스로만 실행).
 # 네트워크 없이(--network none) 한 파일씩 변환하는 일회용 컨테이너로 쓴다. 문서를 외부 서비스로 보내지 않는다.
+# A27: 수식(한글 수식 개체)은 LibreOffice Math 개체로 들어오므로 libreoffice-math-nogui가 필요하다(없으면 H2Orestart가 NullPointerException으로 문서 전체 변환 실패).
 # 한컴오피스 등 상용 프로그램은 쓰지 않는다. 한글 글꼴은 Nanum·Noto CJK로 대체되므로 원본 글꼴과 줄바꿈이 다를 수 있다.
 FROM ubuntu:24.04
 
@@ -11,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      libreoffice-writer-nogui libreoffice-java-common default-jre-headless \
+      libreoffice-writer-nogui libreoffice-math-nogui libreoffice-java-common default-jre-headless \
       fonts-nanum fonts-nanum-extra fonts-noto-cjk curl ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 

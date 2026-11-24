@@ -101,7 +101,7 @@ export function EnrichmentLibraryRoute() {
         )}
       </section>
 
-      <p className={styles.previewHint}>참고자료는 이 화면에서 읽기만 해요. 학생 기록으로 저장되지 않아요.</p>
+      <p className={styles.previewHint}>읽기 전용 · 내 기록에 저장되지 않아요</p>
     </EnrichmentFrame>
   )
 }
@@ -128,13 +128,12 @@ function CatalogPreview({ item }: { item: EnrichmentContentItem }) {
               <li key={method}>{method}</li>
             ))}
           </ul>
-          <p className={styles.previewHint}>순서는 참고용이에요.</p>
         </section>
       )}
 
       <section className={styles.previewSection} aria-label="출처">
         <h3 className={styles.previewLabel}>출처</h3>
-        <p className={styles.previewHint}>LearnersHigh가 작성한 학습용 예시예요. 확인된 외부 출처는 아직 연결되지 않았어요 (출처 확인 필요).</p>
+        <p className={styles.previewHint}>LearnersHigh 작성 예시 · 외부 출처 미확인</p>
       </section>
     </article>
   )

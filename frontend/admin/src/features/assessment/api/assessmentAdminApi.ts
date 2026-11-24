@@ -4,7 +4,8 @@ import * as records from './http/adminRecordsHttp.ts'
 import { getReferenceCatalogContent } from './canonicalSource.ts'
 import * as mock from './mock/assessmentAdminMock.ts'
 import { isAdminMockDataSource } from './mock/adminMockRuntime.ts'
-import type { PlanStructurePreview, SchoolAssessment, StudentViewSource } from './types.ts'
+import { announcePlanConfirmed } from '../model/planEvents.ts'
+import type { AdminEvaluationPlan, PlanStructurePreview, SchoolAssessment, StudentViewSource } from './types.ts'
 // Stage 1: Contract 기반 Mock Adapter. Stage 2 (2026-11-09): 아래 Resource만 http Adapter로 바꿨다(VITE_ASSESSMENT_DATA_SOURCE=http).
 // http로 바꾸지 않은 함수는 http 모드에서 Mock이 503 ASSESSMENT_API_NOT_CONNECTED로 끝난다(Mock 값을 돌려주지 않는다).
 export {
@@ -50,11 +51,30 @@ export const uploadEvaluationPlan = useMock ? mock.uploadEvaluationPlanMock : ht
 export const addPlanRevision = useMock ? mock.addPlanRevisionMock : http.addPlanRevisionHttp
 /** §39 서버 분석 실행: http는 미구현 이유로 거절 */
 export const requestPlanAnalysis = useMock ? mock.requestPlanAnalysisMock : http.requestPlanAnalysisHttp
-/** 학교 이름으로 학교알리미 평가계획 불러오기 (등록 + 서버 분석). Mock 모드에는 학교알리미 연결이 없다. */
+/** PR #18 §38-11: 학교 이름으로 학교알리미 평가계획 불러오기 (등록 + 서버 분석). Mock 모드에는 학교알리미 연결이 없다. */
 export const importFromSchoolInfo = useMock
   ? (_request: { schoolId: string; schoolName: string; academicYear: number; semester: number; defaultGrade: number | null }): Promise<import('./types.ts').SchoolInfoImportResult> =>
       Promise.reject(new Error('Mock 모드에서는 학교알리미 불러오기를 쓰지 않아요.'))
   : http.importFromSchoolInfoHttp
+/** §38-12 (A27-UX 부록 E): 학교알리미 최근 3개 학년도 자동 확인. Mock 모드에는 학교알리미 연결이 없어 호출하지 않는다(화면이 숨김). */
+export const ensureSchoolInfoSync = useMock
+  ? (_request: { schoolId: string; requestedAcademicYears: number[]; grades: number[]; semesters: number[]; force?: boolean }): Promise<import('./types.ts').SchoolInfoSyncResult> =>
+      Promise.reject(new Error('Mock 모드에서는 학교알리미 자동 확인을 쓰지 않아요.'))
+  : http.ensureSchoolInfoSyncHttp
+export const getSchoolInfoSync = useMock
+  ? (_jobId: string): Promise<import('./types.ts').SchoolInfoSyncResult> => Promise.reject(new Error('Mock 모드에서는 학교알리미 자동 확인을 쓰지 않아요.'))
+  : http.getSchoolInfoSyncHttp
+const noSchoolInfo = () => Promise.reject(new Error('Mock 모드에서는 학교알리미 기능을 쓰지 않아요.'))
+/** §38-13·§38-14 (부록 F). Mock 모드에는 학교알리미 연결이 없다. */
+export const selectSchoolInfoSchool = useMock ? (_r: { schoolId: string; jobId: string; candidateId: string; expectedVersion: number }): Promise<import('./types.ts').SchoolInfoSyncResult> => noSchoolInfo() : http.selectSchoolInfoSchoolHttp
+// 부록 O §38-15: 학교알리미 공식 학교 검색·선택(Mock 모드에는 없다 — 실제 학교 검색은 서버만)
+export const searchSchoolDirectory = useMock ? (_query: string, _refresh?: boolean): Promise<http.SchoolDirectorySearch> => noSchoolInfo() : http.searchSchoolDirectoryHttp
+export const selectSchoolDirectory = useMock ? (_candidateId: string): Promise<http.SchoolDirectorySelection> => noSchoolInfo() : http.selectSchoolDirectoryHttp
+export const listSchoolInfoSources = useMock ? (_schoolId: string): Promise<import('./types.ts').SchoolInfoSourcesResult> => noSchoolInfo() : http.listSchoolInfoSourcesHttp
+export const downloadSchoolInfoSource = useMock ? (_schoolId: string, _id: string): Promise<Blob> => noSchoolInfo() : http.downloadSchoolInfoSourceHttp
+export const classifySchoolInfoSource = useMock
+  ? (_id: string, _r: { schoolId: string; academicYear: number; grades: number[]; semesters: number[]; note: string | null; expectedVersion: number }): Promise<import('./types.ts').SchoolInfoSourceItem> => noSchoolInfo()
+  : http.classifySchoolInfoSourceHttp
 /** §38-11 불러오기 진행 상황 */
 export const getSchoolInfoImport = useMock
   ? (_jobId: string): Promise<import('./types.ts').SchoolInfoImportResult> => Promise.reject(new Error('Mock 모드에서는 학교알리미 불러오기를 쓰지 않아요.'))
@@ -68,7 +88,12 @@ export const getPlanAnalysis = useMock ? mock.getPlanAnalysisMock : http.getPlan
 /** §39 검토 확정: http는 과목 ID 매핑 UI가 없어 연결 전 (C-7) */
 export const savePlanReview = useMock ? mock.savePlanReviewMock : http.savePlanReviewHttp
 /** §39 PUT review: 원본 대조·과목 ID·필드 확인을 거치는 http 전용 검토 화면에서만 쓴다(Mock 모드에는 이 화면이 없다) */
-export const confirmPlanReview = http.confirmPlanReviewHttp
+/** §39 확정 — A28-22: 성공 응답(서버 commit 후) 뒤 관리자 화면에 확정 신호(갱신만)를 보낸다 */
+export async function confirmPlanReview(...args: Parameters<typeof http.confirmPlanReviewHttp>): ReturnType<typeof http.confirmPlanReviewHttp> {
+  const next = await http.confirmPlanReviewHttp(...args)
+  announcePlanConfirmed(args[0], next.slot ?? null)
+  return next
+}
 // A5 공유 검토 초안: 서버 전용(Mock 데이터 모드의 이전 검토 화면은 쓰지 않는다)
 export const getPlanReviewDraft = http.getPlanReviewDraftHttp
 export const getTeachingPlanDraft = http.getTeachingPlanDraftHttp
@@ -79,11 +104,18 @@ export const getPlanSubjects = http.getPlanSubjectsHttp
 // A9 학년도별 열람 (기존 API 조합, Mock 대체 없음)
 export const getPlanArchiveDetail = http.getPlanArchiveDetailHttp
 export const listPlanYearsRegistered = (schoolId: string) => http.listPlanYearsHttp(schoolId, false)
-export const confirmTeachingPlan = http.confirmTeachingPlanHttp
+/** §39-6 운영계획 확정 — A28-22: 성공 뒤 확정 신호 */
+export async function confirmTeachingPlan(...args: Parameters<typeof http.confirmTeachingPlanHttp>): ReturnType<typeof http.confirmTeachingPlanHttp> {
+  const next = await http.confirmTeachingPlanHttp(...args)
+  announcePlanConfirmed(args[0], null)
+  return next
+}
 export const savePlanReviewDraft = http.savePlanReviewDraftHttp
 /** A12 재검토 시작·확정 이력 (§39-8) */
 export const reopenPlanReviewDraft = http.reopenPlanReviewDraftHttp
 export const getPlanReviewHistory = http.getPlanReviewHistoryHttp
+/** §38 GET 평가계획서 1건 (A27-UX 결과 조회 화면). Mock 데이터 모드에는 서버 기록이 없다 */
+export const getEvaluationPlan = useMock ? (_planId: string): Promise<AdminEvaluationPlan> => Promise.reject(new Error('시연 데이터에서는 결과 조회 화면을 쓰지 않아요.')) : http.getPlan
 /** A13 운영계획 재검토 시작·확정 이력 (§39-10) */
 export const reopenTeachingPlanDraft = http.reopenTeachingPlanDraftHttp
 export const getTeachingPlanHistory = http.getTeachingPlanHistoryHttp
@@ -155,6 +187,13 @@ export const previewArtifactVersion = useMock
 export const downloadArtifactVersion = useMock
   ? (_artifactId: string, _versionId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
   : records.downloadArtifactVersionHttp
+/** §26-1 A28-41 (http만) 학생 노트 첨부 미리보기·원본 */
+export const previewNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.previewNoteAttachmentHttp
+export const downloadNoteAttachment = useMock
+  ? (_attachmentId: string): Promise<Blob> => Promise.reject(new Error('시연 데이터에는 실제 파일이 없어요.'))
+  : records.downloadNoteAttachmentHttp
 /** http: 휴지통으로 이동(복원 가능). Mock: 기존 Mock 삭제 */
 export const deleteScrap = useMock ? mock.deleteScrapMock : records.deleteScrapHttp
 /** 관리자 참고자료 휴지통 (http만. Mock에는 휴지통이 없다) */
@@ -166,6 +205,13 @@ export const restoreScrap = useMock ? (_scrapId: string) => Promise.reject(new E
 export const setScrapPublished = useMock
   ? (_scrapId: string, _published: boolean): Promise<never> => Promise.reject(new Error('Mock 모드에서는 공개 상태를 바꾸지 않아요.'))
   : records.setScrapPublishedHttp
+/** §43-1 관리자 참고자료 파일 업로드 (http 전용). Mock 데이터에는 파일 저장소가 없어 성공한 것처럼 보이지 않게 거절한다 */
+const noMockFiles = () => Promise.reject(new Error('시연 데이터에서는 파일을 올리거나 열 수 없어요.'))
+export const uploadScrap = useMock ? (_metadata: import('./types.ts').ScrapRequest, _file: File): Promise<never> => noMockFiles() : records.uploadScrapHttp
+export const attachScrapFile = useMock ? (_scrapId: string, _file: File): Promise<never> => noMockFiles() : records.attachScrapFileHttp
+export const detachScrapFile = useMock ? (_scrapId: string): Promise<never> => noMockFiles() : records.detachScrapFileHttp
+export const downloadScrapFile = useMock ? (_scrapId: string): Promise<Blob> => noMockFiles() : records.downloadScrapFileHttp
+export const previewScrapFile = useMock ? (_scrapId: string): Promise<Blob> => noMockFiles() : records.previewScrapFileHttp
 export const adminRecordsHttpConnected = !useMock
 /** 심화 Task는 2026-11-03 범위 축소로 폐기. http에서는 학생 Task가 없으므로 빈 목록 */
 export const listStudentEnrichmentTasks = useMock

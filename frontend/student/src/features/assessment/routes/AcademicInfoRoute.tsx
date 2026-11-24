@@ -145,8 +145,7 @@ function PageHeader() {
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>학교·학업 정보</h1>
-      <p className={styles.subtitle}>학교나 학년이 바뀌어도 이전 기록은 그대로 남아요.</p>
-      <MockDataNotice />
+      <p className={styles.subtitle}>학교나 학년이 바뀌어도 이전 기록은 그대로 남아요.</p><MockDataNotice />
     </header>
   )
 }
@@ -265,7 +264,6 @@ function CurrentTermCard({ context, subjectCounts, onSaved, onUnavailable, onAdd
 
       {editing && (
         <div className={styles.editNotes}>
-          <p className={styles.muted}>학교·학년도·학년은 LearnersHigh 프로필에서 관리돼요. 여기서는 수강 과목만 바꿀 수 있어요.</p>
           {removed.length > 0 && (
             <p className={styles.warning}>
               선택을 해제한 과목({removed.map((subject) => subject.name).join(', ')})의 수행평가

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getPlanReviewDraft, getTeachingPlanDraft, reopenPlanReviewDraft, reopenTeachingPlanDraft, savePlanReviewDraft, saveTeachingPlanDraft } from '../api/assessmentAdminApi.ts'
 import { toApiError } from '../api/canonicalSource.ts'
-import type { EvaluationPlanAnalysisView, PlanReviewDraftDecision, PlanReviewDraftView } from '../api/types.ts'
+import type { EvaluationPlanAnalysisView, PlanReviewDraftDecision, PlanReviewDraftView, SubjectExclusion } from '../api/types.ts'
 import type { Decision } from './reviewModel.ts'
 
 // A5 서버 공유 검토 초안 (DRAFT §39-4). 같은 분석 결과를 보는 관리자들이 하나의 초안을 쓴다.
@@ -18,9 +18,12 @@ export type DraftScope = 'EVALUATION' | 'TEACHING_PLAN'
 
 type Decisions = Record<string, Decision>
 type SubjectIds = Record<number, string>
+/** A27-UX 과목 제외 (평가 정보 초안만). key = 분석 과목 번호 */
+export type Exclusions = Record<number, Omit<SubjectExclusion, 'subjectIndex'>>
 interface Backup {
   decisions: Decisions
   subjectIds: SubjectIds
+  exclusions: Exclusions
 }
 
 export type SyncState =
@@ -42,7 +45,7 @@ function readBackup(key: string): Backup | null {
     const raw = window.localStorage.getItem(key)
     if (!raw) return null
     const value = JSON.parse(raw) as Backup
-    return value && typeof value.decisions === 'object' ? { decisions: value.decisions, subjectIds: value.subjectIds ?? {} } : null
+    return value && typeof value.decisions === 'object' ? { decisions: value.decisions, subjectIds: value.subjectIds ?? {}, exclusions: value.exclusions ?? {} } : null
   } catch {
     return null
   }
@@ -68,11 +71,17 @@ function fromServer(draft: NonNullable<PlanReviewDraftView['draft']>): Backup {
   }
   const subjectIds: SubjectIds = {}
   for (const link of draft.subjectLinks) subjectIds[link.subjectIndex] = link.subjectId
-  return { decisions, subjectIds }
+  const exclusions: Exclusions = {}
+  for (const item of draft.subjectExclusions ?? []) exclusions[item.subjectIndex] = { reason: item.reason, note: item.note ?? null }
+  return { decisions, subjectIds, exclusions }
 }
 
-function toServer(decisions: Decisions, subjectIds: SubjectIds) {
+function toServer(decisions: Decisions, subjectIds: SubjectIds, exclusions: Exclusions = {}, scope: DraftScope = 'EVALUATION') {
   return {
+    // 과목 제외는 평가 정보 초안에만 보낸다(운영계획 초안에 보내면 서버가 거절한다 — 보내지 않으면 기존 값 유지)
+    ...(scope === 'EVALUATION'
+      ? { subjectExclusions: Object.entries(exclusions).sort(([a], [b]) => Number(a) - Number(b)).map(([index, item]) => ({ subjectIndex: Number(index), reason: item.reason, note: item.note?.trim() ? item.note.trim() : null })) }
+      : {}),
     decisions: Object.entries(decisions).map(([key, decision]) => {
       const cut = key.indexOf('|')
       const page = Number(decision.page)
@@ -90,8 +99,9 @@ function toServer(decisions: Decisions, subjectIds: SubjectIds) {
   }
 }
 
-const same = (a: Backup, b: Backup) => JSON.stringify(toServer(a.decisions, a.subjectIds)) === JSON.stringify(toServer(b.decisions, b.subjectIds))
-const isEmpty = (backup: Backup) => Object.keys(backup.decisions).length === 0 && Object.values(backup.subjectIds).every((id) => !id.trim())
+const same = (a: Backup, b: Backup) => JSON.stringify(toServer(a.decisions, a.subjectIds, a.exclusions)) === JSON.stringify(toServer(b.decisions, b.subjectIds, b.exclusions))
+const isEmpty = (backup: Backup) => Object.keys(backup.decisions).length === 0 && Object.values(backup.subjectIds).every((id) => !id.trim()) && Object.keys(backup.exclusions).length === 0
+const EMPTY: Backup = { decisions: {}, subjectIds: {}, exclusions: {} }
 
 /** 3-way 재적용: server(최신) 위에 base→mine 사이에서 바뀐 항목만 덮는다 */
 function reapply(server: Backup, base: Backup, mine: Backup): Backup {
@@ -105,7 +115,13 @@ function reapply(server: Backup, base: Backup, mine: Backup): Backup {
   for (const index of new Set([...Object.keys(base.subjectIds), ...Object.keys(mine.subjectIds)].map(Number))) {
     if ((base.subjectIds[index] ?? '') !== (mine.subjectIds[index] ?? '')) subjectIds[index] = mine.subjectIds[index] ?? ''
   }
-  return { decisions, subjectIds }
+  const exclusions = { ...server.exclusions }
+  for (const index of new Set([...Object.keys(base.exclusions), ...Object.keys(mine.exclusions)].map(Number))) {
+    if (JSON.stringify(base.exclusions[index]) === JSON.stringify(mine.exclusions[index])) continue
+    if (mine.exclusions[index]) exclusions[index] = mine.exclusions[index]
+    else delete exclusions[index]
+  }
+  return { decisions, subjectIds, exclusions }
 }
 
 export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scope?: DraftScope; closed?: boolean } = {}) {
@@ -117,6 +133,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
   const saveDraft = scope === 'TEACHING_PLAN' ? saveTeachingPlanDraft : savePlanReviewDraft
   const [decisions, setDecisions] = useState<Decisions>({})
   const [subjectIds, setSubjectIds] = useState<SubjectIds>({})
+  const [exclusions, setExclusions] = useState<Exclusions>({})
   const [sync, setSync] = useState<SyncState>({ kind: 'loading' })
   const [server, setServer] = useState<PlanReviewDraftView | null>(null)
   const [choice, setChoice] = useState<DraftChoice | null>(null)
@@ -124,11 +141,11 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
   const reopened = confirmed && server?.draft?.status === 'ACTIVE' && server.draft.analysisId === view.analysisId
   const [edits, setEdits] = useState(0)
   const version = useRef<number | null>(null)
-  const latest = useRef<Backup>({ decisions: {}, subjectIds: {} })
+  const latest = useRef<Backup>(EMPTY)
   const savedEdits = useRef(0)
   const localBackup = useRef<Backup | null>(null)
   /** 마지막으로 서버와 맞춘 값 (불러오기·저장 성공 시점). 충돌 때 '내가 바꾼 항목'을 가려내는 기준 */
-  const baseline = useRef<Backup>({ decisions: {}, subjectIds: {} })
+  const baseline = useRef<Backup>(EMPTY)
   /** 사용자 변경 횟수 (이벤트 처리에서만 갱신). 저장 중 더 바뀌었는지 판단한다 */
   const editsRef = useRef(0)
   /**
@@ -141,6 +158,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     latest.current = backup
     setDecisions(backup.decisions)
     setSubjectIds(backup.subjectIds)
+    setExclusions(backup.exclusions)
   }, [])
 
   /** 서버 초안을 읽어 화면 값을 서버 기준으로 맞춘다 (version 갱신) */
@@ -151,7 +169,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     setServer(result)
     const draft = result.draft && result.draft.analysisId === view.analysisId ? result.draft : null
     version.current = draft ? draft.version : null
-    const serverValues = draft ? fromServer(draft) : { decisions: {}, subjectIds: {} }
+    const serverValues = draft ? fromServer(draft) : EMPTY
     if (mode === 'initial') {
       const backup = confirmed ? null : readBackup(key)
       localBackup.current = backup
@@ -189,7 +207,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     const values = latest.current
     setSync({ kind: 'saving' })
     try {
-      const result = await saveDraft(view.planId, view.documentRevisionId, { analysisId: view.analysisId, baseVersion: version.current, ...toServer(values.decisions, values.subjectIds) })
+      const result = await saveDraft(view.planId, view.documentRevisionId, { analysisId: view.analysisId, baseVersion: version.current, ...toServer(values.decisions, values.subjectIds, values.exclusions, scope) })
       setServer(result)
       const draft = result.draft
       if (draft) version.current = draft.version
@@ -209,7 +227,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
         setSync({ kind: 'error', message: `${error.message}${error.code ? ` (${error.code})` : ''}` })
       }
     }
-  }, [view.planId, view.documentRevisionId, view.analysisId, edits, key, saveDraft])
+  }, [view.planId, view.documentRevisionId, view.analysisId, edits, key, saveDraft, scope])
 
   // 자동 저장: 마지막 변경 1초 뒤. 충돌·결과 바뀜·선택 대기 중에는 멈춘다(사용자가 고른다)
   useEffect(() => {
@@ -225,6 +243,7 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     latest.current = next
     setDecisions(next.decisions)
     setSubjectIds(next.subjectIds)
+    setExclusions(next.exclusions)
     writeBackup(key, next)
     editsRef.current += 1
     setEdits(editsRef.current)
@@ -235,10 +254,17 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     const next = { ...latest.current.decisions }
     if (decision) next[fieldKey] = decision
     else delete next[fieldKey]
-    change({ decisions: next, subjectIds: latest.current.subjectIds })
+    change({ ...latest.current, decisions: next })
   }
-  const setSubjectId = (index: number, value: string) => change({ decisions: latest.current.decisions, subjectIds: { ...latest.current.subjectIds, [index]: value } })
-  const clearAll = () => change({ decisions: {}, subjectIds: {} })
+  const setSubjectId = (index: number, value: string) => change({ ...latest.current, subjectIds: { ...latest.current.subjectIds, [index]: value } })
+  /** A27-UX 과목 제외·복원 (null = 복원). 결정·과목 연결은 지우지 않는다 — 복원하면 그대로 돌아온다 */
+  const setExclusion = (index: number, value: Exclusions[number] | null) => {
+    const next = { ...latest.current.exclusions }
+    if (value) next[index] = value
+    else delete next[index]
+    change({ ...latest.current, exclusions: next })
+  }
+  const clearAll = () => change({ ...EMPTY, exclusions: latest.current.exclusions })
 
   /** 브라우저 백업 vs 서버 초안 선택 */
   const resolveChoice = (useLocal: boolean) => {
@@ -287,5 +313,5 @@ export function useServerDraft(view: EvaluationPlanAnalysisView, options: { scop
     }
   }, [view.analysisId])
   const baseVersion = () => version.current
-  return { decisions, subjectIds, sync, server, choice, unsaved, reopened, reopen, reload, setDecision, setSubjectId, clearAll, resolveChoice, resolveConflict, retry: save, forgetBackup: () => writeBackup(key, null), manualRows, manualRowReady, adopt, baseVersion }
+  return { decisions, subjectIds, exclusions, setExclusion, sync, server, choice, unsaved, reopened, reopen, reload, setDecision, setSubjectId, clearAll, resolveChoice, resolveConflict, retry: save, forgetBackup: () => writeBackup(key, null), manualRows, manualRowReady, adopt, baseVersion }
 }

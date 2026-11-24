@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jayway.jsonpath.JsonPath;
+import java.util.List;
 import com.learnershigh.extension.assessment.integration.analysis.PlanAnalyzerClient;
 import com.learnershigh.extension.assessment.integration.analysis.StubPlanAnalyzer;
 import com.learnershigh.extension.support.MySqlContainerConfig;
@@ -86,7 +87,8 @@ class TeachingPlanReviewApiTest {
     @BeforeEach
     void setUp() throws Exception {
         jdbc.update("delete from assessment_plan_teaching_plan_row");
-        jdbc.update("delete from assessment_plan_review where scope = 'TEACHING_PLAN'");
+        jdbc.update("delete from assessment_plan_teaching_plan_review");
+        jdbc.update("delete from assessment_plan_review_draft_event");
         jdbc.update("delete from assessment_plan_review_draft");
         jdbc.update("delete from assessment_school_assessment");
         jdbc.update("delete from assessment_plan_confirmed_value");
@@ -220,7 +222,7 @@ class TeachingPlanReviewApiTest {
                                 {"analysisId":"analysis_unknown","rows":[{"subjectIndex":0,"rowKey":"T01","subjectId":"subj_02","decision":"CONFIRMED"}]}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[0].field").value("analysisId"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
     }
 
     String draftBody(Long baseVersion, String decisions) {
@@ -356,6 +358,58 @@ class TeachingPlanReviewApiTest {
     }
 
     @Test
+    void A28_31_최종_승인_한_번에_초안_결정이_없는_행은_AI_기본값_채택으로_초안에서_정한_행은_관리자_결정으로_기록한다() throws Exception {
+        // 관리자가 초안에서 T08 만 제외(직접 결정). T01·T02 는 아무 결정 없이 최종 승인에 포함
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-draft"), "adm_plan_operator").contentType(MediaType.APPLICATION_JSON)
+                        .content(draftBody(null, EXCLUDE_T08)))
+                .andExpect(status().isOk());
+        String body = mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T02\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T08\",\"subjectId\":\"subj_02\",\"decision\":\"EXCLUDED\"}")))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T01')].decisionBasis")).containsExactly("AI_DEFAULT");
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T02')].decisionBasis")).containsExactly("AI_DEFAULT");
+        assertThat(JsonPath.<List<String>>read(body, "$.review.rows[?(@.rowKey == 'T08')].decisionBasis")).containsExactly("ADMIN");
+        assertThat(jdbc.queryForList("select decision_basis from assessment_plan_teaching_plan_row order by sort_order", String.class))
+                .containsExactly("AI_DEFAULT", "AI_DEFAULT", "ADMIN");
+        // 같은 요청을 한 번 더(중복 클릭) → 409, 확정 기록 1건 그대로
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isEqualTo(1);
+        // 학생에게는 공개 2행(제외 행 없음) · 근거 표시는 관리자 응답에만
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(student).doesNotContain("decisionBasis").doesNotContain("AI_DEFAULT");
+    }
+
+    @Test
+    void A28_36_관리자_학생_화면_보기의_운영계획은_학생_응답과_같고_담당_밖은_404() throws Exception {
+        mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam")
+                        .contentType(MediaType.APPLICATION_JSON).content(rows(
+                                "{\"subjectIndex\":0,\"rowKey\":\"T01\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}",
+                                "{\"subjectIndex\":0,\"rowKey\":\"T03\",\"subjectId\":\"subj_02\",\"decision\":\"CONFIRMED\"}")))
+                .andExpect(status().isOk());
+        String student = mvc.perform(asStudent(get(STUDENT + planId + "/teaching-plan"), "stu_001"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        String preview = mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_gangnam"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andReturn().getResponse().getContentAsString();
+        assertThat(preview).isEqualTo(student);
+        assertThat(preview).doesNotContain("decisionBasis").doesNotContain("candidate");
+        mvc.perform(asAdmin(get("/api/admin/assessment/students/stu_001/student-view/evaluation-plans/" + planId + "/teaching-plan"), "adm_bundang"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void 인증_없는_학생_요청은_401() throws Exception {
         mvc.perform(get(STUDENT + planId + "/teaching-plan")).andExpect(status().isUnauthorized());
         mvc.perform(get(revisionPath() + "/teaching-plan-review")).andExpect(status().isUnauthorized());
@@ -439,10 +493,10 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.reReviewOpen").value(false));
         // 같은 Revision에 같은 버전은 DB가 거절한다(동시 재확정 방지)
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 3", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 3", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
-                insert into assessment_plan_review (id, revision_id, analysis_id, scope, version_no, row_count, decision, reviewed_by, reviewed_at)
-                select 'dup_version', revision_id, analysis_id, 'TEACHING_PLAN', 3, 0, 'CONFIRM', 'x', reviewed_at from assessment_plan_review where scope = 'TEACHING_PLAN' and id = ?""", reviewId))
+                insert into assessment_plan_teaching_plan_review (id, revision_id, analysis_id, version_no, row_count, reviewed_by, reviewed_at)
+                select 'dup_version', revision_id, analysis_id, 3, 0, 'x', reviewed_at from assessment_plan_teaching_plan_review where id = ?""", reviewId))
                 .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
     }
 
@@ -621,7 +675,7 @@ class TeachingPlanReviewApiTest {
         assertThat(jdbc.queryForObject("select result_json from assessment_plan_analysis_run where id = ?", String.class, analysisId))
                 .doesNotContain("manual_").doesNotContain("세포 분열");
         // DB 제약: 관리자 추가 행에 후보를 넣거나 분석 행의 후보를 비울 수 없다
-        String reviewId = jdbc.queryForObject("select id from assessment_plan_review where scope = 'TEACHING_PLAN' and version_no = 4", String.class);
+        String reviewId = jdbc.queryForObject("select id from assessment_plan_teaching_plan_review where version_no = 4", String.class);
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> jdbc.update("""
                 insert into assessment_plan_teaching_plan_row (id, review_id, sort_order, subject_id, analysis_subject_index, row_key, row_origin, decision, row_json, candidate_json)
                 values ('bad_manual', ?, 9, 'subj_02', 0, 'manual_x', 'MANUAL', 'EDITED', '{}', null)""", reviewId))
@@ -715,7 +769,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(jsonPath("$.draft.version").value(version))
                 .andExpect(jsonPath("$.draft.manualRows.length()").value(1))
                 .andExpect(jsonPath("$.draft.manualRows[0].unit").value("세포 분열"));
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
         // 추가 행만으로도 확정할 수 있다(후보 행 0개) — 분석 결과에 운영계획 후보가 있는 문서에서
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content(confirmWith("", manual(m1, "CONFIRMED"))))
@@ -812,7 +866,7 @@ class TeachingPlanReviewApiTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.details.fields[?(@.reason == 'grade_conflict')]").isNotEmpty());
         assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review", Integer.class)).isZero();
-        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_review where scope = 'TEACHING_PLAN'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from assessment_plan_teaching_plan_review", Integer.class)).isZero();
         // 같은 문서의 1학년 과목(과목 0)은 확정된다
         mvc.perform(asAdmin(put(revisionPath() + "/teaching-plan-review"), "adm_gangnam").contentType(MediaType.APPLICATION_JSON)
                         .content("""

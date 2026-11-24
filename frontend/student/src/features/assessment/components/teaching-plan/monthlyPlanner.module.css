@@ -231,17 +231,33 @@
 
 .band {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 10px;
+  gap: 6px 10px;
   min-width: 0;
 }
 
 .bandLabel {
-  flex: 0 0 64px;
+  /* A27-UX: 고정 64px이면 '달을 정할 수 없는 계획 n개'가 세 줄로 꺾여 내용 폭 한 줄로 */
+  flex: 0 0 auto;
+  min-width: 64px;
+  white-space: nowrap;
   padding-top: 5px;
   color: var(--as-color-text-secondary);
   font-size: 12.5px;
   font-weight: 700;
+}
+
+/* [12][13] A27-UX: 관리자 검토 화면에서만 — 제목·점선 Chip을 왼쪽 구분선에서 띄우고 묶음 사이 여백 */
+.band[data-inset='true'] {
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px 6px;
+}
+
+.band[data-inset='true'] + .band[data-inset='true'] {
+  margin-top: 6px;
+  border-top: 1px solid var(--as-color-line);
 }
 
 .bandItems {
@@ -633,10 +649,6 @@
   background: var(--as-color-subtle);
 }
 
-.band .chip {
-  border-left: 3px solid currentColor;
-}
-
 .day[data-weekday='0'] .dayNo,
 .day[data-weekday='6'] .dayNo {
   color: var(--as-color-text-tertiary);
@@ -662,11 +674,7 @@
   font-size: 12.5px;
 }
 
-/* ---- A26 주차 임시 배치 · 상세 모달 ---- */
-.event[data-tentative] {
-  border-style: dashed;
-  background: var(--as-color-surface);
-}
+/* ---- 상세 모달 (A28-36: 주차 기준 표시 일정도 일반 일정 칩과 같은 모양 — 점선 없음) ---- */
 
 .dayList {
   display: grid;
@@ -731,4 +739,21 @@
   background: var(--as-color-disabled-bg);
   color: var(--as-color-disabled-text);
   cursor: not-allowed;
+}
+
+/* A28-19: 관리자 화면에서 접은 표시 기준 */
+.legendDetails {
+  padding: 0 4px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
+}
+
+.legendDetails > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.legendDetails > .legend {
+  margin-top: 6px;
+  padding: 0;
 }

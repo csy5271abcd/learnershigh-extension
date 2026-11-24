@@ -9,6 +9,12 @@
 
 # 1. 문서 상태
 
+> **병합 후 상태 (2026-11-24, `main` `5b9db4b` 기준 — 문서 정리 회차 기록)**
+> - 아래 'DRAFT' 표기가 붙은 절(§9-1-c · §10-1-2 · §12-1 · §20-1 · §26-1 · §33-1 · §38-3~6·9~14 · §39-3·4·6~12 · §43-1 · A27-UX 추가 계약 등)은 대부분 **구현돼 `main` 에 병합됐지만 팀(다른 담당자) 승인은 받지 않은 상태**다. '구현됨'은 승인이 아니며, 이 정리 회차에서 어떤 절도 `APPROVED` 로 바꾸지 않았다. `PROPOSED`·'계정 B 합의 전' 표기 절은 그대로 미합의다.
+> - 구현된 Controller 매핑 181개(Assessment 167·학생 케어 11·기타 3)는 모두 이 문서에 기술돼 있다(2026-11-24 로컬 자동 대조).
+> - **운영·배포·실제 로그인 연동은 1팀 담당**(이 문서 정리 범위 밖). 현재 인증은 개발용 Mock Header(`learnershigh.integration.mode: mock`)뿐이며 기존 LearnersHigh 연동·인증 결정(API-OD-07·API-OD-A01)은 미결이다 — 운영 투입 전 1팀과 통합이 필요하다. Linux 서버 한글 글꼴(§20-1 PDF), 운영 Gateway·CORS·배포 인증 설정도 1팀 인계 확인 항목이다. 참고: `API-OD-07` 은 `application.yml`·일부 문서가 인용하지만 현재 이 문서의 Open Decision 표에는 정의가 없다(정리 대상).
+> - 평가계획서 분석은 Backend 안 `local` 분석기다. Railway 외부 분석기는 퇴역했고 현행 운영·배포 대상이 아니다.
+
 이 문서는 작성된 Feature Spec과 Domain을 기반으로 정비 중인 **팀 공통 API Contract**다. 신규 Assessment §9~64는 **구현 전 계약 초안(DRAFT)**이며, 문서에 적힌 Endpoint·상태·DTO가 이미 승인·구현·배포되었다는 뜻이 아니다. 기존 공통 규칙과 Wangyu Student Care §65는 계속 유효하다.
 
 다음 항목은 아직 실제 기존 LearnersHigh API / DB / 인증 구조를 확인하지 않았으므로
@@ -368,6 +374,20 @@ Pagination:
 
 Base는 `/api/student/assessment`다. 신규 Assessment는 기존 Student 내비게이션에서만 진입한다. 기존 학적 정보가 있는 경우 Integration Boundary로 조회하며 학생 계정 전체를 별도로 복제하지 않는다.
 
+## 9-0. 현재 학생 표시 정보 (A28-12, 2026-11-22)
+
+```http
+GET /api/student/assessment/me
+```
+
+```json
+{ "studentId": "stu_demo_061", "displayName": "서예린" }
+```
+
+- 인증된 학생 본인(`StudentActor`)의 표시 이름. 원천은 기존 LearnersHigh 학생 정보(Integration Boundary — `AssessmentStudentDirectory`; 시연 명단은 플래그 ON 일 때만). 다른 학생 ID 를 받지 않는다(Query·Path 없음 → IDOR 없음).
+- 학생 정보에서 찾지 못하면 `displayName: null`(200). 화면은 이름 대신 '학생'을 보이고 다른 학생 이름이나 고정값을 쓰지 않는다. 인증 없음 401.
+- 학교·학적·연락처 등 다른 개인정보는 넣지 않는다. 학생 상단 머리글(Global Navigation) 이름 표시에만 쓴다.
+
 ## 9-1. 학업 정보 조회
 
 ```http
@@ -411,6 +431,28 @@ Actor: `STUDENT`. 소유 학생은 인증 정보에서 결정한다. 다른 학�
 - `subjects[]`는 계속 학생 수강 과목이다. 화면은 `catalogSubjects`로 학년·학기 후보 전체를 보여 주되, 수강하지 않는 과목은 선택할 수 없게 구분한다.
 - 과목 ID는 학년·학기 슬롯 단위다(같은 이름이라도 학기 슬롯이 다르면 다른 ID일 수 있다).
 - Admin 학생 상세의 `academicContexts[]`(§9-1 Shape)도 같은 필드를 가진다.
+
+### 9-1-c. 학적이 있는 학기 목록 (A28-29, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)
+
+```http
+GET /api/student/assessment/academic-terms
+```
+
+Actor: `STUDENT`(인증된 본인만). 학기 선택 목록용. 현재 학년도(§9-2 `current-term`, KST)와 앞 두 학년도 × 1·2학기 중 §9-1 학업 정보(원천 학적)가 **있는** 학기만, 최신 학기 먼저.
+
+```json
+{
+  "currentTerm": { "academicYear": 2026, "semester": 2 },
+  "terms": [
+    { "academicYear": 2026, "semester": 2 },
+    { "academicYear": 2026, "semester": 1 }
+  ]
+}
+```
+
+- 서버는 §9-1 과 같은 원천(`AcademicContextProvider`)으로 학기마다 확인할 뿐 학적을 만들거나 추측하지 않는다. 원천에 없는 학기는 목록에 없다(오류 아님). 학교·학년은 §9-1 로 학기마다 조회한다(전학·학년 변화가 그대로 보인다).
+- 원천 조회 자체가 실패하면 §5 오류(5xx) — 빈 목록으로 바꾸지 않는다. 화면은 이 목록이 없을 때(이전 서버) 현재 학년도 1·2학기를 §9-1 로 직접 조회하던 기존 방식으로 동작한다.
+- 학기 선택은 조회 필터다(§9-1·assessment-student.md §4). 다른 학기의 개인 기록을 옮기거나 새로 만들지 않는다.
 
 ## 9-2. 학업 정보 변경
 
@@ -588,7 +630,32 @@ PDF로부터 선택 등록 시 `evaluationItemRef`에 확인된 `documentRevisio
 
 `PATCH`는 학생이 편집 가능한 필드만 받으며 공식 학교 PDF 공통 정보를 수정하지 않는다. `DELETE`는 보관함의 복원 정책이 확정되기 전에는 **연쇄 영구 삭제가 아님**. Soft Delete/Trash 처리 계약 후보이며 삭제/복구 의미는 §30·§61을 확인한다. 요청 중복 감지는 알림을 우선 제공하며 자동 병합하지 않는다.
 
+### 12-c. 학교 확정 수행평가 자동 등록 (A28-20, 2026-11-22 사용자 지시 · 구현됨 · Migration `V202611220644`)
+
+- **무엇**: 관리자가 평가 정보를 최종 확정(§39·§39-14·§39-15, 재확정 포함)하면, 그 문서 슬롯(학교 키·학년도·학년·학기) 학적이고 그 과목을 수강하는 학생의 **학교 수행평가(§12) 행**으로 확정 수행평가를 등록한다. 학생은 직접 등록 항목과 같은 방법으로 상태·중요·메모·내 평가일·마감·탐구 노트·파일·피드백을 관리한다.
+- **원천**: 학생 공개 확정 Revision(평가 정보 확정본 중 최신)의 최신 확정 기록에서 `performanceEvaluation.items[n].label`(필수)·`weightPercent`·`maxScore`·`timing`. 학생 학적의 수강 과목(학업 과목 ID)만. **지필평가·운영계획 행은 만들지 않는다.** 이름이 확정되지 않은 항목은 만들지 않는다.
+- **식별자·중복 방지**: `official_key = 문서ID|학업 과목ID|분석 항목 Key`(없으면 `items[n]`), DB UNIQUE(학생, official_key). Revision·확정 기록이 바뀌어도 같은 행. 학교명·제목 유사도로 맞추지 않는다. 학생 직접 등록 항목과 병합하지 않는다(비슷한 이름이어도 별개).
+- **응답**: §12 항목에 `official`(학생 직접 등록이면 `null`): `{ planId, status: "ACTIVE"|"WITHDRAWN", timing, weightPercent, maxScore }`. `evaluationItemRef`는 최신 확정 Revision·과목·항목 Key. 날짜(`evaluationDate`·`deadlineDate`)는 **학생 개인 값**이며 자동으로 만들지 않는다(공식 시기는 `official.timing` 문자열). `weightPercent`(개인)는 비어 있으면 화면이 `official.weightPercent`를 보인다.
+- **학생 편집**: 학교 확정 행의 `title`은 바꿀 수 없다(다른 값이면 `400 title official_field`). 그 밖의 개인 필드·상태는 직접 등록과 같다. 다른 학생 404, 인증 없음 401.
+- **재확정**: 같은 행의 공식 값(이름·반영·만점·시기·확정 출처)만 갱신, 학생 상태·메모·날짜·첨부·피드백 보존. 최신 확정본에서 빠진 항목은 `official.status = WITHDRAWN`(행·기록 보존). 학생이 휴지통으로 보낸 학교 확정 행은 다시 만들지 않는다.
+- **시점**: ① 확정 Transaction 안 — 승인한 관리자 담당 지점 학생 중 슬롯 학적 학생(실패하면 확정도 0건). ② `GET /api/student/assessment/school-assessments` 조회 직전 — 그 학생·학기 보완 동기화(별도 Transaction, 멱등, 이미 있으면 쓰기 0, 실패해도 목록은 그대로 응답). **이 GET 은 첫 조회 때 학생 수행평가 행을 만들 수 있다**(학적·확정본에서 정해지는 값만). 관리자 '학생 화면 보기'(읽기 전용)는 동기화하지 않는다. ③ 기존 확정본 1회성 보정: `assessment.school-assessment.official-backfill=dry-run|apply`(기본 꺼짐, 같은 규칙, 재실행 0건).
+
 ---
+
+## 12-1. Student — 수행평가 영구 삭제 (A28-49, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration 없음 · 팀 승인 별도)
+
+```http
+POST /api/student/assessment/school-assessments/{assessmentId}/permanent-delete     { "confirmTitle": "<수행평가 제목 그대로>" }  → 204
+```
+
+- `DELETE /school-assessments/{id}`(휴지통 이동·복원 가능, §30)와 **다른** 되돌릴 수 없는 삭제다. 학생 본인 항목만(활성·휴지통 모두), 남의 ID 는 `404 ASSESSMENT_NOT_FOUND`.
+- 강한 확인: `confirmTitle` 이 제목과 정확히 같아야 한다(아니면 `400 confirmTitle mismatch`).
+- 기록 보존을 위해 **삭제하지 않는 경우**(`409 INVALID_STATE_TRANSITION`, `details.fields[0].field`):
+  - `official` — 학교 확정에서 자동 등록된 항목(공식 확정값과 연결, 동기화가 다시 만들 수 있음) → 휴지통만.
+  - `feedbackRequests` — 선생님께 보낸 피드백 요청이 있음(요청 당시 Snapshot·답변 = 관리자 기록 보존) → 휴지통만.
+  - `growthRecords` — 이 수행평가를 관련 활동으로 연결한 성장 기록이 있음 → 먼저 연결을 바꾸거나 휴지통만.
+- 삭제 범위(한 Transaction): 이 수행평가의 노트·노트 Revision, 결과물·결과물 버전, 안내문·첨부 행, 즐겨찾기, 수행평가 행. 커밋 뒤 결과물 버전·안내문 첨부의 Storage 바이트를 지운다(실패해도 행 삭제는 되돌리지 않고 로그만). 노트 첨부(§26-1)는 다른 노트 Revision 이 가리킬 수 있어 행·바이트를 남긴다. 상태 변경 감사 이력(`assessment_school_assessment_status_event`)은 지우지 않는다.
+- 화면(A28-52·53, 2026-11-24): 상세 ⋯ 메뉴 '영구 삭제'(X 원 아이콘 — '휴지통으로 이동'의 휴지통 아이콘과 구별)와 보관함 휴지통 탭의 학교 수행평가 행 '복구' 옆 '영구 삭제' 버튼이 같은 확인 창(제목 입력)과 이 API 를 쓴다. 성공하면 그 행만 목록에서 빠진다. 관리자 학생 화면 보기에서는 두 버튼(복구·영구 삭제)을 보이지 않는다. 계약 변경 없음.
 
 # 13. Student — 수행평가 상태 변경 (ST-03)
 
@@ -605,6 +672,8 @@ PATCH /api/student/assessment/school-assessments/{assessmentId}/status
 ```
 
 `BEFORE_START`, `IN_PROGRESS`, `COMPLETED`만 사용한다. 평가기준 미첨부, AI 미사용, 피드백 대기 중에도 완료 처리 가능하다. 구형 8단계·승인·반려·필수 수정 제출을 강제하지 않는다. 역전이 정책이 확정되지 않으면 임의 허용하지 않는다.
+
+**A27-UX 갱신 (2026-11-17, 사용자 결정 · DRAFT):** 학생 자기 관리 상태이므로 **되돌리기(완료 → 진행 중 → 시작 전 등)를 허용**한다. 같은 상태 요청은 변경 없음(재시도 안전). 실제로 바뀐 경우마다 `assessment_school_assessment_status_event`(from·to·시각)에 불변 이력을 남긴다. 교사 평가·공식 제출 상태가 아니므로 관리자 승인 정책과 무관하다. 응답 Shape은 그대로다.
 
 ---
 
@@ -809,6 +878,21 @@ POST /api/student/assessment/notes
 
 ---
 
+## 20-1. Student — 탐구 노트 PDF 내보내기 (A28-51, 2026-11-24 사용자 지시 · DRAFT — 구현됨 · Migration 없음 · 팀 승인 별도)
+
+```http
+POST /api/student/assessment/school-assessments/{assessmentId}/note-export
+{ "subjectName": "한국사2", "meta": [["진행 상태", "시작 전"], ["평가 유형", "보고서"], ["평가일", null]] }
+→ 200 application/pdf (Content-Disposition: attachment; filename*=UTF-8''<제목>_탐구노트_<yyyy-MM-dd>.pdf)
+```
+
+- 학생 본인 수행평가(휴지통 아님)만. 남의 ID 404 `ASSESSMENT_NOT_FOUND`, 비인증 401. 쓰기가 없는 읽기 동작이며 관리자 경로는 두지 않는다.
+- 내용: 제목 · 과목(`subjectName`, 화면 표시용 문자열) · `meta`(화면 표시용 라벨·값 최대 12개, 값이 비면 '미정') · 노트 기준(**서버에 저장된 최신 Revision** 번호·저장 시각, 노트가 없으면 '저장된 노트 없음') · 내보낸 날짜 · 본문 블록(원문 글 그대로 — 요약·누락 없음) · 첨부 목록(이름·유형·크기·저장 여부).
+- 이미지 블록: `attrs.file.attachmentId` 가 **이 학생이 올린 노트 첨부(§26-1)** 이고 PNG·JPEG·GIF 이면 저장 바이트(SHA 재확인)를 본문에 넣는다. 그 밖(WEBP·PDF·HWP·Office·남의 첨부·바이트 없는 이전 첨부·용량 상한 초과)은 본문에 '[이미지/파일 첨부] 이름 (사유)'로 남기고 첨부 목록에 적는다. 외부 URL 은 읽지 않는다.
+- 상한: 본문 이미지 30개 · 이미지 1개 15MB · 4,000만 화소 · 합계 60MB 를 넘으면 그 이미지는 넣지 않고 사유를 적는다.
+- 글꼴: 서버 OS 에 설치된 한글 글꼴(`assessment.export.pdf-font-path` 설정, 없으면 Windows 맑은 고딕 · Linux Nanum/Noto CJK 순서로 찾음)을 부분 임베드해 **텍스트 선택·검색이 되는 PDF**. 글꼴이 없으면 `503 EXPORT_FONT_UNAVAILABLE`(빈 PDF 를 만들지 않음). 저장소에 글꼴 파일을 두지 않는다. 글꼴에 없는 글자(일부 이모지 등)는 '?' 로 바꾼다.
+- 편집 중 저장 안 된 내용은 포함되지 않는다 — 화면이 먼저 저장을 안내하고, PDF 머리에 기준 Revision 을 적는다.
+
 # 21. Student — 탐구 노트 Revision (ST-08·14)
 
 ```http
@@ -934,6 +1018,36 @@ GET /api/admin/assessment/artifacts/{artifactId}/versions/{versionId}/preview
 ```
 
 `file` 반환은 Backend Stream 또는 짧은 수명의 접근 제한 URL을 사용할 수 있으며 실제 방식은 Storage Provider 확인 후 결정한다. 어떤 경우든 서버가 소유권/관리자 담당 학생 권한을 검사한다. 원본·변환 Preview는 **별개 자원**, 변환 실패는 `PREVIEW_UNAVAILABLE`이지 `ARTIFACT_NOT_FOUND`가 아니다. DOCX/HWP/PPT 미리보기 미지원 시 파일명·MIME·원본 다운로드 가능 여부를 알린다.
+
+- A28-41(2026-11-23): 미리보기(`preview`) 허용 형식에 `image/webp`를 더한다(PDF·PNG·JPEG·GIF·WEBP). SVG·HTML 등 실행 가능한 형식은 여전히 업로드·미리보기 대상이 아니다.
+
+## 26-1. Student / Admin — 탐구 노트 첨부 파일 실제 저장 (A28-41, 2026-11-23 사용자 지시 · DRAFT — 구현됨 · Migration `V202611231000` · 팀 승인 별도)
+
+이전에는 노트의 이미지·파일 블록(`IMAGE`·`FILE`)에 이름·크기만 남고 바이트는 브라우저 메모리에만 있었다. 이제 바이트를 결과물과 같은 Storage(§25 `ArtifactStorage`, UUID 저장 키)에 저장하고 블록은 서버가 발급한 첨부 ID 를 가리킨다.
+
+```http
+POST /api/student/assessment/note-attachments                 # multipart: file (필수) → 201
+GET  /api/student/assessment/note-attachments/{attachmentId}/file      # 원본 (attachment)
+GET  /api/student/assessment/note-attachments/{attachmentId}/preview   # PDF·이미지만 inline, 아니면 415 PREVIEW_UNAVAILABLE
+GET  /api/admin/assessment/note-attachments/{attachmentId}/file
+GET  /api/admin/assessment/note-attachments/{attachmentId}/preview
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/file      # 학생 화면 보기(읽기 전용)
+GET  /api/admin/assessment/students/{studentId}/student-view/note-attachments/{attachmentId}/preview
+```
+
+응답(201):
+
+```json
+{ "attachmentId": "noteatt_…", "fileName": "실험 사진.png", "contentType": "image/png", "sizeBytes": 203364,
+  "sha256": "5b37…", "uploadedAt": "2026-11-23T14:28:48+09:00", "previewSupported": true }
+```
+
+- 허용 형식·검사: §25 결과물과 같다(PDF·HWP·HWPX·DOC·DOCX·PPT·PPTX·XLS·XLSX·PNG·JPG·JPEG·GIF·WEBP). 확장자와 파일 앞부분 서명이 **둘 다** 맞아야 하고 Content-Type 은 서버가 정한다. 0바이트 `400 file empty`, 최대 `assessment.storage.max-file-bytes`(기본 50MB) 초과 `413 FILE_TOO_LARGE`, 형식 불일치 `415 UNSUPPORTED_FILE_TYPE`. 파일 이름은 표시·다운로드 이름으로만 쓰고 저장 경로에 쓰지 않는다.
+- 저장: 파일 → DB 순서, DB Transaction 이 실패하면 방금 쓴 파일을 지운다(파일만 남지 않음). 행은 **불변**(덮어쓰기·삭제 Endpoint 없음). 학생이 블록의 파일을 바꾸면 새 첨부가 생기고 이전 첨부와 그 바이트는 그대로 남아, 이미 보낸 피드백 Snapshot(그 때의 노트 Revision)이 가리키는 파일이 유지된다.
+- 블록 연결: 업로드 응답을 `IMAGE`·`FILE` 블록 `attrs.file` 에 `{ name, size, mimeType, attachmentId, sha256 }` 로 넣고 노트를 저장한다(§20). 노트 저장 시 `attrs.file.attachmentId` 가 있으면 **그 학생이 올린 첨부**여야 한다(아니면 `400 blocks[i].attrs.file.attachmentId unknown`). `attachmentId` 가 없는 이전 블록은 바이트가 없어 열 수 없다 — 화면은 '파일이 저장되지 않은 이전 첨부 · 다시 첨부 필요'로 알리고 메타데이터는 그대로 둔다(파일을 만들지 않는다).
+- 권한: 학생은 본인 첨부만(남의 ID 는 `404 NOTE_ATTACHMENT_NOT_FOUND`). 관리자는 담당 학생 첨부만(범위 밖 `404`, 인증 없음 `401`). 학생 화면 보기 경로는 그 학생의 첨부만 읽는다. 쓰기 경로는 학생 본인만이고 관리자는 업로드·수정할 수 없다.
+- 응답 Header: §26 과 같다(`Content-Disposition` UTF-8 파일 이름, `X-Content-Type-Options: nosniff`, `Cache-Control: private, no-store`). 미리보기는 저장 바이트의 크기·SHA-256 이 등록 값과 같을 때만(`409 FILE_INTEGRITY_FAILED`). 저장 키·서버 경로는 응답에 넣지 않는다.
+- 업로드만 하고 노트를 저장하지 않은 첨부(고아 행)는 바이트와 행이 함께 남는다(깨진 행 없음). 정리 정책은 Open Decision.
 
 ---
 
@@ -1250,6 +1364,7 @@ GET /api/admin/assessment/schools?query=예시&limit=50
 - 항목: `{ schoolId, name, nameSource, planCount, latestAcademicYear }`. `name`은 그 학교 최근 문서 슬롯의 학업 Context에서 확인될 때만(`nameSource = "ACADEMIC_CONTEXT"`), 아니면 `null` — 이름을 지어내지 않는다. 동명 학교 구분은 `schoolId`로 한다(지역·학교급은 Master 연결 후 추가).
 - 권한: 평가계획서 운영과 같다(OD-A08). 목록에 없는 학교도 `schoolId`로 등록·운영할 수 있다. 학생 기록·Student Care 권한과 무관하다. 인증 없음·학생 `401`.
 - Master 연결 시(1팀): `coverage = "MASTER"`, `masterConnected = true`로 바꾸고 `region`·`schoolKind`를 추가한다(하위 호환).
+- **A28-10 (2026-11-22) 같은 학교 한 번만**: 학교알리미 검색으로 만든 `si_` 학교 키가 **같은 학교알리미 고유 ID** 를 쓰는 담당·시연 학교 키(ACTIVE 관리자 매핑 → 시연 명단 고정 순)의 별칭이면 목록에서 빼고 대표 학교 하나만 보인다(문서 수를 합치거나 두 번 세지 않음). 학교 이름만 같고 고유 ID 가 다르면 각각 남는다. 별칭 키의 문서·원본·기록은 지우거나 옮기지 않는다(직접 `schoolId` 조회는 그대로 가능). 이후 학교알리미 검색으로 같은 학교를 고르면 새 `si_` 키를 만들지 않고 대표 학교 키를 쓴다(§38-13).
 
 ### 38-4. 문서 슬롯 학업 과목 (A6, 2026-11-15 DRAFT — 구현됨)
 
@@ -1369,7 +1484,7 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 
 `decision=CONFIRM`은 **공통 평가정보 확인**이지 학생 과제 승인/반려가 아니다. PDF 비율 합계가 원본과 다르면 경고하며 자동 재배분하지 않는다. 확인 결과의 공개 범위는 학교·학년도·학년·학기로 제한된다. 추출 실패/부분 성공/수동 정정·확인 상태를 구분한다.
 
-### 38-11. 학교알리미에서 평가계획서 불러오기 (2026-11-18 DRAFT — 구현됨)
+### 38-11. 학교알리미에서 평가계획서 불러오기 (2026-11-18 DRAFT — 구현됨, 2026-11-19 A27-UX Worktree 통합 · 부록 E 변경분 **팀 승인 완료(2026-11-19 사용자 전달)**)
 
 `POST /api/admin/assessment/evaluation-plans/import-from-schoolinfo` (평가계획서 운영 권한, §38-2)
 
@@ -1395,14 +1510,282 @@ PUT  /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revi
 | 상황 | 응답 |
 |---|---|
 | 학교를 못 찾음 | `404 SCHOOLINFO_SCHOOL_NOT_FOUND` |
+| 같은 이름으로 학교가 2곳 이상 검색됨 (2026-11-19 A27-UX 부록 D 추가 — 첫 학교를 임의로 고르지 않음, 아무 문서도 등록하지 않음) | `409 SCHOOLINFO_SCHOOL_AMBIGUOUS` |
 | 평가계획 공시·첨부 없음 | `404 SCHOOLINFO_PLAN_NOT_PUBLISHED` |
 | 학교알리미 연결 실패(일시 오류 3번 재시도 후) | `503 SCHOOLINFO_UNAVAILABLE` |
 | 파일 하나의 등록·분석 실패 | 202/200, 그 파일만 `message`에 사유 (다른 파일은 계속) |
 | 모르는 작업 번호 · 다른 관리자의 작업 | `404 SCHOOLINFO_JOB_NOT_FOUND` |
 
+- **A27-UX 통합 메모(2026-11-19)**: `sourceUrl=https://www.schoolinfo.go.kr`은 관리자 등록 문서의 참고 표시일 뿐이다. 학생 §10-1-3 공식 원본 공급자(`OfficialPlanSourceProvider`)에는 **연결하지 않았다** — 서버가 수집 경로를 증명하는 출처 메타데이터(별도 계약·Migration 필요)가 생기기 전까지 학생 화면은 '공식 원본이 아직 확인되지 않았어요'를 그대로 보인다. 작업 상태는 서버 메모리(최근 50개)라 재시작 시 사라지고, 취소·재시도 API는 없다(파일별 결과는 각 문서 §39에 남는다).
+
+- **A27-UX 부록 E 변경(2026-11-19, 사용자 지시)**: 이 Endpoint도 아래 §38-12의 **연도별 조회 + 출처 분류**를 거친다. 요청 `academicYear`로 학교알리미를 연도 지정 조회하고, 분류가 `VERIFIED`인 파일만 그 학년도 슬롯에 등록한다. 학년·학기 근거가 없는 파일에 `defaultGrade`(또는 1학년)를 붙이던 동작과 다른 학기 파일을 이름만 보고 거르던 동작은 **없앴다** — `skipped=true`, `message`에 분류 사유(`NEEDS_SOURCE_VERIFICATION`·`YEAR_MISMATCH`·`UNCLASSIFIED`)가 나온다. `defaultGrade`는 받지만 쓰지 않는다(하위 호환). 관리자 화면은 이 Endpoint 대신 §38-12를 쓴다.
+
+### 38-12. 학교알리미 최근 3개 학년도 자동 확인 (A27-UX 부록 E, 2026-11-19 DRAFT · 사용자 지시 · **팀 승인 완료(2026-11-19 사용자 전달)**)
+
+관리자가 평가계획서 탭에서 학교를 고르면 화면이 **버튼 없이** 아래 명령을 보낸다. 서버는 최근 3개 학년도 × 1~3학년 × 1·2학기 = **18개 구간**의 학교알리미 공시 원본을 **학년도마다 따로** 조회하고, 출처가 확인된 파일만 그 학년도·학년·학기 슬롯에 일반 문서(§38)로 등록한 뒤 서버 분석(§39-1)을 차례로 돌린다. **검토·확정은 관리자만 한다**(자동 확정 없음). 학생 공개 범위(확정 Revision만)는 바뀌지 않고, 학생 §10-1-3 공식 원본 공급자에는 연결하지 않는다.
+
+`POST /api/admin/assessment/evaluation-plans/schoolinfo-sync` (평가계획서 운영 권한, §38-2)
+
+```json
+{ "schoolId": "school_001", "requestedAcademicYears": [2026, 2025, 2024], "grades": [1, 2, 3], "semesters": [1, 2] }
+```
+
+- **기준 학년도** = 서버 시계(`Asia/Seoul`)의 달력 연도 Y. 기대 배열은 `[Y, Y-1, Y-2]`(이 순서, 중복 없음). 학교알리미 공시연도와 같다는 가정이 아니다(사용자 정책). 요청 배열이 다르면 `409 SCHOOLINFO_SYNC_YEARS_MISMATCH`, `details.expectedAcademicYears`에 서버 기대값 — 화면은 그 값으로 다시 보낸다. `grades`는 `[1,2,3]`, `semesters`는 `[1,2]`만 허용(그 밖은 같은 409).
+- **학교 식별**: 학교 이름은 요청에서 받지 않는다. 서버가 학업 Context(§38-3과 같은 원천)에서 그 학교의 이름을 찾는다. 이름이 없으면 외부 요청 없이 모든 학년도 `SCHOOL_IDENTITY_REQUIRED`. 학교알리미 검색 결과가 2곳 이상이면 `SCHOOL_AMBIGUOUS`(첫 학교를 고르지 않음), 1곳이어도 학교알리미의 학교 이름이 공백을 뺀 값으로 정확히 같지 않으면 `SCHOOL_AMBIGUOUS`. 지역·주소·학교알리미 고유 ID 저장소가 없어 그 이상 맞출 수 없다(결정 필요).
+- **같은 학교 작업 재사용**: 진행 중인 작업이 있으면 그 작업을 돌려준다. 끝난 작업이어도 세 학년도의 마지막 확인이 TTL(`assessment.schoolinfo.sync-ttl-hours`, 기본 24시간) 안이고 `FAILED`가 아니면 외부 요청 없이 같은 결과를 돌려준다. `FAILED`·확인 기록 없음·TTL 지남인 학년도만 다시 조회한다. 서버를 다시 켜도 확인 기록·원본·슬롯 연결은 DB에 남아 다시 등록하지 않는다.
+- 응답 `202 Accepted` (작업 시작·진행 중) 또는 `200 OK` (외부 조회 없이 기록으로 답함). 같은 모양:
+
+```json
+{ "jobId": "schoolinfo_sync_…", "schoolId": "school_001", "requestedAcademicYears": [2026, 2025, 2024],
+  "state": "RUNNING",
+  "yearStatuses": [ { "academicYear": 2026, "status": "COMPLETED", "resolvedSourceYear": 2026, "checkedAt": "…", "message": null },
+                    { "academicYear": 2025, "status": "NOT_PUBLISHED", "resolvedSourceYear": null, "checkedAt": "…", "message": "…" },
+                    { "academicYear": 2024, "status": "FETCHING", "resolvedSourceYear": null, "checkedAt": null, "message": null } ],
+  "slotStatuses": [ { "academicYear": 2026, "grade": 1, "semester": 1, "status": "REGISTERED", "sourceFileCount": 2,
+                      "registeredPlanCount": 2, "analysisStatus": "ANALYZING" } ],
+  "counts": { "expectedSlots": 18, "verifiedSlots": 1, "uniqueSourceFiles": 3, "registeredPlans": 2, "slotLinks": 2,
+              "downloads": 3, "reused": 0, "analysisCompleted": 0 },
+  "unresolvedFiles": [ { "academicYear": 2026, "fileName": "평가계획(전체).pdf", "sha256": "…", "status": "UNCLASSIFIED", "reason": "NO_SEMESTER_EVIDENCE" } ] }
+```
+
+- `slotStatuses`는 **항상 18개**(학년도 내림차순 → 학년 → 학기). 성공을 가정해 채우지 않는다.
+- **상태 (세 층을 섞지 않는다)**
+  - 작업 `state`: `RUNNING` · `COMPLETED`(세 학년도 모두 `COMPLETED`) · `PARTIAL`(그 밖에 하나라도 끝난 결과가 있음) · `FAILED`(세 학년도 모두 `FAILED`·`SCHOOL_*`).
+  - 학년도 `status`: `QUEUED` · `FETCHING` · `COMPLETED`(받은 공시 파일이 모두 확인·등록됨) · `PARTIAL`(일부만 확인) · `NEEDS_SOURCE_VERIFICATION`(받은 파일 중 확인된 것 없음) · `YEAR_MISMATCH`(학교알리미가 다른 학년도 공시를 돌려줌) · `NOT_PUBLISHED`(그 학년도 공시·첨부 없음) · `YEAR_UNAVAILABLE`(학교알리미가 그 학년도를 고를 수 없게 함) · `SCHOOL_AMBIGUOUS` · `SCHOOL_NOT_FOUND` · `SCHOOL_IDENTITY_REQUIRED` · `FAILED`(연결 실패·429·5xx·시간 초과 — **미공시로 보지 않는다**. 다음 POST에서 다시 확인).
+  - 슬롯 `status`(수집): 학년도 상태가 끝나지 않았으면 그 값, 연결된 원본의 문서가 남아 있으면 `REGISTERED`, 연결 문서를 관리자가 모두 삭제했으면 `REMOVED_BY_ADMIN`(자동 확인이 **다시 등록하지 않는다**), 없으면 학년도 결과에 따라 `NO_SOURCE_FOR_SLOT`(확인했지만 이 칸 원본 없음 — 오류 아님) · `NEEDS_SOURCE_VERIFICATION`(그 학년도에 분류 못 한 원본이 있음) · 학년도 상태 그대로.
+  - 슬롯 `analysisStatus`(분석, 수집과 별개): `NONE` · `QUEUED` · `ANALYZING` · `ANALYZED`(§39-2 `REVIEW_REQUIRED`·`PARTIAL`) · `FAILED`. 검토·확정 상태는 기존 §38·§39 응답이 그대로 알려 준다.
+- **출처 분류 (파일마다)**: 아래를 **모두** 만족해야 `VERIFIED`이고, 그때만 슬롯에 등록한다.
+  1. 학교알리미 연도 지정 조회가 신뢰된 설정(`assessment.schoolinfo.year-query-verified=true`)이다. **기본값 false** — 실제 학교알리미에서 `JG_YEAR` 등 연도 파라미터 의미를 실측하기 전에는 받은 파일을 모두 `NEEDS_SOURCE_VERIFICATION`(사유 `YEAR_QUERY_UNVERIFIED`)으로 두고 등록하지 않는다.
+  2. 학교알리미 응답이 되돌려 준 공시연도(`resolvedSourceYear`)가 요청 학년도와 같다. 다르면 `YEAR_MISMATCH`, 없으면 `NEEDS_SOURCE_VERIFICATION`.
+  3. 파일 이름 또는 원문 앞부분에 'YYYY학년도'(파일 이름은 'YYYY'도) 근거가 있고 그 값이 요청 학년도다. 다른 학년도만 있으면 `YEAR_MISMATCH`, 근거가 없으면 `NEEDS_SOURCE_VERIFICATION`.
+  4. 파일 이름(없으면 원문 제목줄)에 학년 근거('1학년'·'1,2학년'·'1~3학년'·'전학년')와 학기 근거('1학기'·'2학기'·'1,2학기'·'1·2학기')가 있다. 없으면 `UNCLASSIFIED` — **임의 1학년·최신 학기로 넣지 않는다.** 여러 학년·두 학기가 확인되면 그 슬롯마다 등록한다(원본 SHA·출처는 하나).
+  - PDF·HWP·HWPX가 아니면 `UNSUPPORTED`, 성적관리규정 등은 `NOT_PLAN`(둘 다 등록 안 함, 목록에는 남음).
+- **중복·개정**: 원본은 (학교, 조회 학년도, SHA-256)로 한 번만 기록한다. 슬롯 연결은 (학교, 학년도, 학년, 학기, 원본)마다 하나(DB Unique). 같은 SHA를 다시 받으면 문서·Revision을 만들지 않는다(`reused`). 같은 슬롯·같은 파일 이름의 원본 SHA가 바뀌면 **새 문서가 아니라 기존 문서의 새 Revision**(§38 개정)으로 넣는다 — 이전 Revision·확정값·초안·확정 이력·`subjectExclusions`는 그대로다. 파일 이름이 같다는 이유만으로 같은 원본으로 보지 않는다. 관리자 수동 업로드 문서와는 합치지 않는다.
+- 분류하지 못한 원본은 바이트를 격리 Storage에 보관하고 `unresolvedFiles`에 남긴다(삭제·숨김 없음). 관리자가 분류를 정하는 API는 아직 없다(결정 필요).
+- 등록 문서의 `sourceUrl`은 학교알리미 학교·학년도 공시 주소(`…/ei/ss/Pneiss_b01_s0.do?SHL_IDF_CD=…&JG_YEAR=…`)다. 출처 상세(학교알리미 학교 ID·조회 학년도·되돌려 준 공시연도·첨부 순번·파일 이름·SHA·크기·형식·받은 시각·분류 근거)는 관리자 응답에만 있다.
+- **외부 안전**: 주소는 `https://www.schoolinfo.go.kr`만(시험은 루프백 주소를 설정으로만 허용). Redirect는 같은 호스트로 3번까지만. 한 파일 30MB, ZIP은 항목 100개(부록 H, 이전 50개)·풀린 합계 100MB까지, ZIP 안 ZIP·경로(`../`)는 받지 않는다. 429·5xx·연결 오류는 한 요청에 최대 3번 다시 시도(지수 대기) 후 그 학년도만 `FAILED`. 요청 사이 0.5초 대기, 학교·학년도 조회와 분석은 서버 작업 1개가 차례로 돈다.
+
+`GET /api/admin/assessment/evaluation-plans/schoolinfo-sync/{jobId}` → 같은 모양 `200`. **읽기만 한다**(외부 요청·DB 쓰기 없음). 운영 권한 관리자면 학교와 무관하게 본다(OD-A08). 모르는 작업 → `404 SCHOOLINFO_JOB_NOT_FOUND`(서버 재시작 뒤에는 POST를 다시 보내면 기록으로 답한다).
+
+| 상황 | 응답 |
+|---|---|
+| 요청 학년도·학년·학기가 서버 기대값과 다름 | `409 SCHOOLINFO_SYNC_YEARS_MISMATCH` + `details.expectedAcademicYears` |
+| `schoolId` 빈칸·길이 초과 | `400` |
+| 운영 권한 없음 | `403` · 학생 인증 | `401`/`403` (관리자 Actor 아님) |
+
+
+- **§38-12 요청 확장 (A27-UX 부록 F, 2026-11-19, 하위 호환 추가)**: 선택 필드 `force`(기본 false). 관리자가 화면의 '다시 확인'을 직접 눌렀을 때만 true — 진행 중 작업이 없으면 TTL과 무관하게 세 학년도를 모두 다시 확인한다. 화면 진입·탭 왕복·새로고침은 false(기존 TTL 재사용 그대로).
+- **§38-12 응답 확장 (A27-UX 부록 F, 2026-11-19, 하위 호환 추가)**
+  - `schoolSelection`: 학교 식별 상태. `null`이면 선택이 필요 없다(이름이 하나뿐인 학교 · 이미 선택한 학교).
+    ```json
+    { "required": true, "reason": "SAME_NAME_CANDIDATES",
+      "candidates": [ { "candidateId": "cand_…", "schoolName": "예시고등학교", "sido": "서울특별시", "sigungu": "강남구",
+                        "address": "서울특별시 강남구 …", "selectable": true, "unselectableReason": null } ],
+      "selected": { "schoolName": "예시고등학교", "sido": "서울특별시", "sigungu": "강남구", "address": "…", "selectedAt": "…", "version": 1 },
+      "mappingVersion": 1 }
+    ```
+    - `reason`: `SAME_NAME_CANDIDATES`(이름이 같은 학교가 2곳 이상) · `MAPPING_CHANGED`(선택해 둔 학교의 이름·주소가 학교알리미에서 바뀜 → 선택 무효, 다시 선택) · `TOO_MANY_CANDIDATES`(10곳 초과 — 선택 불가, 수동 등록 안내).
+    - 후보의 이름·주소는 **학교알리미 학교 상세 화면에서 읽은 값**이다. `sido`·`sigungu`는 그 주소의 첫 두 낱말에서만 나눈다(지역 목록을 따로 두지 않는다). 주소를 읽지 못하면 `address=null`, `selectable=false`, `unselectableReason=ADDRESS_MISSING`. 주소가 같은 후보끼리는 `ADDRESS_DUPLICATE`로 둘 다 선택 불가.
+    - `candidateId`는 서버가 이 작업 안에서만 만든 값이다(학교알리미 학교 ID를 화면에 주지 않는다).
+    - `mappingVersion`: 저장된 학교 선택의 현재 version(무효가 된 선택 포함, 없으면 0). §38-13 `expectedVersion`으로 보낸다.
+  - `unresolvedFiles[]`에 `sourceFileId`·`group`(`SOURCE_VERIFICATION` · `CLASSIFICATION` · `OTHER`) 추가. `CLASSIFICATION`만 §38-14로 분류할 수 있다.
+  - 슬롯 상태는 그대로다. 학교 선택이 필요한 학년도는 `SCHOOL_AMBIGUOUS`.
+- **팀 승인 기록**: 2026-11-19 사용자 전달 — §38-11 변경(부록 E)·§38-12·`REMOVED_BY_ADMIN`·Migration `V202611190200__assessment_schoolinfo_sync.sql` **팀 승인 완료**. 승인 주체·회의록·시각은 전달받지 않았다. 이 승인은 사용자 DB 적용·실제 학교알리미 접속·Git 작업 승인이 아니다. 부록 F에서 새로 만든 §38-13·§38-14·`V202611190300`은 이 통지에 포함되지 않았다(팀 승인 별도).
+
+- **부록 G 변경 (2026-11-19 사용자 승인 · 실측 근거)**
+  - **공시 차수**: 학교알리미 항목 화면은 학년도마다 공시 차수(실측: 1차 = 4월, 3차 = 9월)가 따로 있고 기본 화면은 최신 차수만 준다. 서버는 기본 화면 뒤 같은 학년도의 다른 차수를 `JG_CHASU`로 한 번 더 요청한다. 서버가 그 차수를 돌려주지 않으면(선택된 차수가 다름) 그 화면 파일은 쓰지 않는다(`CHASU_IGNORED`, 문제 목록에만 남김). 파일마다 그 차수의 공시월을 기록한다(증거 `disclosureMonth`).
+  - **학기**: ① 원문(파일 이름·제목)의 명시 학기 → ② 공식 공시월(4월 = 1학기, 9월 = 2학기) → ③ 보류. ①과 ②가 다르면 `UNCLASSIFIED`·`SEMESTER_CONFLICT`(원문이 1·2학기 둘 다 명시하면 두 학기). 4·9월이 아닌 공시월·공시월 없음은 학기를 정하지 않는다(`NO_SEMESTER_EVIDENCE`). 문서 안의 '4월 평가'처럼 시행월은 쓰지 않는다.
+  - **학년**: 이름·제목의 학년이 있으면 그 학년만. 없고 학기가 정해졌으면 본문 앞부분(약 4만 자)을 본다 — 학년 표기가 없으면 고1·고2·고3 모두(`VERIFIED`, 사유 `GRADE_UNSPECIFIED_ALL_GRADES_APPLIED`), 1·2·3학년을 모두 가리키면 모두(`GRADES_FROM_BODY_ALL`), 일부만 가리키면 `UNCLASSIFIED`·`GRADE_SCOPE_CONFLICT`(관리자 분류 §38-14). 전 학년 연결은 **문서의 관리 슬롯 분류**이지 학생 공식 개설 과목 선언이 아니다. 원본 SHA·출처는 하나이고 칸 연결만 여럿이다.
+  - **A28-09 (2026-11-22) 과별 공시**: 파일 이름에 학년이 없고 '…과 교수학습/평가' 형태(교과 단위 공시)인데 제목 첫머리에서 학년이 **하나만**(첫 단원 표의 학년) 보이면, 본문이 1·2·3학년을 모두 다룰 때 같은 학년도·같은 학기의 고1·고2·고3 공용 원본으로 본다(`VERIFIED`, 사유·`gradeFrom` = `GRADES_FROM_BODY_ALL`, 근거 `titleGrades`·`bodyGrades`). 제목에 학년이 둘 이상 명시되거나, 본문이 일부 학년만 더 가리키거나, 과별 공시 이름이 아니면 이전 규칙 그대로(넓히지 않음). 다른 학기·학년도·학교로 복제하지 않는다. 확정된 평가 정보는 그 문서(칸)의 확정이며 다른 학년 칸으로 복사하지 않는다.
+  - **A28-24 (2026-11-22) 과별 통합 공시 — 원문 전체의 과목 단원 학년**: 과별 공시(제목 학년 하나)는 본문 4만 자만 보면 2·3학년 과목 단원이 뒤에 있어 고1 로 잘못 고정됐다. 원문 전체(HWP·HWPX, PDF 는 앞 20쪽)에서 **과목 계획 머리글 `[과목](과) 교수학습 및 평가 (운영) 계획` 뒤 80자 안의 `N학년`** 만 모아(`sectionGrades`) 1·2·3 모두면 전 학년(`GRADES_FROM_BODY_ALL`, `gradeFrom = SECTION_GRADES`), 둘 이상 일부면 그 학년만(`GRADES_FROM_SECTIONS`), 아니면 이전 규칙. 학년 낱말 단순 출현은 근거가 아니다. 파일 이름에 학년이 있으면 적용하지 않는다. 같은 학년도·학기만.
+  - **보정 범위 제한**: `assessment.schoolinfo.grade-scope-repair-scope=학교키:학년도[,…]`. `apply` 는 범위가 없으면 거절(광범위 일괄 보정 방지), `dry-run` 은 범위 없이 전체 보고 가능. 새 판정이 제목 학년보다 넓을 때 빠진 학년 칸 연결만 더한다(멱등).
+  - **기존 데이터 보정(1회성, 기본 꺼짐)**: `assessment.schoolinfo.grade-scope-repair=dry-run|apply`(+ `…-report` 경로). 이미 '제목 학년' 한 칸에만 연결된 원본을 보관 원본(SHA 재확인)으로 위 규칙으로 다시 판정해 **빠진 학년 칸 연결만** 기존 연결 경로로 더한다. 기존 연결·문서·Revision·검토·확정은 바꾸지 않고, 다시 실행하면 0건(멱등). 학교알리미에 다시 접속하지 않는다.
+  - 학년도·출처·학교 식별 규칙(조건 1~3)은 그대로다 — 연도 불일치·출처 미확인·학교 미선택이면 전 학년 연결도 하지 않는다.
+  - 학년 미표기 → 전 학년으로 자동 연결된 원본은 §38-14 목록에 `group=AUTO_ALL_GRADES`로 따로 보인다(사유·공시월·연결 칸). 실제로 그 학년 문서가 아닌 칸은 평가계획서 칸의 문서 삭제(§38-9)로 뺀다 — 자동 확인이 다시 넣지 않는다(`REMOVED_BY_ADMIN`).
+  - **형식**: ZIP 서명만 보고 HWPX로 보지 않는다(첫 항목 `mimetype = application/hwp+zip` 확인). DOCX 등은 `UNSUPPORTED`. '최소 성취수준 보장지도 운영 계획'은 `NOT_PLAN`.
+  - **학교 상세 주소**: 실측 구조 `<span class="mt">주소 :</span>값</span>`을 먼저 읽는다(예전 `<th>주소</th><td>` 가정도 남김).
+- **부록 H 변경 (2026-11-20 사용자 승인 · 실측 근거)**
+  - **학교 검색 더보기**: 학교알리미 검색 첫 화면은 학교급마다 2곳만 보이고 '고등학교(N) 더보기'로 나머지를 숨긴다(실측: '한빛고등학교' 고등학교 4곳 중 대전한빛·위례한빛만 보임 → 파주·담양 한빛고등학교 누락). 서버는 첫 화면에 '고등학교(N)'이 있으면 고등학교 목록(`SEARCH_TYPE=2`, `SEARCH_MODE=3`)을 한 번 더 받아 그 목록을 후보로 쓴다. 목록에서 N곳을 다 읽지 못하면 학교를 고르지 않는다(동기화 `SCHOOL_AMBIGUOUS`·`selection.reason=TOO_MANY_CANDIDATES`, 단건 가져오기 `409 SCHOOLINFO_SCHOOL_AMBIGUOUS`). 표시가 없는 예전 모양은 첫 화면 목록 그대로.
+  - **ZIP 항목 수**: 50 → 100(실측: 상산고 2024 1학기 '전과목' ZIP 63항목, 풀린 합계 7.4MB). 풀린 합계 100MB·한 파일 30MB·ZIP 안 ZIP·경로 규칙은 그대로.
+  - **4월 공시 LIVE**: 가좌고(경기 고양)·상산고·한빛고(경기 파주) × 2024~2026, `JG_CHASU=1` 요청 9건 모두 선택 차수 `YYYY1`(1차 04월)·Form `JG_YEAR`=요청 학년도·`JG_CHASU=1` 로 돌아왔다(부록 H2).
+  - **운영 설정**: `assessment.schoolinfo.year-query-verified=true`는 Spring 프로필 `local-run`(사용자 로컬 운영 8080 + `lh_local_run`)에만 둔다. 기본·Unit·IT·e2e 는 false. 켜져도 위 조건 1~3·부록 G 규칙·형식·`NOT_PLAN`·중복·관리자 삭제 존중은 파일마다 그대로이고, 설정만으로 조회하지 않는다(관리자 화면 진입·'다시 확인'만).
+- **부록 I 변경 (2026-11-20 · 실측 재현 근거)**: 첨부 내려받기 응답이 2xx 가 아니면(만료·삭제 첨부의 404 오류 페이지 등) 그 본문을 원본으로 쓰지 않고 그 첨부만 문제 목록에 남긴다(`reason=FILE_DOWNLOAD_FAILED`, `group=OTHER`). 일부 첨부만 실패하면 학년도 `PARTIAL`, 전부 실패하면 `FAILED`(공시 없음 `NOT_PUBLISHED`과 구분). 9월(3차) 공시 LIVE: 고양 가좌고·파주 한빛고 × 2024~2026 `JG_CHASU=3` 6건 모두 선택 차수 `YYYY3`(09월)·Form `JG_YEAR`=요청 학년도(부록 I).
+- **Migration 적용 기록 (2026-11-19)**: `V202611190100`·`V202611190200`·`V202611190300`을 사용자 DB(`lh_local_run`)에 **적용 완료**(사용자 승인 · 백업·복제 DB 검증 뒤, 부록 G). `V202611180100`(PR 검토 테이블 병합, DROP 포함)은 현재 코드와 호환되지 않아 **도입·적용하지 않음**(B안 유지).
+
+### 38-13. 학교알리미 동명 학교 선택 (A27-UX 부록 F, 2026-11-19 DRAFT · 사용자 지시 · 팀 승인 별도 · 부록 G 실측: 가좌고등학교 2곳(인천·경기 고양)에서 실제 동명 확인)
+
+§38-12 응답이 `schoolSelection.required=true`이면 관리자가 지역·주소를 대조해 후보 하나를 고른다. 고르기 전에는 그 학교의 자동 수집이 멈춰 있다(다른 후보로 자동 전환하지 않음).
+
+`POST /api/admin/assessment/evaluation-plans/schoolinfo-sync/school-selection` (평가계획서 운영 권한)
+
+```json
+{ "schoolId": "school_001", "jobId": "schoolinfo_sync_…", "candidateId": "cand_…", "expectedVersion": 0 }
+```
+
+- 서버가 확인하는 것: 작업이 이 학교 것인가 · 후보가 그 작업이 보여 준 후보인가 · `selectable`인가 · 학교 이름이 이 학교(학업 Context)와 같은가. 하나라도 아니면 `409 SCHOOLINFO_SELECTION_INVALID`(등록 0건).
+- 저장: 학교마다 선택 하나(`assessment_schoolinfo_school_mapping`, 학교알리미 학교 ID·이름·주소·시도·시군구·선택한 관리자·시각·`version`). `expectedVersion`이 현재 선택 `version`(없으면 0)과 다르면 `409 SCHOOLINFO_SELECTION_CONFLICT`. 같은 후보를 다시 보내면 그대로(멱등).
+- 선택 직후 **그 학교 하나만** 세 학년도를 TTL과 무관하게 다시 확인하는 작업을 시작한다. 응답은 §38-12와 같은 모양(`202`).
+- 다음 확인부터는 검색 대신 선택한 학교를 바로 확인한다. 그때 학교알리미 이름·주소가 선택 때와 다르면 선택을 무효로 하고(`status=INVALIDATED`) 다시 고르게 한다(`reason=MAPPING_CHANGED`, 등록 0건).
+- 한계: 실제 학교알리미의 학교 상세에 주소가 어떤 모양으로 있는지 **실측하지 않았다**. 가상 학교알리미에서만 확인했다. 실제 화면에서 주소를 읽지 못하면 모든 후보가 `ADDRESS_MISSING`으로 선택 불가가 되고 수동 등록을 안내한다(추측 연결 없음).
+
+| 상황 | 응답 |
+|---|---|
+| 작업·후보가 맞지 않음 · 선택 불가 후보 · 이름 불일치 | `409 SCHOOLINFO_SELECTION_INVALID` |
+| 다른 관리자가 먼저 다른 학교를 골랐음 | `409 SCHOOLINFO_SELECTION_CONFLICT` |
+| 서버 재시작 등으로 작업이 없음 | `404 SCHOOLINFO_JOB_NOT_FOUND` → §38-12 POST 다시 |
+
+### 38-14. 분류하지 못한 학교알리미 원본의 학년·학기 분류 (A27-UX 부록 F, 2026-11-19 DRAFT · 사용자 지시 · 팀 승인 별도)
+
+두 단계를 섞지 않는다.
+
+1. **출처·학교·학년도 확인** — 서버가 받을 때 정한다(§38-12 분류). `NEEDS_SOURCE_VERIFICATION`·`YEAR_MISMATCH`(사유 `YEAR_QUERY_UNVERIFIED`·`DISCLOSURE_YEAR_DIFFERS`·`FILE_YEAR_DIFFERS`·`FILE_YEAR_CONFLICT`·`NO_FILE_YEAR_EVIDENCE` 등)는 **관리자가 학년·학기를 골라도 등록할 수 없다**(`group=SOURCE_VERIFICATION`).
+2. **학년·학기 분류** — 출처·학년도가 확인됐지만 학년·학기 근거만 없는 원본(`UNCLASSIFIED`, `group=CLASSIFICATION`)만 관리자가 정한다. 분석 결과 확정·학생 공개가 아니다 — 분류 뒤에는 기존 분석(§39-1)·검토·확정(§39) 흐름 그대로다.
+
+`GET /api/admin/assessment/evaluation-plans/schoolinfo-sources?schoolId=` → 최근 3개 학년도(§38-12 기준)의 확인되지 않은 원본, 분류한 원본, 학년 미표기로 전 학년에 자동 연결된 원본(`group=AUTO_ALL_GRADES`, 부록 G)
+
+```json
+{ "schoolId": "school_001", "academicYears": [2026, 2025, 2024],
+  "items": [ { "sourceFileId": "si_src_…", "academicYear": 2025, "resolvedSourceYear": 2025, "fileName": "…", "format": "PDF",
+               "sizeBytes": 12345, "sha256": "…", "verification": "UNCLASSIFIED", "reason": "NO_SEMESTER_EVIDENCE",
+               "group": "CLASSIFICATION", "classifiable": true, "evidence": { "grades": [2], "semesters": [] },
+               "classification": { "version": 1, "grades": [1, 2], "semesters": [1], "note": "목차 3쪽", "decidedBy": "adm_…", "decidedAt": "…" },
+               "history": [ { "version": 1, "grades": [1, 2], "semesters": [1], "note": "…", "decidedBy": "…", "decidedAt": "…" } ],
+               "linkedSlots": [ { "grade": 1, "semester": 1, "planId": "plan_…" } ], "originalAvailable": true } ] }
+```
+
+`GET …/schoolinfo-sources/{sourceFileId}/file?schoolId=` → 원본 바이트(관리자만, 형식 확인된 Content-Type, 첨부 내려받기). 학교가 다르면 `404`.
+
+`PUT …/schoolinfo-sources/{sourceFileId}/classification`
+
+```json
+{ "schoolId": "school_001", "academicYear": 2025, "grades": [1, 2], "semesters": [1], "note": "목차 3쪽 '1학기'", "expectedVersion": 0 }
+```
+
+- `academicYear`는 그 원본의 조회 학년도와 같아야 한다(2025 원본을 2026 칸에 넣을 수 없음). `grades` ⊂ {1,2,3}·`semesters` ⊂ {1,2}, 각각 1개 이상, `note` ≤ 200.
+- 고른 학년 × 학기마다 §38 문서로 등록하고 슬롯에 연결한다(원본 SHA·출처 하나). 이미 연결된 칸은 그대로(중복 0). 관리자가 삭제한 문서(`REMOVED_BY_ADMIN`)는 되살리지 않는다.
+- 분류는 Revision으로 쌓인다(`assessment_schoolinfo_classification`, 지우지 않음). `expectedVersion`이 최신 `version`(없으면 0)과 다르면 `409 SCHOOLINFO_CLASSIFICATION_CONFLICT`.
+- 이미 연결된 칸을 빼는 재분류는 `409 SCHOOLINFO_CLASSIFICATION_SLOT_REMOVAL` — 그 칸의 문서는 검토·확정 이력이 걸릴 수 있으므로 평가계획서 칸에서 문서 삭제(§38-9)로만 뺀다. 칸을 더하는 재분류는 된다.
+- 응답: 위 `items[]` 한 줄 모양(`200`). 분석은 서버 작업이 차례로 돌린다.
+
+| 상황 | 응답 |
+|---|---|
+| 출처·학년도 확인 안 된 원본(`group≠CLASSIFICATION`) | `409 SCHOOLINFO_SOURCE_NOT_CLASSIFIABLE` (`details.reason`) |
+| 학년도가 원본과 다름 | `409 SCHOOLINFO_SOURCE_NOT_CLASSIFIABLE` (`details.reason=ACADEMIC_YEAR_DIFFERS`) |
+| 버전 충돌 | `409 SCHOOLINFO_CLASSIFICATION_CONFLICT` |
+| 연결된 칸 빼기 | `409 SCHOOLINFO_CLASSIFICATION_SLOT_REMOVAL` |
+| 없는 원본 · 다른 학교 원본 | `404 SCHOOLINFO_SOURCE_NOT_FOUND` |
+| 입력 범위 밖 | `400` |
+
+### 38-15. 학교알리미 공식 학교 검색·선택 — 평가계획서 0건 학교 포함 (A27-UX 부록 O, 2026-11-21 · 사용자 승인 '학교 Master 검색 연결' · 구현됨)
+
+```
+GET  /api/admin/assessment/schools/directory?query=<2~40자>[&refresh=true]
+POST /api/admin/assessment/schools/directory/selection   { "candidateId": "dir_…" }
+```
+
+- Assessment 전용 **읽기 전용** 학교 검색이다. 공식 학교알리미 검색·상세(기존 `SchoolInfoClient`)만 쓴다. 전역 학교 Master·학생 등록·학적을 만들지 않는다.
+- 검색 응답: `{ query, complete, incompleteReason, unverifiedCount, items[{ candidateId, officialName, sido, sigungu, address, schoolinfoSchoolId, schoolId, selectable, unselectableReason }] }`
+  - `complete=false`: 검색 결과를 모두 읽지 못했다(`SEARCH_TRUNCATED` 더보기 잘림 · `TOO_MANY_RESULTS` 15곳 초과 · `DETAIL_FAILED`). **A28-45(2026-11-23 사용자 지시 · DRAFT): 목록 완전성과 학교 식별을 분리한다** — 목록이 불완전해도 후보 하나하나가 식별되면(학교알리미 ID 있음·이 검색 안에서 ID 중복 없음·상세 조회 성공·주소 있음·같은 정식 이름+주소 중복 없음) 그 후보는 `selectable=true`다. 화면은 불완전 경고를 그대로 보이고 자동 선택하지 않는다. (A27-UX 부록 O 의 '불완전하면 모두 고를 수 없음' 규칙을 대체)
+  - `unverifiedCount`: 상세 조회에 실패해 후보로 내지 못한 학교 수(A28-45). 0 보다 크면 그 검색은 캐시하지 않아 다시 검색하면 다시 확인한다.
+  - `unselectableReason`: `ADDRESS_MISSING` · `ADDRESS_DUPLICATE`(같은 정식 이름·같은 주소) · `ID_MISSING` · `ID_CONFLICT`(같은 검색 결과 안 학교알리미 ID 중복). `SEARCH_INCOMPLETE` 는 더 이상 내지 않는다.
+  - `refresh=true`: 캐시를 쓰지 않고 학교알리미에 다시 묻는다(검색 상한은 같다).
+  - `schoolId`: 이 학교알리미 학교를 이미 쓰는(ACTIVE 매핑) 학교 키. 없으면 null.
+  - `candidateId`는 서버가 이 검색에서 발급한 값이며 10분 동안 유효하다. 같은 검색어는 10분 캐시, 관리자당 1분 20회 외부 검색 상한이 있다.
+- 선택: 서버가 발급한 `candidateId`만 받는다. 학교 키는 서버가 정한다.
+  - 같은 학교알리미 학교를 쓰는 ACTIVE 매핑이 있으면 그 키를 쓴다(예: 인천 가좌고 = `sch_demo_gajwa`, 기존 매핑 불변).
+  - 없으면 `si_<학교알리미 학교 ID>`를 공식 이름·주소로 매핑한다.
+  - 선택하면 그 학교 하나만 §38-12와 같은 3개 학년도 자동 확인을 시작한다. 응답: `{ schoolId, schoolName, sido, sigungu, address, schoolinfoSchoolId, sync: §38-12 응답 }`. 진행 중이면 202, 아니면 200.
+- §38-3 등록 학교 목록은 `si_` 학교를 평가계획서 0건이어도 남기고, 이름 출처를 `nameSource=SCHOOLINFO_MAPPING`으로 표시한다.
+- 오류:
+
+| 경우 | 응답 |
+|---|---|
+| 검색어 2자 미만·40자 초과 | `400 SCHOOL_DIRECTORY_QUERY_INVALID` |
+| 학교알리미 연결 실패 | `502 SCHOOL_DIRECTORY_UNAVAILABLE` (빈 목록으로 숨기지 않음) |
+| 검색 상한 초과 | `429 SCHOOL_DIRECTORY_RATE_LIMITED` |
+| 위조·만료·고를 수 없는 후보 | `409 SCHOOL_DIRECTORY_CANDIDATE_INVALID` |
+
+### 38-16. 학생 개인 동명 학교 열람 선택 (A27-UX 부록 O, 2026-11-21 · 사용자 승인 부록 N-7 · 구현됨 · 새 표 V202611210100)
+
+```
+GET    /api/student/assessment/evaluation-plans/official/school-candidates
+PUT    /api/student/assessment/evaluation-plans/official/view-selection   { "candidateId": "cand_…", "expectedVersion": 0 }
+DELETE /api/student/assessment/evaluation-plans/official/view-selection?expectedVersion=1
+```
+
+- 학생 **본인**의 '공식 공개 원본 열람 대상'만 정한다. 학적(학교·학년도·학년·학기), 관리자 공통 매핑(§38-13), 확정 평가 정보는 바뀌지 않는다.
+- 고를 수 있는 조건: 학적 학교에 저장된 확인 기록이 `SCHOOL_AMBIGUOUS`이고 관리자 매핑이 없을 때.
+  - 관리자 매핑이 생기면 늘 그것이 먼저다(학생 선택은 쓰이지 않음).
+- 응답: `{ state, schoolName, candidates[{ candidateId, schoolName, sido, sigungu, address, selectable, unselectableReason }], selection, message }`
+  - `state`: `NO_CONTEXT` · `NOT_REQUIRED` · `ADMIN_CONFIRMED` · `RUNNING` · `SELECT_REQUIRED` · `SELECTED` · `UNAVAILABLE`
+  - 후보는 학적 학교와 정식 이름이 같은, 서버가 검증한 것만 담는다. 학교알리미 학교 ID는 주지 않는다.
+  - `selection={ schoolName, sido, sigungu, address, selectedAt, version, teacherConfirmed=false }`
+- 원본은 학교알리미 학교 단위 키(§38-15와 같은 규칙: 기존 키 재사용 또는 `si_`)에 한 번만 저장·공유한다(학생마다 재다운로드 0).
+- §10-1-3 학생 원본 조회·내려받기·ensure는 요청마다 본인 학적 학교 → (관리자 매핑 없음 + 동명 + 본인 선택) 열람 학교로 다시 계산한다. 학년·학기는 학적 그대로다.
+  - 응답 추가 필드: `GET official`의 `officialView`(학생 선택, 없으면 null), `POST official/ensure`의 `viewSelected`.
+- 학적 학교가 바뀌면 예전 선택은 쓰지 않는다(보류). 선택·변경·철회는 `assessment_student_official_view_event`에 남는다.
+- 오류:
+
+| 경우 | 응답 |
+|---|---|
+| 관리자 매핑 있음 · 동명 아님 · 학적 없음 | `409 OFFICIAL_VIEW_NOT_ALLOWED` |
+| 위조·다른 이름·고를 수 없는 후보 | `409 OFFICIAL_VIEW_CANDIDATE_INVALID` |
+| `expectedVersion`이 현재 선택 version과 다름 · 동시 선택 | `409 OFFICIAL_VIEW_VERSION_CONFLICT` |
+| 다른 학교·다른 칸 원본 내려받기 | `404 SCHOOLINFO_SOURCE_NOT_FOUND` |
+
+### 9-2. 현재 학년도·학기 (A27-UX 부록 O, 2026-11-21 · 사용자 지시 'Backend가 KST Clock으로' · 구현됨)
+
+```
+GET /api/student/assessment/current-term
+GET /api/admin/assessment/current-term
+→ { "academicYear": 2026, "semester": 2, "basis": "KST_CALENDAR_MARCH_SEPTEMBER" }
+```
+
+- 서버 KST 달력 기준: 3~8월 = 1학기, 9~12월 = 2학기, 1·2월 = 전년도 학년도 2학기.
+- 화면은 학기를 고르지 않았을 때 이 값으로 §9-1 학적을 조회한다(`VITE_ASSESSMENT_DEV_CURRENT_TERM` 불필요). 학적이 없으면 §9-1이 '정보 없음'을 돌려준다(추측 없음).
+
+### 39-13. 검증 가능한 후보 한 번에 확정 (A27-UX 부록 O, 2026-11-21 · 사용자 승인 '명시적 한 번에 확정' · 구현됨, 새 Endpoint 없음)
+
+- §39 `PUT …/review` 요청에 선택 필드 2개를 더한다(기존 요청 모양은 그대로 동작).
+  - `expectedDraftVersion`: 화면이 결정을 합칠 때 읽은 공유 초안(§39-4) version이다. 서버 현재 version과 다르거나 초안이 없으면 `409 BULK_CONFIRM_STALE`(확정 0건).
+  - `bulk`: 관리자가 '한 번에 확정'으로 보냈다는 표시다. 검사 규칙은 개별 확정과 같다. 별도 열로 저장하지 않고 요청 기록만 남는다.
+- 화면 규칙(관리자 1회 명시적 동작):
+  - 관리자가 이미 고른 결정(수정·원문에 없음·확인)과 과목 제외는 그대로 둔다.
+  - 아직 고르지 않은 AI 후보 중 **값과 원문 근거 쪽이 모두 있는 것만** 후보 그대로 넣는다.
+  - 값이나 근거가 없는 항목이 하나라도 있으면 버튼을 막고 그 항목 목록을 보여 준다(확정 0건).
+- 서버 검사는 개별 확정과 같다: 권한, 원본 Revision·SHA 대조, 과목 연결, 학년 충돌, 과목 제외, 근거 쪽 범위, 중복, 재확정 조건.
+  - 한 번의 Transaction으로 처리해 일부만 확정되는 경우가 없다. 확정 전 학생 응답은 이전 확정값만, 확정 뒤에는 이번 확정값만 보인다.
+- 문서 여러 개·학년도 전체 일괄 확정은 없다.
+
+### 39-14. 원클릭 최종 승인 — 학교알리미 공식 원본 서버 검증 (A28-05, 2026-11-22 사용자 지시 · 구현됨 · Migration `V202611212328`)
+
+- §39 `PUT …/review`의 `sourceCheck.method`에 `SERVER_STORED_ORIGINAL`을 더한다. **PDF·HWP·HWPX 공통.** `localFileSha256`·`manualComparisonConfirmed`는 보내지 않는다(보내면 `400 not_allowed`).
+- 서버 검증(모두 만족해야 함, 아니면 확정 0건):
+  1. 그 Revision 이 학교알리미 자동 수집 슬롯 연결(`SchoolInfoSlotLink`)에서 왔다 — 관리자 직접 업로드는 대상 아님 → `400 sourceCheck.method: not_official_original`
+  2. 연결의 학교·학년도·학년·학기 = 문서 슬롯(같은 조건 아니면 `not_official_original`)
+  3. 학교알리미 원본 기록 SHA = Revision SHA → 아니면 `official_source_mismatch`
+  4. Storage 보관 바이트를 다시 읽어 계산한 크기·SHA-256 = Revision → 아니면 `409 FILE_INTEGRITY_FAILED`, 원본 없음 `original_missing`
+- 이 검증을 통과하면 HWP·HWPX 도 `assessment.plan-review.structured-confirm-dev`(기본 false) 없이 확정할 수 있다. 관리자 로컬 파일 대조(`LOCAL_FILE_EXTERNAL_VIEWER`) 경로의 기존 보호(`verified_auth_required`)는 그대로다. 관리자 인증 규칙도 그대로다(개발 Header 는 운영 이름 Profile 에서 401).
+- 권한·분석 결과 소속·과목 연결(문서 슬롯 학업 과목)·학년 충돌·제외 과목·근거 위치(PDF 쪽 / HWP·HWPX documentLocator)·`expectedDraftVersion`(409 `BULK_CONFIRM_STALE`)·재확정 조건 검사는 기존과 같다.
+- 확정 기록: `source_check_method = SERVER_STORED_ORIGINAL`, `source_check_sha256 = 서버 계산 SHA`, `manual_comparison_confirmed = false`(수동 대조로 기록하지 않음). 기존 LOCAL 기록은 그대로다.
+- 화면 규칙(관리자 1회 명시적 동작): 학교알리미 수집 원본이면 단계별 확정 대신 '최종 승인' 하나. AI 추출값은 기본 승인으로 넣고 관리자 결정이 우선이다. 값이나 원문 근거가 없는 항목·이름이 맞는 학업 과목이 없는 과목·다른 학년 과목·제외 과목은 확정 요청에 넣지 않고 경고로 알린다(값을 만들지 않음). 과목 기본 연결은 '분석 과목명 = 문서 슬롯 학업 과목명'이 정확히 하나일 때만이다.
+
+### 39-15. 통합 최종 승인 — 수행평가·지필평가·월별 운영계획 한 번에 (A28-08, 2026-11-22 사용자 지시 · 구현됨 · Migration 없음)
+
+- §39 `PUT …/review` 요청에 선택 필드 `teachingPlan`(§39-6 `TeachingPlanReviewRequest` 와 같은 모양: `analysisId`·`rows[]`·`manualRows[]`)을 더한다. 기존 요청은 그대로 동작한다(필드 없음 = 이전 동작).
+- 받는 조건: `sourceCheck.method = SERVER_STORED_ORIGINAL` **그리고** `bulk = true`(원클릭 최종 승인). 아니면 `400 teachingPlan not_allowed`. `teachingPlan.analysisId` ≠ 요청 `analysisId` → `400 teachingPlan.analysisId conflict`.
+- 처리: 평가 정보 확정(§39·§39-14 검증 그대로) 뒤 **같은 Transaction** 에서 §39-6 운영계획 확정 규칙(후보 행 키·과목 연결·학년 충돌·제외 과목·이미 확정 409·재검토)을 그대로 적용한다. 운영계획이 거절되면 평가 정보 확정도 되돌린다(부분 성공 없음). 거절 사유의 `field` 는 `teachingPlan.` 접두어가 붙는다(예: `teachingPlan.rows[1].rowKey unknown`).
+- 응답은 §39 와 같다(`PlanAnalysisResponse`). 운영계획 확정 결과는 §39-6 `GET …/teaching-plan-review` 로 본다(같은 확정 기록).
+- 화면(관리자 '최종 승인'): 유형별 승인 예정·확정에서 빠짐 수를 보인다(수행 = `performanceEvaluation.*`, 지필 = `writtenEvaluation.*`, 월별 운영계획 = 행). 운영계획은 확정할 수 있는 과목(과목 연결·학년·제외 규칙)의 **원문 근거가 있는 행만** 기본 승인하고, 운영계획 초안의 관리자 결정(수정·제외)이 우선이다. 운영계획이 이미 확정(재검토 안 열림)이면 이번 요청에 넣지 않는다. 운영계획 확정 상태를 읽지 못하면 최종 승인을 막는다.
+- 평가 정보만 이미 확정되고 운영계획이 남은 문서(예: A28-05 최종 승인으로 평가 정보만 확정된 문서)는 같은 화면에서 '월별 운영계획 최종 승인' 하나로 §39-6 `PUT …/teaching-plan-review` 만 보낸다(평가 정보 재확정 없음). 사용자 문서를 서버가 자동 승인하지 않는다.
+
+- **A28-22 (2026-11-22, 화면 규칙 · API 변경 없음)**: ① 확정 API(`PUT …/review`, `PUT …/teaching-plan-review`)가 성공(서버 commit 후 응답)하면 관리자 화면이 같은 브라우저의 관리자 탭들에 '확정됨' 신호(문서 ID·학교·학년도·학년·학기만, 학생 정보·확정값 없음)를 보내고, 전체 현황·월별 운영계획은 같은 슬롯이면 즉시 다시 조회한다(BroadcastChannel, 같은 origin 범위). 학생 화면·다른 브라우저는 재진입·창 복귀 때 갱신. ② 관리자 운영계획 조회는 문서마다 **가장 최근에 운영계획이 확정된 개정본**을 쓴다(새 원본 개정본이 미확정이어도 이전 확정본 유지 — 학생 공개 규칙과 같음). ③ 운영계획 빈 상태는 '평가계획서 없음 / 운영계획 후보 있음·미확정(검토·최종 승인 링크) / 분석 결과에 운영계획 행 없음(§39-6 확정 불가 `no_teaching_plan`, 가짜 행 없음)'으로 나눠 보인다. ④ 최종 승인 패널은 분석 결과에 운영계획 행이 없으면 '이번 승인으로 운영계획은 확정되지 않아요'를 경고로 보인다.
+
 ### 39-1. 서버 분석 실행 (A3, 2026-11-13 구현)
 
 **2026-11-18: 분석 방식 `assessment.analyzer.mode`** — `local`(기본): Backend 안에서 원문 표를 읽어(PDF·HWP·HWPX) 과목·지필/수행 비율·수행 항목·항목별 채점 기준을 뽑고 아래와 같은 payload(근거: PDF 쪽 번호, HWP·HWPX 표 칸 `documentLocator`)로 같은 검증기를 거쳐 저장한다. 외부 분석기·토큰이 필요 없고 원문이 서버 밖으로 나가지 않는다. `analyzer.name = "learnershigh-plan-extract"`, 채널 `LOCAL`. `none`: 분석기 미설정(503). **2026-11-19: 외부 분석기(`http`, `/analyze-preview`) 연결은 걷어 냈다** — 아래 외부 분석기 관련 서술(토큰·재시도·시간 제한 두 단계)은 기록으로만 남는다. 응답·오류 모양은 그대로다. `local`은 정기시험 회차(`writtenEvaluation.exams`, 회차 비율 합이 지필 비율과 맞을 때만)와 월별 운영 계획(`teachingPlan`)도 채운다. 글자 정보가 없는 스캔 PDF 쪽은 `assessment.analyzer.ocr`(auto·tesseract·windows·none)로 OCR 해 같은 규칙으로 읽는다(엔진이 없으면 그 쪽은 건너뜀). 응답 Shape은 바뀌지 않는다.
+
+- **A27-UX 통합 메모(2026-11-19)**: 이 Worktree의 모드는 `local`(기본)·`none`(Backend 시험 기본)·`loopback-stub`(Playwright E2E 전용, 127.0.0.1·localhost Stub만 — 원격 주소면 기동 거부)이다. 외부(Railway) `http` 모드는 없다.
 
 `POST .../analysis`: 본문 없음. Backend가 보관 원문(§38-1)을 SHA-256 재검증 뒤 분석기(`POST /analyze-preview`, `X-Analysis-Token`, 환경 변수 설정)로 보내고, `backendImport.payload`를 외부 수신과 같은 검증기(backend-adapter-0.2, 알 수 없는 필드 거절)로 검사해 AnalysisRun으로 저장한다. 응답은 `GET .../analysis`와 같은 모양(`analyzer.origin = "SERVER_ANALYZER"`). `201` 새 Run / `200` 같은 내용의 Run이 이미 있음(새 Run 없음).
 
@@ -1462,6 +1845,10 @@ PUT /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revie
 | 경로 밖·범위 밖 과목·쪽 수 초과·ABSENT에 값·중복 | `400 VALIDATION_ERROR` (`decisions[i].fieldPath: not_allowed`·`subjectIndex: out_of_range`·`pdfPageNumber: out_of_range`·`value: not_allowed`·`duplicate`) |
 | 인증 없음·학생 | `401` |
 
+- **과목 제외 (A27-UX 관리자 추가 수정, 2026-11-19 DRAFT · 팀 승인 전)**: PUT 본문에 선택 필드 `subjectExclusions:[{subjectIndex, reason: OTHER_GRADE|DUPLICATE|NOT_THIS_TERM|OTHER, note(≤200, 선택)}]`(≤50)를 둘 수 있다. **필드를 보내지 않으면(null) 기존 제외를 그대로 둔다**(이전 클라이언트 호환), `[]`는 모두 복원이다. 응답 `draft.subjectExclusions`. 저장은 기존 `payload_json`에 함께 둔다(**새 Migration 없음**). 범위 밖 `subjectIndex: out_of_range`, 중복 `duplicate`, 모르는 사유 400, 운영계획 초안(§39-6)에 보내면 `not_allowed`. 변경 기록 `changedFields`에 `"{index}|excluded"`.
+  - 의미: **삭제가 아니다.** 원문·AI 원본 추출값·근거 위치·결정(decisions)·확정 이력은 그대로 두고, 이 문서·학년·학기 검토 대상과 확정·학생 공개에서만 뺀다. 복원하면 기존 결정이 그대로 돌아온다.
+  - 확정: §39 PUT review의 `reviewedSubjects[].analysisSubjectIndex`, §39-6 운영계획 확정의 `rows[].subjectIndex`가 그 분석 결과 평가 정보 초안의 제외 과목이면 `400 VALIDATION_ERROR (subject_excluded)` — 아무것도 저장하지 않는다.
+  - 재검토 시작(`reopen`)으로 새로 만든 초안은 제외 목록이 비어 있다(최신 확정값으로만 채운다).
 - PUT review(CONFIRM) 성공 시 같은 Transaction에서 그 분석 결과의 초안을 `CLOSED(CONFIRMED)`로 닫는다.
 - 크기: decisions ≤ 600, subjectLinks ≤ 50, value ≤ 4000자(A12: 채점표 전체를 한 결정으로 담기 위해 1000 → 4000, 확정값 한도와 같음). 저장 기록 응답은 최근 20건.
 
@@ -1511,6 +1898,7 @@ PUT /api/admin/assessment/evaluation-plans/{planId}/revisions/{revisionId}/revie
 - 정밀도 8종을 줄이거나 다른 값으로 바꾸지 않고 그대로 저장한다(계정 A 초기 5종 제안은 폐기).
 - `schedule` 불변 규칙: `calendarYear`는 `calendarYearBasis = EXPLICIT_IN_CELL`일 때만(학년도로 연도 계산 금지) · `precision ∈ {EXACT_DATE, DATE_RANGE}` ⇔ `dateFrom` 있음 · `monthFrom ≤ monthTo`가 아니어도 됨(2학기 12→1월) · `UNKNOWN`·`WEEK_UNRESOLVED` 행도 버리지 않는다.
 - 받지 않는 것(0.3에서도 `unknown_field`): `document{}`·`source.sectionCount`(모양 미합의), 행의 `relatedItemKeys`·`linkageNotes`(계정 B도 제외), `extensions`.
+- **A28-27 (2026-11-22, 서버 분석기 규칙 · 계약 모양 변경 없음)**: 월이 표 밖 제목(`■ 8월`·`8월`·`2026년 8월`·`[9월] 교수·학습 운영 계획`)에 있고 표에는 `주` 열만 있는 진도표도 행으로 읽는다. 월 제목은 표 바로 앞 마지막 본문 줄이 월 제목 하나뿐일 때만 인정(본문 문장 속 월·날짜는 근거 아님). 쪽을 넘긴 같은 과목·같은 머리 줄 표만 앞 표 월을 이어받는다(과목 전환·새 과목 머리 표·쪽 건너뜀·사이 다른 표·다른 월 표시가 있으면 이어받지 않음). 행 결과: 한 달 제목 = `month`·`weekFrom/To`(`WEEK_IN_MONTH`, `monthBasis = MONTH`), 주 칸이 월로 시작(`9월 1주`)하면 그 월, 두 달 제목(`■ 12월, 1월`)이나 다음 달로 넘어가는 주 칸(`5 - 1월 2주`)은 `month`~`monthTo` 범위(`MONTH_RANGE`, 주 위치 없음·원문 `weekLabel` 유지). 날짜·연도는 만들지 않는다. 월 열이 있는 기존 진도표 결과는 바뀌지 않는다. 근거 `sources[0].pdfPageNumber` = 그 표의 쪽.
 
 **PDF 원문 근거 쪽 범위 규칙** (A16, 2026-11-16 사용자 승인 · DRAFT — 구현됨, 0.2·0.3 공통)
 
@@ -1865,7 +2253,7 @@ Idempotency-Key: <선택, 같은 Key·같은 원본 → 같은 결과 / 같은 K
 
 # 48. File Contract
 
-현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 링크/이미지, 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
+현재 파일 사용: 평가계획서 PDF(공통/개인), 학생 개인 모의고사 파일, AssessmentNote 이미지·파일 블록(§26-1 노트 첨부, A28-41부터 실제 저장 — 이전 블록은 메타데이터만), 실제 ArtifactVersion, 대학 공개 자료(권리 확인 시). `fileRef`는 **ID**이며 외부 공개 URL이 아니다.
 
 ```json
 {
@@ -1928,6 +2316,8 @@ Note 저장에는 `expectedRevisionId`, 콘텐츠 편집에는 `updatedAt`/Versi
 | 404 | `ENRICHMENT_TASK_NOT_FOUND` | 개인 탐구 없음 |
 | 404 | `NOTE_NOT_FOUND` / `NOTE_REVISION_NOT_FOUND` | 노트/Revision 없음 |
 | 404 | `ARTIFACT_NOT_FOUND` / `ARTIFACT_VERSION_NOT_FOUND` | 결과물/버전 없음 |
+| 404 | `NOTE_ATTACHMENT_NOT_FOUND` | 노트 첨부 없음 또는 권한 밖 (§26-1, A28-41 DRAFT) |
+| 503 | `EXPORT_FONT_UNAVAILABLE` | PDF 내보내기용 한글 글꼴을 서버에서 찾지 못함 (§20-1, A28-51 DRAFT) |
 | 404 | `FEEDBACK_REQUEST_NOT_FOUND` | 요청 없음 또는 권한 밖 |
 | 409 | `RESOURCE_VERSION_CONFLICT` | 동시 수정 충돌 |
 | 409 | `INVALID_STATE_TRANSITION` | 허용되지 않은 상태 전이 |
@@ -2059,7 +2449,7 @@ Method/Path, 필수 Request Field, JSON Field Type/의미, Enum, Response Nestin
 |---|---|---|
 | API-OD-A01 | Existing LearnersHigh 인증·학교/학적 Write Owner/Assessment 원본 매핑 | §9, §12, §34 |
 | API-OD-A02 | PDF 분석 엔진, 한 PDF 다과목 스키마, 개정·부분 실패·출처 좌표 | §10~11, §38~39 |
-| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
+| API-OD-A03 | PDF/문서 업로드 크기·허용 MIME·Storage/변환 지원 범위. **부분 결정(2026-11-13)**: 평가계획서 원문은 개발용 로컬 격리 Storage에 보관(§38-1). A28-41(2026-11-23): 탐구 노트 이미지·파일 블록도 결과물과 같은 격리 Storage에 실제 저장(§26-1). 운영 Provider·HWP/HWPX 변환 Rendition은 미결 | §25~26, §38-1, §48 |
 | API-OD-A04 | Rich-text 블록 Schema·Autosave 주기·Revision 단위·충돌 전략 | §19~21 |
 | API-OD-A05 | 평가계획서 개인 정정의 공개·승인 의미/학생 학교 정보 수정 범위 | §9, §11 |
 | API-OD-A06 | 피드백 Snapshot 물리 보존 방식/보존기간·취소/재요청 정책 | §31~32, §44~45 |
@@ -2081,6 +2471,7 @@ Method/Path, 필수 Request Field, JSON Field Type/의미, Enum, Response Nestin
 ## Student
 
 ```text
+GET    /api/student/assessment/me
 GET    /api/student/assessment/academic-context
 PUT    /api/student/assessment/academic-context
 GET    /api/student/assessment/evaluation-plans
@@ -2295,6 +2686,238 @@ HWP·HWPX 공식 검토(M-1~M-7, D-1), C-10 분석 수신 Endpoint 계약 본문
 ## 과목별 추천 자료원
 
 서버 API(§22 recommendations)는 만들지 않았다. Student http 모드는 검토된 정적 카탈로그(참고자료 24곳)를 과목 **이름** 정규화로 고른다(과목 ID 하드코딩 없음). 영역을 모르는 과목은 일반 자료원(도서관·논문·통계). "내 자료로 추가"는 §22 `POST /resources`.
+
+---
+
+## A27-UX DRAFT 추가 계약 (2026-11-17, 프론트·백엔드 구현 기준 · 팀 승인 전)
+
+### §12 학생 개인 수행평가 관리 정보 확장
+
+`POST /school-assessments` 요청과 `PATCH /school-assessments/{id}` 편집 필드에 다음 **선택** 필드를 더한다. 응답(§12 목록·상세·등록)에도 같은 이름으로 붙는다. 모두 학생 개인 관리 데이터이며 평가계획서 확정값(공식 평가정보)을 바꾸지 않는다.
+
+| 필드 | 형식 | 규칙 |
+|---|---|---|
+| `assessmentType` | `PRESENTATION`·`REPORT`·`PROJECT`·`EXPERIMENT`·`DEBATE`·`PORTFOLIO`·`OTHER` 또는 null | 그 밖 값 400 `unknown` |
+| `evaluationDate` | `YYYY-MM-DD` 또는 null | 제출 마감(`deadlineDate`)과 별도 |
+| `weightPercent` | 0~100 정수 또는 null | null = 모름(0과 구분). 범위 밖 400 `range` |
+| `submissions` | 문자열 ≤500 또는 null | |
+| `personalMemo` | 문자열 ≤2000 또는 null | 본인만 |
+| `description` (응답) | 문자열 또는 null | 기존 요청 필드를 응답에도 돌려준다(수행 내용) |
+| `updatedAt` (응답) | OffsetDateTime | |
+
+DB: `V202611170200__assessment_school_assessment_personal_details.sql`(새 Migration, 기존 Migration 변경 없음).
+
+### §10-1-3 학교 공식 공개 평가계획서 원본 (Student)
+
+```http
+GET /api/student/assessment/evaluation-plans/official?academicYear=2026&semester=1
+```
+
+학생 본인의 학적 Context(학교·학년)로만 슬롯을 정한다(요청에서 학교·학년을 받지 않는다). 관리자 직접 등록 평가계획서(§38)·분석 결과와 **다른 자료**이며, 출처·공개 여부가 검증된 공식 원본만 돌려준다.
+
+```json
+{ "academicYear": 2026, "semester": 1, "contextFound": true, "schoolId": "school_001", "schoolName": "예시고등학교", "grade": 1,
+  "sourceConnected": false, "documents": [] }
+```
+
+- `contextFound=false`: 그 학년도·학기 학적 기록이 없어 다른 학년 문서를 추측해 연결하지 않았다(`schoolId`·`grade` null).
+- `sourceConnected=false`: 공식 원본 공급자(학교알리미 수집기, 향후)가 아직 없다. `documents`는 항상 빈 배열.
+- `documents[]`: `sourceDocumentId`, `provider`, `fileName`, `documentFormat`, `sourceUrl`, `sha256`, `publishedAt`, `verifiedAt`, `latest`. 파일 내려받기 경로는 공급자 연결 시 정한다.
+- Backend 경계: `integration/officialplan/OfficialPlanSourceProvider`(부록 K 이전 구현 `UnconnectedOfficialPlanSourceProvider`).
+
+#### §10-1-3 부록 K 변경 (2026-11-20 사용자 승인 · 학교알리미 수집 원본 학생 연동)
+
+공급자를 **학교알리미 자동 수집 원본**(§38-12~14의 `SchoolInfoSourceFile`·`SchoolInfoSlotLink`, 학교 단위 공유)으로 연결한다. 새 표·열·Migration 없음. 원본 바이트는 학교당 한 벌이고 학생마다 복제하지 않는다.
+
+- `sourceConnected=true`. `documents[]`는 **학생 본인 학적 슬롯(학교·학년도·학년·학기)** 에 연결된 원본만이다. 포함 조건(모두 서버에서 판정):
+  1. `SchoolInfoSlotLink`가 그 학교·학년도·학년·학기에 있고, 연결된 평가계획서 문서가 **삭제되지 않음**(§38-9 관리자 삭제 = 학생에게서도 사라짐, 재수집이 되살리지 않음 `REMOVED_BY_ADMIN`).
+  2. 원본이 `VERIFIED`(자동 분류) 또는 관리자가 §38-14로 학년·학기를 분류한 `UNCLASSIFIED` 원본(출처·학년도는 이미 확인). `NEEDS_SOURCE_VERIFICATION`·`YEAR_MISMATCH`·`UNSUPPORTED`·`NOT_PLAN`·보류(미분류) 원본은 연결이 없어 나오지 않는다.
+  3. 원본 바이트가 저장돼 있음(`storage_key`), 그 학교에 학교알리미 학교 선택(§38-13)이 있으면 원본의 학교알리미 학교 ID가 그 선택과 같음(학교를 다시 고른 뒤 이전 학교 원본이 섞이지 않게).
+  - 관리자 직접 등록 문서(§38)·`sourceUrl` 문자열·분석 결과는 공식 원본이 아니다(이 목록에 들어가지 않는다).
+- `documents[]` 필드: 기존 `sourceDocumentId`(불투명 ID), `provider`(`SCHOOLINFO`), `fileName`, `documentFormat`(`PDF`·`HWP`·`HWPX`), `sourceUrl`(`https://www.schoolinfo.go.kr`), `sha256`, `publishedAt`(null — 공시 일자 미수집), `verifiedAt`(수집·확인 시각), `latest`(true — 한 칸 여러 원본이 함께 유효) + **추가** `sizeBytes`, `disclosureMonth`(4 = 1학기 공시, 9 = 2학기 공시, 모르면 null). 한 칸에 여러 원본(학년 계획·과목별·공동교육과정)이면 모두 준다.
+- 원본 보기·내려받기:
+
+```http
+GET /api/student/assessment/evaluation-plans/official/files/{sourceDocumentId}?academicYear=2026&semester=1          → attachment (원본 바이트)
+GET /api/student/assessment/evaluation-plans/official/files/{sourceDocumentId}/preview?academicYear=2026&semester=1  → inline (PDF만)
+```
+
+  - 서버가 그 학생의 그 학년도·학기 `documents[]`를 다시 계산해 **그 안에 있는 ID만** 준다. 다른 학교·학년·학기·삭제·보류 원본 ID는 `404 SCHOOLINFO_SOURCE_NOT_FOUND`(존재 여부를 드러내지 않음), 학적 없음도 404. 인증 없음 401.
+  - 내려주기 전에 크기·SHA-256을 저장 기록과 다시 비교한다(다르면 `409 FILE_INTEGRITY_FAILED`). `nosniff`·`private, no-store`. HWP·HWPX 미리보기는 `415 PREVIEW_UNAVAILABLE`(내려받기 안내). 저장 경로·저장 키는 내보내지 않는다.
+- 학생 진입 자동 확보:
+
+```http
+POST /api/student/assessment/evaluation-plans/official/ensure      (본문 없음)
+→ 200 | 202 { "state": "READY", "schoolSelectionRequired": false,
+              "years": [ { "academicYear": 2026, "status": "COMPLETED" } ], "message": null }
+```
+
+  - 학생 화면(홈·학교 평가 정보·수행평가 상세)이 진입할 때 **버튼 없이** 부른다. 요청에서 학교·학년도를 받지 않는다 — 서버가 학생 학적(최근 3개 학년도 중 학적이 있는 첫 학년도)의 학교를 정하고, §38-12 관리자 화면 진입과 **같은 확인**(force 없음, 학교당 작업 1개, 학교·학년도별 24시간 기록 재사용, 순차·요청 간격·크기 한도)을 시스템 주체로 시작하거나 진행 중 작업을 돌려준다. 같은 학교 학생·관리자가 동시에 들어와도 작업은 하나다. 기록이 유효하면 외부 요청 0.
+  - `state`: `RUNNING`(202, 진행 중 — 화면은 같은 POST를 짧은 간격으로 다시 불러 끝나면 멈춘다) · `READY`(완료·일부 확인) · `SCHOOL_CONFIRMATION_REQUIRED`(같은 이름 학교 — **관리자만** §38-13으로 고를 수 있다. 학생에게 후보·주소를 보이지 않는다, 등록 0) · `SCHOOL_IDENTITY_REQUIRED`(학적에서 학교 이름 없음) · `NO_CONTEXT`(최근 3개 학년도 학적 없음) · `FAILED`(학교알리미 연결 실패 — 다음 진입 때 다시 시도). `years[].status`는 §38-12 학년도 상태 그대로.
+  - 이 POST는 수집·등록·서버 분석 대기열까지만 한다. **분석 결과·채점기준·운영계획의 학생 공개는 그대로 관리자 확정분만**(§10-1).
+  - 학년도별 학생 학년은 그 학년도 학적으로만 정한다. 학적이 없는 학년도는 `GET`이 `contextFound=false`(다른 학년 원본을 추측해 보이지 않음).
+
+#### §10-1-3 부록 L 변경 (2026-11-20)
+
+- 관리자 '학생 화면 보기'(읽기 전용, `/api/admin/assessment/students/{studentId}/student-view`)에 같은 응답의 읽기 경로를 더한다: `GET .../student-view/evaluation-plans/official?academicYear&semester`, `GET .../student-view/evaluation-plans/official/files/{sourceDocumentId}?academicYear&semester`(attachment), `.../preview`(PDF만). 담당 지점 범위 밖 학생은 404(기존 학생 화면 보기 규칙). 자동 확보 `POST .../ensure`는 **두지 않는다**(관리자 미리보기가 학교알리미 수집을 시작하지 않음). 학생 결과물 파일 내려받기와 같은 읽기 전용 정책.
+- 학생 화면 자동 확보: `SCHOOL_CONFIRMATION_REQUIRED`(관리자 학교 선택 대기)이면 화면이 15초 간격으로 같은 POST를 다시 불러(서버 기록만 읽음, 외부 요청 없음, 최대 5분) 관리자가 학교를 고르면 다시 들어오지 않아도 목록이 갱신된다.
+- 시험 전용 설정 `assessment.demo-roster.e2e-extra-file`(기본 비어 있음): 지정한 파일의 합성 학생을 시연 명단 뒤에 더한다(같은 무결성 검사). 일회용 E2E(`playwright.assessment-live.config.ts`)에서만 쓴다 — 운영·기본 실행 영향 없음.
+
+#### §10-1-3 A28-01 변경 (2026-11-22 사용자 지시 · 학생 3개년 공개 원본 · 새 표·열·Migration 없음)
+
+- **학적 기록과 학교 공개 자료를 구분한다.** 과거 학년도 학적이 없다는 이유만으로 학교 공개 원본 열람을 막지 않는다. 학적을 만들거나 바꾸지 않는다.
+- `GET official`·`GET official/files/{id}`·`.../preview`에 선택 쿼리 `grade`(1~3)를 더한다. 범위 밖은 `400 VALIDATION_ERROR`. 관리자 '학생 화면 보기'(부록 L) 읽기 경로도 같다.
+- 칸 규칙(목록·내려받기·미리보기 공통, 서버가 요청마다 다시 계산):
+  1. 그 학년도·학기 학적이 있고 `grade`가 없거나 학적 학년과 같으면 → 학적 칸(`basis=ACADEMIC_RECORD`, 기존 동작).
+  2. 최근 3개 학년도(§38-12 `expectedYears`, 서버 KST) 안이면 → 그 해 학적 학교(없으면 학생 ensure 와 같은 규칙의 현재 학교)의 공개 원본 칸(`basis=SCHOOL_PUBLIC`). 학년 = `grade` → 그 해 학적 학년 → 현재 학년.
+  3. 그 밖(범위 밖 학년도·학적이 전혀 없음) → 칸 없음(`basis=null`, `schoolId`·`grade` null, `documents` 빈 배열). 내려받기 404.
+- 응답 추가 필드 `basis`: `ACADEMIC_RECORD` · `SCHOOL_PUBLIC` · `null`. `contextFound`는 **학적 유무 그대로**다(원본 유무와 별개). 화면은 `SCHOOL_PUBLIC` 원본을 학생의 재학·수강 기록으로 표현하지 않는다.
+- 학교는 요청에서 받지 않는다(학생 자신의 학교만). 동명 학교 열람 선택(§38-16)·관리자 매핑 우선·원본 출처 검증·삭제 문서 제외 규칙은 그대로다. 조회만으로 외부 요청·DB 쓰기 없음.
+- `POST official/ensure`: 서버 재시작 등으로 동명 후보가 메모리에 없고 저장 기록이 `SCHOOL_AMBIGUOUS`(관리자 매핑 없음·학생 선택 없음)이면 `FAILED` 가 아니라 `SCHOOL_CONFIRMATION_REQUIRED`(`schoolSelectionRequired=true`)로 답한다. 후보는 §38-16 `school-candidates`가 다시 확인한다(기존 동작). 실제 연결 실패는 그대로 `FAILED`.
+
+#### §10-1-3 A28-06 변경 (2026-11-22 · 학생 원본 앱 안 열람 · 새 Endpoint 없음)
+
+- `GET official/files/{id}/preview`(학생·관리자 학생 화면 보기)가 HWP·HWPX 에서도 동작한다: 변환기가 설정돼 있으면 관리자 원문 보기(§38-10)와 같은 변환기·캐시로 만든 **미리보기 PDF**(`X-Preview-Rendition: converted-pdf`, 파일 이름 `<원본 이름> (미리보기 변환).pdf`)를 준다. 원본 바이트·SHA 는 바뀌지 않는다.
+- 칸 규칙·권한·SHA 검증은 내려받기와 같다. 변환은 그 원본이 연결된 문서 Revision(같은 SHA)의 캐시를 쓴다. 변환기 없음·연결 Revision 없음 `415 PREVIEW_UNAVAILABLE`, 변환 준비 중·실패는 §38-10 오류 그대로.
+- 관리자 확정 전 분석 결과는 이 경로로 나가지 않는다(원본만).
+
+#### 시연 명단 학교 고정 (A28-04, 2026-11-22 · local-run 시연 명단 전용 · 새 Endpoint·DB 없음)
+
+- 시연 명단(`assessment/demo-roster/demo-roster-2026.json`, `ASSESSMENT_DEMO_ROSTER_ENABLED=true` 일 때만)의 학교에 선택 필드 `schoolinfoSchoolId`·`address`를 둘 수 있다. 같은 학교 키의 학생은 같은 값이어야 한다(아니면 기동 실패).
+- 관리자 매핑(§38-13)이 없고 고정값이 있으면 학교알리미 자동 확인은 **이름 검색 없이** 그 학교 상세만 확인하고, 학교알리미의 이름·주소가 고정값과 모두 같을 때만 수집한다(다르면 `SCHOOL_AMBIGUOUS`, 수집 0). 관리자 매핑은 만들지 않는다. 관리자 매핑이 있으면 그것이 먼저다.
+
+### §22-1 학생 자료함 파일 첨부
+
+```http
+POST   /api/student/assessment/resources/{resourceId}/file          (multipart: file) → StudentResource
+DELETE /api/student/assessment/resources/{resourceId}/file          → StudentResource (첨부 연결만 비움)
+GET    /api/student/assessment/resources/{resourceId}/file          → attachment (원본 바이트)
+GET    /api/student/assessment/resources/{resourceId}/file/preview  → inline (PDF·이미지만, 그 밖 415 PREVIEW_UNAVAILABLE)
+```
+
+- 허용: PDF·HWP·HWPX·DOC·DOCX·XLS·XLSX·PPT·PPTX·JPG·JPEG·PNG·GIF·WEBP. **확장자와 파일 서명이 둘 다** 맞아야 한다(아니면 415 `UNSUPPORTED_FILE_TYPE`). 빈 파일 400, 한도 초과 `FILE_TOO_LARGE`(결과물과 같은 한도).
+- 파일명은 경로 구분자·제어문자를 지운 표시용 이름만 쓴다(저장 경로는 UUID 키). 원본 바이트를 그대로 보관한다(GIF 애니메이션 보존). 다운로드 전 크기·SHA-256 재확인.
+- 본인 자료만(다른 학생 404). 응답 `StudentResource.file`: `{ fileName, contentType, sizeBytes, uploadedAt, previewAvailable }` 또는 null. `fileRef`는 첨부가 있을 때 불투명 참조.
+- DB: `V202611170300__assessment_resource_file_attachment.sql`.
+
+### §43-1 관리자 참고자료실 파일 업로드 (A27-UX 관리자 UI 개선, 2026-11-18 DRAFT · 팀 승인 전)
+
+```http
+POST   /api/admin/assessment/reference-library/uploads              (multipart: file, metadata(JSON)) → 201 ReferenceScrap
+POST   /api/admin/assessment/reference-library/{scrapId}/file       (multipart: file) → ReferenceScrap (파일 교체)
+DELETE /api/admin/assessment/reference-library/{scrapId}/file       → ReferenceScrap (링크가 있는 스크랩만, 연결만 비움)
+GET    /api/admin/assessment/reference-library/{scrapId}/file       → attachment (원본 바이트)
+GET    /api/admin/assessment/reference-library/{scrapId}/file/preview → inline (PDF·이미지·MP4·WEBM만, 그 밖 415 PREVIEW_UNAVAILABLE)
+```
+
+- `metadata`: §43 POST 본문과 같은 필드(`title`·`type` 필수, `sourceUrl`·`sourceName`·`authorOrOrg`·`publishedDate`·`memo`·`tags`·`subjectIds` 선택). **업로드 스크랩만 `sourceUrl`이 선택**이다(링크 스크랩 POST·PATCH의 `sourceUrl` 필수 규칙은 그대로, 파일이 있는 스크랩의 PATCH는 `sourceUrl` 생략 가능). `type`은 기존 값(`SITE`·`ARTICLE`·`PAPER`·`VIDEO`·`STATISTICS`·`OTHER`)을 그대로 쓴다 — 새 Enum 없음.
+- 허용 형식: §22-1과 같은 문서·이미지(PDF·HWP·HWPX·DOC·DOCX·XLS·XLSX·PPT·PPTX·JPG·JPEG·PNG·GIF·WEBP) + **관리자 전용 영상 MP4·M4V·MOV(ISO BMFF `ftyp` 서명)·WEBM(EBML 서명)**. 확장자와 서명이 둘 다 맞아야 한다(아니면 415 `UNSUPPORTED_FILE_TYPE`). 학생 자료함·결과물의 허용 형식은 바뀌지 않는다.
+- 크기: `assessment.storage.max-file-bytes`(기본 50MB) 초과 413 `FILE_TOO_LARGE`, 빈 파일 400. 저장은 §22-1과 같은 격리 Storage(UUID 저장 키, 경로에 원본 이름을 쓰지 않음), 다운로드 전 크기·SHA-256 재확인, 응답 `nosniff`·`no-store`.
+- 권한: 관리자 전용(학생 Endpoint 없음 — 학생 공개(`published`)여도 학생에게는 기존 공개 필드만 보이고 **파일은 내려받을 수 없다**). 휴지통에 있는 스크랩은 404. 지점 구분 없이 관리자 공용(§43과 같음).
+- 응답 `ReferenceScrap.file`: `{ fileName, contentType, sizeBytes, uploadedAt, previewAvailable }` 또는 null (§22-1 `StudentResource.file`과 같은 모양). 추가 필드라 기존 클라이언트와 호환.
+- 피드백 추천(§46 `RESOURCE`)은 링크(`sourceUrl`)가 있는 스크랩만 고를 수 있다(파일만 있는 스크랩은 학생에게 전달할 주소가 없다).
+- 학생 공개(§43 `PUT .../visibility {published:true}`)도 링크가 있는 스크랩만 된다 — 링크 없는 업로드 스크랩은 400 `VALIDATION_ERROR`(`sourceUrl: required`). 비공개 전환은 언제나 된다.
+- DB: 새 Migration 없음 — `V202611170300`의 `assessment_resource` 파일 열을 관리자 스크랩(`owner_type=ADMIN`)에도 쓴다.
+
+### A27-UX 학생 화면 개선 추가 계약 (2026-11-19 DRAFT · **사용자 승인 2026-11-19** · 팀 승인 별도)
+
+> **승인 기록(2026-11-19)**: 아래 5건(§12-a 개인 과목 원자 등록, §9-1-a `addedByStudent`, §12-b `assessmentTypeLabel`, §12-c 안내문 첨부, §30-a 홈 메모)은 사용자(Suyeon 담당)가 승인했다. 공유 계약(API Contract·DB)이라 **팀(다른 담당자) 승인 절차는 별도**로 남는다(docs/OWNERSHIP.md). 승인으로 동작은 바뀌지 않았다(코드 그대로). Migration `V202611190100`은 승인됐지만 사용자 DB 적용 시점은 PR #18 `V202611180100` 처리 결정과 함께 정한다(최종 보고서 부록 D).
+> **평가 기준 연결 규칙(보수적, 2026-11-19 유지)**: 직접 등록 수행평가는 같은 과목의 확정·공개 항목과 **이름이 정확히 같고 그 이름이 하나뿐일 때만** '이 수행평가'로 연결한다. 같은 이름이 여러 개면 자동으로 고르지 않고 목록과 '확인 필요'를 보인다. 유사도·부분 일치·과목만으로 고르기는 하지 않는다. 같은 학기 확정 문서가 여럿이면 모두 찾는다. 확정 `itemKey`↔`evaluationItemRef.itemKey` 명시 계약은 제안만(미승인).
+
+
+모두 **학생 본인 데이터**다(소유 학생은 인증 Actor, 다른 학생 것은 존재도 드러내지 않는 404/검증 오류). 학교·관리자 공식 데이터(§9-1 `subjects[]` 원천, §38·§39 평가계획서·확정값)는 바꾸지 않는다. DB: `V202611190100__assessment_student_ux.sql`(새 Migration, 기존 Migration 변경 없음 · 사용자 DB 미적용).
+
+**§12-a 수행평가 등록 시 개인 과목 함께 등록 (원자적)**
+
+`POST /school-assessments`에 선택 필드 `newSubjectName`(문자열 1~50, 제어문자 불가)을 더한다. `subjectId`와 **둘 중 하나만** 보낸다(둘 다·둘 다 없음 → 400 `subjectId: required`/`newSubjectName: not_allowed`).
+
+- 서버가 이름을 정규화(앞뒤 공백·연속 공백 정리, 비교는 공백 제거·소문자)해 다음 순서로 과목을 정한다: ① 이 학기 학생 수강 과목(`subjects[]`)에 같은 이름 → 그 `subjectId` ② 이 학기 공통 과목 후보(`catalogSubjects[]`)에 같은 이름 → 그 **기존 `subjectId`를 재사용**해 학생 개인 수강 목록에 더한다 ③ 이미 학생이 더한 개인 과목에 같은 이름 → 재사용 ④ 그 밖 → 새 학생 소유 개인 과목(`psubj_…`).
+- 과목 추가와 수행평가 등록은 **한 트랜잭션**이다(하나라도 실패하면 둘 다 저장되지 않는다). 학생·학년도·학기·이름 기준 유일(동시 중복 요청은 409 `RESOURCE_VERSION_CONFLICT`).
+- 학교 공식 개설·수강 원천 목록과 관리자 평가계획서 과목 목록은 바꾸지 않는다. 개인 과목은 공식 평가계획서 과목처럼 매칭하지 않는다(②의 기존 ID 재사용만 같은 과목으로 본다).
+
+**§9-1-a 학업 정보 응답의 학생 추가 과목**
+
+§9-1 `subjects[]`에 위 ②~④로 학생이 더한 과목이 함께 들어간다(같은 학기만). 항목에 `addedByStudent: true`가 붙는다(원래 수강 과목은 `false`). `catalogSubjects[].enrolled`도 이를 반영한다. Admin 학생 상세 `academicContexts[]`도 같은 규칙이다.
+
+**§12-b 평가 유형 '기타' 직접 입력**
+
+§12 등록·`PATCH`·응답에 `assessmentTypeLabel`(문자열 ≤50 또는 null)을 더한다. `assessmentType`이 `OTHER`일 때만 저장되고, 다른 유형이면 서버가 null로 비운다. 제출물(`submissions`)은 기존 문자열 그대로이며 화면의 선택 목록(보고서·발표 자료(PPT)·…·기타 직접 입력)은 그 문자열 값이다(새 Enum 없음).
+
+**§12-c 수행평가 안내문 첨부 (학생 개인 파일)**
+
+```http
+GET    /api/student/assessment/school-assessments/{assessmentId}/notice-files                    → { items: NoticeFile[] }
+POST   /api/student/assessment/school-assessments/{assessmentId}/notice-files     (multipart: file) → 201 NoticeFile
+DELETE /api/student/assessment/school-assessments/{assessmentId}/notice-files/{fileId}            → 204
+GET    /api/student/assessment/school-assessments/{assessmentId}/notice-files/{fileId}            → attachment (원본 바이트)
+GET    /api/student/assessment/school-assessments/{assessmentId}/notice-files/{fileId}/preview    → inline
+```
+
+- `NoticeFile`: `{ fileId, fileName, contentType, sizeBytes, uploadedAt }`.
+- 허용: PDF·JPG·JPEG·PNG·GIF·WEBP(확장자 + 파일 서명 둘 다, 아니면 415 `UNSUPPORTED_FILE_TYPE`). 빈 파일 400, 크기 한도 413 `FILE_TOO_LARGE`(§22-1과 같은 한도). 수행평가 하나에 최대 10개(초과 400 `file: limit`).
+- 저장은 §22-1과 같은 격리 Storage(UUID 키, 원본 바이트·SHA-256 재확인). 삭제는 목록에서만 뺀다(바이트 보존 — 운영 보존 정책은 별도 결정). 휴지통에 있는 수행평가의 첨부는 404.
+
+**§30-a 학생 홈 메모**
+
+```http
+GET /api/student/assessment/home-memo                → { body: string|null, updatedAt: OffsetDateTime|null, version: number }
+PUT /api/student/assessment/home-memo  { body, expectedVersion } → 같은 Shape
+```
+
+- 학생 한 명당 하나. `body` ≤2000(빈 문자열·null = 지움). `expectedVersion`이 현재와 다르면 409 `RESOURCE_VERSION_CONFLICT`(처음은 0). 관리자·다른 학생에게 보이지 않는다(관리자 Endpoint 없음). 탐구 노트(§20)와 별개다.
+
+**§30-b 학생 달력 개인 임시 배치 (A28-33, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET    /api/student/assessment/calendar-placements?academicYear=2026&semester=2
+       → { academicYear, semester, items: [{ sourceKey, displayDate: "YYYY-MM-DD", rangeFrom, rangeTo, updatedAt }] }
+PUT    /api/student/assessment/calendar-placements
+       { academicYear, semester, sourceKey, displayDate, rangeFrom, rangeTo } → 위 items 한 개 Shape
+DELETE /api/student/assessment/calendar-placements?academicYear=2026&semester=2   → 204 (그 학기 배치 초기화)
+```
+
+- 학생 홈 달력에서 원문 날짜가 없는 운영계획(`n월 m주` → 그 주 날짜 범위, 한 달만 적힌 `n월` → 그 달 날짜 범위)을 **학생 본인 화면에만** 옮겨 둔 표시 날짜다. 공식 날짜가 아니다: 운영계획·평가계획서·학교 수행평가·D-day·관리자 화면·다른 학생에게 영향을 주지 않는다(관리자 Endpoint 없음).
+- `sourceKey` = 화면의 운영계획 행 키 `{planId}|{subjectId}|{rowKey}`(1~200자, 공백·제어문자 불가). 원문 날짜가 있는 행·여러 달·시기 불명 행은 화면이 배치 대상으로 보내지 않는다.
+- 서버 검증(400 `VALIDATION_ERROR` + `fields`): `semester` 1·2 · `rangeFrom ≤ displayDate ≤ rangeTo` (`displayDate: out_of_range`) · 범위는 한 달 안(`rangeTo: other_month`) · 그 달이 학년도 범위(3~12월 = 학년도, 1~2월 = 다음 해, `rangeFrom: other_year`) · `sourceKey` 형식(`sourceKey: invalid`).
+- 같은 학생·학년도·학기·`sourceKey` 는 한 행(PUT 은 덮어쓰기, 멱등). 학생 인증 없으면 401. 다른 학생의 배치는 조회·변경 경로 자체가 없다(본인 ID는 인증에서만).
+- 화면은 저장값이 지금 행의 범위 밖이면(운영계획 재확정으로 시기가 바뀜) 쓰지 않고 기본 배치로 돌아간다(저장값은 남는다).
+
+**§39-6 보충: 결정 근거 `decisionBasis` (A28-31, 2026-11-23 · DRAFT — 추가형)**
+
+- `RowView`(§39-6 `review.rows[]`, §39-10 이력 `rows[]`)에 `decisionBasis: "ADMIN" | "AI_DEFAULT" | null` 추가. `ADMIN` = 관리자가 운영계획 초안에서 그 행을 직접 확인·수정·제외했거나 직접 추가한 행, `AI_DEFAULT` = 관리자가 따로 정하지 않아 '월별 운영계획 최종 승인' 한 번이 분석 후보를 기본값으로 채택한 행, `null` = 이 필드 이전 확정(V202611222242 전).
+- 서버가 확정 시점의 열린 운영계획 초안 결정(`teachingPlan[n]`)과 대조해 정한다(요청 필드 아님). 확정 요청·검증(학교·학년도·학년·학기·과목 연결·분석 최신·중복 409 `alreadyConfirmed`)은 그대로다.
+- 관리자 화면은 결정하지 않은 후보 중 원문 근거(쪽·위치)가 있고 이 문서 학년 과목인 행을 기본 포함해 `rows` 로 보낸다(행마다 '확인' 필요 없음). 학생 응답(§10-1-2)에는 이 필드가 없다.
+
+**§30-c 관리자 '학생 화면 보기' 읽기 경로 추가 (A28-36, 2026-11-23 · DRAFT — 사용자 요청, 팀 승인 별도)**
+
+```http
+GET /api/admin/assessment/students/{studentId}/student-view/evaluation-plans/{planId}/teaching-plan   # 학생 §10-1-2 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/academic-terms                          # 학생 §9-1-c 와 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/calendar-placements?academicYear&semester  # 학생 §30-b GET 과 같은 응답
+GET /api/admin/assessment/students/{studentId}/student-view/current-term                            # 학생 §9-2 current-term 과 같은 응답
+```
+
+- 학생 홈 달력·월별 운영계획을 관리자 읽기 전용 보기에서도 학생 화면과 같은 데이터로 보이게 한다. Actor ADMIN, 담당 지점 밖·없는 학생 404(기존 student-view 규칙). 학생 인증 Header 를 쓰지 않는다.
+- 쓰기 경로(배치 옮기기·초기화)는 두지 않는다. 학생 홈 메모는 계속 보이지 않는다(§30-a 규칙).
+
+**학생 화면 정책 (새 API 없음)**
+
+- 상세 '평가 기준'은 §10-1 `confirmedFields`(관리자 확정·학생 공개)만 쓴다. 학생 화면은 §11 분석을 읽거나 요청하지 않는다(AI 후보 비노출).
+- 상세 '평가계획서 원본'과 홈 3개년 슬롯은 §10-1-3만 쓴다(관리자 등록 문서·분석 결과로 대체하지 않음).
+- 목록 '기록 수' = 그 수행평가 탐구 노트의 저장 기록(§21 Revision) 수, '피드백 수' = 그 노트 Revision을 가리키는 §31 요청 수(답변 도착 + 대기). 노트 버전 번호(`revisionNumber`)를 그대로 쓰지 않고 목록 길이로 센다.
+
+### 관리자 화면 (새 API 없음)
+
+- 분석 결과 조회 화면(`/assessment/analysis/{planId}/revisions/{revisionId}/result`)은 §38 `GET /evaluation-plans/{planId}`, §39 `GET .../analysis`·`review-draft`·`teaching-plan-review`, §39-8 `GET .../reviews`, §39-10 `GET .../teaching-plan-reviews`만 읽는다(쓰기·분석기 호출 없음).
+- 월별 운영계획 탭·전체 현황 Calendar는 §38 목록 + §39-6 확정 운영계획 + §38-4 과목 목록을 조합한다.
+
+### A27-UX 계정 B 보완 (2026-11-18, DRAFT · 새 Endpoint 없음)
+
+- **분석 결과 조회 화면 2패널·비교**: 위 읽기 API만 쓴다. AI 후보 = §39 `GET .../analysis`(확정 후보 필드), 관리자 검토값 = §39-4 `GET .../review-draft`의 `draft.decisions`(ACTIVE = 임시 저장, 확정 뒤 CLOSED 초안은 확정 때 쓴 결정), 최종 확정값 = §39-8 `GET .../reviews`의 `current` 기록 `confirmedFields`(`analysisSubjectIndex`로 분석 과목과 맞춘다. 번호가 없는 기록은 위 A10 우선순위 ②초안 `subjectLinks` ③분석 과목 1개 + 확정 과목 1개로만 맞추고 그 밖에는 추정하지 않는다). 초안·이력 조회 실패는 '값 없음'과 구분해 표시한다.
+- **검토 완료·미확정 판정**: 서버 상태를 새로 만들지 않는다. 검토 대상 총수 = 최신 분석 결과의 확정 후보 필드 수, 결정 수 = ACTIVE 초안의 결정 중 그 필드에 해당하는 수. 분석 목록은 결정이 있는 문서만 분석 결과를 더 읽어 계산한다.
+- **학생 Home 다가오는 수행평가**: §12 목록(학생 소유) + §10-1 목록·상세 `confirmedFields`(관리자 확정, 읽기 전용)를 화면에서 함께 보여 준다. 확정값으로 D-day를 만들지 않는다.
+- **§20 노트 블록 `attrs.marks`** (OD-A05 전 임시 형식): `[{ "type": "bold"|"italic"|"underline"|"link", "start": 0, "end": 2, "href": "https://..." }]`. `start` 포함·`end` 미포함(UTF-16 위치), `text`는 순수 글 그대로. 서버는 기존대로 `attrs` 객체를 그대로 보존한다(Backend 변경 없음). 클라이언트는 읽을 때 범위·형식·href(http(s))를 다시 검사한다.
+- **자료 찾기 Modal**: §22 `GET /resources?query=&type=`(이미 계약된 `type` 필터)와 §20 노트 출처 카드로 연결·해제한다. 새 자료↔수행평가 연결 API는 만들지 않았다.
 
 ---
 

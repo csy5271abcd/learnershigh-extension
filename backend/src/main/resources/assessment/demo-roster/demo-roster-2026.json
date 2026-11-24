@@ -616,7 +616,9 @@
       "academyClassName": "시연 A지점 고1반",
       "school": {
         "schoolId": "sch_demo_sehwa",
-        "name": "세화고등학교"
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
       },
       "academicYear": 2026,
       "grade": 1,
@@ -654,7 +656,9 @@
       "academyClassName": "시연 A지점 고2반",
       "school": {
         "schoolId": "sch_demo_sehwa",
-        "name": "세화고등학교"
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
       },
       "academicYear": 2026,
       "grade": 2,
@@ -688,7 +692,9 @@
       "academyClassName": "시연 A지점 고3반",
       "school": {
         "schoolId": "sch_demo_sehwa",
-        "name": "세화고등학교"
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
       },
       "academicYear": 2026,
       "grade": 3,
@@ -722,7 +728,9 @@
       "academyClassName": "시연 A지점 고2반",
       "school": {
         "schoolId": "sch_demo_sehwa",
-        "name": "세화고등학교"
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
       },
       "academicYear": 2026,
       "grade": 2,
@@ -1600,7 +1608,9 @@
       "academyClassName": "시연 C지점 고1반",
       "school": {
         "schoolId": "sch_demo_gwangmyeong",
-        "name": "광명고등학교"
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
       },
       "academicYear": 2026,
       "grade": 1,
@@ -1638,7 +1648,9 @@
       "academyClassName": "시연 C지점 고2반",
       "school": {
         "schoolId": "sch_demo_gwangmyeong",
-        "name": "광명고등학교"
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
       },
       "academicYear": 2026,
       "grade": 2,
@@ -1672,7 +1684,9 @@
       "academyClassName": "시연 C지점 고3반",
       "school": {
         "schoolId": "sch_demo_gwangmyeong",
-        "name": "광명고등학교"
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
       },
       "academicYear": 2026,
       "grade": 3,
@@ -1706,7 +1720,9 @@
       "academyClassName": "시연 C지점 고3반",
       "school": {
         "schoolId": "sch_demo_gwangmyeong",
-        "name": "광명고등학교"
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
       },
       "academicYear": 2026,
       "grade": 3,
@@ -2020,7 +2036,9 @@
       "academyClassName": "시연 C지점 고1반",
       "school": {
         "schoolId": "sch_demo_jeju",
-        "name": "제주고등학교"
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
       },
       "academicYear": 2026,
       "grade": 1,
@@ -2058,7 +2076,9 @@
       "academyClassName": "시연 C지점 고2반",
       "school": {
         "schoolId": "sch_demo_jeju",
-        "name": "제주고등학교"
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
       },
       "academicYear": 2026,
       "grade": 2,
@@ -2092,7 +2112,9 @@
       "academyClassName": "시연 C지점 고3반",
       "school": {
         "schoolId": "sch_demo_jeju",
-        "name": "제주고등학교"
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
       },
       "academicYear": 2026,
       "grade": 3,
@@ -2126,7 +2148,9 @@
       "academyClassName": "시연 C지점 고3반",
       "school": {
         "schoolId": "sch_demo_jeju",
-        "name": "제주고등학교"
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
       },
       "academicYear": 2026,
       "grade": 3,
@@ -2150,6 +2174,1878 @@
           "subj26_g3s2_30",
           "subj26_g3s2_31",
           "subj26_g3s2_39"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_061",
+      "branchId": "br_demo_b",
+      "displayName": "김도윤",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gyeongil",
+        "name": "경일고등학교",
+        "schoolinfoSchoolId": "a0e95c21-74c7-4d65-b7f1-a8a0eb951342",
+        "address": "부산광역시 강서구 영강길 153-42"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_062",
+      "branchId": "br_demo_b",
+      "displayName": "이서아",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gyeongil",
+        "name": "경일고등학교",
+        "schoolinfoSchoolId": "a0e95c21-74c7-4d65-b7f1-a8a0eb951342",
+        "address": "부산광역시 강서구 영강길 153-42"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_063",
+      "branchId": "br_demo_b",
+      "displayName": "박서준",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gyeongil",
+        "name": "경일고등학교",
+        "schoolinfoSchoolId": "a0e95c21-74c7-4d65-b7f1-a8a0eb951342",
+        "address": "부산광역시 강서구 영강길 153-42"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_064",
+      "branchId": "br_demo_b",
+      "displayName": "최하린",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gyeongil",
+        "name": "경일고등학교",
+        "schoolinfoSchoolId": "a0e95c21-74c7-4d65-b7f1-a8a0eb951342",
+        "address": "부산광역시 강서구 영강길 153-42"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_065",
+      "branchId": "br_demo_b",
+      "displayName": "정하준",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_haegang",
+        "name": "해강고등학교",
+        "schoolinfoSchoolId": "e26e004a-f24a-4e48-a6f0-143d9e3d9451",
+        "address": "부산광역시 해운대구 해운대해변로 33"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_066",
+      "branchId": "br_demo_b",
+      "displayName": "강지우",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_haegang",
+        "name": "해강고등학교",
+        "schoolinfoSchoolId": "e26e004a-f24a-4e48-a6f0-143d9e3d9451",
+        "address": "부산광역시 해운대구 해운대해변로 33"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_067",
+      "branchId": "br_demo_b",
+      "displayName": "조시우",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_haegang",
+        "name": "해강고등학교",
+        "schoolinfoSchoolId": "e26e004a-f24a-4e48-a6f0-143d9e3d9451",
+        "address": "부산광역시 해운대구 해운대해변로 33"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_068",
+      "branchId": "br_demo_b",
+      "displayName": "윤수아",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_haegang",
+        "name": "해강고등학교",
+        "schoolinfoSchoolId": "e26e004a-f24a-4e48-a6f0-143d9e3d9451",
+        "address": "부산광역시 해운대구 해운대해변로 33"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_069",
+      "branchId": "br_demo_b",
+      "displayName": "장주원",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_seogang",
+        "name": "서강고등학교",
+        "schoolinfoSchoolId": "0ba67f00-b7c4-4e4d-8a7b-367eb0232892",
+        "address": "전남광주통합특별시 북구 서강로 1"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_070",
+      "branchId": "br_demo_b",
+      "displayName": "임다은",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_seogang",
+        "name": "서강고등학교",
+        "schoolinfoSchoolId": "0ba67f00-b7c4-4e4d-8a7b-367eb0232892",
+        "address": "전남광주통합특별시 북구 서강로 1"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_071",
+      "branchId": "br_demo_b",
+      "displayName": "한지호",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_seogang",
+        "name": "서강고등학교",
+        "schoolinfoSchoolId": "0ba67f00-b7c4-4e4d-8a7b-367eb0232892",
+        "address": "전남광주통합특별시 북구 서강로 1"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_072",
+      "branchId": "br_demo_b",
+      "displayName": "오수빈",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_seogang",
+        "name": "서강고등학교",
+        "schoolinfoSchoolId": "0ba67f00-b7c4-4e4d-8a7b-367eb0232892",
+        "address": "전남광주통합특별시 북구 서강로 1"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_073",
+      "branchId": "br_demo_b",
+      "displayName": "서예준",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_bora",
+        "name": "보라고등학교",
+        "schoolinfoSchoolId": "499aa21f-2d59-4154-b01a-5cbfbb6bcb5a",
+        "address": "경기도 용인시 기흥구 한보라1로43번길 7"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_074",
+      "branchId": "br_demo_b",
+      "displayName": "신채원",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_bora",
+        "name": "보라고등학교",
+        "schoolinfoSchoolId": "499aa21f-2d59-4154-b01a-5cbfbb6bcb5a",
+        "address": "경기도 용인시 기흥구 한보라1로43번길 7"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_075",
+      "branchId": "br_demo_b",
+      "displayName": "권건우",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_bora",
+        "name": "보라고등학교",
+        "schoolinfoSchoolId": "499aa21f-2d59-4154-b01a-5cbfbb6bcb5a",
+        "address": "경기도 용인시 기흥구 한보라1로43번길 7"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_076",
+      "branchId": "br_demo_b",
+      "displayName": "황예린",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_bora",
+        "name": "보라고등학교",
+        "schoolinfoSchoolId": "499aa21f-2d59-4154-b01a-5cbfbb6bcb5a",
+        "address": "경기도 용인시 기흥구 한보라1로43번길 7"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_077",
+      "branchId": "br_demo_b",
+      "displayName": "안현우",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_078",
+      "branchId": "br_demo_b",
+      "displayName": "송지안",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_079",
+      "branchId": "br_demo_b",
+      "displayName": "전우진",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_080",
+      "branchId": "br_demo_b",
+      "displayName": "홍나은",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gwangmyeong",
+        "name": "광명고등학교",
+        "schoolinfoSchoolId": "b277f9a9-2933-424f-9870-043119f35c36",
+        "address": "경기도 광명시 오리로876번길 17"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_081",
+      "branchId": "br_demo_b",
+      "displayName": "유선우",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gajeong",
+        "name": "가정고등학교",
+        "schoolinfoSchoolId": "425ad6e7-0638-4108-9a16-f44c8268554c",
+        "address": "인천광역시 서해구 서달로 162"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_082",
+      "branchId": "br_demo_b",
+      "displayName": "고소율",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_gajeong",
+        "name": "가정고등학교",
+        "schoolinfoSchoolId": "425ad6e7-0638-4108-9a16-f44c8268554c",
+        "address": "인천광역시 서해구 서달로 162"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_083",
+      "branchId": "br_demo_b",
+      "displayName": "문유찬",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_gajeong",
+        "name": "가정고등학교",
+        "schoolinfoSchoolId": "425ad6e7-0638-4108-9a16-f44c8268554c",
+        "address": "인천광역시 서해구 서달로 162"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_084",
+      "branchId": "br_demo_b",
+      "displayName": "양윤서",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_gajeong",
+        "name": "가정고등학교",
+        "schoolinfoSchoolId": "425ad6e7-0638-4108-9a16-f44c8268554c",
+        "address": "인천광역시 서해구 서달로 162"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_085",
+      "branchId": "br_demo_b",
+      "displayName": "손은우",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hyoam",
+        "name": "효암고등학교",
+        "schoolinfoSchoolId": "f6d2468c-3eab-45f4-9214-47d17e869450",
+        "address": "경상남도 양산시 서창로 144"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_086",
+      "branchId": "br_demo_b",
+      "displayName": "배하은",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hyoam",
+        "name": "효암고등학교",
+        "schoolinfoSchoolId": "f6d2468c-3eab-45f4-9214-47d17e869450",
+        "address": "경상남도 양산시 서창로 144"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_087",
+      "branchId": "br_demo_b",
+      "displayName": "백지환",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hyoam",
+        "name": "효암고등학교",
+        "schoolinfoSchoolId": "f6d2468c-3eab-45f4-9214-47d17e869450",
+        "address": "경상남도 양산시 서창로 144"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_088",
+      "branchId": "br_demo_b",
+      "displayName": "허서윤",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hyoam",
+        "name": "효암고등학교",
+        "schoolinfoSchoolId": "f6d2468c-3eab-45f4-9214-47d17e869450",
+        "address": "경상남도 양산시 서창로 144"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_089",
+      "branchId": "br_demo_b",
+      "displayName": "남승현",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_090",
+      "branchId": "br_demo_b",
+      "displayName": "노가은",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_091",
+      "branchId": "br_demo_b",
+      "displayName": "하태윤",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_092",
+      "branchId": "br_demo_b",
+      "displayName": "곽시아",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_jeju",
+        "name": "제주고등학교",
+        "schoolinfoSchoolId": "74a9c6e5-4e9e-4f46-9df2-62650f2a551f",
+        "address": "제주특별자치도 제주시 1100로 3213"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_093",
+      "branchId": "br_demo_b",
+      "displayName": "성민재",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sangsan",
+        "name": "상산고등학교",
+        "schoolinfoSchoolId": "ddda6440-86b2-4452-8286-260f760adf21",
+        "address": "전북특별자치도 전주시 완산구 거마평로 130"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_094",
+      "branchId": "br_demo_b",
+      "displayName": "차유나",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_sangsan",
+        "name": "상산고등학교",
+        "schoolinfoSchoolId": "ddda6440-86b2-4452-8286-260f760adf21",
+        "address": "전북특별자치도 전주시 완산구 거마평로 130"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_095",
+      "branchId": "br_demo_b",
+      "displayName": "주준혁",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_sangsan",
+        "name": "상산고등학교",
+        "schoolinfoSchoolId": "ddda6440-86b2-4452-8286-260f760adf21",
+        "address": "전북특별자치도 전주시 완산구 거마평로 130"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_096",
+      "branchId": "br_demo_b",
+      "displayName": "우아린",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sangsan",
+        "name": "상산고등학교",
+        "schoolinfoSchoolId": "ddda6440-86b2-4452-8286-260f760adf21",
+        "address": "전북특별자치도 전주시 완산구 거마평로 130"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_097",
+      "branchId": "br_demo_b",
+      "displayName": "구재원",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hana",
+        "name": "하나고등학교",
+        "schoolinfoSchoolId": "1f326780-7ce2-4730-8835-7d8057a70afb",
+        "address": "서울특별시 은평구 연서로 535"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_098",
+      "branchId": "br_demo_b",
+      "displayName": "나예서",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hana",
+        "name": "하나고등학교",
+        "schoolinfoSchoolId": "1f326780-7ce2-4730-8835-7d8057a70afb",
+        "address": "서울특별시 은평구 연서로 535"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_099",
+      "branchId": "br_demo_b",
+      "displayName": "민로운",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hana",
+        "name": "하나고등학교",
+        "schoolinfoSchoolId": "1f326780-7ce2-4730-8835-7d8057a70afb",
+        "address": "서울특별시 은평구 연서로 535"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_100",
+      "branchId": "br_demo_b",
+      "displayName": "진지유",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hana",
+        "name": "하나고등학교",
+        "schoolinfoSchoolId": "1f326780-7ce2-4730-8835-7d8057a70afb",
+        "address": "서울특별시 은평구 연서로 535"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_101",
+      "branchId": "br_demo_b",
+      "displayName": "지시후",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_102",
+      "branchId": "br_demo_b",
+      "displayName": "엄다인",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_103",
+      "branchId": "br_demo_b",
+      "displayName": "채이안",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_104",
+      "branchId": "br_demo_b",
+      "displayName": "원서영",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_sehwa",
+        "name": "세화고등학교",
+        "schoolinfoSchoolId": "7e0cc566-7b34-4f5f-b2ed-41765e58af22",
+        "address": "서울특별시 서초구 신반포로 56-7"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_105",
+      "branchId": "br_demo_b",
+      "displayName": "천정우",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_pohangsteel",
+        "name": "포항제철고등학교",
+        "schoolinfoSchoolId": "e2f3e18a-b8a7-40b2-a6ba-1b808b5c0318",
+        "address": "경상북도 포항시 남구 지곡로212번길 40"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_106",
+      "branchId": "br_demo_b",
+      "displayName": "방채은",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_pohangsteel",
+        "name": "포항제철고등학교",
+        "schoolinfoSchoolId": "e2f3e18a-b8a7-40b2-a6ba-1b808b5c0318",
+        "address": "경상북도 포항시 남구 지곡로212번길 40"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_107",
+      "branchId": "br_demo_b",
+      "displayName": "공윤호",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_pohangsteel",
+        "name": "포항제철고등학교",
+        "schoolinfoSchoolId": "e2f3e18a-b8a7-40b2-a6ba-1b808b5c0318",
+        "address": "경상북도 포항시 남구 지곡로212번길 40"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_108",
+      "branchId": "br_demo_b",
+      "displayName": "현은서",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_pohangsteel",
+        "name": "포항제철고등학교",
+        "schoolinfoSchoolId": "e2f3e18a-b8a7-40b2-a6ba-1b808b5c0318",
+        "address": "경상북도 포항시 남구 지곡로212번길 40"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_109",
+      "branchId": "br_demo_b",
+      "displayName": "함도현",
+      "academyClassName": "시연 B지점 고1반",
+      "school": {
+        "schoolId": "sch_demo_hyundai",
+        "name": "현대고등학교",
+        "schoolinfoSchoolId": "e7624b61-e239-48af-b9e1-a91ccfa9b61c",
+        "address": "서울특별시 강남구 압구정로 127"
+      },
+      "academicYear": 2026,
+      "grade": 1,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 1,
+      "subjectIds": {
+        "1": [
+          "subj_11",
+          "subj26_g1s1_02",
+          "subj26_g1s1_03",
+          "subj26_g1s1_04",
+          "subj_13",
+          "subj_12",
+          "subj_14"
+        ],
+        "2": [
+          "subj_01",
+          "subj26_g1s2_02",
+          "subj26_g1s2_03",
+          "subj26_g1s2_04",
+          "subj_03",
+          "subj_02",
+          "subj_04"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_110",
+      "branchId": "br_demo_b",
+      "displayName": "변주아",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hyundai",
+        "name": "현대고등학교",
+        "schoolinfoSchoolId": "e7624b61-e239-48af-b9e1-a91ccfa9b61c",
+        "address": "서울특별시 강남구 압구정로 127"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 2,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_111",
+      "branchId": "br_demo_b",
+      "displayName": "염연우",
+      "academyClassName": "시연 B지점 고3반",
+      "school": {
+        "schoolId": "sch_demo_hyundai",
+        "name": "현대고등학교",
+        "schoolinfoSchoolId": "e7624b61-e239-48af-b9e1-a91ccfa9b61c",
+        "address": "서울특별시 강남구 압구정로 127"
+      },
+      "academicYear": 2026,
+      "grade": 3,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 3,
+      "subjectIds": {
+        "1": [
+          "subj26_g3s1_05",
+          "subj26_g3s1_38",
+          "subj26_g3s1_39",
+          "subj26_g3s1_19",
+          "subj26_g3s1_21",
+          "subj26_g3s1_15",
+          "subj26_g3s1_36"
+        ],
+        "2": [
+          "subj26_g3s2_05",
+          "subj26_g3s2_37",
+          "subj26_g3s2_38",
+          "subj26_g3s2_18",
+          "subj26_g3s2_19",
+          "subj26_g3s2_11",
+          "subj26_g3s2_23"
+        ]
+      }
+    },
+    {
+      "studentId": "stu_demo_112",
+      "branchId": "br_demo_b",
+      "displayName": "여하율",
+      "academyClassName": "시연 B지점 고2반",
+      "school": {
+        "schoolId": "sch_demo_hyundai",
+        "name": "현대고등학교",
+        "schoolinfoSchoolId": "e7624b61-e239-48af-b9e1-a91ccfa9b61c",
+        "address": "서울특별시 강남구 압구정로 127"
+      },
+      "academicYear": 2026,
+      "grade": 2,
+      "schoolClassNumber": 7,
+      "schoolStudentNumber": 4,
+      "subjectIds": {
+        "1": [
+          "subj26_g2s1_03",
+          "subj26_g2s1_04",
+          "subj26_g2s1_06",
+          "subj26_g2s1_19",
+          "subj26_g2s1_05",
+          "subj26_g2s1_15",
+          "subj26_g2s1_14"
+        ],
+        "2": [
+          "subj26_g2s2_05",
+          "subj26_g2s2_06",
+          "subj26_g2s2_08",
+          "subj26_g2s2_24",
+          "subj26_g2s2_25",
+          "subj26_g2s2_23",
+          "subj26_g2s2_27"
         ]
       }
     }

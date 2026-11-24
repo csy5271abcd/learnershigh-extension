@@ -73,8 +73,9 @@
 }
 
 .statusBadge[data-tone='blue'] {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  /* 대기 상태 — 정보성이라 무채색 (A27-UX 계정 B 2차) */
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
 }
 
 .statusBadge[data-tone='green'] {

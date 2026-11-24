@@ -133,7 +133,7 @@ export function ReferenceLinksRoute() {
             <h1 id="reference-hero-title" className={styles.heroTitle}>
               과목별 참고자료
             </h1>
-            <p className={styles.heroLead}>공신력 있는 사이트와 교육 자료원을 과목에 맞게 찾아보세요. 수행평가와 심화 탐구에 쓸 근거를 어디서 찾을지 알려 드려요.</p>
+            <p className={styles.heroLead}>공신력 있는 사이트와 교육 자료원을 과목에 맞게 찾아보세요.</p>
             <button type="button" className={styles.heroButton} onClick={() => goBrowse()}>
               참고자료 둘러보기
               <ArrowRightIcon size={16} />
@@ -309,7 +309,6 @@ export function ReferenceLinksRoute() {
           ) : visible.length === 0 ? (
             <EmptyState
               title="조건에 맞는 자료원이 없어요"
-              description="검색어나 자료 유형을 바꿔 보세요."
               action={
                 hasFilter ? (
                   <button type="button" className={styles.addButton} onClick={() => {
@@ -344,7 +343,7 @@ export function ReferenceLinksRoute() {
 
           <p className={styles.footNote}>
             <InfoIcon size={13} />
-            링크는 각 서비스의 대표 홈페이지·채널이에요. 특정 기사·논문 주소가 아니고, 이 앱이 사이트 안을 검색하지 않아요. RISS·DBpia·ScienceON은 기관 인증·구독에 따라 원문 열람 범위가 달라요. 기사·논문·영상을 인용할 때는 제목·저자·발행일·원문 주소를 따로 적어 주세요.
+            링크는 각 서비스의 대표 홈페이지·채널이에요. RISS·DBpia·ScienceON은 기관 인증·구독에 따라 원문 열람 범위가 달라요.
           </p>
           <MockDataNotice />
         </section>

@@ -11,7 +11,26 @@ export const resourceTypes: { type: string; label: string }[] = [
   { type: 'VIDEO', label: '영상' },
   { type: 'PDF', label: 'PDF' },
   { type: 'IMAGE', label: '이미지' },
+  { type: 'FILE', label: '파일' },
 ]
+
+/** A27-UX 파일을 올릴 수 있는 자료 유형과 허용 형식 (서버가 확장자+서명을 다시 검사한다) */
+export const fileResourceTypes = new Set(['PDF', 'IMAGE', 'FILE'])
+export const documentAccept = '.pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
+export const imageAccept = '.jpg,.jpeg,.png,.gif,.webp'
+export const acceptFor = (type: string) => (type === 'PDF' ? '.pdf' : type === 'IMAGE' ? imageAccept : `${documentAccept},${imageAccept}`)
+const allowedExtensions = new Set([...documentAccept.split(','), ...imageAccept.split(',')].map((value) => value.slice(1)))
+/** 서버 한도와 같은 크기(100MB). 실제 한도는 서버 오류(FILE_TOO_LARGE)를 따른다 */
+export const maxResourceFileBytes = 100 * 1024 * 1024
+export function localFileProblem(file: File, type: string): string | null {
+  const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
+  const allowed = acceptFor(type).split(',').map((value) => value.slice(1))
+  if (!allowedExtensions.has(extension) || !allowed.includes(extension)) return `${acceptFor(type).replaceAll('.', '').toUpperCase().replaceAll(',', '·')} 파일만 올릴 수 있어요.`
+  if (file.size === 0) return '빈 파일은 올릴 수 없어요.'
+  if (file.size > maxResourceFileBytes) return '100MB 이하 파일만 올릴 수 있어요.'
+  return null
+}
+export const fileSizeText = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))}KB` : `${(bytes / 1024 / 1024).toFixed(1)}MB`)
 
 /** 목록 필터 Chip (Mockup RL-LIST-01: 전체·링크·PDF·이미지·영상·도서). 기사·논문은 전체에서만 보인다 (MM-31). */
 export const resourceFilterTypes = ['LINK', 'PDF', 'IMAGE', 'VIDEO', 'BOOK']

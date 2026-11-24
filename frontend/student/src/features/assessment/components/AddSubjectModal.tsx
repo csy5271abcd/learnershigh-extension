@@ -92,7 +92,6 @@ function AddSubjectModalForm({ context, candidates, onClose, onAdded }: AddSubje
   return (
     <Modal
       title="과목 추가"
-      description="공부할 과목을 이 학기에 추가해요."
       compact
       onRequestClose={() => {
         if (!submitting) onClose()
@@ -110,7 +109,6 @@ function AddSubjectModalForm({ context, candidates, onClose, onAdded }: AddSubje
       }
     >
       <form id="add-subject-form" className={formStyles.form} noValidate onSubmit={submit}>
-        <p className={styles.intro}>공부할 과목을 추가해 보세요.</p>
         <p className={styles.term}>
           <span className={styles.termLabel}>현재 학업 정보</span>
           {context.school.name} · {termLabel(context)}
@@ -181,7 +179,7 @@ function AddSubjectModalForm({ context, candidates, onClose, onAdded }: AddSubje
 
         <p className={styles.notice}>
           <InfoIcon size={13} />
-          직접 입력한 과목은 학교가 개설한 공식 과목이 아니라 내가 추가한 학습용 과목으로 표시돼요. 시연용(Mock) 데이터라 서버가 아니라 이 브라우저에만 저장돼요.
+          직접 입력한 과목은 학교가 개설한 공식 과목이 아니라 내가 추가한 학습용 과목으로 표시돼요.
         </p>
       </form>
     </Modal>

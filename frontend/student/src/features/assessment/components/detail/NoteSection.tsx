@@ -6,6 +6,7 @@ import { InfoIcon, NoteIcon, TemplateIcon } from '../AssessmentIcons.tsx'
 import { ChartPreview, FileMeta, MapCard, MathView, ResourceCard, VideoView, WebLinkCard } from '../notes/NoteBlockParts.tsx'
 import noteStyles from '../notes/notes.module.css'
 import { ErrorState, LoadingRows } from '../StateViews.tsx'
+import { InlineText } from '../notes/InlineText.tsx'
 import styles from './detail.module.css'
 
 interface NoteSectionProps {
@@ -36,7 +37,7 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
         <InfoIcon size={14} />
         {note
           ? `노트 편집기는 준비 중이에요. 마지막으로 저장된 v${note.revisionNumber}(${formatDateTime(note.savedAt)} 저장)을 보여 드려요.`
-          : '노트 편집기는 준비 중이에요. 편집기가 연결되면 여기에서 바로 쓸 수 있어요.'}
+          : '노트 편집기는 준비 중이에요.'}
       </p>
 
       {notes.status === 'loading' && <LoadingRows rows={3} label="탐구 노트를 불러오는 중" />}
@@ -44,7 +45,7 @@ export function NoteSection({ notes, onOpenTemplates }: NoteSectionProps) {
         <ErrorState title="탐구 노트를 불러오지 못했어요" error={notes.error} onRetry={notes.retry} />
       )}
       {notes.data && !note && (
-        <p className={styles.emptyBox}>아직 작성한 탐구 노트가 없어요. 조사한 내용·생각·시행착오를 기록하는 공간이에요.</p>
+        <p className={styles.emptyBox}>아직 작성한 탐구 노트가 없어요.</p>
       )}
       {note && (
         <article className={styles.noteBody} aria-label={note.title}>
@@ -72,7 +73,7 @@ export function NoteBlockView({ block, number, showPlaceholders = false }: { blo
       const level = headingLevel(block)
       return (
         <h3 className={styles.noteHeading} data-level={level}>
-          {block.text || placeholder}
+          {block.text ? <InlineText text={block.text} marks={attrs?.marks} /> : placeholder}
         </h3>
       )
     }
@@ -85,18 +86,18 @@ export function NoteBlockView({ block, number, showPlaceholders = false }: { blo
           <span aria-hidden="true">{marker}</span>
           <span>
             {block.type === 'CHECKLIST' && <span className="lh-visually-hidden">{attrs?.checked ? '완료: ' : '미완료: '}</span>}
-            {block.text || placeholder}
+            {block.text ? <InlineText text={block.text} marks={attrs?.marks} /> : placeholder}
           </span>
         </p>
       )
     }
     case 'QUOTE':
-      return <blockquote className={noteStyles.readQuote}>{block.text || placeholder}</blockquote>
+      return <blockquote className={noteStyles.readQuote}>{block.text ? <InlineText text={block.text} marks={attrs?.marks} /> : placeholder}</blockquote>
     case 'CALLOUT':
       return (
         <div className={noteStyles.callout}>
           <span aria-hidden="true">{attrs?.emoji ?? '💡'}</span>
-          <p className={styles.noteParagraph}>{block.text || placeholder}</p>
+          <p className={styles.noteParagraph}>{block.text ? <InlineText text={block.text} marks={attrs?.marks} /> : placeholder}</p>
         </div>
       )
     case 'TOGGLE':
@@ -155,7 +156,11 @@ export function NoteBlockView({ block, number, showPlaceholders = false }: { blo
       )
     default:
       if (block.text === '') return placeholder ? <p className={styles.noteParagraph}>{placeholder}</p> : <p className={styles.noteEmptyParagraph} aria-hidden="true" />
-      return <p className={styles.noteParagraph}>{block.text}</p>
+      return (
+        <p className={styles.noteParagraph}>
+          <InlineText text={block.text} marks={attrs?.marks} />
+        </p>
+      )
   }
 }
 

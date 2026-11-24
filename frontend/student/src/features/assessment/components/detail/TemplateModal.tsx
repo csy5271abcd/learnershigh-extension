@@ -50,7 +50,7 @@ export function TemplateModal({ hasContent, hasUnsavedChanges, onClose, onApply 
       initialFocusRef={searchRef}
       footer={
         <div className={styles.templateFooter}>
-          <p className={styles.modalNote}>템플릿은 작성을 돕는 양식이에요. 순서·제목·이모지 모두 자유롭게 바꿀 수 있어요.</p>
+          <p className={styles.modalNote}>템플릿은 작성을 돕는 양식이에요.</p>
           <div className={styles.footerButtons}>
             <button type="button" className={formStyles.ghostButton} onClick={onClose}>
               취소

@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '../AssessmentIcons.tsx'
 import { Modal } from '../Modal.tsx'
-import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
+import { monthsOf, placeEntries, precisionLabel, semesterMonths, subjectColorIndex, unplacedEntries, weekListGroups, whenLabel, type TeachingPlanEntry } from './teachingPlanPlacement.ts'
 import styles from './monthlyPlanner.module.css'
 
 // 월별 교수·학습 운영 계획 Monthly Planner (Student 조회 · Admin 검토 공용 렌더러).
@@ -28,9 +28,12 @@ export interface MonthlyPlannerProps {
   emptyState: ReactNode
   /** 원문 쪽 보기 (PDF 쪽 근거가 있을 때) */
   onOpenSource?: (page: number) => void
+  /** A27-UX 관리자 화면 전용: 달력 아래 묶음(Outside This Term·달 미확정)을 관리자 표기(영어 라벨·왼쪽 여백)로. 학생 화면은 쓰지 않는다(기본 false) */
+  adminBands?: boolean
 }
 
-export function MonthlyPlanner({ academicYear, semester, entries, mode, emptyState, onOpenSource }: MonthlyPlannerProps) {
+export function MonthlyPlanner({ academicYear, semester, entries, mode, emptyState, onOpenSource, adminBands = false }: MonthlyPlannerProps) {
+  const adminBandStyle = mode === 'admin' || adminBands
   const months = semesterMonths(semester)
   const subjects = useMemo(() => [...new Set(entries.map((entry) => entry.subjectName))], [entries])
   const firstWithData = months.find((month) => entries.some((entry) => monthsOf(entry).includes(month))) ?? months[0]
@@ -44,7 +47,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
   const visible = entries.filter((entry) => !hidden.has(entry.subjectName))
   const placement = placeEntries(visible, academicYear, month)
   const unplaced = unplacedEntries(visible)
-  // 이 학기 달(1학기 3~8월, 2학기 9~2월) 밖 시기의 행도 버리지 않고 따로 보여 준다 (예: 원문에 다른 달·연도가 적힌 행)
+  // 이 학기 달(1학기 3~8월, 2학기 8~다음 해 1월) 밖 시기의 행도 버리지 않고 따로 보여 준다 (예: 원문에 다른 달·연도가 적힌 행)
   const outsideTerm = visible.filter((entry) => monthsOf(entry).length > 0 && !monthsOf(entry).some((value) => months.includes(value)))
   const position = months.indexOf(month)
 
@@ -86,13 +89,8 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
     )
   }
 
-  const byWeekList = [
-    ...placement.monthSummary.map((entry) => ({ group: `${month}월 전체`, entry })),
-    ...placement.weekBands.flatMap((band) => band.entries.map((entry) => ({ group: `${month}월 ${band.week}주`, entry }))),
-    ...placement.termWeekBands.flatMap((band) => band.entries.map((entry) => ({ group: `학기 ${band.week}주차`, entry }))),
-    ...(placement.year === null ? [] : placement.cells.flatMap((cell) => (cell ? cell.entries.filter((entry) => entry.dateFrom === cell.iso).map((entry) => ({ group: `${month}월 ${cell.day}일`, entry })) : []))),
-    ...placement.undated.map((entry) => ({ group: `${month}월 · 날짜·주차 미확인`, entry })),
-  ]
+  // A28-37: 달력에 임시 배치된 'n월 m주' 행도 원문 주차로 묶어 목록에 넣는다(이전에는 빠져 목록이 비었다). 항목 수 = placement.total
+  const byWeekList = weekListGroups(placement).flatMap((group) => group.entries.map((entry) => ({ group: group.label, entry })))
 
   return (
     <div className={styles.planner} data-testid="monthly-planner">
@@ -121,14 +119,28 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
             ))}
           </div>
         </div>
-        <ul className={styles.legend} aria-label="표시 기준">
-          <li>날짜가 적힌 계획 → 날짜 칸</li>
-          <li>&lsquo;n월 m주&rsquo; → 그 달 달력 m번째 줄(일요일 시작)에 임시 배치 · 점선 칸</li>
-          <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
-          <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
-          <li>달을 알 수 없음 → 아래 따로 모음</li>
-          {mode === 'admin' && <li>점선 = 분석 후보(미확정)</li>}
-        </ul>
+        {/* A28-19: 관리자 화면은 표시 기준을 접어 둔다(펼치면 같은 내용). 학생 화면은 그대로 */}
+        {adminBandStyle ? (
+          <details className={styles.legendDetails}>
+            <summary>표시 기준</summary>
+            <ul className={styles.legend} aria-label="표시 기준">
+              <li>날짜가 적힌 계획 → 날짜 칸</li>
+              <li>&lsquo;n월 m주&rsquo; → 그 달 m번째 줄(날짜 미정)</li>
+              <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
+              <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
+              <li>달을 알 수 없음 → 아래 따로 모음</li>
+              {mode === 'admin' && <li>점선 = 분석 후보(미확정)</li>}
+            </ul>
+          </details>
+        ) : (
+          <ul className={styles.legend} aria-label="표시 기준">
+            <li>날짜가 적힌 계획 → 날짜 칸</li>
+            <li>&lsquo;n월 m주&rsquo; → 그 달 m번째 줄(날짜 미정)</li>
+            <li>&lsquo;학기 n주차&rsquo; → 날짜로 바꾸지 않고 주차 줄</li>
+            <li>월만 적힌 계획 → 월 전체 줄 (여러 달이면 각 달)</li>
+            <li>달을 알 수 없음 → 아래 따로 모음</li>
+          </ul>
+        )}
       </aside>
 
       <section className={styles.main} aria-label={`${month}월 운영 계획`}>
@@ -150,7 +162,9 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
             이번 달
           </button>
           <h4 data-testid="planner-title">{placement.year === null ? `${academicYear}학년도 ${month}월` : `${placement.year}년 ${month}월`}</h4>
-          <span className={styles.count}>{placement.total}개</span>
+          <span className={styles.count} data-testid="planner-total">
+            {placement.total}개
+          </span>
           <div className={styles.views} role="group" aria-label="보기 방식">
             <button type="button" aria-pressed={view === 'calendar'} onClick={() => setView('calendar')}>
               달력
@@ -193,15 +207,10 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
             )}
             {placement.year === null ? (
               <p className={styles.yearUnknown}>
-                {academicYear}학년도 {month}월은 학사일정으로 실제 연도를 확인하기 전이라 날짜 칸을 그리지 않아요. 원문의 주차·월 정보만 위에 보여 줘요.
+                {academicYear}학년도 {month}월 · 연도 미확인(날짜 칸 없음)
               </p>
             ) : (
               <>
-              {Object.keys(placement.tentativeDates).length > 0 && (
-                <p className={styles.gridNote} data-testid="planner-grid-note">
-                  &lsquo;n월 m주&rsquo; 계획은 이 달력의 m번째 줄(일요일 시작) 날짜에 <strong>임시로</strong> 나눠 보여 줘요. 학교 학사력의 주차·실제 수업일과 다를 수 있고, 날짜를 저장하지 않아요.
-                </p>
-              )}
               <div className={styles.grid} role="grid" aria-label={`${placement.year}년 ${month}월 달력`}>
                 {weekdays.map((day) => (
                   <div key={day} className={styles.weekday} role="columnheader">
@@ -221,7 +230,7 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
                           data-candidate={mode === 'admin' && entry.status === 'CANDIDATE' ? 'true' : undefined}
                           data-tentative={cell.tentativeIds.includes(entry.id) || undefined}
                           onClick={() => setSelected(entry)}
-                          title={`${entry.subjectName} · ${short(entry)}${cell.tentativeIds.includes(entry.id) ? ` (${whenLabel(entry)} · 임시 배치)` : ''}`}
+                          title={`${entry.subjectName} · ${short(entry)}${cell.tentativeIds.includes(entry.id) ? ` (${whenLabel(entry)} · 날짜 미정)` : ''}`}
                           data-testid="planner-event"
                           data-date={cell.iso}
                         >
@@ -254,14 +263,18 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
           <ul className={styles.list} data-testid="planner-list">
             {byWeekList.map(({ group, entry }, index) => (
               <li key={`${group}-${entry.id}`}>
-                {(index === 0 || byWeekList[index - 1].group !== group) && <p className={styles.listGroup}>{group}</p>}
-                <button type="button" className={styles.listItem} onClick={() => setSelected(entry)}>
+                {(index === 0 || byWeekList[index - 1].group !== group) && (
+                  <p className={styles.listGroup} data-testid="planner-list-group">
+                    {group}
+                  </p>
+                )}
+                <button type="button" className={styles.listItem} onClick={() => setSelected(entry)} data-testid="planner-list-item">
                   <span className={styles.dot} data-c={color(entry)} />
                   <span style={{ minWidth: 0 }}>
                     <strong>
                       {entry.subjectName} · {entry.unit ?? '단원 미확인'}
                     </strong>
-                    <span className={styles.sub}>{entry.content ?? entry.asWritten}</span>
+                    <span className={styles.sub}>{entry.content ?? whenLabel(entry)}</span>
                   </span>
                 </button>
               </li>
@@ -269,14 +282,20 @@ export function MonthlyPlanner({ academicYear, semester, entries, mode, emptySta
           </ul>
         )}
         {outsideTerm.length > 0 && (
-          <div className={styles.band} data-testid="planner-outside-term">
-            <span className={styles.bandLabel}>이 학기 달 밖의 계획 {outsideTerm.length}개</span>
+          // [12] A27-UX 관리자 · A28-36 [11] 학생도: 카드 테두리에서 띄운다(data-inset — 제목·칩 왼쪽 시작점 통일). 학생 제목은 한국어
+          <div className={styles.band} data-inset="true" data-testid="planner-outside-term">
+            <span className={styles.bandLabel}>
+              {adminBandStyle ? 'Outside This Term' : '학기 외 일정'} {outsideTerm.length}개
+            </span>
             <div className={styles.bandItems}>{outsideTerm.map(chip)}</div>
           </div>
         )}
         {unplaced.length > 0 && (
-          <div className={styles.band} data-testid="planner-unplaced">
-            <span className={styles.bandLabel}>달을 정할 수 없는 계획 {unplaced.length}개</span>
+          // [13] A27-UX: 관리자 검토(mode='admin')에서는 영어 라벨 'Plans Without a Fixed Month'(Outside This Term과 같은 표기). 학생 화면 문구는 그대로
+          <div className={styles.band} data-inset="true" data-testid="planner-unplaced">
+            <span className={styles.bandLabel}>
+              {adminBandStyle ? 'Plans Without a Fixed Month' : '달을 정할 수 없는 계획'} {unplaced.length}개
+            </span>
             <div className={styles.bandItems}>{unplaced.map(chip)}</div>
           </div>
         )}
@@ -381,7 +400,7 @@ function EntryDetail({
             <dt>달력 표시 날짜</dt>
             <dd>
               {shownDates.map(dateLabel).join(', ')}
-              <span className={styles.tentativeNote}>주차 기준 임시 배치 · 실제 수업일 미확정 · 저장되지 않는 표시용 날짜</span>
+              <span className={styles.tentativeNote}>원문 주차 기준 · 날짜 미정</span>
             </dd>
           </div>
         )}

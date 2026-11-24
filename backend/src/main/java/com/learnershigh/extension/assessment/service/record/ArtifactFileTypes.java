@@ -18,6 +18,8 @@ public final class ArtifactFileTypes {
     private static final byte[] PNG = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
     private static final byte[] JPEG = {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
     private static final byte[] GIF = {'G', 'I', 'F', '8'};
+    private static final byte[] RIFF = {'R', 'I', 'F', 'F'};
+    private static final byte[] WEBP = {'W', 'E', 'B', 'P'};
 
     private record Rule(byte[] signature, String contentType) {
     }
@@ -31,6 +33,8 @@ public final class ArtifactFileTypes {
             Map.entry("ppt", new Rule(OLE, "application/vnd.ms-powerpoint")),
             Map.entry("pptx", new Rule(ZIP, "application/vnd.openxmlformats-officedocument.presentationml.presentation")),
             Map.entry("xlsx", new Rule(ZIP, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")),
+            Map.entry("xls", new Rule(OLE, "application/vnd.ms-excel")),
+            Map.entry("webp", new Rule(RIFF, "image/webp")),
             Map.entry("png", new Rule(PNG, "image/png")),
             Map.entry("jpg", new Rule(JPEG, "image/jpeg")),
             Map.entry("jpeg", new Rule(JPEG, "image/jpeg")),
@@ -50,7 +54,36 @@ public final class ArtifactFileTypes {
                 || !Arrays.equals(Arrays.copyOf(bytes, rule.signature().length), rule.signature())) {
             return Optional.empty();
         }
+        // WEBP: RIFF 컨테이너의 8~11번째 바이트가 'WEBP'여야 한다(WAV 등 다른 RIFF 거절)
+        if (rule.signature() == RIFF && (bytes.length < 12 || !Arrays.equals(Arrays.copyOfRange(bytes, 8, 12), WEBP))) {
+            return Optional.empty();
+        }
         return Optional.of(rule.contentType());
+    }
+
+    private static final byte[] FTYP = {'f', 't', 'y', 'p'};
+    private static final byte[] EBML = {0x1A, 0x45, (byte) 0xDF, (byte) 0xA3};
+    private static final Map<String, String> ADMIN_VIDEO = Map.of("mp4", "video/mp4", "m4v", "video/mp4", "mov",
+            "video/quicktime", "webm", "video/webm");
+
+    /**
+     * A27-UX §43-1: 관리자 참고자료실 전용 영상 형식(MP4·M4V·MOV·WEBM). 학생 자료함·결과물 허용 형식에는 넣지 않는다.
+     * MP4·M4V·MOV는 ISO BMFF 4~7번째 바이트 'ftyp', WEBM은 EBML 머리 서명이 맞아야 한다(확장자만 바꾼 파일 거절).
+     */
+    public static Optional<String> adminVideoContentTypeOf(String fileName, byte[] bytes) {
+        int dot = fileName == null ? -1 : fileName.lastIndexOf('.');
+        if (dot < 0) {
+            return Optional.empty();
+        }
+        String ext = fileName.substring(dot + 1).toLowerCase(Locale.ROOT);
+        String type = ADMIN_VIDEO.get(ext);
+        if (type == null) {
+            return Optional.empty();
+        }
+        boolean ok = "webm".equals(ext)
+                ? bytes.length >= 4 && Arrays.equals(Arrays.copyOf(bytes, 4), EBML)
+                : bytes.length >= 12 && Arrays.equals(Arrays.copyOfRange(bytes, 4, 8), FTYP);
+        return ok ? Optional.of(type) : Optional.empty();
     }
 
     /** 원본 파일명 정리: 경로 구분자·제어문자 제거, 길이 제한. 저장 경로에는 쓰지 않는다(표시·다운로드 이름 전용). */

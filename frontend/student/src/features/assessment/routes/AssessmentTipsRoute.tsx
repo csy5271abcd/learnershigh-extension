@@ -17,8 +17,6 @@ export function AssessmentTipsRoute() {
 
   const resolveAction = (action: TipAction): TipActionTarget => {
     switch (action) {
-      case 'TOPIC_SUGGESTION':
-        return { reason: '주제명 추천은 수행평가 상세 화면에서 과제를 고른 뒤 열 수 있어요. 추천 실행은 AI 기능이 연결되는 단계(Stage 3)에서 제공돼요.' }
       case 'NOTE':
         return { run: () => navigate(schoolAssessmentsPath) }
       case 'RESOURCES':
@@ -47,7 +45,6 @@ export function AssessmentTipsRoute() {
               resolveAction={resolveAction}
             />
           </div>
-          <p className={styles.intro}>"탐구 노트 열기"는 학교 수행평가 목록으로 이동해요. 과제를 고르면 그 과제의 노트가 열려요.</p>
           <div className={enrichmentStyles.notices}>
             <MockDataNotice />
           </div>

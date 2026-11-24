@@ -256,6 +256,8 @@ Student
 
 **저장 상태 (A3.5, 2026-11-14 사용자 승인)**: AnalysisRun `status` = `REVIEW_REQUIRED`(확인 필요) · `PARTIAL`(일부 성공) · `FAILED`(실패). `PARTIAL`은 분석기 Envelope 판정이 부분 결과일 때만 쓰며 `REVIEW_REQUIRED`로 바꾸지 않는다. `PARTIAL`도 관리자가 원문과 대조해 확정할 수 있다(`FAILED`만 확정 불가). 분석되지 않은 과목·항목은 "원문에 없음"이 아니라 "분석되지 않음"이다. 검토 표시의 "검토 중"·이전 확정 대체 표시는 아직 Enum이 없다.
 
+**검토 진행 표시 (A27-UX 계정 B, 2026-11-18 · DRAFT, 화면 계산 규칙이며 Enum 아님)**: 관리자 화면은 서버 값만으로 다음을 구분한다. ① `reviewStatus=CONFIRMED` → 확정(= 학생 공개) ② 공유 검토 초안(ACTIVE)에 결정이 하나 이상 → 검토 중 ③ 검토 대상 필드가 모두 결정됨 → 검토 완료 · 미확정. **검토 대상 총수**는 확정 화면과 같은 규칙으로 분석 결과(최신 Run)에서 만든 확정 후보 필드 수다. 서버에 '검토 완료' 상태를 저장하지 않는다. 결과 조회 화면은 AI 후보(분석 Run) · 관리자 검토값(초안 결정, 확정 뒤에는 CLOSED 초안) · 최종 확정값(확정 이력 current 기록)을 **서로 다른 원천에서 읽어 나란히 보여 주며** 어느 값도 다른 값을 덮어쓰지 않는다.
+
 ### 9-3. 중복·연도 비교
 
 - 학생이 같은 `evaluationItemRef`로 수행평가를 다시 반영하면 중복을 알리고 자동 병합하지 않는다.
@@ -294,6 +296,21 @@ Note[] / Artifact[] / ResourceReference[] / FeedbackRequest[]
 화살표는 일반적인 동작 설명이고 역전이·삭제·복원 정책, 정확한 Enum은 Feature Spec과 Contract에서 정의한다. **기존 8단계, 단계별 필수 Evidence/AI 분석/관리자 승인 조건을 적용하지 않는다.**
 
 평가기준 AI 설명·수행평가 꿀팁·교과 기반 주제 추천은 `SchoolAssessment`의 공식 사실을 바꾸는 명령이 아니라 **보조 분석/제안**이다.
+
+### 10-2. A27-UX 반영 (2026-11-17~18, DRAFT · 팀 승인 전)
+
+> 아래는 A27-UX 구현 기준이다. 사용자 결정(2026-11-17)을 반영했지만 팀 승인 전이라 `api-contract.md` "A27-UX DRAFT 추가 계약"과 같이 DRAFT로 둔다. 승인 시 이 표시만 지운다.
+
+- **진행 상태 되돌리기 (사용자 결정 2026-11-17)**: 학생 자기 관리 상태이므로 `완료 → 진행 중 → 시작 전` 등 역전이를 허용한다. 위 10-1 "역전이 정책은 Contract에서 정의"를 이 결정으로 채운다. 같은 상태 요청은 변경 없음. 실제로 바뀔 때마다 불변 상태 이력(from·to·시각)을 남긴다. 교사 평가·공식 제출 상태가 아니며 관리자 승인 조건이 없다.
+- **학생 개인 관리 정보**: 평가 유형·평가일(제출 마감과 별도)·반영 비율(0~100, 모름 = null, 0과 구분)·제출물·수행 내용·개인 메모. 학생 본인만 보고 고친다. 평가계획서 확정값(④)을 바꾸지 않고, ④가 바뀌어도 자동으로 바뀌지 않는다(9-0 ⑤ 원칙 그대로).
+- **학생 Home '다가오는 수행평가'**: 두 출처를 **함께 보여 줄 뿐 합쳐 저장하지 않는다.**
+  - 학생 `SchoolAssessment`(학생 소유): 학생이 넣은 정확한 날짜(평가일·제출 마감)로만 D-day를 계산한다.
+  - 관리자 확정·공개 수행평가(④, 읽기 전용): 확정값에 정확한 날짜가 없고 '시기' 문장만 있어 **D-day를 만들지 않고 '날짜 미정'으로 표시**한다. 월별 운영계획의 주차 잠정 배치 날짜(A26)는 마감일로 쓰지 않는다.
+  - 중복: 학생 항목이 같은 Revision·같은 과목에 `evaluationItemRef`로 연결되어 있고 이름이 같으면 같은 수행평가로 보고 학생 항목 하나만 보인다. 확정값에는 itemKey가 없어 이름이 다르면 추정 연결하지 않는다(둘 다 보인다). itemKey를 확정값에 싣는 것은 Open Decision이다. 학생 연결 1건은 공식 항목 1건만 대신한다 — 같은 과목에 같은 이름의 공식 수행평가가 여럿이면 연결 수만큼만 숨긴다(A27-UX 오병합 수정).
+- **자료(ResourceReference)**: 학생 자료에 파일 하나를 첨부할 수 있다(본인 전용, 확장자 + 파일 서명 검사, 원본 바이트 보존). 자료 ↔ 수행평가 연결은 별도 Entity 없이 **그 수행평가 탐구 노트의 출처 카드(RESOURCE_LINK 블록)** 로 표현한다(§23 "§20 PUT 재사용"). 연결 해제 = 노트에서 출처 카드를 빼는 것이며 자료함의 자료는 지우지 않는다.
+- **공식 공개 평가계획서 원본**: 학교 공식 공개가 검증된 원본(향후 학교알리미 수집, 공급자 경계만 있음)은 관리자 AI 분석 승인과 무관하게 학생이 열람할 수 있다. **관리자 직접 등록 문서는 공식 공개 원본으로 취급하지 않는다.** 슬롯은 학생 본인 학적 Context로만 정하고, 공급자가 없으면 '확인되지 않음'으로 표시한다(원본이 있는 것처럼 보이지 않는다).
+- **관리자 참고자료 업로드 (A27-UX 관리자 UI 개선, 2026-11-18 DRAFT)**: 관리자 스크랩(ResourceReference, owner = ADMIN)에도 파일 하나(문서·사진 + 관리자 전용 영상 MP4·MOV·WEBM)를 둘 수 있다. 업로드 스크랩은 링크가 선택이다. **파일은 관리자 전용**이고 학생에게 전달되지 않는다 — 링크 없는 업로드 스크랩은 학생 공개·피드백 추천 대상이 아니다. 같은 격리 Storage·같은 파일 열(`V202611170300`)을 쓰며 새 Entity·Migration이 없다(`api-contract.md` §43-1).
+- **AI 분석 결과 공개 권한**: 학생에게는 관리자가 확정한 값만 보인다(④). 현재 도메인에서 **확정 = 학생 공개**다. 확정과 공개를 나누는 별도 공개 상태는 만들지 않았다(Open Decision: 필요 시 공개 상태·공개 시각·공개 철회를 계약으로 먼저 정한다).
 
 ---
 
@@ -366,6 +383,12 @@ Note
 10. 모둠·협업 활동
 
 템플릿은 Note의 **초기 본문**을 제공한다. 이미 내용이 있는 노트에 적용할 때는 기존 내용을 무단 덮어쓰지 않는다. 상세 이모지 제목·블록 구조는 기능 명세에서 정의한다.
+
+### 12-1-1. 인라인 서식 (A27-UX 계정 B, 2026-11-18 · DRAFT, OD-A05 미해결)
+
+- 굵게·기울임·밑줄·링크는 블록 `text`를 바꾸지 않고 `attrs.marks: [{ type, start, end, href? }]`(글자 범위)로만 저장한다. 서식을 모르는 화면·이전 Revision은 순수 글을 그대로 보여 주므로 기존 노트 데이터가 손실되지 않는다.
+- 링크는 http(s)만 저장·표시한다. 피드백 위치(blockId)는 그대로다.
+- Editor 선정·Rich-text Schema(OD-A05)는 여전히 Open Decision이다. 결정 시 `attrs.marks`를 새 Schema로 옮기는 변환이 필요하다.
 
 ### 12-2. 노트 수정 이력
 
@@ -786,6 +809,14 @@ JSON Naming, Enum, Endpoint, Error Code를 `domain.md`에서 독자적으로 확
 
 ---
 
+## 30-A. A27-UX 학생 개인 데이터 (2026-11-19, 사용자 승인 · 팀 승인 별도)
+
+- **StudentSubject**(학생이 더한 수강 과목): 학생·학년도·학기·이름 기준 유일. 같은 학기 공통 과목 후보와 이름이 같으면 그 기존 `subjectId`를 재사용하고, 아니면 학생 소유 `psubj_…`. 학교 공식 수강·개설 원천은 바꾸지 않는다. 수행평가 등록과 한 트랜잭션.
+- **SchoolAssessment.assessmentTypeLabel**: 유형 `OTHER`일 때만 값. 다른 유형이면 비운다.
+- **NoticeFile**(수행평가 안내문 첨부): 학생 본인 수행평가에만, PDF·이미지, 10개, 삭제는 목록에서만(바이트 보존).
+- **HomeMemo**: 학생당 1개, `version` 직접 비교(409).
+- 상세 정의·API는 api-contract 'A27-UX 학생 화면 개선 추가 계약'.
+
 # 31. Open Decisions
 
 | ID | 내용 | 확인 대상 |
@@ -915,3 +946,83 @@ Wangyu Student Care / Counseling은 별도 Domain이다.
 학생 기록과 AI 후보를 구분하고, 과거 Version과 Snapshot을 보존한다.
 강제 8단계 / 승인·반려 / 필수 재제출은 신규 Assessment에 없다.
 ```
+
+## 30-B. 학교알리미 최근 3개 학년도 자동 확인 (A27-UX 부록 E, 2026-11-19 DRAFT · 사용자 지시 · **팀 승인 완료(2026-11-19 사용자 전달)** — 사용자 DB 적용 승인 아님)
+
+계약: `api-contract.md` §38-12. 평가계획서 문서(`EvaluationPlan`·`PlanRevision`)는 그대로 쓰고, **어디서 왔는지와 무엇을 확인했는지**만 따로 남긴다. 검토·확정·학생 공개 규칙은 바꾸지 않는다.
+
+| Entity | 표 | 뜻 | 식별·Unique |
+|---|---|---|---|
+| `SchoolInfoSourceFile` | `assessment_schoolinfo_source_file` | 학교알리미에서 받은 원본 파일 하나(ZIP 안 파일은 각각). 조회 학년도·되돌려 준 공시연도·학교알리미 학교 ID·첨부 순번·파일 이름·SHA-256·크기·형식·저장 키·받은 시각·분류(`verification`)·근거(JSON) | (학교, 조회 학년도, SHA-256) |
+| `SchoolInfoSlotLink` | `assessment_schoolinfo_slot_link` | 확인된 원본이 어느 슬롯 문서·Revision으로 등록됐는지 | (학교, 학년도, 학년, 학기, 원본) |
+| `SchoolInfoSyncYear` | `assessment_schoolinfo_sync_year` | 학교·학년도별 마지막 확인 결과와 시각(TTL·재시작 뒤 재사용) | (학교, 학년도) |
+
+- **분류(`verification`)**: `VERIFIED` · `NEEDS_SOURCE_VERIFICATION` · `YEAR_MISMATCH` · `UNCLASSIFIED` · `UNSUPPORTED` · `NOT_PLAN`. `VERIFIED`만 슬롯에 연결된다. 분류는 받을 때 한 번 정하고, 같은 SHA를 다시 받아도 바꾸지 않는다(관리자 분류 확정 기능은 결정 필요).
+- **학년도 확인 결과**: §38-12 학년도 `status` 중 끝난 값만 저장한다(`COMPLETED`·`PARTIAL`·`NEEDS_SOURCE_VERIFICATION`·`YEAR_MISMATCH`·`NOT_PUBLISHED`·`YEAR_UNAVAILABLE`·`SCHOOL_*`·`FAILED`). 진행 상태(`QUEUED`·`FETCHING`)와 작업(Job)은 서버 메모리에만 있다.
+- **불변식**
+  - 원본 하나는 여러 슬롯에 연결될 수 있지만(여러 학년·두 학기) 슬롯마다 연결은 하나다.
+  - 관리자가 연결 문서를 삭제(§38-9 논리 삭제)해도 연결은 남고, 자동 확인은 그 원본을 **다시 등록하지 않는다**(칸 표시 `REMOVED_BY_ADMIN`).
+  - 연결은 지우지 않는다. 같은 슬롯·같은 파일 이름의 SHA가 바뀌면 기존 문서에 Revision을 더하고 새 연결을 만든다 — 이전 Revision·확정·초안은 그대로다.
+  - 이 Entity들은 **관리자 운영 기록**이다. 학생 응답에는 나가지 않는다(학생 §10-1-3 공식 원본 공급자와 연결하지 않음).
+- Migration: `V202611190200__assessment_schoolinfo_sync.sql`(추가만). 사용자 DB 적용은 별도 승인.
+
+## 30-C. 학교알리미 학교 선택·원본 수동 분류 (A27-UX 부록 F, 2026-11-19 DRAFT · 사용자 지시 · 팀 승인 별도)
+
+계약: `api-contract.md` §38-12 응답 확장·§38-13·§38-14.
+
+| Entity | 표 | 뜻 | 식별·Unique |
+|---|---|---|---|
+| `SchoolInfoSchoolMapping` | `assessment_schoolinfo_school_mapping` | 이 학교(학업 Context 학교 ID)가 학교알리미의 어느 학교인지 관리자가 고른 기록: 학교알리미 학교 ID·이름·주소·시도·시군구·선택한 관리자·시각·`version`·`status`(ACTIVE · INVALIDATED)·무효 사유 | 학교 ID (PK) |
+| `SchoolInfoClassification` | `assessment_schoolinfo_classification` | 분류하지 못한 원본에 관리자가 정한 학년·학기(Revision, 지우지 않음): 원본·`version`·학년들·학기들·메모·관리자·시각 | (원본, version) |
+
+- **불변식**
+  - 학교 선택은 그 작업이 보여 준 후보 중 `selectable`인 것만 된다. 학교알리미 학교 ID를 화면이 보내지 않는다.
+  - 선택한 학교의 이름·주소가 바뀌면 선택은 INVALIDATED가 되고 등록하지 않는다.
+  - 수동 분류는 `UNCLASSIFIED` 원본만, 그 원본의 조회 학년도 칸에만 된다. 출처·학년도 확인(`SchoolInfoSourceFile.verification`)은 바꾸지 않는다 — 수동 분류가 출처 확인을 대신하지 않는다.
+  - 분류 Revision은 칸을 더하기만 한다. 연결된 칸 빼기는 문서 삭제(§38-9)로만.
+- Migration: `V202611190300__assessment_schoolinfo_selection_classification.sql`(추가만). 사용자 DB 적용은 별도 승인.
+
+## 30-D. 학교알리미 공시월·학년 미표기 규칙과 Migration 적용 (A27-UX 부록 G, 2026-11-19 사용자 승인)
+
+- 계약: `api-contract.md` §38-12 '부록 G 변경'. 새 표·열은 없다(공시월·사유는 `SchoolInfoSourceFile.evidence_json`). 새 Migration 없음.
+- `SchoolInfoSourceFile.verification`은 그대로 6값이다. 학년 미표기 전 학년 적용은 `VERIFIED` + 사유(`GRADE_UNSPECIFIED_ALL_GRADES_APPLIED`·`GRADES_FROM_BODY_ALL`)로 구분하고, 보류는 `UNCLASSIFIED` + 사유(`SEMESTER_CONFLICT`·`GRADE_SCOPE_CONFLICT`·`NO_SEMESTER_EVIDENCE`)로 구분한다.
+- 불변식 추가: 공시월로 학기를 정한 원본은 원문의 명시 학기와 다르면 연결하지 않는다. 전 학년 연결은 학기가 정해졌을 때만이다.
+- Migration: `V202611190100`·`190200`·`190300` **사용자 DB 적용 완료(2026-11-19)**. `V202611180100` 미도입(B안).
+
+## 30-E. 학교알리미 검색 더보기·운영 활성화 (A27-UX 부록 H, 2026-11-20 사용자 승인)
+
+- 계약: `api-contract.md` §38-12 '부록 H 변경'. 새 표·열·Migration 없음.
+- 학교 식별 불변식 추가: 검색 목록을 건수만큼 다 읽지 못하면(`SEARCH_TRUNCATED`) 학교를 자동으로 고르지 않는다.
+- 운영 설정 `year-query-verified=true`는 프로필 `local-run`에만 있다. 등록 조건(학교·학년도·차수·학기·형식·중복)은 바뀌지 않는다.
+
+## 30-F. 받지 못한 첨부 (A27-UX 부록 I, 2026-11-20)
+
+- 불변식 추가: 학교알리미 첨부 응답이 오류(2xx 아님)면 그 응답 본문은 `SchoolInfoSourceFile`이 되지 않는다(문제 목록 `FILE_DOWNLOAD_FAILED`만). 새 표·열·Migration 없음.
+
+## 30-G. 학생 공식 원본 = 학교알리미 수집 원본 (A27-UX 부록 K, 2026-11-20 사용자 승인)
+
+- 계약: `api-contract.md` §10-1-3 '부록 K 변경'. 새 표·열·Migration 없음 — `SchoolInfoSourceFile`(학교 단위 원본 바이트·SHA)·`SchoolInfoSlotLink`·문서 삭제 상태를 읽기만 한다.
+- 불변식: 학생이 보는 공식 원본은 본인 학적 슬롯(학교·학년도·학년·학기)에 연결되고 삭제되지 않은 VERIFIED(또는 관리자가 분류한 UNCLASSIFIED) 원본뿐이다. 학적이 없는 학년도는 다른 학년 원본을 추측해 보이지 않는다.
+- 학생 진입 자동 확보는 관리자 화면 진입과 같은 확인(학교당 작업 1개·24시간 기록·같은 이름 학교는 관리자 선택 전 등록 0)을 시스템 주체로 시작한다. 실패한 학교는 학생 경로에서 5분 안에 다시 확인하지 않는다(실패 캐시).
+- 원본 열람은 확정과 무관하다. 분석 결과·채점기준·운영계획의 학생 공개는 그대로 관리자 확정분만이다.
+
+## 30-H. 학생 홈 흰 바탕 · 학생 화면 보기 공식 원본 (A27-UX 부록 L, 2026-11-20)
+
+- 학생 Assessment 홈 바탕은 흰색(사용자 요청, 부록 E 연회색 캔버스 대체). 홈 `.page` 한정 — 공용 토큰·다른 화면 불변.
+- 관리자 '학생 화면 보기'는 학생 공식 원본을 같은 규칙으로 읽기만 한다(자동 확보 없음, 담당 지점 범위 검사). 새 표·열·Migration 없음.
+
+
+## 30-I. 학교 검색 · 학생 동명 학교 열람 선택 · 한 번에 확정 · 현재 학기 (A27-UX 부록 O, 2026-11-21 사용자 승인)
+
+- **학교 검색(§38-15)**: Assessment 전용 읽기 전용 검색이다. 학적·학생을 만들지 않는다.
+  - 검색으로 고른 학교의 학교 키는 `si_<학교알리미 학교 ID>`다. 같은 학교알리미 학교를 쓰는 ACTIVE 매핑이 있으면 그 키를 재사용한다.
+  - `si_` 키의 학교 이름은 매핑의 공식 이름이다(학적 아님).
+- **StudentOfficialView**(`assessment_student_official_view`, 학생당 1행): 학생 본인의 공식 원본 열람 대상 학교 선택이다.
+  - 열: `roster_school_id`(선택 당시 학적 학교), `schoolinfo_school_id`, `view_school_id`(원본 저장 학교 키), 이름·시도·시군구·주소, `version`(낙관적), `selected_at`.
+  - 유효 조건: 학적 학교가 `SCHOOL_AMBIGUOUS` + 관리자 매핑 없음 + `roster_school_id`가 현재 학적 학교와 같음. 아니면 무시한다(관리자 매핑 우선, 학교 변경 시 보류).
+  - 감사: `assessment_student_official_view_event`(SELECT · CHANGE · CLEAR, 지우지 않음).
+  - 이 선택은 학적·관리자 매핑·확정 평가 정보를 바꾸지 않는다. 확정 평가 정보는 학적 학교 기준 그대로다.
+- **한 번에 확정(§39-13)**: AI 후보 기본 포함은 화면의 결정 합치기일 뿐이다(서버 상태 '검토 완료' 없음). 확정은 관리자 1회 명시적 요청 + 개별 확정과 같은 서버 검사 + 공유 초안 version 일치일 때만 된다.
+- **현재 학기(§9-2)**: KST 달력, 3~8월 1학기 · 9~2월 2학기(1·2월은 전년도).
+- **학교알리미 학년도 조회 신뢰(`year-query-verified`)**: 코드 기본값은 true다(부록 H~K 실측 근거). 파일마다 공시연도 없음·불일치·파일/원문 연도 불일치는 그대로 보류한다. false는 긴급 차단 스위치다.
+- **운영 이름 Profile**(`prod`·`production`·`staging`)에서는 개발 인증 Header를 받지 않는다(늘 401). 실제 인증 공급자는 1팀 담당이다.

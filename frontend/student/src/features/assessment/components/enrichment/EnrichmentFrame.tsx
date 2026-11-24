@@ -83,9 +83,6 @@ export function EnrichmentFrame({ children, panel, searchTarget, searchPlacehold
         <div className={styles.content}>
           <header className={styles.header}>
             <h1 className={styles.title}>심화 탐구</h1>
-            <p className={styles.subtitle}>
-              학교 수행평가와 별개로 살펴볼 수 있는 참고자료예요. 탐구 주제·모의고사 지문·대학 공개자료를 찾아 읽어 보세요.
-            </p>
           </header>
           <nav className={styles.tabs} aria-label="심화 탐구 메뉴">
             {tabs.map((tab) => (

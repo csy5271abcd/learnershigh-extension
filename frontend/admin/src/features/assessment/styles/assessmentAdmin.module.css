@@ -400,11 +400,12 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .linkButton:hover {
@@ -441,8 +442,8 @@
 }
 
 .badge[data-tone='primary'] {
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
 }
 
 .dot {
@@ -860,11 +861,29 @@
   background: var(--as-color-warning-soft);
 }
 
+/* [06] A27-UX: 의견 버튼은 블록 높이 기준 세로 가운데, 오른쪽 12px 고정. 본문은 버튼 자리만큼 비워 겹치지 않게 한다 */
+.noteBlock[data-commentable='true'] {
+  padding: 2px 84px 2px 8px;
+}
+
+.noteBlock[data-commentable='true']:hover,
+.noteBlock[data-commentable='true']:focus-within {
+  background: var(--as-color-subtle);
+}
+
 .noteBlockAction {
   position: absolute;
-  top: 2px;
-  right: -4px;
+  top: 50%;
+  right: 12px;
+  min-width: 56px;
+  transform: translateY(-50%);
   opacity: 0;
+}
+
+.noteBlockAction:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 2px;
 }
 
 .noteBlock:hover .noteBlockAction,
@@ -875,7 +894,7 @@
 .noteQuote {
   margin: 0;
   padding-left: 12px;
-  border-left: 3px solid var(--as-color-line);
+  border-left: 2px solid var(--as-color-line);
   color: var(--as-color-text-secondary);
 }
 

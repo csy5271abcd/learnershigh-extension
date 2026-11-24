@@ -45,15 +45,20 @@ class AdminSchoolScopeApiTest {
                 .andExpect(jsonPath("$.items.length()").value(5))
                 .andExpect(jsonPath("$.studentsWithoutSchool").value(0))
                 .andReturn().getResponse().getContentAsString();
+        // A28-04: B지점 = 기존 5개교 + 합성 학생 13개교(세화고는 A지점에도 학생이 있는 같은 학교) = 18개교, 학교마다 4명
         String b = mvc.perform(asAdmin(get("/api/admin/assessment/managed-schools"), "adm_demo_b01")
                         .param("academicYear", "2026").param("semester", "1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items.length()").value(5))
+                .andExpect(jsonPath("$.items.length()").value(18))
                 .andReturn().getResponse().getContentAsString();
         List<String> aSchools = JsonPath.read(a, "$.items[*].schoolId");
         List<String> bSchools = JsonPath.read(b, "$.items[*].schoolId");
         assertThat(aSchools).contains("sch_demo_unjeong").doesNotContain("sch_demo_daeshin").doesNotHaveDuplicates();
-        assertThat(bSchools).contains("sch_demo_daeshin").doesNotContainAnyElementsOf(aSchools);
+        assertThat(bSchools).contains("sch_demo_daeshin", "sch_demo_gyeongil", "sch_demo_hyundai", "sch_demo_sehwa").doesNotHaveDuplicates()
+                .doesNotContain("sch_demo_unjeong");
+        assertThat(JsonPath.<List<Integer>>read(b, "$.items[*].studentCount")).containsOnly(4);
+        // 같은 학교라도 학생 수는 각 지점 학생만 센다(세화고: A지점 4명 · B지점 4명)
+        assertThat(bSchools).filteredOn(aSchools::contains).containsExactly("sch_demo_sehwa");
         assertThat(JsonPath.<List<Integer>>read(a, "$.items[*].studentCount")).containsOnly(4);
         assertThat(JsonPath.<List<String>>read(a, "$.items[*].name")).doesNotContainNull();
         // 같은 지점의 다른 관리자는 같은 학교 목록

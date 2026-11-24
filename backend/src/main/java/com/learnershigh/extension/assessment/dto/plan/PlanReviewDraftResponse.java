@@ -15,7 +15,9 @@ public record PlanReviewDraftResponse(String planId, String revisionId, String l
     public record Draft(String draftId, String analysisId, String status, String closedReason, long version,
             List<StoredDecision> decisions, List<PlanReviewDraftRequest.SubjectLink> subjectLinks, int decisionCount,
             String analyzerVersion, String createdBy, OffsetDateTime createdAt, String updatedBy,
-            OffsetDateTime updatedAt, List<ManualRow> manualRows) {
+            OffsetDateTime updatedAt, List<ManualRow> manualRows,
+            /* A27-UX 관리자 추가 수정(DRAFT): 이 문서 검토 대상에서 뺀 분석 과목 */
+            List<PlanReviewDraftRequest.SubjectExclusion> subjectExclusions) {
     }
 
     /**

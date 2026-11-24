@@ -15,13 +15,18 @@ interface ModalProps {
   children: ReactNode
   footer: ReactNode
   initialFocusRef?: RefObject<HTMLElement | null>
+  /**
+   * A28-16 문서 Viewer: 창 높이를 다 쓰고 본문은 스크롤하지 않는다(머리글·바닥글 고정). 안쪽 내용이 남은 높이를 채우고
+   * 스스로 스크롤한다(예: PdfViewer contained — 도구 막대 고정, 문서 영역만 스크롤).
+   */
+  fill?: boolean
 }
 
 const focusableSelector =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 // Assessment Feature 전용 Modal. Focus를 Modal 안에 가두고, 닫히면 열기 전 위치로 돌려준다.
-export function Modal({ title, description, wide = false, compact = false, onRequestClose, children, footer, initialFocusRef }: ModalProps) {
+export function Modal({ title, description, wide = false, compact = false, onRequestClose, children, footer, initialFocusRef, fill = false }: ModalProps) {
   const titleId = useId()
   const descriptionId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -72,7 +77,7 @@ export function Modal({ title, description, wide = false, compact = false, onReq
     >
       <div
         ref={dialogRef}
-        className={`${styles.dialog} ${wide ? styles.dialogWide : ''} ${compact ? styles.dialogCompact : ''}`}
+        className={`${styles.dialog} ${wide ? styles.dialogWide : ''} ${compact ? styles.dialogCompact : ''} ${fill ? styles.dialogFill : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -92,7 +97,7 @@ export function Modal({ title, description, wide = false, compact = false, onReq
             {description}
           </p>
         )}
-        <div className={styles.body}>{children}</div>
+        <div className={fill ? `${styles.body} ${styles.bodyFill}` : styles.body}>{children}</div>
         <footer className={styles.footer}>{footer}</footer>
       </div>
     </div>

@@ -155,7 +155,7 @@ export function ResourcePickerModal({ onClose, onPick }: ResourcePickerModalProp
   return (
     <Modal
       title="자료함에서 자료 넣기"
-      description="고른 자료의 제목·출처·링크가 노트에 링크 카드로 들어가요. 원문은 복사하지 않아요."
+      description="고른 자료의 제목·출처·링크가 노트에 링크 카드로 들어가요."
       onRequestClose={onClose}
       initialFocusRef={searchRef}
       footer={
@@ -197,7 +197,7 @@ export function ResourcePickerModal({ onClose, onPick }: ResourcePickerModalProp
           </ul>
         )}
         <p className={styles.hint}>
-          <InfoIcon size={12} /> 링크 카드는 지금 노트 맨 아래에 들어가요. 넣은 뒤 ⋮⋮ 메뉴로 위치를 옮길 수 있어요.
+          <InfoIcon size={12} /> 링크 카드는 지금 노트 맨 아래에 들어가요.
         </p>
       </div>
     </Modal>

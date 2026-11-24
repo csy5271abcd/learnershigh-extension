@@ -51,13 +51,13 @@ const failureTitles: Record<PreviewFailureKind, string> = {
 }
 
 const failureHelp: Record<PreviewFailureKind, string> = {
-  CONNECTION: '로컬 분석기 서비스가 꺼져 있거나 개발 서버 설정(토큰·Proxy)이 맞지 않아요. 분석기를 켠 뒤 다시 시도해 주세요.',
+  CONNECTION: '지금 분석 서비스에 연결하지 못했어요. 잠시 뒤 다시 시도하거나 직접 추가해 주세요.',
   UNSUPPORTED: '파일 내용이 PDF·HWP·HWPX가 아니에요(확장자만 바꾼 파일, 암호화 문서 포함). 원본 파일을 다시 받아 선택해 주세요.',
   EXTRACTION: '파일이 손상됐거나 안전 검사에 걸려 원문을 읽지 못했어요. 다른 파일로 시도해 주세요.',
   TOO_LARGE: '20MB 이하 파일만 분석할 수 있어요.',
   BUSY: '잠시 후 다시 시도해 주세요.',
   ANALYSIS: '분석기가 결과를 만들지 못했어요. 같은 파일로 다시 시도하거나 직접 추가해 주세요.',
-  REQUEST: '요청 형식 문제예요. 개발 설정을 확인해 주세요.',
+  REQUEST: '요청을 처리하지 못했어요. 잠시 뒤 다시 시도하거나 직접 추가해 주세요.',
 }
 
 const extensionOf = (name: string) => name.split('.').pop()?.toLowerCase() ?? ''

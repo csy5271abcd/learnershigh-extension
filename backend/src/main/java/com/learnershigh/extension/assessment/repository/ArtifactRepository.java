@@ -18,4 +18,7 @@ public interface ArtifactRepository extends JpaRepository<Artifact, String> {
     Optional<Artifact> findByIdAndStudentIdAndDeletedAtIsNotNull(String id, String studentId);
 
     List<Artifact> findByIdIn(Collection<String> ids);
+
+    /** A28-49 영구 삭제: 휴지통 포함 그 수행평가의 결과물 */
+    List<Artifact> findByStudentIdAndSourceTypeAndSourceId(String studentId, String sourceType, String sourceId);
 }

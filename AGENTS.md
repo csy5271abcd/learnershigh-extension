@@ -25,7 +25,8 @@ Integration Boundary (Adapter / Anti-Corruption Layer)
 
 ## 2. 현재 단계
 
-**Scaffold 단계**다. `frontend/`(student / admin / mentor App Shell)와 `backend/`(Spring Boot + Gradle Wrapper)가 있고, Feature Business Logic은 아직 없다. `database/`, `e2e/`, `frontend/shared/`는 아직 없다.
+**현행(2026-11-24, `main` 기준)**: 학생 케어(Wangyu)와 Assessment(Suyeon) Feature 가 구현돼 `main` 에 병합돼 있다. Surface 는 `frontend/student`·`frontend/admin`(mentor Surface 는 2026-11-16 삭제), `backend/`, `database/migrations/`(Flyway), `e2e/` 가 있다. `frontend/shared/` 는 **예정(현재 미생성)**. 운영·배포·실제 로그인 연동은 1팀 담당이다(`docs/OWNERSHIP.md` 0절).
+(초기 문구 — 역사: "Scaffold 단계다. … Feature Business Logic은 아직 없다. `database/`, `e2e/`, `frontend/shared/`는 아직 없다.")
 
 - 진행 상태: [`docs/specs/suyeon/progress.md`](docs/specs/suyeon/progress.md)
 - Build / Test 명령은 [`README.md`](README.md) §22와 실제 `package.json` / `build.gradle.kts`를 따른다. 추측하지 않는다.

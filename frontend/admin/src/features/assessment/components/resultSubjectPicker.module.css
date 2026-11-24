@@ -1,0 +1,168 @@
+/* [06] A27-UX 분석 결과 조회 — 검색형 단일 과목 선택 (중립 outline, 선택 상태만 차콜, 상태는 작은 태그) */
+.root {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.count {
+  flex: none;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.count b {
+  color: var(--as-color-text);
+}
+
+.field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  max-width: 460px;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  background: var(--as-color-surface);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background: var(--as-color-subtle);
+}
+
+.trigger:focus-visible,
+.search:focus-visible {
+  outline: 2px solid var(--as-color-primary);
+  outline-offset: 1px;
+}
+
+.triggerName {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  flex: none;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.chevron {
+  margin-left: auto;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.status {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--as-color-fill);
+  color: var(--as-color-text-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status[data-status='excluded'] {
+  background: transparent;
+  border: 1px dashed var(--as-color-line);
+  color: var(--as-color-text-tertiary);
+}
+
+.popover {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+  background: var(--as-color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.search {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 8px;
+  background: var(--as-color-subtle);
+  color: var(--as-color-text);
+  font: inherit;
+  font-size: 13.5px;
+}
+
+.list {
+  max-height: 300px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.option,
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.option {
+  cursor: pointer;
+}
+
+.option[data-active] {
+  background: var(--as-color-fill);
+}
+
+.option[aria-selected='true'] .optionName {
+  font-weight: 700;
+}
+
+.option[data-status='excluded'] .optionName {
+  color: var(--as-color-text-tertiary);
+}
+
+.optionName {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.optionIndex {
+  flex: none;
+  min-width: 18px;
+  color: var(--as-color-text-tertiary);
+  font-size: 12px;
+}
+
+.empty {
+  color: var(--as-color-text-tertiary);
+}

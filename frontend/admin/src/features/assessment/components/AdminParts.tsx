@@ -10,6 +10,8 @@ import { ChevronLeftIcon, EmptyState, ErrorState, EyeIcon, InfoIcon, LoadingRows
 /** Mock 모드에서 항상 보이는 "서버 저장 아님" 표시 (assessment-frontend-mock.md §8) */
 export function MockNotice() {
   if (!isAdminMockDataSource) {
+    // http 개발 서버: 데이터는 실제 Backend에 저장되지만 인증·학교·학생·학업 정보 원천은 개발용 Mock이다. Production에는 표시하지 않는다.
+    // A27-UX: 개발용 인증·계정 ID 문구는 사용자 화면에 보이지 않는다(개발자 확인은 ?devPanel=1 패널·로그).
     return null
   }
   const scenario = activeScenarioLabel()
@@ -95,7 +97,6 @@ export function ListEmpty({ filtered, title, onReset }: { filtered: boolean; tit
   return filtered ? (
     <EmptyState
       title="조건에 맞는 항목이 없어요"
-      description="검색어나 필터를 바꿔 보세요."
       action={
         onReset && (
           <button type="button" className={styles.secondaryButton} onClick={onReset}>

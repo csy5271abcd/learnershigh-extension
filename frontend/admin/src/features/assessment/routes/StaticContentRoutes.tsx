@@ -38,7 +38,7 @@ import { paths } from './paths.ts'
 // - 관리자 참고자료실(AD-07·08, 실제 Resource API·MySQL)은 별도 화면이며 이 파일과 무관하다.
 // 필터·검색·선택은 URL Query에 둔다(새로고침·공유해도 같은 화면).
 
-const staticNotice = 'Student 심화 탐구와 같은 정적 참고자료예요. 이 화면은 읽기 전용이라 서버에 저장하거나 학생 기록을 만들지 않아요.'
+const staticNotice = '읽기 전용 참고자료예요. 학생 기록을 만들지 않아요.'
 
 function useUpdate(search: URLSearchParams) {
   return (changes: Record<string, string>) => {
@@ -186,7 +186,6 @@ export function StaticLibraryDetail({ catalogTaskId }: { catalogTaskId: string }
                   </li>
                 ))}
               </ol>
-              <p className={styles.hint}>순서는 참고용이에요.</p>
             </Section>
           )}
           <Section title="출처">
@@ -452,7 +451,7 @@ export function StaticUniversityListView({ search }: { search: URLSearchParams }
         <SearchForm applied={applied} placeholder="자료명·문항·개념 검색" label="대학별 자료 검색" onApply={(value) => update({ q: value })} />
         <p className={styles.muted} data-testid="result-count">
           문서 {all.length}개 · 문항 {questionCount}개 · {items.length}개 표시
-          {fileStates === null ? ' · 지금은 원문 PDF 개발 경로에 연결되지 않았어요' : ''}
+          {fileStates === null ? ' · 지금은 원문 PDF에 연결되지 않았어요' : ''}
         </p>
       </div>
       {items.length === 0 ? (
@@ -549,7 +548,7 @@ export function StaticUniversityDetail({ documentId, search }: { documentId: str
         <div className={styles.pdfPane}>
           <PdfViewer url={universityExamFileUrl(document.documentId)} title={document.title} expectedPageCount={document.pageCount} page={page} onPageChange={(next) => goTo(next)} />
           <p className={styles.hint} style={{ marginTop: 8 }}>
-            원문은 개발 환경 로컬 파일이에요 (Admin 개발 서버가 직접 제공). 배포 권한 확인 전이라 저장소·Build에 PDF가 없어요.
+            원문 PDF는 배포 권한 확인 전이라 이 환경에서만 열려요.
           </p>
         </div>
         <aside className={styles.side} aria-label="문항 목차와 자료 정보">
@@ -690,7 +689,7 @@ export function RetiredContentAction({ backTo, backLabel }: { backTo: string; ba
     <div className={styles.body} data-testid="retired-content-action">
       <EmptyState
         title="심화 탐구 콘텐츠는 읽기 전용이에요"
-        description="콘텐츠 등록·수정·공개 전환·Task 만들기는 더 이상 제공하지 않아요. 콘텐츠는 Student 심화 탐구와 같은 정적 자료로 관리돼요."
+        description="콘텐츠 등록·수정·공개 전환·Task 만들기는 더 이상 제공하지 않아요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={() => navigate(backTo)}>
             {backLabel}
@@ -706,7 +705,6 @@ function NotFound({ title, backTo, backLabel }: { title: string; backTo: string;
     <div className={styles.body} data-testid="static-not-found">
       <EmptyState
         title={title}
-        description="목록에 없는 자료예요."
         action={
           <button type="button" className={styles.secondaryButton} onClick={() => navigate(backTo)}>
             {backLabel}

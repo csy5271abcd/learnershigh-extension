@@ -1,6 +1,6 @@
 import { ApiError } from './apiError.ts'
 import { isMockDataSource } from './dataSource.ts'
-import { downloadEvaluationPlanFileHttp, getEvaluationPlanHttp, getEvaluationPlanTeachingPlanHttp, listEvaluationPlansHttp, previewEvaluationPlanFileHttp } from './http/evaluationPlansHttp.ts'
+import { downloadEvaluationPlanFileHttp, getEvaluationPlanHttp, getOfficialPlanHttp, ensureOfficialPlansHttp, downloadOfficialFileHttp, previewOfficialFileHttp, getEvaluationPlanTeachingPlanHttp, listEvaluationPlansHttp, previewEvaluationPlanFileHttp } from './http/evaluationPlansHttp.ts'
 import { guardWrite } from './viewMode.ts'
 import {
   getEvaluationPlanAnalysisMock,
@@ -17,6 +17,7 @@ import type {
   EvaluationPlanUpload,
   PersonalReview,
   PersonalReviewRequest,
+  StudentOfficialEnsure, StudentOfficialPlan,
   StudentTeachingPlan,
   UploadEvaluationPlanRequest,
 } from './types.ts'
@@ -34,6 +35,31 @@ function httpNotConnected(): Promise<never> {
 /** §10-1 GET /api/student/assessment/evaluation-plans?schoolId=&academicYear=&grade=&semester= */
 export function listEvaluationPlans(query: { schoolId: string; academicYear: number; grade: number; semester: number }): Promise<{ items: EvaluationPlan[] }> {
   return isMockDataSource ? listEvaluationPlansMock(query) : listEvaluationPlansHttp(query)
+}
+
+/**
+ * §10-1-3 DRAFT GET .../evaluation-plans/official — 학교 공식 공개 원본 (A27-UX).
+ * Mock 데이터 모드에는 공식 원본 공급자가 없어 '연결 전'과 같은 모양을 돌려준다(가짜 문서를 만들지 않는다).
+ */
+export function getOfficialPlan(academicYear: number, semester: number, grade?: number | null): Promise<StudentOfficialPlan> {
+  return isMockDataSource
+    ? Promise.resolve({ academicYear, semester, contextFound: false, schoolId: null, schoolName: null, grade: null, sourceConnected: false, documents: [], basis: null })
+    : getOfficialPlanHttp(academicYear, semester, grade)
+}
+
+/**
+ * §10-1-3 부록 K: 학생 진입 자동 확보. Mock 데이터 모드에는 공급자가 없어 부르지 않는다(null).
+ */
+export function ensureOfficialPlans(): Promise<StudentOfficialEnsure | null> {
+  return isMockDataSource ? Promise.resolve(null) : ensureOfficialPlansHttp()
+}
+
+/** §10-1-3 부록 K: 공식 원본 내려받기 / PDF 미리보기. Mock 에는 실제 파일이 없다 */
+export function downloadOfficialFile(academicYear: number, semester: number, sourceDocumentId: string, grade?: number | null): Promise<Blob> {
+  return isMockDataSource ? noMockFile() : downloadOfficialFileHttp(academicYear, semester, sourceDocumentId, grade)
+}
+export function previewOfficialFile(academicYear: number, semester: number, sourceDocumentId: string, grade?: number | null): Promise<Blob> {
+  return isMockDataSource ? noMockFile() : previewOfficialFileHttp(academicYear, semester, sourceDocumentId, grade)
 }
 
 /** §10-1 GET /api/student/assessment/evaluation-plans/{planId} */

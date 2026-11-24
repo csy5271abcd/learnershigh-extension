@@ -9,7 +9,10 @@
 }
 
 .toast {
-  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px 12px 18px;
   border-radius: 10px;
   background: var(--as-color-ink);
   color: var(--as-color-on-ink);
@@ -20,4 +23,30 @@
 .toast[data-tone='error'] {
   background: var(--as-color-danger);
   color: #ffffff;
+}
+
+/* 부록 N5-1: 닫기 버튼 (자동 닫힘과 별개로 바로 닫기) */
+.text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.close {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.close:hover,
+.close:focus-visible {
+  opacity: 1;
+  background: rgb(255 255 255 / 0.16);
 }

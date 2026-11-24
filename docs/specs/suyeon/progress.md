@@ -1,5 +1,7 @@
 # LearnersHigh Extension — Suyeon Progress
 
+> **2026-11-24 병합 후 안내**: 이 문서의 스냅샷은 2026-11-13(`109140f`) 이후 갱신되지 않았다. 그 뒤 Assessment 진행·검증 기록은 A10~A28 회차 보고서에 있고, 현행 문서 안내는 [`README.md`](README.md)(Suyeon 문서 색인)를 본다. 아래 내용은 당시 기록으로 보존한다.
+
 > 위치: `docs/specs/suyeon/progress.md`  
 > 목적: 최수연 담당 LearnersHigh Assessment의 **현재 진행 상태, 다음 작업, 완료 항목, Blocker, 검증 상태**를 기록한다.  
 > 이 문서는 Requirement Source of Truth가 아니다. 기능은 최신 Assessment Feature Spec, Entity/State는 `domain.md`, API는 `docs/api/api-contract.md`에 따른다.

@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Primary;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HexFormat;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -344,6 +346,49 @@ class PlanServerAnalysisApiTest {
                 .andReturn().getResponse().getContentAsString();
         // 이전 값(55)이 확정값에 섞이지 않는다. 본문 전체 문자열 검사는 무작위 ID(UUID)에 "55"가 들어가면 우연히 실패했다(A10에서 확인)
         assertThat(JsonPath.<java.util.List<Object>>read(body, "$.confirmedFields[*].value")).containsExactly(70);
+    }
+
+    @Test
+    void A28_29_확정된_개정본도_다시_분석할_수_있고_새_분석은_확정_기록과_학생_공개를_바꾸지_않는다() throws Exception {
+        Uploaded uploaded = register("adm_plan_operator", "synthetic-e2e.pdf", pdf, 2);
+        String firstAnalysis = JsonPath.read(mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString(), "$.analysisId");
+        confirm(uploaded, firstAnalysis, 55);
+        String student = "/api/student/assessment/evaluation-plans/" + uploaded.planId();
+        String studentBefore = mvc.perform(asStudent(get(student), "stu_001")).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        Map<String, Object> reviewBefore = jdbc.queryForMap("select id, analysis_id, reviewed_by, reviewed_at from assessment_plan_review");
+        List<Map<String, Object>> valuesBefore = jdbc.queryForList(
+                "select review_id, subject_id, field_path, value_json from assessment_plan_confirmed_value order by field_path");
+
+        // 분석기가 개선돼 같은 원문에서 다른 후보를 낸다(확정 뒤 '다시 분석')
+        payload = payload.replace("\"weightPercent\": 60", "\"weightPercent\": 65");
+        String again = mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reviewStatus").value("CONFIRMED"))
+                .andReturn().getResponse().getContentAsString();
+        String secondAnalysis = JsonPath.read(again, "$.analysisId");
+        assertThat(secondAnalysis).isNotEqualTo(firstAnalysis);
+        assertThat(receivedFileSha.get()).as("보관한 그 개정본 원문으로만 분석").isEqualTo(pdfSha);
+        assertThat(runs()).isEqualTo(2);
+        // 확정 기록·확정값 그대로(새 분석은 후보일 뿐)
+        assertThat(jdbc.queryForMap("select id, analysis_id, reviewed_by, reviewed_at from assessment_plan_review")).isEqualTo(reviewBefore);
+        assertThat(jdbc.queryForList("select review_id, subject_id, field_path, value_json from assessment_plan_confirmed_value order by field_path"))
+                .isEqualTo(valuesBefore);
+        // 학생 공개 그대로
+        assertThat(mvc.perform(asStudent(get(student), "stu_001")).andExpect(status().isOk()).andReturn().getResponse().getContentAsString())
+                .isEqualTo(studentBefore);
+        // 관리자 조회의 최신 분석 = 새 분석(운영계획 후보 등은 이 분석 기준)
+        mvc.perform(asAdmin(get(uploaded.analysis()), "adm_plan_operator"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.analysisId").value(secondAnalysis));
+        mvc.perform(asAdmin(get(PLANS + "/" + uploaded.planId() + "/revisions/" + uploaded.revisionId() + "/teaching-plan-review"), "adm_plan_operator"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.latestAnalysisId").value(secondAnalysis))
+                .andExpect(jsonPath("$.review").value(nullValue()));
+        // 같은 결과로 한 번 더 누르면 새 Run 없이 200(중복 생성 없음)
+        mvc.perform(asAdmin(post(uploaded.analysis()), "adm_plan_operator")).andExpect(status().isOk());
+        assertThat(runs()).isEqualTo(2);
     }
 
     void confirm(Uploaded uploaded, String analysisId, int weight) throws Exception {

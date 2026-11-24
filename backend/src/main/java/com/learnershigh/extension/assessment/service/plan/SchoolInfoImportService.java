@@ -1,7 +1,7 @@
 package com.learnershigh.extension.assessment.service.plan;
 
 import com.learnershigh.extension.assessment.dto.plan.PlanAnalysisResponse;
-import com.learnershigh.extension.assessment.dto.plan.PlanUploadResponse;
+import com.learnershigh.extension.assessment.entity.SchoolInfoSourceFile;
 import com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportRequest;
 import com.learnershigh.extension.assessment.dto.plan.SchoolInfoImportResponse;
 import com.learnershigh.extension.assessment.exception.AssessmentErrorCode;
@@ -29,8 +29,6 @@ import org.springframework.stereotype.Service;
 public class SchoolInfoImportService {
 
     private static final Pattern GRADE = Pattern.compile("(?<!\\d)([1-3])\\s*학년(?!도)");
-    private static final Pattern SEMESTER = Pattern.compile("([12])\\s*학기");
-    private static final Pattern NOT_PLAN = Pattern.compile("성적관리|규정|부록|범교과|안전교육");
 
     private final SchoolInfoClient client;
     private final EvaluationPlanService plans;
@@ -45,9 +43,15 @@ public class SchoolInfoImportService {
     });
     private final Map<String, Job> jobs = java.util.Collections.synchronizedMap(new LinkedHashMap<>());
 
-    public SchoolInfoImportService(SchoolInfoClient client, EvaluationPlanService plans, PlanAnalysisService analysis, PlanAccess access) {
+    private final SchoolInfoSyncWriter writer;
+    private final boolean yearQueryVerified;
+
+    public SchoolInfoImportService(SchoolInfoClient client, EvaluationPlanService plans, PlanAnalysisService analysis, PlanAccess access,
+            SchoolInfoSyncWriter writer, @org.springframework.beans.factory.annotation.Value("${assessment.schoolinfo.year-query-verified:false}") boolean yearQueryVerified) {
         this.client = client;
         this.plans = plans;
+        this.writer = writer;
+        this.yearQueryVerified = yearQueryVerified;
         this.analysis = analysis;
         this.access = access;
     }
@@ -58,44 +62,73 @@ public class SchoolInfoImportService {
      */
     public SchoolInfoImportResponse importFromSchoolInfo(AdminActor admin, SchoolInfoImportRequest request) {
         access.requireOperator(admin);
-        SchoolInfoClient.Fetched fetched = client.fetch(request.schoolName().strip());
+        SchoolInfoClient.Search search = client.search(request.schoolName().strip());
+        if ("SEARCH_TRUNCATED".equals(search.error())) {
+            throw new BusinessException(AssessmentErrorCode.SCHOOLINFO_SCHOOL_AMBIGUOUS);
+        }
+        if (search.error() != null) {
+            throw new BusinessException(AssessmentErrorCode.SCHOOLINFO_UNAVAILABLE);
+        }
+        if (search.schoolinfoIds().isEmpty()) {
+            throw new BusinessException(AssessmentErrorCode.SCHOOLINFO_SCHOOL_NOT_FOUND);
+        }
+        // 부록 D: 검색 결과가 여러 학교면 첫 학교를 고르지 않는다(다른 학교 평가계획서가 이 학교 슬롯에 등록되는 것을 막는다)
+        if (search.schoolinfoIds().size() > 1) {
+            throw new BusinessException(AssessmentErrorCode.SCHOOLINFO_SCHOOL_AMBIGUOUS);
+        }
+        // 부록 E: 요청 학년도를 지정해 조회하고(§38-12 분류), 확인된 파일만 그 학년도 슬롯에 등록한다
+        String shl = search.schoolinfoIds().getFirst();
+        int year = request.academicYear();
+        SchoolInfoClient.YearFetch fetched = client.fetchYear(shl, year);
         if (fetched.error() != null) {
             throw new BusinessException(switch (fetched.error()) {
-                case "SCHOOL_NOT_FOUND" -> AssessmentErrorCode.SCHOOLINFO_SCHOOL_NOT_FOUND;
-                case "PLAN_NOT_PUBLISHED" -> AssessmentErrorCode.SCHOOLINFO_PLAN_NOT_PUBLISHED;
+                case "PLAN_NOT_PUBLISHED", "YEAR_UNAVAILABLE" -> AssessmentErrorCode.SCHOOLINFO_PLAN_NOT_PUBLISHED;
                 default -> AssessmentErrorCode.SCHOOLINFO_UNAVAILABLE;
             });
         }
-        Job job = new Job(admin.adminId(), fetched.schoolName());
+        String sourceUrl = client.base() + "/ei/ss/Pneiss_b01_s0.do?SHL_IDF_CD=" + java.net.URLEncoder.encode(shl, java.nio.charset.StandardCharsets.UTF_8)
+                + "&JG_YEAR=" + year;
+        Job job = new Job(admin.adminId(), fetched.schoolName() != null ? fetched.schoolName() : request.schoolName().strip());
         for (SchoolInfoClient.PlanFile f : fetched.files()) {
             String name = f.fileName();
-            String compact = name.replace(" ", "");
-            if (LocalPlanAnalyzer.formatOf(f.bytes()) == null) {
+            SchoolInfoSourceClassifier.Result c = SchoolInfoSourceClassifier.classify(year, fetched.resolvedYear(), yearQueryVerified, name, f.bytes(), f.disclosureMonth());
+            if (c.verification() == SchoolInfoSourceFile.Verification.UNSUPPORTED) {
                 job.add(skip(name, "PDF·HWP·HWPX 가 아님"));
                 continue;
             }
-            if (NOT_PLAN.matcher(compact).find()) {
+            if (c.verification() == SchoolInfoSourceFile.Verification.NOT_PLAN) {
                 job.add(skip(name, "평가계획 파일이 아님"));
                 continue;
             }
-            Matcher sm = SEMESTER.matcher(compact);
-            if (sm.find() && Integer.parseInt(sm.group(1)) != request.semester() && !compact.contains(request.semester() + "학기")) {
-                job.add(skip(name, sm.group(1) + "학기 자료"));
+            String sha = SchoolInfoSyncService.sha256(f.bytes());
+            SchoolInfoSourceFile source;
+            try {
+                source = writer.recordSource(request.schoolId(), year, fetched.resolvedYear(), shl, f.attachmentSeq(), name, sha, f.bytes(),
+                        c.format().name(), c.verification(), null, java.time.Instant.now());
+            } catch (org.springframework.dao.DataIntegrityViolationException race) {
+                job.add(skip(name, "같은 원본을 처리 중"));
                 continue;
             }
-            List<Integer> grades = gradesOf(compact);
-            if (grades.isEmpty()) {
-                grades = List.of(request.defaultGrade() != null ? request.defaultGrade() : 1);
+            if (source.verification() != SchoolInfoSourceFile.Verification.VERIFIED) {
+                job.add(skip(name, "출처 확인 필요 (" + (c.reason() == null ? source.verification().name() : c.reason()) + ")"));
+                continue;
             }
-            // 여러 학년 공통 문서(예: '1,2,3학년')는 학년마다 등록한다 — 학생은 자기 학년 문서만 본다
-            for (Integer grade : grades) {
-                try {
-                    PlanUploadResponse up = plans.register(admin, request.schoolId(), request.academicYear(), grade, request.semester(),
-                            new EvaluationPlanService.UploadedPdf(name, null, f.bytes(), SchoolInfoClient.BASE_URL));
-                    job.add(new SchoolInfoImportResponse.File(name, grade, up.planId(), up.documentRevisionId(), QUEUED, null, false, null));
-                } catch (BusinessException e) {
-                    job.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false, e.getMessage()));
+            // 여러 학년·두 학기가 확인된 문서는 그 슬롯마다 등록한다(원본 SHA·출처는 하나)
+            for (Integer grade : c.grades()) {
+                if (!c.semesters().contains(request.semester())) {
+                    continue;
                 }
+                try {
+                    SchoolInfoSyncWriter.Linked l = writer.link(admin, source, year, grade, request.semester(), f.bytes(), sourceUrl, java.time.Instant.now());
+                    job.add(new SchoolInfoImportResponse.File(name, grade, l.planId(), l.revisionId(),
+                            l.outcome() == SchoolInfoSyncWriter.Outcome.UNCHANGED ? "UNCHANGED" : QUEUED, null, false, null));
+                } catch (BusinessException | org.springframework.dao.DataIntegrityViolationException e) {
+                    job.add(new SchoolInfoImportResponse.File(name, grade, null, null, null, null, false,
+                            e instanceof BusinessException be ? be.getMessage() : "이미 등록됨"));
+                }
+            }
+            if (!c.semesters().contains(request.semester())) {
+                job.add(skip(name, c.semesters().stream().map(String::valueOf).collect(java.util.stream.Collectors.joining("·")) + "학기 자료"));
             }
         }
         synchronized (jobs) {

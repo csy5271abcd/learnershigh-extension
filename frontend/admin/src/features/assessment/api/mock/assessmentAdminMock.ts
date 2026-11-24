@@ -930,7 +930,7 @@ export function listScrapsMock(query: { query?: string } = {}): Promise<{ items:
 function validateScrap(request: ScrapRequest) {
   const fields: { field: string; reason: string }[] = []
   if (!request.title.trim()) fields.push({ field: 'title', reason: '자료 제목을 적어 주세요.' })
-  if (!/^https?:\/\/\S+$/.test(request.sourceUrl.trim())) fields.push({ field: 'sourceUrl', reason: 'http(s)로 시작하는 주소를 적어 주세요.' })
+  if (!/^https?:\/\/\S+$/.test((request.sourceUrl ?? '').trim())) fields.push({ field: 'sourceUrl', reason: 'http(s)로 시작하는 주소를 적어 주세요.' })
   if (request.publishedDate && !/^\d{4}-\d{2}-\d{2}$/.test(request.publishedDate)) fields.push({ field: 'publishedDate', reason: 'YYYY-MM-DD 형식으로 적어 주세요.' })
   if (request.referenceSourceId && !fixtureReferenceSources.some((source) => source.sourceId === request.referenceSourceId)) fields.push({ field: 'referenceSourceId', reason: '없는 자료원이에요.' })
   if (fields.length) invalid(fields)
@@ -944,13 +944,13 @@ export function saveScrapMock(scrapId: string | null, request: ScrapRequest): Pr
     if (scrapId) {
       const scrap = store.scraps.find((item) => item.scrapId === scrapId)
       if (!scrap) fail(404, 'SCRAP_NOT_FOUND', '스크랩을 찾을 수 없어요.')
-      Object.assign(scrap, structuredClone(request), { sourceUrl: request.sourceUrl.trim(), updatedAt: now })
+      Object.assign(scrap, structuredClone(request), { sourceUrl: (request.sourceUrl ?? '').trim(), updatedAt: now })
       return scrap
     }
     // 같은 자료원 안에서도 개별 자료(다른 주소)는 각각 새 ID로 저장한다 (요청 ⑤). 완전히 같은 주소만 중복으로 막는다 (중복 클릭·재시도 방어)
-    const existing = store.scraps.find((item) => item.sourceUrl === request.sourceUrl.trim())
+    const existing = store.scraps.find((item) => item.sourceUrl === (request.sourceUrl ?? '').trim())
     if (existing) fail(409, 'SCRAP_ALREADY_EXISTS', '이미 저장한 주소예요. 내 스크랩에서 메모를 고칠 수 있어요.')
-    const scrap: ReferenceScrap = { ...structuredClone(request), sourceUrl: request.sourceUrl.trim(), scrapId: nextMockId('scrap'), createdAt: now, updatedAt: now }
+    const scrap: ReferenceScrap = { ...structuredClone(request), sourceUrl: (request.sourceUrl ?? '').trim(), scrapId: nextMockId('scrap'), createdAt: now, updatedAt: now }
     store.scraps.unshift(scrap)
     return scrap
   })

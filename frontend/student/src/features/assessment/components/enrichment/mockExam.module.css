@@ -8,7 +8,7 @@
   margin-top: 4px;
   padding: 18px 20px;
   border-radius: var(--as-radius-lg);
-  background: var(--as-color-primary-soft);
+  background: var(--as-color-subtle);
 }
 
 .heroTitle {
@@ -108,10 +108,12 @@
   border: 0;
   border-radius: var(--as-radius-sm);
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: var(--as-text-meta);
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
@@ -161,8 +163,8 @@
 .subjectBadge {
   padding: 2px 8px;
   border-radius: var(--as-radius-xs);
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
   font-size: var(--as-text-caption);
   font-weight: 700;
 }
@@ -251,10 +253,11 @@
   align-items: center;
   gap: 4px;
   min-height: 28px;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font-size: var(--as-text-meta);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .detailLink:hover {
@@ -397,10 +400,12 @@
   padding: 0 4px;
   border: 0;
   background: none;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
   font: inherit;
   font-size: var(--as-text-meta);
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
 
@@ -426,13 +431,13 @@
   gap: 6px;
   padding: 16px 18px;
   border-radius: var(--as-radius-md);
-  background: var(--as-color-primary-soft);
+  background: var(--as-color-subtle);
 }
 
 .ideaLabel {
   font-size: var(--as-text-caption);
   font-weight: 700;
-  color: var(--as-color-primary);
+  color: var(--as-color-text);
 }
 
 .ideaTopic {
@@ -472,8 +477,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--as-color-primary-soft);
-  color: var(--as-color-primary);
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
   font-size: var(--as-text-caption);
   font-weight: 700;
 }
@@ -481,7 +486,7 @@
 .questionMark {
   flex: none;
   font-weight: 700;
-  color: var(--as-color-primary);
+  color: var(--as-color-text-secondary);
 }
 
 .startBar {

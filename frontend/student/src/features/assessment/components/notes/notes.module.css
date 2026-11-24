@@ -224,7 +224,7 @@
 
 .quote {
   padding-left: 12px;
-  border-left: 3px solid var(--as-color-line);
+  border-left: 2px solid var(--as-color-line);
 }
 
 .quote .textArea {
@@ -681,6 +681,16 @@
   text-decoration: none;
 }
 
+/* A28-41: 서버 첨부 '열기'·'내려받기'는 버튼(링크 모양) */
+button.fileOpen {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .chartBlock {
   display: grid;
   gap: 6px;
@@ -924,7 +934,7 @@
 
 .readQuote {
   padding-left: 12px;
-  border-left: 3px solid var(--as-color-line);
+  border-left: 2px solid var(--as-color-line);
   color: var(--as-color-text-secondary);
   font-size: 14px;
   line-height: 1.75;
@@ -1085,4 +1095,86 @@
     grid-column: 2;
     justify-items: start;
   }
+}
+
+/* A27-UX(계정 B) 인라인 서식: 편집하지 않는 블록은 서식을 그려 보여 주고, 투명한 입력칸이 그 위에 남아 누르면 바로 편집된다 */
+.richWrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.richText {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.richWrap[data-rich='true'] > textarea {
+  position: absolute;
+  inset: 0;
+  height: 100% !important;
+  opacity: 0;
+}
+
+.richText u,
+.formatBar u {
+  text-underline-offset: 3px;
+}
+
+.richText [data-inline-link],
+.readLink [data-inline-link] {
+  color: var(--as-color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--as-color-text-tertiary);
+  text-underline-offset: 3px;
+}
+
+.formatBar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.formatButton {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--as-color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.formatButton:hover:not(:disabled) {
+  background: var(--as-color-fill);
+  color: var(--as-color-text);
+}
+
+.formatButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.linkForm {
+  display: grid;
+  gap: 8px;
+}
+
+.linkInput {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+}
+
+.linkError {
+  margin: 0;
+  color: var(--as-color-danger);
+  font-size: 13px;
 }

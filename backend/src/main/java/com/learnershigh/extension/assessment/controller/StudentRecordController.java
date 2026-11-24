@@ -27,6 +27,7 @@ import com.learnershigh.extension.assessment.dto.record.ResourceDtos.StudentReso
 import com.learnershigh.extension.assessment.service.record.ArchiveService;
 import com.learnershigh.extension.assessment.service.record.ArtifactQueryService;
 import com.learnershigh.extension.assessment.service.record.GrowthRecordService;
+import com.learnershigh.extension.assessment.service.record.ResourceFileService;
 import com.learnershigh.extension.assessment.service.record.ResourceService;
 import org.springframework.web.bind.annotation.PatchMapping;
 import tools.jackson.databind.JsonNode;
@@ -77,12 +78,14 @@ public class StudentRecordController {
     private final ResourceService resourceService;
     private final ArchiveService archiveService;
     private final TrashService trashService;
+    private final ResourceFileService resourceFileService;
 
     public StudentRecordController(NoteService noteService, NoteQueryService noteQuery,
             ArtifactService artifactService, ArtifactQueryService artifactQuery, FeedbackService feedbackService,
             FeedbackQueryService feedbackQuery, GrowthRecordService growthService, ResourceService resourceService,
-            ArchiveService archiveService, TrashService trashService) {
+            ArchiveService archiveService, TrashService trashService, ResourceFileService resourceFileService) {
         this.trashService = trashService;
+        this.resourceFileService = resourceFileService;
         this.growthService = growthService;
         this.resourceService = resourceService;
         this.archiveService = archiveService;
@@ -289,6 +292,31 @@ public class StudentRecordController {
     public StudentResourceResponse updateResource(StudentActor student, @PathVariable String resourceId,
             @RequestBody JsonNode body) {
         return resourceService.update(student, resourceId, body);
+    }
+
+    /** A27-UX §22-1 DRAFT 자료 파일 첨부(교체). 형식은 확장자+서명, 크기는 결과물과 같은 한도 */
+    @PostMapping(path = "/resources/{resourceId}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public StudentResourceResponse attachResourceFile(StudentActor student, @PathVariable String resourceId,
+            @RequestPart("file") MultipartFile file) {
+        resourceFileService.attach(student, resourceId, file.getOriginalFilename(), bytes(file));
+        return resourceService.get(student, resourceId);
+    }
+
+    @DeleteMapping("/resources/{resourceId}/file")
+    public StudentResourceResponse detachResourceFile(StudentActor student, @PathVariable String resourceId) {
+        resourceFileService.detach(student, resourceId);
+        return resourceService.get(student, resourceId);
+    }
+
+    @GetMapping(path = "/resources/{resourceId}/file", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> resourceFile(StudentActor student, @PathVariable String resourceId) {
+        return FileResponses.attachment(resourceFileService.download(student, resourceId, false));
+    }
+
+    /** PDF·이미지만 inline(원본 바이트 그대로). 그 밖은 415 PREVIEW_UNAVAILABLE */
+    @GetMapping(path = "/resources/{resourceId}/file/preview", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> resourceFilePreview(StudentActor student, @PathVariable String resourceId) {
+        return FileResponses.inline(resourceFileService.download(student, resourceId, true));
     }
 
     @GetMapping("/shared-resources")

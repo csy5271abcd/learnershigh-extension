@@ -10,11 +10,14 @@ import styles from '../styles/assessmentAdmin.module.css'
 import { ContentRoute } from './ContentRoute.tsx'
 import { EvaluationPlanReviewRoute } from './EvaluationPlanReviewRoute.tsx'
 import { PlanReviewWorkspaceRoute } from '../review/ReviewWorkspace.tsx'
-import { PlanArchiveRoute } from './PlanArchiveRoute.tsx'
 import { EvaluationPlansRoute } from './EvaluationPlansRoute.tsx'
+import { MonthlyPlanTabRoute } from './MonthlyPlanTabRoute.tsx'
+import { PlanResultRoute } from './PlanResultRoute.tsx'
+import { PlanSlotsRoute } from './PlanSlotsRoute.tsx'
 import { FeedbackDetailRoute } from './FeedbackDetailRoute.tsx'
 import { FeedbackListRoute } from './FeedbackListRoute.tsx'
 import { OverviewRoute } from './OverviewRoute.tsx'
+import { devPanelEnabled } from '../../../../../student/src/features/assessment/dev/devContext.ts'
 import { matchAssessmentRoute, paths, tabPath, type AssessmentTab } from './paths.ts'
 import { ReferenceLibraryRoute } from './ReferenceLibraryRoute.tsx'
 import { StudentRecordRoute } from './StudentRecordRoute.tsx'
@@ -34,16 +37,18 @@ const tabs: { id: AssessmentTab; label: string }[] = [
   { id: 'overview', label: '전체 현황' },
   { id: 'students', label: '학생 Assessment' },
   { id: 'feedback', label: '피드백 관리' },
-  { id: 'plans', label: '학교별 평가계획서' },
-  { id: 'content', label: '심화 탐구 콘텐츠' },
+  { id: 'plans', label: '평가계획서' },
+  { id: 'analysis', label: '분석' },
+  { id: 'monthly', label: '월별 운영계획' },
+  { id: 'content', label: '심화 콘텐츠' },
   { id: 'references', label: '관리자 참고자료실' },
 ]
 
 /** PDF Viewer·2열 비교·학생 화면 보기처럼 넓은 작업 공간이 필요한 화면 (요청 ①: 그 밖의 화면은 기본 최대 너비) */
-const wideViews = new Set<string>(['students', 'student', 'feedback-detail', 'plan-review', 'plan-archive', 'university-detail', 'university-ai'])
+const wideViews = new Set<string>(['students', 'student', 'feedback-detail', 'plan-review', 'plan-result', 'plans', 'analysis', 'monthly', 'overview', 'university-detail', 'university-ai'])
 /** 학생 Desktop 화면 미리보기가 들어가는 화면: 최대 폭 제한 없이 가용 폭 전체를 쓰고, 미리보기가 그 폭에 맞춰 Student 화면을 축소한다 */
 // plan-review: 원문과 검토를 나란히 두는 작업 공간이라 가용 폭 전체를 쓴다 (2026-11-14 UI 재설계)
-const previewViews = new Set<string>(['student-view', 'record', 'plan-review'])
+const previewViews = new Set<string>(['student-view', 'record', 'plan-review', 'plan-result'])
 
 // Admin "학습관리 › Assessment 관리" (AD-01). 기존 Admin Shell 안에서 이 Feature가 자기 화면만 그린다.
 // 상단 탭은 목록 화면에서만 보이고, 상세 화면(학생 기록·피드백 작성·Task 편집·PDF)은 뒤로가기 Header를 쓴다 (AM-03·06·10).
@@ -54,7 +59,7 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
   const pending = useRemote(() => listFeedbackRequests({ status: 'PENDING' }), [location.pathname])
   const pendingCount = pending.state.status === 'success' ? pending.state.data.items.length : null
 
-  const listView = ['overview', 'students', 'student', 'feedback', 'plans', 'tasks', 'mock-exams', 'universities', 'sources', 'references', 'not-found'].includes(route.view)
+  const listView = ['overview', 'students', 'student', 'feedback', 'plans', 'analysis', 'monthly', 'tasks', 'mock-exams', 'universities', 'sources', 'references', 'not-found'].includes(route.view)
 
   let page
   if (MonthlyPlannerPreview && location.pathname === plannerPreviewPath) {
@@ -91,10 +96,16 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
       page = <FeedbackDetailRoute key={route.requestId} requestId={route.requestId} />
       break
     case 'plans':
+      page = <PlanSlotsRoute search={search} />
+      break
+    case 'analysis':
       page = <EvaluationPlansRoute search={search} />
       break
-    case 'plan-archive':
-      page = <PlanArchiveRoute search={search} />
+    case 'plan-result':
+      page = <PlanResultRoute key={route.revisionId} planId={route.planId} revisionId={route.revisionId} search={search} />
+      break
+    case 'monthly':
+      page = <MonthlyPlanTabRoute search={search} />
       break
     case 'plan-review':
       // http: 단계별 검토 Workspace(2026-11-14 재설계). Mock 데이터 모드는 이전 화면(시연 Fixture 저장)을 그대로 쓴다
@@ -124,7 +135,6 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
         <div className={styles.body}>
           <EmptyState
             title="Assessment 관리에 없는 주소예요"
-            description="주소를 다시 확인해 주세요."
             action={
               <button type="button" className={styles.secondaryButton} onClick={() => navigate(paths.overview)}>
                 전체 현황으로 가기
@@ -157,7 +167,7 @@ export function AssessmentAdminRoute({ location }: { location: AdminLocation }) 
         )}
         {page}
       </div>
-      {DevContextSwitcher && !isAdminMockDataSource && (
+      {DevContextSwitcher && !isAdminMockDataSource && devPanelEnabled() && (
         <Suspense fallback={null}>
           <DevContextSwitcher kind="admin" landingPath="/assessment/students" />
         </Suspense>

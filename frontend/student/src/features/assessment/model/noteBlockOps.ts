@@ -11,6 +11,7 @@ import {
   type BlockCommand,
   type EditorBlock,
 } from './noteEditorModel.ts'
+import { concatMarks, marksOf, splitMarks, withMarks } from './noteInlineMarks.ts'
 
 // 블록 편집 동작 (순수 함수). 화면은 결과 블록 목록과 다음 포커스 위치만 받는다.
 // 기존 블록의 blockId는 바꾸지 않는다: 나누면 앞부분이 원래 ID를 갖고, 합치면 앞 블록 ID가 남는다 (§20 앵커 안정성).
@@ -28,8 +29,10 @@ export function splitBlock(blocks: EditorBlock[], blockId: string, before: strin
   if (index < 0) return { blocks }
   const current = blocks[index]
   const type = continuationType(current.type)
-  const next = createBlock(type, after, listBlockTypes.has(type) && current.attrs?.indent ? { indent: current.attrs.indent } : undefined)
-  const kept: EditorBlock = { ...current, text: before }
+  // A27-UX(계정 B): 인라인 서식은 나눈 자리에서 앞·뒤 블록으로 나눈다
+  const [beforeMarks, afterMarks] = splitMarks(marksOf(current), before.length, current.text.length - after.length, current.text.length)
+  const next = withMarks(createBlock(type, after, listBlockTypes.has(type) && current.attrs?.indent ? { indent: current.attrs.indent } : undefined), afterMarks)
+  const kept: EditorBlock = withMarks({ ...current, text: before }, beforeMarks)
   // 안내 문구는 빈 칸 자리 표시라 나눈 뒤 새 줄에는 옮기지 않는다.
   return { blocks: [...blocks.slice(0, index), kept, next, ...blocks.slice(index + 1)], focus: { blockId: next.blockId, caret: 'start' } }
 }
@@ -62,7 +65,8 @@ export function mergeWithPrevious(blocks: EditorBlock[], blockId: string): Block
   const previous = blocks[index - 1]
   if (convertibleTypes.has(previous.type)) {
     const caret = previous.text.length
-    const merged: EditorBlock = { ...previous, text: previous.text + current.text }
+    const text = previous.text + current.text
+    const merged: EditorBlock = withMarks({ ...previous, text }, concatMarks(marksOf(previous), previous.text.length, marksOf(current), text.length))
     return { blocks: [...blocks.slice(0, index - 1), merged, ...blocks.slice(index + 1)], focus: { blockId: previous.blockId, caret } }
   }
   if (current.text === '') return { blocks: blocks.filter((block) => block.blockId !== blockId), focus: { blockId: previous.blockId, caret: 'end' } }
@@ -75,7 +79,8 @@ export function mergeWithNext(blocks: EditorBlock[], blockId: string): BlockEdit
   const next = blocks[index + 1]
   if (index < 0 || !next || !convertibleTypes.has(next.type) || multilineBlockTypes.has(next.type)) return { blocks }
   const current = blocks[index]
-  const merged: EditorBlock = { ...current, text: current.text + next.text }
+  const text = current.text + next.text
+  const merged: EditorBlock = withMarks({ ...current, text }, concatMarks(marksOf(current), current.text.length, marksOf(next), text.length))
   return { blocks: [...blocks.slice(0, index), merged, ...blocks.slice(index + 2)], focus: { blockId, caret: current.text.length } }
 }
 

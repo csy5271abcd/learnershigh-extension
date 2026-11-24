@@ -280,7 +280,7 @@ export interface AdminEvaluationPlanRevision {
   reviewStatus: PlanReviewStatus
   /** 수동 정정·확인한 필드 (§39 confirmedFields) */
   /** C-7: 계약·Backend는 subjectId. http Adapter는 과목 이름 원천이 없어 subjectName에 subjectId를 넣고 subjectId도 보존한다 */
-  confirmedFields: { subjectName: string; subjectId?: string; fieldPath: string; value: string | number | null; pdfPageNumber: number | null; documentLocatorText?: string | null }[]
+  confirmedFields: { subjectName: string; subjectId?: string; fieldPath: string; value: string | number | null; pdfPageNumber: number | null; documentLocatorText?: string | null; /** 서버 ConfirmedFieldView (HWP·HWPX, A10 이후 PDF) */ analysisSubjectIndex?: number }[]
 }
 
 export interface AdminEvaluationPlan {
@@ -314,7 +314,7 @@ export interface EvaluationPlanAnalysisView {
   /** 분석기 경고(ANALYZER)와 서버 검사 경고(SERVER). 값을 고치지 않고 경고만 남긴다 */
   warnings?: { source: string; message: string }[]
   /** 이 Revision 파일 정보 (http). 원본 대조에 쓴다 */
-  revisionFile?: { fileName: string; pageCount: number | null; checksum: string | null; documentFormat: 'PDF' | 'HWP' | 'HWPX'; file?: PlanFileMeta | null }
+  revisionFile?: { fileName: string; pageCount: number | null; checksum: string | null; documentFormat: 'PDF' | 'HWP' | 'HWPX'; file?: PlanFileMeta | null; /** A28-05 원본 출처(학교알리미 수집 여부 판단용) */ sourceUrl?: string | null }
   /** HWP·HWPX 검토 기록 (http, 확정 뒤) */
   sourceReview?: PlanSourceReview | null
   /** 검토 확정에 쓸 수 있는 후보 필드 (http). Backend fieldPath 규칙 안의 단일 값만 */
@@ -394,6 +394,11 @@ export interface PlanSourceReview {
 export interface PlanReviewConfirmRequest {
   analysisId: string
   decision: 'CONFIRM'
+  /** 부록 O §39-13: 한 번에 확정 — 화면이 읽은 공유 초안 version(서버가 다르면 409 BULK_CONFIRM_STALE) */
+  expectedDraftVersion?: number | null
+  bulk?: boolean
+  /** A28-08 통합 최종 승인: 같은 분석 결과의 월별 운영계획 확정(서버 원본 + bulk 일 때만). 평가 정보와 한 Transaction */
+  teachingPlan?: TeachingPlanReviewRequest
   reviewedSubjects: {
     subjectId: string
     /** 분석 결과 subjects[] 안의 번호. HWP·HWPX 필수, PDF 선택(A10 — 다과목 연결 영속화) */
@@ -409,8 +414,11 @@ export interface PlanReviewConfirmRequest {
       absence?: 'NOT_IN_SOURCE'
     }[]
   }[]
-  /** HWP·HWPX만: 로컬 원본 SHA-256(브라우저 계산)과 명시적 수동 대조 확인 */
-  sourceCheck?: { method: 'LOCAL_FILE_EXTERNAL_VIEWER'; localFileSha256: string; manualComparisonConfirmed: true }
+  /**
+   * HWP·HWPX: 로컬 원본 SHA-256(브라우저 계산)과 명시적 수동 대조 확인.
+   * A28-05: 학교알리미 공식 수집 원본은 SERVER_STORED_ORIGINAL — 서버가 보관 원본을 직접 검증(PDF·HWP·HWPX, 로컬 값 없음)
+   */
+  sourceCheck?: { method: 'LOCAL_FILE_EXTERNAL_VIEWER'; localFileSha256: string; manualComparisonConfirmed: true } | { method: 'SERVER_STORED_ORIGINAL' }
 }
 
 export type PublishState = 'PUBLISHED' | 'DRAFT'
@@ -500,10 +508,22 @@ export type ScrapType = 'SITE' | 'ARTICLE' | 'PAPER' | 'VIDEO' | 'STATISTICS' | 
  * 식별자는 scrapId이고 자료원 ID(referenceSourceId)는 연결일 뿐이다 — 같은 자료원에서 저장한 자료끼리 덮어쓰지 않는다.
  * 기본 비공개 (학생 화면에 자동 노출하지 않음).
  */
+/** A27-UX §43-1 DRAFT 관리자 참고자료 업로드 파일 (§22-1 StudentResource.file과 같은 모양) */
+export interface ScrapFile {
+  fileName: string
+  contentType: string
+  sizeBytes: number
+  uploadedAt: string
+  previewAvailable: boolean
+}
+
 export interface ReferenceScrap {
   scrapId: string
   title: string
-  sourceUrl: string
+  /** 업로드 스크랩(§43-1)은 링크가 없을 수 있다 */
+  sourceUrl: string | null
+  /** §43-1 업로드 파일 (없으면 null·생략) */
+  file?: ScrapFile | null
   sourceName: string | null
   /** 추천 자료원에서 저장한 경우 그 자료원 ID (P-27) */
   referenceSourceId: string | null
@@ -524,7 +544,8 @@ export interface ReferenceScrap {
 
 export interface ScrapRequest {
   title: string
-  sourceUrl: string
+  /** 링크 스크랩은 필수, 업로드 스크랩(§43-1)·파일이 있는 스크랩은 null 가능 */
+  sourceUrl: string | null
   sourceName: string | null
   referenceSourceId: string | null
   type: ScrapType
@@ -569,15 +590,26 @@ export interface PlanReviewDraftView {
     updatedAt: string
     /** A14 §39-11 운영계획 초안의 관리자 직접 추가 행 (평가 정보 초안에는 항상 빈 목록) */
     manualRows?: TeachingPlanManualRow[]
+    /** A27-UX 관리자 추가 수정(§39-4 DRAFT): 이 문서 검토 대상에서 뺀 분석 과목 (이전 응답에는 없음) */
+    subjectExclusions?: SubjectExclusion[]
   } | null
   history: { version: number; savedBy: string; savedAt: string; changedCount: number; changedFields: string[] }[]
   previousDrafts: { draftId: string; analysisId: string; status: string; version: number; decisionCount: number; updatedBy: string; updatedAt: string }[]
+}
+/** 과목 제외 사유 (§39-4 DRAFT). 삭제가 아니라 이 문서 검토·확정·학생 공개 대상에서 빼는 것 */
+export type SubjectExclusionReason = 'OTHER_GRADE' | 'DUPLICATE' | 'NOT_THIS_TERM' | 'OTHER'
+export interface SubjectExclusion {
+  subjectIndex: number
+  reason: SubjectExclusionReason
+  note?: string | null
 }
 export interface PlanReviewDraftSaveRequest {
   analysisId: string
   baseVersion: number | null
   decisions: Omit<PlanReviewDraftDecision, 'candidate'>[]
   subjectLinks: { subjectIndex: number; subjectId: string }[]
+  /** 평가 정보 초안만. 보내지 않으면 서버가 기존 제외를 그대로 둔다 */
+  subjectExclusions?: SubjectExclusion[]
 }
 
 /** A5 학교 검색 (DRAFT §38-3). coverage=REGISTERED_PLANS_ONLY: 평가계획서가 등록된 학교만 — 전체 학교 목록이 아니다 */
@@ -678,7 +710,7 @@ export interface TeachingPlanReviewView {
     reviewedBy: string
     reviewedAt: string
     /** A14: origin MANUAL = 관리자 직접 추가 행(candidate 없음, row.manualPdfPageNumber = 관리자 확인 쪽) */
-    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate & { manualPdfPageNumber?: number | null }; candidate: TeachingPlanRowCandidate | null; origin?: 'ANALYSIS' | 'MANUAL' }[]
+    rows: { subjectIndex: number; rowKey: string; subjectId: string; decision: TeachingPlanDecisionKind; row: TeachingPlanRowCandidate & { manualPdfPageNumber?: number | null }; candidate: TeachingPlanRowCandidate | null; origin?: 'ANALYSIS' | 'MANUAL'; /** A28-31: ADMIN 관리자 결정·추가 · AI_DEFAULT 최종 승인의 기본값 채택 · null 근거 기록 전 */ decisionBasis?: 'ADMIN' | 'AI_DEFAULT' | null }[]
     /** A13: 이 확정 버전(1부터). review는 최신 버전 */
     versionNo?: number
   } | null
@@ -767,8 +799,7 @@ export interface PlanArchiveDetail {
   teachingPlan: TeachingPlanReviewView | null
 }
 
-/** 학교알리미 불러오기 결과 (POST evaluation-plans/import-from-schoolinfo). 파일마다 등록·분석 결과 또는 건너뛴 이유. */
-/** api-contract §38-11: 받기·등록 후 작업 번호를 주고, 분석은 서버가 차례로 돌린다(state RUNNING → DONE, done/total = 진행바). */
+/** PR #18 §38-11 학교알리미 불러오기 결과. 받기·등록 후 작업 번호를 주고, 분석은 서버가 차례로 돌린다(state RUNNING → DONE, done/total = 진행바). */
 export interface SchoolInfoImportResult {
   jobId: string
   state: 'RUNNING' | 'DONE'
@@ -785,4 +816,66 @@ export interface SchoolInfoImportResult {
     skipped: boolean
     message: string | null
   }[]
+}
+
+/**
+ * §38-12 학교알리미 최근 3개 학년도 자동 확인 (A27-UX 부록 E). state(작업)·yearStatuses(학년도)·slotStatuses(18칸)는 서로 다른 층이다.
+ * 슬롯 status = 수집, analysisStatus = 분석. 검토·확정은 기존 문서 응답이 알려 준다.
+ */
+export interface SchoolInfoSyncResult {
+  jobId: string
+  schoolId: string
+  requestedAcademicYears: number[]
+  state: 'RUNNING' | 'COMPLETED' | 'PARTIAL' | 'FAILED'
+  yearStatuses: { academicYear: number; status: string; resolvedSourceYear: number | null; checkedAt: string | null; message: string | null; elapsedMillis: number | null }[]
+  slotStatuses: { academicYear: number; grade: number; semester: number; status: string; sourceFileCount: number; registeredPlanCount: number; analysisStatus: string }[]
+  counts: { expectedSlots: number; verifiedSlots: number; uniqueSourceFiles: number; registeredPlans: number; slotLinks: number; downloads: number; reused: number; analysisCompleted: number }
+  unresolvedFiles: { academicYear: number; fileName: string; sha256: string | null; status: string; reason: string | null; sourceFileId?: string | null; group?: 'SOURCE_VERIFICATION' | 'CLASSIFICATION' | 'OTHER' | null }[]
+  /** 부록 F §38-13: 학교 식별 상태. null·없음 = 선택 필요 없음 */
+  schoolSelection?: SchoolInfoSchoolSelection | null
+}
+
+export interface SchoolInfoSchoolSelection {
+  required: boolean
+  reason: 'SAME_NAME_CANDIDATES' | 'MAPPING_CHANGED' | 'TOO_MANY_CANDIDATES' | null
+  candidates: { candidateId: string; schoolName: string; sido: string | null; sigungu: string | null; address: string | null; selectable: boolean; unselectableReason: string | null }[]
+  selected: { schoolName: string; sido: string | null; sigungu: string | null; address: string | null; selectedAt: string; version: number } | null
+  /** 저장된 선택의 현재 version(무효 포함, 없으면 0) → 선택 요청 expectedVersion */
+  mappingVersion: number
+}
+
+/** 부록 F §38-14: 확인되지 않은 학교알리미 원본과 관리자 분류 */
+export interface SchoolInfoSourceItem {
+  sourceFileId: string
+  academicYear: number
+  resolvedSourceYear: number | null
+  fileName: string
+  format: string | null
+  sizeBytes: number
+  sha256: string
+  verification: string
+  reason: string | null
+  /** 부록 G: AUTO_ALL_GRADES = 학년 미표기 → 고1·고2·고3 자동 연결(공시월 근거) */
+  group: 'SOURCE_VERIFICATION' | 'CLASSIFICATION' | 'OTHER' | 'AUTO_ALL_GRADES'
+  classifiable: boolean
+  evidence: { grades: number[]; semesters: number[] }
+  classification: SchoolInfoClassificationDecision | null
+  history: SchoolInfoClassificationDecision[]
+  linkedSlots: { grade: number; semester: number; planId: string }[]
+  originalAvailable: boolean
+}
+
+export interface SchoolInfoClassificationDecision {
+  version: number
+  grades: number[]
+  semesters: number[]
+  note: string | null
+  decidedBy: string
+  decidedAt: string
+}
+
+export interface SchoolInfoSourcesResult {
+  schoolId: string
+  academicYears: number[]
+  items: SchoolInfoSourceItem[]
 }

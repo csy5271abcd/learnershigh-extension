@@ -295,20 +295,20 @@ export function MockExamDetailRoute({ materialId }: { materialId: string }) {
                         <>
                           <MockExamPassage passage={item.adminPassage.text} examTitle={material.research?.examTitle ?? ''} questionLabel={material.research?.questionLabel ?? ''} collapsible={false} />
                           <p className={styles.hint}>
-                            {item.adminPassage.text.length.toLocaleString()}자 · {item.adminPassage.origin === 'ADMIN_INPUT' ? '관리자 입력' : '로컬 개발 파일'}
+                            {item.adminPassage.text.length.toLocaleString()}자 · {item.adminPassage.origin === 'ADMIN_INPUT' ? '관리자 입력' : '로컬 파일'}
                             {item.adminPassage.updatedAt ? ` · ${dateTimeLabel(item.adminPassage.updatedAt)} 저장` : ''} · 학생에게 자동 공개하지 않아요 ·{' '}
                             {item.adminPassage.aiTransferAllowed ? '외부 AI 전송 조건 확인됨' : '외부 AI 전송 조건 미확인'}
                           </p>
                         </>
                       ) : (
                         <p className={styles.mockNotice} data-testid="passage-empty">
-                          <InfoIcon size={14} /> 아직 원문을 입력하지 않았어요. 수정 화면의 &lsquo;모의고사 지문 원문&rsquo;에 붙여 넣을 수 있어요.
+                          <InfoIcon size={14} /> 아직 원문을 입력하지 않았어요.
                         </p>
                       )}
                     </Section>
                     <Section title="관련 참고자료">
                       {sources.length === 0 ? (
-                        <p className={styles.muted}>연결한 참고자료원이 없어요. 수정 화면에서 연결할 수 있어요.</p>
+                        <p className={styles.muted}>연결한 참고자료원이 없어요.</p>
                       ) : (
                         sources.map((source) => (
                           <div key={source.sourceId} className={styles.noteCard} style={{ marginBottom: 6 }}>

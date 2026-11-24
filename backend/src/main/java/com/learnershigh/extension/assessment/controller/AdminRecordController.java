@@ -48,6 +48,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import com.learnershigh.extension.assessment.service.record.AdminReferenceFileService;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -66,11 +69,14 @@ public class AdminRecordController {
     private final GrowthRecordService growthService;
     private final ResourceService resourceService;
     private final TrashService trashService;
+    private final AdminReferenceFileService referenceFiles;
 
     public AdminRecordController(NoteQueryService noteQuery, ArtifactQueryService artifactQuery,
             FeedbackQueryService feedbackQuery, FeedbackService feedbackService, AdminStudentQueryService studentQuery,
-            GrowthRecordService growthService, ResourceService resourceService, TrashService trashService) {
+            GrowthRecordService growthService, ResourceService resourceService, TrashService trashService,
+            AdminReferenceFileService referenceFiles) {
         this.trashService = trashService;
+        this.referenceFiles = referenceFiles;
         this.studentQuery = studentQuery;
         this.growthService = growthService;
         this.resourceService = resourceService;
@@ -215,6 +221,46 @@ public class AdminRecordController {
     public ReferenceScrapResponse updateScrap(AdminActor admin, @PathVariable String scrapId,
             @RequestBody JsonNode body) {
         return resourceService.adminUpdate(admin, scrapId, body);
+    }
+
+    // ---- §43-1 DRAFT 관리자 참고자료 파일 업로드 (영상·사진·문서, 관리자 전용) ----
+
+    /** 메타정보(metadata: JSON) + 파일을 한 번에 저장. 업로드 스크랩만 sourceUrl 선택 */
+    @PostMapping(path = "/reference-library/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReferenceScrapResponse uploadScrap(AdminActor admin, @RequestPart("metadata") JsonNode metadata,
+            @RequestPart("file") MultipartFile file) {
+        return referenceFiles.createUpload(admin, metadata, file.getOriginalFilename(), bytes(file));
+    }
+
+    @PostMapping(path = "/reference-library/{scrapId}/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ReferenceScrapResponse attachScrapFile(AdminActor admin, @PathVariable String scrapId,
+            @RequestPart("file") MultipartFile file) {
+        return referenceFiles.attach(admin, scrapId, file.getOriginalFilename(), bytes(file));
+    }
+
+    @DeleteMapping("/reference-library/{scrapId}/file")
+    public ReferenceScrapResponse detachScrapFile(AdminActor admin, @PathVariable String scrapId) {
+        return referenceFiles.detach(admin, scrapId);
+    }
+
+    @GetMapping(path = "/reference-library/{scrapId}/file", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> scrapFile(AdminActor admin, @PathVariable String scrapId) {
+        return FileResponses.attachment(referenceFiles.download(admin, scrapId, false));
+    }
+
+    /** PDF·이미지·MP4·WEBM만 inline(원본 바이트 그대로, nosniff). 그 밖은 415 PREVIEW_UNAVAILABLE */
+    @GetMapping(path = "/reference-library/{scrapId}/file/preview", produces = MediaType.ALL_VALUE)
+    public ResponseEntity<InputStreamResource> scrapFilePreview(AdminActor admin, @PathVariable String scrapId) {
+        return FileResponses.inline(referenceFiles.download(admin, scrapId, true));
+    }
+
+    private static byte[] bytes(MultipartFile file) {
+        try {
+            return file.getBytes();
+        } catch (java.io.IOException failure) {
+            throw new java.io.UncheckedIOException(failure);
+        }
     }
 
     @PutMapping(path = "/reference-library/{scrapId}/visibility", consumes = MediaType.APPLICATION_JSON_VALUE)

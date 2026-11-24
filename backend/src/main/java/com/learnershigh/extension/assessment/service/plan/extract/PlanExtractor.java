@@ -143,6 +143,7 @@ public final class PlanExtractor {
             }
         }
         // (5) 진도표: 표가 속한 과목(머리 표·제목 기준)에 붙인다
+        TeachingPlanRules.MonthHeading[] ctxMonth = contextMonths(tables, subjAt, setAt);
         for (int i = 0; i < tables.size(); i++) {
             Subject s = subjAt[i] == null ? null : bySubject.get(key(subjAt[i], gradeAt.get(i)));
             if (s == null || s.plan.size() >= 400) {
@@ -150,7 +151,7 @@ public final class PlanExtractor {
             }
             List<TeachingPlanRules.Row> rows;
             try {
-                rows = TeachingPlanRules.rows(tables.get(i).cells());
+                rows = TeachingPlanRules.rows(tables.get(i).cells(), ctxMonth[i]);
             } catch (RuntimeException e) {
                 rows = null;   // 서식이 안 맞는 표
             }
@@ -162,6 +163,49 @@ public final class PlanExtractor {
             }
         }
         return new ArrayList<>(bySubject.values());
+    }
+
+    /**
+     * A28-27 표 밖 월 제목: '주' 열만 있는 진도표마다 월을 정한다(월 열이 있는 표·다른 표는 null).
+     * (a) 표 바로 앞 마지막 본문 줄이 월 제목('■ 8월', 두 달 '■ 12월, 1월')이면 그 월.
+     * (b) 월 제목이 없으면, 바로 앞 표가 같은 과목·같은 과목 머리(setAt)·같은 머리 줄의 월 제목 형식 진도표이고
+     *     같은 쪽 또는 바로 다음 쪽(HWP·HWPX 는 사이 본문이 없을 때)일 때만 앞 표의 월을 이어받는다 — 쪽을 넘어 이어진 표.
+     * 그 밖(과목 전환·새 머리 표·사이에 다른 표·쪽 건너뜀·사이 본문)은 이어받지 않는다(가짜 월 금지).
+     */
+    static TeachingPlanRules.MonthHeading[] contextMonths(List<SourceTable> tables, String[] subjAt, int[] setAt) {
+        TeachingPlanRules.MonthHeading[] out = new TeachingPlanRules.MonthHeading[tables.size()];
+        for (int i = 0; i < tables.size(); i++) {
+            SourceTable t = tables.get(i);
+            boolean weekOnly;
+            try {
+                weekOnly = TeachingPlanRules.weekOnlyPlanTable(t.cells());
+            } catch (RuntimeException e) {
+                weekOnly = false;
+            }
+            if (!weekOnly) {
+                continue;
+            }
+            TeachingPlanRules.MonthHeading m = TeachingPlanRules.heading(t.ctx());
+            if (m == null && i > 0 && out[i - 1] != null && continues(tables.get(i - 1), t)
+                    && !TeachingPlanRules.otherMonthLine(t.ctx(), out[i - 1])
+                    && subjAt[i] != null && subjAt[i].equals(subjAt[i - 1]) && setAt[i] == setAt[i - 1]) {
+                m = out[i - 1];
+            }
+            out[i] = m;
+        }
+        return out;
+    }
+
+    /** next 가 prev 의 이어지는 표인가: 같은 머리 줄 + (PDF) 같은 쪽·다음 쪽 / (HWP·HWPX) 사이 본문 없음. */
+    private static boolean continues(SourceTable prev, SourceTable next) {
+        String a = TeachingPlanRules.headSignature(prev.cells());
+        if (a == null || !a.equals(TeachingPlanRules.headSignature(next.cells()))) {
+            return false;
+        }
+        if (prev.page() != null && next.page() != null) {
+            return next.page() - prev.page() == 0 || next.page() - prev.page() == 1;
+        }
+        return next.ctx() == null || next.ctx().isBlank();
     }
 
     /** 과목 구분: 이름 + 원문 학년(같은 이름이라도 학년이 다르면 다른 과목, 계약 §39-12). */

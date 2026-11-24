@@ -4,7 +4,10 @@ import type { SchoolInfoImportResult } from '../api/types.ts'
 import { Modal } from '../components/canonicalUi.ts'
 import review from '../review/review.module.css'
 
-/** 학교 이름으로 학교알리미 평가계획서를 불러온다: 공시 파일을 받아 학년별 문서로 등록하고 서버 분석까지 한 번에. */
+/**
+ * PR #18 (A27-UX 부록 D 통합): 학교 이름으로 학교알리미 평가계획서를 불러온다 — 공시 파일을 받아 학년별 문서로 등록하고 서버 안 분석까지 한 번에.
+ * 등록된 문서는 관리자 등록 문서와 같다(검토·확정 전 학생 비공개). 학생 화면의 '학교 공식 공개 원본'으로 표시하지 않는다(출처 증명 계약 전).
+ */
 export function SchoolInfoImportModal({ schoolId, schoolName, academicYear, onClose, onDone }: {
   schoolId: string
   schoolName: string
@@ -103,7 +106,7 @@ export function SchoolInfoImportModal({ schoolId, schoolName, academicYear, onCl
       <div className={review.dialogBody} data-testid="schoolinfo-dialog">
         {!result && (
           <div className={review.formStack}>
-            <p className={review.muted}>학교알리미에 공시된 교과별 평가계획서를 받아 학년별 문서로 등록하고, 지필·수행 비율과 수행평가 항목·채점 기준을 읽어 둡니다. 이어서 검토에서 확인해 주세요.</p>
+            <p className={review.muted}>학교알리미에 공시된 교과별 평가계획서를 받아 학년별 문서로 등록하고, 서버 안에서 지필·수행 비율과 수행평가 항목·채점 기준을 읽어 둡니다(원문을 외부 분석기로 보내지 않아요). 분석 결과는 후보예요 — &lsquo;분석&rsquo; 탭에서 검토·확정해야 학생에게 보여요.</p>
             <label className={review.formRow}>
               <span>학교 이름</span>
               <input ref={inputRef} className={review.input} value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 신원고등학교" data-testid="schoolinfo-name" />

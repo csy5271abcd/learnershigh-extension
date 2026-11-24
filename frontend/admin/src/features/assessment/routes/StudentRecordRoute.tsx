@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { navigate } from '../../../app/adminLocation.ts'
 import { getStudent, getStudentSource, listFeedbackRequests, listStudentArtifacts, listStudentGrowthRecords, listStudentNotes, mockAsOfDate, subjectNameOf } from '../api/assessmentAdminApi.ts'
-import { candidateStatusLabel, sourceLabel, sourcePageLabel, statusLabels } from '../api/canonicalSource.ts'
+import { candidateStatusLabel, sourcePageLabel, statusLabels } from '../api/canonicalSource.ts'
+import { assessmentTypeLabels } from '../../../../../student/src/features/assessment/model/personalDetails.ts'
 import type { CriteriaLookup } from '../api/mock/assessmentAdminMock.ts'
 import type { AdminNote, AssessmentSourceType } from '../api/types.ts'
 import { DetailHead, ReadOnlyMark, RemoteView, StatusBadge } from '../components/AdminParts.tsx'
@@ -96,7 +97,7 @@ export function StudentRecordRoute({ studentId, kind, sourceId }: { studentId: s
                       <ReadOnlyMark />
                     </div>
                     {data.kind === 'school' ? (
-                      <SchoolAssessmentMeta data={data} studentId={studentId} subjectName={subjectName} />
+                      <SchoolAssessmentMeta data={data} subjectName={subjectName} />
                     ) : (
                     <dl className={styles.metaBox}>
                       {(
@@ -172,7 +173,7 @@ export function StudentRecordRoute({ studentId, kind, sourceId }: { studentId: s
                     <RemoteView state={requests.state} label="피드백 요청" onRetry={requests.reload}>
                       {(list) => {
                         const items = list.items.filter((item) => (sideTab === 'requests' ? item.status === 'PENDING' : item.status === 'DELIVERED'))
-                        if (items.length === 0) return <p className={styles.muted}>{sideTab === 'requests' ? '답변을 기다리는 요청이 없어요. 요청이 없어도 기록은 볼 수 있어요.' : '이전 피드백이 없어요.'}</p>
+                        if (items.length === 0) return <p className={styles.muted}>{sideTab === 'requests' ? '답변을 기다리는 요청이 없어요.' : '이전 피드백이 없어요.'}</p>
                         return (
                           <ul className={styles.listPlain}>
                             {items.map((item) => (
@@ -275,7 +276,7 @@ function MetaItem({ label, children, wide = false }: { label: string; children: 
  * 값의 출처: SchoolAssessment(§12) · 학업 정보(§9) · 연결된 평가계획서 분석 후보(§11) · 연결된 심화 탐구(§18).
  * 계약에 없는 항목(평가 유형·담당 선생님·최종 수정일)은 Student와 같이 "미등록"으로 두고 값을 만들지 않는다.
  */
-function SchoolAssessmentMeta({ data, studentId, subjectName }: { data: SchoolSource; studentId: string; subjectName: (subjectId: string | null | undefined) => string | null }) {
+function SchoolAssessmentMeta({ data, subjectName }: { data: SchoolSource; subjectName: (subjectId: string | null | undefined) => string | null }) {
   const { assessment, criteria, term } = data
   const found = criteria.kind === 'found' ? criteria : null
   return (
@@ -290,49 +291,43 @@ function SchoolAssessmentMeta({ data, studentId, subjectName }: { data: SchoolSo
         </MetaItem>
         <MetaItem label="진행 상태">{statusLabels[assessment.status]}</MetaItem>
         <MetaItem label="과목">{subjectName(assessment.subjectId) ?? '—'}</MetaItem>
-        <MetaItem label="평가 유형">
-          <span className={styles.muted}>미등록</span>
-        </MetaItem>
+        {/* [05] A27-UX: 담당 선생님·정보 출처·연결된 심화 탐구는 관리자 화면에서 표시하지 않는다(서버 데이터·API는 그대로).
+            학생이 직접 관리하는 값(평가 유형·평가일·반영 비율·제출물)이 있으면 그 값을, 없으면 평가계획서 후보를 보인다.
+            학생 개인 메모는 학생 개인 영역이라 보이지 않는다. */}
+        <MetaItem label="평가 유형">{assessment.assessmentType ? assessmentTypeLabels[assessment.assessmentType] : <span className={styles.muted}>미등록</span>}</MetaItem>
         <MetaItem label="평가일">
-          <CandidateText criteria={criteria} value={(item) => item.timing} emptyHint="학교 공지로 확인해 주세요" />
+          {assessment.evaluationDate ? (
+            `${dateLabel(assessment.evaluationDate)} (${dDayLabel(assessment.evaluationDate, mockAsOfDate)})`
+          ) : (
+            <CandidateText criteria={criteria} value={(item) => item.timing} emptyHint="학교 공지로 확인해 주세요" />
+          )}
         </MetaItem>
         <MetaItem label="제출 마감">{assessment.deadlineDate ? `${dateLabel(assessment.deadlineDate)} (${dDayLabel(assessment.deadlineDate, mockAsOfDate)})` : <span className={styles.muted}>날짜 미정</span>}</MetaItem>
         <MetaItem label="반영비율">
-          <CandidateText criteria={criteria} value={(item) => (item.weightPercent === null ? null : `${item.weightPercent}%`)} />
+          {typeof assessment.weightPercent === 'number' ? (
+            `${assessment.weightPercent}% (학생 입력)`
+          ) : (
+            <CandidateText criteria={criteria} value={(item) => (item.weightPercent === null ? null : `${item.weightPercent}%`)} />
+          )}
         </MetaItem>
         <MetaItem label="배점">
           <CandidateText criteria={criteria} value={(item) => (item.maxScore === null ? null : `${item.maxScore}점`)} />
         </MetaItem>
-        <MetaItem label="담당 선생님">
-          <span className={styles.muted}>미등록 · 확인 필요</span>
-        </MetaItem>
-        <MetaItem label="정보 출처" wide>
-          {sourceLabel(assessment)}
-          {/* Student 상세와 같은 꼬리표: 분석이 완료(COMPLETED)가 아니면 "PDF 분석 후보 · 확인 필요" */}
-          {found && found.analysisStatus !== 'COMPLETED' && <span className={styles.candidateTag}>PDF 분석 후보 · 확인 필요</span>}
-          {found && found.analysisStatus === 'COMPLETED' && <span className={styles.candidateTag}>{candidateStatusLabel(found.analysisStatus)}</span>}
-          {found?.source && <span className={styles.hint}> · 근거 {sourcePageLabel(found.source)}</span>}
-          {criteria.kind === 'subjectMissing' && <span className={styles.hint}> · 분석 결과에 이 과목이 없어요</span>}
-          {criteria.kind === 'itemMissing' && <span className={styles.hint}> · 분석 결과에 이 항목이 없어요</span>}
-          {criteria.kind === 'analysisUnavailable' && <span className={styles.hint}> · 평가계획서 분석 결과 없음</span>}
-        </MetaItem>
-        <MetaItem label="연결된 심화 탐구" wide>
-          {data.linkedTasks.length === 0 ? (
-            <span className={styles.muted}>없음</span>
-          ) : (
-            data.linkedTasks.map((task) => (
-              <button key={task.taskId} type="button" className={styles.linkButton} onClick={() => navigate(paths.record(studentId, 'enrichment', task.taskId))}>
-                {task.title} ({statusLabels[task.status]})
-              </button>
-            ))
-          )}
-        </MetaItem>
+        <MetaItem label="제출물">{assessment.submissions ? assessment.submissions : <span className={styles.muted}>미등록</span>}</MetaItem>
         <MetaItem label="수행평가 설명" wide>
           {assessment.description ?? <span className={styles.muted}>없음</span>}
         </MetaItem>
         <MetaItem label="등록일">{dateLabel(assessment.createdAt)}</MetaItem>
-        <MetaItem label="최종 수정일">
-          <span className={styles.muted}>기록 없음 (§12 계약 필드 없음)</span>
+        <MetaItem label="평가계획서 연결">
+          {found && found.analysisStatus !== 'COMPLETED' ? (
+            <span className={styles.candidateTag}>PDF 분석 후보 · 확인 필요</span>
+          ) : found ? (
+            <span className={styles.candidateTag}>{candidateStatusLabel(found.analysisStatus)}</span>
+          ) : criteria.kind === 'unlinked' ? (
+            <span className={styles.muted}>연결 없음 (학생 직접 등록)</span>
+          ) : (
+            <span className={styles.muted}>분석 결과에서 찾지 못했어요</span>
+          )}
         </MetaItem>
       </dl>
 
@@ -369,9 +364,6 @@ function SchoolAssessmentMeta({ data, studentId, subjectName }: { data: SchoolSo
         ) : (
           <p className={styles.muted}>연결된 평가계획서 PDF 없음 (학생 직접 등록)</p>
         )}
-        <p className={styles.hint}>
-          학생이 올린 안내문 사진·PDF는 아직 학생 브라우저에서만 임시로 보여요 (파일 저장소 연결 전). 서버에 저장되지 않아 관리자 화면에는 &lsquo;첨부 없음&rsquo;으로 보여요.
-        </p>
       </div>
     </>
   )

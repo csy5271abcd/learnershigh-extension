@@ -161,6 +161,58 @@ public class AssessmentResource {
     @Column(name = "deleted_by", length = 64)
     private String deletedBy;
 
+    // ---- A27-UX 파일 첨부 (V202611170300). 모두 함께 있거나 함께 비어 있다 ----
+    @Column(name = "file_storage_key", length = 64)
+    private String fileStorageKey;
+
+    @Column(name = "file_name", length = 255)
+    private String fileName;
+
+    @Column(name = "file_content_type", length = 120)
+    private String fileContentType;
+
+    @Column(name = "file_size_bytes")
+    private Long fileSizeBytes;
+
+    @Column(name = "file_sha256", length = 64)
+    private String fileSha256;
+
+    @Column(name = "file_uploaded_at")
+    private Instant fileUploadedAt;
+
+    /** 첨부 파일 정보 (없으면 null) */
+    public record FileInfo(String storageKey, String fileName, String contentType, long sizeBytes, String sha256,
+            Instant uploadedAt) {
+    }
+
+    public FileInfo file() {
+        return fileStorageKey == null ? null
+                : new FileInfo(fileStorageKey, fileName, fileContentType, fileSizeBytes, fileSha256, fileUploadedAt);
+    }
+
+    /** 새 파일로 바꾼다(이전 저장 바이트는 지우지 않는다). */
+    public void attachFile(String storageKey, String name, String contentType, long sizeBytes, String sha256,
+            Instant now) {
+        this.fileStorageKey = storageKey;
+        this.fileName = name;
+        this.fileContentType = contentType;
+        this.fileSizeBytes = sizeBytes;
+        this.fileSha256 = sha256;
+        this.fileUploadedAt = now;
+        this.updatedAt = now;
+    }
+
+    /** 첨부 연결만 비운다. */
+    public void detachFile(Instant now) {
+        this.fileStorageKey = null;
+        this.fileName = null;
+        this.fileContentType = null;
+        this.fileSizeBytes = null;
+        this.fileSha256 = null;
+        this.fileUploadedAt = null;
+        this.updatedAt = now;
+    }
+
     /** 휴지통으로 옮긴다. 이미 휴지통이면 그대로(재시도 안전). */
     public void moveToTrash(String actorId, Instant now) {
         if (deletedAt != null) {

@@ -19,13 +19,21 @@ public interface PlanPreviewConverter {
      */
     Result convert(byte[] source, String extension);
 
-    record Result(byte[] pdf, String failure) {
+    /**
+     * @param detail 실패 진단(A27): 변환기 출력·H2Orestart 로그에서 뽑은 예외 종류·위치 요약. 영문·숫자·기호만, 200자 이내 —
+     *               문서 내용은 담지 않는다. 서버 로그·실패 기록에만 쓰고 화면에는 내보내지 않는다.
+     */
+    record Result(byte[] pdf, String failure, String detail) {
         public static Result success(byte[] pdf) {
-            return new Result(pdf, null);
+            return new Result(pdf, null, null);
         }
 
         public static Result failure(String code) {
-            return new Result(null, code);
+            return new Result(null, code, null);
+        }
+
+        public static Result failure(String code, String detail) {
+            return new Result(null, code, detail);
         }
 
         public boolean ok() {

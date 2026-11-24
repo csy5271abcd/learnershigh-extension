@@ -16,6 +16,32 @@ const idPattern = /^[a-z0-9_]{3,48}$/
 // 시연 링크: `?devStudent=stu_demo_006` / `?devAdmin=adm_demo_b01` (개발 서버 전용). 값을 저장하고 주소에서 지운다.
 // 서버 재시작 없이 특정 시연 Context로 바로 들어가기 위한 것이며, 권한 검사는 서버가 그대로 한다.
 const queryKeys: Record<DevContextKind, string> = { student: 'devStudent', admin: 'devAdmin' }
+// A27-UX: 시연 Context 전환 패널은 사용자 화면에 기본으로 그리지 않는다(개발 문구·계정 ID 노출 금지).
+// 개발자가 `?devPanel=1`(이 탭 동안 유지, `?devPanel=0`으로 끔) 또는 VITE_ASSESSMENT_DEV_PANEL=1로 켤 때만 보인다.
+const panelKey = 'lh.assessment.devPanel'
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  try {
+    const url = new URL(window.location.href)
+    const value = url.searchParams.get('devPanel')
+    if (value !== null) {
+      if (value === '1') window.sessionStorage.setItem(panelKey, '1')
+      else window.sessionStorage.removeItem(panelKey)
+      url.searchParams.delete('devPanel')
+      window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+    }
+  } catch {
+    // 저장소를 쓸 수 없으면 패널을 켜지 않는다
+  }
+}
+export function devPanelEnabled(): boolean {
+  if (!import.meta.env.DEV) return false
+  if (import.meta.env.VITE_ASSESSMENT_DEV_PANEL === '1') return true
+  try {
+    return window.sessionStorage.getItem(panelKey) === '1'
+  } catch {
+    return false
+  }
+}
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   try {
     const url = new URL(window.location.href)

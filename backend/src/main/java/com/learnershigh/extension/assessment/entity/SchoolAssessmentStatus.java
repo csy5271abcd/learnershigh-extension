@@ -10,10 +10,10 @@ public enum SchoolAssessmentStatus {
     COMPLETED;
 
     /**
-     * 역전이(완료 → 진행 중 등) 정책은 미확정이라 허용하지 않는다 (§13 "역전이 정책이 확정되지 않으면 임의 허용하지 않는다").
-     * 같은 상태로의 요청은 변경 없음으로 허용한다(재시도 안전). 앞으로 건너뛰기(시작 전 → 완료)는 §13이 허용한다.
+     * A27-UX(사용자 결정 2026-11-17, api-contract §13 갱신): 학생 자기 관리 상태라 앞으로·되돌리기 모두 허용한다.
+     * 교사 평가·공식 제출 상태가 아니므로 권한 정책과 충돌하지 않는다. 바뀐 내역은 상태 이력(status event)에 남긴다.
      */
     public boolean canMoveTo(SchoolAssessmentStatus target) {
-        return target.ordinal() >= ordinal();
+        return target != null;
     }
 }

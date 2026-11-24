@@ -165,7 +165,7 @@ function ComparisonTable({ artifactId, from, to }: { artifactId: string; from: A
       {state.data && (
         <p className={styles.meta} data-testid="viewer-diff-mode">
           {state.data.comparison.mode === 'METADATA_ONLY'
-            ? '파일 내용(문장) 자동 비교는 지원하지 않아요. 아래 파일 정보와 두 원본을 나란히 확인해 주세요.'
+            ? '파일 내용(문장) 자동 비교는 지원하지 않아요.'
             : state.data.comparison.reason}
         </p>
       )}

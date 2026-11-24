@@ -63,13 +63,12 @@ export function GrowthRecordsRoute() {
         <div className={`${enrichmentStyles.content} ${styles.growthArea}`}>
           <header className={enrichmentStyles.header}>
             <h1 className={enrichmentStyles.title}>성장 기록</h1>
-            <p className={enrichmentStyles.subtitle}>학교 과제와 심화 탐구에서 내가 직접 한 일과 배운 점을 남겨요.</p>
           </header>
 
           <p className={styles.privacyBox}>
             <LockIcon size={15} />
             <span>
-              나만 보는 개인 기록이에요. 학교생활기록부에 선생님이 작성하는 세부능력 및 특기사항(세특)과는 별개이고, 자동으로 세특을 만들어 주지 않아요.
+              나만 보는 개인 기록이에요.
             </span>
           </p>
 
@@ -107,7 +106,6 @@ export function GrowthRecordsRoute() {
                 ) : (
                   <EmptyState
                     title="아직 남긴 성장 기록이 없어요"
-                    description="과제나 탐구를 마친 뒤 내가 맡은 역할, 해결한 문제, 배운 점을 짧게 남겨 보세요."
                     action={
                       <Link to={growthRecordNewPath()} className={enrichmentStyles.outlineButton}>
                         성장 기록 쓰기

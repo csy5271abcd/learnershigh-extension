@@ -1,1343 +1,193 @@
-## LearnersHigh Extension
+# LearnersHigh Extension
 
-기존 **LearnersHigh** 서비스 위에 신규 확장 기능을 추가하기 위한 개발 Repository다.
+> **현행 코드 안내 · 2026-11-24 · `main` 기준**
+>
+> 기존 LearnersHigh의 학습관리 흐름에 **Assessment(학교 수행평가)**와 **Student Care(학생 케어)**를 확장하는 React + Spring Boot 프로젝트입니다. 이 README는 현재 구현된 코드와 로컬 실행 방법을 안내합니다. 초기 기획의 Mentor Hub, Mentor 전용 앱, School & Admissions, Today Board 등은 **현재 서비스 기능이 아닙니다**.
 
-이 프로젝트의 목적은 기존 LearnersHigh를 새로 만드는 것이 아니라, 기존 기능과 데이터를 유지한 상태에서 다음 확장 영역을 연결하는 것이다.
+## 1. 구현 범위
 
-```text
-Existing LearnersHigh
-        │
-        ▼
-Shared Data / Integration Boundary
-        │
-        ├─ Mentor Hub
-        ├─ School & Admissions
-        ├─ Student Management
-        ├─ Parent Progress
-        └─ Team Member Features
-```
-
----
-
-## 1. Project Goal
-
-기존 LearnersHigh에는 이미 다음과 같은 기능이 존재한다.
-
-```text
-Study Timer / 순공 측정
-Plan / 학습계획
-Library
-Learning History / 학습 이력
-Report
-Statistics
-기존 수행평가
-관리자 학생 / 지점 관리
-Study Room 운영 기능
-```
-
-이 Repository에서는 위 기능을 편의를 위해 다시 구현하지 않는다.
-
-신규 기능은 가능한 한 기존 데이터와 연결한다.
-
-핵심 방향:
-
-```text
-기존 기능 재구현 X
-기존 데이터 재사용 O
-Shared Entity O
-Surface 간 상태 연결 O
-Feature / Domain 중심 구조 O
-```
-
----
-
-## 2. Main Extension Areas
-
-현재 LearnersHigh Extension의 주요 확장 영역은 다음과 같다.
-
-### Mentor Hub
-
-학생이 Mentor의 경험과 콘텐츠를 탐색하고 활용하는 기능이다.
-
-주요 범위:
-
-```text
-Mentor Recommendation
-Mentor Profile
-Plan
-Routine
-Story
-Q&A
-Record
-Activity Case
-Mentor My Content
-Mentor Q&A Inbox
-```
-
----
-
-### School & Admissions
-
-학생의 수행평가, 성장활동, Evidence, Reflection, Archive, Interview 준비 흐름을 관리한다.
-
-주요 범위:
-
-```text
-Task 8-stage Workflow
-Topic
-Evidence
-Version
-AI Analysis
-Feedback
-Revision History
-Growth Activity
-Reflection
-Archive
-Connection
-Interview Bridge
-Final Artifact Share
-```
-
----
-
-### Admin Student Management
-
-관리자가 학생 상태와 검토 업무를 관리한다.
-
-주요 범위:
-
-```text
-Feedback Dashboard
-Shared Feedback Queue
-Feedback Review
-Today Board
-Student 360
-TestResult
-SchoolRecordSnapshot
-Mentor Case Recommendation
-Operations Dashboard
-```
-
----
-
-### Parent Progress
-
-별도의 Parent App/Web을 만들지 않고,
-Admin이 검토된 월간 Student Snapshot을 기반으로 Report를 생성하고 전달한다.
-
-주요 흐름:
-
-```text
-Monthly Aggregation
-→ AI Draft
-→ Admin Review
-→ Validation
-→ Preview
-→ PDF / Image
-→ Delivery
-```
-
----
-
-## 3. Surfaces
-
-Frontend는 다음 세 Surface를 기준으로 분리한다.
-
-```text
-Student
-Admin
-Mentor
-```
-
-### Student
-
-학생 본인의 학습, 학교활동, Mentor 콘텐츠를 사용하는 화면이다.
-
-주요 신규 Navigation:
-
-```text
-기존 Student Navigation
-├─ 기존 기능
-├─ Mentor
-└─ School
-```
-
----
-
-### Admin
-
-학생 상태와 운영 업무를 관리한다.
-
-주요 확장 영역:
-
-```text
-Home
-Student Management
-School & Admissions
-Feedback Queue
-Activity Archive / Interview
-Parent Progress
-Mentor Hub
-Operations
-Admin Settings
-```
-
----
-
-### Mentor
-
-Mentor 본인의 콘텐츠와 익명 Q&A를 관리한다.
-
-```text
-My Content
-Q&A Inbox
-Create
-Profile
-```
-
-Mentor는 학생 관리자가 아니다.
-
-Student의 실명, 학교, 기관, 상세 관리 데이터를 Mentor에게 노출하지 않는다.
-
----
-
-## 4. Tech Stack
-
-팀에서 확정한 기술 선택:
-
-```text
-Frontend
-→ React 19.3.0 + TypeScript 6.0.3
-→ Build Tool: Vite 8.3.4, Lint: oxlint
-→ Package Manager: npm (npm workspaces, frontend/package-lock.json 하나)
-→ Runtime: Node.js 22 (^22.12.0)
-→ Student / Admin / Mentor Surface 분리, Feature-first
-
-Backend
-→ Java 21 (Gradle toolchain)
-→ Spring Boot 4.1.1
-→ Gradle 9.7.1 Wrapper, Kotlin DSL (Maven 사용 안 함)
-→ Domain-packaged Layered MVC (ADR-0005)
-→ Test: JUnit Jupiter + Spring Boot Test (BOM 관리) + ArchUnit
-→ Migration: Flyway (database/migrations/, ADR-0006)
-→ Integration Test: Testcontainers MySQL (ADR-0006)
-
-E2E
-→ Playwright 1.63.0 (e2e/ 별도 npm Package, ADR-0007 Proposed)
-
-Database
-→ MySQL 8.4 (로컬: docker-compose.yml)
-
-API
-→ REST-style JSON Contract
-
-Design Reference
-→ Toss Design System Mobile 원칙을 Web에 재해석
-```
-
-아직 확정하지 않은 항목 (문서 근거 없이 임의 선택하지 않는다):
-
-```text
-Frontend
-→ Node.js 22의 정확한 minor / patch Version
-→ 상태관리 / Router / Data Fetching / Form / UI Component / CSS Library
-→ Test Framework
-
-Backend / Database
-→ Seed 적용 방식
-→ 시연 / 배포 환경
-
-Infrastructure / Integration
-→ Authentication 방식
-→ File Storage
-→ AI Provider / Delivery Provider 실제 구현
-→ Existing LearnersHigh 실제 API / DB / Auth 방식
-```
-
-실제 package script / build / runtime 설정은 Repository의 실제 Scaffold를 기준으로 확인한다.
-
-README에 없는 실행 명령을 추측해서 사용하지 않는다.
-
----
-
-## 5. Architecture Principles
-
-### Existing First
-
-기존 LearnersHigh에 이미 있는 기능은 신규 Extension에서 중복 구현하지 않는다.
-
-예:
-
-```text
-Plan 필요
-→ Existing Plan Integration
-
-Library 필요
-→ Existing Library Integration
-
-Study Time 필요
-→ Existing Study Data Integration
-
-기존 수행평가 존재
-→ 같은 Task를 별도 Extension Task로 중복 생성하지 않음
-```
-
----
-
-### One Entity, Many Views
-
-같은 Business Entity는 Surface마다 따로 만들지 않는다.
-
-```text
-Task
-├─ Student View
-├─ Admin View
-└─ Parent Report View
-```
-
-화면별 View Model은 달라도
-Domain Identity와 Business State는 공유한다.
-
----
-
-### Contract Before Code
-
-Frontend와 Backend는 각자 JSON Shape을 만들지 않는다.
-
-기본 순서:
-
-```text
-Requirement
-→ Domain
-→ API Contract
-→ Backend
-→ Frontend
-→ Test
-```
-
----
-
-### Do Not Guess
-
-다음은 문서나 실제 시스템 확인 없이 추측하지 않는다.
-
-```text
-Existing LearnersHigh API
-Existing DB Schema
-Authentication 방식
-PK Type
-미정 Enum
-미정 Status
-Storage Provider
-External Delivery Provider
-```
-
----
-
-## 6. Repository Structure
-
-목표 Repository 구조:
-
-```text
-learnershigh-extension
-│
-├─ AGENTS.md                    # 모든 AI Agent 공통 진입점
-├─ ARCHITECTURE.md              # 구조 지도 (상세: docs/architecture/)
-├─ CLAUDE.md
-├─ README.md
-├─ .gitignore
-│
-├─ .claude/
-│  ├─ settings.json
-│  ├─ settings.local.json        # local only / gitignore
-│  └─ rules/
-│     ├─ common.md
-│     ├─ frontend-student.md
-│     ├─ frontend-admin.md
-│     ├─ frontend-mentor.md
-│     ├─ backend.md
-│     ├─ database.md
-│     └─ testing.md
-│
-├─ docs/
-│  ├─ SOURCE_OF_TRUTH.md
-│  ├─ OWNERSHIP.md
-│  │
-│  ├─ product/
-│  │  └─ existing-runners-high-analysis.md
-│  │
-│  ├─ architecture/
-│  │  ├─ overview.md
-│  │  ├─ integration-boundary.md
-│  │  └─ shared-conventions.md
-│  │
-│  ├─ design/
-│  │  └─ tds-web-guidelines.md
-│  │
-│  ├─ api/
-│  │  └─ api-contract.md
-│  │
-│  ├─ specs/
-│  │  ├─ suyeon/
-│  │  │  ├─ README.md
-│  │  │  ├─ domain.md
-│  │  │  ├─ progress.md
-│  │  │  └─ features/
-│  │  │     ├─ mentor-hub.md
-│  │  │     ├─ school-admissions.md
-│  │  │     ├─ student-management.md
-│  │  │     └─ parent-progress.md
-│  │  │
-│  │  └─ wangyu/
-│  │     ├─ README.md
-│  │     ├─ domain.md
-│  │     ├─ progress.md
-│  │     └─ features/
-│  │
-│  ├─ adr/
-│  │  ├─ README.md
-│  │  ├─ 0001-separate-student-admin-mentor-surfaces.md
-│  │  ├─ 0002-existing-learnershigh-integration-boundary.md
-│  │  ├─ 0003-shared-feedback-queue.md
-│  │  ├─ 0004-parent-report-without-parent-app.md
-│  │  ├─ 0005-domain-packaged-layered-mvc-backend.md
-│  │  └─ 0006-docker-mysql-flyway-testcontainers.md
-│  │
-│  └─ source/
-│     └─ archive/
-│
-├─ references/
-│  ├─ existing-runners-high/
-│  │  ├─ source/
-│  │  └─ screens/
-│  │     ├─ student/
-│  │     └─ admin/
-│  │
-│  └─ claude-design-mockup/
-│     ├─ MentorHub/
-│     ├─ School&Admissions/
-│     └─ AdminStudentManagement/
-│
-├─ frontend/
-│  ├─ student/
-│  │  └─ src/features/
-│  │     ├─ mentor-hub/
-│  │     └─ school-admissions/
-│  │
-│  ├─ admin/
-│  │  └─ src/features/
-│  │     ├─ feedback/
-│  │     ├─ student-management/
-│  │     └─ parent-progress/
-│  │
-│  └─ shared/
-│     ├─ ui/
-│     ├─ theme/
-│     ├─ api/
-│     ├─ types/
-│     └─ utils/
-│
-├─ backend/
-│  └─ src/main/java/.../
-│     ├─ mentor/
-│     ├─ school/
-│     ├─ studentmanagement/
-│     ├─ parentprogress/
-│     └─ common/
-│
-├─ database/
-│  ├─ migrations/
-│  └─ seed/
-│
-├─ e2e/
-│
-├─ scripts/
-│  ├─ verify.ps1
-│  ├─ verify-frontend.ps1
-│  └─ verify-backend.ps1
-│
-└─ .github/
-   ├─ CODEOWNERS
-   ├─ pull_request_template.md
-   └─ workflows/
-      └─ ci.yml
-```
-
-일부 폴더/파일은 현재 Harness 구성 단계에서 아직 생성 전일 수 있다.
-
-현재 상태는 `docs/specs/suyeon/progress.md`를 확인한다.
-
----
-
-## 7. Documents to Read First
-
-개발 전 최소 읽기 순서:
-
-```text
-1. CLAUDE.md
-2. docs/SOURCE_OF_TRUTH.md
-3. docs/OWNERSHIP.md
-4. 관련 Feature Spec
-5. 관련 domain.md
-6. docs/api/api-contract.md
-```
-
-기존 LearnersHigh 연결 작업:
-
-```text
-+ docs/architecture/integration-boundary.md
-+ docs/product/existing-runners-high-analysis.md
-+ references/existing-runners-high/screens/
-```
-
-신규 UI 작업:
-
-```text
-+ docs/design/tds-web-guidelines.md
-+ references/claude-design-mockup/
-```
-
-Architecture 변경:
-
-```text
-+ docs/architecture/overview.md
-+ docs/architecture/shared-conventions.md
-+ 관련 docs/adr/
-```
-
----
-
-## 8. Source of Truth
-
-문서 간 역할을 분리한다.
-
-| Concern | Source |
-|---|---|
-| Scope / Ownership | `CLAUDE.md`, `docs/OWNERSHIP.md` |
-| Feature Behavior | `docs/specs/<owner>/features/*.md` |
-| Entity / State | `docs/specs/<owner>/domain.md` |
-| API | `docs/api/api-contract.md` |
-| Architecture | `docs/architecture/` |
-| Shared Naming / Date / Error | `docs/architecture/shared-conventions.md` |
-| New Visual Principle | `docs/design/tds-web-guidelines.md` |
-| New Layout | `references/claude-design-mockup/` |
-| Existing Product Context | `docs/product/existing-runners-high-analysis.md` |
-| Architecture Decision | `docs/adr/` |
-
-충돌이 해결되지 않으면 구현하지 않고 먼저 보고한다.
-
----
-
-## 9. Ownership
-
-Source Code는 사람 이름이 아니라 Feature / Domain 기준으로 구성한다.
-
-금지:
-
-```text
-frontend/**/suyeon/
-frontend/**/wangyu/
-backend/**/suyeon/
-backend/**/wangyu/
-backend/**/ext/
-```
-
-담당자 구분은:
-
-```text
-docs/OWNERSHIP.md
-```
-
-를 따른다.
-
----
-
-## 10. Counseling Boundary
-
-상담 관련 기능 전체는 Wangyu 담당 영역이다.
-
-Suyeon 영역에서 다음을 구현하지 않는다.
-
-```text
-Counseling Entity
-Counseling API
-Counseling DB Table
-Counseling CRM
-Student Counseling
-Parent Counseling
-Joint Counseling
-Counseling Brief
-Counseling Follow-up
-Admissions Counseling
-Counseling-derived Parent Report
-Counseling-derived Today Board / Operations
-```
-
-필요하면 Shared Contract 또는 Integration Boundary만 정의한다.
-
----
-
-## 11. Frontend Rules
-
-Frontend는 Surface + Feature 기준으로 관리한다.
-
-```text
-frontend/student/
-frontend/admin/
-frontend/shared/
-```
-
-### Student
-
-주요 Suyeon Feature:
-
-```text
-mentor-hub
-school-admissions
-```
-
-### Admin
-
-주요 Suyeon Feature:
-
-```text
-feedback
-student-management
-parent-progress
-```
-
-### Mentor
-
-별도 Mentor Surface(`frontend/mentor/`)는 서비스에서 제거되어 2026-11-16 Workspace를 삭제했다(A20). 이력은 Git History와 ADR-0001·0008에만 남는다.
-
-### Shared
-
-다음 조건을 만족할 때만 Shared로 올린다.
-
-```text
-2개 이상 Feature / Surface에서 실제 사용
-Feature-specific Business Logic 없음
-API가 충분히 안정적
-```
-
----
-
-## 12. Backend Rules
-
-Backend는 Domain 중심으로 구성한다.
-
-예:
-
-```text
-mentor/
-school/
-studentmanagement/
-parentprogress/
-common/
-```
-
-각 Domain 내부는 Layered MVC를 사용한다. (ADR-0005)
-
-```text
-controller/
-service/
-entity/
-repository/
-dto/
-exception/
-```
-
-기본 의존 방향:
-
-```text
-controller
-↓
-service ──► common/integration (External Boundary Interface)
-↓
-entity / repository
-```
-
-Controller에 Business Rule을 직접 넣지 않는다.
-
----
-
-## 13. API Contract
-
-공통 API 기준:
-
-```text
-docs/api/api-contract.md
-```
-
-Actor Namespace:
-
-```text
-/api/student/**
-/api/admin/**
-/api/mentor/**
-```
-
-공통 표현 기준:
-
-```text
-docs/architecture/shared-conventions.md
-```
-
-예:
-
-```text
-JSON
-→ camelCase
-
-ID
-→ string
-
-Date
-→ YYYY-MM-DD
-
-DateTime
-→ ISO 8601
-
-Month
-→ YYYY-MM
-
-Pagination
-→ page=0&size=20
-```
-
----
-
-## 14. Design
-
-신규 Extension UI는 다음 세 기준을 조합한다.
-
-```text
-Feature Spec
-+
-Claude Design Mockup
-+
-TDS Web Guidelines
-```
-
-기존 LearnersHigh 화면은:
-
-```text
-Navigation
-Context
-IA
-Existing Interaction
-```
-
-참고용이다.
-
-기존 Visual Style을 신규 화면에 그대로 복제하지 않는다.
-
----
-
-## 15. TDS
-
-신규 UI는 Toss Design System Mobile의:
-
-```text
-Color
-Typography
-Component hierarchy
-State
-Feedback
-Overlay
-Accessibility
-```
-
-원칙을 참고한다.
-
-단, Mobile Layout을 그대로 복사하지 않는다.
-
-예:
-
-```text
-Bottom Sheet
-→ Modal / Right Drawer / Popover
-
-Fixed Bottom CTA
-→ Action Bar / Sticky Action / Toolbar
-
-ListRow
-→ List / Table / Master-Detail
-```
-
-상세 기준:
-
-```text
-docs/design/tds-web-guidelines.md
-```
-
----
-
-## 16. References
-
-### Existing LearnersHigh
-
-```text
-docs/product/existing-runners-high-analysis.md
-references/existing-runners-high/
-```
-
-목적:
-
-```text
-기존 Navigation
-기존 Interaction
-기존 정보 구조
-Integration Context
-```
-
----
-
-### Claude Design Mockup
-
-```text
-references/claude-design-mockup/
-```
-
-목적:
-
-```text
-신규 화면 Layout
-Section 배치
-Information Density
-CTA 위치
-Tab / Detail 구조
-```
-
-Reference 파일은 기본 Read-only다.
-
----
-
-## 17. Core Domain Flow
-
-현재 주요 School Flow:
-
-```text
-Task
-→ Version
-→ AI Analysis
-→ Feedback
-→ Revision
-→ Final
-→ Archive
-```
-
-후속:
-
-```text
-Archive
-→ Connection
-→ Interview
-```
-
-Mentor:
-
-```text
-Mentor Content
-→ Student Save / Apply / Q&A
-```
-
-Parent:
-
-```text
-Shared Student Data
-→ ParentReport
-→ Validation
-→ PDF/Image
-→ Delivery
-```
-
----
-
-## 18. Development Workflow
-
-기본 구현 순서:
-
-```text
-1. Requirement 확인
-2. Ownership 확인
-3. Domain 확인
-4. Existing 기능 중복 여부 확인
-5. API Contract 확인 / 변경
-6. Backend Logic
-7. Frontend State / API
-8. Screen
-9. Interaction
-10. Loading / Empty / Error
-11. Cross-Surface 확인
-12. Test
-13. Visual Polish
-```
-
-화면 Mockup부터 독립적으로 만든 뒤
-나중에 데이터를 억지로 연결하는 방식을 피한다.
-
----
-
-## 19. Progress
-
-담당자별 현재 작업 상태:
-
-```text
-docs/specs/<owner>/progress.md
-```
-
-Suyeon:
-
-```text
-docs/specs/suyeon/progress.md
-```
-
-Progress 문서는 Requirement Source가 아니다.
-
----
-
-## 20. Current Project Status
-
-현재 Repository는 Scaffold 위에서 Feature 구현 단계에 있다.
-
-구현된 Feature:
-
-```text
-학생 케어 (Wangyu, Admin) — docs/specs/wangyu/progress.md
-```
-
-현재까지 준비된 주요 문서:
-
-```text
-SOURCE_OF_TRUTH
-OWNERSHIP
-Architecture Overview
-Integration Boundary
-Shared Conventions
-Suyeon Domain
-4 Feature Specs
-API Contract
-TDS Web Guidelines
-ADR
-CLAUDE.md
-.claude/rules
-.claude/settings.json
-.gitignore
-```
-
-Feature 코드는 Feature 단위 Branch에서 구현한다.
-
----
-
-## 21. Open Decisions
-
-현재 일부 항목은 의도적으로 미확정 상태다.
-
-예:
-
-```text
-ParentReport Status
-Q&A reassign 의미
-Topic Approval Enum
-Connection Status
-Archive Persistence
-Mentor Record / Case Review State
-Existing LearnersHigh 실제 API
-Existing Authentication
-File Storage
-```
-
-Claude Code 또는 개발자가 구현 편의를 위해 임의로 확정하지 않는다.
-
----
-
-## 22. Setup / Run
-
-### Prerequisites
-
-```text
-Node.js 22 (^22.12.0) + npm
-JDK 17 이상 (Gradle 실행용). Java 21 toolchain은 없으면 Gradle이 자동으로 내려받는다.
-Docker Desktop (로컬 MySQL / integrationTest)
-```
-
-### Local MySQL
-
-```powershell
-copy .env.example .env      # 필요하면 값 수정
-docker compose up -d        # mysql:8.4, localhost:3306
-docker compose down         # 중지 (Data 유지, 삭제는 down -v)
-```
-
-Global Gradle / Maven 설치는 필요 없다. Backend는 `backend/gradlew(.bat)`만 사용한다.
-
-### Frontend
-
-```powershell
-cd frontend
-npm ci
-npm run dev:student   # http://localhost:5173
-npm run dev:admin     # http://localhost:5174
-npm run typecheck
-npm run lint
-npm run build
-```
-
-Assessment 평가계획서 분석기 설정(서버 안 분석 · OCR): [`docs/specs/suyeon/assessment-analyzer-setup.md`](docs/specs/suyeon/assessment-analyzer-setup.md)
-
-### Backend
-
-```powershell
-cd backend
-.\gradlew.bat build            # compile + Unit / ArchUnit test + bootJar (Docker 불필요)
-.\gradlew.bat integrationTest  # @Tag("integration") Test, Testcontainers MySQL (Docker 필요)
-.\gradlew.bat bootRun          # DB 환경 변수 필요, 시작 시 Flyway Migration 적용
-```
-
-Backend 실행에는 Extension MySQL 연결 정보를 환경 변수로 넣어야 한다. 값은 Git에 커밋하지 않는다.
-
-```text
-DB_URL        로컬: jdbc:mysql://localhost:3306/learnershigh_extension
-DB_USERNAME   로컬: learnershigh
-DB_PASSWORD   로컬: learnershigh
-```
-
-Migration 파일 규칙: `database/migrations/README.md`
-
-### E2E (Playwright, ADR-0007)
-
-Backend(`e2e` Profile) + MySQL + Admin preview를 띄운 뒤 실행한다.
-`e2e` Profile은 Existing LearnersHigh Mock 데이터와 조정 가능한 기준일(기본 2026-09-30)을 쓴다.
-`/api/test/**` Endpoint는 `e2e` Profile만으로는 열리지 않고, 환경 변수 `LEARNERSHIGH_TEST_ENDPOINTS_ENABLED=true`를 함께 줄 때만 열린다.
-
-```powershell
-docker compose up -d
-cd backend
-$env:SPRING_PROFILES_ACTIVE="e2e"; $env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED="true"; .\gradlew.bat bootRun   # DB_* 환경 변수 필요, :8080
-
-cd frontend
-npm run build --workspace=@learnershigh/admin
-npm run preview --workspace=@learnershigh/admin            # :4174, /api → :8080
-
-cd e2e
-npm ci
-npx playwright install chromium
-npm run typecheck
-npm test
-```
-
-| 환경 변수 | 기본값 | 의미 |
+| 영역 | 현재 기능 | 화면 |
 |---|---|---|
-| `E2E_BASE_URL` | `http://localhost:4174` | Admin 화면 |
-| `E2E_API_URL` | `http://localhost:8080` | Backend (`/api/test/**` 호출) |
-| `PLAYWRIGHT_CHROMIUM_PATH` | (없음) | 설치된 Chromium을 쓸 때 경로 |
+| **Assessment — 학생** | 학교·학기 선택, 수행평가와 평가정보 확인, 월별 교수·학습 운영계획, 노트·첨부 파일, 선생님 피드백 요청, 심화 탐구 참고 콘텐츠, 자료함·성장 기록·보관함 | `frontend/student` |
+| **Assessment — 관리자** | 학교알리미 원본 확인·등록, PDF/HWP/HWPX 분석, 결과 검토·최종 확정, 월별 운영계획, 학생별 현황·피드백, 학생 화면 읽기 전용 조회 | `frontend/admin` |
+| **Student Care** | 학생 상태 확인, 관리 사유·상담·후속관리, 관련 관리자 화면 및 학부모 리포트 흐름 | `frontend/admin` |
 
-CI는 `.github/workflows/ci.yml`의 `e2e` Job에서 같은 순서로 실행한다.
+Assessment 노트에는 이미지·PDF 등 첨부 파일을 서버에 보관하는 기능, 지원 형식의 미리보기, 노트 PDF 내보내기, 보관함 복구 및 조건부 영구 삭제가 포함됩니다. 분석 결과는 자동으로 공식 확정되지 않으며 **관리자가 검토·승인**합니다. 월·주차만 있는 운영계획을 달력에 표시한 날짜는 공식 평가일이 아닙니다.
 
-아직 정하지 않은 것: Seed, 시연 / 배포 환경, Existing LearnersHigh 연결 방식.
-README에 없는 실행 명령을 추측해서 Source of Truth로 만들지 않는다.
+**구현과 연동의 구분**
 
----
+- 평가계획서 분석은 Spring Boot 내부의 `local` 분석기에서 실행합니다. 외부 Railway HTTP 분석기는 사용하지 않습니다.
+- 학교알리미 자료 수집과 분석·확정 기능은 구현되어 있지만, 원본별 분류·추출 결과는 실제 학교 문서로 검토해야 합니다.
+- 과거 학년/학기는 **실제 학적 이력이 존재하는 경우에만** 선택할 수 있습니다. 없는 과거 기록을 생성하지 않습니다.
+- 기존 LearnersHigh 서비스의 실제 데이터 연동, **실제 로그인·운영 인증, 배포**는 별도 통합이 필요하며 **1팀 담당**입니다. 로컬의 개발용 헤더 인증은 운영 인증을 대체하지 않습니다.
 
-## 23. Verification
+상세 화면과 동작은 [Assessment 화면 맵](docs/specs/suyeon/assessment-screen-map.md), [Assessment 기능 문서](docs/specs/suyeon/README.md), [Student Care 명세](docs/specs/wangyu/features/student-care.md)를 참고하세요.
 
-Verification Script 목표:
+## 2. 기술 구성
+
+| 구분 | 기술 |
+|---|---|
+| 학생·관리자 Frontend | React 19, TypeScript, Vite 8, npm workspaces |
+| Backend | Java 21, Spring Boot 4, Gradle Wrapper |
+| 데이터베이스 | MySQL 8.4, Flyway (`database/migrations/`) |
+| 분석·원문 보기 | 서버 내부 PDF/HWP/HWPX 분석기, OCR 선택 지원, PDF 미리보기 및 HWP/HWPX 변환기 |
+| 테스트 | JUnit/ArchUnit, MySQL Testcontainers, Node 테스트, Playwright E2E/REPLAY |
 
 ```text
-scripts/verify.ps1
-scripts/verify-frontend.ps1
-scripts/verify-backend.ps1
+learnershigh-extension/
+├── frontend/
+│   ├── student/                  # 학생 앱 (개발 포트 5173)
+│   └── admin/                    # 관리자 앱 (개발 포트 5174)
+├── backend/                      # Spring Boot API (개발 포트 8080)
+├── database/migrations/          # Flyway SQL
+├── e2e/                          # 시나리오·REPLAY 테스트
+├── scripts/                      # 검증·시연 도구
+├── docs/                         # 현행 계약, 설계, 담당, 검증 기록
+└── references/                   # 원본 및 디자인 참고 자료
 ```
 
-Script가 준비된 이후 완료 보고 전:
+## 3. 로컬 실행 (Windows PowerShell — `main`)
+
+**준비물:** Windows PowerShell, Docker Desktop, Node.js 22 및 npm, JDK 21(Backend Java Toolchain). 아래 명령은 **기존 사용자 DB `lh_local_run`과 기존 Storage를 그대로 사용하는 로컬 개발/검증용**입니다. 실제 로그인·운영·배포는 1팀 담당입니다.
+
+먼저 GitHub의 최신 `main` 코드가 `C:\learnershigh-main`에 체크아웃되어 있는지 확인합니다. 다른 경로에 내려받았다면 아래 `cd` 경로만 바꾸세요. 로컬 변경 사항이 없다면 최신 코드로 갱신할 수 있습니다.
 
 ```powershell
-scripts/verify.ps1
+cd C:\learnershigh-main
+git branch --show-current          # main 확인
+git status --short                 # 로컬 변경 여부 확인
+# 변경이 없을 때만: git pull --ff-only origin main
 ```
 
-를 실행한다.
+### 3-1. 기존 MySQL 시작
 
-관련 검증이 실패하면 완료라고 보고하지 않는다.
-
----
-
-## 24. Testing Principle
-
-기능 완료 기준은 화면 존재 여부가 아니다.
-
-```text
-Requirement
-+ Shared Entity
-+ Interaction
-+ Cross-Surface State
-+ Loading / Empty / Error
-+ Permission / Privacy
-+ Test
+```powershell
+docker ps --filter 'name=^lh-local-run-mysql$' --format '{{.Names}}'
+# 컨테이너가 중지되어 있을 때만 실행
+docker start lh-local-run-mysql
 ```
 
-중요 E2E 후보:
+기존 컨테이너는 `127.0.0.1:33307`, DB는 `lh_local_run`입니다. 이미 실행 중이면 `docker start`는 생략합니다. **컨테이너·볼륨을 새로 만들거나 삭제하지 마세요.**
 
-```text
-Student Version
-→ AI
-→ Admin Feedback
-→ Student Revision
+### 3-2. Backend — PowerShell 창 1
 
-Student Q&A
-→ Mentor Inbox
-→ Mentor Answer
-→ Student Q&A
+기존 `C:\learnershigh-local-run\start-backend.ps1`과 같은 방식으로 **Docker 컨테이너 환경 변수에서 DB 계정·암호를 읽습니다.** 암호를 입력하거나 README·설정 파일에 기록할 필요가 없습니다.
 
-Activity
-→ Feedback
-→ Reflection
-→ Archive
+```powershell
+# 최신 main Backend
+cd C:\learnershigh-main\backend
 
-Parent Report
-→ Validation
-→ Generate
-→ Send
+# 기존 DB 연결
+$env:DB_URL = 'jdbc:mysql://127.0.0.1:33307/lh_local_run?serverTimezone=Asia/Seoul&characterEncoding=UTF-8'
+$env:DB_USERNAME = (docker exec lh-local-run-mysql printenv MYSQL_USER | Out-String).Trim()
+$env:DB_PASSWORD = (docker exec lh-local-run-mysql printenv MYSQL_PASSWORD | Out-String).Trim()
+if (-not $env:DB_USERNAME -or -not $env:DB_PASSWORD) {
+    throw 'MySQL 계정 정보를 읽지 못했습니다. Docker 컨테이너 상태를 확인하세요.'
+}
+
+# 기존 평가계획서·학생·학교 데이터와 첨부파일 보존
+$env:ASSESSMENT_DEMO_ROSTER_ENABLED = 'true'
+$env:ASSESSMENT_STORAGE_ROOT = Join-Path $env:USERPROFILE '.learnershigh-extension\local-run-storage'
+$env:ASSESSMENT_ANALYZER_MODE = 'local'
+$env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED = 'false'
+
+# local-run 프로필, 8080 포트
+Remove-Item Env:NoDefaultCurrentDirectoryInExePath -ErrorAction SilentlyContinue
+.\gradlew.bat --no-daemon bootRun --args='--spring.profiles.active=local-run'
 ```
 
----
+성공하면 `Tomcat started on port 8080`과 `Started ...Application` 로그가 표시됩니다. API 주소는 **http://localhost:8080**입니다. 이미 8080을 사용하는 이전 Backend가 있다면 기존 PowerShell 창에서 `Ctrl+C`로 종료한 후 실행하세요.
 
-## 25. ADR
+**DB/데이터 주의:** `application.yml`의 `DB_URL`·`DB_USERNAME`·`DB_PASSWORD`는 실행 시 환경 변수로 받습니다. 위 설정은 이 PowerShell 세션에만 적용됩니다(영구 환경 변수 변경 없음). Backend 시작 시 Flyway가 **미적용 Migration을 자동 적용할 수 있으므로** 새 버전 실행 전 DB 백업·Migration 이력을 확인하세요. 기존 원본과 학생 데이터를 초기화하지 마세요.
 
-중요 Architecture Decision은 `docs/adr/`에 기록한다.
+### 3-3. Frontend 의존성 — 최초 1회
 
-현재 핵심 ADR:
-
-```text
-ADR-0001
-Separate Student / Admin / Mentor Surfaces
-
-ADR-0002
-Existing LearnersHigh Integration Boundary
-
-ADR-0003
-Shared Feedback Queue
-
-ADR-0004
-Parent Report Without Parent App
-
-ADR-0005
-Domain-packaged Layered MVC Backend
-
-ADR-0006 (Proposed)
-Docker MySQL / Flyway / Testcontainers
-
-ADR-0007 (Proposed)
-Playwright E2E with Mock Existing Data
+```powershell
+cd C:\learnershigh-main\frontend
+npm ci
 ```
 
-ADR-0001 ~ 0005는 Accepted 상태다. 최신 Status는 `docs/adr/README.md`를 기준으로 한다.
+학생·관리자 두 앱은 npm workspace를 공유하므로 `frontend`에서 한 번 설치합니다.
 
-Accepted ADR을 변경하려면
-기존 문서를 조용히 덮어쓰지 않고 새 ADR에서 Supersede한다.
+### 3-4. 관리자 — PowerShell 창 2
 
----
-
-## 26. Claude Code
-
-Claude Code는 가장 먼저:
-
-```text
-CLAUDE.md
+```powershell
+cd C:\learnershigh-main\frontend\admin
+$env:VITE_ASSESSMENT_DATA_SOURCE = 'http'
+$env:VITE_API_TARGET = 'http://localhost:8080'
+$env:VITE_ASSESSMENT_DEV_ADMIN_ID = 'adm_demo_b01'
+npm run dev
 ```
 
-를 읽는다.
+관리자 Assessment: **http://localhost:5174/assessment** (루트 `/`는 Student Care 화면). `adm_demo_b01`은 로컬 시연용 관리자이며 실제 운영 로그인 계정이 아닙니다.
 
-세부 규칙:
+### 3-5. 학생 — PowerShell 창 3
 
-```text
-.claude/rules/
+```powershell
+cd C:\learnershigh-main\frontend\student
+$env:VITE_ASSESSMENT_DATA_SOURCE = 'http'
+$env:VITE_API_TARGET = 'http://localhost:8080'
+$env:VITE_ASSESSMENT_DEV_STUDENT_ID = 'stu_demo_073'
+npm run dev
 ```
 
-Project-shared Settings:
+학생 Assessment: **http://localhost:5173/assessment**. `stu_demo_073`은 시연용 학생 ID이며, 본인의 로컬 DB에 맞는 ID로 변경할 수 있습니다. 두 앱의 개발 서버는 `/api` 요청을 Backend 8080으로 프록시합니다.
 
-```text
-.claude/settings.json
+### 3-6. 종료 및 확인
+
+| 구성 | 경로/주소 | 종료 방법 |
+|---|---|---|
+| Backend | `C:\learnershigh-main\backend` · `http://localhost:8080` | Backend PowerShell에서 `Ctrl+C` |
+| 관리자 | `C:\learnershigh-main\frontend\admin` · `http://localhost:5174/assessment` | 관리자 PowerShell에서 `Ctrl+C` |
+| 학생 | `C:\learnershigh-main\frontend\student` · `http://localhost:5173/assessment` | 학생 PowerShell에서 `Ctrl+C` |
+
+**주의:** 이 실행 절차는 로컬 시연 DB·개발용 Header를 사용합니다. 운영 환경의 실제 인증·권한·배포는 별도로 1팀에서 통합해야 합니다. 새로운 PC에서 DB를 처음 생성하는 경우에만 [상세 로컬 실행 가이드](docs/specs/suyeon/assessment-studentcare-local-run-guide.md)를 참고하되, 기존 사용자 DB에 새 DB 생성·시드·초기화 명령을 실행하지 마세요.
+
+## 4. 테스트·검증
+
+```powershell
+# 저장소 루트에서 — 공통 Harness/Frontend/Backend 검증
+.\scripts\verify.ps1 -Strict
+
+# Frontend만
+.\scripts\verify-frontend.ps1 -Strict
+
+# Backend 단위/ArchUnit — backend/에서
+.\gradlew.bat test --no-daemon --max-workers=1
+
+# Backend 통합 테스트 — backend/에서 (Docker/Testcontainers 사용)
+.\gradlew.bat integrationTest --no-daemon --max-workers=1
 ```
 
-개인 설정:
+Assessment E2E와 REPLAY의 실행·격리 조건은 [로컬 실행 가이드](docs/specs/suyeon/assessment-studentcare-local-run-guide.md) 및 `e2e/`를 확인하세요. **사용자 DB에 E2E 초기화 API를 실행하지 마세요.** 메모리 부족으로 MySQL이 종료된 이력이 있으므로 무거운 테스트는 격리 DB에서 순차 실행합니다.
 
-```text
-.claude/settings.local.json
-```
+## 5. 협업·담당 경계
 
-`settings.local.json`은 Git에 포함하지 않는다.
+| 범위 | 담당 |
+|---|---|
+| Assessment 학생·관리자 기능, 평가계획서 분석기 정확도 | 수연 |
+| Student Care·상담 | 완규 |
+| 실제 로그인 연결·운영·배포 | 1팀 |
+| 공통 API·DB Migration·앱 Shell·E2E·CI | 영향 범위 확인 후 공동 검토 |
 
----
+학교알리미/서버 내부 분석기의 초기 구현에는 [PR #18](https://github.com/csy5271abcd/learnershigh-extension/pull/18)의 기여가 포함되어 있으며, 이후 Assessment에 통합·개선됐습니다. 자세한 담당 및 변경 규칙은 [OWNERSHIP](docs/OWNERSHIP.md)을 따릅니다.
 
-## 27. Git / Shared Change
+## 6. 현재 제한과 인계 사항
 
-다음은 Shared 변경이다.
+- **운영 인증 미연동:** 개발용 사용자·관리자 Header만으로 운영할 수 없습니다. 1팀의 실제 인증/인가 및 기존 LearnersHigh 연결 작업이 필요합니다.
+- **Railway 분석기 퇴역:** 현재 분석 경로는 서버 내부 `local`입니다. 과거 Git 이력의 토큰 폐기 여부는 별도 보안 확인 사항입니다.
+- **API 계약:** 구현된 일부 절도 문서상 `DRAFT`입니다. 팀의 계약 승인 여부는 [API 계약](docs/api/api-contract.md)에 따릅니다.
+- **환경 차이:** PDF 내보내기·스캔본 OCR·HWP/HWPX 변환은 서버의 한글 글꼴, OCR 및 변환기 환경에 따라 제한될 수 있습니다.
+- **과거 데이터:** 학생의 학년·학기별 기록은 실제 보유한 학적/평가 데이터 범위에서만 조회됩니다.
 
-```text
-API Contract
-Shared Entity
-frontend/shared
-backend/common
-Database Schema
-Architecture
-ADR
-```
+## 7. 현행 문서 바로가기
 
-Shared 변경 전 다른 Feature/담당자 영향 범위를 확인한다.
+- [Source of Truth](docs/SOURCE_OF_TRUTH.md) · [Ownership](docs/OWNERSHIP.md)
+- [Architecture](docs/architecture/overview.md) · [Integration Boundary](docs/architecture/integration-boundary.md)
+- [API 계약](docs/api/api-contract.md) · [Flyway Migration](database/migrations/README.md)
+- [Assessment 기능·검증 문서 색인](docs/specs/suyeon/README.md)
+- [Assessment 화면 맵](docs/specs/suyeon/assessment-screen-map.md) · [분석기 설정](docs/specs/suyeon/assessment-analyzer-setup.md)
+- [Student Care 기능 명세](docs/specs/wangyu/features/student-care.md)
+- [로컬 실행 가이드](docs/specs/suyeon/assessment-studentcare-local-run-guide.md)
 
----
-
-## 28. Branch / PR
-
-Branch Naming, Commit Convention, Merge Strategy는
-팀에서 확정된 기준이 Repository에 추가되면 이 README에 반영한다.
-
-현재 임의 Convention을 Source of Truth로 만들지 않는다.
-
-PR에서는 최소한 다음을 확인하는 방향으로 운영한다.
-
-```text
-Spec 준수
-Ownership 침범 여부
-API 변경
-DB 변경
-Shared 영향
-테스트 결과
-Open Decision
-```
-
----
-
-## 29. Security / Privacy
-
-Git에 포함하지 않는다.
-
-```text
-.env
-.env.local
-secrets/
-private keys
-keystore
-local credentials
-```
-
-Mentor Surface:
-
-```text
-Student 실명
-학교
-기관
-상세 학습관리 데이터
-```
-
-노출 금지.
-
-Parent Output:
-
-```text
-Raw AI
-Internal Feedback 원문
-미확정 Record의 확정 표현
-미동의 Artifact
-```
-
-노출 금지.
-
----
-
-## 30. Contribution Checklist
-
-작업 시작 전:
-
-```text
-[ ] CLAUDE.md 확인
-[ ] SOURCE_OF_TRUTH 확인
-[ ] OWNERSHIP 확인
-[ ] 관련 Feature Spec 확인
-[ ] domain.md 확인
-[ ] api-contract.md 확인
-[ ] Existing 기능 중복 여부 확인
-```
-
-작업 완료 전:
-
-```text
-[ ] Loading / Empty / Error 확인
-[ ] Cross-Surface 영향 확인
-[ ] Privacy 확인
-[ ] Open Decision 임의 확정 여부 확인
-[ ] 관련 Test 실행
-[ ] progress.md 갱신
-```
-
----
-
-## 31. Do Not
-
-```text
-기존 LearnersHigh 전체 재구현
-기존 기능 중복 구현
-다른 담당자 Feature 임의 수정
-Suyeon 영역에 Counseling 구현
-Surface별 동일 Entity 복제
-API Contract 없이 JSON Shape 생성
-Mockup만 보고 Business Logic 생성
-기존 API / DB 구조 추측
-Open Decision 임의 확정
-Reference 원본 수정
-검증 실패 상태에서 완료 보고
-```
-
----
-
-## 32. Core Principle
-
-```text
-Read before coding.
-Reuse before rebuilding.
-Contract before implementation.
-One entity, many views.
-Respect ownership.
-Do not guess.
-Verify before completion.
-```
-
----
-
-## 33. Quick Links
-
-```text
-Claude Guide
-→ CLAUDE.md
-
-Source of Truth
-→ docs/SOURCE_OF_TRUTH.md
-
-Ownership
-→ docs/OWNERSHIP.md
-
-Architecture
-→ docs/architecture/overview.md
-
-Existing Integration
-→ docs/architecture/integration-boundary.md
-
-Shared Conventions
-→ docs/architecture/shared-conventions.md
-
-API
-→ docs/api/api-contract.md
-
-Design
-→ docs/design/tds-web-guidelines.md
-
-Suyeon Domain
-→ docs/specs/suyeon/domain.md
-
-Suyeon Progress
-→ docs/specs/suyeon/progress.md
-
-ADR
-→ docs/adr/README.md
-```
+초기 기획·퇴역 기능의 결정 및 검증 기록은 `docs/`와 Git 이력에 보존되어 있습니다. 초기 설계를 **현재 구현 기능으로 오해하지 않도록**, 이 README에서는 현행 기능과 로컬 실행 절차만 설명합니다.

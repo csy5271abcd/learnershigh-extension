@@ -24,4 +24,17 @@ public class AssessmentTimes {
     public OffsetDateTime toOffset(Instant instant) {
         return instant == null ? null : OffsetDateTime.ofInstant(instant, clock.getZone());
     }
+
+    /** 부록 O §9-2: 현재 학년도·학기(KST 달력). 3~8월 = 1학기, 9~12월 = 2학기, 1~2월 = 전년도 학년도 2학기. */
+    public record Term(int academicYear, int semester) {
+    }
+
+    public Term currentTerm() {
+        java.time.LocalDate today = java.time.LocalDate.now(clock.withZone(java.time.ZoneId.of("Asia/Seoul")));
+        int month = today.getMonthValue();
+        if (month <= 2) {
+            return new Term(today.getYear() - 1, 2);
+        }
+        return new Term(today.getYear(), month <= 8 ? 1 : 2);
+    }
 }

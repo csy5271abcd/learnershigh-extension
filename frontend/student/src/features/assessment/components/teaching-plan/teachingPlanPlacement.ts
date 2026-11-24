@@ -3,7 +3,8 @@
 // - 원문에 없는 날짜를 만들지 않는다: 주차는 주차 줄, 월은 월 줄, 학기 누적 주차(TERM_WEEK)는 학사력(개학일)이 없으므로 날짜로 바꾸지 않는다.
 // - "n주"는 학교가 정한 주차다. A26(2026-11-17 사용자 결정): 화면에서는 그 달 달력(일요일 시작)의 n번째 줄 날짜에 "임시 배치"로 보여 준다
 //   (tentativeWeekDates — 표시용, 저장하지 않음, 원문 시기는 그대로). ISO 주·학사력으로 날짜를 확정하지 않는다.
-// - 연도: 원문에 명시된 연도(calendarYear)가 있으면 그 연도. 없으면 학년도 Y의 3~12월은 Y년(학년도 정의), 1~2월은 날짜 칸을 그리지 않는다.
+// - 연도: 원문에 명시된 연도(calendarYear)가 있으면 그 연도. 없으면 학년도 Y의 3~12월은 Y년, 1월은 Y+1년(A28-36 2학기 = 8월~다음 해 1월),
+//   2월은 어느 학기에도 속하지 않아 날짜 칸을 그리지 않는다.
 // - 달을 정할 수 없는 행(TERM_WEEK·WEEK_UNRESOLVED·UNKNOWN에 월 없음)도 버리지 않고 따로 모은다. 앞뒤 행의 월로 채우지 않는다.
 
 export type DatePrecision = 'EXACT_DATE' | 'DATE_RANGE' | 'WEEK_IN_MONTH' | 'TERM_WEEK' | 'MONTH' | 'MONTH_RANGE' | 'WEEK_UNRESOLVED' | 'UNKNOWN'
@@ -56,11 +57,16 @@ export const precisionLabel: Record<DatePrecision, string> = {
 /** 학년도 순서의 달 (3월 → 다음 해 2월) */
 export const academicMonths = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2]
 
-export const semesterMonths = (semester: number) => (semester === 1 ? [3, 4, 5, 6, 7, 8] : [9, 10, 11, 12, 1, 2])
+/**
+ * A28-36(2026-11-23 사용자 정의): 1학기 = 3~8월, 2학기 = 8~12월 + 다음 해 1월(2월 제외).
+ * 8월은 두 학기 모두에 보일 수 있다 — 데이터는 문서의 학기 슬롯으로 이미 나뉘어 있어 섞이지 않는다.
+ */
+export const semesterMonths = (semester: number) => (semester === 1 ? [3, 4, 5, 6, 7, 8] : [8, 9, 10, 11, 12, 1])
 
-/** 그 달의 실제 연도 (학년도 정의). 1~2월은 확인 전이라 null */
+/** 그 달의 실제 연도 (학년도 정의): 3~12월 = 학년도, 1월 = 학년도 + 1. 2월은 학기 밖이라 null(날짜를 만들지 않음) */
 export function calendarYear(academicYear: number, month: number): number | null {
-  return month >= 3 ? academicYear : null
+  if (month >= 3) return academicYear
+  return month === 1 ? academicYear + 1 : null
 }
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -209,6 +215,10 @@ export interface MonthPlacement {
   total: number
   /** A26 주차 기준 임시 배치: 계획 id → 이 달 달력에 표시한 날짜(YYYY-MM-DD, 복수 주차면 주마다 하나). 저장하지 않는 표시용 */
   tentativeDates: Record<string, string[]>
+  /** A28-37: 원문 날짜로 이 달 칸에 놓인 계획(기간이면 한 번만) */
+  dated: TeachingPlanEntry[]
+  /** A28-37: 'n월 m주'를 달력 줄에 임시 배치한 계획(주차 목록에서는 원문 주차로 다시 묶는다) */
+  tentative: TeachingPlanEntry[]
 }
 
 const order = (month: number) => academicMonths.indexOf(month)
@@ -295,7 +305,7 @@ export function tentativeWeekDates(entries: TeachingPlanEntry[], cells: (DayCell
 export function placeEntries(entries: TeachingPlanEntry[], academicYear: number, month: number): MonthPlacement {
   const here = entries.filter((entry) => monthsOf(entry).includes(month))
   const isDated = (entry: TeachingPlanEntry) => entry.precision === 'EXACT_DATE' || entry.precision === 'DATE_RANGE'
-  // 1~2월처럼 학년도로 연도를 정할 수 없는 달은, 원문에 연도가 명시된 날짜(calendarYear)가 있을 때만 그 연도로 달력을 그린다
+  // 2월처럼 학년도로 연도를 정하지 않는 달은, 원문에 연도가 명시된 날짜(calendarYear)가 있을 때만 그 연도로 달력을 그린다
   const explicitYear = here.find((entry) => isDated(entry) && entry.dateFrom)?.dateFrom?.slice(0, 4)
   const year = calendarYear(academicYear, month) ?? (explicitYear ? Number(explicitYear) : null)
   // 원문 연도가 명시된 날짜는 그 연도의 달력 칸에만 둔다
@@ -331,7 +341,53 @@ export function placeEntries(entries: TeachingPlanEntry[], academicYear: number,
   const placedTentative = here.filter((entry) => tentativeDates[entry.id])
   const placed = new Set([...placedDated, ...placedTentative, ...weekBands.flatMap((band) => band.entries), ...termWeekBands.flatMap((band) => band.entries), ...monthSummary])
   const undated = here.filter((entry) => !placed.has(entry))
-  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length, tentativeDates }
+  return { year, month, cells, weekBands, termWeekBands, monthSummary, undated, total: here.length, tentativeDates, dated: placedDated, tentative: placedTentative }
+}
+
+export interface WeekListGroup {
+  key: string
+  label: string
+  entries: TeachingPlanEntry[]
+}
+
+/**
+ * A28-37: '주차 목록' 보기. 달력 보기와 같은 배치 결과(같은 필터·같은 달)를 원문 시기 단위로 묶는다.
+ * - 'n월 m주'는 달력에 임시 배치됐어도 원문 주차로 묶는다('n월 m~k주'는 범위 그대로 한 번).
+ * - 월만 적힌 계획 → 'n월 전체', 원문 날짜 → 그 날짜(기간이면 원문 기간 문구), 학기 주차 → '학기 n주차', 나머지 → 미확인.
+ * - 한 계획은 한 묶음에만 들어간다: 묶음 항목 수의 합 = placement.total(달력 위 'N개'와 같은 정의).
+ * - 순서: 월 전체 → 달력 줄 순서(같은 줄이면 주차 먼저) → 학기 주차 → 미확인.
+ */
+export function weekListGroups(placement: MonthPlacement): WeekListGroup[] {
+  const month = placement.month
+  const groups = new Map<string, WeekListGroup & { order: number }>()
+  const seen = new Set<string>()
+  const add = (key: string, order: number, label: string, entry: TeachingPlanEntry) => {
+    if (seen.has(entry.id)) return
+    seen.add(entry.id)
+    const group = groups.get(key) ?? { key, label, order, entries: [] }
+    group.entries.push(entry)
+    groups.set(key, group)
+  }
+  const rowOf = (iso: string) => {
+    const index = placement.cells.findIndex((cell) => cell?.iso === iso)
+    return index < 0 ? 0 : Math.floor(index / 7) + 1
+  }
+  const monthStart = placement.year === null ? null : `${placement.year}-${pad(month)}-01`
+  for (const entry of placement.monthSummary) add('month', 0, `${month}월 전체`, entry)
+  const weekly = [...placement.tentative, ...placement.weekBands.flatMap((band) => band.entries)].sort((a, b) => (a.weekFrom ?? 0) - (b.weekFrom ?? 0))
+  for (const entry of weekly) {
+    const from = entry.weekFrom as number
+    const to = entry.weekTo != null && entry.weekTo > from ? entry.weekTo : from
+    add(`week-${from}-${to}`, from * 1000 + to, to === from ? `${month}월 ${from}주` : `${month}월 ${from}~${to}주`, entry)
+  }
+  for (const entry of [...placement.dated].sort((a, b) => ((a.dateFrom ?? '') < (b.dateFrom ?? '') ? -1 : 1))) {
+    const first = monthStart && entry.dateFrom && entry.dateFrom < monthStart ? monthStart : (entry.dateFrom as string)
+    const label = whenLabel(entry)
+    add(`date-${label}`, rowOf(first) * 1000 + 500 + Number(first.slice(8, 10)), label, entry)
+  }
+  for (const band of placement.termWeekBands) for (const entry of band.entries) add(`term-${band.week}`, 100_000 + band.week, `학기 ${band.week}주차`, entry)
+  for (const entry of placement.undated) add('undated', 200_000, `${month}월 · 날짜·주차 미확인`, entry)
+  return [...groups.values()].sort((a, b) => a.order - b.order).map(({ key, label, entries }) => ({ key, label, entries }))
 }
 
 /** 과목마다 고정 색 번호 (0~5). 상태 색이 아니라 과목 구분용 점에만 쓴다 */

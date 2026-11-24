@@ -3,11 +3,14 @@ import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
 import { ReadOnlyBlockedModal } from './ReadOnlyBlockedModal.tsx'
 import { toApiError, type ApiError } from '../api/apiError.ts'
 import { createSchoolAssessment } from '../api/schoolAssessmentApi.ts'
-import type { AcademicContext, CatalogSubjectRef, SchoolAssessment } from '../api/types.ts'
+import type { AcademicContext, SchoolAssessment } from '../api/types.ts'
 import { termLabel } from '../model/academicTerm.ts'
-import { AlertIcon, ChevronDownIcon } from './AssessmentIcons.tsx'
+import { AlertIcon } from './AssessmentIcons.tsx'
 import styles from './AddSchoolAssessmentModal.module.css'
 import { Modal } from './Modal.tsx'
+import { PersonalDetailsFields } from './PersonalDetailsFields.tsx'
+import { SubjectPicker, type SubjectChoice } from './SubjectPicker.tsx'
+import { emptyPersonalDetails, personalDetailsPayload, submissionError, typeLabelError, weightError, type PersonalDetailsValue } from '../model/personalDetails.ts'
 
 interface AddSchoolAssessmentModalProps {
   context: AcademicContext
@@ -19,22 +22,15 @@ interface AddSchoolAssessmentModalProps {
   onCreated: (created: SchoolAssessment) => void
 }
 
-type FieldErrors = Partial<Record<'title' | 'subjectId' | 'deadlineDate' | 'form', string>>
+type FieldErrors = Partial<Record<'title' | 'subjectId' | 'newSubjectName' | 'deadlineDate' | 'evaluationDate' | 'weightPercent' | 'form', string>>
 
 const reasonMessages: Record<string, Record<string, string>> = {
   title: { required: '수행평가 이름을 입력해 주세요.' },
-  subjectId: { required: '과목을 선택해 주세요.', unknown: '선택한 학기에 없는 과목이에요. 다시 선택해 주세요.' },
+  subjectId: { required: '과목을 선택해 주세요.', unknown: '선택한 학기에 없는 과목이에요.' },
+  newSubjectName: { invalid: '과목 이름을 확인해 주세요. (50자 이하)', not_allowed: '과목을 다시 선택해 주세요.' },
   deadlineDate: { format: '날짜 형식을 확인해 주세요.' },
-}
-
-/** 교과군 순서는 카탈로그 순서를 따른다 */
-function groupBySubjectGroup(items: CatalogSubjectRef[]): [string, CatalogSubjectRef[]][] {
-  const groups = new Map<string, CatalogSubjectRef[]>()
-  for (const item of items) {
-    const key = item.subjectGroup || '기타'
-    groups.set(key, [...(groups.get(key) ?? []), item])
-  }
-  return [...groups.entries()]
+  evaluationDate: { format: '날짜 형식을 확인해 주세요.' },
+  weightPercent: { range: '0~100 사이 숫자로 입력해 주세요.', type: '0~100 사이 숫자로 입력해 주세요.' },
 }
 
 function normalizeTitle(title: string): string {
@@ -43,7 +39,8 @@ function normalizeTitle(title: string): string {
 
 // ST-03 등록 B — 직접 입력 (assessment-student.md §6, api-contract.md §12 POST).
 // 제목·과목만 필수다. 마감일·설명은 선택이며, 학교가 공개하지 않은 값을 채워 넣지 않는다.
-// Mockup의 평가 유형·반영비율·평가일·평가기준·안내문 첨부·개인 메모는 §12 계약에 없어 보류한다 (screen-map MM-03).
+// A27-UX: 평가 유형·평가일·제출 마감·반영 비율·제출물·수행 내용·진행 상태·개인 메모를 Section으로 나눠 입력한다(§12 DRAFT, 모두 선택).
+// A27-UX 학생(2026-11-19): 과목은 검색형 Dropdown. 사이드바에 없는 과목 후보를 고르면 저장할 때 서버가 같은 트랜잭션에서 내 과목으로 더한다(§12-a).
 function AddSchoolAssessmentModalForm({
   context,
   initialSubjectId,
@@ -51,30 +48,28 @@ function AddSchoolAssessmentModalForm({
   onClose,
   onCreated,
 }: AddSchoolAssessmentModalProps) {
-  const ids = { title: useId(), subject: useId(), deadline: useId(), description: useId(), more: useId(), catalog: useId(), catalogHint: useId() }
+  const ids = { title: useId(), subject: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
 
   const [title, setTitle] = useState('')
-  const [subjectId, setSubjectId] = useState(
-    context.subjects.some((subject) => subject.subjectId === initialSubjectId) ? (initialSubjectId ?? '') : '',
+  const initialSubject = context.subjects.find((subject) => subject.subjectId === initialSubjectId)
+  const [subject, setSubject] = useState<SubjectChoice | null>(
+    initialSubject ? { kind: 'enrolled', subjectId: initialSubject.subjectId, name: initialSubject.name } : null,
   )
-  const [deadlineDate, setDeadlineDate] = useState('')
-  const [description, setDescription] = useState('')
-  const [moreOpen, setMoreOpen] = useState(false)
-  const [catalogOpen, setCatalogOpen] = useState(false)
+  const [details, setDetails] = useState<PersonalDetailsValue>(() => ({ ...emptyPersonalDetails(), status: 'BEFORE_START' }))
   const [titleTouched, setTitleTouched] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
   const [confirmingClose, setConfirmingClose] = useState(false)
 
   const trimmedTitle = title.trim()
-  // §9-1 DRAFT catalogSubjects: 같은 학년·학기 공통 후보(학교별 아님). 수강하지 않는 후보는 보여 주되 고를 수 없다(서버도 subjects 기준으로 검증).
-  const catalog = context.catalogSubjects ?? []
-  const notEnrolled = catalog.filter((candidate) => !candidate.enrolled)
-  const notEnrolledGroups = groupBySubjectGroup(notEnrolled)
-  const canSubmit = trimmedTitle !== '' && subjectId !== '' && !submitting
-  const isDirty = title !== '' || subjectId !== (initialSubjectId ?? '') || deadlineDate !== '' || description !== ''
+  const canSubmit = trimmedTitle !== '' && subject !== null && !submitting && !weightError(details.weightPercent) && !typeLabelError(details) && !submissionError(details)
+  const isDirty =
+    title !== '' ||
+    (subject?.kind === 'enrolled' ? subject.subjectId : subject?.name ?? '') !== (initialSubject?.subjectId ?? '') ||
+    JSON.stringify({ ...details, status: undefined }) !== JSON.stringify({ ...emptyPersonalDetails(), status: undefined }) ||
+    details.status !== 'BEFORE_START'
   const duplicate = trimmedTitle !== '' && existingTitles.some((existing) => normalizeTitle(existing) === normalizeTitle(title))
 
   const titleError = errors.title ?? (titleTouched && trimmedTitle === '' ? reasonMessages.title.required : undefined)
@@ -92,7 +87,7 @@ function AddSchoolAssessmentModalForm({
     if (error.code === 'VALIDATION_ERROR') {
       const next: FieldErrors = {}
       for (const [field, reason] of Object.entries(error.fieldReasons())) {
-        if (field === 'title' || field === 'subjectId' || field === 'deadlineDate') {
+        if (field === 'title' || field === 'subjectId' || field === 'newSubjectName' || field === 'deadlineDate' || field === 'evaluationDate' || field === 'weightPercent') {
           next[field] = reasonMessages[field]?.[reason] ?? `입력값을 확인해 주세요. (${reason})`
         } else {
           next.form = `${error.message} (${field})`
@@ -110,10 +105,10 @@ function AddSchoolAssessmentModalForm({
     // 중복 제출 방지: 진행 중인 요청이 있으면 무시한다 (버튼 비활성 이전의 연속 입력 포함).
     if (submittingRef.current) return
     setTitleTouched(true)
-    if (trimmedTitle === '' || subjectId === '') {
+    if (trimmedTitle === '' || subject === null) {
       setErrors({
         title: trimmedTitle === '' ? reasonMessages.title.required : undefined,
-        subjectId: subjectId === '' ? reasonMessages.subjectId.required : undefined,
+        subjectId: subject === null ? reasonMessages.subjectId.required : undefined,
       })
       if (trimmedTitle === '') titleRef.current?.focus()
       return
@@ -125,12 +120,13 @@ function AddSchoolAssessmentModalForm({
     try {
       const created = await createSchoolAssessment({
         title: trimmedTitle,
-        subjectId,
+        // §12-a: 수강 과목은 ID, 사이드바에 없는 과목은 이름(서버가 같은 트랜잭션에서 내 과목으로 더함)
+        subjectId: subject.kind === 'enrolled' ? subject.subjectId : null,
+        newSubjectName: subject.kind === 'new' ? subject.name : null,
         academicYear: context.academicYear,
         semester: context.semester,
-        deadlineDate: deadlineDate || null,
-        description: description.trim() || null,
-        status: 'BEFORE_START',
+        ...personalDetailsPayload(details),
+        status: details.status ?? 'BEFORE_START',
         evaluationItemRef: null,
       })
       onCreated(created)
@@ -217,130 +213,45 @@ function AddSchoolAssessmentModalForm({
           )}
           {!titleError && duplicate && (
             <p id={`${ids.title}-duplicate`} className={styles.fieldWarning}>
-              이 학기에 같은 이름의 수행평가가 이미 있어요. 저장하면 별도 항목으로 추가돼요.
+              이 학기에 같은 이름의 수행평가가 이미 있어요.
             </p>
           )}
         </div>
 
-        <fieldset
-          className={styles.field}
-          aria-describedby={[errors.subjectId ? `${ids.subject}-error` : '', catalog.length > 0 ? ids.catalogHint : ''].filter(Boolean).join(' ') || undefined}
-        >
-          <legend className={styles.label}>
+        <div className={styles.field}>
+          <span className={styles.label} id={`${ids.subject}-label`}>
             과목 <span className={styles.required} aria-hidden="true">*</span>
             <span className="lh-visually-hidden">(필수)</span>
-          </legend>
-          {catalog.length > 0 && (
-            <p id={ids.catalogHint} className={styles.hint}>
-              {context.grade}학년 {context.semester}학기 공통 과목 {catalog.length}개 중 내 수강 과목 {context.subjects.length}개를 고를 수 있어요.
-            </p>
-          )}
-          {context.subjects.length === 0 ? (
-            <p className={styles.fieldWarning}>이 학기에 등록된 과목이 없어요. 학교·학업 정보에서 과목을 확인해 주세요.</p>
-          ) : (
-            <div className={styles.chips}>
-              {context.subjects.map((subject) => (
-                <label key={subject.subjectId} className={styles.chip}>
-                  <input
-                    type="radio"
-                    name="subjectId"
-                    value={subject.subjectId}
-                    checked={subjectId === subject.subjectId}
-                    disabled={submitting}
-                    onChange={() => {
-                      setSubjectId(subject.subjectId)
-                      if (errors.subjectId) setErrors((previous) => ({ ...previous, subjectId: undefined }))
-                    }}
-                  />
-                  <span>{subject.name}</span>
-                </label>
-              ))}
-            </div>
-          )}
-          {errors.subjectId && (
+          </span>
+          <SubjectPicker
+            context={context}
+            value={subject}
+            disabled={submitting}
+            invalid={Boolean(errors.subjectId ?? errors.newSubjectName)}
+            describedBy={`${ids.subject}-hint${errors.subjectId ?? errors.newSubjectName ? ` ${ids.subject}-error` : ''}`}
+            onChange={(next) => {
+              setSubject(next)
+              if (errors.subjectId || errors.newSubjectName) setErrors((previous) => ({ ...previous, subjectId: undefined, newSubjectName: undefined }))
+            }}
+          />
+          {/* 새 과목을 고르면 SubjectPicker가 '내 과목 목록에도 추가' 안내를 보이므로 일반 안내는 숨긴다 */}
+          <p id={`${ids.subject}-hint`} className={styles.hint} hidden={subject?.kind === 'new'}>
+            내 수강 과목에서 고르거나, {context.grade}학년 과목을 검색해 고를 수 있어요.
+          </p>
+          {(errors.subjectId ?? errors.newSubjectName) && (
             <p id={`${ids.subject}-error`} className={styles.fieldError}>
-              {errors.subjectId}
+              {errors.subjectId ?? errors.newSubjectName}
             </p>
           )}
-          {notEnrolled.length > 0 && (
-            <>
-              <button
-                type="button"
-                className={styles.moreToggle}
-                aria-expanded={catalogOpen}
-                aria-controls={ids.catalog}
-                onClick={() => setCatalogOpen((value) => !value)}
-              >
-                <ChevronDownIcon size={16} className={catalogOpen ? styles.chevronOpen : undefined} />
-                수강하지 않는 이 학기 공통 과목 {notEnrolled.length}개 보기
-              </button>
-              <div id={ids.catalog} hidden={!catalogOpen} className={styles.catalog}>
-                <p className={styles.hint}>
-                  수강 과목이 아니라서 수행평가를 추가할 수 없어요. 수강 과목이 다르면 학교·학업 정보에서 확인해 주세요.
-                </p>
-                {notEnrolledGroups.map(([group, items]) => (
-                  <div key={group} className={styles.catalogGroup}>
-                    <span className={styles.catalogGroupLabel}>{group}</span>
-                    <ul className={styles.chips} aria-label={`${group} · 수강하지 않는 과목`}>
-                      {items.map((candidate) => (
-                        <li key={candidate.subjectId} className={styles.chipMuted}>
-                          {candidate.name}
-                          <span className="lh-visually-hidden"> (수강하지 않는 과목, 선택 불가)</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </fieldset>
-
-        <button
-          type="button"
-          className={styles.moreToggle}
-          aria-expanded={moreOpen}
-          aria-controls={ids.more}
-          onClick={() => setMoreOpen((value) => !value)}
-        >
-          <ChevronDownIcon size={16} className={moreOpen ? styles.chevronOpen : undefined} />
-          평가 정보 더 입력하기 (선택)
-        </button>
-
-        <div id={ids.more} hidden={!moreOpen} className={styles.more}>
-          <div className={styles.field}>
-            <label htmlFor={ids.deadline} className={styles.label}>
-              제출 마감일
-            </label>
-            <input
-              id={ids.deadline}
-              type="date"
-              className={styles.input}
-              value={deadlineDate}
-              disabled={submitting}
-              aria-invalid={errors.deadlineDate ? true : undefined}
-              aria-describedby={`${ids.deadline}-hint`}
-              onChange={(event) => setDeadlineDate(event.target.value)}
-            />
-            <p id={`${ids.deadline}-hint`} className={errors.deadlineDate ? styles.fieldError : styles.hint}>
-              {errors.deadlineDate ?? '아직 모르면 비워 두세요. 나중에 확인되면 입력할 수 있어요.'}
-            </p>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor={ids.description} className={styles.label}>
-              설명
-            </label>
-            <textarea
-              id={ids.description}
-              className={styles.textarea}
-              value={description}
-              rows={3}
-              placeholder="선생님이 안내한 내용이나 준비할 점을 적어 두세요"
-              disabled={submitting}
-              onChange={(event) => setDescription(event.target.value)}
-            />
-          </div>
         </div>
+
+        <PersonalDetailsFields
+          value={details}
+          onChange={(patch) => setDetails((previous) => ({ ...previous, ...patch }))}
+          disabled={submitting}
+          errors={{ deadlineDate: errors.deadlineDate, evaluationDate: errors.evaluationDate, weightPercent: errors.weightPercent }}
+          showStatus
+        />
       </form>
     </Modal>
   )

@@ -83,7 +83,8 @@
 .sourceQuote blockquote {
   margin: 0;
   padding: 8px 10px;
-  border-left: 3px solid var(--as-color-line);
+  border: 1px solid var(--as-color-line);
+  border-radius: var(--as-radius-sm);
   background: var(--as-color-subtle);
   font-size: var(--as-text-meta);
   line-height: 1.55;
@@ -459,4 +460,23 @@
     display: inline-block;
     min-height: 24px;
   }
+}
+
+/* A27-UX(계정 B) 자료 찾기: 이 수행평가 노트에 연결된 자료 · 연결됨 표시 (무채색, 왼쪽 강조선 없음) */
+.linkedBox {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 12px;
+}
+
+.linkedTag {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--as-color-line);
+  border-radius: 999px;
+  color: var(--as-color-text-secondary);
+  font-size: 12px;
 }

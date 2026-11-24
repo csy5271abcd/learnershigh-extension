@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.Persistable;
 
 /**
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Persistable;
  */
 @Entity
 @Table(name = "assessment_plan_review")
-@SQLRestriction("scope = 'EVALUATION'")
 public class PlanReview implements Persistable<String> {
 
     public static final String DECISION_CONFIRM = "CONFIRM";
@@ -108,6 +106,11 @@ public class PlanReview implements Persistable<String> {
 
     public static final String REVIEWER_AUTH_MOCK_HEADER = "MOCK_HEADER";
     public static final String SOURCE_CHECK_LOCAL_FILE = "LOCAL_FILE_EXTERNAL_VIEWER";
+    /**
+     * A28-05: 학교알리미 공식 수집 원본을 서버가 직접 검증(보관 바이트 SHA = Revision SHA = 학교알리미 원본 기록 SHA).
+     * 관리자 수동 대조가 아니므로 manualComparisonConfirmed=false 로만 기록한다(V202611212328 CHECK).
+     */
+    public static final String SOURCE_CHECK_SERVER_ORIGINAL = "SERVER_STORED_ORIGINAL";
 
     /** HWP·HWPX 원문 대조 기록. SHA 일치 확인과 관리자의 명시적 수동 대조 확인을 따로 남긴다. */
     public void recordSourceCheck(String method, String sha256, boolean manualComparisonConfirmed) {

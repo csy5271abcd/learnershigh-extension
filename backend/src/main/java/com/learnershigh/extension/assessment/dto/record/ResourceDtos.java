@@ -13,7 +13,13 @@ public final class ResourceDtos {
     /** §22 StudentResource (fileRef는 파일 첨부 미지원이라 항상 null) */
     public record StudentResourceResponse(String resourceId, String type, String title, String sourceName,
             String sourceUrl, String author, LocalDate publishedDate, String memo, List<String> tags,
-            List<String> subjectIds, String fileRef, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+            List<String> subjectIds, String fileRef, OffsetDateTime createdAt, OffsetDateTime updatedAt,
+            ResourceFile file) {
+    }
+
+    /** A27-UX §22-1 DRAFT 첨부 파일 메타데이터. previewAvailable = PDF·이미지만(원본 그대로) */
+    public record ResourceFile(String fileName, String contentType, long sizeBytes, OffsetDateTime uploadedAt,
+            boolean previewAvailable) {
     }
 
     /** §43 ReferenceScrap + 공개 상태(published·publishedAt). 폐기된 심화 연결 필드는 빈 배열이다. */
@@ -21,7 +27,9 @@ public final class ResourceDtos {
             String referenceSourceId, String type, String memo, List<String> tags, List<String> subjectIds,
             String authorOrOrg, LocalDate publishedDate, List<String> relatedCatalogTaskIds,
             List<String> relatedMaterialIds, boolean published, OffsetDateTime publishedAt,
-            OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+            OffsetDateTime createdAt, OffsetDateTime updatedAt,
+            /* A27-UX §43-1 DRAFT: 관리자 업로드 파일(없으면 null). 학생 응답에는 싣지 않는다 */
+            ResourceFile file) {
     }
 
     /** 학생이 보는 관리자 공개 자료 (읽기 전용, 관리자 메모는 공개 설명으로 노출) */

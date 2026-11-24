@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.json.JsonMapper;
@@ -40,7 +41,14 @@ public class DemoRoster {
         }
     }
 
-    public record School(String schoolId, String name) {
+    /**
+     * A28-04: schoolinfoSchoolId·address(선택) = 이 시연 학교가 가리키는 학교알리미 학교(사용자 지정 주소로 검색·대조해 확인한 고유 ID).
+     * 있으면 학교알리미 수집이 이름 검색 대신 그 학교만 확인한다(동명 학교 오연결 방지). 같은 학교 키의 학생은 모두 같은 값이어야 한다.
+     */
+    public record School(String schoolId, String name, String schoolinfoSchoolId, String address) {
+        public School(String schoolId, String name) {
+            this(schoolId, name, null, null);
+        }
     }
 
     /** subjectIds: 학기("1"/"2") → 그 학기 수강 과목 ID (카탈로그 ID) */
@@ -56,17 +64,41 @@ public class DemoRoster {
     private final Map<String, Admin> admins = new LinkedHashMap<>();
     private final Map<String, Student> students = new LinkedHashMap<>();
 
-    @Autowired
     public DemoRoster(SubjectCatalog catalog) {
-        this(catalog, RESOURCE);
+        this(catalog, RESOURCE, "");
+    }
+
+    /**
+     * A27-UX 부록 L: {@code assessment.demo-roster.e2e-extra-file}(기본 비어 있음)이 있으면 그 파일(파일 시스템)의 합성 학생을 기본 명단 뒤에 더한다.
+     * 일회용 E2E 전용 — 운영·기본 실행에는 없다. 더한 학생도 아래 무결성 검사(ID 접두·지점·좌석·카탈로그 과목)를 똑같이 거친다.
+     */
+    @Autowired
+    public DemoRoster(SubjectCatalog catalog, Environment environment) {
+        this(catalog, RESOURCE, environment.getProperty("assessment.demo-roster.e2e-extra-file", ""));
     }
 
     DemoRoster(SubjectCatalog catalog, String resource) {
+        this(catalog, resource, "");
+    }
+
+    DemoRoster(SubjectCatalog catalog, String resource, String extraFile) {
         RosterFile file;
+        JsonMapper mapper = JsonMapper.builder().build();
         try (InputStream in = new ClassPathResource(resource).getInputStream()) {
-            file = JsonMapper.builder().build().readValue(in, RosterFile.class);
+            file = mapper.readValue(in, RosterFile.class);
         } catch (IOException e) {
             throw new IllegalStateException("시연 명단을 읽지 못했습니다: " + resource, e);
+        }
+        if (extraFile != null && !extraFile.isBlank()) {
+            RosterFile extra;
+            try (InputStream in = java.nio.file.Files.newInputStream(java.nio.file.Path.of(extraFile))) {
+                extra = mapper.readValue(in, RosterFile.class);
+            } catch (IOException e) {
+                throw new IllegalStateException("E2E 추가 명단을 읽지 못했습니다: " + extraFile, e);
+            }
+            List<Student> all = new java.util.ArrayList<>(file.students());
+            all.addAll(extra.students());
+            file = new RosterFile(file.rosterVersion(), file.branches(), file.admins(), all);
         }
         for (ExistingBranch branch : file.branches()) {
             if (!branch.branchId().startsWith("br_demo_") || branches.put(branch.branchId(), branch) != null) {
@@ -80,12 +112,20 @@ public class DemoRoster {
             }
         }
         Set<String> seats = new HashSet<>();
+        Map<String, School> schoolsById = new LinkedHashMap<>();
         for (Student student : file.students()) {
             if (!student.studentId().startsWith("stu_demo_") || students.put(student.studentId(), student) != null) {
                 throw new IllegalStateException("시연 학생 ID는 stu_demo_ 로 시작하고 중복되지 않아야 합니다: " + student.studentId());
             }
             if (!branches.containsKey(student.branchId())) {
                 throw new IllegalStateException("시연 학생의 지점이 없습니다: " + student.studentId());
+            }
+            School previous = schoolsById.putIfAbsent(student.school().schoolId(), student.school());
+            if (previous != null && !previous.equals(student.school())) {
+                throw new IllegalStateException("같은 학교 키의 이름·학교알리미 학교가 다릅니다: " + student.school().schoolId());
+            }
+            if ((student.school().schoolinfoSchoolId() == null) != (student.school().address() == null)) {
+                throw new IllegalStateException("학교알리미 학교 고정은 고유 ID와 주소가 함께 있어야 합니다: " + student.school().schoolId());
             }
             String seat = student.school().schoolId() + "|" + student.grade() + "|" + student.schoolClassNumber() + "|"
                     + student.schoolStudentNumber();
@@ -123,6 +163,12 @@ public class DemoRoster {
     }
 
     /** 명단 학생이 소속된 합성 학교 (A18 학년별 시연 슬롯용). 명단에 없는 학교는 empty — 학교를 만들지 않는다. */
+    /** A28-10: 이 학교알리미 학교를 고정한 시연 학교 키 */
+    public Optional<String> pinnedSchoolId(String schoolinfoSchoolId) {
+        return students.values().stream().map(Student::school).filter(s -> schoolinfoSchoolId.equals(s.schoolinfoSchoolId()))
+                .map(School::schoolId).sorted().findFirst();
+    }
+
     public Optional<School> school(String schoolId) {
         return students.values().stream().map(Student::school).filter(s -> s.schoolId().equals(schoolId)).findFirst();
     }

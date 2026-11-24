@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { pickResultSubject } from '../reviewUi.ts'
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { ADMIN, ADMIN_ID, API, PLANS, STUDENT_ID, runTag, uniquePdf } from '../support.ts'
 
@@ -27,14 +28,12 @@ async function importAnalysis(request: APIRequestContext, doc: { planId: string;
   return (await response.json()).analysisId as string
 }
 
-async function openArchiveDoc(page: import('@playwright/test').Page, fileName: string) {
-  await page.goto(`${ADMIN}/assessment/evaluation-plans`)
-  await page.getByTestId('open-plan-archive').click()
-  await expect(page.getByTestId('plan-archive')).toBeVisible({ timeout: 30_000 })
-  await page.getByTestId('archive-school').selectOption('school_001')
-  await page.getByTestId('archive-years').getByTestId('archive-year-2026').click()
-  await page.getByTestId('archive-docs').getByTestId('archive-doc').filter({ hasText: fileName }).click()
-  await expect(page.getByTestId('archive-detail').getByRole('heading', { name: fileName })).toBeVisible()
+// A27-UX 관리자 UI 개선([08]): '학년도별 열람' 화면 제거 — 문서 상세는 분석 결과 조회(원문 고정 2패널)에서 연다.
+// 근거 위치는 Modal이 아니라 왼쪽 원문 패널(review-source-pane)이 그 위치로 이동한다.
+async function openArchiveDoc(page: import('@playwright/test').Page, doc: { planId: string; revisionId: string }, fileName: string) {
+  await page.goto(`${ADMIN}/assessment/analysis/${doc.planId}/revisions/${doc.revisionId}/result`)
+  await expect(page.getByTestId('archive-detail')).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByTestId('plan-result-head')).toContainText(fileName)
 }
 
 test('HWP·HWPX 원문을 앱 안에서 직접 열고, 분석 근거 위치(칸)를 정확히 표시한다', async ({ page, request }) => {
@@ -43,34 +42,32 @@ test('HWP·HWPX 원문을 앱 안에서 직접 열고, 분석 근거 위치(칸)
   const hwpName = `e2e-structure-hwp-${tag}.hwp`
   const hwpxDoc = await register(request, hwpxName, hwpx)
   await importAnalysis(request, hwpxDoc, hwpxImport)
-  await register(request, hwpName, hwp)
+  const hwpDoc = await register(request, hwpName, hwp)
 
   // HWPX: 수행평가 근거 위치 → 구조 미리보기에서 그 칸만 강조
-  await openArchiveDoc(page, hwpxName)
+  await openArchiveDoc(page, hwpxDoc, hwpxName)
   await expect(page.getByTestId('archive-item-detail')).toContainText('탐구 보고서')
   await page.getByTestId('archive-item-detail').getByTestId('archive-locator-link').first().click()
-  const dialog = page.getByRole('dialog')
-  await expect(dialog.getByTestId('structure-viewer')).toBeVisible()
-  await expect(dialog.getByTestId('archive-hwp-notice')).toContainText('분석용 구조')
+  const pane = page.getByTestId('review-source-pane')
+  await expect(pane.getByTestId('structure-viewer')).toBeVisible()
   // 근거 위치로 이동하면 변환 PDF 쪽을 추측하지 않고 '분석용 구조' 탭이 열린다(A25)
-  await expect(dialog.getByTestId('plan-converted-tab-structure')).toHaveAttribute('aria-selected', 'true')
-  const focused = dialog.locator('[data-focused="true"]')
+  await expect(pane.getByTestId('plan-converted-tab-structure')).toHaveAttribute('aria-selected', 'true')
+  const focused = pane.locator('[data-focused="true"]')
   await expect(focused).toHaveCount(1)
   await expect(focused).toHaveText('탐구 보고서')
-  await expect(dialog.getByTestId('structure-focus-missing')).toHaveCount(0)
+  await expect(pane.getByTestId('structure-focus-missing')).toHaveCount(0)
   await page.screenshot({ path: 'test-results/a10-hwpx-locator-1536.png' })
-  await dialog.getByRole('button', { name: '닫기' }).last().click()
 
   // HWP: 분석 없이도 원문 보기 → 병합 칸이 있는 표와 찾기
-  await openArchiveDoc(page, hwpName)
-  await page.getByTestId('archive-open-original').click()
-  // A25: 기본은 'PDF 미리보기' 탭. 이 E2E Backend에는 변환기가 없어(기본 none) 415 안내 + 원본 내려받기가 보인다
-  const converted = page.getByRole('dialog').getByTestId('plan-converted-error')
+  await openArchiveDoc(page, hwpDoc, hwpName)
+  // A25: 기본은 'PDF 미리보기' 탭. 이 E2E Backend에는 변환기가 없어(기본 none) 415 안내 + 원본 내려받기가 보인다 (왼쪽 원문 패널)
+  const hwpPane = page.getByTestId('review-source-pane')
+  const converted = hwpPane.getByTestId('plan-converted-error')
   await expect(converted).toHaveAttribute('data-status', '415')
   await expect(converted).toContainText('변환기가 설정되지 않았어요')
-  await expect(page.getByRole('dialog').getByTestId('plan-converted-download')).toBeVisible()
-  await page.getByRole('dialog').getByTestId('plan-converted-tab-structure').click()
-  const viewer = page.getByRole('dialog').getByTestId('structure-viewer')
+  await expect(hwpPane.getByTestId('plan-converted-download')).toBeVisible()
+  await hwpPane.getByTestId('plan-converted-tab-structure').click()
+  const viewer = hwpPane.getByTestId('structure-viewer')
   await expect(viewer).toBeVisible()
   await expect(viewer).toHaveAttribute('data-format', 'HWP')
   await expect(viewer.locator('td[colspan="2"]').first()).toContainText('지필평가')
@@ -145,11 +142,11 @@ test('다과목 PDF: 확정한 과목에만 확정값이 붙고, 새로고침·�
   })
   expect(confirm.status()).toBe(200)
 
-  await openArchiveDoc(page, fileName)
-  const subjects = page.getByTestId('archive-subject')
-  await expect(subjects).toHaveCount(3)
+  await openArchiveDoc(page, doc, fileName)
+  // A27-UX [06]: 단일 과목 선택(검색형) — 3과목, 고른 과목에 하위 탭이 맞춰진다
+  await expect(page.getByTestId('result-subject-count')).toHaveText('과목 1/3')
   const overviewConfirmed = async (index: number) => {
-    await subjects.nth(index).click()
+    await pickResultSubject(page, index)
     await page.getByTestId('archive-tab-overview').click()
     return page.getByTestId('archive-overview').locator('[data-state="confirmed"]')
   }

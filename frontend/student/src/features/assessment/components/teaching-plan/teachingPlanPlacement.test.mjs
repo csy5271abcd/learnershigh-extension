@@ -1,7 +1,7 @@
 // A26 월별 운영계획 주차 임시 배치 시험 (node --test, Node 22 타입 제거로 .ts를 직접 읽는다). 합성 계획만 쓴다.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { entryFromRow, placeEntries } from './teachingPlanPlacement.ts'
+import { calendarYear, entryFromRow, monthsOf, placeEntries, semesterMonths } from './teachingPlanPlacement.ts'
 
 let seq = 0
 const entry = (subjectName, schedule, extra = {}) =>
@@ -91,4 +91,79 @@ test('원문 시기 값은 바뀌지 않는다(표시용 계산만)', () => {
   const before = JSON.stringify(original)
   placeEntries([original], 2026, 3)
   assert.equal(JSON.stringify(original), before)
+})
+
+test('A28-36 학기 월: 1학기 3~8월, 2학기 8~12월 + 다음 해 1월(2월 제외), 1월 연도 = 학년도 + 1', () => {
+  assert.deepEqual(semesterMonths(1), [3, 4, 5, 6, 7, 8])
+  assert.deepEqual(semesterMonths(2), [8, 9, 10, 11, 12, 1])
+  assert.ok(!semesterMonths(2).includes(2))
+  assert.equal(calendarYear(2026, 8), 2026)
+  assert.equal(calendarYear(2026, 12), 2026)
+  assert.equal(calendarYear(2026, 1), 2027)
+  assert.equal(calendarYear(2027, 1), 2028)
+  assert.equal(calendarYear(2026, 2), null)
+})
+
+test('A28-36 2026-12 → 2027-01 경계: 1월 1주는 2027년 1월 달력 첫 줄 안, 1월 날짜 원문은 2027년 칸', () => {
+  const jan = entry('국어', week(1, 1))
+  const placement = placeEntries([jan], 2026, 1)
+  assert.equal(placement.year, 2027)
+  const [day] = daysOf(placement, jan.id)
+  assert.match(day, /^2027-01-0[1-3]$/, '2027-01-01 은 금요일 → 첫 줄 1~2일(평일 금)')
+  const dated = entry('수학', { precision: 'EXACT_DATE', monthFrom: 1, dateFrom: { year: null, month: 1, day: 8 } })
+  assert.equal(dated.dateFrom, '2027-01-08')
+  const dec = placeEntries([entry('영어', week(12, 5))], 2026, 12)
+  assert.equal(dec.year, 2026)
+})
+
+test('A28-36 2학기 8월 운영계획은 2학기 달에 들고, 2월 행은 2학기 밖', () => {
+  const aug = entry('과학', week(8, 4))
+  const feb = entry('과학', { precision: 'MONTH', monthFrom: 2 })
+  const months = semesterMonths(2)
+  assert.ok(monthsOf(aug).some((m) => months.includes(m)), '8월은 2학기 안')
+  assert.ok(!monthsOf(feb).some((m) => months.includes(m)), '2월은 2학기 밖')
+  const placement = placeEntries([aug], 2026, 8)
+  assert.equal(placement.year, 2026)
+  assert.equal(daysOf(placement, aug.id).length, 1)
+})
+
+// ---- A28-37: 주차 목록 보기 (이미지 01: 8월 25개인데 목록이 비던 결함) ----
+import { weekListGroups } from './teachingPlanPlacement.ts'
+
+const listCount = (groups) => groups.reduce((sum, group) => sum + group.entries.length, 0)
+
+test('A28-37: 8월 주차 행 25개가 달력에 임시 배치돼도 주차 목록에 25개 모두 원문 주차로 묶인다', () => {
+  const subjects = ['국어', '수학', '영어', '한국사', '통합사회']
+  const rows = Array.from({ length: 25 }, (_, index) => entry(subjects[index % 5], week(8, (index % 4) + 1)))
+  const placement = placeEntries(rows, 2026, 8)
+  assert.equal(placement.total, 25)
+  assert.equal(placement.weekBands.length, 0, '모두 달력 줄에 임시 배치됨(이전 목록이 비던 조건)')
+  const groups = weekListGroups(placement)
+  assert.equal(listCount(groups), 25, '목록 항목 수 = 달력 위 개수')
+  assert.deepEqual(groups.map((group) => group.label), ['8월 1주', '8월 2주', '8월 3주', '8월 4주'])
+  assert.equal(new Set(groups.flatMap((group) => group.entries.map((item) => item.id))).size, 25, '중복 없음')
+})
+
+test('A28-37: 월 전체·주 범위·이전 달에서 시작하는 기간·학기 주차·미확인이 각각 한 번씩, 순서대로', () => {
+  const whole = entry('국어', { precision: 'MONTH', monthFrom: 9 })
+  const span = entry('수학', week(9, 2, 3))
+  const single = entry('영어', week(9, 2))
+  const range = entry('과학', { precision: 'DATE_RANGE', monthFrom: 8, dateFrom: { year: null, month: 8, day: 28 }, dateTo: { year: null, month: 9, day: 4 } })
+  const exact = entry('음악', { precision: 'EXACT_DATE', monthFrom: 9, dateFrom: { year: null, month: 9, day: 16 } })
+  const term = entry('미술', { precision: 'TERM_WEEK', monthFrom: 9, weekFrom: 3, weekScope: 'TERM_SEQUENCE' })
+  const unknown = entry('정보', { precision: 'UNKNOWN', monthFrom: 9 })
+  const placement = placeEntries([whole, span, single, exact, term, unknown], 2026, 9)
+  const groups = weekListGroups(placement)
+  assert.equal(listCount(groups), placement.total)
+  assert.deepEqual(groups.map((group) => group.label), ['9월 전체', '9월 2주', '9월 2~3주', '9월 16일', '학기 3주차', '9월 · 날짜·주차 미확인'])
+  // 8월 화면: 8/28~9/4 기간은 8월 날짜 칸에서 한 번만
+  const august = weekListGroups(placeEntries([range], 2026, 8))
+  assert.equal(listCount(august), 1)
+  assert.equal(august[0].label, '8월 28일 ~ 9월 4일')
+})
+
+test('A28-37: 과목 필터로 모두 숨기면(입력 0개) 목록도 0개 — 빈 상태는 실제 0개일 때만', () => {
+  assert.equal(listCount(weekListGroups(placeEntries([], 2026, 8))), 0)
+  const only = entry('국어', week(8, 2))
+  assert.equal(listCount(weekListGroups(placeEntries([only], 2026, 9))), 0, '다른 달 행은 이 달 목록에 없다')
 })

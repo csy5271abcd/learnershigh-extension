@@ -298,3 +298,25 @@
 .rubricTable tbody th {
   font-weight: 600;
 }
+
+/* A27-UX 부록 K: 학교알리미 원본 Section (확정 평가 정보와 구분) */
+.official {
+  border: 1px solid var(--assessment-border, #e5e8eb);
+  border-radius: 12px;
+  background: #fff;
+  padding: 16px;
+  margin: 0 0 16px;
+  min-width: 0;
+}
+
+.officialCaption {
+  margin: 4px 0 8px;
+  font-size: 13px;
+  color: var(--assessment-muted, #6b7684);
+}
+
+.sectionTitle {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+}

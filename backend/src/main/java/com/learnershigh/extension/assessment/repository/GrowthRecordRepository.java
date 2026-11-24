@@ -14,4 +14,6 @@ public interface GrowthRecordRepository extends JpaRepository<GrowthRecord, Stri
     Optional<GrowthRecord> findByIdAndStudentIdAndDeletedAtIsNotNull(String id, String studentId);
 
     Optional<GrowthRecord> findByIdAndStudentIdAndDeletedAtIsNull(String id, String studentId);
+
+    boolean existsByStudentIdAndRelatedSourceTypeAndRelatedSourceId(String studentId, String relatedSourceType, String relatedSourceId);
 }

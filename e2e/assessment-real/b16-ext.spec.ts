@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
+import { chooseSubject, confirmThroughSteps } from '../assessment/reviewUi.ts'
 
 // A17: 실제 분석기(B16 v21.10-b16-dev) 응답으로 관리자 Wizard·채점기준 수정·확정·학생 화면을 확인한다.
 // 합성 Fixture가 아니다. 원문 글자는 단언 메시지·화면 캡처 외에는 출력하지 않는다(값 비교만).
@@ -68,7 +69,7 @@ test('F02455 실제 B16: 요소 배점·연결 확인 필요·원문 학년 표�
   await expect(cards.nth(target.si).getByTestId('review-subject-grades')).toHaveText(`원문 ${target.s.grades!.join('·')}학년`)
   await expect(page.getByTestId('review-subject-grade-conflict')).toHaveCount(0)
   const slot = (await (await request.get(`${PLANS}/${doc.planId}/subjects`, { headers: operator })).json()).items
-  await page.getByTestId(`review-subject-select-${target.si}`).selectOption(slot[0].subjectId)
+  await chooseSubject(page, `review-subject-select-${target.si}`, slot[0].subjectId)
 
   // 수행평가: 연결 확인 필요 배지(실제 linkReview)
   await page.getByTestId('review-step-performance-tab').click()
@@ -106,10 +107,7 @@ test('F02455 실제 B16: 요소 배점·연결 확인 필요·원문 학년 표�
 
   // 확정 (원문 대조 첨부 + 부분 분석 확인)
   await page.getByTestId('review-step-confirm-tab').click()
-  await page.getByTestId('review-local-pdf').setInputFiles({ name: doc.fileName, mimeType: 'application/pdf', buffer: doc.bytes })
-  await page.getByTestId('review-attest').check()
-  if (await page.getByTestId('review-partial-ack').count()) await page.getByTestId('review-partial-ack').check()
-  await page.getByTestId('review-confirm').click()
+  await confirmThroughSteps(page, { name: doc.fileName, mimeType: 'application/pdf', buffer: doc.bytes })
   await expect(page.getByTestId('review-confirmed')).toBeVisible({ timeout: 30_000 })
 
   // 저장값: 확정 채점표에 수정 배점·비운 배점(null), 연결 확인 표시는 확정값에 없음

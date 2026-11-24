@@ -3,9 +3,11 @@ import { toApiError, type ApiError } from '../api/apiError.ts'
 import { updateSchoolAssessment } from '../api/schoolAssessmentApi.ts'
 import type { SchoolAssessment, UpdateSchoolAssessmentRequest } from '../api/types.ts'
 import { isAssessmentReadOnlyView } from '../api/viewMode.ts'
+import { personalDetailsOf, personalDetailsPayload, submissionError, typeLabelError, weightError, type PersonalDetailsValue } from '../model/personalDetails.ts'
 import { AlertIcon } from './AssessmentIcons.tsx'
 import styles from './AddSchoolAssessmentModal.module.css'
 import { Modal } from './Modal.tsx'
+import { PersonalDetailsFields } from './PersonalDetailsFields.tsx'
 import { ReadOnlyBlockedModal } from './ReadOnlyBlockedModal.tsx'
 
 interface EditSchoolAssessmentModalProps {
@@ -14,56 +16,68 @@ interface EditSchoolAssessmentModalProps {
   onSaved: (updated: SchoolAssessment) => void
 }
 
-type FieldErrors = Partial<Record<'title' | 'description' | 'deadlineDate' | 'form', string>>
+type FieldErrors = Partial<Record<'title' | 'description' | 'deadlineDate' | 'evaluationDate' | 'weightPercent' | 'form', string>>
 
 const reasonMessages: Record<string, Record<string, string>> = {
   title: { required: '수행평가 이름을 입력해 주세요.', size: '이름이 너무 길어요.' },
-  description: { size: '설명이 너무 길어요.' },
+  description: { size: '수행 내용이 너무 길어요.' },
   deadlineDate: { format: '날짜 형식을 확인해 주세요.' },
+  evaluationDate: { format: '날짜 형식을 확인해 주세요.' },
+  weightPercent: { range: '0~100 사이 숫자로 입력해 주세요.', type: '0~100 사이 숫자로 입력해 주세요.' },
 }
 
-// ST-03 학생 개인 관리 정보 수정 (api-contract.md §12 PATCH). 바꿀 수 있는 값은 제목·설명·마감일뿐이다(C-3, Backend 기준).
-// 과목·상태·공식 평가 항목 참조(evaluationItemRef)는 이 화면에서 바꾸지 않는다.
-// 상세 응답(§12)에 설명이 없어 현재 설명을 미리 채울 수 없다. 그래서 학생이 "설명 바꾸기"를 켠 경우에만 설명을 보낸다
-// (보내지 않으면 서버의 기존 설명이 그대로 남는다). 바뀐 값만 PATCH로 보낸다.
+const fromAssessment = (assessment: SchoolAssessment): PersonalDetailsValue => personalDetailsOf(assessment)
+
+// ST-03 학생 개인 관리 정보 수정 (api-contract.md §12 PATCH, A27-UX 확장).
+// 이름·평가 유형·평가일·제출 마감·반영 비율·제출물·수행 내용·개인 메모를 바꾼다. 과목·평가계획서 연결은 바꾸지 않는다.
+// 진행 상태는 상세 화면의 상태 선택(§13)에서 바꾼다(되돌리기 포함). 바뀐 값만 PATCH로 보낸다.
 function EditSchoolAssessmentForm({ assessment, onClose, onSaved }: EditSchoolAssessmentModalProps) {
-  const ids = { title: useId(), deadline: useId(), description: useId(), replace: useId() }
+  const ids = { title: useId() }
   const titleRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
+  const initial = fromAssessment(assessment)
   const [title, setTitle] = useState(assessment.title)
-  const [deadlineDate, setDeadlineDate] = useState(assessment.deadlineDate ?? '')
-  const [replaceDescription, setReplaceDescription] = useState(false)
-  const [description, setDescription] = useState('')
+  const [details, setDetails] = useState<PersonalDetailsValue>(initial)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
+  const [confirmingClose, setConfirmingClose] = useState(false)
 
   const trimmedTitle = title.trim()
+  const next = personalDetailsPayload(details)
+  const before = personalDetailsPayload(initial)
   const request: UpdateSchoolAssessmentRequest = {}
   if (trimmedTitle !== assessment.title) request.title = trimmedTitle
-  if ((deadlineDate || null) !== assessment.deadlineDate) request.deadlineDate = deadlineDate || null
-  if (replaceDescription) request.description = description.trim() || null
+  for (const key of Object.keys(next) as (keyof typeof next)[]) {
+    if (next[key] !== before[key]) (request as Record<string, unknown>)[key] = next[key]
+  }
   const changed = Object.keys(request).length > 0
-  const canSubmit = changed && trimmedTitle !== '' && !submitting
+  const canSubmit = changed && trimmedTitle !== '' && !submitting && !weightError(details.weightPercent) && !typeLabelError(details) && !submissionError(details)
+
+  const requestClose = () => {
+    if (submitting) return
+    if (changed && !confirmingClose) {
+      setConfirmingClose(true)
+      return
+    }
+    onClose()
+  }
 
   const applyServerError = (error: ApiError) => {
     if (error.code === 'VALIDATION_ERROR') {
-      const next: FieldErrors = {}
+      const nextErrors: FieldErrors = {}
       for (const [field, reason] of Object.entries(error.fieldReasons())) {
-        if (field === 'title' || field === 'description' || field === 'deadlineDate') {
-          next[field] = reasonMessages[field]?.[reason] ?? `입력값을 확인해 주세요. (${reason})`
-        } else {
-          next.form = `${error.message} (${field}: ${reason})`
-        }
+        if (field in reasonMessages) nextErrors[field as keyof FieldErrors] = reasonMessages[field]?.[reason] ?? `입력값을 확인해 주세요. (${reason})`
+        else nextErrors.form = `${error.message} (${field})`
       }
-      setErrors(next)
-      if (next.title) titleRef.current?.focus()
+      setErrors(nextErrors)
+      if (nextErrors.title) titleRef.current?.focus()
       return
     }
     if (error.code === 'ASSESSMENT_NOT_FOUND') {
-      setErrors({ form: '이 수행평가를 찾을 수 없어요. 삭제되었거나 접근할 수 없는 수행평가예요. (ASSESSMENT_NOT_FOUND)' })
+      setErrors({ form: '이 수행평가를 찾을 수 없어요. 삭제되었거나 접근할 수 없는 수행평가예요.' })
       return
     }
-    setErrors({ form: `${error.message} 입력한 내용은 그대로 있어요. 다시 저장해 주세요. (${error.code})` })
+    setErrors({ form: `${error.message} 입력한 내용은 그대로 있어요. 다시 저장해 주세요.` })
   }
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -89,27 +103,31 @@ function EditSchoolAssessmentForm({ assessment, onClose, onSaved }: EditSchoolAs
 
   return (
     <Modal
-      title="평가 정보 수정"
-      description="내 수행평가의 이름·마감일·설명만 바꿀 수 있어요. 과목·진행 상태·평가계획서 연결은 바뀌지 않아요."
-      onRequestClose={() => !submitting && onClose()}
+      title="수행평가 정보 수정"
+      description="내 관리용 정보예요. 학교가 공개한 공식 평가정보는 바뀌지 않아요."
+      onRequestClose={requestClose}
       initialFocusRef={titleRef}
       footer={
-        <>
-          <button type="button" className={styles.ghostButton} onClick={onClose} disabled={submitting}>
-            취소
-          </button>
-          <button
-            type="submit"
-            form="edit-school-assessment-form"
-            className={styles.primaryButton}
-            disabled={!canSubmit}
-            aria-busy={submitting}
-            title={!changed ? '바뀐 내용이 없어요' : undefined}
-            data-testid="edit-assessment-save"
-          >
-            {submitting ? '저장 중…' : '저장'}
-          </button>
-        </>
+        confirmingClose ? (
+          <div className={styles.confirm} role="alert">
+            <span>저장하지 않은 내용이 사라져요. 닫을까요?</span>
+            <button type="button" className={styles.ghostButton} onClick={() => setConfirmingClose(false)}>
+              계속 작성
+            </button>
+            <button type="button" className={styles.dangerButton} onClick={onClose}>
+              닫기
+            </button>
+          </div>
+        ) : (
+          <>
+            <button type="button" className={styles.ghostButton} onClick={requestClose} disabled={submitting}>
+              취소
+            </button>
+            <button type="submit" form="edit-school-assessment-form" className={styles.primaryButton} disabled={!canSubmit} aria-busy={submitting} title={!changed ? '바뀐 내용이 없어요' : undefined} data-testid="edit-assessment-save">
+              {submitting ? '저장 중…' : '저장'}
+            </button>
+          </>
+        )
       }
     >
       <form id="edit-school-assessment-form" className={styles.form} noValidate onSubmit={onSubmit}>
@@ -133,76 +151,28 @@ function EditSchoolAssessmentForm({ assessment, onClose, onSaved }: EditSchoolAs
             required
             maxLength={200}
             aria-invalid={errors.title ? true : undefined}
-            aria-describedby={errors.title ? `${ids.title}-error` : undefined}
             disabled={submitting}
+            readOnly={Boolean(assessment.official)}
+            aria-describedby={assessment.official ? `${ids.title}-official` : undefined}
             onChange={(event) => {
               setTitle(event.target.value)
               if (errors.title) setErrors((previous) => ({ ...previous, title: undefined }))
             }}
           />
-          {errors.title && (
-            <p id={`${ids.title}-error`} className={styles.fieldError}>
-              {errors.title}
+          {errors.title && <p className={styles.fieldError}>{errors.title}</p>}
+          {/* A28-20: 학교 확정 수행평가의 이름은 학교 확정본 값이라 바꿀 수 없다(내 날짜·유형·메모는 바꿀 수 있음) */}
+          {assessment.official && (
+            <p id={`${ids.title}-official`} className={styles.hint}>
+              학교 확정 수행평가라 이름은 바꿀 수 없어요.
             </p>
           )}
         </div>
-        <div className={styles.field}>
-          <label htmlFor={ids.deadline} className={styles.label}>
-            제출 마감일
-          </label>
-          <input
-            id={ids.deadline}
-            type="date"
-            className={styles.input}
-            value={deadlineDate}
-            disabled={submitting}
-            aria-invalid={errors.deadlineDate ? true : undefined}
-            aria-describedby={`${ids.deadline}-hint`}
-            onChange={(event) => setDeadlineDate(event.target.value)}
-          />
-          <p id={`${ids.deadline}-hint`} className={errors.deadlineDate ? styles.fieldError : styles.hint}>
-            {errors.deadlineDate ?? '날짜를 지우고 저장하면 "날짜 미정"이 돼요.'}
-          </p>
-          {deadlineDate !== '' && (
-            <button type="button" className={styles.ghostButton} onClick={() => setDeadlineDate('')} disabled={submitting}>
-              날짜 미정으로 바꾸기
-            </button>
-          )}
-        </div>
-        <div className={styles.field}>
-          <label className={styles.label} htmlFor={ids.replace}>
-            <input
-              id={ids.replace}
-              type="checkbox"
-              checked={replaceDescription}
-              disabled={submitting}
-              onChange={(event) => setReplaceDescription(event.target.checked)}
-            />{' '}
-            설명 바꾸기
-          </label>
-          <p className={styles.hint}>
-            지금 저장된 설명은 이 화면에서 불러오지 못해요(서버 응답에 설명이 없음). 바꾸지 않으면 기존 설명이 그대로 남아요. 켜고 비워 두면 설명이 지워져요.
-          </p>
-          {replaceDescription && (
-            <>
-              <label htmlFor={ids.description} className="lh-visually-hidden">
-                새 설명
-              </label>
-              <textarea
-                id={ids.description}
-                className={styles.textarea}
-                value={description}
-                rows={3}
-                maxLength={2000}
-                placeholder="선생님이 안내한 내용이나 준비할 점을 적어 두세요"
-                disabled={submitting}
-                aria-invalid={errors.description ? true : undefined}
-                onChange={(event) => setDescription(event.target.value)}
-              />
-              {errors.description && <p className={styles.fieldError}>{errors.description}</p>}
-            </>
-          )}
-        </div>
+        <PersonalDetailsFields
+          value={details}
+          onChange={(patch) => setDetails((previous) => ({ ...previous, ...patch }))}
+          disabled={submitting}
+          errors={{ deadlineDate: errors.deadlineDate, evaluationDate: errors.evaluationDate, weightPercent: errors.weightPercent }}
+        />
       </form>
     </Modal>
   )
