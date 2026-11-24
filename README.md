@@ -46,80 +46,102 @@ learnershigh-extension/
 └── references/                   # 원본 및 디자인 참고 자료
 ```
 
-## 3. 로컬 실행 (Windows PowerShell)
+## 3. 로컬 실행 (Windows PowerShell — `main`)
 
-**필수 환경:** Node.js 22, npm, Java(Gradle 실행용 JDK 17 이상 / Backend Java 21 Toolchain), Docker Desktop, MySQL 8.4.
+**준비물:** Windows PowerShell, Docker Desktop, Node.js 22 및 npm, JDK 21(Backend Java Toolchain). 아래 명령은 **기존 사용자 DB `lh_local_run`과 기존 Storage를 그대로 사용하는 로컬 개발/검증용**입니다. 실제 로그인·운영·배포는 1팀 담당입니다.
 
-아래는 **기존 로컬 데이터베이스 `lh_local_run`을 사용하는 경우의 예시**입니다. 새로운 PC나 초기 DB 설정은 [로컬 실행 가이드](docs/specs/suyeon/assessment-studentcare-local-run-guide.md)를 따르세요.
-
-### 3-1. MySQL 확인
+먼저 GitHub의 최신 `main` 코드가 `C:\learnershigh-main`에 체크아웃되어 있는지 확인합니다. 다른 경로에 내려받았다면 아래 `cd` 경로만 바꾸세요. 로컬 변경 사항이 없다면 최신 코드로 갱신할 수 있습니다.
 
 ```powershell
-docker ps --filter "name=lh-local-run-mysql"
-# 기존 컨테이너가 중지된 경우에만
+cd C:\learnershigh-main
+git branch --show-current          # main 확인
+git status --short                 # 로컬 변경 여부 확인
+# 변경이 없을 때만: git pull --ff-only origin main
+```
+
+### 3-1. 기존 MySQL 시작
+
+```powershell
+docker ps --filter 'name=^lh-local-run-mysql$' --format '{{.Names}}'
+# 컨테이너가 중지되어 있을 때만 실행
 docker start lh-local-run-mysql
 ```
 
-기존 `lh-local-run-mysql`은 `127.0.0.1:33307`, DB는 `lh_local_run`을 사용합니다. **기존 데이터와 Storage를 보존**하세요. 컨테이너·볼륨을 새로 생성하거나 지우지 마세요.
+기존 컨테이너는 `127.0.0.1:33307`, DB는 `lh_local_run`입니다. 이미 실행 중이면 `docker start`는 생략합니다. **컨테이너·볼륨을 새로 만들거나 삭제하지 마세요.**
 
-### 3-2. Backend — 터미널 1
+### 3-2. Backend — PowerShell 창 1
+
+기존 `C:\learnershigh-local-run\start-backend.ps1`과 같은 방식으로 **Docker 컨테이너 환경 변수에서 DB 계정·암호를 읽습니다.** 암호를 입력하거나 README·설정 파일에 기록할 필요가 없습니다.
 
 ```powershell
-cd .\backend
+# 최신 main Backend
+cd C:\learnershigh-main\backend
 
-$env:DB_URL = "jdbc:mysql://127.0.0.1:33307/lh_local_run"
-$env:DB_USERNAME = "lhlocal"
-$securePassword = Read-Host "기존 DB 비밀번호" -AsSecureString
-$env:DB_PASSWORD = [System.Net.NetworkCredential]::new("", $securePassword).Password
+# 기존 DB 연결
+$env:DB_URL = 'jdbc:mysql://127.0.0.1:33307/lh_local_run?serverTimezone=Asia/Seoul&characterEncoding=UTF-8'
+$env:DB_USERNAME = (docker exec lh-local-run-mysql printenv MYSQL_USER | Out-String).Trim()
+$env:DB_PASSWORD = (docker exec lh-local-run-mysql printenv MYSQL_PASSWORD | Out-String).Trim()
+if (-not $env:DB_USERNAME -or -not $env:DB_PASSWORD) {
+    throw 'MySQL 계정 정보를 읽지 못했습니다. Docker 컨테이너 상태를 확인하세요.'
+}
 
-$env:SPRING_PROFILES_ACTIVE = "local-run,care-demo"
-$env:ASSESSMENT_DEMO_ROSTER_ENABLED = "true"
-$env:LEARNERSHIGH_MOCK_DATABASE_EXAMPLES = "true"
-$env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED = "false"
-$env:ASSESSMENT_ANALYZER_MODE = "local"
+# 기존 평가계획서·학생·학교 데이터와 첨부파일 보존
+$env:ASSESSMENT_DEMO_ROSTER_ENABLED = 'true'
+$env:ASSESSMENT_STORAGE_ROOT = Join-Path $env:USERPROFILE '.learnershigh-extension\local-run-storage'
+$env:ASSESSMENT_ANALYZER_MODE = 'local'
+$env:LEARNERSHIGH_TEST_ENDPOINTS_ENABLED = 'false'
 
-# 중요: 이미 사용 중인 Storage의 실제 경로와 일치시켜야 합니다.
-$env:ASSESSMENT_STORAGE_ROOT = "$env:USERPROFILE\.learnershigh-extension\local-run-storage"
-
-.\gradlew.bat bootRun --console=plain
+# local-run 프로필, 8080 포트
+Remove-Item Env:NoDefaultCurrentDirectoryInExePath -ErrorAction SilentlyContinue
+.\gradlew.bat --no-daemon bootRun --args='--spring.profiles.active=local-run'
 ```
 
-Backend: **http://localhost:8080**
+성공하면 `Tomcat started on port 8080`과 `Started ...Application` 로그가 표시됩니다. API 주소는 **http://localhost:8080**입니다. 이미 8080을 사용하는 이전 Backend가 있다면 기존 PowerShell 창에서 `Ctrl+C`로 종료한 후 실행하세요.
 
-`ASSESSMENT_STORAGE_ROOT`가 기존 실행 스크립트의 경로와 다르면 저장된 파일을 못 찾을 수 있습니다. 실행 전에 본인 환경의 기존 설정을 확인하세요. Backend 시작 시 Flyway가 적용되지 않은 Migration을 실행할 수 있으므로 **DB 백업 및 Migration 상태 확인**이 선행되어야 합니다.
+**DB/데이터 주의:** `application.yml`의 `DB_URL`·`DB_USERNAME`·`DB_PASSWORD`는 실행 시 환경 변수로 받습니다. 위 설정은 이 PowerShell 세션에만 적용됩니다(영구 환경 변수 변경 없음). Backend 시작 시 Flyway가 **미적용 Migration을 자동 적용할 수 있으므로** 새 버전 실행 전 DB 백업·Migration 이력을 확인하세요. 기존 원본과 학생 데이터를 초기화하지 마세요.
 
 ### 3-3. Frontend 의존성 — 최초 1회
 
 ```powershell
-cd .\frontend
+cd C:\learnershigh-main\frontend
 npm ci
 ```
 
-### 3-4. 관리자 — 터미널 2
+학생·관리자 두 앱은 npm workspace를 공유하므로 `frontend`에서 한 번 설치합니다.
+
+### 3-4. 관리자 — PowerShell 창 2
 
 ```powershell
-cd .\frontend\admin
-$env:VITE_ASSESSMENT_DATA_SOURCE = "http"
-$env:VITE_API_TARGET = "http://localhost:8080"
-$env:VITE_ASSESSMENT_DEV_ADMIN_ID = "adm_demo_b01"
+cd C:\learnershigh-main\frontend\admin
+$env:VITE_ASSESSMENT_DATA_SOURCE = 'http'
+$env:VITE_API_TARGET = 'http://localhost:8080'
+$env:VITE_ASSESSMENT_DEV_ADMIN_ID = 'adm_demo_b01'
 npm run dev
 ```
 
-관리자: **http://localhost:5174/assessment** (루트 `/`는 Student Care 화면)
+관리자 Assessment: **http://localhost:5174/assessment** (루트 `/`는 Student Care 화면). `adm_demo_b01`은 로컬 시연용 관리자이며 실제 운영 로그인 계정이 아닙니다.
 
-### 3-5. 학생 — 터미널 3
+### 3-5. 학생 — PowerShell 창 3
 
 ```powershell
-cd .\frontend\student
-$env:VITE_ASSESSMENT_DATA_SOURCE = "http"
-$env:VITE_API_TARGET = "http://localhost:8080"
-$env:VITE_ASSESSMENT_DEV_STUDENT_ID = "stu_demo_073"
+cd C:\learnershigh-main\frontend\student
+$env:VITE_ASSESSMENT_DATA_SOURCE = 'http'
+$env:VITE_API_TARGET = 'http://localhost:8080'
+$env:VITE_ASSESSMENT_DEV_STUDENT_ID = 'stu_demo_073'
 npm run dev
 ```
 
-학생: **http://localhost:5173/assessment**
+학생 Assessment: **http://localhost:5173/assessment**. `stu_demo_073`은 시연용 학생 ID이며, 본인의 로컬 DB에 맞는 ID로 변경할 수 있습니다. 두 앱의 개발 서버는 `/api` 요청을 Backend 8080으로 프록시합니다.
 
-**주의:** 각 명령은 **저장소 루트**를 기준으로 해당 디렉터리에서 실행합니다. 위 `cd .\backend` / `cd .\frontend` 등은 루트에서 시작하는 경우의 예시입니다. 실제 시연 데이터·계정 ID·환경 변수는 본인 로컬 DB에 맞춰 설정하세요. Frontend 개발 서버는 `/api` 요청을 8080으로 프록시합니다.
+### 3-6. 종료 및 확인
+
+| 구성 | 경로/주소 | 종료 방법 |
+|---|---|---|
+| Backend | `C:\learnershigh-main\backend` · `http://localhost:8080` | Backend PowerShell에서 `Ctrl+C` |
+| 관리자 | `C:\learnershigh-main\frontend\admin` · `http://localhost:5174/assessment` | 관리자 PowerShell에서 `Ctrl+C` |
+| 학생 | `C:\learnershigh-main\frontend\student` · `http://localhost:5173/assessment` | 학생 PowerShell에서 `Ctrl+C` |
+
+**주의:** 이 실행 절차는 로컬 시연 DB·개발용 Header를 사용합니다. 운영 환경의 실제 인증·권한·배포는 별도로 1팀에서 통합해야 합니다. 새로운 PC에서 DB를 처음 생성하는 경우에만 [상세 로컬 실행 가이드](docs/specs/suyeon/assessment-studentcare-local-run-guide.md)를 참고하되, 기존 사용자 DB에 새 DB 생성·시드·초기화 명령을 실행하지 마세요.
 
 ## 4. 테스트·검증
 
