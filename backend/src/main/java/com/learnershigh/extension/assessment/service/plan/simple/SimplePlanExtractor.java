@@ -52,6 +52,21 @@ public final class SimplePlanExtractor {
             if (r == null) {
                 continue;
             }
+            if (!r.tasks.isEmpty() && r.nameLabel != null && Words.has("areaLabel", r.nameLabel)) {
+                // 요약 표의 '교육과정 영역' 행은 과제 이름이 아닐 수 있다: 뒤따르는 과제 표의 합이 수행 비율과 같으면 그 이름을 쓴다
+                List<Grid.Task> fromList = TaskListBranch.read(tables, i + 1, r.perf, other);
+                if (fromList != null) {
+                    r = r.withTasks(fromList);
+                }
+            }
+            if (r.exam != null && r.exam > 0 && r.exam < 100 && r.perf != null && !Grid.eq(r.exam + r.perf, 100)) {
+                // 요약 표의 수행 칸이 일부만 있는 경우: 지필을 뺀 나머지가 뒤의 과제 목록 합과 맞으면 그 목록을 쓴다
+                List<Grid.Task> fromList = TaskListBranch.read(tables, i + 1, 100 - r.exam, other);
+                if (fromList != null) {
+                    r = r.withTasks(fromList);
+                    r.perf = 100 - r.exam;
+                }
+            }
             if (r.tasks.isEmpty() && r.perf != null && r.perf > 0) {
                 List<Grid.Task> fromList = TaskListBranch.read(tables, i + 1, r.perf, other);
                 if (fromList != null) {
@@ -158,7 +173,15 @@ public final class SimplePlanExtractor {
             check.add("항목 이름 확인");
         }
         s.check = check;
-        s.exams = r.exam != null && r.exam > 0 ? ExamRules.exams(t.cells(), r.exam) : List.of();
+        s.exams = r.exam != null && r.exam > 0 && r.exam <= 100 ? ExamRules.exams(t.cells(), r.exam) : List.of();
+        // 100을 넘는 비율은 잘못 읽은 값이다: 값을 비우고 확인 필요로 넘긴다 (저장 계약은 0~100만 받는다)
+        if (s.examPercent != null && s.examPercent > 100) {
+            s.examPercent = null;
+        }
+        if (s.performancePercent != null && s.performancePercent > 100) {
+            s.performancePercent = null;
+        }
+        s.items.removeIf(it -> it.weightPercent() != null && it.weightPercent() > 100);
         return s;
     }
 }

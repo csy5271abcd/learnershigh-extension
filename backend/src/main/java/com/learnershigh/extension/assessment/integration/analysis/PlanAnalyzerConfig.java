@@ -29,6 +29,8 @@ public class PlanAnalyzerConfig {
             @Value("${assessment.analyzer.timeout-millis:130000}") long timeoutMillis,
             @Value("${assessment.analyzer.ocr:auto}") String ocrMode,
             @Value("${assessment.analyzer.extractor:rules}") String extractor,
+            @Value("${assessment.analyzer.llm-fallback:none}") String llmFallback,
+            @Value("${assessment.analyzer.gemini-model:}") String geminiModel,
             JsonMapper mapper) {
         if ("none".equalsIgnoreCase(mode)) {
             return new UnconfiguredPlanAnalyzerClient();
@@ -41,6 +43,17 @@ public class PlanAnalyzerConfig {
         // 추출 규칙: rules(기본, extract/) 또는 simple(큰 틀 하나, simple/ — 시험 중)
         boolean simple = "simple".equalsIgnoreCase(extractor);
         log.info("plan analyzer: local (ocr={}, extractor={})", ocr == null ? "none" : ocr.name(), simple ? "simple" : "rules");
-        return new LocalPlanAnalyzer(mapper, timeoutMillis, ocr, simple);
+        // 규칙으로 확정 못 한 과목만 Gemini로 다시 읽기 (기본 꺼짐). 키는 환경 변수 GEMINI_API_KEY 로만 받는다
+        com.learnershigh.extension.assessment.service.plan.PlanTaskRefiner refiner = null;
+        String key = System.getenv("GEMINI_API_KEY");
+        if ("gemini".equalsIgnoreCase(llmFallback)) {
+            if (key == null || key.isBlank() || geminiModel.isBlank()) {
+                log.warn("plan analyzer: llm-fallback=gemini 이지만 GEMINI_API_KEY 또는 gemini-model 이 없어 끔");
+            } else {
+                refiner = new GeminiPlanTaskRefiner(java.net.http.HttpClient.newHttpClient(), mapper, key, geminiModel, java.time.Duration.ofSeconds(60));
+                log.info("plan analyzer: llm-fallback=gemini model={}", geminiModel);
+            }
+        }
+        return new LocalPlanAnalyzer(mapper, timeoutMillis, ocr, simple, refiner);
     }
 }

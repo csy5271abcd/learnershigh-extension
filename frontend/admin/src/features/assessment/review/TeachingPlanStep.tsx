@@ -335,7 +335,6 @@ export function TeachingPlanStep({
                     >
                       남은 {rows.filter((ref) => !decisionOf(keyOf(ref))).length}행 모두 확인
                     </button>
-                    <span className={styles.tiny}>원문과 대조한 뒤 누르세요. 행마다 수정·제외로 바꿀 수 있어요.</span>
                   </div>
                 )}
                 {subject.issues.length > 0 && (

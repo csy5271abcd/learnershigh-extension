@@ -92,6 +92,9 @@ class AccuracyDumpTest {
                     o.put("page", s.source != null ? s.source.page() : null);
                     ArrayNode check = o.putArray("check");
                     s.check.forEach(check::add);
+                    if (System.getenv("DUMP_SECTION") != null && !s.check.isEmpty() && s.source != null) {
+                        o.put("section", com.learnershigh.extension.assessment.service.plan.simple.SectionText.of(tables, s.source));
+                    }
                     ArrayNode items = o.putArray("items");
                     for (PlanExtractor.Item it : s.items) {
                         ObjectNode i = items.addObject();
@@ -103,6 +106,6 @@ class AccuracyDumpTest {
                 }
             }
         }
-        Files.writeString(Path.of(outFile), sb.toString());
+        Files.write(Path.of(outFile), sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 }

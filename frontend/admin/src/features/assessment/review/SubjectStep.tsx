@@ -41,10 +41,7 @@ export function SubjectStep({
   return (
     <div data-testid="review-step-subjects">
       <h3 className={styles.title}>과목 확인</h3>
-      <p className={styles.lead}>
-        확정할 과목을 학업 정보의 과목과 연결해 주세요. {choose ? '이 문서 학년·학기의 학업 과목 목록에서 골라요(이름이 비슷해도 자동으로 연결하지 않아요).' : '이 학년·학기의 학업 과목 목록을 받지 못해 과목 코드를 직접 입력해요(예: subj_02).'}
-        {view.analysisStatus === 'PARTIAL' && ' 원문 목차와 비교해 목록에 없는 과목이 있으면 원문에서 직접 확인해 주세요.'}
-      </p>
+      {view.analysisStatus === 'PARTIAL' && <p className={styles.lead}>목록에 없는 과목은 원문에서 확인해 주세요.</p>}
       <ul className={styles.rows}>
         {view.subjects.map((subject, index) => {
           const subjectFields = fields.filter((field) => field.subjectIndex === index)

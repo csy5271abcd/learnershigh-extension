@@ -55,6 +55,8 @@ final class Words {
     private static final Pattern PAREN_PCT = Pattern.compile("[(（]\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*%\\s*[)）]");
     private static final Pattern PCT = Pattern.compile("(\\d{1,3}(?:\\.\\d+)?)\\s*%");
     private static final Pattern BARE = Pattern.compile("^\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*(점)?\\s*$");
+    /** '5 (5)'처럼 비율 뒤에 괄호 숫자(서·논술형 몫 등)가 붙은 칸: 앞 숫자. */
+    private static final Pattern LEAD = Pattern.compile("^\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*(점)?\\s*[(（]\\s*\\d{1,3}(?:\\.\\d+)?\\s*[)）]\\s*$");
 
     /** 칸의 비율 값: '20점(20%)' → 20, '25%' → 25, '25' → 25. 아니면 null. */
     static Double pct(String s) {
@@ -67,7 +69,10 @@ final class Words {
             if (!m.find()) {
                 m = BARE.matcher(s);
                 if (!m.find()) {
-                    return null;
+                    m = LEAD.matcher(s);
+                    if (!m.find()) {
+                        return null;
+                    }
                 }
             }
         }

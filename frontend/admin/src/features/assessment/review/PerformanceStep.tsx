@@ -120,7 +120,6 @@ export function PerformanceStep({ view, selection, onSelect, decisions, onDecide
                     {subject.subjectName} 남은 후보 {subjectLeft}개 그대로 확인
                   </button>
                 )}
-                <span className={styles.tiny} style={{ alignSelf: 'center' }}>원문과 대조한 뒤 누르세요. 확인 뒤에도 칸마다 수정·취소할 수 있어요.</span>
               </div>
             )}
 

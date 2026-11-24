@@ -83,7 +83,9 @@ final class Grid {
             boolean ratioLabel = Words.has("ratioLabel", label);
             // 머리 없는 % 행은 비율 행이지만, '정기 시험 (60%) | 수행 평가 (40%)' 같은 칸 종류 머리 행은 아니다
             String row = String.join(" ", g.get(r));
-            if (numbers(g, r, cols) >= 1 && (ratioLabel || !Words.has("nameLabel", label) && row.contains("%") && !Words.has("perf", row))) {
+            // 머리 없는 % 행은 숫자 칸이 둘 이상일 때만 (병합된 '학기말 총 100%' 합계 칸 하나 때문에 머리 행이 비율 행이 되지 않게)
+            int n = numbers(g, r, cols);
+            if (n >= 1 && (ratioLabel || n >= 2 && !Words.has("nameLabel", label) && row.contains("%") && !Words.has("perf", row))) {
                 ratioRows.add(r);
             }
         }

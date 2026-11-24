@@ -78,7 +78,7 @@ final class TaskListBranch {
             for (int c = 0; c + 1 < r.size(); c++) {
                 String next = r.get(c + 1);
                 if (name == null && Words.has("taskHead", r.get(c)) && !Words.has("taskHead", next)) {
-                    name = next.strip();
+                    name = next.strip().replaceFirst("^과제\\s*\\d+\\s*[.):]\\s*", "");   // '과제1. 주체적으로…' → '주체적으로…'
                 } else if (v == null && Words.has("ratioLabel", r.get(c))) {
                     v = Words.pct(next);
                 }

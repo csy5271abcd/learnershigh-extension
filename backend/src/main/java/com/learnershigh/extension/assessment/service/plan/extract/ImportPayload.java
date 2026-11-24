@@ -31,6 +31,7 @@ public final class ImportPayload {
         out.put("source", source);
         List<Map<String, Object>> subs = new ArrayList<>();
         Map<String, List<List<Integer>>> byName = new LinkedHashMap<>();
+        List<String> warnings = new ArrayList<>();
         for (PlanExtractor.Subject s : subjects) {
             if (s.examPercent == null && s.performancePercent == null && s.items.isEmpty()) {
                 continue;
@@ -43,13 +44,16 @@ public final class ImportPayload {
             }
             same.add(gs);
             subs.add(subject(s, format, contract03, subs.size() + 1));
+            if (!s.check.isEmpty() && warnings.size() < 100) {
+                warnings.add(trim(s.name.strip() + ": " + String.join(", ", s.check), 500));   // 추출기가 확정하지 못한 이유
+            }
         }
         out.put("status", subs.isEmpty() ? "FAILED" : "REVIEW_REQUIRED");
         if (subs.isEmpty()) {
             out.put("failureReason", contract03 ? "NO_ASSESSMENTS_EXTRACTED" : "평가 비율 표를 찾지 못했습니다");
         }
         out.put("subjects", subs);
-        out.put("warnings", List.of());
+        out.put("warnings", warnings);
         return out;
     }
 

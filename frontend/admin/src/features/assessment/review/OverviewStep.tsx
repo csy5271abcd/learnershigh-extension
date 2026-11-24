@@ -14,7 +14,6 @@ export function OverviewStep({ view, draft, onNext }: { view: EvaluationPlanAnal
   return (
     <div data-testid="review-step-overview">
       <h3 className={styles.title}>분석 결과 확인</h3>
-      <p className={styles.lead}>분석기가 읽은 내용을 확인하고 과목 → 수행평가 순서로 원문과 대조해요. 언제든 앞 단계로 돌아갈 수 있어요.</p>
 
       <dl className={styles.facts} aria-label="분석 결과">
         <div>

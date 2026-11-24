@@ -60,7 +60,7 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
   const planOperable = (selectedSchool as { planOperable?: boolean } | undefined)?.planOperable !== false
   const years = useRemote(() => (schoolId && planOperable ? listPlanYears(schoolId) : Promise.resolve([])), [schoolId, planOperable])
   const yearList = years.state.status === 'success' ? years.state.data : []
-  const year = Number(search.get('year') ?? '') || yearList[0]
+  const year = Number(search.get('year') ?? '') || yearList[0] || (years.state.status === 'success' ? devCurrentTerm().academicYear : undefined)
   const plans = useRemote(() => (schoolId && year && planOperable ? listEvaluationPlans({ schoolId, academicYear: year }) : Promise.resolve({ items: [] })), [schoolId, year, planOperable])
   const gradeFilter = Number(search.get('grade') ?? '') || null
   const semesterFilter = Number(search.get('semester') ?? '') || null
@@ -190,11 +190,8 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
         </div>
       </div>
       <p className={review.sourceNote}>
-        <span data-testid="plans-school-coverage">
-          학교 목록은 담당 학생의 학교를 먼저, 그다음 평가계획서가 등록된 다른 학교를 보여 줘요. 전체 학교 목록(학교 Master)은 아직 연결되지 않았어요{registered.state.status === 'error' ? ' · 등록 학교를 불러오지 못했어요' : ''}.
-        </span>{' '}
-        다른 학교는 학교 코드로 열 수 있어요{' '}
-        <input className={review.input} style={{ width: 150, height: 30, fontSize: 12.5, marginLeft: 4 }} value={schoolCode} placeholder="학교 코드" aria-label="학교 코드로 열기" onChange={(event) => setSchoolCode(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && openCode()} />{' '}
+        {registered.state.status === 'error' && <span data-testid="plans-school-coverage">등록 학교를 불러오지 못했어요 · </span>}
+        <input className={review.input} style={{ width: 150, height: 30, fontSize: 12.5 }} value={schoolCode} placeholder="학교 코드" aria-label="학교 코드로 열기" onChange={(event) => setSchoolCode(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && openCode()} />{' '}
         <button type="button" className={review.link} onClick={openCode} disabled={!schoolCode.trim()}>
           열기
         </button>
@@ -211,7 +208,6 @@ export function EvaluationPlansRoute({ search }: { search: URLSearchParams }) {
       ) : !schoolId ? (
         <div className={review.empty}>
           <strong>학교를 골라 주세요</strong>
-          <span className={review.muted}>목록에 없는 학교는 위의 학교 코드로 열 수 있어요.</span>
         </div>
       ) : !planOperable ? (
         analyzerUpload ? (

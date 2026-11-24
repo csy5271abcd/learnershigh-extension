@@ -52,7 +52,7 @@ class PlanAnalyzerYamlConfigTest {
     void 알_수_없는_분석_방식은_기동하지_않는다() {
         PlanAnalyzerConfig config = new PlanAnalyzerConfig();
         JsonMapper mapper = JsonMapper.builder().build();
-        assertThat(config.planAnalyzerClient("none", 1000, "none", "rules", mapper).configured()).isFalse();
-        assertThatThrownBy(() -> config.planAnalyzerClient("http", 1000, "none", "rules", mapper)).isInstanceOf(IllegalStateException.class);
+        assertThat(config.planAnalyzerClient("none", 1000, "none", "rules", "none", "", mapper).configured()).isFalse();
+        assertThatThrownBy(() -> config.planAnalyzerClient("http", 1000, "none", "rules", "none", "", mapper)).isInstanceOf(IllegalStateException.class);
     }
 }
