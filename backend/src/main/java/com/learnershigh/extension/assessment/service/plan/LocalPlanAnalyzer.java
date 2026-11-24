@@ -35,7 +35,6 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
     };
     private final com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr;
     private final boolean simpleExtractor;
-    private final PlanTaskRefiner refiner;
 
     public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis) {
         this(mapper, timeoutMillis, null);
@@ -50,13 +49,6 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
     /** simpleExtractor: true 면 큰 틀 하나 추출기(simple/), false 면 기존 규칙 추출기(extract/). */
     public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis,
             com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr, boolean simpleExtractor) {
-        this(mapper, timeoutMillis, ocr, simpleExtractor, null);
-    }
-
-    /** refiner: 규칙으로 확정 못 한 과목만 다시 읽는 외부 모델(null 이면 안 씀). */
-    public LocalPlanAnalyzer(JsonMapper mapper, long timeoutMillis,
-            com.learnershigh.extension.assessment.service.plan.extract.ScanOcr.Engine ocr, boolean simpleExtractor, PlanTaskRefiner refiner) {
-        this.refiner = refiner;
         this.mapper = mapper;
         this.timeoutMillis = timeoutMillis;
         this.ocr = ocr;
@@ -79,7 +71,7 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
         String sha = sha256(bytes);
         boolean c03 = "0.3".equals(request.contract());
         // 같은 원문(여러 학년 공통 문서를 학년마다 등록할 때 등)은 다시 읽지 않는다 — 규칙이 같으면 결과도 같다
-        String key = sha + "|" + request.fileName() + "|" + request.contract() + "|" + request.analyzerVersion() + "|" + simpleExtractor + "|" + (refiner != null);
+        String key = sha + "|" + request.fileName() + "|" + request.contract() + "|" + request.analyzerVersion() + "|" + simpleExtractor;
         synchronized (recent) {
             Result hit = recent.get(key);
             if (hit != null) {
@@ -92,10 +84,6 @@ public class LocalPlanAnalyzer implements PlanAnalyzerClient {
             List<PlanExtractor.Subject> subjects = simpleExtractor
                     ? com.learnershigh.extension.assessment.service.plan.simple.SimplePlanExtractor.extract(tables, request.fileName(), "")
                     : PlanExtractor.extract(tables, request.fileName(), "");
-            if (refiner != null) {
-                int refined = PlanTaskRefiner.apply(refiner, tables, subjects);
-                log.info("plan extract refined={} of {}", refined, subjects.size());
-            }
             Integer pages = format == PlanDocumentFormat.PDF ? pageCount(bytes) : null;
             Map<String, Object> payload = ImportPayload.build(subjects, format, sha, pages, c03, request.analyzerVersion());
             boolean ok = "REVIEW_REQUIRED".equals(payload.get("status"));
