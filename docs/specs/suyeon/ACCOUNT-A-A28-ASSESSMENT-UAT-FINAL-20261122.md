@@ -1481,3 +1481,20 @@ E2E 실패 2건과 조치:
 | A28-53 휴지통 행 '복구' 옆 같은 모양 '영구 삭제'(§12-1 확인 창 재사용, 409 사유) | PASS |
 | 시험 | Node 201 · Unit 480 · IT 4/4 · E2E 전체 89/89 · REPLAY 8/8 · 사용자 DB/Storage 전후 동일 · Migration 없음 |
 | GitHub | 새 브랜치 `feature/a28-51-53-pdf-trash-uat` → integration 새 PR(자동 병합 안 함). main·PR #17 미변경 |
+
+---
+
+## 병합 후 상태 (2026-11-24 추가 — 위 본문은 작성 당시 기록으로 그대로 둔다)
+
+위 본문 각 회차 요약의 'PR #17·main 미병합'·'새 PR(자동 병합 안 함)' 같은 문구는 **각 회차 작성 시점의 사실**이다. 그 뒤 상태(2026-11-24 GitHub REST `pulls/{n}` 재조회):
+
+| PR | 상태 | merged_at (UTC) | merge commit |
+|---|---|---|---|
+| #18 (완규님 분석기·학교알리미 → integration) | merged | 2026-11-22T13:47:44Z | `b09ef4a` |
+| #19 (A28-29~50 → integration) | merged | 2026-11-23T21:19:03Z | `277047f` |
+| #20 (A28-51~53 → integration) | merged(Draft 에서 Ready 뒤 저장소 소유 계정이 병합) | 2026-11-23T22:46:43Z | `af593e9` |
+| #17 (integration → `main`) | merged | 2026-11-23T22:49:10Z | `5b9db4b` |
+
+- `main` = `5b9db4b`(부모 `c03a1a4`·`af593e9`), integration 과 **트리 동일**. 병합 전 `main` 이 integration 의 조상이라 충돌 해결 없는 병합이었다.
+- 증거 발생 시점 구분: 이 보고서 본문의 시험 수치는 병합 **전** 회차 실행이다. 병합 **후** `main` 기준 증거는 2026-11-24 병합 검증 회차(로컬 검증 증거 — 저장소 미포함 보고서 `POST-MERGE-MAIN-VERIFICATION-20261124.md`)에서 따로 얻었다: `main` CI run 45283275859 전부 success, main 과 코드가 같은 트리로 Backend 단위 480(실패 0)·Frontend verify PASS·Node 201/201·Assessment E2E 89/89·REPLAY 8/8, 사용자 DB Migration 31/31 체크섬 일치(추가 적용 없음).
+- 남은 상태: §20-1·§12-1 등 DRAFT 계약은 구현·병합됐지만 **팀 승인 전**. 간헐 실패 `SchoolInfoSelectionClassificationApiTest` 는 **미해결(Medium)**. 운영·배포·실제 로그인 연동은 1팀 담당. 정리 기록: `docs/specs/suyeon/POST-MERGE-DOCUMENT-CLEANUP-20261124.md`.

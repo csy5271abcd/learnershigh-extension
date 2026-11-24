@@ -6,6 +6,27 @@
 
 ---
 
+# 0. 현행 담당 (2026-11-24, `main` `5b9db4b` 기준 — 이 절이 아래 1~23절보다 우선)
+
+아래 1~23절은 2026-10 초기 설계 당시의 원칙·예시다. 그 뒤 기능 구성이 바뀌어, **현재 저장소에 실제로 있는 영역과 담당은 이 표가 기준**이다. 절차(Shared 변경·Cross-owner 요청·PR 원칙)는 1~23절 그대로 따른다.
+
+| 영역 | 현재 경로 | 담당 | 비고 |
+|---|---|---|---|
+| Assessment(수행평가·평가계획서·학교알리미·월별 운영계획·탐구 노트·피드백·보관함/휴지통·PDF 내보내기) | `frontend/student/src/features/assessment/` · `frontend/admin/src/features/assessment/` · `backend/.../assessment/` · `docs/specs/suyeon/` | **Suyeon** | 2026-11-17~24 A27·A28 회차 |
+| Assessment 평가계획서 분석기(서버 안 `local` 분석기·표 추출 규칙) 변경·정확도 개선 | `backend/.../assessment/integration/analysis/` · `backend/.../assessment/service/plan/extract/` | **Suyeon** | 2026-11-22 사용자 결정(A28-27). 서버 안 분석기·학교알리미 불러오기의 **원 작성·기여는 Wangyu(PR #18, `beans3142`)** — 기여 기록은 `docs/specs/suyeon/A28-27-PR18-COMPARISON.md`·`scripts/perf-assess-extract/**`·`docs/design/perf-assess-*` 에 보존 |
+| 학생 케어(Student Care) · 상담 | `frontend/admin/src/features/student-care/` · `backend/.../studentcare/` · `docs/specs/wangyu/` | **Wangyu** | 4절. Assessment 통합에서 코드 무변경(2026-11-24 검증) |
+| Shared | `docs/api/` · `docs/architecture/` · `database/migrations/` · 관리자·학생 App Shell(`frontend/admin/src/App.tsx`·`app/`, `frontend/student/src/app/`) · `backend/.../common/` · `e2e/` · CI | 두 담당 공동 | 6·15-3·18절 절차 |
+| **운영·배포·실제 로그인(Actor Provider) 연동** | (이 저장소 밖 · 배포 설정) | **1팀** | 두 담당의 문서·개발 범위 밖. 현재 인증은 개발용 Mock Header 뿐(`learnershigh.integration.mode: mock` — 기존 LearnersHigh 연동·인증 Open Decision API-OD-07·API-OD-A01 미결)이라 **운영 투입 전 1팀과 통합이 필요**하다. 이 문서는 인증 문제가 해결됐다고 보지 않는다 |
+
+**퇴역(legacy/retired) 영역** — 서비스에서 제거됐고 코드가 없다. 아래 3·10·20절의 해당 예시는 역사 기록으로만 읽는다.
+
+| 영역 | 제거 | 근거 |
+|---|---|---|
+| Mentor Hub · Mentor Surface(`frontend/mentor/`) · Admin Mentor 관리 | 2026-11-16 | `README.md`(A20), `docs/specs/suyeon/ACCOUNT-A-A20-…`, ADR-0001(초기 결정), 커밋 `6f148fa`·`edec4ea` |
+| School & Admissions · Admin Student Management · Parent Progress · Admin Feedback · Today Board | 2026-11-16 | `docs/specs/suyeon/ACCOUNT-A-A21-LEGACY-FULL-AUDIT-…`·`A22-LEGACY-CLEANUP-…`, 커밋 `70e25f5`·`1790cb4` |
+
+---
+
 # 1. 기본 원칙
 
 프로젝트는 두 명이 병렬 개발한다.
@@ -72,7 +93,9 @@ docs/OWNERSHIP.md
 
 # 3. Suyeon 담당 범위
 
-최수연 담당 확장 기능:
+> **현행(2026-11-24)**: Suyeon 담당은 **Assessment**(분석기 정확도 포함)다 — 0절 표 참고. 아래 3-1~3-5는 초기 설계의 기능으로 모두 **퇴역(legacy/retired)** 했으며 역사 기록으로 남긴다.
+
+최수연 담당 확장 기능(초기 설계, 퇴역):
 
 ```text
 Mentor Hub
@@ -127,6 +150,8 @@ backend/.../mentor/**
 ---
 
 ## 3-2. Mentor Surface
+
+> **퇴역(2026-11-16, A20)**: `frontend/mentor/` Workspace 는 삭제됐다. 아래는 당시 설계 기록이다.
 
 Mentor 본인이 사용하는 Surface.
 
@@ -520,6 +545,8 @@ Shared: 별도 합의
 
 Frontend는 Surface + Feature 기준으로 관리한다.
 
+> **현행(2026-11-24)**: Surface 는 `frontend/student`·`frontend/admin` 두 개뿐이고 Feature 는 `features/assessment`(Suyeon)·`features/student-care`(Wangyu, Admin) 이다. 아래 10-1~10-3의 `mentor-hub`·`school-admissions`·`feedback`·`student-management`·`parent-progress`·`mentor-management`·`frontend/mentor/**` 는 퇴역한 초기 예시, 10-4 `frontend/shared/` 는 **예정(현재 미생성)** 이다.
+
 ---
 
 ## 10-1. Student
@@ -554,10 +581,10 @@ Admin Sidebar / Header / Router 등 공통 Shell은 Shared 영향 영역이다.
 
 ---
 
-## 10-3. Mentor
+## 10-3. Mentor (퇴역 — 2026-11-16 삭제, 역사 기록)
 
 ```text
-frontend/mentor/**
+frontend/mentor/**   # 현재 없음
 ```
 
 기본 소유자:
@@ -570,7 +597,7 @@ Suyeon
 
 ---
 
-## 10-4. Frontend Shared
+## 10-4. Frontend Shared (예정 — 현재 미생성)
 
 ```text
 frontend/shared/
@@ -913,7 +940,7 @@ PR에서는 최소한 다음을 확인한다.
 
 ```text
 /docs/specs/suyeon/              @suyeon
-/frontend/mentor/                @suyeon
+/frontend/mentor/                @suyeon   # 퇴역 경로(현재 없음) — 초기 예시
 /frontend/student/src/features/mentor-hub/ @suyeon
 ```
 

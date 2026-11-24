@@ -15,8 +15,8 @@
 ```text
 frontend/student/**
 frontend/admin/**
-frontend/mentor/**
-frontend/shared/**
+frontend/mentor/**    # 퇴역(2026-11-16 삭제) — 초기 적용 대상 기록
+frontend/shared/**    # 예정(현재 미생성)
 
 backend/**
 database/**

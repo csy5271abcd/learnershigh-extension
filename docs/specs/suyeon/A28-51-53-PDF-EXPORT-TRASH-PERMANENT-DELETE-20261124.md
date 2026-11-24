@@ -99,3 +99,20 @@
 3. 제목·본문 글꼴은 한 가지 굵기(맑은 고딕 Regular) — 제목은 크기로만 구별.
 4. 휴지통의 결과물·자료·성장 기록 행은 영구 삭제 API 가 없어 '복구'만.
 5. §20-1·§12-1 은 DRAFT(팀 승인 별도). 간헐 실패 `SchoolInfoSelectionClassificationApiTest`(이전부터, 원인 미확정)는 이번 변경과 무관.
+
+---
+
+## 병합 후 상태 (2026-11-24 추가 — 위 본문은 작성 당시 기록으로 그대로 둔다)
+
+위 본문의 'PR #20 Draft · 자동 병합 안 함 · PR #17 Draft·미병합 · main `c03a1a4` 변경 없음'은 **작성 시점(2026-11-24 07시대 KST)의 사실**이다. 그 뒤 상태(2026-11-24 GitHub REST `pulls/{n}` 재조회):
+
+| PR | 상태 | merged_at (UTC) | merge commit |
+|---|---|---|---|
+| #18 (완규님 분석기·학교알리미 → integration) | merged | 2026-11-22T13:47:44Z | `b09ef4a` |
+| #19 (A28-29~50 → integration) | merged | 2026-11-23T21:19:03Z | `277047f` |
+| #20 (A28-51~53 → integration) | merged(Draft 에서 Ready 뒤 저장소 소유 계정이 병합) | 2026-11-23T22:46:43Z | `af593e9` |
+| #17 (integration → `main`) | merged | 2026-11-23T22:49:10Z | `5b9db4b` |
+
+- `main` = `5b9db4b`(부모 `c03a1a4`·`af593e9`), integration 과 **트리 동일**. 병합 전 `main` 이 integration 의 조상이라 충돌 해결 없는 병합이었다.
+- 증거 발생 시점 구분: 이 보고서 본문의 시험 수치는 병합 **전** 회차 실행이다. 병합 **후** `main` 기준 증거는 2026-11-24 병합 검증 회차(로컬 검증 증거 — 저장소 미포함 보고서 `POST-MERGE-MAIN-VERIFICATION-20261124.md`)에서 따로 얻었다: `main` CI run 45283275859 전부 success, main 과 코드가 같은 트리로 Backend 단위 480(실패 0)·Frontend verify PASS·Node 201/201·Assessment E2E 89/89·REPLAY 8/8, 사용자 DB Migration 31/31 체크섬 일치(추가 적용 없음).
+- 남은 상태: §20-1·§12-1 등 DRAFT 계약은 구현·병합됐지만 **팀 승인 전**. 간헐 실패 `SchoolInfoSelectionClassificationApiTest` 는 **미해결(Medium)**. 운영·배포·실제 로그인 연동은 1팀 담당. 정리 기록: `docs/specs/suyeon/POST-MERGE-DOCUMENT-CLEANUP-20261124.md`.

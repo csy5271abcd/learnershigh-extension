@@ -390,15 +390,19 @@ docs/specs/
 
 `docs/specs/wangyu/`에는 학생 케어(`features/student-care.md`)와 `domain.md`, `progress.md`가 있다.
 
-수연 담당 Feature Spec:
+수연 담당 Feature Spec(현행, 2026-11-24 `main` 기준 — Assessment):
 
 ```text
 docs/specs/suyeon/features/
-├─ mentor-hub.md
-├─ school-admissions.md
-├─ student-management.md
-└─ parent-progress.md
+├─ assessment-student.md
+├─ assessment-admin.md
+├─ assessment-feedback.md
+├─ assessment-inquiry.md
+└─ assessment-enrichment-content.md
 ```
+
+Assessment 문서 색인(현행 문서·회차 보고서 구분): `docs/specs/suyeon/README.md`.
+예전 `mentor-hub.md`·`school-admissions.md`·`student-management.md`·`parent-progress.md` 는 해당 기능이 퇴역해 삭제됐다(2026-11-13 `109140f`, Git 이력에 보존).
 
 Feature Spec에는 해당 기능의:
 
