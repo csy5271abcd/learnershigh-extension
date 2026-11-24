@@ -668,7 +668,8 @@ public final class RubricRules {
     /** 과목 평가표 뒤 세부 표들을 수행 항목별로 나눈다 (이름이 나온 표부터 다음 이름 전까지, 열마다 항목인 표는 열로 자른다). */
     public static List<List<SourceTable>> splitByItems(List<SourceTable> tables, List<String> names) {
         List<String> keys = names.stream().map(n -> {
-            String k = ns(n);
+            // '부모 › 자식' 이름은 자식(실제 과제 이름)으로 채점표를 찾는다
+            String k = ns(n.contains("›") ? n.substring(n.lastIndexOf('›') + 1) : n);
             return k.length() > 6 ? k.substring(0, 6) : k;
         }).toList();
         List<List<SourceTable>> out = new ArrayList<>();
@@ -722,14 +723,33 @@ public final class RubricRules {
                 }
             }
         }
-        if (hit) {
-            return out;
-        }
         List<Integer> starts = new ArrayList<>();
         for (int j = 0; j < tables.size(); j++) {
             if (taskHead(tables.get(j))) {
                 starts.add(j);
             }
+        }
+        if (hit) {
+            // 이름으로 일부만 찾았고 과제 머리 수가 항목 수와 같으면: 순서대로 나눈 결과가 이름으로 찾은 것과 맞을 때 빈 항목을 채운다
+            if (out.stream().anyMatch(List::isEmpty) && !names.isEmpty() && starts.size() == names.size()) {
+                List<List<SourceTable>> pos = new ArrayList<>();
+                for (int s = 0; s < starts.size(); s++) {
+                    int en = s + 1 < starts.size() ? starts.get(s + 1) : tables.size();
+                    pos.add(new ArrayList<>(tables.subList(starts.get(s), en)));
+                }
+                boolean agree = true;
+                for (int j = 0; j < out.size() && agree; j++) {
+                    agree = out.get(j).isEmpty() || pos.get(j).containsAll(out.get(j));
+                }
+                if (agree) {
+                    for (int j = 0; j < out.size(); j++) {
+                        if (out.get(j).isEmpty()) {
+                            out.set(j, pos.get(j));
+                        }
+                    }
+                }
+            }
+            return out;
         }
         if (!names.isEmpty() && starts.size() == names.size()) {
             for (int s = 0; s < starts.size(); s++) {
@@ -756,6 +776,10 @@ public final class RubricRules {
 
     /** 평가표에 수행 항목 이름이 없을 때: 과제 머리마다(없으면 채점 요소마다) 항목을 만든다. 최대 12개. */
     public static List<Detail> itemsFromDetails(List<SourceTable> tables) {
+        List<Detail> numbered = numberedTasks(tables);
+        if (!numbered.isEmpty()) {
+            return numbered.subList(0, Math.min(12, numbered.size()));
+        }
         List<Integer> starts = new ArrayList<>();
         for (int j = 0; j < tables.size(); j++) {
             if (taskHead(tables.get(j))) {
@@ -770,7 +794,8 @@ public final class RubricRules {
                 out.add(d);
             }
         }
-        if (!out.isEmpty()) {
+        // 과제 머리에서 성취기준 줄을 이름으로 읽었으면 과제 머리 대신 채점 요소 이름으로 나눈다
+        if (!out.isEmpty() && out.stream().allMatch(d -> !NOT_TASK_NAME.matcher(d.taskName.strip()).find())) {
             return out.subList(0, Math.min(12, out.size()));
         }
         Map<String, Detail> merged = new LinkedHashMap<>();
@@ -794,5 +819,195 @@ public final class RubricRules {
         }
         List<Detail> list = new ArrayList<>(merged.values());
         return list.subList(0, Math.min(12, list.size()));
+    }
+
+    static final Pattern TASK_HEAD = Pattern.compile("^(평가\\s*내용(\\s*및\\s*방법)?|평가\\s*과제|수행\\s*과제|과제(\\s*명)?|평가\\s*명|평가\\s*영역\\s*명?)(\\s*[(（]\\s*배\\s*점\\s*[)）])?$");
+    /** 과제마다 학기말 반영 비율이 적힌 칸 (값이 곧 반영 비율) */
+    static final Pattern RATIO_HEAD = Pattern.compile("^(학기말\\s*)?(종합\\s*)?(기말\\s*)?반영\\s*비율(\\s*[(（]\\s*%\\s*[)）])?$");
+    static final Pattern MAX_HEAD = Pattern.compile("^(배점|만점|영역\\s*만점)$");
+    static final Pattern WHOLE_NUM = Pattern.compile("^(\\d{1,3})\\s*점?$");
+    static final Pattern KV_NAME = Pattern.compile("^(영역명|평가영역명|과제명|평가명|수행과제명?|평가과제명?)$");
+    static final Pattern KV_RATIO = Pattern.compile("^반영비율(\\(%\\))?$");
+
+    /**
+     * 세부 표에 과제 이름과 배점이 나열된 경우의 과제 목록 (평가표에는 서·논술형/그 외 비율만 있을 때 쓴다).
+     * (1) 머리 줄에 '평가내용·과제' 칸과 '배점·만점' 칸이 있는 표의 다음 줄들
+     * (2) 머리가 없는 채점 격자: 한 칸 값이 이웃한 세 줄 이상에 되풀이되고 바로 오른쪽 칸이 같은 정수(만점)인 묶음
+     * 과제가 둘 이상일 때만 돌려준다. 이름 앞 '[서논술형]'·뒤 '(15점)'은 뗀다.
+     */
+    public static List<Detail> listedTasks(List<SourceTable> tables) {
+        return listedTasks(tables, false);
+    }
+
+    /** ratioOnly: 과제마다 '반영 비율'이 명시된 표(이름·반영비율 칸, 반영 비율 열)만 본다. 배점 열·채점 격자는 쓰지 않는다. */
+    public static List<Detail> listedTasks(List<SourceTable> tables, boolean ratioOnly) {
+        Map<String, Detail> out = new LinkedHashMap<>();
+        for (SourceTable t : tables) {
+            List<List<String>> g = t.cells();
+            if (g.isEmpty()) {
+                continue;
+            }
+            // (3) 과제마다 한 표: '영역명 | 과제 이름' 칸과 '반영비율(%) | 10' 칸
+            String kvName = null;
+            Double kvRatio = null;
+            for (List<String> r : g) {
+                for (int c = 0; c + 1 < r.size(); c++) {
+                    String k = r.get(c).replaceAll("\\s+", "");
+                    if (kvName == null && KV_NAME.matcher(k).matches()) {
+                        String v = taskLabel(r.get(c + 1), 80);   // 과제별 표의 과제 이름 칸은 긴 문장이 흔하다
+                        kvName = v.isEmpty() ? null : v;
+                    } else if (kvRatio == null && KV_RATIO.matcher(k).matches()) {
+                        Matcher m = WHOLE_NUM.matcher(r.get(c + 1).replace("%", "").strip());
+                        kvRatio = m.matches() ? Double.parseDouble(m.group(1)) : null;
+                    }
+                }
+            }
+            if (kvName != null && kvRatio != null) {
+                addTask(out, kvName, kvRatio, t);
+                continue;
+            }
+            int nc = -1;
+            int mc = -1;
+            int rc = -1;
+            List<String> head = g.get(0);
+            for (int c = 0; c < head.size(); c++) {
+                String h = head.get(c).replaceAll("\\s+", " ").strip();
+                if (nc < 0 && TASK_HEAD.matcher(h).matches()) {
+                    nc = c;
+                } else if (mc < 0 && MAX_HEAD.matcher(h).matches()) {
+                    mc = c;
+                } else if (rc < 0 && RATIO_HEAD.matcher(h).matches()) {
+                    rc = c;
+                }
+            }
+            if (mc < 0 || ratioOnly) {
+                mc = rc;   // 배점 칸이 없으면 과제별 반영 비율 칸
+            }
+            if (ratioOnly && (nc < 0 || mc < 0)) {
+                continue;   // 배점 열·채점 격자는 반영 비율이 아니다
+            }
+            if (nc >= 0 && mc >= 0) {
+                for (List<String> r : g.subList(1, g.size())) {
+                    if (r.size() <= Math.max(nc, mc)) {
+                        continue;
+                    }
+                    Matcher m = WHOLE_NUM.matcher(r.get(mc).replace("%", "").strip());
+                    String name = taskLabel(r.get(nc));
+                    if (m.matches() && !name.isEmpty()) {
+                        addTask(out, name, Double.parseDouble(m.group(1)), t);
+                    }
+                }
+                continue;
+            }
+            // 머리 없는 채점 격자
+            for (int c = 0; c + 1 < Math.min(4, head.size()); c++) {
+                Map<String, Detail> grid = new LinkedHashMap<>();
+                int i = 0;
+                boolean ok = true;
+                while (i < g.size()) {
+                    List<String> r = g.get(i);
+                    String v = c + 1 < r.size() ? r.get(c).strip() : "";
+                    String mx = c + 1 < r.size() ? r.get(c + 1).strip() : "";
+                    Matcher m = WHOLE_NUM.matcher(mx);
+                    int j = i;
+                    while (m.matches() && !v.isEmpty() && j + 1 < g.size() && c + 1 < g.get(j + 1).size()
+                            && g.get(j + 1).get(c).strip().equals(v) && g.get(j + 1).get(c + 1).strip().equals(mx)) {
+                        j++;
+                    }
+                    if (j - i >= 2 && m.matches()) {
+                        String name = taskLabel(v);
+                        if (name.isEmpty() || grid.containsKey(ns(name))) {
+                            ok = false;
+                            break;
+                        }
+                        addTask(grid, name, Double.parseDouble(m.group(1)), t);
+                    }
+                    i = j + 1;
+                }
+                if (ok && grid.size() >= 2) {
+                    grid.forEach(out::putIfAbsent);
+                    break;
+                }
+            }
+        }
+        return out.size() >= 2 ? new ArrayList<>(out.values()) : List.of();
+    }
+
+    private static String taskLabel(String cell) {
+        return taskLabel(cell, 45);
+    }
+
+    private static String taskLabel(String cell, int maxLen) {
+        String s = cell.replaceAll("[\\uE000-\\uF8FF]", " ").replaceAll("\\s+", " ").strip();   // 글머리 기호 글꼴의 사용자 정의 문자
+        s = s.replaceFirst("^[\\[［<〈【][^\\]］>〉】]{1,12}[\\]］>〉】]\\s*", "");
+        s = s.replaceFirst("\\s*[(（]\\s*\\d{1,3}\\s*점?\\s*[)）]\\s*$", "").strip();
+        // 채점 요소 나열('1) 과제 완성 2) …')이나 긴 설명문은 과제 이름이 아니다
+        if (s.length() < 2 || s.length() > maxLen || NOT_TASK_NAME.matcher(s).find() || s.matches("[\\d\\s.~점%-]+")
+                || s.matches("^[\\d①-⑳]+\\s*[).].*|^[-•◆▶‣∘·※].*")) {
+            return "";
+        }
+        return s;
+    }
+
+    private static void addTask(Map<String, Detail> out, String name, double max, SourceTable t) {
+        Detail d = new Detail();
+        d.taskName = name;
+        d.maxScore = max;
+        d.sources.add(t);
+        Detail prev = out.putIfAbsent(ns(name), d);
+        if (prev != null && prev.sources.stream().noneMatch(x -> x == t)) {
+            prev.sources.add(t);   // 같은 과제 표가 되풀이된 경우 (병합 칸 복제로 같은 표가 두 번 읽힘)
+        }
+    }
+
+    /** 세부 표 과제 이름으로 쓸 수 없는 머리: 성취기준·성취수준·평가영역 표제, 성취기준 코드. */
+    static final Pattern NOT_TASK_NAME = Pattern.compile(
+            "^(성취\\s*기준|영역별\\s*성취|성취\\s*수준|평가\\s*영역$|평가\\s*요소$|채점\\s*(요소|기준)|평가\\s*항목|평가\\s*내용|평가\\s*유형|평가\\s*방법|시기\\s*평가|배점|"
+            + "\\[?\\s*\\d{1,2}\\s*[가-힣ⅠⅡ]{1,6}\\s*\\d?\\s*-?\\s*\\d{2}\\s*-\\s*\\d{2})");
+
+    /** '수행 과제1 (5) | 독서 일지' 처럼 첫 칸이 번호 붙은 과제(만점)이고 둘째 칸이 과제 이름인 줄. */
+    static final Pattern NUMBERED_TASK = Pattern.compile("^((?:수행\\s*)?(?:과제|평가)\\s*\\d{1,2})\\s*[(（]\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*점?\\s*[)）]$");
+
+    /** 번호 붙은 과제 줄로 항목을 만든다. 채점 요소는 요소 이름 앞머리(수행 과제N)로 붙인다. 없으면 빈 목록. */
+    static List<Detail> numberedTasks(List<SourceTable> tables) {
+        Map<String, Detail> byTask = new LinkedHashMap<>();
+        for (SourceTable t : tables) {
+            for (List<String> r : t.cells()) {
+                if (r.size() < 2) {
+                    continue;
+                }
+                Matcher m = NUMBERED_TASK.matcher(sp(r.get(0)));
+                String name = sp(r.get(1));
+                if (!m.matches() || ns(name).isEmpty() || NUMBERED_TASK.matcher(name).matches()) {
+                    continue;
+                }
+                Detail d = byTask.computeIfAbsent(ns(m.group(1)), k -> {
+                    Detail nd = new Detail();
+                    nd.taskName = name;
+                    nd.maxScore = Double.valueOf(m.group(2));
+                    nd.sources.add(t);
+                    nd.rubricSource = t;
+                    return nd;
+                });
+                if (!d.sources.contains(t)) {
+                    d.sources.add(t);
+                }
+            }
+        }
+        if (byTask.isEmpty()) {
+            return List.of();
+        }
+        for (SourceTable t : tables) {
+            for (Element e : detailFor(List.of(t)).rubric) {
+                String head = ns(e.element().split(" › ")[0]);
+                for (Map.Entry<String, Detail> en : byTask.entrySet()) {
+                    if (head.startsWith(en.getKey()) && (head.length() == en.getKey().length() || !Character.isDigit(head.charAt(en.getKey().length())))) {
+                        en.getValue().rubric.add(e);
+                        break;
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(byTask.values());
     }
 }

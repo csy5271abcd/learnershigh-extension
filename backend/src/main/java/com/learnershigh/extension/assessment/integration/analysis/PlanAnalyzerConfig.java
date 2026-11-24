@@ -33,6 +33,7 @@ public class PlanAnalyzerConfig {
             @Value("${assessment.analyzer.mode:local}") String mode,
             @Value("${assessment.analyzer.timeout-millis:130000}") long timeoutMillis,
             @Value("${assessment.analyzer.ocr:auto}") String ocrMode,
+            @Value("${assessment.analyzer.extractor:rules}") String extractor,
             @Value("${assessment.analyzer.stub.base-url:}") String stubBaseUrl,
             @Value("${assessment.analyzer.stub.token:}") String stubToken,
             JsonMapper mapper) {
@@ -55,7 +56,9 @@ public class PlanAnalyzerConfig {
         }
         // 스캔본 PDF: auto = Tesseract 가 있으면 Tesseract, Windows 면 내장 OCR, 둘 다 없으면 읽지 않음
         var ocr = ScanOcr.engine(ocrMode);
-        log.info("plan analyzer: local (ocr={})", ocr == null ? "none" : ocr.name());
-        return new LocalPlanAnalyzer(mapper, timeoutMillis, ocr);
+        // 추출 규칙: rules(기본, extract/) 또는 simple(큰 틀 하나, simple/ — 시험 중)
+        boolean simple = "simple".equalsIgnoreCase(extractor);
+        log.info("plan analyzer: local (ocr={}, extractor={})", ocr == null ? "none" : ocr.name(), simple ? "simple" : "rules");
+        return new LocalPlanAnalyzer(mapper, timeoutMillis, ocr, simple);
     }
 }

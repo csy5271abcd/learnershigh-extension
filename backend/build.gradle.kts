@@ -54,6 +54,7 @@ tasks.processResources {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    maxHeapSize = "4g"
 }
 
 // 일반 Test(build에 포함)는 DB / Docker 없이 실행된다.

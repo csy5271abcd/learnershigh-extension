@@ -470,7 +470,7 @@ export function SyncText({ sync, onRetry }: { sync: SyncState; onRetry: () => vo
     case 'load-error':
       return <span className={styles.statusText} data-tone="danger" data-testid="review-draft-status">서버 초안을 불러오지 못했어요 · {sync.message}</span>
     case 'idle':
-      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">바꾸면 서버에 자동으로 임시 저장돼요(학생 공개 아님)</span>
+      return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">자동 저장</span>
     case 'dirty':
       return <span className={styles.statusText} data-tone="neutral" data-testid="review-draft-status">서버 저장 전 · 이 브라우저에만 백업</span>
     case 'saving':

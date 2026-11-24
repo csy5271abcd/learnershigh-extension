@@ -52,10 +52,10 @@ class PlanAnalyzerYamlConfigTest {
     void 알_수_없는_분석_방식은_기동하지_않는다() {
         PlanAnalyzerConfig config = new PlanAnalyzerConfig();
         JsonMapper mapper = JsonMapper.builder().build();
-        assertThat(config.planAnalyzerClient("none", 1000, "none", "", "", mapper).configured()).isFalse();
-        assertThat(config.planAnalyzerClient("local", 1000, "none", "", "", mapper)).isInstanceOf(com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer.class);
+        assertThat(config.planAnalyzerClient("none", 1000, "none", "rules", "", "", mapper).configured()).isFalse();
+        assertThat(config.planAnalyzerClient("local", 1000, "none", "rules", "", "", mapper)).isInstanceOf(com.learnershigh.extension.assessment.service.plan.LocalPlanAnalyzer.class);
         // 퇴역한 외부 분석기 모드(http)는 없다
-        assertThatThrownBy(() -> config.planAnalyzerClient("http", 1000, "none", "https://example.org", "t", mapper)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> config.planAnalyzerClient("http", 1000, "none", "rules", "https://example.org", "t", mapper)).isInstanceOf(IllegalStateException.class);
     }
 
     /** A27-UX 통합: E2E 전용 loopback-stub은 같은 컴퓨터 주소만 — 원격 분석기(예: Railway)로는 시작하지 않는다 */
@@ -63,11 +63,11 @@ class PlanAnalyzerYamlConfigTest {
     void E2E_Stub_모드는_같은_컴퓨터_주소만_허용한다() {
         PlanAnalyzerConfig config = new PlanAnalyzerConfig();
         JsonMapper mapper = JsonMapper.builder().build();
-        assertThat(config.planAnalyzerClient("loopback-stub", 1000, "none", "http://127.0.0.1:18768", "e2e-token", mapper)).isInstanceOf(HttpPlanAnalyzerClient.class);
-        assertThat(config.planAnalyzerClient("loopback-stub", 1000, "none", "http://localhost:18768/", "e2e-token", mapper)).isInstanceOf(HttpPlanAnalyzerClient.class);
-        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "https://learnershigh-assessment-analyzer-production.up.railway.app", "t", mapper))
+        assertThat(config.planAnalyzerClient("loopback-stub", 1000, "none", "rules", "http://127.0.0.1:18768", "e2e-token", mapper)).isInstanceOf(HttpPlanAnalyzerClient.class);
+        assertThat(config.planAnalyzerClient("loopback-stub", 1000, "none", "rules", "http://localhost:18768/", "e2e-token", mapper)).isInstanceOf(HttpPlanAnalyzerClient.class);
+        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "rules", "https://learnershigh-assessment-analyzer-production.up.railway.app", "t", mapper))
                 .isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "http://10.0.0.5:18768", "t", mapper)).isInstanceOf(IllegalStateException.class);
-        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "http://127.0.0.1:18768", "", mapper)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "rules", "http://10.0.0.5:18768", "t", mapper)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> config.planAnalyzerClient("loopback-stub", 1000, "none", "rules", "http://127.0.0.1:18768", "", mapper)).isInstanceOf(IllegalStateException.class);
     }
 }
